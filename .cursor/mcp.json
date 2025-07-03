@@ -1,0 +1,101 @@
+{
+  "mcpServers": {
+    "openapi": {
+      "command": "fastapi-mcp-server",
+      "args": [
+        "--spec",
+        "apps/backend/app/openapi.json"
+      ],
+      "env": {}
+    },
+    "env": {
+      "command": "mcp-file-server",
+      "args": [
+        "--root",
+        ".",
+        "--include",
+        "env.example"
+      ],
+      "env": {}
+    },
+    "db": {
+      "command": "mcp-postgres-server",
+      "args": [
+        "--url",
+        "postgres://${POSTGRES_USER:-awade_user}:${POSTGRES_PASSWORD:-awade_password}@localhost:5432/${POSTGRES_DB:-awade}",
+        "--introspect"
+      ],
+      "env": {}
+    },
+    "docs": {
+      "command": "mcp-markdown-server",
+      "args": [
+        "--root",
+        ".",
+        "--include",
+        "README.md",
+        "awade_design_brief.md",
+        "SECURITY.md",
+        "AI_USE_POLICY.md",
+        "LICENSE.md",
+        "docs/**/*.md",
+        "packages/**/*.md",
+        "apps/**/*.md"
+      ],
+      "env": {}
+    },
+    "internal": {
+      "command": "mcp-markdown-server",
+      "args": [
+        "--root",
+        ".",
+        "--include",
+        "docs/internal/**/*.md",
+        "docs/development/**/*.md",
+        "docs/api/**/*.md",
+        "docs/deployment/**/*.md"
+      ],
+      "env": {}
+    },
+    "external": {
+      "command": "mcp-markdown-server",
+      "args": [
+        "--root",
+        ".",
+        "--include",
+        "docs/external/**/*.md",
+        "docs/user-guide/**/*.md"
+      ],
+      "env": {}
+    },
+    "design": {
+      "command": "mcp-markdown-server",
+      "args": [
+        "--root",
+        ".",
+        "--include",
+        "README.md",
+        "awade_design_brief.md"
+      ],
+      "env": {}
+    },
+    "code": {
+      "command": "mcp-file-server",
+      "args": [
+        "--root",
+        ".",
+        "--include",
+        "apps/**/*.py",
+        "apps/**/*.js",
+        "apps/**/*.jsx",
+        "apps/**/*.ts",
+        "apps/**/*.tsx",
+        "packages/**/*.py",
+        "packages/**/*.js",
+        "scripts/**/*.sh",
+        "scripts/**/*.py"
+      ],
+      "env": {}
+    }
+  }
+} 

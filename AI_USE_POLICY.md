@@ -11,7 +11,7 @@ Awade is committed to ethical, community-first AI development. As part of this m
 - Use the platform as intended for **human learning**, non-commercial adaptation, translation, and contribution.
 
 ### Exceptions
-If you are conducting **AI-related research that directly benefits open education or the Awade project**, you must request written permission from the core team. Contact us at [email@email.com].
+If you are conducting **AI-related research that directly benefits open education or the Awade project**, you must request written permission from the core team. Contact us at via GitHub issues.
 
 Violations of this policy are considered a breach of license and may lead to takedown notices and legal consequences.
 

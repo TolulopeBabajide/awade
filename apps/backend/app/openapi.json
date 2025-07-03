@@ -1,0 +1,417 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Awade API",
+    "description": "AI-powered educator support platform for African teachers",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lesson-plans/generate": {
+      "post": {
+        "summary": "Generate Lesson Plan",
+        "description": "Generate an AI-powered lesson plan based on subject, grade, and objectives.",
+        "operationId": "generate_lesson_plan_api_lesson_plans_generate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LessonPlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonPlan"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lesson-plans": {
+      "get": {
+        "summary": "Get Lesson Plans",
+        "description": "Retrieve all saved lesson plans.",
+        "operationId": "get_lesson_plans_api_lesson_plans_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/LessonPlan"
+                  },
+                  "type": "array",
+                  "title": "Response Get Lesson Plans Api Lesson Plans Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lesson-plans/{plan_id}": {
+      "get": {
+        "summary": "Get Lesson Plan",
+        "description": "Retrieve a specific lesson plan by ID.",
+        "operationId": "get_lesson_plan_api_lesson_plans__plan_id__get",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Plan Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonPlan"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/training-modules": {
+      "get": {
+        "summary": "Get Training Modules",
+        "description": "Retrieve all available training modules.",
+        "operationId": "get_training_modules_api_training_modules_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TrainingModule"
+                  },
+                  "type": "array",
+                  "title": "Response Get Training Modules Api Training Modules Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/training-modules/{module_id}": {
+      "get": {
+        "summary": "Get Training Module",
+        "description": "Retrieve a specific training module by ID.",
+        "operationId": "get_training_module_api_training_modules__module_id__get",
+        "parameters": [
+          {
+            "name": "module_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Module Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrainingModule"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "LessonPlan": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "grade": {
+            "type": "string",
+            "title": "Grade"
+          },
+          "objectives": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Objectives"
+          },
+          "activities": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Activities"
+          },
+          "materials": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Materials"
+          },
+          "assessment": {
+            "type": "string",
+            "title": "Assessment"
+          },
+          "rationale": {
+            "type": "string",
+            "title": "Rationale"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "subject",
+          "grade",
+          "objectives",
+          "activities",
+          "materials",
+          "assessment",
+          "rationale",
+          "created_at"
+        ],
+        "title": "LessonPlan"
+      },
+      "LessonPlanRequest": {
+        "properties": {
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "grade": {
+            "type": "string",
+            "title": "Grade"
+          },
+          "objectives": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Objectives"
+          },
+          "duration": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration",
+            "default": 45
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language",
+            "default": "en"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subject",
+          "grade",
+          "objectives"
+        ],
+        "title": "LessonPlanRequest"
+      },
+      "TrainingModule": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language"
+          },
+          "is_offline": {
+            "type": "boolean",
+            "title": "Is Offline"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "description",
+          "duration",
+          "category",
+          "language",
+          "is_offline"
+        ],
+        "title": "TrainingModule"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
