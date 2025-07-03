@@ -1,0 +1,470 @@
+{
+  "version": "1.0.0",
+  "description": "API Contracts for Awade Platform",
+  "contracts": {
+    "lesson_plans": {
+      "create_lesson_plan": {
+        "endpoint": "/api/lesson-plans",
+        "method": "POST",
+        "request_schema": {
+          "type": "object",
+          "required": ["subject", "grade_level", "objectives"],
+          "properties": {
+            "subject": {
+              "type": "string",
+              "enum": ["Mathematics", "Science", "English", "History", "Geography", "Art", "Music", "Physical Education"]
+            },
+            "grade_level": {
+              "type": "string",
+              "pattern": "^Grade [1-9]$|^Grade 1[0-2]$"
+            },
+            "objectives": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "maxItems": 5
+            },
+            "duration": {
+              "type": "integer",
+              "minimum": 15,
+              "maximum": 120
+            },
+            "language": {
+              "type": "string",
+              "enum": ["en", "fr", "sw", "yo", "ig", "ha"]
+            },
+            "cultural_context": {
+              "type": "string",
+              "maxLength": 500
+            }
+          }
+        },
+        "response_schema": {
+          "type": "object",
+          "required": ["id", "title", "subject", "grade_level", "objectives", "activities", "materials", "assessment"],
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "title": {
+              "type": "string"
+            },
+            "subject": {
+              "type": "string"
+            },
+            "grade_level": {
+              "type": "string"
+            },
+            "objectives": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "activities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "duration": {
+                    "type": "integer"
+                  },
+                  "materials": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "materials": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "assessment": {
+              "type": "string"
+            },
+            "rationale": {
+              "type": "string"
+            },
+            "ai_generated": {
+              "type": "boolean"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "expected_status": 201
+      },
+      "get_lesson_plans": {
+        "endpoint": "/api/lesson-plans",
+        "method": "GET",
+        "request_schema": {
+          "type": "object",
+          "properties": {
+            "subject": {
+              "type": "string"
+            },
+            "grade_level": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "offset": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "response_schema": {
+          "type": "object",
+          "required": ["lesson_plans", "total", "limit", "offset"],
+          "properties": {
+            "lesson_plans": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "subject": {
+                    "type": "string"
+                  },
+                  "grade_level": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "total": {
+              "type": "integer"
+            },
+            "limit": {
+              "type": "integer"
+            },
+            "offset": {
+              "type": "integer"
+            }
+          }
+        },
+        "expected_status": 200
+      }
+    },
+    "training_modules": {
+      "get_modules": {
+        "endpoint": "/api/training-modules",
+        "method": "GET",
+        "request_schema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": ["classroom_management", "pedagogy", "technology", "assessment", "cultural_relevance", "special_needs", "leadership"]
+            },
+            "language": {
+              "type": "string"
+            },
+            "duration_min": {
+              "type": "integer"
+            },
+            "duration_max": {
+              "type": "integer"
+            }
+          }
+        },
+        "response_schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "title", "description", "category", "duration", "language"],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "category": {
+                "type": "string"
+              },
+              "duration": {
+                "type": "integer"
+              },
+              "language": {
+                "type": "string"
+              },
+              "objectives": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "is_offline": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      },
+      "get_module": {
+        "endpoint": "/api/training-modules/{module_id}",
+        "method": "GET",
+        "request_schema": {},
+        "response_schema": {
+          "type": "object",
+          "required": ["id", "title", "description", "content", "objectives"],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "category": {
+              "type": "string"
+            },
+            "duration": {
+              "type": "integer"
+            },
+            "language": {
+              "type": "string"
+            },
+            "content": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": ["text", "video", "quiz", "reflection"]
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string"
+                  },
+                  "duration": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "objectives": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      }
+    },
+    "user_progress": {
+      "update_progress": {
+        "endpoint": "/api/user-progress",
+        "method": "POST",
+        "request_schema": {
+          "type": "object",
+          "required": ["module_id", "status"],
+          "properties": {
+            "module_id": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": ["not_started", "in_progress", "completed"]
+            },
+            "progress_percentage": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "time_spent": {
+              "type": "integer"
+            },
+            "reflection": {
+              "type": "string"
+            }
+          }
+        },
+        "response_schema": {
+          "type": "object",
+          "required": ["id", "module_id", "status", "progress_percentage"],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "module_id": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "progress_percentage": {
+              "type": "integer"
+            },
+            "time_spent": {
+              "type": "integer"
+            },
+            "completed_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "expected_status": 200
+      },
+      "get_progress": {
+        "endpoint": "/api/user-progress",
+        "method": "GET",
+        "request_schema": {
+          "type": "object",
+          "properties": {
+            "module_id": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            }
+          }
+        },
+        "response_schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "module_id": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "progress_percentage": {
+                "type": "integer"
+              },
+              "time_spent": {
+                "type": "integer"
+              },
+              "completed_at": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      }
+    },
+    "bookmarks": {
+      "create_bookmark": {
+        "endpoint": "/api/bookmarks",
+        "method": "POST",
+        "request_schema": {
+          "type": "object",
+          "required": ["content_type", "content_id"],
+          "properties": {
+            "content_type": {
+              "type": "string",
+              "enum": ["lesson_plan", "training_module"]
+            },
+            "content_id": {
+              "type": "string"
+            },
+            "notes": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "response_schema": {
+          "type": "object",
+          "required": ["id", "content_type", "content_id", "created_at"],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "content_type": {
+              "type": "string"
+            },
+            "content_id": {
+              "type": "string"
+            },
+            "notes": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "expected_status": 201
+      }
+    }
+  },
+  "test_configuration": {
+    "base_url": "http://localhost:8000",
+    "timeout": 30,
+    "retry_attempts": 3,
+    "parallel_tests": false,
+    "generate_samples": true,
+    "validate_responses": true,
+    "save_reports": true
+  },
+  "metadata": {
+    "last_updated": "2024-01-01T00:00:00Z",
+    "version": "1.0.0",
+    "maintainer": "Awade Development Team",
+    "description": "API contract definitions for the Awade platform"
+  }
+} 

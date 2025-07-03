@@ -65,6 +65,10 @@ jobs:
         cd apps/backend
         pip install -r requirements.txt
         
+    - name: Install contract testing dependencies
+      run: |
+        pip install jsonschema requests
+        
     - name: Run backend tests
       run: |
         cd apps/backend
@@ -107,6 +111,43 @@ jobs:
         cd apps/frontend
         npm run build || echo "⚠️  No build script found"
 
+  # Contract Testing
+  contract-test:
+    name: 📋 Contract Tests
+    runs-on: ubuntu-latest
+    needs: [validate, backend-test]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Install contract testing dependencies
+      run: |
+        pip install jsonschema requests
+        
+    - name: Start backend server
+      run: |
+        cd apps/backend
+        nohup uvicorn main:app --host 0.0.0.0 --port 8000 > server.log 2>&1 &
+        sleep 10
+        
+    - name: Run contract tests
+      run: |
+        python scripts/contract_testing.py --base-url http://localhost:8000 --save
+        
+    - name: Upload contract test report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: contract-test-report
+        path: logs/contract_test_report.json
+        retention-days: 30
+
   # Security and Quality Checks
   security:
     name: 🔒 Security & Quality
@@ -143,7 +184,7 @@ jobs:
   deploy:
     name: 🚀 Deploy
     runs-on: ubuntu-latest
-    needs: [validate, backend-test, frontend-test, security]
+    needs: [validate, backend-test, frontend-test, contract-test, security]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     
     steps:
@@ -189,7 +230,7 @@ jobs:
   summary:
     name: 📊 Summary
     runs-on: ubuntu-latest
-    needs: [validate, backend-test, frontend-test, security, deploy]
+    needs: [validate, backend-test, frontend-test, contract-test, security, deploy]
     if: always()
     
     steps:
@@ -218,6 +259,12 @@ jobs:
           echo "- ✅ Frontend tests" >> $GITHUB_STEP_SUMMARY
         else
           echo "- ❌ Frontend tests" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.contract-test.result }}" == "success" ]; then
+          echo "- ✅ Contract tests" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- ❌ Contract tests" >> $GITHUB_STEP_SUMMARY
         fi
         
         if [ "${{ needs.security.result }}" == "success" ]; then
