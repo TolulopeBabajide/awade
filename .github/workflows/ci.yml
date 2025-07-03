@@ -177,15 +177,9 @@ jobs:
       run: |
         pip install jsonschema requests
         
-    - name: Start backend server
-      run: |
-        cd apps/backend
-        nohup uvicorn main:app --host 0.0.0.0 --port 8000 > server.log 2>&1 &
-        sleep 10
-        
     - name: Run contract tests
       run: |
-        python scripts/contract_testing.py --base-url http://localhost:8000 --save
+        python scripts/contract_testing.py --base-url http://localhost:8000 --start-server --save
         
     - name: Upload contract test report
       uses: actions/upload-artifact@v4
