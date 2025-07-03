@@ -111,6 +111,53 @@ jobs:
         cd apps/frontend
         npm run build || echo "⚠️  No build script found"
 
+  # Documentation Coverage
+  doc-coverage:
+    name: 📚 Documentation Coverage
+    runs-on: ubuntu-latest
+    needs: validate
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Run documentation coverage analysis
+      run: |
+        python scripts/doc_coverage.py --save
+        
+    - name: Generate HTML dashboard
+      run: |
+        python scripts/generate_coverage_dashboard.py
+        
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: doc-coverage-reports
+        path: |
+          logs/doc_coverage_report.json
+          logs/coverage_dashboard.html
+        retention-days: 30
+        
+    - name: Check coverage threshold
+      run: |
+        python -c "
+        import json
+        with open('logs/doc_coverage_report.json', 'r') as f:
+            report = json.load(f)
+        coverage = report['coverage_percentage']
+        if coverage < 70:
+            print(f'❌ Documentation coverage {coverage:.1f}% is below 70% threshold')
+            exit(1)
+        else:
+            print(f'✅ Documentation coverage {coverage:.1f}% meets threshold')
+        "
+
   # Contract Testing
   contract-test:
     name: 📋 Contract Tests
