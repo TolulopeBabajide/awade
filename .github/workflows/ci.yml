@@ -89,6 +89,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
+    - name: Ensure package-lock.json exists
+      run: |
+        if [ ! -f apps/frontend/package-lock.json ]; then
+          echo "❌ apps/frontend/package-lock.json is missing. Please run 'npm install' in apps/frontend and commit the lockfile." && exit 1
+        fi
+      
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
