@@ -181,7 +181,7 @@ jobs:
         
     - name: Install contract testing dependencies
       run: |
-        pip install jsonschema requests
+        pip install jsonschema requests uvicorn
         
     - name: Run contract tests
       run: |
