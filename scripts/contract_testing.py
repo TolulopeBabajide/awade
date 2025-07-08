@@ -363,24 +363,41 @@ def main():
     if args.start_server:
         print("🚀 Starting backend server...")
         try:
+            # Set default environment variables to avoid startup issues
+            env = os.environ.copy()
+            env.update({
+                'DEBUG': 'True',
+                'ENVIRONMENT': 'development',
+                'DATABASE_URL': 'sqlite:///./test.db',  # Use SQLite for testing
+                'SECRET_KEY': 'test_secret_key',
+                'OPENAI_API_KEY': 'test_key'
+            })
+            
             # Start server in background
             server_process = subprocess.Popen([
                 "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"
-            ], cwd="apps/backend", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            ], cwd="apps/backend", stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)
             
             # Wait for server to be ready
-            max_retries = 10
+            max_retries = 15  # Increased retries
             for i in range(max_retries):
                 try:
-                    response = requests.get("http://localhost:8000/health", timeout=2)
+                    response = requests.get("http://localhost:8000/health", timeout=3)
                     if response.status_code == 200:
                         print("✅ Backend server is ready")
                         break
                 except requests.RequestException:
                     if i < max_retries - 1:
-                        time.sleep(1)
+                        time.sleep(2)  # Increased wait time
                     else:
                         print("⚠️  Server startup timed out, continuing with tests...")
+                        # Check if server process is still running
+                        if server_process.poll() is not None:
+                            stdout, stderr = server_process.communicate()
+                            print(f"⚠️  Server failed to start. stdout: {stdout.decode()}")
+                            print(f"⚠️  Server failed to start. stderr: {stderr.decode()}")
+                        else:
+                            print("⚠️  Server process is running but not responding")
         except Exception as e:
             print(f"⚠️  Could not start server: {e}")
     
