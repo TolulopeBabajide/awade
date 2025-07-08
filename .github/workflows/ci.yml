@@ -182,6 +182,8 @@ jobs:
     - name: Install contract testing dependencies
       run: |
         pip install jsonschema requests uvicorn
+        cd apps/backend
+        pip install -r requirements.txt
         
     - name: Run contract tests
       run: |
