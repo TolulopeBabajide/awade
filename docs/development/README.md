@@ -96,13 +96,50 @@ export DATABASE_URL="postgres://user:pass@localhost:5432/awade"
 ```
 
 ### 2. Backend Development
+
+#### Import Structure
+The backend uses a **flat import structure** for compatibility with both script execution and module imports. This ensures the backend can be run from any directory and works with contract testing.
+
+**Key Points:**
+- All imports use flat paths (e.g., `from models import ...`, `from database import ...`)
+- Python path is automatically adjusted in `main.py` and router files
+- Services and utilities use relative imports within their packages
+- This structure works for both development and production environments
+
+**Import Examples:**
+```python
+# ✅ Correct - Flat imports (used in main.py and routers)
+from models import LessonPlan, User
+from database import get_db
+from services.curriculum_service import CurriculumService
+
+# ✅ Correct - Relative imports (used within packages)
+from ..models import CurriculumMap
+from ..database import get_db
+
+# ❌ Avoid - Absolute imports that break in script mode
+from apps.backend.models import LessonPlan
+```
+
+#### Starting the Backend
 ```bash
 # Start the backend server
 cd apps/backend
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
+# Or from project root (imports will work correctly)
+cd /path/to/awade
+uvicorn apps.backend.main:app --reload --host 0.0.0.0 --port 8000
+
 # Access API documentation
 open http://localhost:8000/docs
+```
+
+#### Contract Testing
+The flat import structure enables contract testing to work properly:
+```bash
+# Run contract tests (will start backend automatically)
+python scripts/contract_testing.py --base-url http://localhost:8000 --start-server --save
 ```
 
 ### 3. Frontend Development
@@ -325,6 +362,63 @@ To set up the initial database tables and seed users:
 ## 🆘 Troubleshooting
 
 ### Common Issues
+
+#### Backend Import Issues
+
+**Problem**: `ModuleNotFoundError: No module named 'apps'`
+```bash
+# Error when running from backend directory
+cd apps/backend
+python main.py  # ❌ Fails
+```
+
+**Solution**: The backend uses flat imports for compatibility. Use one of these approaches:
+```bash
+# Option 1: Run from backend directory (recommended)
+cd apps/backend
+uvicorn main:app --reload
+
+# Option 2: Run from project root
+cd /path/to/awade
+uvicorn apps.backend.main:app --reload
+
+# Option 3: Use the contract testing script
+python scripts/contract_testing.py --start-server
+```
+
+**Problem**: `ImportError: attempted relative import beyond top-level package`
+```bash
+# Error when running scripts that import backend modules
+python scripts/some_script.py  # ❌ Fails
+```
+
+**Solution**: The backend automatically adjusts Python path. If you're writing new scripts, use flat imports:
+```python
+# ✅ Correct
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), 'apps', 'backend'))
+from models import LessonPlan
+
+# ❌ Avoid
+from apps.backend.models import LessonPlan
+```
+
+#### Contract Testing Issues
+
+**Problem**: Contract tests fail with import errors
+```bash
+python scripts/contract_testing.py --start-server  # ❌ Fails
+```
+
+**Solution**: 
+1. Ensure you're running from the project root directory
+2. Check that all backend imports use flat structure
+3. Verify the backend can start manually first:
+   ```bash
+   cd apps/backend
+   uvicorn main:app --reload  # Should work
+   ```
 
 #### Python Import Errors
 ```bash

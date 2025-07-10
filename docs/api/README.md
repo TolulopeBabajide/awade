@@ -1,6 +1,6 @@
 # Awade API Documentation
 
-> **Last generated: 2025-07-10 16:21:07
+> **Last generated: 2025-07-10 23:34:07
 
 
 > **For detailed endpoint contracts and example payloads, see [Internal API Contracts](../internal/api-contracts.md).**
@@ -247,31 +247,173 @@ Authorization: Basic <base64-encoded-credentials>
 ## 🚨 Error Handling
 
 ### Error Response Format
+All API errors follow a consistent format:
+
 ```json
 {
-  "success": false,
-  "error": "Error message",
-  "error_code": "ERROR_CODE",
-  "details": {
-    "field": "Additional error details"
-  }
+  "detail": "Error message",
+  "status_code": 400,
+  "error_type": "VALIDATION_ERROR"
 }
 ```
 
-### Common Error Codes
-- `400` - Bad Request (invalid input)
-- `404` - Not Found (resource doesn't exist)
-- `422` - Validation Error (invalid data format)
-- `500` - Internal Server Error
+### HTTP Status Codes
 
-### Example Error Response
+| Code | Description | When Used |
+|------|-------------|-----------|
+| `200` | Success | Request completed successfully |
+| `201` | Created | Resource created successfully |
+| `400` | Bad Request | Invalid request parameters |
+| `401` | Unauthorized | Authentication required |
+| `404` | Not Found | Resource doesn't exist |
+| `422` | Validation Error | Request validation failed |
+| `500` | Internal Server Error | Server error |
+
+### Endpoint-Specific Error Responses
+
+#### POST `/api/lesson-plans/generate`
+**400 Bad Request - Invalid Parameters**
 ```json
 {
-  "success": false,
-  "error": "Lesson plan not found",
-  "error_code": "RESOURCE_NOT_FOUND",
-  "details": {
-    "plan_id": "lp_999"
+  "detail": "Invalid subject. Must be one of: Mathematics, Science, English, History, Geography, Civics, Art, Music, Physical Education, Technology",
+  "status_code": 400,
+  "error_type": "VALIDATION_ERROR"
+}
+```
+
+**400 Bad Request - Missing Required Fields**
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "subject"],
+      "msg": "field required",
+      "type": "value_error.missing"
+    },
+    {
+      "loc": ["body", "grade_level"],
+      "msg": "field required", 
+      "type": "value_error.missing"
+    }
+  ],
+  "status_code": 422,
+  "error_type": "VALIDATION_ERROR"
+}
+```
+
+**500 Internal Server Error - AI Service Unavailable**
+```json
+{
+  "detail": "AI service temporarily unavailable. Please try again later.",
+  "status_code": 500,
+  "error_type": "AI_SERVICE_ERROR"
+}
+```
+
+#### GET `/api/lesson-plans/{lesson_id}`
+**404 Not Found**
+```json
+{
+  "detail": "Lesson plan not found",
+  "status_code": 404,
+  "error_type": "RESOURCE_NOT_FOUND"
+}
+```
+
+#### GET `/api/curriculum/map`
+**404 Not Found - No Curriculum Standards**
+```json
+{
+  "detail": "No curriculum standards found for Mathematics - Grade 13",
+  "status_code": 404,
+  "error_type": "CURRICULUM_NOT_FOUND"
+}
+```
+
+**400 Bad Request - Invalid Parameters**
+```json
+{
+  "detail": "Invalid grade level. Must be one of: Grade 1, Grade 2, Grade 3, Grade 4, Grade 5, Grade 6, Grade 7, Grade 8, Grade 9, Grade 10, Grade 11, Grade 12",
+  "status_code": 400,
+  "error_type": "VALIDATION_ERROR"
+}
+```
+
+#### POST `/api/curriculum/standards`
+**400 Bad Request - Duplicate Standard**
+```json
+{
+  "detail": "Curriculum standard already exists for Mathematics - Grade 5",
+  "status_code": 400,
+  "error_type": "DUPLICATE_RESOURCE"
+}
+```
+
+### Validation Error Details
+
+When validation fails, the response includes field-specific errors:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "duration_minutes"],
+      "msg": "ensure this value is greater than 0",
+      "type": "value_error.number.not_gt",
+      "ctx": {"limit_value": 0}
+    },
+    {
+      "loc": ["body", "duration_minutes"],
+      "msg": "ensure this value is less than 121",
+      "type": "value_error.number.not_lt",
+      "ctx": {"limit_value": 121}
+    }
+  ],
+  "status_code": 422,
+  "error_type": "VALIDATION_ERROR"
+}
+```
+
+### Error Handling Best Practices
+
+1. **Always check the status code** before processing the response
+2. **Handle 422 errors** by displaying field-specific validation messages
+3. **Implement retry logic** for 500 errors (with exponential backoff)
+4. **Cache curriculum data** to avoid repeated 404 errors
+5. **Provide user-friendly messages** based on error_type
+
+### Example Error Handling (JavaScript)
+```javascript
+async function generateLessonPlan(data) {
+  try {
+    const response = await fetch('/api/lesson-plans/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      
+      if (error.status_code === 422) {
+        // Handle validation errors
+        error.detail.forEach(fieldError => {
+          console.error(`${fieldError.loc.join('.')}: ${fieldError.msg}`);
+        });
+      } else if (error.status_code === 500) {
+        // Handle server errors
+        console.error('Server error:', error.detail);
+      } else {
+        // Handle other errors
+        console.error('API error:', error.detail);
+      }
+      return null;
+    }
+    
+    return await response.json();
+  } catch (err) {
+    console.error('Network error:', err);
+    return null;
   }
 }
 ```
