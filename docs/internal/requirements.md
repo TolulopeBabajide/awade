@@ -403,3 +403,9 @@ CREATE TABLE sync_status (
 **Document Version**: 1.0  
 **Last Updated**: July 1, 2025  
 **Next Review**: August 3, 2025 
+
+## Backend (Python)
+- All sensitive credentials (database, admin, educator) must be set via environment variables in `.env`.
+- The `bcrypt` library is required for secure password hashing (see `apps/backend/requirements.txt`).
+- The database initialization script (`init_db.py`) uses `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `EDUCATOR_EMAIL`, and `EDUCATOR_PASSWORD` from the environment to create initial users. These are NOT used for production authentication.
+- No hardcoded credentials are allowed in the codebase. 

@@ -275,6 +275,31 @@ The project includes MCP (Model Context Protocol) servers for AI-assisted develo
 2. Configure `mcp.json` in your workspace
 3. Use AI assistants for development tasks
 
+## 🐘 Database Initialization
+
+To set up the initial database tables and seed users:
+
+1. **Set environment variables in your `.env` file** for:
+   - `ADMIN_EMAIL`, `ADMIN_PASSWORD` (for initial admin user)
+   - `EDUCATOR_EMAIL`, `EDUCATOR_PASSWORD` (for initial educator user)
+   > These are ONLY used for the first database initialization and are not used for production authentication.
+
+2. **Install backend dependencies** (includes bcrypt for secure password hashing):
+   ```bash
+   pip install -r apps/backend/requirements.txt
+   ```
+
+3. **Run the database initialization script:**
+   ```bash
+   python apps/backend/init_db.py
+   ```
+   This will create all tables and seed the admin/educator users securely.
+
+4. **Security Note:**
+   - No credentials are hardcoded in the codebase.
+   - Passwords are hashed using bcrypt.
+   - You can safely change/remove these environment variables after initialization.
+
 ## 🤝 Contributing
 
 ### Before Contributing
