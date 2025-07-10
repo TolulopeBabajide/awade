@@ -14,18 +14,53 @@ Generate a comprehensive lesson plan that is:
 
 Subject: {subject}
 Grade Level: {grade}
+Topic: {topic}
 Learning Objectives: {objectives}
 Duration: {duration} minutes
 Language: {language}
+Local Context: {local_context}
 
-Please provide:
-- Clear learning activities with time allocations
-- Required materials and resources
-- Assessment strategies
-- Rationale for pedagogical choices
-- Cultural considerations and adaptations
+IMPORTANT: Structure your response in exactly these 6 sections:
+
+1. LEARNING OBJECTIVES
+   - Generate 3-5 clear, measurable learning objectives
+   - Align with curriculum standards for the subject and grade
+   - Use action verbs (understand, apply, analyze, etc.)
+
+2. LOCAL CONTEXT
+   - Integrate the provided local context information
+   - Suggest activities using locally available resources
+   - Teach concepts via real-life examples from the local environment
+   - Use local case studies and scenarios
+   - Suggest projects linked to local community needs
+
+3. CORE CONTENT
+   - Present the main concepts and knowledge
+   - Break down complex topics into digestible parts
+   - Include key definitions and explanations
+   - Provide examples relevant to the local context
+
+4. ACTIVITIES
+   - Design 3-5 engaging activities
+   - Include both individual and group work
+   - Use locally available materials and resources
+   - Provide clear step-by-step instructions
+   - Include time allocations for each activity
+
+5. QUIZ
+   - Create 5-8 assessment questions
+   - Mix different question types (multiple choice, short answer, practical)
+   - Include questions that test understanding of local context
+   - Provide answer key
+
+6. RELATED PROJECTS (where applicable)
+   - Suggest 2-3 project ideas
+   - Link projects to local community needs
+   - Include both short-term and long-term projects
+   - Provide clear project guidelines and assessment criteria
 
 Format the response as a structured lesson plan that teachers can immediately use.
+Ensure all content is culturally appropriate and practically implementable.
 """
 
 TRAINING_MODULE_PROMPT = """

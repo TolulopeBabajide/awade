@@ -16,6 +16,7 @@ from packages.ai.gpt_service import AwadeGPTService
 from apps.backend.schemas.lesson_plans import (
     LessonPlanCreate,
     LessonPlanResponse,
+    LessonPlanDetailResponse,
     LessonPlanUpdate,
     LessonContextCreate,
     CurriculumMapResponse
@@ -44,15 +45,17 @@ async def generate_lesson_plan(
     ai_response = gpt_service.generate_lesson_plan(
         subject=request.subject,
         grade=request.grade_level,
+        topic=request.topic,
         objectives=request.objectives,
         duration=request.duration_minutes,
         language=request.language,
-        cultural_context=request.cultural_context or "African"
+        cultural_context=request.cultural_context or "African",
+        local_context=request.local_context
     )
     
     # Create lesson plan in database
     lesson_plan = LessonPlan(
-        title=ai_response.get("title", f"{request.subject} Lesson Plan"),
+        title=ai_response.get("title", f"{request.subject}: {request.topic}"),
         subject=request.subject,
         grade_level=request.grade_level,
         author_id=request.author_id,  # This should come from authenticated user
@@ -218,4 +221,17 @@ async def get_lesson_context(lesson_id: int, db: Session = Depends(get_db)):
             "created_at": ctx.created_at
         }
         for ctx in contexts
-    ] 
+    ]
+
+@router.get("/{lesson_id}/detailed", response_model=LessonPlanDetailResponse)
+async def get_lesson_plan_detailed(lesson_id: int, db: Session = Depends(get_db)):
+    """
+    Get a detailed lesson plan with AI-generated sections.
+    """
+    lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
+    if not lesson_plan:
+        raise HTTPException(status_code=404, detail="Lesson plan not found")
+    
+    # For now, return the basic lesson plan
+    # In a full implementation, you would store and retrieve the AI-generated sections
+    return LessonPlanDetailResponse.from_orm(lesson_plan) 

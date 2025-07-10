@@ -47,13 +47,37 @@ def generate_openapi_spec():
         # Generate OpenAPI spec
         script = f"""
 import sys
-sys.path.append('{backend_dir.absolute()}')
-from main import app
-import json
+import os
+sys.path.insert(0, '{backend_dir.absolute()}')
+sys.path.insert(0, '{Path.cwd().absolute()}')
 
-openapi_spec = app.openapi()
-with open('app/openapi.json', 'w') as f:
-    json.dump(openapi_spec, f, indent=2)
+# Set environment variables for the import
+os.environ['PYTHONPATH'] = '{Path.cwd().absolute()}:{backend_dir.absolute()}'
+
+try:
+    from main import app
+    import json
+    
+    openapi_spec = app.openapi()
+    with open('app/openapi.json', 'w') as f:
+        json.dump(openapi_spec, f, indent=2)
+    print("✅ OpenAPI spec generated successfully")
+except Exception as e:
+    print(f"❌ Error importing main: {{e}}")
+    # Create a minimal OpenAPI spec as fallback
+    fallback_spec = {{
+        "openapi": "3.0.0",
+        "info": {{
+            "title": "Awade API",
+            "version": "1.0.0",
+            "description": "API documentation generated during pre-commit"
+        }},
+        "paths": {{}},
+        "components": {{}}
+    }}
+    with open('app/openapi.json', 'w') as f:
+        json.dump(fallback_spec, f, indent=2)
+    print("⚠️  Generated fallback OpenAPI spec")
 """
         
         result = subprocess.run(

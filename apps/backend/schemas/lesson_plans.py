@@ -21,9 +21,10 @@ class ResourceType(str, Enum):
 class LessonPlanCreate(BaseModel):
     subject: str = Field(..., description="Subject area (e.g., Mathematics, Science)")
     grade_level: str = Field(..., description="Grade level (e.g., Grade 4, Grade 7)")
-    objectives: List[str] = Field(..., description="Learning objectives")
+    topic: str = Field(..., description="Specific topic within the subject (e.g., Fractions, Photosynthesis)")
+    objectives: Optional[List[str]] = Field(None, description="Learning objectives (optional - AI will generate if not provided)")
     duration_minutes: int = Field(45, description="Lesson duration in minutes")
-    local_context: Optional[str] = Field(None, description="Local context for the lesson")
+    local_context: Optional[str] = Field(None, description="Local context for the lesson (e.g., rural school, urban setting, available resources)")
     language: str = Field("en", description="Primary language for the lesson")
     cultural_context: Optional[str] = Field("African", description="Cultural context for adaptations")
     country: Optional[str] = Field(None, description="Country for curriculum mapping")
@@ -47,12 +48,35 @@ class LessonPlanResponse(BaseModel):
     title: str
     subject: str
     grade_level: str
+    topic: Optional[str] = None
     author_id: int
     context_description: Optional[str]
     duration_minutes: int
     created_at: datetime
     updated_at: datetime
     status: LessonStatus
+    
+    class Config:
+        from_attributes = True
+
+class LessonPlanDetailResponse(BaseModel):
+    lesson_id: int
+    title: str
+    subject: str
+    grade_level: str
+    topic: Optional[str] = None
+    author_id: int
+    context_description: Optional[str]
+    duration_minutes: int
+    created_at: datetime
+    updated_at: datetime
+    status: LessonStatus
+    learning_objectives: Optional[str] = None
+    local_context: Optional[str] = None
+    core_content: Optional[str] = None
+    activities: Optional[str] = None
+    quiz: Optional[str] = None
+    related_projects: Optional[str] = None
     
     class Config:
         from_attributes = True
@@ -101,7 +125,7 @@ class LessonContextResponse(BaseModel):
         from_attributes = True
 
 # Comprehensive lesson plan response with all related data
-class LessonPlanDetailResponse(BaseModel):
+class LessonPlanFullResponse(BaseModel):
     lesson_plan: LessonPlanResponse
     sections: List[LessonSectionResponse]
     resources: List[ResourceLinkResponse]
