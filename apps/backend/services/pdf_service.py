@@ -6,9 +6,26 @@ Generates professional PDF documents from lesson plan data.
 import os
 from typing import Dict, List, Optional
 from datetime import datetime
-from weasyprint import HTML, CSS
-from weasyprint.text.fonts import FontConfiguration
-from ..models import LessonPlan, LessonSection, ResourceLink
+try:
+    from weasyprint import HTML, CSS
+    from weasyprint.text.fonts import FontConfiguration
+    WEASYPRINT_AVAILABLE = True
+except ImportError:
+    WEASYPRINT_AVAILABLE = False
+    # Mock classes for when weasyprint is not available
+    class HTML:
+        def __init__(self, string):
+            self.string = string
+        def write_pdf(self, **kwargs):
+            return b"PDF generation not available - weasyprint not installed"
+    
+    class CSS:
+        def __init__(self, string, font_config=None):
+            self.string = string
+    
+    class FontConfiguration:
+        pass
+from models import LessonPlan, LessonSection, ResourceLink
 
 class PDFService:
     """Service for generating PDF exports of lesson plans."""

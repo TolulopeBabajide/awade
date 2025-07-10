@@ -8,12 +8,22 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
 
-from apps.backend.database import get_db
-from apps.backend.models import LessonPlan, LessonSection, ResourceLink, LessonContext, User
-from apps.backend.services.curriculum_service import CurriculumService, get_curriculum_service
-from apps.backend.services.pdf_service import PDFService
+import sys
+import os
+
+# Add parent directories to Python path for imports
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.dirname(current_dir)
+root_dir = os.path.dirname(parent_dir)
+sys.path.extend([parent_dir, root_dir])
+
+# Import dependencies
+from database import get_db
+from models import LessonPlan, LessonSection, ResourceLink, LessonContext, User
+from services.curriculum_service import CurriculumService, get_curriculum_service
+from services.pdf_service import PDFService
 from packages.ai.gpt_service import AwadeGPTService
-from apps.backend.schemas.lesson_plans import (
+from schemas.lesson_plans import (
     LessonPlanCreate,
     LessonPlanResponse,
     LessonPlanDetailResponse,

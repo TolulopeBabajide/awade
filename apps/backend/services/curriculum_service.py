@@ -6,8 +6,8 @@ Maps subjects and grade levels to curriculum standards.
 from typing import List, Optional, Dict
 from sqlalchemy.orm import Session
 from fastapi import Depends
-from ..models import CurriculumMap
-from ..database import get_db
+from models import CurriculumMap
+from database import get_db
 
 class CurriculumService:
     """Service for curriculum mapping and standards lookup."""

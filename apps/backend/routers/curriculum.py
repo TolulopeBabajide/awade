@@ -6,9 +6,19 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
-from apps.backend.database import get_db
-from apps.backend.services.curriculum_service import CurriculumService, get_curriculum_service
-from apps.backend.schemas.lesson_plans import CurriculumMapResponse
+import sys
+import os
+
+# Add parent directories to Python path for imports
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.dirname(current_dir)
+root_dir = os.path.dirname(parent_dir)
+sys.path.extend([parent_dir, root_dir])
+
+# Import dependencies
+from database import get_db
+from services.curriculum_service import CurriculumService, get_curriculum_service
+from schemas.lesson_plans import CurriculumMapResponse
 
 router = APIRouter(prefix="/api/curriculum", tags=["curriculum"])
 
