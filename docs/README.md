@@ -23,6 +23,7 @@ Welcome to the comprehensive documentation for the Awade platform - an AI-powere
 - **[AI Integration](api/ai-integration.md)** - How AI is used in the platform
 - **[Database Schema](api/database.md)** - Database structure and relationships
 - **[Frontend Architecture](development/frontend.md)** - React/HTML frontend details
+- **[Lesson Plan Architecture](internal/lesson-plan-architecture.md)** - End-to-end lesson plan feature architecture
 
 ## 🎯 Quick Links
 

@@ -5,6 +5,9 @@ from typing import List, Optional
 import os
 from dotenv import load_dotenv
 
+# Import routers
+from routers import lesson_plans, curriculum
+
 # Load environment variables
 load_dotenv()
 
@@ -24,6 +27,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include routers
+app.include_router(lesson_plans.router)
+app.include_router(curriculum.router)
 
 # Pydantic models
 class LessonPlanRequest(BaseModel):

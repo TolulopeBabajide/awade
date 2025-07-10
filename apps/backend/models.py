@@ -5,7 +5,7 @@ Based on the MVP requirements for African educator support platform.
 
 from sqlalchemy import (
     Column, Integer, String, Text, DateTime, Boolean, ForeignKey, 
-    Enum, JSON, Float, Table, MetaData
+    Enum, JSON, Float, Table, MetaData, Index
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -97,6 +97,7 @@ class LessonPlan(Base):
     quizzes = relationship("Quiz", back_populates="lesson_plan")
     feedback = relationship("Feedback", back_populates="lesson_plan")
     tags = relationship("Tag", secondary=lesson_tags, back_populates="lesson_plans")
+    contexts = relationship("LessonContext", back_populates="lesson_plan")
 
 class LessonSection(Base):
     """Individual sections within a lesson plan."""
@@ -187,4 +188,39 @@ class Feedback(Base):
     
     # Relationships
     lesson_plan = relationship("LessonPlan", back_populates="feedback")
-    user = relationship("User", back_populates="feedback") 
+    user = relationship("User", back_populates="feedback")
+
+class CurriculumMap(Base):
+    """Curriculum standards mapping for different subjects and grades."""
+    __tablename__ = 'curriculum_map'
+    
+    curriculum_id = Column(Integer, primary_key=True, autoincrement=True)
+    subject = Column(String(100), nullable=False, index=True)
+    grade_level = Column(String(50), nullable=False, index=True)
+    curriculum_standard = Column(String(255), nullable=False)
+    description = Column(Text, nullable=False)
+    country = Column(String(100), nullable=True)  # For country-specific curricula
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    
+    # Composite index for efficient lookups
+    __table_args__ = (
+        Index('idx_curriculum_subject_grade', 'subject', 'grade_level'),
+    )
+
+class LessonContext(Base):
+    """Teacher-provided local context for lesson plans."""
+    __tablename__ = 'lesson_context'
+    
+    context_id = Column(Integer, primary_key=True, autoincrement=True)
+    lesson_id = Column(Integer, ForeignKey('lesson_plans.lesson_id'), nullable=False)
+    context_key = Column(String(100), nullable=False)  # e.g., 'local_resources', 'student_background'
+    context_value = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    
+    # Relationships
+    lesson_plan = relationship("LessonPlan", back_populates="contexts")
+    
+    # Composite index for efficient lookups
+    __table_args__ = (
+        Index('idx_context_lesson_key', 'lesson_id', 'context_key'),
+    ) 

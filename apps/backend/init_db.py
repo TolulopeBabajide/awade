@@ -19,7 +19,7 @@ sys.path.insert(0, str(backend_dir))
 from database import engine, SessionLocal, create_tables
 from models import (
     Base, User, EducatorProfile, Tag, UserRole, LessonStatus, 
-    ResourceType, QuestionType
+    ResourceType, QuestionType, CurriculumMap
 )
 from sqlalchemy.orm import Session
 import hashlib
@@ -96,6 +96,49 @@ def create_seed_data(db: Session):
     )
     db.add(educator_user)
     
+    # Create sample curriculum standards
+    curriculum_data = [
+        {
+            "subject": "Mathematics",
+            "grade_level": "Grade 4",
+            "curriculum_standard": "CCSS.MATH.CONTENT.4.NF.A.1",
+            "description": "Explain why a fraction a/b is equivalent to a fraction (n × a)/(n × b) by using visual fraction models",
+            "country": "Nigeria"
+        },
+        {
+            "subject": "Mathematics",
+            "grade_level": "Grade 5",
+            "curriculum_standard": "CCSS.MATH.CONTENT.5.NF.A.1",
+            "description": "Add and subtract fractions with unlike denominators by replacing given fractions with equivalent fractions",
+            "country": "Nigeria"
+        },
+        {
+            "subject": "Science",
+            "grade_level": "Grade 4",
+            "curriculum_standard": "NGSS.4-PS3-1",
+            "description": "Use evidence to construct an explanation relating the speed of an object to the energy of that object",
+            "country": "Nigeria"
+        },
+        {
+            "subject": "English",
+            "grade_level": "Grade 4",
+            "curriculum_standard": "CCSS.ELA-LITERACY.RL.4.1",
+            "description": "Refer to details and examples in a text when explaining what the text says explicitly",
+            "country": "Nigeria"
+        }
+    ]
+    
+    for curriculum_item in curriculum_data:
+        curriculum = CurriculumMap(
+            subject=curriculum_item["subject"],
+            grade_level=curriculum_item["grade_level"],
+            curriculum_standard=curriculum_item["curriculum_standard"],
+            description=curriculum_item["description"],
+            country=curriculum_item["country"],
+            created_at=datetime.now()
+        )
+        db.add(curriculum)
+    
     # Flush to get user IDs
     db.flush()
     
@@ -120,6 +163,7 @@ def create_seed_data(db: Session):
     print(f"   - Created admin user: admin@awade.org")
     print(f"   - Created educator user: grace.teacher@school.com")
     print(f"   - Created educator profile for Grace Okechukwu")
+    print(f"   - Created {len(curriculum_data)} curriculum standards")
 
 def main():
     """Main initialization function."""
