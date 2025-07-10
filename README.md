@@ -6,12 +6,21 @@
 
 Awade bridges the professional development gap by:
 
-- **Assisting teachers with lesson planning** through GPT + rule-based AI
+- **Generating structured 6-section lesson plans** with AI-powered curriculum alignment
+- **Integrating local context** for culturally relevant, practical teaching resources
 - **Providing curriculum-aligned micro-training modules**
 - **Enabling offline access and local language support**
 - **Prioritizing teacher agency and explainable AI interactions**
 
 Built as a modular and extensible platform using a monorepo structure.
+
+### 🎯 Key Features
+
+- **Structured Lesson Plans**: AI generates 6-section plans (Learning Objectives, Local Context, Core Content, Activities, Quiz, Related Projects)
+- **Local Context Integration**: Adapts lessons to local environment, available resources, and community needs
+- **Curriculum Mapping**: Country-specific curriculum standards integration
+- **PDF Export**: Professional lesson plan export with WeasyPrint
+- **Offline Support**: Works without internet connectivity
 
 ## 🛠️ Setup Guide
 

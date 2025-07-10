@@ -6,12 +6,24 @@ This document describes the end-to-end architecture for the **Lesson Plan** feat
 
 ## 1. Overview
 
-The Lesson Plan feature enables teachers to generate, edit, and export curriculum-aligned lesson plans using AI augmentation. Core flows include:
+The Lesson Plan feature enables teachers to generate, edit, and export curriculum-aligned lesson plans using AI augmentation with a structured 6-section format. Core flows include:
 
 1. **Curriculum Mapping** (subject & grade → curriculum standard)
-2. **AI Generation** (prompt templates → structured lesson output)
-3. **Frontend Editing** (editable template UI)
-4. **Persistence & Export** (save, PDF export, offline caching)
+2. **AI Generation** (prompt templates → structured 6-section lesson output)
+3. **Local Context Integration** (local environment, resources, and community needs)
+4. **Frontend Editing** (editable template UI)
+5. **Persistence & Export** (save, PDF export, offline caching)
+
+### 6-Section Lesson Plan Structure
+
+Each generated lesson plan follows a consistent 6-section format:
+
+1. **Learning Objectives** (3-5 measurable objectives aligned with curriculum)
+2. **Local Context** (local environment integration, real-life examples, local resources)
+3. **Core Content** (main concepts and knowledge breakdown)
+4. **Activities** (3-5 engaging activities using locally available resources)
+5. **Quiz** (5-8 assessment questions with answer key)
+6. **Related Projects** (2-3 community-linked projects where applicable)
 
 ---
 
@@ -40,16 +52,25 @@ class LessonPrompt(BaseModel):
     subject: str
     grade_level: str
     topic: str
-    objectives: List[str]
+    objectives: Optional[List[str]]  # AI generates if not provided
     local_context: Optional[str]
+    duration_minutes: int
+    language: str
+    cultural_context: str
 
 class LessonPlan(BaseModel):
     id: int
     title: str
+    subject: str
+    grade_level: str
+    topic: str
     objectives: List[str]
-    activities: List[str]
-    resources: List[str]
-    explanation: str  # AI rationale
+    learning_objectives: str  # AI-generated section
+    local_context: str       # AI-generated section
+    core_content: str        # AI-generated section
+    activities: str          # AI-generated section
+    quiz: str               # AI-generated section
+    related_projects: str   # AI-generated section
     curriculum_id: int
     created_by: int  # user_id
     created_at: datetime
@@ -57,10 +78,10 @@ class LessonPlan(BaseModel):
 
 **Database Tables:**
 
-* `curriculum_map` (id, subject, grade\_level, curriculum\_id, description)
-* `lesson_plan` (id, user\_id, curriculum\_id, title, objectives, activities, resources, explanation, created\_at)
-* `lesson_context` (plan\_id, input\_key, input\_value)
-  *Stores teacher-provided local context entries.*
+* `curriculum_map` (curriculum_id, subject, grade_level, curriculum_standard, description, country, created_at)
+* `lesson_plan` (lesson_id, title, subject, grade_level, author_id, context_description, duration_minutes, status, created_at, updated_at)
+* `lesson_context` (context_id, lesson_id, context_key, context_value, created_at)
+  *Stores teacher-provided local context entries for lesson customization.*
 
 ---
 
@@ -68,26 +89,29 @@ class LessonPlan(BaseModel):
 
 1. **Request Generation**
 
-   * Frontend calls `POST /api/lesson/generate` with a `LessonPrompt` payload.
+   * Frontend calls `POST /api/lesson-plans/generate` with a `LessonPrompt` payload.
 2. **Curriculum Mapping**
 
-   * API invokes `curriculum_service.map(subject, grade_level)` → returns `CurriculumMap`.
+   * API invokes `curriculum_service.map(subject, grade_level, country)` → returns `CurriculumMap`.
 3. **Prompt Assembly**
 
-   * Business logic merges `LessonPrompt` + `CurriculumMap` into GPT prompt template.
+   * Business logic merges `LessonPrompt` + `CurriculumMap` + local context into structured GPT prompt template.
 4. **AI Call**
 
-   * Send prompt to OpenAI; receive structured JSON response.
-5. **Data Persistence**
+   * Send prompt to OpenAI; receive structured 6-section response.
+5. **Section Extraction**
+
+   * Parse AI response into structured sections (Learning Objectives, Local Context, Core Content, Activities, Quiz, Related Projects).
+6. **Data Persistence**
 
    * Save new `lesson_plan` record and any `lesson_context` entries.
-6. **Response to Frontend**
+7. **Response to Frontend**
 
    * Return `LessonPlan` JSON for UI rendering.
-7. **Export Flow**
+8. **Export Flow**
 
-   * On `GET /api/lesson/{id}/export/pdf`, service retrieves plan, renders PDF via `WeasyPrint` (or similar), streams file.
-8. **Offline Caching**
+   * On `GET /api/lesson-plans/{id}/export/pdf`, service retrieves plan, renders PDF via `WeasyPrint`, streams file.
+9. **Offline Caching**
 
    * Frontend intercepts API responses, stores JSON and exported PDF blobs in IndexedDB.
 
@@ -96,17 +120,22 @@ class LessonPlan(BaseModel):
 ## 5. Sequence Diagram (Textual)
 
 ```
-Teacher UI -> API: POST /api/lesson/generate
-API -> Curriculum Service: map(subject, grade_level)
+Teacher UI -> API: POST /api/lesson-plans/generate
+API -> Curriculum Service: map(subject, grade_level, country)
 Curriculum Service -> API: CurriculumMap
-API -> AI Module: generateLesson(prompt)
-AI Module -> API: LessonPlan JSON
+API -> AI Module: generateLesson(prompt with local context)
+AI Module -> API: Structured 6-section response
+API -> Section Parser: extract sections
 API -> Database: insert lesson_plan, lesson_context
 API -> Teacher UI: return LessonPlan
 
-Teacher UI -> API: GET /api/lesson/{id}/export/pdf
+Teacher UI -> API: GET /api/lesson-plans/{id}/detailed
+API -> Database: fetch lesson_plan with sections
+API -> Teacher UI: return detailed lesson plan
+
+Teacher UI -> API: GET /api/lesson-plans/{id}/export/pdf
 API -> Database: fetch lesson_plan
-API -> PDF Service: render PDF
+API -> PDF Service: render PDF with sections
 PDF Service -> API: PDF stream
 API -> Teacher UI: download PDF
 ```
@@ -133,21 +162,26 @@ API -> Teacher UI: download PDF
 ## 8. Implementation Status
 
 ### ✅ Completed
-- Database schema for lesson plans (see `apps/backend/models.py`)
-- Basic FastAPI structure
+- Database schema for lesson plans with curriculum mapping (see `apps/backend/models.py`)
+- FastAPI structure with comprehensive endpoints
 - PostgreSQL setup with secure credentials
-- AI service integration framework
+- AI service integration with structured 6-section generation
+- Curriculum mapping service with country-specific standards
+- PDF export functionality using WeasyPrint
+- Local context integration and customization
+- Section extraction and parsing methods
+- Enhanced AI prompts for local environment integration
 
 ### 🚧 In Progress
-- Curriculum mapping service
-- Lesson plan generation endpoints
 - Frontend lesson plan UI components
+- Advanced curriculum database population
+- Offline caching implementation
 
 ### 📋 Planned
-- PDF export functionality
-- Offline caching implementation
-- Advanced AI prompt templates
-- Curriculum database population
+- Real-time collaboration features
+- Advanced analytics and insights
+- Integration with external curriculum databases
+- Mobile app development
 
 ---
 
@@ -155,20 +189,27 @@ API -> Teacher UI: download PDF
 
 ### Core Lesson Plan Endpoints
 ```python
-# Lesson Plan Generation
+# Lesson Plan Generation & Management
 POST /api/lesson-plans/generate
 GET /api/lesson-plans
 GET /api/lesson-plans/{id}
+GET /api/lesson-plans/{id}/detailed
 PUT /api/lesson-plans/{id}
 DELETE /api/lesson-plans/{id}
 
 # Export & Download
 GET /api/lesson-plans/{id}/export/pdf
-GET /api/lesson-plans/{id}/export/docx
 
-# Curriculum & Context
+# Curriculum Management
 GET /api/curriculum/map
+GET /api/curriculum/standards
+GET /api/curriculum/subjects
+GET /api/curriculum/grade-levels
+POST /api/curriculum/standards
+
+# Context Management
 POST /api/lesson-plans/{id}/context
+GET /api/lesson-plans/{id}/context
 ```
 
 ### Request/Response Examples
@@ -178,20 +219,43 @@ POST /api/lesson-plans/{id}/context
   "subject": "Mathematics",
   "grade_level": "Grade 5",
   "topic": "Fractions and Decimals",
-  "objectives": ["Understand fraction-decimal relationships"],
-  "local_context": "Rural school with limited resources"
+  "objectives": ["Understand fraction-decimal relationships"], // Optional
+  "duration_minutes": 45,
+  "local_context": "Rural school with limited resources, students familiar with local market activities",
+  "language": "en",
+  "cultural_context": "African",
+  "country": "Nigeria",
+  "author_id": 1
 }
 
-// Response
+// Basic Response
 {
-  "id": 123,
-  "title": "Understanding Fractions and Decimals",
-  "objectives": ["..."],
-  "activities": ["..."],
-  "resources": ["..."],
-  "explanation": "AI rationale for lesson structure...",
-  "curriculum_id": 456,
-  "created_at": "2025-07-10T16:00:00Z"
+  "lesson_id": 123,
+  "title": "Mathematics: Fractions and Decimals",
+  "subject": "Mathematics",
+  "grade_level": "Grade 5",
+  "topic": "Fractions and Decimals",
+  "author_id": 1,
+  "context_description": "Rural school with limited resources",
+  "duration_minutes": 45,
+  "created_at": "2025-07-10T16:00:00Z",
+  "updated_at": "2025-07-10T16:00:00Z",
+  "status": "draft"
+}
+
+// GET /api/lesson-plans/{id}/detailed Response
+{
+  "lesson_id": 123,
+  "title": "Mathematics: Fractions and Decimals",
+  "subject": "Mathematics",
+  "grade_level": "Grade 5",
+  "topic": "Fractions and Decimals",
+  "learning_objectives": "1. Students will understand fraction-decimal relationships\n2. Students will apply concepts using local market examples",
+  "local_context": "Integrates local market activities, uses available resources like fruits and vegetables",
+  "core_content": "Main concepts and knowledge breakdown...",
+  "activities": "3-5 engaging activities with local resources...",
+  "quiz": "5-8 assessment questions with answer key...",
+  "related_projects": "2-3 community-linked projects..."
 }
 ```
 

@@ -32,36 +32,58 @@ Check API health status.
 ### Lesson Planning
 
 #### POST `/api/lesson-plans/generate`
-Generate an AI-powered lesson plan.
+Generate an AI-powered lesson plan with 6-section structure.
 
 **Request Body:**
 ```json
 {
   "subject": "Mathematics",
-  "grade": "Grade 4",
-  "objectives": ["Understand basic fractions", "Identify numerator and denominator"],
-  "duration": 45,
+  "grade_level": "Grade 5",
+  "topic": "Fractions and Decimals",
+  "objectives": ["Understand fraction-decimal relationships"], // Optional
+  "duration_minutes": 45,
+  "local_context": "Rural school with limited resources, students familiar with local market activities",
   "language": "en",
-  "cultural_context": "African"
+  "cultural_context": "African",
+  "country": "Nigeria",
+  "author_id": 1
 }
 ```
 
 **Response:**
 ```json
 {
-  "id": "lp_001",
-  "title": "Mathematics Lesson Plan",
+  "lesson_id": 123,
+  "title": "Mathematics: Fractions and Decimals",
   "subject": "Mathematics",
-  "grade": "Grade 4",
-  "objectives": ["Understand basic fractions", "Identify numerator and denominator"],
-  "activities": ["Introduction activity (5 min)", "Main content (30 min)", "Assessment (10 min)"],
-  "materials": ["Whiteboard", "Markers", "Student worksheets"],
-  "assessment": "Formative assessment through observation",
-  "rationale": "This lesson plan follows best practices for active learning",
-  "created_at": "2025-01-15T10:00:00Z",
-  "language": "en",
-  "is_offline": true,
-  "ai_explanation": "This approach uses visual learning..."
+  "grade_level": "Grade 5",
+  "topic": "Fractions and Decimals",
+  "author_id": 1,
+  "context_description": "Rural school with limited resources",
+  "duration_minutes": 45,
+  "created_at": "2025-07-10T16:00:00Z",
+  "updated_at": "2025-07-10T16:00:00Z",
+  "status": "draft"
+}
+```
+
+#### GET `/api/lesson-plans/{id}/detailed`
+Retrieve a detailed lesson plan with all 6 sections.
+
+**Response:**
+```json
+{
+  "lesson_id": 123,
+  "title": "Mathematics: Fractions and Decimals",
+  "subject": "Mathematics",
+  "grade_level": "Grade 5",
+  "topic": "Fractions and Decimals",
+  "learning_objectives": "1. Students will understand fraction-decimal relationships\n2. Students will apply concepts using local market examples",
+  "local_context": "Integrates local market activities, uses available resources like fruits and vegetables",
+  "core_content": "Main concepts and knowledge breakdown...",
+  "activities": "3-5 engaging activities with local resources...",
+  "quiz": "5-8 assessment questions with answer key...",
+  "related_projects": "2-3 community-linked projects..."
 }
 ```
 
@@ -86,6 +108,40 @@ Retrieve a specific lesson plan by ID.
 
 **Parameters:**
 - `plan_id` (string): Unique lesson plan identifier
+
+### Curriculum Management
+
+#### GET `/api/curriculum/map`
+Map subject and grade level to curriculum standards.
+
+**Parameters:**
+- `subject` (string): Subject name
+- `grade_level` (string): Grade level
+- `country` (string): Country code
+
+**Response:**
+```json
+{
+  "curriculum_id": 1,
+  "subject": "Mathematics",
+  "grade_level": "Grade 5",
+  "curriculum_standard": "Nigerian National Curriculum",
+  "description": "Mathematics curriculum for Grade 5",
+  "country": "Nigeria"
+}
+```
+
+#### GET `/api/curriculum/standards`
+Retrieve all curriculum standards.
+
+#### GET `/api/curriculum/subjects`
+Retrieve all available subjects.
+
+#### GET `/api/curriculum/grade-levels`
+Retrieve all available grade levels.
+
+#### POST `/api/curriculum/standards`
+Add new curriculum standards.
 
 ### Training Modules
 
@@ -127,31 +183,47 @@ Authorization: Basic <base64-encoded-credentials>
 ```typescript
 {
   subject: "Mathematics" | "Science" | "English" | "History" | "Geography" | "Civics" | "Art" | "Music" | "Physical Education" | "Technology",
-  grade: "Grade 1" | "Grade 2" | "Grade 3" | "Grade 4" | "Grade 5" | "Grade 6" | "Grade 7" | "Grade 8" | "Grade 9" | "Grade 10" | "Grade 11" | "Grade 12",
-  objectives: string[],
-  duration: number, // 15-120 minutes
+  grade_level: "Grade 1" | "Grade 2" | "Grade 3" | "Grade 4" | "Grade 5" | "Grade 6" | "Grade 7" | "Grade 8" | "Grade 9" | "Grade 10" | "Grade 11" | "Grade 12",
+  topic: string,
+  objectives?: string[], // Optional - AI can generate these
+  duration_minutes: number, // 15-120 minutes
+  local_context?: string, // Local environment, resources, community context
   language: "en" | "fr" | "sw" | "yo" | "ig" | "ha",
-  cultural_context?: string
+  cultural_context?: string,
+  country: string,
+  author_id: number
 }
 ```
 
 ### LessonPlan
 ```typescript
 {
-  id: string,
+  lesson_id: number,
   title: string,
-  subject: Subject,
-  grade: GradeLevel,
-  objectives: string[],
-  activities: string[],
-  materials: string[],
-  assessment: string,
-  rationale: string,
+  subject: string,
+  grade_level: string,
+  topic: string,
+  author_id: number,
+  context_description: string,
+  duration_minutes: number,
   created_at: string,
-  updated_at?: string,
-  language: Language,
-  is_offline: boolean,
-  ai_explanation?: string
+  updated_at: string,
+  status: "draft" | "published" | "archived"
+}
+
+// Detailed Lesson Plan (6 sections)
+{
+  lesson_id: number,
+  title: string,
+  subject: string,
+  grade_level: string,
+  topic: string,
+  learning_objectives: string, // AI-generated section
+  local_context: string,       // AI-generated section
+  core_content: string,        // AI-generated section
+  activities: string,          // AI-generated section
+  quiz: string,               // AI-generated section
+  related_projects: string    // AI-generated section
 }
 ```
 

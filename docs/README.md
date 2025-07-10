@@ -23,7 +23,8 @@ Welcome to the comprehensive documentation for the Awade platform - an AI-powere
 - **[AI Integration](api/ai-integration.md)** - How AI is used in the platform
 - **[Database Schema](api/database.md)** - Database structure and relationships
 - **[Frontend Architecture](development/frontend.md)** - React/HTML frontend details
-- **[Lesson Plan Architecture](internal/lesson-plan-architecture.md)** - End-to-end lesson plan feature architecture
+- **[Lesson Plan Architecture](internal/lesson-plan-architecture.md)** - End-to-end lesson plan feature architecture with 6-section structure
+- **[API Contracts](internal/api-contracts.md)** - Detailed API specifications and contracts
 
 ## 🎯 Quick Links
 
@@ -34,7 +35,7 @@ Welcome to the comprehensive documentation for the Awade platform - an AI-powere
 
 ### For Teachers
 - [Getting Started Guide](user-guide/teacher.md)
-- [Lesson Planning Tutorial](user-guide/lesson-planning.md)
+- [Lesson Planning Tutorial](user-guide/lesson-planning.md) - Learn to create 6-section lesson plans
 - [Training Modules](user-guide/training.md)
 
 ### For Administrators

@@ -32,19 +32,21 @@ Provide the following information:
 - **Subject**: Mathematics, Science, English, History, etc.
 - **Grade Level**: Select the appropriate grade
 - **Topic**: Specific topic or concept to teach
-- **Learning Objectives**: What should students learn? (2-5 objectives recommended)
+- **Learning Objectives**: What should students learn? (Optional - AI can generate these)
 - **Duration**: How long is your lesson? (15-120 minutes)
+- **Local Context**: Describe your local environment, available resources, and community context
 - **Language**: Choose your preferred language
 - **Cultural Context**: Any specific cultural elements to include
 
 ### Step 3: Generate Your Plan
 1. **Click "Generate Plan"** and wait for AI processing
-2. **Review the generated plan** - it will include:
-   - Learning objectives
-   - Step-by-step activities
-   - Required materials
-   - Assessment methods
-   - Teaching rationale
+2. **Review the generated plan** - it will include 6 structured sections:
+   - **Learning Objectives** (3-5 measurable objectives aligned with curriculum)
+   - **Local Context** (local environment integration, real-life examples, local resources)
+   - **Core Content** (main concepts and knowledge breakdown)
+   - **Activities** (3-5 engaging activities using locally available resources)
+   - **Quiz** (5-8 assessment questions with answer key)
+   - **Related Projects** (2-3 community-linked projects where applicable)
 
 ### Step 4: Customize and Save
 1. **Edit any section** to match your teaching style
@@ -102,11 +104,13 @@ Provide the following information:
 
 ## 🌍 Cultural Integration
 
-### Local Context
-- **Community Examples** - Use familiar local references
-- **Cultural Practices** - Incorporate relevant cultural elements
+### Local Context Integration
+- **Community Examples** - Use familiar local references and real-world applications
+- **Available Resources** - Adapt activities to use locally available materials
+- **Cultural Practices** - Incorporate relevant cultural elements and traditions
 - **Language Integration** - Use local language where appropriate
 - **Traditional Knowledge** - Include indigenous knowledge systems
+- **Environmental Context** - Connect lessons to local geography, climate, and natural resources
 
 ### Regional Adaptations
 - **Curriculum Alignment** - Match your national curriculum
