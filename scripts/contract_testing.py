@@ -2,6 +2,27 @@
 """
 Contract Testing for Awade API
 Validates API contracts between frontend and backend to ensure consistency.
+
+Environment Configuration:
+    The script will automatically load environment variables from a .env file
+    if it exists. You can also set environment variables directly or use the
+    --env-file argument to specify a custom environment file.
+
+    Required environment variables:
+    - DATABASE_URL: PostgreSQL connection string (e.g., postgresql://user:pass@host:port/db)
+    - SECRET_KEY: Application secret key
+    - OPENAI_API_KEY: OpenAI API key (can be a test key for contract testing)
+
+    Optional environment variables:
+    - DEBUG: Set to "True" for debug mode
+    - ENVIRONMENT: Set to "development", "testing", or "production"
+
+    Example .env file:
+        DATABASE_URL=postgresql://awade_user:awade_password@localhost:5432/awade
+        SECRET_KEY=your_secret_key_here
+        OPENAI_API_KEY=your_openai_api_key_here
+        DEBUG=True
+        ENVIRONMENT=development
 """
 
 import json
@@ -458,6 +479,10 @@ def start_backend_server() -> bool:
             print(f"❌ Failed to install backend dependencies: {e}")
             return False
         
+        # Set up environment variables for the backend
+        # Use the environment variables that were loaded and validated
+        env = os.environ.copy()
+        
         # Create log file for server output
         log_file = open("server.log", "w")
         
@@ -466,7 +491,8 @@ def start_backend_server() -> bool:
             [sys.executable, "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"],
             cwd="apps/backend",
             stdout=log_file,
-            stderr=log_file
+            stderr=log_file,
+            env=env
         )
         
         # Give the server more time to start up
@@ -492,6 +518,42 @@ def start_backend_server() -> bool:
     except Exception as e:
         print(f"❌ Failed to start backend server: {e}")
         return False
+
+def load_env_file(env_path: str = ".env") -> None:
+    """Load environment variables from .env file if it exists."""
+    if os.path.exists(env_path):
+        print(f"📄 Loading environment from {env_path}")
+        with open(env_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    os.environ[key] = value
+        print("✅ Environment variables loaded")
+    else:
+        print(f"⚠️  Environment file {env_path} not found")
+
+def validate_environment() -> bool:
+    """Validate that required environment variables are set."""
+    required_vars = ["DATABASE_URL", "SECRET_KEY", "OPENAI_API_KEY"]
+    missing_vars = []
+    
+    for var in required_vars:
+        if not os.getenv(var):
+            missing_vars.append(var)
+    
+    if missing_vars:
+        print("❌ Missing required environment variables:")
+        for var in missing_vars:
+            print(f"   - {var}")
+        print("\n💡 You can:")
+        print("   1. Create a .env file with the required variables")
+        print("   2. Set the variables directly in your environment")
+        print("   3. Use the --env-file argument to specify a custom environment file")
+        return False
+    
+    print("✅ All required environment variables are set")
+    return True
 
 def stop_backend_server() -> None:
     """Stop backend server."""
@@ -525,10 +587,19 @@ def main():
                        help="Stop Docker containers after testing")
     parser.add_argument("--save", action="store_true",
                        help="Save test report")
+    parser.add_argument("--env-file", default=".env",
+                       help="Path to environment file (default: .env)")
     
     args = parser.parse_args()
     
     print("🔍 Starting Awade Contract Testing...")
+    
+    # Load environment variables from .env file if it exists
+    load_env_file(args.env_file)
+    
+    # Validate environment variables
+    if not validate_environment():
+        sys.exit(1)
     
     # Check if containers are running
     containers_running = check_docker_containers()
@@ -541,6 +612,21 @@ def main():
     
     # Start server directly if requested
     if args.start_server:
+        # First ensure database is running
+        print("🗄️  Starting database for contract testing...")
+        try:
+            subprocess.run(
+                ["docker-compose", "up", "postgres", "-d"],
+                check=True,
+                capture_output=True
+            )
+            print("✅ Database started")
+            # Wait a bit for database to be ready
+            time.sleep(3)
+        except subprocess.CalledProcessError as e:
+            print(f"⚠️  Could not start database: {e}")
+            print("💡 Make sure Docker is running and docker-compose is available")
+        
         if not start_backend_server():
             print("❌ Failed to start backend server")
             sys.exit(1)
@@ -583,6 +669,16 @@ def main():
     # Stop server if started directly
     if args.start_server:
         stop_backend_server()
+        # Also stop the database we started
+        try:
+            print("🗄️  Stopping database...")
+            subprocess.run(
+                ["docker-compose", "stop", "postgres"],
+                capture_output=True
+            )
+            print("✅ Database stopped")
+        except Exception as e:
+            print(f"⚠️  Error stopping database: {e}")
     
     # Exit with appropriate code
     failed_tests = len([r for r in results if r["status"] in ["failed", "error"]])
