@@ -413,16 +413,16 @@ def wait_for_backend_ready(max_retries: int = 30) -> bool:
     
     for i in range(max_retries):
         try:
-            response = requests.get("http://localhost:8000/health", timeout=5)
+            response = requests.get("http://localhost:8000/health", timeout=10)
             if response.status_code == 200:
                 print("✅ Backend is ready")
                 return True
-        except requests.RequestException:
-            pass
+        except requests.RequestException as e:
+            print(f"  Connection attempt {i+1} failed: {e}")
         
         if i < max_retries - 1:
             print(f"  Retrying... ({i+1}/{max_retries})")
-            time.sleep(2)
+            time.sleep(3)  # Increased wait time between retries
     
     print("❌ Backend failed to become ready")
     return False
@@ -442,15 +442,52 @@ def stop_docker_containers() -> None:
 def start_backend_server() -> bool:
     """Start backend server directly using uvicorn."""
     try:
-        print("🚀 Starting backend server...")
+        print(f"🚀 Starting backend server with Python executable: {sys.executable}")
+        
+        # First install backend dependencies using the current Python environment
+        print("📦 Installing backend dependencies...")
+        try:
+            subprocess.run(
+                [sys.executable, "-m", "pip", "install", "-r", "requirements.txt"],
+                cwd="apps/backend",
+                check=True,
+                capture_output=True
+            )
+            print("✅ Backend dependencies installed")
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Failed to install backend dependencies: {e}")
+            return False
+        
+        # Create log file for server output
+        log_file = open("server.log", "w")
+        
         # Change to backend directory and start server
-        subprocess.Popen(
-            ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"],
+        process = subprocess.Popen(
+            [sys.executable, "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"],
             cwd="apps/backend",
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
+            stdout=log_file,
+            stderr=log_file
         )
+        
+        # Give the server more time to start up
+        print("⏳ Waiting for server to initialize...")
+        time.sleep(5)
+        
+        # Check if process is still running
+        if process.poll() is not None:
+            print("❌ Server process terminated unexpectedly")
+            # Read log file to see what went wrong
+            log_file.close()
+            try:
+                with open("server.log", "r") as f:
+                    print("Server log:")
+                    print(f.read())
+            except:
+                pass
+            return False
+            
         print("✅ Backend server started")
+        log_file.close()
         return True
     except Exception as e:
         print(f"❌ Failed to start backend server: {e}")
