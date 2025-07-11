@@ -1,4 +1,4 @@
-version: '3.8'
+# Docker Compose configuration for Awade
 
 services:
   # PostgreSQL Database
@@ -41,22 +41,22 @@ services:
       - ./packages:/app/packages
     command: uvicorn apps.backend.main:app --host 0.0.0.0 --port 8000 --reload
 
-  # Frontend (if using React)
-  frontend:
-    build:
-      context: ./apps/frontend
-      dockerfile: Dockerfile
-    container_name: awade-frontend
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./apps/frontend:/app
-      - /app/node_modules
-    environment:
-      - REACT_APP_API_URL=${REACT_APP_API_URL:-http://localhost:8000}
-    depends_on:
-      - backend
-    command: npm run dev
+  # Frontend (if using React) - Commented out until Dockerfile is created
+  # frontend:
+  #   build:
+  #     context: ./apps/frontend
+  #     dockerfile: Dockerfile
+  #   container_name: awade-frontend
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./apps/frontend:/app
+  #     - /app/node_modules
+  #   environment:
+  #     - REACT_APP_API_URL=${REACT_APP_API_URL:-http://localhost:8000}
+  #   depends_on:
+  #     - backend
+  #   command: npm run dev
 
   # Redis for caching (optional)
   redis:
