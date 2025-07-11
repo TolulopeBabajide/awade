@@ -439,6 +439,36 @@ def stop_docker_containers() -> None:
     except subprocess.CalledProcessError as e:
         print(f"⚠️  Error stopping containers: {e}")
 
+def start_backend_server() -> bool:
+    """Start backend server directly using uvicorn."""
+    try:
+        print("🚀 Starting backend server...")
+        # Change to backend directory and start server
+        subprocess.Popen(
+            ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"],
+            cwd="apps/backend",
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+        print("✅ Backend server started")
+        return True
+    except Exception as e:
+        print(f"❌ Failed to start backend server: {e}")
+        return False
+
+def stop_backend_server() -> None:
+    """Stop backend server."""
+    try:
+        print("🛑 Stopping backend server...")
+        # Find and kill uvicorn processes
+        subprocess.run(
+            ["pkill", "-f", "uvicorn main:app"],
+            capture_output=True
+        )
+        print("✅ Backend server stopped")
+    except Exception as e:
+        print(f"⚠️  Error stopping server: {e}")
+
 def main():
     """Main function for contract testing."""
     import argparse
@@ -452,6 +482,8 @@ def main():
                        help="Path for test report output")
     parser.add_argument("--start-containers", action="store_true",
                        help="Start Docker containers before testing")
+    parser.add_argument("--start-server", action="store_true",
+                       help="Start backend server directly before testing")
     parser.add_argument("--stop-containers", action="store_true",
                        help="Stop Docker containers after testing")
     parser.add_argument("--save", action="store_true",
@@ -465,9 +497,15 @@ def main():
     containers_running = check_docker_containers()
     
     # Start containers if requested or if not running
-    if args.start_containers or not containers_running:
+    if args.start_containers or (not containers_running and not args.start_server):
         if not start_docker_containers():
             print("❌ Failed to start Docker containers")
+            sys.exit(1)
+    
+    # Start server directly if requested
+    if args.start_server:
+        if not start_backend_server():
+            print("❌ Failed to start backend server")
             sys.exit(1)
     
     # Wait for backend to be ready
@@ -475,6 +513,8 @@ def main():
         print("❌ Backend is not responding")
         if args.start_containers:
             stop_docker_containers()
+        if args.start_server:
+            stop_backend_server()
         sys.exit(1)
     
     # Initialize validator
@@ -485,6 +525,8 @@ def main():
         print("❌ Failed to load OpenAPI specification")
         if args.stop_containers:
             stop_docker_containers()
+        if args.start_server:
+            stop_backend_server()
         sys.exit(1)
     
     # Run tests
@@ -500,6 +542,10 @@ def main():
     # Stop containers if requested
     if args.stop_containers:
         stop_docker_containers()
+    
+    # Stop server if started directly
+    if args.start_server:
+        stop_backend_server()
     
     # Exit with appropriate code
     failed_tests = len([r for r in results if r["status"] in ["failed", "error"]])
