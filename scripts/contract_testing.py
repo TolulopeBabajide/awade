@@ -152,30 +152,48 @@ class ContractValidator:
         }
         
         try:
+            # Ensure lesson plan exists for PUT/DELETE tests
+            if test.method in ["PUT", "DELETE"] and "/api/lesson-plans/" in test.endpoint:
+                self.ensure_lesson_plan_exists()
+            
             # Prepare request
             url = f"{self.base_url}{test.endpoint}"
             headers = {"Content-Type": "application/json"}
             
             # Handle path parameters
-            if "{plan_id}" in url:
-                url = url.replace("{plan_id}", "lp_001")
+            if "{lesson_id}" in url:
+                url = url.replace("{lesson_id}", "1")  # Use integer ID
+            elif "{plan_id}" in url:
+                url = url.replace("{plan_id}", "1")  # Use integer ID
             if "{module_id}" in url:
-                url = url.replace("{module_id}", "tm_001")
+                url = url.replace("{module_id}", "1")  # Use integer ID
+            
+            # Handle query parameters for endpoints that require them
+            params = {}
+            if "/api/curriculum/map" in url:
+                params = {"subject": "Mathematics", "grade_level": "Grade 4"}
+            elif "/api/curriculum/standards" in url and test.method == "GET":
+                params = {"subject": "Mathematics", "grade_level": "Grade 4"}
+            elif "/api/curriculum/grade-levels" in url:
+                params = {"subject": "Mathematics"}
             
             # Generate sample request data if schema exists
             request_data = None
             if test.request_schema:
                 request_data = self.generate_sample_data(test.request_schema)
+                # PATCH: For PUT, always send at least one valid field
+                if test.method == "PUT" and (not request_data or not any(request_data.values())):
+                    request_data = {"title": "Updated Title"}
             
             # Make request
             if test.method == "GET":
-                response = requests.get(url, headers=headers)
+                response = requests.get(url, headers=headers, params=params)
             elif test.method == "POST":
-                response = requests.post(url, json=request_data, headers=headers)
+                response = requests.post(url, json=request_data, headers=headers, params=params)
             elif test.method == "PUT":
-                response = requests.put(url, json=request_data, headers=headers)
+                response = requests.put(url, json=request_data, headers=headers, params=params)
             elif test.method == "DELETE":
-                response = requests.delete(url, headers=headers)
+                response = requests.delete(url, headers=headers, params=params)
             else:
                 result["status"] = "skipped"
                 result["warnings"].append(f"Unsupported method: {test.method}")
@@ -216,6 +234,32 @@ class ContractValidator:
             result["errors"].append(f"Unexpected error: {e}")
         
         return result
+    
+    def ensure_lesson_plan_exists(self):
+        """Ensure a lesson plan with ID 1 exists for testing."""
+        try:
+            # Check if lesson plan with ID 1 exists
+            response = requests.get(f"{self.base_url}/api/lesson-plans/1")
+            if response.status_code == 404:
+                # Create a lesson plan if it doesn't exist
+                lesson_plan_data = {
+                    "subject": "Mathematics",
+                    "grade_level": "Grade 4",
+                    "topic": "Fractions",
+                    "objectives": ["Test objective 1", "Test objective 2"],
+                    "duration_minutes": 45,
+                    "language": "en",
+                    "author_id": 1
+                }
+                create_response = requests.post(
+                    f"{self.base_url}/api/lesson-plans/generate",
+                    json=lesson_plan_data,
+                    headers={"Content-Type": "application/json"}
+                )
+                if create_response.status_code not in [200, 201]:
+                    print(f"⚠️  Failed to create lesson plan: {create_response.status_code}")
+        except Exception as e:
+            print(f"⚠️  Error ensuring lesson plan exists: {e}")
     
     def generate_sample_data(self, schema: Dict[str, Any]) -> Any:
         """Generate sample data from JSON schema."""
@@ -338,6 +382,63 @@ class ContractValidator:
                     for error in result["errors"]:
                         print(f"    Error: {error}")
 
+def check_docker_containers() -> bool:
+    """Check if Docker containers are running."""
+    try:
+        result = subprocess.run(
+            ["docker", "ps", "--filter", "name=awade-backend", "--format", "{{.Status}}"],
+            capture_output=True, text=True, check=True
+        )
+        return "Up" in result.stdout
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False
+
+def start_docker_containers() -> bool:
+    """Start Docker containers using docker-compose."""
+    try:
+        print("🚀 Starting Docker containers...")
+        subprocess.run(
+            ["docker-compose", "up", "-d"],
+            check=True, capture_output=True
+        )
+        print("✅ Docker containers started")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Failed to start Docker containers: {e}")
+        return False
+
+def wait_for_backend_ready(max_retries: int = 30) -> bool:
+    """Wait for backend container to be ready."""
+    print("⏳ Waiting for backend to be ready...")
+    
+    for i in range(max_retries):
+        try:
+            response = requests.get("http://localhost:8000/health", timeout=5)
+            if response.status_code == 200:
+                print("✅ Backend is ready")
+                return True
+        except requests.RequestException:
+            pass
+        
+        if i < max_retries - 1:
+            print(f"  Retrying... ({i+1}/{max_retries})")
+            time.sleep(2)
+    
+    print("❌ Backend failed to become ready")
+    return False
+
+def stop_docker_containers() -> None:
+    """Stop Docker containers."""
+    try:
+        print("🛑 Stopping Docker containers...")
+        subprocess.run(
+            ["docker-compose", "down"],
+            check=True, capture_output=True
+        )
+        print("✅ Docker containers stopped")
+    except subprocess.CalledProcessError as e:
+        print(f"⚠️  Error stopping containers: {e}")
+
 def main():
     """Main function for contract testing."""
     import argparse
@@ -349,8 +450,10 @@ def main():
                        help="Path to OpenAPI specification")
     parser.add_argument("--report-path", default="logs/contract_test_report.json",
                        help="Path for test report output")
-    parser.add_argument("--start-server", action="store_true",
-                       help="Start backend server before testing")
+    parser.add_argument("--start-containers", action="store_true",
+                       help="Start Docker containers before testing")
+    parser.add_argument("--stop-containers", action="store_true",
+                       help="Stop Docker containers after testing")
     parser.add_argument("--save", action="store_true",
                        help="Save test report")
     
@@ -358,48 +461,21 @@ def main():
     
     print("🔍 Starting Awade Contract Testing...")
     
-    # Start server if requested
-    server_process = None
-    if args.start_server:
-        print("🚀 Starting backend server...")
-        try:
-            # Set default environment variables to avoid startup issues
-            env = os.environ.copy()
-            env.update({
-                'DEBUG': 'True',
-                'ENVIRONMENT': 'development',
-                'DATABASE_URL': 'sqlite:///./test.db',  # Use SQLite for testing
-                'SECRET_KEY': 'test_secret_key',
-                'OPENAI_API_KEY': 'test_key'
-            })
-            
-            # Start server in background
-            server_process = subprocess.Popen([
-                "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"
-            ], cwd="apps/backend", stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)
-            
-            # Wait for server to be ready
-            max_retries = 15  # Increased retries
-            for i in range(max_retries):
-                try:
-                    response = requests.get("http://localhost:8000/health", timeout=3)
-                    if response.status_code == 200:
-                        print("✅ Backend server is ready")
-                        break
-                except requests.RequestException:
-                    if i < max_retries - 1:
-                        time.sleep(2)  # Increased wait time
-                    else:
-                        print("⚠️  Server startup timed out, continuing with tests...")
-                        # Check if server process is still running
-                        if server_process.poll() is not None:
-                            stdout, stderr = server_process.communicate()
-                            print(f"⚠️  Server failed to start. stdout: {stdout.decode()}")
-                            print(f"⚠️  Server failed to start. stderr: {stderr.decode()}")
-                        else:
-                            print("⚠️  Server process is running but not responding")
-        except Exception as e:
-            print(f"⚠️  Could not start server: {e}")
+    # Check if containers are running
+    containers_running = check_docker_containers()
+    
+    # Start containers if requested or if not running
+    if args.start_containers or not containers_running:
+        if not start_docker_containers():
+            print("❌ Failed to start Docker containers")
+            sys.exit(1)
+    
+    # Wait for backend to be ready
+    if not wait_for_backend_ready():
+        print("❌ Backend is not responding")
+        if args.start_containers:
+            stop_docker_containers()
+        sys.exit(1)
     
     # Initialize validator
     validator = ContractValidator(args.base_url)
@@ -407,6 +483,8 @@ def main():
     # Load OpenAPI spec
     if not validator.load_openapi_spec(args.spec_path):
         print("❌ Failed to load OpenAPI specification")
+        if args.stop_containers:
+            stop_docker_containers()
         sys.exit(1)
     
     # Run tests
@@ -419,16 +497,9 @@ def main():
     # Print summary
     validator.print_summary()
     
-    # Cleanup: stop server if we started it
-    if server_process:
-        print("🛑 Stopping backend server...")
-        try:
-            server_process.terminate()
-            server_process.wait(timeout=5)
-        except subprocess.TimeoutExpired:
-            server_process.kill()
-        except Exception as e:
-            print(f"⚠️  Error stopping server: {e}")
+    # Stop containers if requested
+    if args.stop_containers:
+        stop_docker_containers()
     
     # Exit with appropriate code
     failed_tests = len([r for r in results if r["status"] in ["failed", "error"]])
