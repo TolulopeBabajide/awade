@@ -612,20 +612,23 @@ def main():
     
     # Start server directly if requested
     if args.start_server:
-        # First ensure database is running
-        print("🗄️  Starting database for contract testing...")
-        try:
-            subprocess.run(
-                ["docker-compose", "up", "postgres", "-d"],
-                check=True,
-                capture_output=True
-            )
-            print("✅ Database started")
-            # Wait a bit for database to be ready
-            time.sleep(3)
-        except subprocess.CalledProcessError as e:
-            print(f"⚠️  Could not start database: {e}")
-            print("💡 Make sure Docker is running and docker-compose is available")
+        # In CI (GitHub Actions), the database is already running as a service container
+        if os.getenv("GITHUB_ACTIONS") == "true":
+            print("🗄️  Skipping database startup in GitHub Actions (service container already running)")
+        else:
+            print("🗄️  Starting database for contract testing...")
+            try:
+                subprocess.run(
+                    ["docker-compose", "up", "postgres", "-d"],
+                    check=True,
+                    capture_output=True
+                )
+                print("✅ Database started")
+                # Wait a bit for database to be ready
+                time.sleep(3)
+            except subprocess.CalledProcessError as e:
+                print(f"⚠️  Could not start database: {e}")
+                print("💡 Make sure Docker is running and docker-compose is available")
         
         if not start_backend_server():
             print("❌ Failed to start backend server")
@@ -670,15 +673,18 @@ def main():
     if args.start_server:
         stop_backend_server()
         # Also stop the database we started
-        try:
-            print("🗄️  Stopping database...")
-            subprocess.run(
-                ["docker-compose", "stop", "postgres"],
-                capture_output=True
-            )
-            print("✅ Database stopped")
-        except Exception as e:
-            print(f"⚠️  Error stopping database: {e}")
+        if os.getenv("GITHUB_ACTIONS") == "true":
+            print("🗄️  Skipping database shutdown in GitHub Actions (service container will be cleaned up automatically)")
+        else:
+            try:
+                print("🗄️  Stopping database...")
+                subprocess.run(
+                    ["docker-compose", "stop", "postgres"],
+                    capture_output=True
+                )
+                print("✅ Database stopped")
+            except Exception as e:
+                print(f"⚠️  Error stopping database: {e}")
     
     # Exit with appropriate code
     failed_tests = len([r for r in results if r["status"] in ["failed", "error"]])
