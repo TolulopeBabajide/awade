@@ -170,38 +170,42 @@ jobs:
     name: 📋 Contract Tests
     runs-on: ubuntu-latest
     needs: [validate, backend-test]
-    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: awade
+          POSTGRES_USER: awade_user
+          POSTGRES_PASSWORD: awade_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U awade_user -d awade"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
-        
     - name: Install contract testing dependencies
       run: |
         pip install -r scripts/requirements.txt
         pip install uvicorn
         cd apps/backend
         pip install -r requirements.txt
-        
-    - name: Start database
-      run: |
-        docker-compose up postgres -d
-        sleep 10  # Wait for database to be ready
-        
     - name: Run contract tests
       env:
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        DATABASE_URL: postgresql://awade_user:awade_password@localhost:5432/awade
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         DEBUG: "True"
         ENVIRONMENT: "testing"
       run: |
         python scripts/contract_testing.py --base-url http://localhost:8000 --start-server --save
-        
     - name: Upload contract test report
       uses: actions/upload-artifact@v4
       if: always()
@@ -211,11 +215,6 @@ jobs:
           logs/contract_test_report.json
           server.log
         retention-days: 30
-        
-    - name: Cleanup database
-      if: always()
-      run: |
-        docker-compose down
 
   # Security and Quality Checks
   security:
