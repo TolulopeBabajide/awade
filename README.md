@@ -62,6 +62,15 @@ Built as a modular and extensible platform using a monorepo structure.
    uvicorn main:app --reload
    ```
 
+### CI/CD Setup
+
+For GitHub Actions to work properly, set up the following secrets in your repository:
+- `DATABASE_URL`: Database connection string
+- `SECRET_KEY`: Application secret key  
+- `OPENAI_API_KEY`: OpenAI API key
+
+Go to Settings → Secrets and variables → Actions to configure these.
+
 ## 🏗 Architecture
 
 ```
@@ -82,6 +91,12 @@ awade/
 - 🧠 Code: [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html)
 - 📘 Content: [CC-BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)
 - ❌ AI model training or dataset usage is prohibited. See [AI_USE_POLICY.md](./AI_USE_POLICY.md)
+
+## 🔒 Security
+
+- **Never hard-code secrets**: Use environment variables and GitHub Secrets
+- **Security guidelines**: See [docs/internal/security-guidelines.md](./docs/internal/security-guidelines.md)
+- **Environment setup**: Copy `.env.example` to `.env` and fill in your values
 
 ## 🤝 Contribution Guide
 

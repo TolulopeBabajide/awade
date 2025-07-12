@@ -187,7 +187,18 @@ jobs:
         cd apps/backend
         pip install -r requirements.txt
         
+    - name: Start database
+      run: |
+        docker-compose up postgres -d
+        sleep 10  # Wait for database to be ready
+        
     - name: Run contract tests
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        DEBUG: "True"
+        ENVIRONMENT: "testing"
       run: |
         python scripts/contract_testing.py --base-url http://localhost:8000 --start-server --save
         
@@ -196,8 +207,15 @@ jobs:
       if: always()
       with:
         name: contract-test-report
-        path: logs/contract_test_report.json
+        path: |
+          logs/contract_test_report.json
+          server.log
         retention-days: 30
+        
+    - name: Cleanup database
+      if: always()
+      run: |
+        docker-compose down
 
   # Security and Quality Checks
   security:
