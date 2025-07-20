@@ -76,6 +76,78 @@ stateDiagram-v2
 - **EditLesson → ExportLesson**: Finalized lesson plan ready for export
 - **ExportLesson → [*]**: Process completion, lesson plan ready for classroom use
 
+## 🔄 System Interactions & Data Flow
+
+### Sequence Diagram
+```mermaid
+sequenceDiagram
+    participant Teacher
+    participant UI
+    participant AuthService
+    participant CurriculumDB
+    participant ContextEngine
+    participant AIGenerator
+    participant ExportService
+
+    Teacher->>UI: Sign up / Log in
+    UI->>AuthService: Authenticate credentials
+    AuthService-->>UI: Success token
+    UI-->>Teacher: Dashboard loaded
+
+    Teacher->>UI: Select subject, grade, topic
+    UI->>CurriculumDB: Fetch topic-specific objectives
+    CurriculumDB-->>UI: Topic details
+
+    Teacher->>UI: Input local context
+    UI->>ContextEngine: Process and merge context
+    ContextEngine-->>UI: Context-enhanced prompt
+
+    UI->>AIGenerator: Generate lesson using topic + context
+    AIGenerator-->>UI: Lesson plan output
+
+    Teacher->>UI: Edit lesson content
+    Teacher->>UI: Click "Export"
+    UI->>ExportService: Generate offline file
+    ExportService-->>UI: PDF/DOC file
+    UI-->>Teacher: Download complete
+```
+
+### 🧠 Key Actors
+- **Teacher**: Main user interacting with the system.
+- **UI**: Frontend interface.
+- **AuthService**: FastAPI-based login/signup and session management.
+- **CurriculumDB**: PostgreSQL backend containing curriculum data.
+- **ContextEngine**: Logic for processing user-provided local context.
+- **AIGenerator**: AI (e.g., OpenAI or hosted LLM) for lesson generation.
+- **ExportService**: Converts final content into downloadable format.
+
+### 🏗️ Service Responsibilities
+
+#### Authentication Flow
+- **AuthService**: Handles user registration, login, and session management
+- **Token Management**: JWT-based authentication with secure session handling
+- **Access Control**: Role-based permissions for different user types
+
+#### Curriculum Management
+- **CurriculumDB**: Stores curriculum standards, subjects, grade levels, and topics
+- **Data Retrieval**: Efficient querying of curriculum data for lesson generation
+- **Standards Alignment**: Mapping between curriculum standards and lesson objectives
+
+#### Context Processing
+- **ContextEngine**: Processes and enhances local context information
+- **Cultural Integration**: Adapts content to local cultural and community context
+- **Resource Optimization**: Considers available classroom resources and limitations
+
+#### AI Generation
+- **AIGenerator**: Creates lesson plans using AI models
+- **Prompt Engineering**: Constructs effective prompts combining curriculum and context
+- **Content Quality**: Ensures generated content meets educational standards
+
+#### Export Services
+- **ExportService**: Converts lesson plans to downloadable formats
+- **PDF Generation**: Professional formatting with WeasyPrint
+- **DOC Support**: Editable document formats for further customization
+
 ## 📋 Workflow Steps
 
 ### 1. **Authentication & Onboarding**
