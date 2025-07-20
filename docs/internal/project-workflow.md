@@ -49,6 +49,55 @@ stateDiagram-v2
     }
 ```
 
+### Lesson Plan Lifecycle State Diagram
+```mermaid
+stateDiagram-v2
+    [*] --> Draft
+    Draft --> Generated : AI creates lesson
+    Generated --> Edited : Teacher makes adjustments
+    Edited --> Reviewed : Final review before export
+    Reviewed --> Exported : Downloaded as PDF/DOC
+    Exported --> UsedOffline : Used in classroom
+    UsedOffline --> Archived : Marked for reuse
+    Archived --> [*]
+```
+
+### 📌 State Definitions
+
+- **Draft**: Initial state after selecting topic and context.
+- **Generated**: AI-generated content is produced.
+- **Edited**: Teacher makes changes or personalizations.
+- **Reviewed**: Optional final check before exporting.
+- **Exported**: Lesson is converted to downloadable format.
+- **UsedOffline**: Lesson used in teaching session.
+- **Archived**: Saved for future reuse or reference.
+
+### 🔄 Lesson Plan Lifecycle Management
+
+#### State Transition Triggers:
+- **Draft → Generated**: AI processing completes successfully
+- **Generated → Edited**: Teacher initiates customization
+- **Edited → Reviewed**: Teacher completes editing and requests review
+- **Reviewed → Exported**: Export process initiated
+- **Exported → UsedOffline**: Lesson plan downloaded and used
+- **UsedOffline → Archived**: Teacher marks lesson for future reference
+
+#### State Management Features:
+- **Version Control**: Track changes through state transitions
+- **Collaboration**: Multiple teachers can work on shared lesson plans
+- **Quality Assurance**: Review state ensures content quality
+- **Usage Tracking**: Monitor lesson plan effectiveness
+- **Reusability**: Archived lessons can be adapted for new contexts
+
+#### State-Specific Actions:
+- **Draft State**: Topic selection, context input, AI generation initiation
+- **Generated State**: Content review, initial quality assessment
+- **Edited State**: Content customization, personalization, enhancement
+- **Reviewed State**: Final validation, standards compliance check
+- **Exported State**: Format conversion, download preparation
+- **UsedOffline State**: Classroom implementation, effectiveness tracking
+- **Archived State**: Storage optimization, reuse preparation
+
 ### 🧠 Description of Activities:
 - **SignUp**: Teacher creates or logs into an account.
 - **Dashboard**: Entry point to start creating lessons.
