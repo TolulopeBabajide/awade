@@ -6,6 +6,7 @@ This document outlines the complete user workflow for the Awade platform, from i
 
 ## 🎯 Complete User Journey
 
+### Flowchart View
 ```mermaid
 flowchart LR
     Start([Start])
@@ -27,6 +28,53 @@ flowchart LR
     Edit --> Export
     Export --> End
 ```
+
+### State Diagram View
+```mermaid
+stateDiagram-v2
+    [*] --> SignUp
+    SignUp --> Dashboard
+    Dashboard --> SelectCurriculum
+    SelectCurriculum --> InputContext
+    InputContext --> GenerateLesson
+    GenerateLesson --> ReviewLesson
+    ReviewLesson --> EditLesson
+    EditLesson --> ExportLesson
+    ExportLesson --> [*]
+
+    state ReviewLesson {
+        [*] --> AutoReview
+        AutoReview --> ManualReview
+        ManualReview --> [*]
+    }
+```
+
+### 🧠 Description of Activities:
+- **SignUp**: Teacher creates or logs into an account.
+- **Dashboard**: Entry point to start creating lessons.
+- **SelectCurriculum**: Choose subject, grade, and topic.
+- **InputContext**: Enter culturally/local-relevant teaching context.
+- **GenerateLesson**: AI creates initial draft of the lesson.
+- **ReviewLesson**: User sees a preview before proceeding.
+- **EditLesson**: Modify, personalize, and enhance the AI-generated lesson.
+- **ExportLesson**: Download as offline PDF/DOC for classroom use.
+
+### 🔄 State Transitions & Review Process
+
+#### ReviewLesson State Details:
+- **AutoReview**: System automatically validates lesson plan against curriculum standards and completeness
+- **ManualReview**: Teacher manually reviews the generated content for accuracy and relevance
+- **Transition Logic**: AutoReview → ManualReview → Continue to EditLesson
+
+#### Key State Transitions:
+- **SignUp → Dashboard**: Successful authentication grants access to main interface
+- **Dashboard → SelectCurriculum**: Teacher initiates lesson creation process
+- **SelectCurriculum → InputContext**: Curriculum selection enables context input
+- **InputContext → GenerateLesson**: Context data triggers AI generation
+- **GenerateLesson → ReviewLesson**: Generated content enters review pipeline
+- **ReviewLesson → EditLesson**: Approved content moves to editing phase
+- **EditLesson → ExportLesson**: Finalized lesson plan ready for export
+- **ExportLesson → [*]**: Process completion, lesson plan ready for classroom use
 
 ## 📋 Workflow Steps
 
