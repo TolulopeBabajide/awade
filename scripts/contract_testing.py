@@ -217,6 +217,12 @@ class ContractValidator:
                 params = {"subject": "Mathematics", "grade_level": "JSS1"}
             elif "/api/curriculum/grade-levels" in url:
                 params = {"subject": "Mathematics"}
+            elif "/api/curriculum/subjects" in url:
+                params = {"country": "Nigeria"}
+            elif "/api/curriculum/search/curriculums" in url:
+                params = {"search_term": "Mathematics"}
+            elif "/api/curriculum/search/topics" in url:
+                params = {"search_term": "Basic Operations"}
             elif "/api/lesson/curriculum-map" in url:
                 params = {"subject": "Mathematics", "grade_level": "JSS1", "country": "Nigeria"}
             elif "/api/lesson-plans/curriculum-map" in url:
@@ -228,7 +234,21 @@ class ContractValidator:
                 request_data = self.generate_sample_data(test.request_schema)
                 # PATCH: For PUT, always send at least one valid field
                 if test.method == "PUT" and (not request_data or not any(request_data.values())):
-                    request_data = {"title": "Updated Title"}
+                    # Provide specific data for different PUT endpoints
+                    if "learning-objectives" in url:
+                        request_data = {"objective": "Updated learning objective"}
+                    elif "contents" in url:
+                        request_data = {"content_area": "Updated content area"}
+                    elif "teacher-activities" in url:
+                        request_data = {"activity": "Updated teacher activity"}
+                    elif "student-activities" in url:
+                        request_data = {"activity": "Updated student activity"}
+                    elif "teaching-materials" in url:
+                        request_data = {"material": "Updated teaching material"}
+                    elif "evaluation-guides" in url:
+                        request_data = {"guide": "Updated evaluation guide"}
+                    else:
+                        request_data = {"title": "Updated Title"}
             
             # Make request
             if test.method == "GET":
