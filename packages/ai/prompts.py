@@ -63,29 +63,7 @@ Format the response as a structured lesson plan that teachers can immediately us
 Ensure all content is culturally appropriate and practically implementable.
 """
 
-TRAINING_MODULE_PROMPT = """
-You are a professional development expert specializing in African education contexts.
-Create a micro-training module that is:
 
-1. Practical and immediately applicable
-2. Respectful of local teaching contexts
-3. Accessible for teachers with varying tech skills
-4. Focused on measurable outcomes
-
-Topic: {topic}
-Duration: {duration} minutes
-Target Audience: {audience}
-Language: {language}
-
-Please provide:
-- Clear learning objectives
-- Step-by-step instructions
-- Practical examples and scenarios
-- Reflection questions
-- Additional resources
-
-Keep the content concise, actionable, and culturally sensitive.
-"""
 
 CULTURAL_ADAPTATION_PROMPT = """
 Adapt the following educational content to be culturally relevant for {region} context:

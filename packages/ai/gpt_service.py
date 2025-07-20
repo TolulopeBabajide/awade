@@ -9,7 +9,6 @@ from typing import Dict, List, Optional
 from openai import OpenAI
 from .prompts import (
     LESSON_PLAN_PROMPT,
-    TRAINING_MODULE_PROMPT,
     CULTURAL_ADAPTATION_PROMPT,
     EXPLANATION_PROMPT
 )
@@ -101,57 +100,7 @@ class AwadeGPTService:
                 "fallback": self._generate_fallback_lesson_plan(subject, grade, topic, objectives)
             }
     
-    def generate_training_module(
-        self,
-        topic: str,
-        duration: int,
-        audience: str = "African teachers",
-        language: str = "en"
-    ) -> Dict:
-        """
-        Generate a micro-training module for professional development.
-        
-        Args:
-            topic: Training topic
-            duration: Module duration in minutes
-            audience: Target audience
-            language: Module language
-            
-        Returns:
-            Dict containing the training module
-        """
-        try:
-            prompt = TRAINING_MODULE_PROMPT.format(
-                topic=topic,
-                duration=duration,
-                audience=audience,
-                language=language
-            )
-            
-            response = self.client.chat.completions.create(
-                model="gpt-4",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are a professional development expert for African educators."
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                temperature=0.6,
-                max_tokens=800
-            )
-            
-            content = response.choices[0].message.content
-            return self._structure_training_module(content, topic, duration)
-            
-        except Exception as e:
-            return {
-                "error": f"Failed to generate training module: {str(e)}",
-                "fallback": self._generate_fallback_training_module(topic, duration)
-            }
+
     
     def explain_ai_content(self, content: str, context: str) -> str:
         """
@@ -211,16 +160,7 @@ class AwadeGPTService:
             "content": content
         }
     
-    def _structure_training_module(self, content: str, topic: str, duration: int) -> Dict:
-        """Structure the raw AI response into a training module format."""
-        return {
-            "title": topic,
-            "description": self._extract_description(content),
-            "duration": duration,
-            "objectives": self._extract_objectives(content),
-            "steps": self._extract_steps(content),
-            "content": content
-        }
+
     
     def _extract_activities(self, content: str) -> List[str]:
         """Extract activities from AI response."""
@@ -323,13 +263,4 @@ class AwadeGPTService:
             "content": f"Basic {subject} lesson plan on {topic} for {grade}"
         }
     
-    def _generate_fallback_training_module(self, topic: str, duration: int) -> Dict:
-        """Generate a basic fallback training module when AI fails."""
-        return {
-            "title": topic,
-            "description": f"Professional development module on {topic}",
-            "duration": duration,
-            "objectives": ["Understand key concepts", "Apply new knowledge", "Reflect on practice"],
-            "steps": ["Introduction", "Main content", "Practice", "Reflection"],
-            "content": f"Basic training module on {topic}"
-        } 
+ 

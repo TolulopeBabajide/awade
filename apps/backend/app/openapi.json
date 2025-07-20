@@ -6,14 +6,14 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/api/api/lesson-plans/curriculum-map": {
+    "/api/lesson-plans/curriculum-map": {
       "get": {
         "tags": [
           "lesson-plans"
         ],
         "summary": "Map Curriculum For Lesson",
         "description": "Map subject and grade level to curriculum standards for lesson plan alignment.\nReturns curriculum_id and curriculum_description.",
-        "operationId": "map_curriculum_for_lesson_api_api_lesson_plans_curriculum_map_get",
+        "operationId": "map_curriculum_for_lesson_api_lesson_plans_curriculum_map_get",
         "parameters": [
           {
             "name": "subject",
@@ -72,19 +72,19 @@
         }
       }
     },
-    "/api/api/lesson-plans/generate": {
+    "/api/lesson-plans/generate": {
       "post": {
         "tags": [
           "lesson-plans"
         ],
         "summary": "Generate Lesson Plan",
         "description": "Generate an AI-powered lesson plan.",
-        "operationId": "generate_lesson_plan_api_api_lesson_plans_generate_post",
+        "operationId": "generate_lesson_plan_api_lesson_plans_generate_post",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/schemas__lesson_plans__LessonPlanCreate"
+                "$ref": "#/components/schemas/LessonPlanCreate"
               }
             }
           },
@@ -96,7 +96,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/schemas__lesson_plans__LessonPlanResponse"
+                  "$ref": "#/components/schemas/LessonPlanResponse"
                 }
               }
             }
@@ -114,14 +114,14 @@
         }
       }
     },
-    "/api/api/lesson-plans/": {
+    "/api/lesson-plans/": {
       "get": {
         "tags": [
           "lesson-plans"
         ],
         "summary": "Get Lesson Plans",
         "description": "Get all lesson plans with optional filtering.",
-        "operationId": "get_lesson_plans_api_api_lesson_plans__get",
+        "operationId": "get_lesson_plans_api_lesson_plans__get",
         "parameters": [
           {
             "name": "skip",
@@ -184,9 +184,9 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/schemas__lesson_plans__LessonPlanResponse"
+                    "$ref": "#/components/schemas/LessonPlanResponse"
                   },
-                  "title": "Response Get Lesson Plans Api Api Lesson Plans  Get"
+                  "title": "Response Get Lesson Plans Api Lesson Plans  Get"
                 }
               }
             }
@@ -204,14 +204,14 @@
         }
       }
     },
-    "/api/api/lesson-plans/{lesson_id}": {
+    "/api/lesson-plans/{lesson_id}": {
       "get": {
         "tags": [
           "lesson-plans"
         ],
         "summary": "Get Lesson Plan",
         "description": "Get a specific lesson plan by ID.",
-        "operationId": "get_lesson_plan_api_api_lesson_plans__lesson_id__get",
+        "operationId": "get_lesson_plan_api_lesson_plans__lesson_id__get",
         "parameters": [
           {
             "name": "lesson_id",
@@ -229,7 +229,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/schemas__lesson_plans__LessonPlanResponse"
+                  "$ref": "#/components/schemas/LessonPlanResponse"
                 }
               }
             }
@@ -252,7 +252,7 @@
         ],
         "summary": "Update Lesson Plan",
         "description": "Update a lesson plan.",
-        "operationId": "update_lesson_plan_api_api_lesson_plans__lesson_id__put",
+        "operationId": "update_lesson_plan_api_lesson_plans__lesson_id__put",
         "parameters": [
           {
             "name": "lesson_id",
@@ -269,7 +269,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/schemas__lesson_plans__LessonPlanUpdate"
+                "$ref": "#/components/schemas/LessonPlanUpdate"
               }
             }
           }
@@ -280,7 +280,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/schemas__lesson_plans__LessonPlanResponse"
+                  "$ref": "#/components/schemas/LessonPlanResponse"
                 }
               }
             }
@@ -303,7 +303,7 @@
         ],
         "summary": "Delete Lesson Plan",
         "description": "Delete a lesson plan.",
-        "operationId": "delete_lesson_plan_api_api_lesson_plans__lesson_id__delete",
+        "operationId": "delete_lesson_plan_api_lesson_plans__lesson_id__delete",
         "parameters": [
           {
             "name": "lesson_id",
@@ -337,14 +337,14 @@
         }
       }
     },
-    "/api/api/lesson-plans/{lesson_id}/export/pdf": {
+    "/api/lesson-plans/{lesson_id}/export/pdf": {
       "get": {
         "tags": [
           "lesson-plans"
         ],
         "summary": "Export Lesson Plan Pdf",
         "description": "Export lesson plan as PDF.",
-        "operationId": "export_lesson_plan_pdf_api_api_lesson_plans__lesson_id__export_pdf_get",
+        "operationId": "export_lesson_plan_pdf_api_lesson_plans__lesson_id__export_pdf_get",
         "parameters": [
           {
             "name": "lesson_id",
@@ -378,14 +378,14 @@
         }
       }
     },
-    "/api/api/lesson-plans/{lesson_id}/context": {
+    "/api/lesson-plans/{lesson_id}/context": {
       "post": {
         "tags": [
           "lesson-plans"
         ],
         "summary": "Add Lesson Context",
         "description": "Add context information to a lesson plan.",
-        "operationId": "add_lesson_context_api_api_lesson_plans__lesson_id__context_post",
+        "operationId": "add_lesson_context_api_lesson_plans__lesson_id__context_post",
         "parameters": [
           {
             "name": "lesson_id",
@@ -402,7 +402,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/schemas__lesson_plans__LessonContextCreate"
+                "$ref": "#/components/schemas/LessonContextCreate"
               }
             }
           }
@@ -434,7 +434,7 @@
         ],
         "summary": "Get Lesson Context",
         "description": "Get all context information for a lesson plan.",
-        "operationId": "get_lesson_context_api_api_lesson_plans__lesson_id__context_get",
+        "operationId": "get_lesson_context_api_lesson_plans__lesson_id__context_get",
         "parameters": [
           {
             "name": "lesson_id",
@@ -468,14 +468,14 @@
         }
       }
     },
-    "/api/api/lesson-plans/{lesson_id}/detailed": {
+    "/api/lesson-plans/{lesson_id}/detailed": {
       "get": {
         "tags": [
           "lesson-plans"
         ],
         "summary": "Get Lesson Plan Detailed",
         "description": "Get a detailed lesson plan with AI-generated sections.",
-        "operationId": "get_lesson_plan_detailed_api_api_lesson_plans__lesson_id__detailed_get",
+        "operationId": "get_lesson_plan_detailed_api_lesson_plans__lesson_id__detailed_get",
         "parameters": [
           {
             "name": "lesson_id",
@@ -493,7 +493,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/schemas__lesson_plans__LessonPlanDetailResponse"
+                  "$ref": "#/components/schemas/LessonPlanDetailResponse"
                 }
               }
             }
@@ -2462,6 +2462,7 @@
     "/": {
       "get": {
         "summary": "Root",
+        "description": "Root endpoint with API information.",
         "operationId": "root__get",
         "responses": {
           "200": {
@@ -2478,6 +2479,7 @@
     "/health": {
       "get": {
         "summary": "Health Check",
+        "description": "Health check endpoint.",
         "operationId": "health_check_health_get",
         "responses": {
           "200": {
@@ -2491,421 +2493,10 @@
         }
       }
     },
-    "/api/lesson-plans/generate": {
-      "post": {
-        "summary": "Generate Lesson Plan",
-        "description": "Generate an AI-powered lesson plan based on subject, grade, and objectives.",
-        "operationId": "generate_lesson_plan_api_lesson_plans_generate_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/main__LessonPlanCreate"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LessonPlan"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/lesson-plans": {
-      "get": {
-        "summary": "Get Lesson Plans",
-        "description": "Retrieve all saved lesson plans.",
-        "operationId": "get_lesson_plans_api_lesson_plans_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/main__LessonPlanResponse"
-                  },
-                  "type": "array",
-                  "title": "Response Get Lesson Plans Api Lesson Plans Get"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/lesson-plans/{plan_id}": {
-      "get": {
-        "summary": "Get Lesson Plan",
-        "description": "Retrieve a specific lesson plan by ID.",
-        "operationId": "get_lesson_plan_api_lesson_plans__plan_id__get",
-        "parameters": [
-          {
-            "name": "plan_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Plan Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/main__LessonPlanResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "summary": "Update Lesson Plan",
-        "description": "Update a lesson plan (partial update allowed).",
-        "operationId": "update_lesson_plan_api_lesson_plans__plan_id__put",
-        "parameters": [
-          {
-            "name": "plan_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Plan Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/main__LessonPlanUpdate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/main__LessonPlanResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "summary": "Delete Lesson Plan",
-        "description": "Delete a lesson plan. Idempotent: returns 200 even if not found.",
-        "operationId": "delete_lesson_plan_api_lesson_plans__plan_id__delete",
-        "parameters": [
-          {
-            "name": "plan_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Plan Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/lesson-plans/{plan_id}/export/pdf": {
-      "get": {
-        "summary": "Export Lesson Plan Pdf",
-        "description": "Export lesson plan as PDF.",
-        "operationId": "export_lesson_plan_pdf_api_lesson_plans__plan_id__export_pdf_get",
-        "parameters": [
-          {
-            "name": "plan_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Plan Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/lesson-plans/{plan_id}/context": {
-      "post": {
-        "summary": "Add Lesson Context",
-        "description": "Add context information to a lesson plan.",
-        "operationId": "add_lesson_context_api_lesson_plans__plan_id__context_post",
-        "parameters": [
-          {
-            "name": "plan_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Plan Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/main__LessonContextCreate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "summary": "Get Lesson Context",
-        "description": "Get all context information for a lesson plan.",
-        "operationId": "get_lesson_context_api_lesson_plans__plan_id__context_get",
-        "parameters": [
-          {
-            "name": "plan_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Plan Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/lesson-plans/{plan_id}/detailed": {
-      "get": {
-        "summary": "Get Lesson Plan Detailed",
-        "description": "Get a detailed lesson plan with AI-generated sections.",
-        "operationId": "get_lesson_plan_detailed_api_lesson_plans__plan_id__detailed_get",
-        "parameters": [
-          {
-            "name": "plan_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Plan Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/main__LessonPlanDetailResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/training-modules": {
-      "get": {
-        "summary": "Get Training Modules",
-        "description": "Retrieve all available training modules.",
-        "operationId": "get_training_modules_api_training_modules_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/TrainingModule"
-                  },
-                  "type": "array",
-                  "title": "Response Get Training Modules Api Training Modules Get"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/training-modules/{module_id}": {
-      "get": {
-        "summary": "Get Training Module",
-        "description": "Retrieve a specific training module by ID. Always returns module with id=1 for contract testing.",
-        "operationId": "get_training_module_api_training_modules__module_id__get",
-        "parameters": [
-          {
-            "name": "module_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Module Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TrainingModule"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/lesson/curriculum-map": {
       "get": {
         "summary": "Map Curriculum For Lesson",
-        "description": "Map subject and grade level to curriculum standards for lesson plan alignment.\nReturns curriculum_id and curriculum_description.",
+        "description": "Legacy curriculum mapping endpoint - redirects to new curriculum router.\nThis endpoint is maintained for backward compatibility.",
         "operationId": "map_curriculum_for_lesson_api_lesson_curriculum_map_get",
         "parameters": [
           {
@@ -3551,11 +3142,127 @@
         ],
         "title": "LearningObjectiveResponse"
       },
-      "LessonPlan": {
+      "LessonContextCreate": {
         "properties": {
-          "id": {
+          "context_key": {
+            "type": "string",
+            "title": "Context Key",
+            "description": "Context key (e.g., local_resources, student_background)"
+          },
+          "context_value": {
+            "type": "string",
+            "title": "Context Value",
+            "description": "Context value"
+          }
+        },
+        "type": "object",
+        "required": [
+          "context_key",
+          "context_value"
+        ],
+        "title": "LessonContextCreate"
+      },
+      "LessonPlanCreate": {
+        "properties": {
+          "subject": {
+            "type": "string",
+            "title": "Subject",
+            "description": "Subject area (e.g., Mathematics, Science)"
+          },
+          "grade_level": {
+            "type": "string",
+            "title": "Grade Level",
+            "description": "Grade level (e.g., Grade 4, Grade 7)"
+          },
+          "topic": {
+            "type": "string",
+            "title": "Topic",
+            "description": "Specific topic within the subject (e.g., Fractions, Photosynthesis)"
+          },
+          "objectives": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Objectives",
+            "description": "Learning objectives (optional - AI will generate if not provided)"
+          },
+          "duration_minutes": {
             "type": "integer",
-            "title": "Id"
+            "title": "Duration Minutes",
+            "description": "Lesson duration in minutes",
+            "default": 45
+          },
+          "local_context": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Local Context",
+            "description": "Local context for the lesson (e.g., rural school, urban setting, available resources)"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "description": "Primary language for the lesson",
+            "default": "en"
+          },
+          "cultural_context": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cultural Context",
+            "description": "Cultural context for adaptations",
+            "default": "African"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country",
+            "description": "Country for curriculum mapping"
+          },
+          "author_id": {
+            "type": "integer",
+            "title": "Author Id",
+            "description": "User ID of the lesson plan author"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subject",
+          "grade_level",
+          "topic",
+          "author_id"
+        ],
+        "title": "LessonPlanCreate"
+      },
+      "LessonPlanDetailResponse": {
+        "properties": {
+          "lesson_id": {
+            "type": "integer",
+            "title": "Lesson Id"
           },
           "title": {
             "type": "string",
@@ -3565,58 +3272,324 @@
             "type": "string",
             "title": "Subject"
           },
-          "grade": {
+          "grade_level": {
             "type": "string",
-            "title": "Grade"
+            "title": "Grade Level"
           },
-          "objectives": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Objectives"
+          "topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic"
           },
-          "activities": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Activities"
+          "author_id": {
+            "type": "integer",
+            "title": "Author Id"
           },
-          "materials": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Materials"
-          },
-          "assessment": {
-            "type": "string",
-            "title": "Assessment"
-          },
-          "rationale": {
-            "type": "string",
-            "title": "Rationale"
+          "duration_minutes": {
+            "type": "integer",
+            "title": "Duration Minutes"
           },
           "created_at": {
             "type": "string",
+            "format": "date-time",
             "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "status": {
+            "$ref": "#/components/schemas/LessonStatus"
+          },
+          "learning_objectives": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Learning Objectives"
+          },
+          "local_context_section": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Local Context Section"
+          },
+          "core_content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Core Content"
+          },
+          "activities": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activities"
+          },
+          "quiz": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quiz"
+          },
+          "related_projects": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Related Projects"
           }
         },
         "type": "object",
         "required": [
-          "id",
+          "lesson_id",
           "title",
           "subject",
-          "grade",
-          "objectives",
-          "activities",
-          "materials",
-          "assessment",
-          "rationale",
-          "created_at"
+          "grade_level",
+          "author_id",
+          "duration_minutes",
+          "created_at",
+          "updated_at",
+          "status"
         ],
-        "title": "LessonPlan"
+        "title": "LessonPlanDetailResponse"
+      },
+      "LessonPlanResponse": {
+        "properties": {
+          "lesson_id": {
+            "type": "integer",
+            "title": "Lesson Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "grade_level": {
+            "type": "string",
+            "title": "Grade Level"
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic"
+          },
+          "author_id": {
+            "type": "integer",
+            "title": "Author Id"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "title": "Duration Minutes"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "status": {
+            "$ref": "#/components/schemas/LessonStatus"
+          }
+        },
+        "type": "object",
+        "required": [
+          "lesson_id",
+          "title",
+          "subject",
+          "grade_level",
+          "author_id",
+          "duration_minutes",
+          "created_at",
+          "updated_at",
+          "status"
+        ],
+        "title": "LessonPlanResponse"
+      },
+      "LessonPlanUpdate": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject"
+          },
+          "grade_level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade Level"
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic"
+          },
+          "duration_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Minutes"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LessonStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "learning_objectives": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Learning Objectives"
+          },
+          "local_context_section": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Local Context Section"
+          },
+          "core_content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Core Content"
+          },
+          "activities": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activities"
+          },
+          "quiz": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quiz"
+          },
+          "related_projects": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Related Projects"
+          }
+        },
+        "type": "object",
+        "title": "LessonPlanUpdate"
       },
       "LessonStatus": {
         "type": "string",
@@ -4088,49 +4061,6 @@
         "type": "object",
         "title": "TopicUpdate"
       },
-      "TrainingModule": {
-        "properties": {
-          "id": {
-            "type": "integer",
-            "title": "Id"
-          },
-          "title": {
-            "type": "string",
-            "title": "Title"
-          },
-          "description": {
-            "type": "string",
-            "title": "Description"
-          },
-          "duration": {
-            "type": "integer",
-            "title": "Duration"
-          },
-          "category": {
-            "type": "string",
-            "title": "Category"
-          },
-          "language": {
-            "type": "string",
-            "title": "Language"
-          },
-          "is_offline": {
-            "type": "boolean",
-            "title": "Is Offline"
-          }
-        },
-        "type": "object",
-        "required": [
-          "id",
-          "title",
-          "description",
-          "duration",
-          "category",
-          "language",
-          "is_offline"
-        ],
-        "title": "TrainingModule"
-      },
       "ValidationError": {
         "properties": {
           "loc": {
@@ -4163,814 +4093,6 @@
           "type"
         ],
         "title": "ValidationError"
-      },
-      "main__LessonContextCreate": {
-        "properties": {
-          "context_key": {
-            "type": "string",
-            "title": "Context Key"
-          },
-          "context_value": {
-            "type": "string",
-            "title": "Context Value"
-          }
-        },
-        "type": "object",
-        "required": [
-          "context_key",
-          "context_value"
-        ],
-        "title": "LessonContextCreate"
-      },
-      "main__LessonPlanCreate": {
-        "properties": {
-          "subject": {
-            "type": "string",
-            "title": "Subject"
-          },
-          "grade_level": {
-            "type": "string",
-            "title": "Grade Level"
-          },
-          "topic": {
-            "type": "string",
-            "title": "Topic"
-          },
-          "objectives": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Objectives"
-          },
-          "duration_minutes": {
-            "type": "integer",
-            "title": "Duration Minutes",
-            "default": 45
-          },
-          "local_context": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Local Context"
-          },
-          "language": {
-            "type": "string",
-            "title": "Language",
-            "default": "en"
-          },
-          "cultural_context": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Cultural Context",
-            "default": "African"
-          },
-          "country": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Country"
-          },
-          "author_id": {
-            "type": "integer",
-            "title": "Author Id"
-          }
-        },
-        "type": "object",
-        "required": [
-          "subject",
-          "grade_level",
-          "topic",
-          "author_id"
-        ],
-        "title": "LessonPlanCreate"
-      },
-      "main__LessonPlanDetailResponse": {
-        "properties": {
-          "lesson_id": {
-            "type": "integer",
-            "title": "Lesson Id"
-          },
-          "title": {
-            "type": "string",
-            "title": "Title"
-          },
-          "subject": {
-            "type": "string",
-            "title": "Subject"
-          },
-          "grade_level": {
-            "type": "string",
-            "title": "Grade Level"
-          },
-          "topic": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Topic"
-          },
-          "author_id": {
-            "type": "integer",
-            "title": "Author Id"
-          },
-          "context_description": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Context Description"
-          },
-          "duration_minutes": {
-            "type": "integer",
-            "title": "Duration Minutes"
-          },
-          "created_at": {
-            "type": "string",
-            "title": "Created At"
-          },
-          "updated_at": {
-            "type": "string",
-            "title": "Updated At"
-          },
-          "status": {
-            "type": "string",
-            "title": "Status"
-          },
-          "learning_objectives": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Learning Objectives"
-          },
-          "local_context": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Local Context"
-          },
-          "core_content": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Core Content"
-          }
-        },
-        "type": "object",
-        "required": [
-          "lesson_id",
-          "title",
-          "subject",
-          "grade_level",
-          "author_id",
-          "duration_minutes",
-          "created_at",
-          "updated_at",
-          "status"
-        ],
-        "title": "LessonPlanDetailResponse"
-      },
-      "main__LessonPlanResponse": {
-        "properties": {
-          "lesson_id": {
-            "type": "integer",
-            "title": "Lesson Id"
-          },
-          "title": {
-            "type": "string",
-            "title": "Title"
-          },
-          "subject": {
-            "type": "string",
-            "title": "Subject"
-          },
-          "grade_level": {
-            "type": "string",
-            "title": "Grade Level"
-          },
-          "topic": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Topic"
-          },
-          "author_id": {
-            "type": "integer",
-            "title": "Author Id"
-          },
-          "context_description": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Context Description"
-          },
-          "duration_minutes": {
-            "type": "integer",
-            "title": "Duration Minutes"
-          },
-          "created_at": {
-            "type": "string",
-            "title": "Created At"
-          },
-          "updated_at": {
-            "type": "string",
-            "title": "Updated At"
-          },
-          "status": {
-            "type": "string",
-            "title": "Status"
-          }
-        },
-        "type": "object",
-        "required": [
-          "lesson_id",
-          "title",
-          "subject",
-          "grade_level",
-          "author_id",
-          "duration_minutes",
-          "created_at",
-          "updated_at",
-          "status"
-        ],
-        "title": "LessonPlanResponse"
-      },
-      "main__LessonPlanUpdate": {
-        "properties": {
-          "title": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Title"
-          },
-          "subject": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Subject"
-          },
-          "grade_level": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Grade Level"
-          },
-          "context_description": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Context Description"
-          },
-          "duration_minutes": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Duration Minutes"
-          },
-          "status": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Status"
-          }
-        },
-        "type": "object",
-        "title": "LessonPlanUpdate"
-      },
-      "schemas__lesson_plans__LessonContextCreate": {
-        "properties": {
-          "context_key": {
-            "type": "string",
-            "title": "Context Key",
-            "description": "Context key (e.g., local_resources, student_background)"
-          },
-          "context_value": {
-            "type": "string",
-            "title": "Context Value",
-            "description": "Context value"
-          }
-        },
-        "type": "object",
-        "required": [
-          "context_key",
-          "context_value"
-        ],
-        "title": "LessonContextCreate"
-      },
-      "schemas__lesson_plans__LessonPlanCreate": {
-        "properties": {
-          "subject": {
-            "type": "string",
-            "title": "Subject",
-            "description": "Subject area (e.g., Mathematics, Science)"
-          },
-          "grade_level": {
-            "type": "string",
-            "title": "Grade Level",
-            "description": "Grade level (e.g., Grade 4, Grade 7)"
-          },
-          "topic": {
-            "type": "string",
-            "title": "Topic",
-            "description": "Specific topic within the subject (e.g., Fractions, Photosynthesis)"
-          },
-          "objectives": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Objectives",
-            "description": "Learning objectives (optional - AI will generate if not provided)"
-          },
-          "duration_minutes": {
-            "type": "integer",
-            "title": "Duration Minutes",
-            "description": "Lesson duration in minutes",
-            "default": 45
-          },
-          "local_context": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Local Context",
-            "description": "Local context for the lesson (e.g., rural school, urban setting, available resources)"
-          },
-          "language": {
-            "type": "string",
-            "title": "Language",
-            "description": "Primary language for the lesson",
-            "default": "en"
-          },
-          "cultural_context": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Cultural Context",
-            "description": "Cultural context for adaptations",
-            "default": "African"
-          },
-          "country": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Country",
-            "description": "Country for curriculum mapping"
-          },
-          "author_id": {
-            "type": "integer",
-            "title": "Author Id",
-            "description": "User ID of the lesson plan author"
-          }
-        },
-        "type": "object",
-        "required": [
-          "subject",
-          "grade_level",
-          "topic",
-          "author_id"
-        ],
-        "title": "LessonPlanCreate"
-      },
-      "schemas__lesson_plans__LessonPlanDetailResponse": {
-        "properties": {
-          "lesson_id": {
-            "type": "integer",
-            "title": "Lesson Id"
-          },
-          "title": {
-            "type": "string",
-            "title": "Title"
-          },
-          "subject": {
-            "type": "string",
-            "title": "Subject"
-          },
-          "grade_level": {
-            "type": "string",
-            "title": "Grade Level"
-          },
-          "topic": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Topic"
-          },
-          "author_id": {
-            "type": "integer",
-            "title": "Author Id"
-          },
-          "duration_minutes": {
-            "type": "integer",
-            "title": "Duration Minutes"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Created At"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Updated At"
-          },
-          "status": {
-            "$ref": "#/components/schemas/LessonStatus"
-          },
-          "learning_objectives": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Learning Objectives"
-          },
-          "local_context_section": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Local Context Section"
-          },
-          "core_content": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Core Content"
-          },
-          "activities": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Activities"
-          },
-          "quiz": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Quiz"
-          },
-          "related_projects": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Related Projects"
-          }
-        },
-        "type": "object",
-        "required": [
-          "lesson_id",
-          "title",
-          "subject",
-          "grade_level",
-          "author_id",
-          "duration_minutes",
-          "created_at",
-          "updated_at",
-          "status"
-        ],
-        "title": "LessonPlanDetailResponse"
-      },
-      "schemas__lesson_plans__LessonPlanResponse": {
-        "properties": {
-          "lesson_id": {
-            "type": "integer",
-            "title": "Lesson Id"
-          },
-          "title": {
-            "type": "string",
-            "title": "Title"
-          },
-          "subject": {
-            "type": "string",
-            "title": "Subject"
-          },
-          "grade_level": {
-            "type": "string",
-            "title": "Grade Level"
-          },
-          "topic": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Topic"
-          },
-          "author_id": {
-            "type": "integer",
-            "title": "Author Id"
-          },
-          "duration_minutes": {
-            "type": "integer",
-            "title": "Duration Minutes"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Created At"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Updated At"
-          },
-          "status": {
-            "$ref": "#/components/schemas/LessonStatus"
-          }
-        },
-        "type": "object",
-        "required": [
-          "lesson_id",
-          "title",
-          "subject",
-          "grade_level",
-          "author_id",
-          "duration_minutes",
-          "created_at",
-          "updated_at",
-          "status"
-        ],
-        "title": "LessonPlanResponse"
-      },
-      "schemas__lesson_plans__LessonPlanUpdate": {
-        "properties": {
-          "title": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Title"
-          },
-          "subject": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Subject"
-          },
-          "grade_level": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Grade Level"
-          },
-          "topic": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Topic"
-          },
-          "duration_minutes": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Duration Minutes"
-          },
-          "status": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/LessonStatus"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "learning_objectives": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Learning Objectives"
-          },
-          "local_context_section": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Local Context Section"
-          },
-          "core_content": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Core Content"
-          },
-          "activities": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Activities"
-          },
-          "quiz": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Quiz"
-          },
-          "related_projects": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Related Projects"
-          }
-        },
-        "type": "object",
-        "title": "LessonPlanUpdate"
       }
     }
   }

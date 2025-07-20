@@ -18,7 +18,7 @@ sys.path.insert(0, str(backend_dir))
 
 from database import engine, SessionLocal, create_tables
 from models import (
-    Base, User, EducatorProfile, Tag, UserRole, LessonStatus, 
+    Base, User, Tag, UserRole, LessonStatus, 
     ResourceType, QuestionType, CurriculumMap
 )
 from sqlalchemy.orm import Session
@@ -132,8 +132,8 @@ def create_seed_data(db: Session):
         curriculum = CurriculumMap(
             subject=curriculum_item["subject"],
             grade_level=curriculum_item["grade_level"],
-            curriculum_standard=curriculum_item["curriculum_standard"],
-            description=curriculum_item["description"],
+            standard_code=curriculum_item["curriculum_standard"],
+            standard_description=curriculum_item["description"],
             country=curriculum_item["country"],
             created_at=datetime.now()
         )
@@ -142,27 +142,16 @@ def create_seed_data(db: Session):
     # Flush to get user IDs
     db.flush()
     
-    # Create educator profile
-    educator_profile = EducatorProfile(
-        user_id=educator_user.user_id,
-        full_name="Grace Okechukwu",
-        country="Nigeria",
-        region="Lagos",
-        school_name="Community Primary School",
-        subjects=["Mathematics", "Science", "English"],
-        grade_levels=["Grade 4", "Grade 5", "Grade 6"],
-        languages_spoken="English, Yoruba, Igbo"
-    )
-    db.add(educator_profile)
+    # Note: Educator profile information is now stored directly in the User model
+    # The educator user has been created with the necessary information
     
     # Commit all changes
     db.commit()
     
     print("✅ Seed data created successfully!")
     print(f"   - Created {len(tags)} tags")
-    print(f"   - Created admin user: admin@awade.org")
-    print(f"   - Created educator user: grace.teacher@school.com")
-    print(f"   - Created educator profile for Grace Okechukwu")
+    print(f"   - Created admin user: {admin_email}")
+    print(f"   - Created educator user: {educator_email}")
     print(f"   - Created {len(curriculum_data)} curriculum standards")
 
 def main():

@@ -45,15 +45,7 @@ class Subject(str, Enum):
     PHYSICAL_EDUCATION = "Physical Education"
     TECHNOLOGY = "Technology"
 
-class TrainingCategory(str, Enum):
-    """Training module categories."""
-    CLASSROOM_MANAGEMENT = "Classroom Management"
-    PEDAGOGY = "Pedagogy"
-    TECHNOLOGY_INTEGRATION = "Technology Integration"
-    ASSESSMENT = "Assessment"
-    CULTURAL_RELEVANCE = "Cultural Relevance"
-    SPECIAL_NEEDS = "Special Needs"
-    LEADERSHIP = "Leadership"
+
 
 class BaseResponse(BaseModel):
     """Base response model."""
@@ -87,27 +79,7 @@ class LessonPlan(BaseModel):
     is_offline: bool = Field(True, description="Whether available offline")
     ai_explanation: Optional[str] = Field(None, description="AI explanation of choices")
 
-class TrainingModuleRequest(BaseModel):
-    """Request model for training module generation."""
-    topic: str = Field(..., description="Training topic")
-    duration: int = Field(..., description="Module duration in minutes", ge=5, le=60)
-    category: TrainingCategory = Field(..., description="Training category")
-    language: Language = Field(Language.ENGLISH, description="Module language")
-    audience: Optional[str] = Field("African teachers", description="Target audience")
 
-class TrainingModule(BaseModel):
-    """Training module model."""
-    id: str = Field(..., description="Unique module ID")
-    title: str = Field(..., description="Module title")
-    description: str = Field(..., description="Module description")
-    duration: int = Field(..., description="Duration in minutes")
-    category: TrainingCategory = Field(..., description="Training category")
-    language: Language = Field(Language.ENGLISH, description="Module language")
-    is_offline: bool = Field(True, description="Whether available offline")
-    objectives: List[str] = Field(..., description="Learning objectives")
-    steps: List[str] = Field(..., description="Step-by-step instructions")
-    created_at: datetime = Field(default_factory=datetime.now, description="Creation timestamp")
-    completion_rate: Optional[float] = Field(None, description="Completion rate percentage")
 
 class User(BaseModel):
     """User model."""
@@ -125,7 +97,7 @@ class SavedResource(BaseModel):
     """Saved resource model."""
     id: str = Field(..., description="Unique resource ID")
     user_id: str = Field(..., description="User who saved the resource")
-    resource_type: str = Field(..., description="Type of resource (lesson_plan, training_module)")
+    resource_type: str = Field(..., description="Type of resource (lesson_plan)")
     resource_id: str = Field(..., description="ID of the saved resource")
     title: str = Field(..., description="Resource title")
     saved_at: datetime = Field(default_factory=datetime.now, description="When resource was saved")
@@ -134,7 +106,7 @@ class SavedResource(BaseModel):
 class AIExplanation(BaseModel):
     """AI explanation model."""
     content_id: str = Field(..., description="ID of the content being explained")
-    content_type: str = Field(..., description="Type of content (lesson_plan, training_module)")
+    content_type: str = Field(..., description="Type of content (lesson_plan)")
     explanation: str = Field(..., description="AI explanation text")
     confidence_score: float = Field(..., description="AI confidence in the explanation", ge=0.0, le=1.0)
     generated_at: datetime = Field(default_factory=datetime.now, description="When explanation was generated")

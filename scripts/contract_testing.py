@@ -355,7 +355,15 @@ class ContractValidator:
             elif schema.get("format") == "date-time":
                 return "2024-01-01T00:00:00Z"
             else:
-                return "sample_string"
+                # Provide better default values for required string parameters
+                if "search_term" in str(schema):
+                    return "mathematics"
+                elif "subject" in str(schema):
+                    return "Mathematics"
+                elif "grade_level" in str(schema):
+                    return "Grade 4"
+                else:
+                    return "sample_string"
         
         elif schema_type == "number" or schema_type == "integer":
             return 42
