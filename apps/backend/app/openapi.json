@@ -1306,17 +1306,18 @@
               "type": "integer",
               "title": "Objective Id"
             }
-          },
-          {
-            "name": "objective",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Objective"
-            }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LearningObjectiveUpdate"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1486,17 +1487,18 @@
               "type": "integer",
               "title": "Content Id"
             }
-          },
-          {
-            "name": "content_area",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Content Area"
-            }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentUpdate"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1666,17 +1668,18 @@
               "type": "integer",
               "title": "Activity Id"
             }
-          },
-          {
-            "name": "activity",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Activity"
-            }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeacherActivityUpdate"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1846,17 +1849,18 @@
               "type": "integer",
               "title": "Activity Id"
             }
-          },
-          {
-            "name": "activity",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Activity"
-            }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentActivityUpdate"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -2026,17 +2030,18 @@
               "type": "integer",
               "title": "Material Id"
             }
-          },
-          {
-            "name": "material",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Material"
-            }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeachingMaterialUpdate"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -2206,17 +2211,18 @@
               "type": "integer",
               "title": "Guide Id"
             }
-          },
-          {
-            "name": "guide",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Guide"
-            }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvaluationGuideUpdate"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -2459,105 +2465,6 @@
         }
       }
     },
-    "/": {
-      "get": {
-        "summary": "Root",
-        "description": "Root endpoint with API information.",
-        "operationId": "root__get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/health": {
-      "get": {
-        "summary": "Health Check",
-        "description": "Health check endpoint.",
-        "operationId": "health_check_health_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/lesson/curriculum-map": {
-      "get": {
-        "summary": "Map Curriculum For Lesson",
-        "description": "Legacy curriculum mapping endpoint - redirects to new curriculum router.\nThis endpoint is maintained for backward compatibility.",
-        "operationId": "map_curriculum_for_lesson_api_lesson_curriculum_map_get",
-        "parameters": [
-          {
-            "name": "subject",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "description": "Subject area",
-              "default": "Mathematics",
-              "title": "Subject"
-            },
-            "description": "Subject area"
-          },
-          {
-            "name": "grade_level",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "description": "Grade level",
-              "default": "Grade 4",
-              "title": "Grade Level"
-            },
-            "description": "Grade level"
-          },
-          {
-            "name": "country",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "description": "Country for curriculum mapping",
-              "default": "Nigeria",
-              "title": "Country"
-            },
-            "description": "Country for curriculum mapping"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/curriculum/standards": {
       "get": {
         "summary": "Get Curriculum Standards",
@@ -2740,6 +2647,105 @@
           }
         }
       }
+    },
+    "/": {
+      "get": {
+        "summary": "Root",
+        "description": "Root endpoint with API information.",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Health check endpoint.",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lesson/curriculum-map": {
+      "get": {
+        "summary": "Map Curriculum For Lesson",
+        "description": "Legacy curriculum mapping endpoint - redirects to new curriculum router.\nThis endpoint is maintained for backward compatibility.",
+        "operationId": "map_curriculum_for_lesson_api_lesson_curriculum_map_get",
+        "parameters": [
+          {
+            "name": "subject",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Subject area",
+              "default": "Mathematics",
+              "title": "Subject"
+            },
+            "description": "Subject area"
+          },
+          {
+            "name": "grade_level",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Grade level",
+              "default": "Grade 4",
+              "title": "Grade Level"
+            },
+            "description": "Grade level"
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Country for curriculum mapping",
+              "default": "Nigeria",
+              "title": "Country"
+            },
+            "description": "Country for curriculum mapping"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2792,6 +2798,20 @@
           "created_at"
         ],
         "title": "ContentResponse"
+      },
+      "ContentUpdate": {
+        "properties": {
+          "content_area": {
+            "type": "string",
+            "title": "Content Area",
+            "description": "Content area text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "content_area"
+        ],
+        "title": "ContentUpdate"
       },
       "CurriculumBulkCreate": {
         "properties": {
@@ -3084,6 +3104,20 @@
         ],
         "title": "EvaluationGuideResponse"
       },
+      "EvaluationGuideUpdate": {
+        "properties": {
+          "guide": {
+            "type": "string",
+            "title": "Guide",
+            "description": "Evaluation guide text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "guide"
+        ],
+        "title": "EvaluationGuideUpdate"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -3145,6 +3179,20 @@
           "created_at"
         ],
         "title": "LearningObjectiveResponse"
+      },
+      "LearningObjectiveUpdate": {
+        "properties": {
+          "objective": {
+            "type": "string",
+            "title": "Objective",
+            "description": "Learning objective text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "objective"
+        ],
+        "title": "LearningObjectiveUpdate"
       },
       "LessonContextCreate": {
         "properties": {
@@ -3657,6 +3705,20 @@
         ],
         "title": "StudentActivityResponse"
       },
+      "StudentActivityUpdate": {
+        "properties": {
+          "activity": {
+            "type": "string",
+            "title": "Activity",
+            "description": "Student activity text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "activity"
+        ],
+        "title": "StudentActivityUpdate"
+      },
       "TeacherActivityCreate": {
         "properties": {
           "topic_id": {
@@ -3706,6 +3768,20 @@
         ],
         "title": "TeacherActivityResponse"
       },
+      "TeacherActivityUpdate": {
+        "properties": {
+          "activity": {
+            "type": "string",
+            "title": "Activity",
+            "description": "Teacher activity text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "activity"
+        ],
+        "title": "TeacherActivityUpdate"
+      },
       "TeachingMaterialCreate": {
         "properties": {
           "topic_id": {
@@ -3754,6 +3830,20 @@
           "created_at"
         ],
         "title": "TeachingMaterialResponse"
+      },
+      "TeachingMaterialUpdate": {
+        "properties": {
+          "material": {
+            "type": "string",
+            "title": "Material",
+            "description": "Teaching material text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "material"
+        ],
+        "title": "TeachingMaterialUpdate"
       },
       "TopicBulkCreate": {
         "properties": {
