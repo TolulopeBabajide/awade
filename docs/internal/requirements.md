@@ -51,26 +51,27 @@ This Project Requirements Document (PRD) outlines the functional and non-functio
 
 #### Database Schema
 ```sql
--- Users table
+-- Users table (consolidated profile)
 CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id SERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    role VARCHAR(50) NOT NULL CHECK (role IN ('teacher', 'admin', 'trainer')),
-    region VARCHAR(100) NOT NULL,
-    language VARCHAR(10) NOT NULL DEFAULT 'en',
-    grade_level VARCHAR(20),
-    school VARCHAR(255),
+    full_name VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL CHECK (role IN ('educator', 'admin')),
+    country VARCHAR(100) NOT NULL,
+    region VARCHAR(100),
+    school_name VARCHAR(255),
+    subjects JSON, -- Array of subjects taught
+    grade_levels JSON, -- Array of grade levels
+    languages_spoken TEXT, -- Comma-separated languages
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW(),
     last_login TIMESTAMP
 );
 
 -- User sessions table
 CREATE TABLE user_sessions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    session_id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
     token_hash VARCHAR(255) NOT NULL,
     expires_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()

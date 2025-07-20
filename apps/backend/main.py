@@ -1,7 +1,8 @@
-from fastapi import FastAPI, HTTPException, Depends, Body
+from fastapi import FastAPI, HTTPException, Depends, Body, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
+from sqlalchemy.orm import Session
 import os
 from dotenv import load_dotenv
 
@@ -17,9 +18,11 @@ sys.path.extend([parent_dir, root_dir])
 # Import routers
 try:
     from routers import lesson_plans, curriculum
+    from database import get_db
 except ImportError:
     # Fallback for Docker container
     from apps.backend.routers import lesson_plans, curriculum
+    from apps.backend.database import get_db
 
 # Load environment variables
 load_dotenv()
@@ -42,8 +45,8 @@ app.add_middleware(
 )
 
 # Include routers
-# app.include_router(lesson_plans.router)
-# app.include_router(curriculum.router)
+app.include_router(lesson_plans.router, prefix="/api")
+app.include_router(curriculum.router, prefix="/api")
 
 # Pydantic models
 class LessonPlanRequest(BaseModel):
@@ -384,21 +387,41 @@ async def get_training_module(module_id: int):
     raise HTTPException(status_code=404, detail="Training module not found")
 
 # Basic curriculum endpoints for contract testing
-@app.get("/api/curriculum/map")
-async def map_curriculum(subject: str, grade_level: str, country: str = "Nigeria"):
+@app.get("/api/lesson/curriculum-map")
+async def map_curriculum_for_lesson(
+    subject: str = Query(..., description="Subject area"),
+    grade_level: str = Query(..., description="Grade level"),
+    country: str = Query("Nigeria", description="Country for curriculum mapping"),
+    db: Session = Depends(get_db)
+):
     """
-    Map subject and grade level to curriculum standards.
+    Map subject and grade level to curriculum standards for lesson plan alignment.
+    Returns curriculum_id and curriculum_description.
     """
+    # Import here to avoid circular imports
+    from apps.backend.services.curriculum_service import CurriculumService
+    
+    service = CurriculumService(db)
+    
+    # Find matching curriculum
+    curriculums = service.get_curriculums(
+        subject=subject,
+        grade_level=grade_level,
+        country=country,
+        limit=1
+    )
+    
+    if not curriculums:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No curriculum found for {subject} {grade_level} in {country}"
+        )
+    
+    curriculum = curriculums[0]
+    
     return {
-        "subject": subject,
-        "grade_level": grade_level,
-        "country": country,
-        "standards": [
-            {
-                "code": f"{subject.upper()}-{grade_level}",
-                "description": f"Curriculum standard for {subject} in {grade_level}"
-            }
-        ]
+        "curriculum_id": curriculum.id,
+        "curriculum_description": f"{curriculum.subject} curriculum for {curriculum.grade_level} in {curriculum.country}"
     }
 
 @app.get("/api/curriculum/standards")

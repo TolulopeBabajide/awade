@@ -3,7 +3,7 @@ Lesson plans router with enhanced functionality.
 Includes curriculum mapping, PDF export, and context management.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
@@ -20,7 +20,7 @@ sys.path.extend([parent_dir, root_dir])
 # Import dependencies
 from database import get_db
 from models import LessonPlan, LessonSection, ResourceLink, LessonContext, User
-from services.curriculum_service import CurriculumService, get_curriculum_service
+# Curriculum service removed - using separate curriculum router
 from services.pdf_service import PDFService
 from packages.ai.gpt_service import AwadeGPTService
 from schemas.lesson_plans import (
@@ -34,21 +34,52 @@ from schemas.lesson_plans import (
 
 router = APIRouter(prefix="/api/lesson-plans", tags=["lesson-plans"])
 
+@router.get("/curriculum-map")
+def map_curriculum_for_lesson(
+    subject: str = Query(..., description="Subject area"),
+    grade_level: str = Query(..., description="Grade level"),
+    country: str = Query("Nigeria", description="Country for curriculum mapping"),
+    db: Session = Depends(get_db)
+):
+    """
+    Map subject and grade level to curriculum standards for lesson plan alignment.
+    Returns curriculum_id and curriculum_description.
+    """
+    # Import here to avoid circular imports
+    from ..services.curriculum_service import CurriculumService
+    
+    service = CurriculumService(db)
+    
+    # Find matching curriculum
+    curriculums = service.get_curriculums(
+        subject=subject,
+        grade_level=grade_level,
+        country=country,
+        limit=1
+    )
+    
+    if not curriculums:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No curriculum found for {subject} {grade_level} in {country}"
+        )
+    
+    curriculum = curriculums[0]
+    
+    return {
+        "curriculum_id": curriculum.id,
+        "curriculum_description": f"{curriculum.subject} curriculum for {curriculum.grade_level} in {curriculum.country}"
+    }
+
 @router.post("/generate", response_model=LessonPlanResponse)
 async def generate_lesson_plan(
     request: LessonPlanCreate,
-    db: Session = Depends(get_db),
-    curriculum_service: CurriculumService = Depends(get_curriculum_service)
+    db: Session = Depends(get_db)
 ):
     """
-    Generate an AI-powered lesson plan with curriculum mapping.
+    Generate an AI-powered lesson plan.
     """
-    # Map curriculum standards
-    curriculum = curriculum_service.map_curriculum(
-        subject=request.subject,
-        grade_level=request.grade_level,
-        country=request.country
-    )
+    # Curriculum mapping will be handled separately via curriculum router
     
     # Generate lesson plan using AI
     gpt_service = AwadeGPTService()

@@ -8,6 +8,9 @@ This directory contains technical documentation for the Awade development team.
 - **[Lesson Plan Feature Architecture](./lesson-plan-architecture.md)** - End-to-end architecture for the lesson plan feature, including data models, service flows, and API endpoints
 - **[API Contracts](./api-contracts.md)** - Detailed API specifications and contract definitions
 - **[Requirements](./requirements.md)** - Functional and non-functional requirements for the Awade MVP
+- **[ERD Structure](./erd-structure.md)** - Complete database Entity Relationship Diagram and schema documentation
+- **[Schema Fixes Summary](./schema-fixes-summary.md)** - Summary of all database schema fixes and improvements implemented
+- **[Curriculum Mapping System](./curriculum-mapping-system.md)** - Comprehensive curriculum mapping system with frameworks, standards, and learning outcomes
 
 ### 🧪 Testing & Quality
 - **[Contract Testing](./contract-testing.md)** - API contract testing methodology and implementation

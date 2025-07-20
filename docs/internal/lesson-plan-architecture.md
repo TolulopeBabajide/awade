@@ -46,7 +46,15 @@ Each generated lesson plan follows a consistent 6-section format:
 # Pydantic models
 class CurriculumMap(BaseModel):
     curriculum_id: int
-    description: str
+    subject: str
+    grade_level: str
+    topic: str
+    standard_code: str
+    standard_description: str
+    country: Optional[str]
+    lesson_plan_id: Optional[int]
+    created_at: datetime
+    updated_at: datetime
 
 class LessonPrompt(BaseModel):
     subject: str
@@ -57,31 +65,35 @@ class LessonPrompt(BaseModel):
     duration_minutes: int
     language: str
     cultural_context: str
+    country: Optional[str]
 
 class LessonPlan(BaseModel):
-    id: int
+    lesson_id: int
     title: str
     subject: str
     grade_level: str
     topic: str
-    objectives: List[str]
-    learning_objectives: str  # AI-generated section
-    local_context: str       # AI-generated section
-    core_content: str        # AI-generated section
-    activities: str          # AI-generated section
-    quiz: str               # AI-generated section
-    related_projects: str   # AI-generated section
-    curriculum_id: int
-    created_by: int  # user_id
+    author_id: int
+    duration_minutes: int
+    learning_objectives: Optional[str]  # AI-generated section
+    local_context_section: Optional[str]  # AI-generated section
+    core_content: Optional[str]  # AI-generated section
+    activities: Optional[str]  # AI-generated section
+    quiz: Optional[str]  # AI-generated section
+    related_projects: Optional[str]  # AI-generated section
+    status: str  # draft, generated, edited, reviewed, exported, used_offline, archived
     created_at: datetime
+    updated_at: datetime
 ```
 
 **Database Tables:**
 
-* `curriculum_map` (curriculum_id, subject, grade_level, curriculum_standard, description, country, created_at)
-* `lesson_plan` (lesson_id, title, subject, grade_level, author_id, context_description, duration_minutes, status, created_at, updated_at)
-* `lesson_context` (context_id, lesson_id, context_key, context_value, created_at)
+* `curriculum_maps` (curriculum_id, subject, grade_level, topic, standard_code, standard_description, country, lesson_plan_id, created_at, updated_at)
+* `lesson_plans` (lesson_id, title, subject, grade_level, topic, author_id, duration_minutes, learning_objectives, local_context_section, core_content, activities, quiz, related_projects, status, created_at, updated_at)
+* `lesson_contexts` (context_id, lesson_id, context_key, context_value, created_at)
   *Stores teacher-provided local context entries for lesson customization.*
+* `users` (user_id, email, password_hash, full_name, role, country, region, school_name, subjects, grade_levels, languages_spoken, created_at, last_login)
+  *Consolidated user profile with all educator information.*
 
 ---
 

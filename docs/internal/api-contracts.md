@@ -16,7 +16,21 @@
 ```json
 {
   "access_token": "jwt.token.here",
-  "token_type": "bearer"
+  "token_type": "bearer",
+  "user": {
+    "user_id": 1,
+    "email": "grace@awade.com",
+    "full_name": "Grace John",
+    "role": "educator",
+    "country": "Nigeria",
+    "region": "Lagos",
+    "school_name": "Community School",
+    "subjects": ["Mathematics", "Science"],
+    "grade_levels": ["Grade 4", "Grade 5"],
+    "languages_spoken": "English, Yoruba",
+    "created_at": "2025-01-27T10:00:00Z",
+    "last_login": "2025-01-27T10:00:00Z"
+  }
 }
 ```
 
@@ -30,12 +44,18 @@
 * **Response:**
 ```json
 {
-  "id": 1,
-  "name": "Grace John",
+  "user_id": 1,
   "email": "grace@awade.com",
-  "language": "en",
-  "grade_level": "Secondary",
-  "region": "Nigeria"
+  "full_name": "Grace John",
+  "role": "educator",
+  "country": "Nigeria",
+  "region": "Lagos",
+  "school_name": "Community School",
+  "subjects": ["Mathematics", "Science"],
+  "grade_levels": ["Grade 4", "Grade 5"],
+  "languages_spoken": "English, Yoruba",
+  "created_at": "2025-01-27T10:00:00Z",
+  "last_login": "2025-01-27T10:00:00Z"
 }
 ```
 
@@ -52,7 +72,7 @@
   "subject": "Mathematics",
   "grade_level": "Grade 5",
   "topic": "Fractions and Decimals",
-  "objectives": ["Understand fraction-decimal relationships"], // Optional - AI generates if not provided
+  "objectives": ["Understand fraction-decimal relationships"],
   "duration_minutes": 45,
   "local_context": "Rural school with limited resources, students familiar with local market activities",
   "language": "en",
@@ -70,17 +90,16 @@
   "grade_level": "Grade 5",
   "topic": "Fractions and Decimals",
   "author_id": 1,
-  "context_description": "Rural school with limited resources",
   "duration_minutes": 45,
-  "created_at": "2025-07-10T16:00:00Z",
-  "updated_at": "2025-07-10T16:00:00Z",
+  "created_at": "2025-01-27T10:00:00Z",
+  "updated_at": "2025-01-27T10:00:00Z",
   "status": "draft"
 }
 ```
 
 **Endpoint:** `GET /api/lesson-plans/{lesson_id}/detailed`
 
-* **Description:** Get detailed lesson plan with AI-generated sections
+* **Description:** Get detailed lesson plan with AI-generated 6-section content
 * **Response:**
 ```json
 {
@@ -89,8 +108,13 @@
   "subject": "Mathematics",
   "grade_level": "Grade 5",
   "topic": "Fractions and Decimals",
+  "author_id": 1,
+  "duration_minutes": 45,
+  "created_at": "2025-01-27T10:00:00Z",
+  "updated_at": "2025-01-27T10:00:00Z",
+  "status": "generated",
   "learning_objectives": "1. Students will understand fraction-decimal relationships\n2. Students will apply concepts using local market examples",
-  "local_context": "Integrates local market activities, uses available resources like fruits and vegetables",
+  "local_context_section": "Integrates local market activities, uses available resources like fruits and vegetables",
   "core_content": "Main concepts and knowledge breakdown...",
   "activities": "3-5 engaging activities with local resources...",
   "quiz": "5-8 assessment questions with answer key...",
@@ -109,7 +133,7 @@
 
 ### Curriculum Mapping
 
-**Endpoint:** `GET /api/curriculum/map`
+**Endpoint:** `GET /api/curriculum/maps`
 
 * **Description:** Get curriculum mapping for subject and grade level
 * **Query Parameters:**
@@ -122,14 +146,17 @@
   "curriculum_id": 456,
   "subject": "Mathematics",
   "grade_level": "Grade 5",
-  "curriculum_standard": "CCSS.MATH.CONTENT.5.NF.A.1",
-  "description": "Add and subtract fractions with unlike denominators",
+  "topic": "Fractions and Decimals",
+  "standard_code": "CCSS.MATH.CONTENT.5.NF.A.1",
+  "standard_description": "Add and subtract fractions with unlike denominators",
   "country": "Nigeria",
-  "created_at": "2025-07-10T16:00:00Z"
+  "lesson_plan_id": 123,
+  "created_at": "2025-01-27T10:00:00Z",
+  "updated_at": "2025-01-27T10:00:00Z"
 }
 ```
 
-**Endpoint:** `POST /api/curriculum/map`
+**Endpoint:** `POST /api/curriculum/maps`
 
 * **Description:** Create new curriculum mapping
 * **Request Body:**
@@ -140,37 +167,40 @@
   "topic": "Fractions and Decimals",
   "standard_code": "CCSS.MATH.CONTENT.5.NF.A.1",
   "standard_description": "Add and subtract fractions with unlike denominators",
+  "country": "Nigeria",
   "lesson_plan_id": 123
 }
 ```
 * **Response:**
 ```json
 {
-  "id": 789,
+  "curriculum_id": 789,
   "subject": "Mathematics",
   "grade_level": "Grade 5",
   "topic": "Fractions and Decimals",
   "standard_code": "CCSS.MATH.CONTENT.5.NF.A.1",
   "standard_description": "Add and subtract fractions with unlike denominators",
+  "country": "Nigeria",
   "lesson_plan_id": 123,
-  "created_at": "2025-07-10T16:00:00Z",
-  "updated_at": "2025-07-10T16:00:00Z"
+  "created_at": "2025-01-27T10:00:00Z",
+  "updated_at": "2025-01-27T10:00:00Z"
 }
 ```
 
-**Endpoint:** `PUT /api/curriculum/map/{id}`
+**Endpoint:** `PUT /api/curriculum/maps/{id}`
 
 * **Description:** Update curriculum mapping
 * **Request Body:**
 ```json
 {
   "topic": "Updated Topic",
-  "standard_description": "Updated description"
+  "standard_description": "Updated description",
+  "lesson_plan_id": 124
 }
 ```
 * **Response:** Updated curriculum mapping object
 
-**Endpoint:** `DELETE /api/curriculum/map/{id}`
+**Endpoint:** `DELETE /api/curriculum/maps/{id}`
 
 * **Description:** Delete curriculum mapping
 * **Response:**
@@ -193,9 +223,13 @@
     "curriculum_id": 456,
     "subject": "Mathematics",
     "grade_level": "Grade 5",
-    "curriculum_standard": "CCSS.MATH.CONTENT.5.NF.A.1",
-    "description": "Add and subtract fractions with unlike denominators",
-    "country": "Nigeria"
+    "topic": "Fractions and Decimals",
+    "standard_code": "CCSS.MATH.CONTENT.5.NF.A.1",
+    "standard_description": "Add and subtract fractions with unlike denominators",
+    "country": "Nigeria",
+    "lesson_plan_id": 123,
+    "created_at": "2025-01-27T10:00:00Z",
+    "updated_at": "2025-01-27T10:00:00Z"
   }
 ]
 ```
@@ -279,7 +313,20 @@
 * **Response:**
 ```json
 {
-  "last_synced": "2025-07-20T14:33:21Z",
+  "last_synced": "2025-01-27T10:00:00Z",
   "resources_cached": true
 }
-``` 
+```
+
+---
+
+## 📊 Lesson Plan Status Values
+
+The lesson plan status follows this lifecycle:
+- **draft**: Initial state after creation
+- **generated**: AI has generated the 6-section content
+- **edited**: Teacher has made modifications
+- **reviewed**: Final review completed
+- **exported**: Lesson plan has been exported
+- **used_offline**: Lesson plan has been used in classroom
+- **archived**: Lesson plan saved for future reuse 
