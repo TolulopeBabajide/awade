@@ -148,6 +148,98 @@ sequenceDiagram
 - **PDF Generation**: Professional formatting with WeasyPrint
 - **DOC Support**: Editable document formats for further customization
 
+## 🎯 System Use Cases
+
+### Use Case Diagram
+```mermaid
+%% Awade MVP – Use Case Diagram
+%% Actor: Teacher
+%% System: Awade Platform
+
+%% Diagram
+%%----------------------------------------
+%%          +------------------------+
+%%          |        Awade           |
+%%          |     (The System)       |
+%%          +------------------------+
+
+%% Relationships:
+%% - include: mandatory functionality
+%% - extend: optional/conditional flow
+
+%% Mermaid syntax:
+%% https://mermaid.js.org/syntax/use-case-diagram.html
+
+%% Diagram starts here
+%%----------------------------------------
+
+%% Define actor and use cases
+%% Teacher interacts with all primary features
+
+%% Actors
+actor Teacher
+
+%% Use cases
+Teacher --> (Sign Up / Log In)
+Teacher --> (Select Subject and Topic)
+Teacher --> (Input Local Context)
+Teacher --> (Generate Contextual Lesson)
+Teacher --> (Edit Lesson Plan)
+Teacher --> (Export Lesson for Offline Use)
+Teacher --> (View Saved Lessons)
+
+%% System
+```
+
+### 🧩 Use Cases Breakdown:
+
+| Use Case                      | Description                                                                 |
+|------------------------------|-----------------------------------------------------------------------------|
+| **Sign Up / Log In**         | Authenticate and access personal dashboard                                 |
+| **Select Subject and Topic** | Choose curriculum-aligned content                                          |
+| **Input Local Context**      | Add culturally or geographically relevant teaching context                 |
+| **Generate Lesson**          | AI generates curriculum-aligned, contextualized content                    |
+| **Edit Lesson Plan**         | Modify the output to fit specific class needs                              |
+| **Export Lesson**            | Download in PDF/DOC for offline teaching                                   |
+| **View Saved Lessons**       | Revisit and reuse previously generated lesson plans                        |
+
+### 🔗 Use Case Relationships & Dependencies
+
+#### Primary Use Cases (Core Functionality):
+- **Sign Up / Log In**: Foundation for all other use cases
+- **Select Subject and Topic**: Prerequisite for lesson generation
+- **Input Local Context**: Enhances lesson personalization
+- **Generate Contextual Lesson**: Core AI-powered functionality
+
+#### Secondary Use Cases (Enhancement):
+- **Edit Lesson Plan**: Post-generation customization
+- **Export Lesson for Offline Use**: Output delivery
+- **View Saved Lessons**: Content management and reuse
+
+#### Use Case Dependencies:
+- **Authentication Required**: All use cases require valid user session
+- **Curriculum Selection**: Lesson generation depends on subject/topic selection
+- **Context Integration**: Local context enhances lesson quality
+- **Content Management**: Saved lessons enable reuse and collaboration
+
+### 🎯 System Boundaries
+
+#### Within System Scope:
+- User authentication and profile management
+- Curriculum data access and standards alignment
+- AI-powered lesson plan generation
+- Local context processing and integration
+- Content editing and customization
+- Export functionality (PDF/DOC)
+- Lesson plan storage and retrieval
+
+#### Outside System Scope:
+- Student management systems
+- School administration tools
+- Assessment and grading systems
+- Communication platforms
+- Resource procurement systems
+
 ## 📋 Workflow Steps
 
 ### 1. **Authentication & Onboarding**
