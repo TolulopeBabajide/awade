@@ -107,9 +107,11 @@
 
 ## 📚 Curriculum Management
 
+### Curriculum Mapping
+
 **Endpoint:** `GET /api/curriculum/map`
 
-* **Description:** Map subject and grade level to curriculum standards
+* **Description:** Get curriculum mapping for subject and grade level
 * **Query Parameters:**
   - `subject`: Subject area (e.g., "Mathematics")
   - `grade_level`: Grade level (e.g., "Grade 5")
@@ -124,6 +126,57 @@
   "description": "Add and subtract fractions with unlike denominators",
   "country": "Nigeria",
   "created_at": "2025-07-10T16:00:00Z"
+}
+```
+
+**Endpoint:** `POST /api/curriculum/map`
+
+* **Description:** Create new curriculum mapping
+* **Request Body:**
+```json
+{
+  "subject": "Mathematics",
+  "grade_level": "Grade 5",
+  "topic": "Fractions and Decimals",
+  "standard_code": "CCSS.MATH.CONTENT.5.NF.A.1",
+  "standard_description": "Add and subtract fractions with unlike denominators",
+  "lesson_plan_id": 123
+}
+```
+* **Response:**
+```json
+{
+  "id": 789,
+  "subject": "Mathematics",
+  "grade_level": "Grade 5",
+  "topic": "Fractions and Decimals",
+  "standard_code": "CCSS.MATH.CONTENT.5.NF.A.1",
+  "standard_description": "Add and subtract fractions with unlike denominators",
+  "lesson_plan_id": 123,
+  "created_at": "2025-07-10T16:00:00Z",
+  "updated_at": "2025-07-10T16:00:00Z"
+}
+```
+
+**Endpoint:** `PUT /api/curriculum/map/{id}`
+
+* **Description:** Update curriculum mapping
+* **Request Body:**
+```json
+{
+  "topic": "Updated Topic",
+  "standard_description": "Updated description"
+}
+```
+* **Response:** Updated curriculum mapping object
+
+**Endpoint:** `DELETE /api/curriculum/map/{id}`
+
+* **Description:** Delete curriculum mapping
+* **Response:**
+```json
+{
+  "message": "Curriculum mapping deleted successfully"
 }
 ```
 

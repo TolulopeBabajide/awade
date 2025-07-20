@@ -14,6 +14,13 @@ Awade bridges the professional development gap by:
 
 Built as a modular and extensible platform using a monorepo structure.
 
+## 🎯 User Workflow
+
+The complete user journey follows this flow:
+1. **Sign Up / Log In** → 2. **Dashboard** → 3. **Select Subject, Grade & Topic** → 4. **Input Local Context** → 5. **Generate Lesson Plan** → 6. **Edit Lesson Plan** → 7. **Export (PDF/DOC)** → 8. **Offline Use in Class**
+
+For detailed workflow documentation, see [docs/internal/project-workflow.md](./docs/internal/project-workflow.md).
+
 ### 🎯 Key Features
 
 - **Structured Lesson Plans**: AI generates 6-section plans (Learning Objectives, Local Context, Core Content, Activities, Quiz, Related Projects)
