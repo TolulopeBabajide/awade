@@ -21,7 +21,7 @@ from ..schemas.curriculum import (
     CurriculumSearchParams, TopicSearchParams
 )
 
-router = APIRouter(prefix="/curriculum", tags=["curriculum"])
+router = APIRouter(prefix="/api/curriculum", tags=["curriculum"])
 
 # Curriculum mapping endpoint
 @router.get("/map")

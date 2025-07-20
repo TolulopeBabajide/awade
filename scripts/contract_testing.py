@@ -177,6 +177,10 @@ class ContractValidator:
             if test.method in ["PUT", "DELETE"] and "/api/lesson-plans/" in test.endpoint:
                 self.ensure_lesson_plan_exists()
             
+            # Ensure curriculum exists for curriculum tests
+            if "/api/curriculum/" in test.endpoint:
+                self.ensure_curriculum_exists()
+            
             # Prepare request
             url = f"{self.base_url}{test.endpoint}"
             headers = {"Content-Type": "application/json"}
@@ -186,17 +190,37 @@ class ContractValidator:
                 url = url.replace("{lesson_id}", "1")  # Use integer ID
             elif "{plan_id}" in url:
                 url = url.replace("{plan_id}", "1")  # Use integer ID
-            if "{module_id}" in url:
+            elif "{module_id}" in url:
                 url = url.replace("{module_id}", "1")  # Use integer ID
+            elif "{curriculum_id}" in url:
+                url = url.replace("{curriculum_id}", "1")  # Use integer ID
+            elif "{topic_id}" in url:
+                url = url.replace("{topic_id}", "1")  # Use integer ID
+            elif "{objective_id}" in url:
+                url = url.replace("{objective_id}", "1")  # Use integer ID
+            elif "{content_id}" in url:
+                url = url.replace("{content_id}", "1")  # Use integer ID
+            elif "{activity_id}" in url:
+                url = url.replace("{activity_id}", "1")  # Use integer ID
+            elif "{material_id}" in url:
+                url = url.replace("{material_id}", "1")  # Use integer ID
+            elif "{guide_id}" in url:
+                url = url.replace("{guide_id}", "1")  # Use integer ID
+            elif "{topic_code}" in url:
+                url = url.replace("{topic_code}", "MTH-JSS1-FRACTIONS")  # Use existing topic code
             
             # Handle query parameters for endpoints that require them
             params = {}
             if "/api/curriculum/map" in url:
-                params = {"subject": "Mathematics", "grade_level": "Grade 4"}
+                params = {"subject": "Mathematics", "grade_level": "JSS1", "country": "Nigeria"}
             elif "/api/curriculum/standards" in url and test.method == "GET":
-                params = {"subject": "Mathematics", "grade_level": "Grade 4"}
+                params = {"subject": "Mathematics", "grade_level": "JSS1"}
             elif "/api/curriculum/grade-levels" in url:
                 params = {"subject": "Mathematics"}
+            elif "/api/lesson/curriculum-map" in url:
+                params = {"subject": "Mathematics", "grade_level": "JSS1", "country": "Nigeria"}
+            elif "/api/lesson-plans/curriculum-map" in url:
+                params = {"subject": "Mathematics", "grade_level": "JSS1", "country": "Nigeria"}
             
             # Generate sample request data if schema exists
             request_data = None
@@ -281,6 +305,28 @@ class ContractValidator:
                     print(f"⚠️  Failed to create lesson plan: {create_response.status_code}")
         except Exception as e:
             print(f"⚠️  Error ensuring lesson plan exists: {e}")
+    
+    def ensure_curriculum_exists(self):
+        """Ensure curriculum data exists for testing."""
+        try:
+            # Check if curriculum with ID 1 exists
+            response = requests.get(f"{self.base_url}/api/curriculum/1")
+            if response.status_code == 404:
+                # Create a curriculum if it doesn't exist
+                curriculum_data = {
+                    "country": "Nigeria",
+                    "grade_level": "JSS1",
+                    "subject": "Mathematics",
+                    "theme": "Foundation Mathematics"
+                }
+                response = requests.post(
+                    f"{self.base_url}/api/curriculum/",
+                    json=curriculum_data
+                )
+                if response.status_code not in [200, 201]:
+                    print(f"⚠️  Could not create curriculum: {response.status_code}")
+        except Exception as e:
+            print(f"⚠️  Error ensuring curriculum exists: {e}")
     
     def generate_sample_data(self, schema: Dict[str, Any]) -> Any:
         """Generate sample data from JSON schema."""

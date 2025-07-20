@@ -45,8 +45,8 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(lesson_plans.router, prefix="/api")
-app.include_router(curriculum.router, prefix="/api")
+app.include_router(lesson_plans.router)
+app.include_router(curriculum.router)
 
 # Pydantic models
 class LessonPlanRequest(BaseModel):
