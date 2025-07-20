@@ -2502,10 +2502,11 @@
           {
             "name": "subject",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string",
               "description": "Subject area",
+              "default": "Mathematics",
               "title": "Subject"
             },
             "description": "Subject area"
@@ -2513,10 +2514,11 @@
           {
             "name": "grade_level",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string",
               "description": "Grade level",
+              "default": "Grade 4",
               "title": "Grade Level"
             },
             "description": "Grade level"
@@ -2565,18 +2567,20 @@
           {
             "name": "subject",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string",
+              "default": "Mathematics",
               "title": "Subject"
             }
           },
           {
             "name": "grade_level",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string",
+              "default": "Grade 4",
               "title": "Grade Level"
             }
           }
