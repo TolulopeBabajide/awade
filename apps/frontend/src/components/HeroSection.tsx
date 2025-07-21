@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 const HeroSection: React.FC = () => {
   return (
@@ -26,9 +27,9 @@ const HeroSection: React.FC = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="btn-accent text-lg px-8 py-4">
+              <Link to="/signup" className="btn-accent text-lg px-8 py-4 text-center">
                 Get Started
-              </button>
+              </Link>
               <button className="btn-secondary text-lg px-8 py-4">
                 Learn More
               </button>

@@ -2,13 +2,17 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from ..database import get_db
-from ..schemas.users import AuthResponse, UserResponse, UserCreate
+from ..schemas.users import AuthResponse, UserResponse, UserCreate, PasswordResetRequest, PasswordReset
 from ..models import User, UserRole
 import requests
 import os
 import jwt
 from datetime import datetime, timedelta
 import bcrypt
+import secrets
+
+# In-memory token store for demo (replace with DB/Redis in production)
+reset_tokens = {}
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -156,3 +160,33 @@ def signup(
         token_type="bearer",
         user=user_response
     ) 
+
+@router.post("/forgot-password")
+def forgot_password(request: PasswordResetRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == request.email).first()
+    if not user:
+        # For security, do not reveal if user exists
+        return {"message": "If the email exists, a reset link has been sent."}
+    # Generate token
+    token = secrets.token_urlsafe(32)
+    reset_tokens[token] = user.email
+    # TODO: Send email with reset link (e.g., https://yourdomain.com/reset-password?token=...)
+    print(f"[DEBUG] Password reset link: https://yourdomain.com/reset-password?token={token}")
+    return {"message": "If the email exists, a reset link has been sent."}
+
+@router.post("/reset-password")
+def reset_password(request: PasswordReset, db: Session = Depends(get_db)):
+    email = reset_tokens.get(request.token)
+    if not email:
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    # Hash new password
+    salt = bcrypt.gensalt()
+    password_hash = bcrypt.hashpw(request.new_password.encode('utf-8'), salt).decode('utf-8')
+    user.password_hash = password_hash
+    db.commit()
+    # Remove token after use
+    del reset_tokens[request.token]
+    return {"message": "Password has been reset successfully."} 

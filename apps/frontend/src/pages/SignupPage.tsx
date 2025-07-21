@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
+import { Link } from 'react-router-dom';
 
 function isAlphanumeric(str: string) {
   return /^[a-zA-Z0-9]+$/.test(str);
@@ -248,7 +249,7 @@ const SignupPage: React.FC = () => {
           </form>
           <div className="text-center text-xs text-gray-500 mt-4">
             Have an Account?{' '}
-            <a href="#" className="underline text-indigo-600">Log In</a>
+            <a href="/login" className="underline text-indigo-600">Log In</a>
           </div>
         </div>
       </div>
