@@ -30,21 +30,24 @@ This Project Requirements Document (PRD) outlines the functional and non-functio
 #### User Flow (Signing Up)
 - **Landing Page:** User lands on Awade homepage with clear sign up/login options.
 - **Sign Up:** User can register with Google or email, set and confirm password.
+- **Password Policy:** Passwords must be at least 8 characters and alphanumeric (letters and numbers only).
 - **Confirmation:** Registration is confirmed; user is prompted about a skill quiz (can skip to dashboard).
 - **Quiz Preview:** User is briefed about the quiz, modal, and question type.
 - **Quiz:** User answers skill quiz (can skip/return later).
 - **Dashboard:** After quiz or skipping, user is taken to dashboard.
 
 #### Requirements
-* Users must register and log in via email/password or SSO.
+* Users must register and log in via email/password or SSO (Google OAuth).
+* Passwords are validated on the frontend and securely hashed with bcrypt on the backend.
+* JWT-based authentication is used for all sessions.
 * Users have a profile: name, email, role, region, language, grade level.
 * Password reset and secure token-based sessions.
 
 #### Technical Specifications
-- **Authentication Method**: JWT-based authentication
-- **Password Requirements**: Minimum 8 characters, complexity validation
+- **Authentication Method**: JWT-based authentication (access token returned on signup/login)
+- **Password Requirements**: Minimum 8 characters, alphanumeric (letters and numbers)
 - **Session Management**: Configurable token expiration (default: 24 hours)
-- **SSO Integration**: OAuth 2.0 support for Google, Microsoft
+- **SSO Integration**: OAuth 2.0 support for Google
 - **Profile Fields**: 
   - Required: name, email, role, region, language
   - Optional: grade_level, school, phone, bio

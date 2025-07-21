@@ -11,6 +11,8 @@ Awade makes getting started easy! Here's what you can expect when signing up:
 ### 2. Sign Up
 - The user can log in with their Google account **or** register with their email.
 - The user provides their password and re-confirms it.
+- **Password must be at least 8 characters and alphanumeric (letters and numbers only).**
+- Passwords are securely handled and never stored in plain text.
 
 ### 3. Confirmation
 - Registration is confirmed.
