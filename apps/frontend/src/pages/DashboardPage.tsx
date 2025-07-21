@@ -1,19 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const subjects = ['Mathematics', 'Biology', 'Social Studies', 'Inter.Science'];
-const grades = ['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8'];
-const countries = ['Nigeria', 'Ghana', 'Kenya', 'South Africa'];
-const languages = ['English', 'French', 'Swahili'];
 const teachingStyles = ['Lesson', 'Project', 'Discussion'];
+const languages = ['English', 'French', 'Swahili'];
 const aiSuggestedTopics = ['Fractions', 'Geometry', 'Measurements', 'Algebra', 'Simultaneous Equations'];
 
 const DashboardPage: React.FC = () => {
+  const [frameworks, setFrameworks] = useState<any[]>([]);
+  const [selectedFramework, setSelectedFramework] = useState<string>('');
+  const [standards, setStandards] = useState<any[]>([]);
+  const [subjects, setSubjects] = useState<string[]>([]);
+  const [selectedSubject, setSelectedSubject] = useState<string>('');
+  const [gradeLevels, setGradeLevels] = useState<string[]>([]);
+  const [selectedGradeLevel, setSelectedGradeLevel] = useState<string>('');
   const [form, setForm] = useState({
-    subject: subjects[0],
-    grade: grades[1],
     teachingStyle: teachingStyles[0],
     language: languages[0],
-    country: countries[0],
     topic: '',
     weeks: '',
     classPerWeek: '',
@@ -21,8 +22,65 @@ const DashboardPage: React.FC = () => {
   });
   const [selectedTopic, setSelectedTopic] = useState('');
 
+  // Fetch frameworks (curriculums) on mount
+  useEffect(() => {
+    fetch('/api/curriculum/frameworks')
+      .then(res => res.json())
+      .then(setFrameworks);
+  }, []);
+
+  // Fetch standards (subjects/grades) when a framework is selected
+  useEffect(() => {
+    if (selectedFramework) {
+      fetch(`/api/curriculum/frameworks/${selectedFramework}/standards`)
+        .then(res => res.json())
+        .then(data => {
+          setStandards(data);
+          // Extract unique subjects
+          const uniqueSubjects = Array.from(new Set(data.map((std: any) => std.subject))) as string[];
+          setSubjects(uniqueSubjects);
+          setSelectedSubject('');
+          setGradeLevels([]);
+          setSelectedGradeLevel('');
+        });
+    } else {
+      setStandards([]);
+      setSubjects([]);
+      setSelectedSubject('');
+      setGradeLevels([]);
+      setSelectedGradeLevel('');
+    }
+  }, [selectedFramework]);
+
+  // Update grade levels when subject changes
+  useEffect(() => {
+    if (selectedSubject) {
+      const grades = standards
+        .filter((std: any) => std.subject === selectedSubject)
+        .map((std: any) => std.grade_level);
+      setGradeLevels(grades);
+      setSelectedGradeLevel('');
+    } else {
+      setGradeLevels([]);
+      setSelectedGradeLevel('');
+    }
+  }, [selectedSubject, standards]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+  };
+
+  const handleFrameworkChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedFramework(e.target.value);
+  };
+
+  const handleSubjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedSubject(e.target.value);
+  };
+
+  const handleGradeLevelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedGradeLevel(e.target.value);
   };
 
   const handleTopicSelect = (topic: string) => {
@@ -73,15 +131,32 @@ const DashboardPage: React.FC = () => {
           <h3 className="text-lg font-bold mb-4">Create Lesson Plan</h3>
           <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
+              <label className="block text-sm font-semibold mb-1">Curriculum (Country)</label>
+              <select value={selectedFramework} onChange={handleFrameworkChange} className="w-full border rounded px-3 py-2">
+                <option value="">Select Curriculum</option>
+                {frameworks.map(fw => (
+                  <option key={fw.framework_id} value={fw.framework_id}>
+                    {fw.name} ({fw.country})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
               <label className="block text-sm font-semibold mb-1">Subject</label>
-              <select name="subject" value={form.subject} onChange={handleChange} className="w-full border rounded px-3 py-2">
-                {subjects.map(subj => <option key={subj}>{subj}</option>)}
+              <select value={selectedSubject} onChange={handleSubjectChange} className="w-full border rounded px-3 py-2" disabled={!selectedFramework || subjects.length === 0}>
+                <option value="">Select Subject</option>
+                {subjects.map(subj => (
+                  <option key={subj} value={subj}>{subj}</option>
+                ))}
               </select>
             </div>
             <div>
               <label className="block text-sm font-semibold mb-1">Grade Level</label>
-              <select name="grade" value={form.grade} onChange={handleChange} className="w-full border rounded px-3 py-2">
-                {grades.map(grade => <option key={grade}>{grade}</option>)}
+              <select value={selectedGradeLevel} onChange={handleGradeLevelChange} className="w-full border rounded px-3 py-2" disabled={!selectedSubject || gradeLevels.length === 0}>
+                <option value="">Select Grade Level</option>
+                {gradeLevels.map(grade => (
+                  <option key={grade} value={grade}>{grade}</option>
+                ))}
               </select>
             </div>
             <div>
@@ -94,12 +169,6 @@ const DashboardPage: React.FC = () => {
               <label className="block text-sm font-semibold mb-1">Language</label>
               <select name="language" value={form.language} onChange={handleChange} className="w-full border rounded px-3 py-2">
                 {languages.map(lang => <option key={lang}>{lang}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-semibold mb-1">Country</label>
-              <select name="country" value={form.country} onChange={handleChange} className="w-full border rounded px-3 py-2">
-                {countries.map(country => <option key={country}>{country}</option>)}
               </select>
             </div>
             <div className="md:col-span-2">

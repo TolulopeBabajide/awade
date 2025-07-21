@@ -19,8 +19,10 @@ from apps.backend.schemas.curriculum import (
     TeachingMaterialCreate, TeachingMaterialUpdate, TeachingMaterialResponse,
     EvaluationGuideCreate, EvaluationGuideUpdate, EvaluationGuideResponse,
     CurriculumBulkCreate, TopicBulkCreate,
-    CurriculumSearchParams, TopicSearchParams
+    CurriculumSearchParams, TopicSearchParams,
+    CurriculumFrameworkResponse, CurriculumStandardResponse, TopicResponse
 )
+from apps.backend.models import CurriculumFramework, CurriculumStandard, Topic
 
 router = APIRouter(prefix="/api/curriculum", tags=["curriculum"])
 
@@ -824,3 +826,18 @@ def get_grade_levels(
             "JSS2",
             "JSS3"
         ] 
+
+@router.get("/frameworks", response_model=List[CurriculumFrameworkResponse])
+def list_frameworks(country: Optional[str] = None, db: Session = Depends(get_db)):
+    query = db.query(CurriculumFramework)
+    if country:
+        query = query.filter(CurriculumFramework.country == country)
+    return query.all()
+
+@router.get("/frameworks/{framework_id}/standards", response_model=List[CurriculumStandardResponse])
+def list_standards(framework_id: int, db: Session = Depends(get_db)):
+    return db.query(CurriculumStandard).filter(CurriculumStandard.framework_id == framework_id).all()
+
+@router.get("/standards/{standard_id}/topics", response_model=List[TopicResponse])
+def list_topics(standard_id: int, db: Session = Depends(get_db)):
+    return db.query(Topic).filter(Topic.standard_id == standard_id).all() 

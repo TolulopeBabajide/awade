@@ -127,9 +127,9 @@ class CurriculumTopicUpdate(BaseModel):
 class CurriculumFrameworkResponse(BaseModel):
     framework_id: int
     name: str
-    description: Optional[str]
-    framework_type: CurriculumFrameworkType
     country: Optional[str]
+    description: Optional[str]
+    framework_type: str
     region: Optional[str]
     version: Optional[str]
     effective_date: Optional[datetime]
@@ -137,9 +137,9 @@ class CurriculumFrameworkResponse(BaseModel):
     is_active: bool
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class LearningOutcomeResponse(BaseModel):
     outcome_id: int
@@ -154,7 +154,7 @@ class LearningOutcomeResponse(BaseModel):
     order_sequence: Optional[int]
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -173,14 +173,14 @@ class CurriculumStandardResponse(BaseModel):
     is_core: bool
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class CurriculumStandardDetailResponse(CurriculumStandardResponse):
     framework: CurriculumFrameworkResponse
     learning_outcomes: List[LearningOutcomeResponse]
-    
+
     class Config:
         from_attributes = True
 
@@ -194,7 +194,7 @@ class StandardMappingResponse(BaseModel):
     created_by: int
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -210,14 +210,14 @@ class CurriculumTopicResponse(BaseModel):
     is_core: bool
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class CurriculumTopicDetailResponse(CurriculumTopicResponse):
     parent_topic: Optional['CurriculumTopicResponse']
     child_topics: List['CurriculumTopicResponse']
-    
+
     class Config:
         from_attributes = True
 
@@ -226,7 +226,7 @@ class CurriculumMappingFullResponse(BaseModel):
     framework: CurriculumFrameworkResponse
     standard: CurriculumStandardDetailResponse
     mappings: List[StandardMappingResponse]
-    
+
     class Config:
         from_attributes = True
 
@@ -237,7 +237,7 @@ class LessonPlanCurriculumResponse(BaseModel):
     grade_level: str
     standard_mappings: List[StandardMappingResponse]
     coverage_summary: Dict[str, Any]  # Summary of curriculum coverage
-    
+
     class Config:
         from_attributes = True
 
@@ -332,7 +332,7 @@ class CurriculumResponse(BaseModel):
     theme: Optional[str]
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -341,7 +341,7 @@ class LearningObjectiveResponse(BaseModel):
     topic_id: int
     objective: str
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -350,7 +350,7 @@ class ContentResponse(BaseModel):
     topic_id: int
     content_area: str
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -359,7 +359,7 @@ class TeacherActivityResponse(BaseModel):
     topic_id: int
     activity: str
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -368,7 +368,7 @@ class StudentActivityResponse(BaseModel):
     topic_id: int
     activity: str
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -377,7 +377,7 @@ class TeachingMaterialResponse(BaseModel):
     topic_id: int
     material: str
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -386,21 +386,24 @@ class EvaluationGuideResponse(BaseModel):
     topic_id: int
     guide: str
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
 class TopicResponse(BaseModel):
     id: int
-    curriculum_id: int
-    topic_code: str
-    topic_title: str
-    description: Optional[str]
+    standard_id: int
+    topic_name: str
+    topic_description: Optional[str]
+    parent_topic_id: Optional[int]
+    difficulty_level: Optional[str]
+    estimated_hours: Optional[float]
+    is_core: Optional[bool]
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class TopicDetailResponse(TopicResponse):
     curriculum: CurriculumResponse
@@ -410,13 +413,13 @@ class TopicDetailResponse(TopicResponse):
     student_activities: List[StudentActivityResponse]
     teaching_materials: List[TeachingMaterialResponse]
     evaluation_guides: List[EvaluationGuideResponse]
-    
+
     class Config:
         from_attributes = True
 
 class CurriculumDetailResponse(CurriculumResponse):
     topics: List[TopicResponse]
-    
+
     class Config:
         from_attributes = True
 

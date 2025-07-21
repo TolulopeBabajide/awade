@@ -56,6 +56,31 @@ def run_migration():
             enum_exists = result.scalar()
             
             if enum_exists:
+                # Ensure 'published' is present in the enum so we can update those rows
+                conn.execute(text("""
+                    DO $$
+                    BEGIN
+                        IF NOT EXISTS (
+                            SELECT 1 FROM pg_enum 
+                            WHERE enumlabel = 'published' AND enumtypid = (
+                                SELECT oid FROM pg_type WHERE typname = 'lesson_status')
+                        ) THEN
+                            ALTER TYPE lesson_status ADD VALUE 'published';
+                        END IF;
+                    END$$;
+                """))
+                # Commit after adding new enum value
+                trans.commit()
+                # Start a new transaction for the update and rest of migration
+                trans = conn.begin()
+
+                # Update 'published' to 'exported' while still using the old enum type
+                conn.execute(text("""
+                    UPDATE lesson_plans 
+                    SET status = 'exported'
+                    WHERE status = 'published'
+                """))
+
                 # Create new enum type
                 conn.execute(text("""
                     CREATE TYPE lesson_status_new AS ENUM (
@@ -63,21 +88,15 @@ def run_migration():
                         'exported', 'used_offline', 'archived'
                     )
                 """))
-                
-                # Update existing status values (handle case where no 'published' status exists)
-                conn.execute(text("""
-                    UPDATE lesson_plans 
-                    SET status = 'draft'::lesson_status_new 
-                    WHERE status::text = 'published'
-                """))
-                
-                # Drop old enum and rename new one
+
+                # Change the column type to the new enum
                 conn.execute(text("""
                     ALTER TABLE lesson_plans 
                     ALTER COLUMN status TYPE lesson_status_new 
                     USING status::text::lesson_status_new
                 """))
-                
+
+                # Drop old enum and rename new one
                 conn.execute(text("DROP TYPE lesson_status"))
                 conn.execute(text("ALTER TYPE lesson_status_new RENAME TO lesson_status"))
             else:
