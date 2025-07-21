@@ -18,10 +18,12 @@ sys.path.extend([parent_dir, root_dir])
 # Import routers
 try:
     from routers import lesson_plans, curriculum
+    from routers import auth
     from database import get_db
 except ImportError:
     # Fallback for Docker container
     from apps.backend.routers import lesson_plans, curriculum
+    from apps.backend.routers import auth
     from apps.backend.database import get_db
 
 # Load environment variables
@@ -47,6 +49,7 @@ app.add_middleware(
 # Include routers
 app.include_router(lesson_plans.router)
 app.include_router(curriculum.router)
+app.include_router(auth.router)
 
 # Basic health and info endpoints
 @app.get("/")
