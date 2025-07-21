@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from ..database import get_db
-from ..schemas.users import AuthResponse, UserResponse, UserCreate, PasswordResetRequest, PasswordReset
-from ..models import User, UserRole
+from apps.backend.database import get_db
+from apps.backend.schemas.users import AuthResponse, UserResponse, UserCreate, PasswordResetRequest, PasswordReset
+from apps.backend.models import User, UserRole
 import requests
 import os
 import jwt
@@ -80,7 +80,7 @@ def google_auth(
         user_id=user.user_id,
         email=user.email,
         full_name=user.full_name,
-        role=user.role.value if hasattr(user.role, 'value') else user.role,
+        role=user.role.value,
         country=user.country,
         region=user.region,
         school_name=user.school_name,

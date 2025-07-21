@@ -18,12 +18,12 @@ root_dir = os.path.dirname(parent_dir)
 sys.path.extend([parent_dir, root_dir])
 
 # Import dependencies
-from database import get_db
-from models import LessonPlan, LessonSection, ResourceLink, LessonContext, User
+from apps.backend.database import get_db
+from apps.backend.models import LessonPlan, LessonSection, ResourceLink, LessonContext, User
 # Curriculum service removed - using separate curriculum router
 # from services.pdf_service import PDFService  # Temporarily disabled for contract testing
-from packages.ai.gpt_service import AwadeGPTService
-from schemas.lesson_plans import (
+from apps.backend.packages.ai.gpt_service import AwadeGPTService
+from apps.backend.schemas.lesson_plans import (
     LessonPlanCreate,
     LessonPlanResponse,
     LessonPlanDetailResponse,
@@ -47,7 +47,7 @@ def map_curriculum_for_lesson(
     """
     try:
         # Import here to avoid circular imports
-        from ..services.curriculum_service import CurriculumService
+        from apps.backend.services.curriculum_service import CurriculumService
         
         service = CurriculumService(db)
         

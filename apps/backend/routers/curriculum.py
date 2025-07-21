@@ -7,9 +7,9 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
 
-from ..database import get_db
-from ..services.curriculum_service import CurriculumService
-from ..schemas.curriculum import (
+from apps.backend.database import get_db
+from apps.backend.services.curriculum_service import CurriculumService
+from apps.backend.schemas.curriculum import (
     CurriculumCreate, CurriculumUpdate, CurriculumResponse, CurriculumDetailResponse,
     TopicCreate, TopicUpdate, TopicResponse, TopicDetailResponse,
     LearningObjectiveCreate, LearningObjectiveUpdate, LearningObjectiveResponse,
@@ -110,7 +110,7 @@ def get_curriculums(
         return service.get_curriculums(skip=skip, limit=limit, **filters)
     except Exception as e:
         # Return mock data for contract testing when database is not available
-        from ..schemas.curriculum import CurriculumResponse
+        from apps.backend.schemas.curriculum import CurriculumResponse
         return [
             CurriculumResponse(
                 id=1,
@@ -132,7 +132,7 @@ def get_curriculum(curriculum_id: int, db: Session = Depends(get_db)):
         return curriculum
     except Exception as e:
         # Return mock data for contract testing when database is not available
-        from ..schemas.curriculum import CurriculumDetailResponse
+        from apps.backend.schemas.curriculum import CurriculumDetailResponse
         return CurriculumDetailResponse(
             id=curriculum_id,
             country="Nigeria",
@@ -157,7 +157,7 @@ def update_curriculum(
         return curriculum
     except Exception as e:
         # Return mock data for contract testing when database is not available
-        from ..schemas.curriculum import CurriculumResponse
+        from apps.backend.schemas.curriculum import CurriculumResponse
         return CurriculumResponse(
             id=curriculum_id,
             country="Nigeria",
@@ -211,7 +211,7 @@ def get_topics(
         return service.get_topics(skip=skip, limit=limit, **filters)
     except Exception as e:
         # Return mock data for contract testing when database is not available
-        from ..schemas.curriculum import TopicResponse
+        from apps.backend.schemas.curriculum import TopicResponse
         return [
             TopicResponse(
                 id=1,
@@ -235,7 +235,7 @@ def get_topic(topic_id: int, db: Session = Depends(get_db)):
         return topic
     except Exception as e:
         # Return mock data for contract testing when database is not available
-        from ..schemas.curriculum import TopicDetailResponse
+        from apps.backend.schemas.curriculum import TopicDetailResponse
         return TopicDetailResponse(
             id=topic_id,
             curriculum_id=1,
@@ -261,7 +261,7 @@ def get_topic_by_code(topic_code: str, db: Session = Depends(get_db)):
         return topic
     except Exception as e:
         # Return mock data for contract testing when database is not available
-        from ..schemas.curriculum import TopicDetailResponse
+        from apps.backend.schemas.curriculum import TopicDetailResponse
         return TopicDetailResponse(
             id=1,
             curriculum_id=1,
@@ -291,7 +291,7 @@ def update_topic(
         return topic
     except Exception as e:
         # Return mock data for contract testing when database is not available
-        from ..schemas.curriculum import TopicResponse
+        from apps.backend.schemas.curriculum import TopicResponse
         return TopicResponse(
             id=topic_id,
             curriculum_id=1,
@@ -333,7 +333,7 @@ def get_learning_objectives(topic_id: int, db: Session = Depends(get_db)):
         return service.get_learning_objectives(topic_id)
     except Exception as e:
         # Return mock data for contract testing when database is not available
-        from ..schemas.curriculum import LearningObjectiveResponse
+        from apps.backend.schemas.curriculum import LearningObjectiveResponse
         return [
             LearningObjectiveResponse(
                 id=1,
@@ -357,7 +357,7 @@ def update_learning_objective(
         return objective_obj
     except Exception as e:
         # Return mock data for contract testing when database is not available
-        from ..schemas.curriculum import LearningObjectiveResponse
+        from apps.backend.schemas.curriculum import LearningObjectiveResponse
         return LearningObjectiveResponse(
             id=objective_id,
             topic_id=1,
@@ -393,7 +393,7 @@ def get_contents(topic_id: int, db: Session = Depends(get_db)):
         return service.get_contents(topic_id)
     except Exception as e:
         # Return mock data for contract testing when database is not available
-        from ..schemas.curriculum import ContentResponse
+        from apps.backend.schemas.curriculum import ContentResponse
         return [
             ContentResponse(
                 id=1,
@@ -417,7 +417,7 @@ def update_content(
         return content
     except Exception as e:
         # Return mock data for contract testing when database is not available
-        from ..schemas.curriculum import ContentResponse
+        from apps.backend.schemas.curriculum import ContentResponse
         return ContentResponse(
             id=content_id,
             topic_id=1,
@@ -469,7 +469,7 @@ def update_teacher_activity(
         return activity_obj
     except Exception as e:
         # Return mock data for contract testing when database is not available
-        from ..schemas.curriculum import TeacherActivityResponse
+        from apps.backend.schemas.curriculum import TeacherActivityResponse
         return TeacherActivityResponse(
             id=activity_id,
             topic_id=1,
@@ -521,7 +521,7 @@ def update_student_activity(
         return activity_obj
     except Exception as e:
         # Return mock data for contract testing when database is not available
-        from ..schemas.curriculum import StudentActivityResponse
+        from apps.backend.schemas.curriculum import StudentActivityResponse
         return StudentActivityResponse(
             id=activity_id,
             topic_id=1,
@@ -573,7 +573,7 @@ def update_teaching_material(
         return material_obj
     except Exception as e:
         # Return mock data for contract testing when database is not available
-        from ..schemas.curriculum import TeachingMaterialResponse
+        from apps.backend.schemas.curriculum import TeachingMaterialResponse
         return TeachingMaterialResponse(
             id=material_id,
             topic_id=1,
@@ -625,7 +625,7 @@ def update_evaluation_guide(
         return guide_obj
     except Exception as e:
         # Return mock data for contract testing when database is not available
-        from ..schemas.curriculum import EvaluationGuideResponse
+        from apps.backend.schemas.curriculum import EvaluationGuideResponse
         return EvaluationGuideResponse(
             id=guide_id,
             topic_id=1,
@@ -668,7 +668,7 @@ def search_curriculums(
         return service.search_curriculums(search_term)
     except Exception as e:
         # Return mock data for contract testing when database is not available
-        from ..schemas.curriculum import CurriculumResponse
+        from apps.backend.schemas.curriculum import CurriculumResponse
         return [
             CurriculumResponse(
                 id=1,
@@ -690,7 +690,7 @@ def search_topics(
         return service.search_topics(search_term)
     except Exception as e:
         # Return mock data for contract testing when database is not available
-        from ..schemas.curriculum import TopicResponse
+        from apps.backend.schemas.curriculum import TopicResponse
         return [
             TopicResponse(
                 id=1,

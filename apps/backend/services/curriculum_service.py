@@ -7,11 +7,11 @@ from sqlalchemy import and_, or_
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 
-from ..models import (
+from apps.backend.models import (
     Curriculum, Topic, LearningObjective, Content, TeacherActivity, 
     StudentActivity, TeachingMaterial, EvaluationGuide
 )
-from ..schemas.curriculum import (
+from apps.backend.schemas.curriculum import (
     CurriculumCreate, CurriculumUpdate, TopicCreate, TopicUpdate,
     LearningObjectiveCreate, ContentCreate, TeacherActivityCreate,
     StudentActivityCreate, TeachingMaterialCreate, EvaluationGuideCreate,
