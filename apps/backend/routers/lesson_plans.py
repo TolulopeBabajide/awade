@@ -22,7 +22,7 @@ from apps.backend.database import get_db
 from apps.backend.models import LessonPlan, LessonSection, ResourceLink, LessonContext, User
 # Curriculum service removed - using separate curriculum router
 # from services.pdf_service import PDFService  # Temporarily disabled for contract testing
-from apps.backend.packages.ai.gpt_service import AwadeGPTService
+from packages.ai.gpt_service import AwadeGPTService
 from apps.backend.schemas.lesson_plans import (
     LessonPlanCreate,
     LessonPlanResponse,
