@@ -474,7 +474,7 @@
           "lesson-plans"
         ],
         "summary": "Get Lesson Plan Detailed",
-        "description": "Get a detailed lesson plan with AI-generated sections.",
+        "description": "Get a detailed lesson plan with all related data.",
         "operationId": "get_lesson_plan_detailed_api_lesson_plans__lesson_id__detailed_get",
         "parameters": [
           {
@@ -495,6 +495,257 @@
                 "schema": {
                   "$ref": "#/components/schemas/LessonPlanDetailResponse"
                 }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lesson-plans/{lesson_id}/optimize-assessment": {
+      "post": {
+        "tags": [
+          "lesson-plans"
+        ],
+        "summary": "Optimize Lesson Assessment",
+        "description": "Optimize assessment content for cultural relevance and effectiveness.",
+        "operationId": "optimize_lesson_assessment_api_lesson_plans__lesson_id__optimize_assessment_post",
+        "parameters": [
+          {
+            "name": "lesson_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Lesson Id"
+            }
+          },
+          {
+            "name": "assessment_content",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Assessment Content"
+            }
+          },
+          {
+            "name": "assessment_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "mixed",
+              "title": "Assessment Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lesson-plans/{lesson_id}/enhance-activities": {
+      "post": {
+        "tags": [
+          "lesson-plans"
+        ],
+        "summary": "Enhance Lesson Activities",
+        "description": "Enhance classroom activities for better engagement and cultural relevance.",
+        "operationId": "enhance_lesson_activities_api_lesson_plans__lesson_id__enhance_activities_post",
+        "parameters": [
+          {
+            "name": "lesson_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Lesson Id"
+            }
+          },
+          {
+            "name": "activities_content",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Activities Content"
+            }
+          },
+          {
+            "name": "duration",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 45,
+              "title": "Duration"
+            }
+          },
+          {
+            "name": "resources",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "Basic classroom materials",
+              "title": "Resources"
+            }
+          },
+          {
+            "name": "class_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 30,
+              "title": "Class Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lesson-plans/{lesson_id}/align-curriculum": {
+      "post": {
+        "tags": [
+          "lesson-plans"
+        ],
+        "summary": "Align Lesson Curriculum",
+        "description": "Align lesson content with curriculum standards.",
+        "operationId": "align_lesson_curriculum_api_lesson_plans__lesson_id__align_curriculum_post",
+        "parameters": [
+          {
+            "name": "lesson_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Lesson Id"
+            }
+          },
+          {
+            "name": "lesson_content",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Lesson Content"
+            }
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "Nigeria",
+              "title": "Country"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lesson-plans/explain-content": {
+      "post": {
+        "tags": [
+          "lesson-plans"
+        ],
+        "summary": "Explain Ai Content",
+        "description": "Explain AI-generated content in teacher-friendly terms.",
+        "operationId": "explain_ai_content_api_lesson_plans_explain_content_post",
+        "parameters": [
+          {
+            "name": "content",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Content"
+            }
+          },
+          {
+            "name": "context",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "General educational context",
+              "title": "Context"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           },

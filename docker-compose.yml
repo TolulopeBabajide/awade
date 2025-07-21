@@ -41,22 +41,36 @@ services:
       - ./packages:/app/packages
     command: uvicorn apps.backend.main:app --host 0.0.0.0 --port 8000 --reload
 
-  # Frontend (if using React) - Commented out until Dockerfile is created
-  # frontend:
+  # Frontend Development
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile.dev
+    container_name: awade-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./apps/frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
+    depends_on:
+      - backend
+    stdin_open: true
+    tty: true
+
+  # Frontend Production (commented out for development)
+  # frontend-prod:
   #   build:
   #     context: ./apps/frontend
   #     dockerfile: Dockerfile
-  #   container_name: awade-frontend
+  #   container_name: awade-frontend-prod
   #   ports:
   #     - "3000:3000"
-  #   volumes:
-  #     - ./apps/frontend:/app
-  #     - /app/node_modules
   #   environment:
-  #     - REACT_APP_API_URL=${REACT_APP_API_URL:-http://localhost:8000}
+  #     - VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
   #   depends_on:
   #     - backend
-  #   command: npm run dev
 
   # Redis for caching (optional)
   redis:
