@@ -25,7 +25,7 @@ except ImportError:
     
     class FontConfiguration:
         pass
-from models import LessonPlan, ResourceLink
+from models import LessonPlan
 
 class PDFService:
     """Service for generating PDF exports of lesson plans."""
