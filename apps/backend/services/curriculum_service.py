@@ -11,7 +11,7 @@ from apps.backend.models import (
     Curriculum, Topic, CurriculumStructure, Country, GradeLevel, Subject, LearningObjective, TopicContent
 )
 from apps.backend.schemas.curriculum import (
-    CurriculumCreate, CurriculumResponse, TopicCreate, TopicResponse, LearningObjectiveCreate
+    CurriculumCreate, CurriculumResponse, TopicCreate, TopicResponse, LearningObjectiveCreate, ContentCreate
 )
 
 class CurriculumService:
@@ -151,21 +151,21 @@ class CurriculumService:
         return True
     
     # Content operations
-    def create_content(self, content_data: ContentCreate) -> Content:
+    def create_content(self, content_data: ContentCreate) -> TopicContent:
         """Create a new content area."""
-        content = Content(**content_data.dict())
+        content = TopicContent(**content_data.dict())
         self.db.add(content)
         self.db.commit()
         self.db.refresh(content)
         return content
     
-    def get_contents(self, topic_id: int) -> List[Content]:
+    def get_contents(self, topic_id: int) -> List[TopicContent]:
         """Get all content areas for a topic."""
-        return self.db.query(Content).filter(Content.topic_id == topic_id).all()
+        return self.db.query(TopicContent).filter(TopicContent.topic_id == topic_id).all()
     
-    def update_content(self, content_id: int, content_data: str) -> Optional[Content]:
+    def update_content(self, content_id: int, content_data: str) -> Optional[TopicContent]:
         """Update a content area."""
-        content = self.db.query(Content).filter(Content.id == content_id).first()
+        content = self.db.query(TopicContent).filter(TopicContent.id == content_id).first()
         if not content:
             return None
         
@@ -176,7 +176,7 @@ class CurriculumService:
     
     def delete_content(self, content_id: int) -> bool:
         """Delete a content area."""
-        content = self.db.query(Content).filter(Content.id == content_id).first()
+        content = self.db.query(TopicContent).filter(TopicContent.id == content_id).first()
         if not content:
             return False
         
