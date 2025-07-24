@@ -1,3 +1,21 @@
+"""
+main.py - Awade Backend API Entrypoint
+
+This module initializes and configures the Awade FastAPI application, which serves as the backend for the Awade platform—an AI-powered educator support system for African teachers.
+
+Key Features:
+- Loads environment variables and configures CORS for cross-origin requests.
+- Registers all API routers, including lesson plans, curriculum, authentication, country, grade level, subject, and curriculum structure.
+- Provides root and health check endpoints for service status and API information.
+- Integrates with SQLAlchemy for database access and dependency injection.
+- Designed for extensibility and deployment in both development and production environments.
+
+Usage:
+- Run this module directly or with a WSGI/ASGI server (e.g., Uvicorn) to start the API.
+- API documentation is available at `/docs` (Swagger UI) and `/redoc` (ReDoc).
+
+Author: Tolulope Babajide
+"""
 from fastapi import FastAPI, HTTPException, Depends, Body, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel

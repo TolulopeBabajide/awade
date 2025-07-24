@@ -1,5 +1,9 @@
 """
-Curriculum service for managing curriculum data and related operations.
+Curriculum Service for Awade
+
+This module provides service methods for managing curriculum data, topics, learning objectives, and content areas in the Awade platform. It supports CRUD operations, search, and statistics for curriculum mapping and educational content.
+
+Author: Tolulope Babajide
 """
 
 from sqlalchemy.orm import Session
@@ -22,7 +26,15 @@ class CurriculumService:
     
     # Curriculum CRUD operations (normalized)
     def create_curriculum(self, curriculum_data: CurriculumCreate) -> Curriculum:
-        """Create a new curriculum."""
+        """
+        Create a new curriculum.
+
+        Args:
+            curriculum_data (CurriculumCreate): The curriculum data to create.
+
+        Returns:
+            Curriculum: The created curriculum ORM object.
+        """
         curriculum = Curriculum(**curriculum_data.dict())
         self.db.add(curriculum)
         self.db.commit()
@@ -30,11 +42,29 @@ class CurriculumService:
         return curriculum
     
     def get_curriculum(self, curricula_id: int) -> Optional[Curriculum]:
-        """Get a curriculum by ID."""
+        """
+        Get a curriculum by its ID.
+
+        Args:
+            curricula_id (int): The curriculum ID.
+
+        Returns:
+            Optional[Curriculum]: The curriculum ORM object or None if not found.
+        """
         return self.db.query(Curriculum).filter(Curriculum.curricula_id == curricula_id).first()
     
     def get_curriculums(self, skip: int = 0, limit: int = 100, country_id: Optional[int] = None) -> List[Curriculum]:
-        """Get curricula with optional filtering."""
+        """
+        Get a list of curriculums with optional filtering by country.
+
+        Args:
+            skip (int): Number of records to skip.
+            limit (int): Maximum number of records to return.
+            country_id (Optional[int]): Filter by country ID.
+
+        Returns:
+            List[Curriculum]: List of curriculum ORM objects.
+        """
         query = self.db.query(Curriculum)
         
         # Apply filters
@@ -44,7 +74,16 @@ class CurriculumService:
         return query.offset(skip).limit(limit).all()
     
     def update_curriculum(self, curricula_id: int, curriculum_data: CurriculumCreate) -> Optional[Curriculum]:
-        """Update a curriculum."""
+        """
+        Update a curriculum by its ID.
+
+        Args:
+            curricula_id (int): The curriculum ID.
+            curriculum_data (CurriculumCreate): The updated curriculum data.
+
+        Returns:
+            Optional[Curriculum]: The updated curriculum ORM object or None if not found.
+        """
         curriculum = self.get_curriculum(curricula_id)
         if not curriculum:
             return None
@@ -59,7 +98,15 @@ class CurriculumService:
         return curriculum
     
     def delete_curriculum(self, curricula_id: int) -> bool:
-        """Delete a curriculum and all related data."""
+        """
+        Delete a curriculum and all related data by its ID.
+
+        Args:
+            curricula_id (int): The curriculum ID.
+
+        Returns:
+            bool: True if deleted, False if not found.
+        """
         curriculum = self.get_curriculum(curricula_id)
         if not curriculum:
             return False
@@ -70,7 +117,15 @@ class CurriculumService:
     
     # Topic CRUD operations (normalized)
     def create_topic(self, topic_data: TopicCreate) -> Topic:
-        """Create a new topic."""
+        """
+        Create a new topic.
+
+        Args:
+            topic_data (TopicCreate): The topic data to create.
+
+        Returns:
+            Topic: The created topic ORM object.
+        """
         topic = Topic(**topic_data.dict())
         self.db.add(topic)
         self.db.commit()
@@ -78,11 +133,29 @@ class CurriculumService:
         return topic
     
     def get_topic(self, topic_id: int) -> Optional[Topic]:
-        """Get a topic by ID."""
+        """
+        Get a topic by its ID.
+
+        Args:
+            topic_id (int): The topic ID.
+
+        Returns:
+            Optional[Topic]: The topic ORM object or None if not found.
+        """
         return self.db.query(Topic).filter(Topic.topic_id == topic_id).first()
     
     def get_topics(self, skip: int = 0, limit: int = 100, curriculum_structure_id: Optional[int] = None) -> List[Topic]:
-        """Get topics with optional filtering."""
+        """
+        Get a list of topics with optional filtering by curriculum structure.
+
+        Args:
+            skip (int): Number of records to skip.
+            limit (int): Maximum number of records to return.
+            curriculum_structure_id (Optional[int]): Filter by curriculum structure ID.
+
+        Returns:
+            List[Topic]: List of topic ORM objects.
+        """
         query = self.db.query(Topic)
         
         # Apply filters
@@ -92,7 +165,16 @@ class CurriculumService:
         return query.offset(skip).limit(limit).all()
     
     def update_topic(self, topic_id: int, topic_data: TopicCreate) -> Optional[Topic]:
-        """Update a topic."""
+        """
+        Update a topic by its ID.
+
+        Args:
+            topic_id (int): The topic ID.
+            topic_data (TopicCreate): The updated topic data.
+
+        Returns:
+            Optional[Topic]: The updated topic ORM object or None if not found.
+        """
         topic = self.get_topic(topic_id)
         if not topic:
             return None

@@ -17,16 +17,19 @@ Base = declarative_base()
 
 # Enums
 class UserRole(enum.Enum):
+    """Enumeration of user roles in the Awade platform."""
     EDUCATOR = "educator"
     ADMIN = "admin"
 
 class LessonStatus(enum.Enum):
+    """Enumeration of lesson plan statuses."""
     DRAFT = "draft"
     EDITED = "edited"
     REVIEWED = "reviewed"
     EXPORTED = "exported"  
 
 class ResourceType(enum.Enum):
+    """Enumeration of resource types for lesson exports."""
     PDF = "pdf"
     DOCX = "docx"
 

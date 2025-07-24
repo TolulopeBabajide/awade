@@ -1,28 +1,13 @@
 #!/usr/bin/env python3
 """
-Contract Testing for Awade API
-Validates API contracts between frontend and backend to ensure consistency.
+Awade API Contract Testing Script
 
-Environment Configuration:
-    The script will automatically load environment variables from a .env file
-    if it exists. You can also set environment variables directly or use the
-    --env-file argument to specify a custom environment file.
+This script validates that the Awade backend API implementation matches the defined OpenAPI contracts. It generates and runs contract tests, validates schemas, and produces detailed reports to ensure API consistency between frontend and backend.
 
-    Required environment variables:
-    - DATABASE_URL: PostgreSQL connection string (e.g., postgresql://user:pass@host:port/db)
-    - SECRET_KEY: Application secret key
-    - OPENAI_API_KEY: OpenAI API key (can be a test key for contract testing)
+Usage:
+    python scripts/contract_testing.py --base-url http://localhost:8000
 
-    Optional environment variables:
-    - DEBUG: Set to "True" for debug mode
-    - ENVIRONMENT: Set to "development", "testing", or "production"
-
-    Example .env file:
-        DATABASE_URL=postgresql://awade_user:awade_password@localhost:5432/awade
-        SECRET_KEY=your_secret_key_here
-        OPENAI_API_KEY=your_openai_api_key_here
-        DEBUG=True
-        ENVIRONMENT=development
+Author: Tolulope Babajide
 """
 
 import json
@@ -52,6 +37,12 @@ class ContractValidator:
     """Validates API contracts against OpenAPI specifications."""
     
     def __init__(self, base_url: str = "http://localhost:8000"):
+        """
+        Initialize the ContractValidator.
+
+        Args:
+            base_url (str): The base URL of the API to test.
+        """
         self.base_url = base_url
         self.openapi_spec = None
         self.contract_tests = []

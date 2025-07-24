@@ -1,5 +1,15 @@
 """
-Curriculum API router for managing curriculum data and related operations.
+Curriculum API Router for Awade
+
+This module provides endpoints for managing curriculum data, topics, learning objectives, and content areas in the Awade platform. It supports CRUD operations and curriculum mapping for educational content.
+
+Endpoints:
+- /api/curriculum: CRUD for curriculum
+- /api/curriculum/topics: CRUD for topics
+- /api/curriculum/learning-objectives: CRUD for learning objectives
+- /api/curriculum/contents: CRUD for content areas
+
+Author: Tolulope Babajide
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -28,6 +38,16 @@ def create_curriculum(
     curriculum_data: CurriculumCreate,
     db: Session = Depends(get_db)
 ):
+    """
+    Create a new curriculum record.
+
+    Args:
+        curriculum_data (CurriculumCreate): The curriculum data to create.
+        db (Session): Database session dependency.
+
+    Returns:
+        CurriculumResponse: The created curriculum.
+    """
     service = CurriculumService(db)
     return service.create_curriculum(curriculum_data)
 
@@ -38,11 +58,33 @@ def get_curriculums(
     country_id: Optional[int] = None,
     db: Session = Depends(get_db)
 ):
+    """
+    Retrieve a list of curriculums, optionally filtered by country.
+
+    Args:
+        skip (int): Number of records to skip.
+        limit (int): Maximum number of records to return.
+        country_id (Optional[int]): Filter by country ID.
+        db (Session): Database session dependency.
+
+    Returns:
+        List[CurriculumResponse]: List of curriculums.
+    """
     service = CurriculumService(db)
     return service.get_curriculums(skip=skip, limit=limit, country_id=country_id)
 
 @router.get("/{curriculum_id}", response_model=CurriculumResponse)
 def get_curriculum(curriculum_id: int, db: Session = Depends(get_db)):
+    """
+    Retrieve a curriculum by its ID.
+
+    Args:
+        curriculum_id (int): The curriculum ID.
+        db (Session): Database session dependency.
+
+    Returns:
+        CurriculumResponse: The curriculum record.
+    """
     service = CurriculumService(db)
     curriculum = service.get_curriculum(curriculum_id)
     if not curriculum:
@@ -55,6 +97,16 @@ def create_topic(
     topic_data: TopicCreate,
     db: Session = Depends(get_db)
 ):
+    """
+    Create a new topic within a curriculum structure.
+
+    Args:
+        topic_data (TopicCreate): The topic data to create.
+        db (Session): Database session dependency.
+
+    Returns:
+        TopicResponse: The created topic.
+    """
     service = CurriculumService(db)
     return service.create_topic(topic_data)
 
@@ -65,11 +117,33 @@ def get_topics(
     curriculum_structure_id: Optional[int] = None,
     db: Session = Depends(get_db)
 ):
+    """
+    Retrieve a list of topics, optionally filtered by curriculum structure.
+
+    Args:
+        skip (int): Number of records to skip.
+        limit (int): Maximum number of records to return.
+        curriculum_structure_id (Optional[int]): Filter by curriculum structure ID.
+        db (Session): Database session dependency.
+
+    Returns:
+        List[TopicResponse]: List of topics.
+    """
     service = CurriculumService(db)
     return service.get_topics(skip=skip, limit=limit, curriculum_structure_id=curriculum_structure_id)
 
 @router.get("/topics/{topic_id}", response_model=TopicResponse)
 def get_topic(topic_id: int, db: Session = Depends(get_db)):
+    """
+    Retrieve a topic by its ID.
+
+    Args:
+        topic_id (int): The topic ID.
+        db (Session): Database session dependency.
+
+    Returns:
+        TopicResponse: The topic record.
+    """
     service = CurriculumService(db)
     topic = service.get_topic(topic_id)
     if not topic:
@@ -82,11 +156,31 @@ def create_learning_objective(
     objective_data: LearningObjectiveCreate,
     db: Session = Depends(get_db)
 ):
+    """
+    Create a new learning objective for a topic.
+
+    Args:
+        objective_data (LearningObjectiveCreate): The learning objective data to create.
+        db (Session): Database session dependency.
+
+    Returns:
+        LearningObjectiveResponse: The created learning objective.
+    """
     service = CurriculumService(db)
     return service.create_learning_objective(objective_data)
 
 @router.get("/topics/{topic_id}/learning-objectives", response_model=List[LearningObjectiveResponse])
 def get_learning_objectives(topic_id: int, db: Session = Depends(get_db)):
+    """
+    Retrieve all learning objectives for a given topic.
+
+    Args:
+        topic_id (int): The topic ID.
+        db (Session): Database session dependency.
+
+    Returns:
+        List[LearningObjectiveResponse]: List of learning objectives.
+    """
     service = CurriculumService(db)
     return service.get_learning_objectives(topic_id)
 
@@ -96,6 +190,17 @@ def update_learning_objective(
     objective_data: LearningObjectiveUpdate,
     db: Session = Depends(get_db)
 ):
+    """
+    Update a learning objective by its ID.
+
+    Args:
+        objective_id (int): The learning objective ID.
+        objective_data (LearningObjectiveUpdate): The updated objective data.
+        db (Session): Database session dependency.
+
+    Returns:
+        LearningObjectiveResponse: The updated learning objective.
+    """
     service = CurriculumService(db)
     objective = service.update_learning_objective(objective_id, objective_data.objective)
     if not objective:

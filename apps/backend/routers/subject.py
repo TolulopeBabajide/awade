@@ -18,10 +18,29 @@ class SubjectResponse(BaseModel):
 
 @router.get("/", response_model=List[SubjectResponse])
 def list_subjects(db: Session = Depends(get_db)):
+    """
+    Retrieve a list of all subjects.
+
+    Args:
+        db (Session): Database session dependency.
+
+    Returns:
+        List[SubjectResponse]: List of subjects.
+    """
     return db.query(Subject).all()
 
 @router.post("/", response_model=SubjectResponse)
 def create_subject(subject: SubjectCreate, db: Session = Depends(get_db)):
+    """
+    Create a new subject.
+
+    Args:
+        subject (SubjectCreate): The subject data to create.
+        db (Session): Database session dependency.
+
+    Returns:
+        SubjectResponse: The created subject.
+    """
     db_subject = Subject(**subject.dict())
     db.add(db_subject)
     db.commit()

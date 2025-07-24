@@ -1,6 +1,19 @@
 """
-Lesson plans router with enhanced functionality.
-Includes curriculum mapping, PDF export, and context management.
+Lesson Plans Router for Awade API
+
+This module provides endpoints for managing lesson plans, including AI-powered generation, curriculum mapping, PDF export, context management, and resource review. It supports CRUD operations and advanced GPT-based enhancements for lesson content.
+
+Endpoints:
+- /api/lesson-plans: CRUD for lesson plans
+- /api/lesson-plans/generate: AI lesson plan generation
+- /api/lesson-plans/{lesson_id}/export/pdf: PDF export
+- /api/lesson-plans/{lesson_id}/optimize-assessment: AI assessment optimization
+- /api/lesson-plans/{lesson_id}/enhance-activities: AI activity enhancement
+- /api/lesson-plans/{lesson_id}/align-curriculum: AI curriculum alignment
+- /api/lesson-plans/{lesson_id}/resources/generate: AI lesson resource generation
+- /api/lesson-plans/resources/{resource_id}/review: Resource review and update
+
+Author: Tolulope Babajide
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Response, Query
@@ -114,7 +127,14 @@ async def generate_lesson_plan(
     db: Session = Depends(get_db)
 ):
     """
-    Generate an AI-powered lesson plan.
+    Generate a lesson plan based on the provided request data.
+
+    Args:
+        request (LessonPlanCreate): The lesson plan creation request.
+        db (Session): Database session dependency.
+
+    Returns:
+        LessonPlanResponse: The generated lesson plan.
     """
     # Curriculum mapping will be handled separately via curriculum router
     
@@ -159,7 +179,17 @@ async def get_lesson_plans(
     db: Session = Depends(get_db)
 ):
     """
-    Get all lesson plans with optional filtering.
+    Retrieve all lesson plans with optional filtering by subject and grade level.
+
+    Args:
+        skip (int): Number of records to skip.
+        limit (int): Maximum number of records to return.
+        subject (Optional[str]): Filter by subject.
+        grade_level (Optional[str]): Filter by grade level.
+        db (Session): Database session dependency.
+
+    Returns:
+        List[LessonPlanResponse]: List of lesson plans.
     """
     try:
         query = db.query(LessonPlan)
@@ -192,7 +222,14 @@ async def get_lesson_plans(
 @router.get("/{lesson_id}", response_model=LessonPlanResponse)
 async def get_lesson_plan(lesson_id: int, db: Session = Depends(get_db)):
     """
-    Get a specific lesson plan by ID.
+    Retrieve a specific lesson plan by its ID.
+
+    Args:
+        lesson_id (int): The lesson plan ID.
+        db (Session): Database session dependency.
+
+    Returns:
+        LessonPlanResponse: The lesson plan record.
     """
     try:
         lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
@@ -223,7 +260,15 @@ async def update_lesson_plan(
     db: Session = Depends(get_db)
 ):
     """
-    Update a lesson plan.
+    Update a lesson plan by its ID.
+
+    Args:
+        lesson_id (int): The lesson plan ID.
+        request (LessonPlanUpdate): The updated lesson plan data.
+        db (Session): Database session dependency.
+
+    Returns:
+        LessonPlanResponse: The updated lesson plan.
     """
     try:
         lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
@@ -258,7 +303,14 @@ async def update_lesson_plan(
 @router.delete("/{lesson_id}")
 async def delete_lesson_plan(lesson_id: int, db: Session = Depends(get_db)):
     """
-    Delete a lesson plan.
+    Delete a lesson plan by its ID.
+
+    Args:
+        lesson_id (int): The lesson plan ID.
+        db (Session): Database session dependency.
+
+    Returns:
+        dict: Message indicating whether the lesson plan was deleted.
     """
     try:
         lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
@@ -276,7 +328,14 @@ async def delete_lesson_plan(lesson_id: int, db: Session = Depends(get_db)):
 @router.get("/{lesson_id}/export/pdf")
 async def export_lesson_plan_pdf(lesson_id: int, db: Session = Depends(get_db)):
     """
-    Export lesson plan as PDF.
+    Export a lesson plan as a PDF file.
+
+    Args:
+        lesson_id (int): The lesson plan ID.
+        db (Session): Database session dependency.
+
+    Returns:
+        dict: Message or PDF export status.
     """
     lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
     if not lesson_plan:
@@ -299,7 +358,14 @@ async def export_lesson_plan_pdf(lesson_id: int, db: Session = Depends(get_db)):
 @router.get("/{lesson_id}/detailed", response_model=LessonPlanDetailResponse)
 async def get_lesson_plan_detailed(lesson_id: int, db: Session = Depends(get_db)):
     """
-    Get a detailed lesson plan with all related data.
+    Retrieve a detailed lesson plan with all related data by its ID.
+
+    Args:
+        lesson_id (int): The lesson plan ID.
+        db (Session): Database session dependency.
+
+    Returns:
+        LessonPlanDetailResponse: The detailed lesson plan record.
     """
     try:
         lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
@@ -349,7 +415,16 @@ async def optimize_lesson_assessment(
     db: Session = Depends(get_db)
 ):
     """
-    Optimize assessment content for cultural relevance and effectiveness.
+    Optimize assessment content for cultural relevance and effectiveness using AI.
+
+    Args:
+        lesson_id (int): The lesson plan ID.
+        assessment_content (str): The assessment content to optimize.
+        assessment_type (str): The type of assessment (default: "mixed").
+        db (Session): Database session dependency.
+
+    Returns:
+        dict: Optimization result and status.
     """
     try:
         lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
@@ -390,7 +465,18 @@ async def enhance_lesson_activities(
     db: Session = Depends(get_db)
 ):
     """
-    Enhance classroom activities for better engagement and cultural relevance.
+    Enhance classroom activities for better engagement and cultural relevance using AI.
+
+    Args:
+        lesson_id (int): The lesson plan ID.
+        activities_content (str): The activities content to enhance.
+        duration (int): Duration of the lesson (default: 45).
+        resources (str): Available resources (default: "Basic classroom materials").
+        class_size (int): Number of students (default: 30).
+        db (Session): Database session dependency.
+
+    Returns:
+        dict: Enhancement result and status.
     """
     try:
         lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
@@ -431,7 +517,16 @@ async def align_lesson_curriculum(
     db: Session = Depends(get_db)
 ):
     """
-    Align lesson content with curriculum standards.
+    Align lesson content with curriculum standards using AI.
+
+    Args:
+        lesson_id (int): The lesson plan ID.
+        lesson_content (str): The lesson content to align.
+        country (str): Country for curriculum alignment (default: "Nigeria").
+        db (Session): Database session dependency.
+
+    Returns:
+        dict: Alignment result and status.
     """
     try:
         lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
@@ -469,6 +564,13 @@ async def explain_ai_content(
 ):
     """
     Explain AI-generated content in teacher-friendly terms.
+
+    Args:
+        content (str): The AI-generated content to explain.
+        context (str): The context for explanation (default: "General educational context").
+
+    Returns:
+        dict: Explanation and status.
     """
     try:
         gpt_service = AwadeGPTService()
@@ -496,7 +598,14 @@ async def generate_lesson_resource(
 ):
     """
     Generate a comprehensive lesson resource using AwadeGPTService based on an existing lesson plan.
-    Save the generated resource as ai_generated_content in LessonResource.
+
+    Args:
+        lesson_id (int): The lesson plan ID.
+        data (LessonResourceCreate): The lesson resource creation request.
+        db (Session): Database session dependency.
+
+    Returns:
+        LessonResourceResponse: The generated lesson resource.
     """
     lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
     if not lesson_plan:
@@ -532,6 +641,14 @@ async def review_lesson_resource(
 ):
     """
     Update the lesson resource with user-reviewed content (user_edited_content).
+
+    Args:
+        resource_id (int): The lesson resource ID.
+        data (LessonResourceUpdate): The reviewed content update request.
+        db (Session): Database session dependency.
+
+    Returns:
+        LessonResourceResponse: The updated lesson resource.
     """
     resource = db.query(LessonResource).filter(LessonResource.lesson_resources_id == resource_id).first()
     if not resource:

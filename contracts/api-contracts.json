@@ -43,7 +43,7 @@
         },
         "response_schema": {
           "type": "object",
-          "required": ["id", "title", "subject", "grade_level", "objectives", "activities", "materials", "assessment"],
+          "required": ["id", "title", "subject", "grade_level", "objectives"],
           "properties": {
             "id": {
               "type": "string",

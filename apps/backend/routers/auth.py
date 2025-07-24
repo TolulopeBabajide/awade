@@ -1,3 +1,16 @@
+"""
+Authentication Router for Awade API
+
+This module provides authentication endpoints for the Awade platform, including Google OAuth, email/password signup, and password reset functionality. It handles JWT token issuance and user management for secure access to the API.
+
+Endpoints:
+- /api/auth/google: Google OAuth login
+- /api/auth/signup: Email/password registration
+- /api/auth/forgot-password: Password reset request
+- /api/auth/reset-password: Password reset
+
+Author: Tolulope Babajide
+"""
 from fastapi import APIRouter, HTTPException, Depends, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -17,6 +30,9 @@ reset_tokens = {}
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 class GoogleAuthRequest(BaseModel):
+    """
+    Request schema for Google OAuth authentication.
+    """
     credential: str
 
 @router.post("/google", response_model=AuthResponse)
@@ -163,6 +179,16 @@ def signup(
 
 @router.post("/forgot-password")
 def forgot_password(request: PasswordResetRequest, db: Session = Depends(get_db)):
+    """
+    Handle password reset requests by generating a reset token and (in production) sending a reset link to the user's email.
+
+    Args:
+        request (PasswordResetRequest): The password reset request containing the user's email.
+        db (Session): Database session dependency.
+
+    Returns:
+        dict: Message indicating whether a reset link was sent.
+    """
     user = db.query(User).filter(User.email == request.email).first()
     if not user:
         # For security, do not reveal if user exists
@@ -176,6 +202,16 @@ def forgot_password(request: PasswordResetRequest, db: Session = Depends(get_db)
 
 @router.post("/reset-password")
 def reset_password(request: PasswordReset, db: Session = Depends(get_db)):
+    """
+    Reset a user's password using a valid reset token.
+
+    Args:
+        request (PasswordReset): The password reset request containing the token and new password.
+        db (Session): Database session dependency.
+
+    Returns:
+        dict: Message indicating whether the password was reset successfully.
+    """
     email = reset_tokens.get(request.token)
     if not email:
         raise HTTPException(status_code=400, detail="Invalid or expired token")

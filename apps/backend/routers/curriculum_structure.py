@@ -22,10 +22,29 @@ class CurriculumStructureResponse(BaseModel):
 
 @router.get("/", response_model=List[CurriculumStructureResponse])
 def list_curriculum_structures(db: Session = Depends(get_db)):
+    """
+    Retrieve a list of all curriculum structures.
+
+    Args:
+        db (Session): Database session dependency.
+
+    Returns:
+        List[CurriculumStructureResponse]: List of curriculum structures.
+    """
     return db.query(CurriculumStructure).all()
 
 @router.post("/", response_model=CurriculumStructureResponse)
 def create_curriculum_structure(structure: CurriculumStructureCreate, db: Session = Depends(get_db)):
+    """
+    Create a new curriculum structure record.
+
+    Args:
+        structure (CurriculumStructureCreate): The curriculum structure data to create.
+        db (Session): Database session dependency.
+
+    Returns:
+        CurriculumStructureResponse: The created curriculum structure.
+    """
     db_structure = CurriculumStructure(**structure.dict())
     db.add(db_structure)
     db.commit()

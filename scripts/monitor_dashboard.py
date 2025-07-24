@@ -15,6 +15,11 @@ from collections import defaultdict
 
 class AwadeMonitor:
     def __init__(self):
+        """
+        Initialize the AwadeMonitor.
+
+        Sets up paths for project root, logs, documentation, backend, and frontend directories.
+        """
         self.project_root = Path.cwd()
         self.logs_dir = self.project_root / "logs"
         self.docs_dir = self.project_root / "docs"

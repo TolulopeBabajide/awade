@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 """
-Documentation Coverage Tracker for Awade
-Analyzes documentation completeness and identifies gaps across the project.
+Awade Documentation Coverage Script
+
+This script analyzes the documentation coverage of the Awade project, including Python files, API endpoints, markdown docs, and configuration files. It generates detailed reports and actionable recommendations to help maintain high-quality documentation across the codebase.
+
+Usage:
+    python scripts/doc_coverage.py --save
+
+Author: Tolulope Babajide
 """
 
 import os
@@ -62,7 +68,15 @@ class DocumentationCoverageTracker:
         ]
         
     def should_ignore(self, path: Path) -> bool:
-        """Check if a path should be ignored."""
+        """
+        Check if a path should be ignored during documentation analysis.
+
+        Args:
+            path (Path): The file or directory path to check.
+
+        Returns:
+            bool: True if the path matches any ignore pattern, False otherwise.
+        """
         path_str = str(path)
         return any(re.search(pattern, path_str) for pattern in self.ignore_patterns)
     
