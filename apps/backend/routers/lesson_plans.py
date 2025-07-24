@@ -19,7 +19,7 @@ sys.path.extend([parent_dir, root_dir])
 
 # Import dependencies
 from apps.backend.database import get_db
-from apps.backend.models import LessonPlan, LessonSection, ResourceLink, LessonContext, User, Topic, CurriculumStructure, Curriculum, Country, GradeLevel, Subject, LessonResource
+from apps.backend.models import LessonPlan, ResourceLink, LessonContext, User, Topic, CurriculumStructure, Curriculum, Country, GradeLevel, Subject, LessonResource
 # Curriculum service removed - using separate curriculum router
 # from services.pdf_service import PDFService  # Temporarily disabled for contract testing
 from packages.ai.gpt_service import AwadeGPTService
@@ -292,9 +292,7 @@ async def export_lesson_plan_pdf(lesson_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Lesson plan not found")
     
     # Get sections and resources
-    sections = db.query(LessonSection).filter(
-        LessonSection.lesson_id == lesson_id
-    ).order_by(LessonSection.order_number).all()
+    sections = []  # LessonSection is not implemented; return empty list or handle as needed
     
     resources = db.query(ResourceLink).filter(
         ResourceLink.lesson_id == lesson_id
@@ -373,9 +371,7 @@ async def get_lesson_plan_detailed(lesson_id: int, db: Session = Depends(get_db)
             raise HTTPException(status_code=404, detail="Lesson plan not found")
         
         # Get related data
-        sections = db.query(LessonSection).filter(
-            LessonSection.lesson_id == lesson_id
-        ).order_by(LessonSection.order_number).all()
+        sections = []  # LessonSection is not implemented; return empty list or handle as needed
         
         resources = db.query(ResourceLink).filter(
             ResourceLink.lesson_id == lesson_id

@@ -25,7 +25,7 @@ except ImportError:
     
     class FontConfiguration:
         pass
-from models import LessonPlan, LessonSection, ResourceLink
+from models import LessonPlan, ResourceLink
 
 class PDFService:
     """Service for generating PDF exports of lesson plans."""
@@ -34,7 +34,7 @@ class PDFService:
         self.font_config = FontConfiguration()
         self.css_styles = self._get_css_styles()
     
-    def generate_lesson_plan_pdf(self, lesson_plan: LessonPlan, sections: List[LessonSection], resources: List[ResourceLink]) -> bytes:
+    def generate_lesson_plan_pdf(self, lesson_plan: LessonPlan, sections: list, resources: list) -> bytes:
         """
         Generate a PDF document from lesson plan data.
         
@@ -55,7 +55,7 @@ class PDFService:
         pdf_bytes = html.write_pdf(stylesheets=[css], font_config=self.font_config)
         return pdf_bytes
     
-    def _generate_html_content(self, lesson_plan: LessonPlan, sections: List[LessonSection], resources: List[ResourceLink]) -> str:
+    def _generate_html_content(self, lesson_plan: LessonPlan, sections: list, resources: list) -> str:
         """Generate HTML content for the lesson plan."""
         
         sections_html = ""
