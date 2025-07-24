@@ -19,7 +19,7 @@ sys.path.extend([parent_dir, root_dir])
 
 # Import dependencies
 from apps.backend.database import get_db
-from apps.backend.models import LessonPlan, LessonContext, User, Topic, CurriculumStructure, Curriculum, Country, GradeLevel, Subject, LessonResource
+from apps.backend.models import LessonPlan, User, Topic, CurriculumStructure, Curriculum, Country, GradeLevel, Subject, LessonResource
 # Curriculum service removed - using separate curriculum router
 # from services.pdf_service import PDFService  # Temporarily disabled for contract testing
 from packages.ai.gpt_service import AwadeGPTService
@@ -28,7 +28,6 @@ from apps.backend.schemas.lesson_plans import (
     LessonPlanResponse,
     LessonPlanDetailResponse,
     LessonPlanUpdate,
-    LessonContextCreate,
     LessonResourceCreate,
     LessonResourceUpdate,
     LessonResourceResponse
@@ -147,15 +146,7 @@ async def generate_lesson_plan(
     db.commit()
     db.refresh(lesson_plan)
     
-    # Add context if provided
-    if request.local_context:
-        context = LessonContext(
-            lesson_id=lesson_plan.lesson_id,
-            context_key="local_context",
-            context_value=request.local_context
-        )
-        db.add(context)
-        db.commit()
+    # Context handling removed; LessonContext is not implemented
     
     return LessonPlanResponse.from_orm(lesson_plan)
 
@@ -303,60 +294,7 @@ async def export_lesson_plan_pdf(lesson_id: int, db: Session = Depends(get_db)):
         "status": "mock_response"
     }
 
-@router.post("/{lesson_id}/context")
-async def add_lesson_context(
-    lesson_id: int,
-    context: LessonContextCreate,
-    db: Session = Depends(get_db)
-):
-    """
-    Add context information to a lesson plan.
-    """
-    lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
-    if not lesson_plan:
-        raise HTTPException(status_code=404, detail="Lesson plan not found")
-    
-    lesson_context = LessonContext(
-        lesson_id=lesson_id,
-        context_key=context.context_key,
-        context_value=context.context_value
-    )
-    
-    db.add(lesson_context)
-    db.commit()
-    db.refresh(lesson_context)
-    
-    return {"message": "Context added successfully", "context_id": lesson_context.context_id}
-
-@router.get("/{lesson_id}/context")
-async def get_lesson_context(lesson_id: int, db: Session = Depends(get_db)):
-    """
-    Get all context information for a lesson plan.
-    """
-    try:
-        contexts = db.query(LessonContext).filter(
-            LessonContext.lesson_id == lesson_id
-        ).all()
-        
-        return [
-            {
-                "context_id": ctx.context_id,
-                "context_key": ctx.context_key,
-                "context_value": ctx.context_value,
-                "created_at": ctx.created_at
-            }
-            for ctx in contexts
-        ]
-    except Exception as e:
-        # Return mock data for contract testing when database is not available
-        return [
-            {
-                "context_id": 1,
-                "context_key": "local_context",
-                "context_value": "Sample local context for lesson plan",
-                "created_at": "2024-01-01T10:00:00Z"
-            }
-        ]
+# Context endpoint removed; LessonContext is not implemented
 
 @router.get("/{lesson_id}/detailed", response_model=LessonPlanDetailResponse)
 async def get_lesson_plan_detailed(lesson_id: int, db: Session = Depends(get_db)):
@@ -373,15 +311,13 @@ async def get_lesson_plan_detailed(lesson_id: int, db: Session = Depends(get_db)
         
         resources = []  # ResourceLink is not implemented; return empty list or handle as needed
         
-        context = db.query(LessonContext).filter(
-            LessonContext.lesson_id == lesson_id
-        ).all()
+        # Context handling removed; LessonContext is not implemented
         
         return LessonPlanDetailResponse(
             lesson_plan=lesson_plan,
             sections=sections,
             resources=resources,
-            context=context
+            context=[] # Placeholder for context data
         )
     except Exception as e:
         # Return mock data for contract testing when database is not available
