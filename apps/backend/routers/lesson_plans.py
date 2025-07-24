@@ -19,7 +19,7 @@ sys.path.extend([parent_dir, root_dir])
 
 # Import dependencies
 from apps.backend.database import get_db
-from apps.backend.models import LessonPlan, LessonSection, ResourceLink, LessonContext, User, Topic, CurriculumStructure, Curriculum, Country, GradeLevel, Subject
+from apps.backend.models import LessonPlan, LessonSection, ResourceLink, LessonContext, User, Topic, CurriculumStructure, Curriculum, Country, GradeLevel, Subject, LessonResource
 # Curriculum service removed - using separate curriculum router
 # from services.pdf_service import PDFService  # Temporarily disabled for contract testing
 from packages.ai.gpt_service import AwadeGPTService
@@ -28,7 +28,10 @@ from apps.backend.schemas.lesson_plans import (
     LessonPlanResponse,
     LessonPlanDetailResponse,
     LessonPlanUpdate,
-    LessonContextCreate
+    LessonContextCreate,
+    LessonResourceCreate,
+    LessonResourceUpdate,
+    LessonResourceResponse
 )
 
 router = APIRouter(prefix="/api/lesson-plans", tags=["lesson-plans"])
@@ -556,3 +559,57 @@ async def explain_ai_content(
             "explanation": "Content explanation unavailable",
             "status": "error"
         } 
+
+@router.post("/{lesson_id}/resources/generate", response_model=LessonResourceResponse)
+async def generate_lesson_resource(
+    lesson_id: int,
+    data: LessonResourceCreate,
+    db: Session = Depends(get_db)
+):
+    """
+    Generate a comprehensive lesson resource using AwadeGPTService based on an existing lesson plan.
+    Save the generated resource as ai_generated_content in LessonResource.
+    """
+    lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
+    if not lesson_plan:
+        raise HTTPException(status_code=404, detail="Lesson plan not found")
+
+    gpt_service = AwadeGPTService()
+    ai_content = gpt_service.generate_lesson_resource(
+        subject=lesson_plan.subject,
+        grade=lesson_plan.grade_level,
+        topic=lesson_plan.topic,
+        objectives=lesson_plan.learning_objectives,
+        duration=lesson_plan.duration_minutes,
+        context=data.context_input or lesson_plan.context_description
+    )
+
+    lesson_resource = LessonResource(
+        lesson_plan_id=lesson_id,
+        user_id=data.user_id,
+        context_input=data.context_input,
+        ai_generated_content=ai_content,
+        status="draft"
+    )
+    db.add(lesson_resource)
+    db.commit()
+    db.refresh(lesson_resource)
+    return lesson_resource
+
+@router.put("/resources/{resource_id}/review", response_model=LessonResourceResponse)
+async def review_lesson_resource(
+    resource_id: int,
+    data: LessonResourceUpdate,
+    db: Session = Depends(get_db)
+):
+    """
+    Update the lesson resource with user-reviewed content (user_edited_content).
+    """
+    resource = db.query(LessonResource).filter(LessonResource.lesson_resources_id == resource_id).first()
+    if not resource:
+        raise HTTPException(status_code=404, detail="Lesson resource not found")
+    resource.user_edited_content = data.user_edited_content
+    resource.status = "reviewed"
+    db.commit()
+    db.refresh(resource)
+    return resource 

@@ -132,3 +132,26 @@ class LessonPlanFullResponse(BaseModel):
     
     class Config:
         from_attributes = True 
+
+# LessonResource schemas
+class LessonResourceCreate(BaseModel):
+    lesson_plan_id: int
+    user_id: int
+    context_input: Optional[str] = None
+
+class LessonResourceUpdate(BaseModel):
+    user_edited_content: str
+
+class LessonResourceResponse(BaseModel):
+    lesson_resources_id: int
+    lesson_plan_id: int
+    user_id: int
+    context_input: Optional[str] = None
+    ai_generated_content: Optional[str] = None
+    user_edited_content: Optional[str] = None
+    export_format: Optional[str] = None
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True 
