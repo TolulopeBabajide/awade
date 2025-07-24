@@ -8,14 +8,10 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime
 
 from apps.backend.models import (
-    Curriculum, Topic, LearningObjective, Content, TeacherActivity, 
-    StudentActivity, TeachingMaterial, EvaluationGuide
+    Curriculum, Topic, CurriculumStructure, Country, GradeLevel, Subject, LearningObjective, TopicContent
 )
 from apps.backend.schemas.curriculum import (
-    CurriculumCreate, CurriculumUpdate, TopicCreate, TopicUpdate,
-    LearningObjectiveCreate, ContentCreate, TeacherActivityCreate,
-    StudentActivityCreate, TeachingMaterialCreate, EvaluationGuideCreate,
-    TopicBulkCreate, CurriculumBulkCreate
+    CurriculumCreate, CurriculumResponse, TopicCreate, TopicResponse
 )
 
 class CurriculumService:
@@ -24,7 +20,7 @@ class CurriculumService:
     def __init__(self, db: Session):
         self.db = db
     
-    # Curriculum CRUD operations
+    # Curriculum CRUD operations (normalized)
     def create_curriculum(self, curriculum_data: CurriculumCreate) -> Curriculum:
         """Create a new curriculum."""
         curriculum = Curriculum(**curriculum_data.dict())
@@ -33,29 +29,23 @@ class CurriculumService:
         self.db.refresh(curriculum)
         return curriculum
     
-    def get_curriculum(self, curriculum_id: int) -> Optional[Curriculum]:
+    def get_curriculum(self, curricula_id: int) -> Optional[Curriculum]:
         """Get a curriculum by ID."""
-        return self.db.query(Curriculum).filter(Curriculum.id == curriculum_id).first()
+        return self.db.query(Curriculum).filter(Curriculum.curricula_id == curricula_id).first()
     
-    def get_curriculums(self, skip: int = 0, limit: int = 100, **filters) -> List[Curriculum]:
+    def get_curriculums(self, skip: int = 0, limit: int = 100, country_id: Optional[int] = None) -> List[Curriculum]:
         """Get curricula with optional filtering."""
         query = self.db.query(Curriculum)
         
         # Apply filters
-        if filters.get('country'):
-            query = query.filter(Curriculum.country == filters['country'])
-        if filters.get('grade_level'):
-            query = query.filter(Curriculum.grade_level == filters['grade_level'])
-        if filters.get('subject'):
-            query = query.filter(Curriculum.subject == filters['subject'])
-        if filters.get('theme'):
-            query = query.filter(Curriculum.theme == filters['theme'])
+        if country_id:
+            query = query.filter(Curriculum.country_id == country_id)
         
         return query.offset(skip).limit(limit).all()
     
-    def update_curriculum(self, curriculum_id: int, curriculum_data: CurriculumUpdate) -> Optional[Curriculum]:
+    def update_curriculum(self, curricula_id: int, curriculum_data: CurriculumCreate) -> Optional[Curriculum]:
         """Update a curriculum."""
-        curriculum = self.get_curriculum(curriculum_id)
+        curriculum = self.get_curriculum(curricula_id)
         if not curriculum:
             return None
         
@@ -68,9 +58,9 @@ class CurriculumService:
         self.db.refresh(curriculum)
         return curriculum
     
-    def delete_curriculum(self, curriculum_id: int) -> bool:
+    def delete_curriculum(self, curricula_id: int) -> bool:
         """Delete a curriculum and all related data."""
-        curriculum = self.get_curriculum(curriculum_id)
+        curriculum = self.get_curriculum(curricula_id)
         if not curriculum:
             return False
         
@@ -78,7 +68,7 @@ class CurriculumService:
         self.db.commit()
         return True
     
-    # Topic CRUD operations
+    # Topic CRUD operations (normalized)
     def create_topic(self, topic_data: TopicCreate) -> Topic:
         """Create a new topic."""
         topic = Topic(**topic_data.dict())
@@ -89,27 +79,19 @@ class CurriculumService:
     
     def get_topic(self, topic_id: int) -> Optional[Topic]:
         """Get a topic by ID."""
-        return self.db.query(Topic).filter(Topic.id == topic_id).first()
+        return self.db.query(Topic).filter(Topic.topic_id == topic_id).first()
     
-    def get_topic_by_code(self, topic_code: str) -> Optional[Topic]:
-        """Get a topic by its unique code."""
-        return self.db.query(Topic).filter(Topic.topic_code == topic_code).first()
-    
-    def get_topics(self, skip: int = 0, limit: int = 100, **filters) -> List[Topic]:
+    def get_topics(self, skip: int = 0, limit: int = 100, curriculum_structure_id: Optional[int] = None) -> List[Topic]:
         """Get topics with optional filtering."""
         query = self.db.query(Topic)
         
         # Apply filters
-        if filters.get('curriculum_id'):
-            query = query.filter(Topic.curriculum_id == filters['curriculum_id'])
-        if filters.get('topic_code'):
-            query = query.filter(Topic.topic_code == filters['topic_code'])
-        if filters.get('topic_title'):
-            query = query.filter(Topic.topic_title.ilike(f"%{filters['topic_title']}%"))
+        if curriculum_structure_id:
+            query = query.filter(Topic.curriculum_structure_id == curriculum_structure_id)
         
         return query.offset(skip).limit(limit).all()
     
-    def update_topic(self, topic_id: int, topic_data: TopicUpdate) -> Optional[Topic]:
+    def update_topic(self, topic_id: int, topic_data: TopicCreate) -> Optional[Topic]:
         """Update a topic."""
         topic = self.get_topic(topic_id)
         if not topic:
@@ -339,64 +321,7 @@ class CurriculumService:
         return True
     
     # Bulk operations
-    def create_curriculum_with_topics(self, curriculum_data: CurriculumBulkCreate) -> Curriculum:
-        """Create a curriculum with all its topics and related data."""
-        # Create curriculum
-        curriculum = Curriculum(
-            country=curriculum_data.country,
-            grade_level=curriculum_data.grade_level,
-            subject=curriculum_data.subject,
-            theme=curriculum_data.theme
-        )
-        self.db.add(curriculum)
-        self.db.commit()
-        self.db.refresh(curriculum)
-        
-        # Create topics and related data
-        for topic_data in curriculum_data.topics:
-            topic = Topic(
-                curriculum_id=curriculum.id,
-                topic_code=topic_data.topic_code,
-                topic_title=topic_data.topic_title,
-                description=topic_data.description
-            )
-            self.db.add(topic)
-            self.db.commit()
-            self.db.refresh(topic)
-            
-            # Create learning objectives
-            for objective in topic_data.learning_objectives:
-                learning_obj = LearningObjective(topic_id=topic.id, objective=objective)
-                self.db.add(learning_obj)
-            
-            # Create contents
-            for content in topic_data.contents:
-                content_obj = Content(topic_id=topic.id, content_area=content)
-                self.db.add(content_obj)
-            
-            # Create teacher activities
-            for activity in topic_data.teacher_activities:
-                teacher_activity = TeacherActivity(topic_id=topic.id, activity=activity)
-                self.db.add(teacher_activity)
-            
-            # Create student activities
-            for activity in topic_data.student_activities:
-                student_activity = StudentActivity(topic_id=topic.id, activity=activity)
-                self.db.add(student_activity)
-            
-            # Create teaching materials
-            for material in topic_data.teaching_materials:
-                teaching_material = TeachingMaterial(topic_id=topic.id, material=material)
-                self.db.add(teaching_material)
-            
-            # Create evaluation guides
-            for guide in topic_data.evaluation_guides:
-                evaluation_guide = EvaluationGuide(topic_id=topic.id, guide=guide)
-                self.db.add(evaluation_guide)
-        
-        self.db.commit()
-        self.db.refresh(curriculum)
-        return curriculum
+    # Remove all methods that use old flat fields, including create_curriculum_with_topics and any related logic.
     
     # Search and utility methods
     def search_curriculums(self, search_term: str) -> List[Curriculum]:
@@ -429,26 +354,26 @@ class CurriculumService:
         
         total_objectives = 0
         total_contents = 0
-        total_teacher_activities = 0
-        total_student_activities = 0
-        total_materials = 0
-        total_guides = 0
+        # total_teacher_activities = 0
+        # total_student_activities = 0
+        # total_materials = 0
+        # total_guides = 0
         
         for topic in topics:
             total_objectives += len(self.get_learning_objectives(topic.id))
             total_contents += len(self.get_contents(topic.id))
-            total_teacher_activities += len(self.get_teacher_activities(topic.id))
-            total_student_activities += len(self.get_student_activities(topic.id))
-            total_materials += len(self.get_teaching_materials(topic.id))
-            total_guides += len(self.get_evaluation_guides(topic.id))
+            # total_teacher_activities += len(self.get_teacher_activities(topic.id))
+            # total_student_activities += len(self.get_student_activities(topic.id))
+            # total_materials += len(self.get_teaching_materials(topic.id))
+            # total_guides += len(self.get_evaluation_guides(topic.id))
         
         return {
             "curriculum_id": curriculum_id,
             "total_topics": total_topics,
             "total_learning_objectives": total_objectives,
             "total_contents": total_contents,
-            "total_teacher_activities": total_teacher_activities,
-            "total_student_activities": total_student_activities,
-            "total_teaching_materials": total_materials,
-            "total_evaluation_guides": total_guides
+            # "total_teacher_activities": total_teacher_activities,
+            # "total_student_activities": total_student_activities,
+            # "total_teaching_materials": total_materials,
+            # "total_evaluation_guides": total_guides
         } 

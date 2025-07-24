@@ -19,7 +19,7 @@ sys.path.extend([parent_dir, root_dir])
 
 # Import dependencies
 from apps.backend.database import get_db
-from apps.backend.models import LessonPlan, LessonSection, ResourceLink, LessonContext, User
+from apps.backend.models import LessonPlan, LessonSection, ResourceLink, LessonContext, User, Topic, CurriculumStructure, Curriculum, Country, GradeLevel, Subject
 # Curriculum service removed - using separate curriculum router
 # from services.pdf_service import PDFService  # Temporarily disabled for contract testing
 from packages.ai.gpt_service import AwadeGPTService
@@ -28,58 +28,83 @@ from apps.backend.schemas.lesson_plans import (
     LessonPlanResponse,
     LessonPlanDetailResponse,
     LessonPlanUpdate,
-    LessonContextCreate,
-    CurriculumMapResponse
+    LessonContextCreate
 )
 
 router = APIRouter(prefix="/api/lesson-plans", tags=["lesson-plans"])
 
 @router.get("/curriculum-map")
 def map_curriculum_for_lesson(
-    subject: str = Query(..., description="Subject area"),
-    grade_level: str = Query(..., description="Grade level"),
-    country: str = Query("Nigeria", description="Country for curriculum mapping"),
+    curriculum_structure_id: int = Query(..., description="Curriculum structure ID"),
+    topic_id: Optional[int] = Query(None, description="Topic ID (optional)"),
     db: Session = Depends(get_db)
 ):
     """
-    Map subject and grade level to curriculum standards for lesson plan alignment.
-    Returns curriculum_id and curriculum_description.
+    Map lesson plan to curriculum structure and topic using the new normalized schema.
+    Returns curriculum structure and topic information for lesson plan alignment.
     """
     try:
-        # Import here to avoid circular imports
-        from apps.backend.services.curriculum_service import CurriculumService
+        # Get curriculum structure with related data
+        curriculum_structure = db.query(CurriculumStructure).filter(
+            CurriculumStructure.curriculum_structure_id == curriculum_structure_id
+        ).first()
         
-        service = CurriculumService(db)
-        
-        # Find matching curriculum
-        curriculums = service.get_curriculums(
-            subject=subject,
-            grade_level=grade_level,
-            country=country,
-            limit=1
-        )
-        
-        if not curriculums:
+        if not curriculum_structure:
             raise HTTPException(
                 status_code=404,
-                detail=f"No curriculum found for {subject} {grade_level} in {country}"
+                detail=f"Curriculum structure {curriculum_structure_id} not found"
             )
         
-        curriculum = curriculums[0]
+        # Get related data
+        curriculum = curriculum_structure.curriculum
+        grade_level = curriculum_structure.grade_level
+        subject = curriculum_structure.subject
+        country = curriculum.country
+        
+        # Get topics for this curriculum structure
+        topics = db.query(Topic).filter(
+            Topic.curriculum_structure_id == curriculum_structure_id
+        ).all()
+        
+        # If topic_id is provided, get specific topic
+        specific_topic = None
+        if topic_id:
+            specific_topic = db.query(Topic).filter(Topic.topic_id == topic_id).first()
+            if not specific_topic:
+                raise HTTPException(status_code=404, detail="Topic not found")
         
         return {
-            "curriculum_id": curriculum.id,
-            "curriculum_description": f"{curriculum.subject} curriculum for {curriculum.grade_level} in {curriculum.country}"
+            "curriculum_structure_id": curriculum_structure_id,
+            "curriculum": {
+                "curricula_id": curriculum.curricula_id,
+                "curricula_title": curriculum.curricula_title,
+                "country": {
+                    "country_id": country.country_id,
+                    "country_name": country.country_name,
+                    "iso_code": country.iso_code
+                }
+            },
+            "grade_level": {
+                "grade_level_id": grade_level.grade_level_id,
+                "name": grade_level.name
+            },
+            "subject": {
+                "subject_id": subject.subject_id,
+                "name": subject.name
+            },
+            "topics": [
+                {
+                    "topic_id": topic.topic_id,
+                    "topic_title": topic.topic_title
+                } for topic in topics
+            ],
+            "selected_topic": {
+                "topic_id": specific_topic.topic_id,
+                "topic_title": specific_topic.topic_title
+            } if specific_topic else None
         }
     except Exception as e:
-        # Return mock data for contract testing when database is not available
-        return {
-            "curriculum_id": 1,
-            "curriculum_description": f"{subject} curriculum for {grade_level} in {country}",
-            "subject": subject,
-            "grade_level": grade_level,
-            "country": country
-        }
+        raise HTTPException(status_code=500, detail=f"Error mapping curriculum: {str(e)}")
 
 @router.post("/generate", response_model=LessonPlanResponse)
 async def generate_lesson_plan(

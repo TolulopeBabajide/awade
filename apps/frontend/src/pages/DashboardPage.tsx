@@ -5,8 +5,8 @@ const languages = ['English', 'French', 'Swahili'];
 const aiSuggestedTopics = ['Fractions', 'Geometry', 'Measurements', 'Algebra', 'Simultaneous Equations'];
 
 const DashboardPage: React.FC = () => {
-  const [frameworks, setFrameworks] = useState<any[]>([]);
-  const [selectedFramework, setSelectedFramework] = useState<string>('');
+  const [curriculums, setCurriculums] = useState<any[]>([]);
+  const [selectedCurriculum, setSelectedCurriculum] = useState<string>('');
   const [standards, setStandards] = useState<any[]>([]);
   const [subjects, setSubjects] = useState<string[]>([]);
   const [selectedSubject, setSelectedSubject] = useState<string>('');
@@ -22,17 +22,18 @@ const DashboardPage: React.FC = () => {
   });
   const [selectedTopic, setSelectedTopic] = useState('');
 
-  // Fetch frameworks (curriculums) on mount
+  // Fetch curriculums on mount
   useEffect(() => {
-    fetch('/api/curriculum/frameworks')
+    fetch('/api/curriculum?country=Kenya') // Assuming Kenya for now, can be changed
       .then(res => res.json())
-      .then(setFrameworks);
+      .then(setCurriculums);
   }, []);
 
-  // Fetch standards (subjects/grades) when a framework is selected
+  // Fetch standards (subjects/grades) when a curriculum is selected
   useEffect(() => {
-    if (selectedFramework) {
-      fetch(`/api/curriculum/frameworks/${selectedFramework}/standards`)
+    // Only fetch if selectedCurriculum is a valid integer string
+    if (selectedCurriculum && !isNaN(Number(selectedCurriculum))) {
+      fetch(`/api/curriculum/frameworks/${selectedCurriculum}/standards`)
         .then(res => res.json())
         .then(data => {
           setStandards(data);
@@ -50,7 +51,7 @@ const DashboardPage: React.FC = () => {
       setGradeLevels([]);
       setSelectedGradeLevel('');
     }
-  }, [selectedFramework]);
+  }, [selectedCurriculum]);
 
   // Update grade levels when subject changes
   useEffect(() => {
@@ -71,8 +72,8 @@ const DashboardPage: React.FC = () => {
     setForm({ ...form, [name]: value });
   };
 
-  const handleFrameworkChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedFramework(e.target.value);
+  const handleCurriculumChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCurriculum(e.target.value);
   };
 
   const handleSubjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -131,19 +132,19 @@ const DashboardPage: React.FC = () => {
           <h3 className="text-lg font-bold mb-4">Create Lesson Plan</h3>
           <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-semibold mb-1">Curriculum (Country)</label>
-              <select value={selectedFramework} onChange={handleFrameworkChange} className="w-full border rounded px-3 py-2">
+              <label className="block text-sm font-semibold mb-1">Curriculum</label>
+              <select value={selectedCurriculum} onChange={handleCurriculumChange} className="w-full border rounded px-3 py-2">
                 <option value="">Select Curriculum</option>
-                {frameworks.map(fw => (
-                  <option key={fw.framework_id} value={fw.framework_id}>
-                    {fw.name} ({fw.country})
+                {curriculums.map(curr => (
+                  <option key={curr.id} value={curr.id}>
+                    {curr.theme || `${curr.subject} - ${curr.grade_level} (${curr.country})`}
                   </option>
                 ))}
               </select>
             </div>
             <div>
               <label className="block text-sm font-semibold mb-1">Subject</label>
-              <select value={selectedSubject} onChange={handleSubjectChange} className="w-full border rounded px-3 py-2" disabled={!selectedFramework || subjects.length === 0}>
+              <select value={selectedSubject} onChange={handleSubjectChange} className="w-full border rounded px-3 py-2" disabled={!selectedCurriculum || subjects.length === 0}>
                 <option value="">Select Subject</option>
                 {subjects.map(subj => (
                   <option key={subj} value={subj}>{subj}</option>
