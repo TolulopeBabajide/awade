@@ -185,143 +185,142 @@ class CurriculumService:
         return True
     
     # Teacher Activity operations
-    def create_teacher_activity(self, activity_data: TeacherActivityCreate) -> TeacherActivity:
-        """Create a new teacher activity."""
-        activity = TeacherActivity(**activity_data.dict())
-        self.db.add(activity)
-        self.db.commit()
-        self.db.refresh(activity)
-        return activity
+    # def create_teacher_activity(self, activity_data: TeacherActivityCreate) -> TeacherActivity:
+    #     """Create a new teacher activity."""
+    #     activity = TeacherActivity(**activity_data.dict())
+    #     self.db.add(activity)
+    #     self.db.commit()
+    #     self.db.refresh(activity)
+    #     return activity
     
-    def get_teacher_activities(self, topic_id: int) -> List[TeacherActivity]:
-        """Get all teacher activities for a topic."""
-        return self.db.query(TeacherActivity).filter(TeacherActivity.topic_id == topic_id).all()
+    # def get_teacher_activities(self, topic_id: int) -> List[TeacherActivity]:
+    #     """Get all teacher activities for a topic."""
+    #     return self.db.query(TeacherActivity).filter(TeacherActivity.topic_id == topic_id).all()
     
-    def update_teacher_activity(self, activity_id: int, activity_data: str) -> Optional[TeacherActivity]:
-        """Update a teacher activity."""
-        activity = self.db.query(TeacherActivity).filter(TeacherActivity.id == activity_id).first()
-        if not activity:
-            return None
+    # def update_teacher_activity(self, activity_id: int, activity_data: str) -> Optional[TeacherActivity]:
+    #     """Update a teacher activity."""
+    #     activity = self.db.query(TeacherActivity).filter(TeacherActivity.id == activity_id).first()
+    #     if not activity:
+    #         return None
         
-        activity.activity = activity_data
-        self.db.commit()
-        self.db.refresh(activity)
-        return activity
+    #     activity.activity = activity_data
+    #     self.db.commit()
+    #     self.db.refresh(activity)
+    #     return activity
     
-    def delete_teacher_activity(self, activity_id: int) -> bool:
-        """Delete a teacher activity."""
-        activity = self.db.query(TeacherActivity).filter(TeacherActivity.id == activity_id).first()
-        if not activity:
-            return False
+    # def delete_teacher_activity(self, activity_id: int) -> bool:
+    #     """Delete a teacher activity."""
+    #     activity = self.db.query(TeacherActivity).filter(TeacherActivity.id == activity_id).first()
+    #     if not activity:
+    #         return False
         
-        self.db.delete(activity)
-        self.db.commit()
-        return True
+    #     self.db.delete(activity)
+    #     self.db.commit()
+    #     return True
     
     # Student Activity operations
-    def create_student_activity(self, activity_data: StudentActivityCreate) -> StudentActivity:
-        """Create a new student activity."""
-        activity = StudentActivity(**activity_data.dict())
-        self.db.add(activity)
-        self.db.commit()
-        self.db.refresh(activity)
-        return activity
+    # def create_student_activity(self, activity_data: StudentActivityCreate) -> StudentActivity:
+    #     """Create a new student activity."""
+    #     activity = StudentActivity(**activity_data.dict())
+    #     self.db.add(activity)
+    #     self.db.commit()
+    #     self.db.refresh(activity)
+    #     return activity
     
-    def get_student_activities(self, topic_id: int) -> List[StudentActivity]:
-        """Get all student activities for a topic."""
-        return self.db.query(StudentActivity).filter(StudentActivity.topic_id == topic_id).all()
+    # def get_student_activities(self, topic_id: int) -> List[StudentActivity]:
+    #     """Get all student activities for a topic."""
+    #     return self.db.query(StudentActivity).filter(StudentActivity.topic_id == topic_id).all()
     
-    def update_student_activity(self, activity_id: int, activity_data: str) -> Optional[StudentActivity]:
-        """Update a student activity."""
-        activity = self.db.query(StudentActivity).filter(StudentActivity.id == activity_id).first()
-        if not activity:
-            return None
+    # def update_student_activity(self, activity_id: int, activity_data: str) -> Optional[StudentActivity]:
+    #     """Update a student activity."""
+    #     activity = self.db.query(StudentActivity).filter(StudentActivity.id == activity_id).first()
+    #     if not activity:
+    #         return None
         
-        activity.activity = activity_data
-        self.db.commit()
-        self.db.refresh(activity)
-        return activity
+    #     activity.activity = activity_data
+    #     self.db.commit()
+    #     self.db.refresh(activity)
+    #     return activity
     
-    def delete_student_activity(self, activity_id: int) -> bool:
-        """Delete a student activity."""
-        activity = self.db.query(StudentActivity).filter(StudentActivity.id == activity_id).first()
-        if not activity:
-            return False
+    # def delete_student_activity(self, activity_id: int) -> bool:
+    #     """Delete a student activity."""
+    #     activity = self.db.query(StudentActivity).filter(StudentActivity.id == activity_id).first()
+    #     if not activity:
+    #         return False
         
-        self.db.delete(activity)
-        self.db.commit()
-        return True
+    #     self.db.delete(activity)
+    #     self.db.commit()
+    #     return True
     
     # Teaching Material operations
-    def create_teaching_material(self, material_data: TeachingMaterialCreate) -> TeachingMaterial:
-        """Create a new teaching material."""
-        material = TeachingMaterial(**material_data.dict())
-        self.db.add(material)
-        self.db.commit()
-        self.db.refresh(material)
-        return material
+    # def create_teaching_material(self, material_data: TeachingMaterialCreate) -> TeachingMaterial:
+    #     """Create a new teaching material."""
+    #     material = TeachingMaterial(**material_data.dict())
+    #     self.db.add(material)
+    #     self.db.commit()
+    #     self.db.refresh(material)
+    #     return material
     
-    def get_teaching_materials(self, topic_id: int) -> List[TeachingMaterial]:
-        """Get all teaching materials for a topic."""
-        return self.db.query(TeachingMaterial).filter(TeachingMaterial.topic_id == topic_id).all()
+    # def get_teaching_materials(self, topic_id: int) -> List[TeachingMaterial]:
+    #     """Get all teaching materials for a topic."""
+    #     return self.db.query(TeachingMaterial).filter(TeachingMaterial.topic_id == topic_id).all()
     
-    def update_teaching_material(self, material_id: int, material_data: str) -> Optional[TeachingMaterial]:
-        """Update a teaching material."""
-        material = self.db.query(TeachingMaterial).filter(TeachingMaterial.id == material_id).first()
-        if not material:
-            return None
+    # def update_teaching_material(self, material_id: int, material_data: str) -> Optional[TeachingMaterial]:
+    #     """Update a teaching material."""
+    #     material = self.db.query(TeachingMaterial).filter(TeachingMaterial.id == material_id).first()
+    #     if not material:
+    #         return None
         
-        material.material = material_data
-        self.db.commit()
-        self.db.refresh(material)
-        return material
+    #     material.material = material_data
+    #     self.db.commit()
+    #     self.db.refresh(material)
+    #     return material
     
-    def delete_teaching_material(self, material_id: int) -> bool:
-        """Delete a teaching material."""
-        material = self.db.query(TeachingMaterial).filter(TeachingMaterial.id == material_id).first()
-        if not material:
-            return False
+    # def delete_teaching_material(self, material_id: int) -> bool:
+    #     """Delete a teaching material."""
+    #     material = self.db.query(TeachingMaterial).filter(TeachingMaterial.id == material_id).first()
+    #     if not material:
+    #         return False
         
-        self.db.delete(material)
-        self.db.commit()
-        return True
+    #     self.db.delete(material)
+    #     self.db.commit()
+    #     return True
     
     # Evaluation Guide operations
-    def create_evaluation_guide(self, guide_data: EvaluationGuideCreate) -> EvaluationGuide:
-        """Create a new evaluation guide."""
-        guide = EvaluationGuide(**guide_data.dict())
-        self.db.add(guide)
-        self.db.commit()
-        self.db.refresh(guide)
-        return guide
+    # def create_evaluation_guide(self, guide_data: EvaluationGuideCreate) -> EvaluationGuide:
+    #     """Create a new evaluation guide."""
+    #     guide = EvaluationGuide(**guide_data.dict())
+    #     self.db.add(guide)
+    #     self.db.commit()
+    #     self.db.refresh(guide)
+    #     return guide
     
-    def get_evaluation_guides(self, topic_id: int) -> List[EvaluationGuide]:
-        """Get all evaluation guides for a topic."""
-        return self.db.query(EvaluationGuide).filter(EvaluationGuide.topic_id == topic_id).all()
+    # def get_evaluation_guides(self, topic_id: int) -> List[EvaluationGuide]:
+    #     """Get all evaluation guides for a topic."""
+    #     return self.db.query(EvaluationGuide).filter(EvaluationGuide.topic_id == topic_id).all()
     
-    def update_evaluation_guide(self, guide_id: int, guide_data: str) -> Optional[EvaluationGuide]:
-        """Update an evaluation guide."""
-        guide = self.db.query(EvaluationGuide).filter(EvaluationGuide.id == guide_id).first()
-        if not guide:
-            return None
+    # def update_evaluation_guide(self, guide_id: int, guide_data: str) -> Optional[EvaluationGuide]:
+    #     """Update an evaluation guide."""
+    #     guide = self.db.query(EvaluationGuide).filter(EvaluationGuide.id == guide_id).first()
+    #     if not guide:
+    #         return None
         
-        guide.guide = guide_data
-        self.db.commit()
-        self.db.refresh(guide)
-        return guide
+    #     guide.guide = guide_data
+    #     self.db.commit()
+    #     self.db.refresh(guide)
+    #     return guide
     
-    def delete_evaluation_guide(self, guide_id: int) -> bool:
-        """Delete an evaluation guide."""
-        guide = self.db.query(EvaluationGuide).filter(EvaluationGuide.id == guide_id).first()
-        if not guide:
-            return False
+    # def delete_evaluation_guide(self, guide_id: int) -> bool:
+    #     """Delete an evaluation guide."""
+    #     guide = self.db.query(EvaluationGuide).filter(EvaluationGuide.id == guide_id).first()
+    #     if not guide:
+    #         return False
         
-        self.db.delete(guide)
-        self.db.commit()
-        return True
+    #     self.db.delete(guide)
+    #     self.db.commit()
+    #     return True
     
-    # Bulk operations
-    # Remove all methods that use old flat fields, including create_curriculum_with_topics and any related logic.
+
     
     # Search and utility methods
     def search_curriculums(self, search_term: str) -> List[Curriculum]:
@@ -329,18 +328,14 @@ class CurriculumService:
         return self.db.query(Curriculum).filter(
             or_(
                 Curriculum.country.ilike(f"%{search_term}%"),
-                Curriculum.subject.ilike(f"%{search_term}%"),
-                Curriculum.theme.ilike(f"%{search_term}%")
-            )
+                Curriculum.subject.ilike(f"%{search_term}%"),            )
         ).all()
     
     def search_topics(self, search_term: str) -> List[Topic]:
         """Search topics by title or description."""
         return self.db.query(Topic).filter(
             or_(
-                Topic.topic_title.ilike(f"%{search_term}%"),
-                Topic.description.ilike(f"%{search_term}%")
-            )
+                Topic.topic_title.ilike(f"%{search_term}%"),            )
         ).all()
     
     def get_curriculum_statistics(self, curriculum_id: int) -> Dict[str, Any]:
