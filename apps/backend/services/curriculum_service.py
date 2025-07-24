@@ -11,7 +11,7 @@ from apps.backend.models import (
     Curriculum, Topic, CurriculumStructure, Country, GradeLevel, Subject, LearningObjective, TopicContent
 )
 from apps.backend.schemas.curriculum import (
-    CurriculumCreate, CurriculumResponse, TopicCreate, TopicResponse
+    CurriculumCreate, CurriculumResponse, TopicCreate, TopicResponse, LearningObjectiveCreate
 )
 
 class CurriculumService:
