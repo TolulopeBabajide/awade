@@ -128,7 +128,6 @@ class LessonPlanFullResponse(BaseModel):
     sections: List[LessonSectionResponse]
     resources: List[ResourceLinkResponse]
     contexts: List[LessonContextResponse]
-    curriculum_maps: List[CurriculumMapResponse]
     
     class Config:
         from_attributes = True 
