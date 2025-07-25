@@ -5,11 +5,9 @@ This module provides endpoints for managing lesson plans, including AI-powered g
 
 Endpoints:
 - /api/lesson-plans: CRUD for lesson plans
-- /api/lesson-plans/generate: AI lesson plan generation
+- /api/lesson-plans/generate:lesson plan generation
 - /api/lesson-plans/{lesson_id}/export/pdf: PDF export
-- /api/lesson-plans/{lesson_id}/optimize-assessment: AI assessment optimization
-- /api/lesson-plans/{lesson_id}/enhance-activities: AI activity enhancement
-- /api/lesson-plans/{lesson_id}/align-curriculum: AI curriculum alignment
+
 - /api/lesson-plans/{lesson_id}/resources/generate: AI lesson resource generation
 - /api/lesson-plans/resources/{resource_id}/review: Resource review and update
 
@@ -32,14 +30,13 @@ sys.path.extend([parent_dir, root_dir])
 
 # Import dependencies
 from apps.backend.database import get_db
-from apps.backend.models import LessonPlan, User, Topic, CurriculumStructure, Curriculum, Country, GradeLevel, Subject, LessonResource
+from apps.backend.models import LessonPlan, User, Topic, CurriculumStructure, Curriculum, Country, GradeLevel, Subject, LessonResource, LessonStatus
 # Curriculum service removed - using separate curriculum router
 # from services.pdf_service import PDFService  # Temporarily disabled for contract testing
 from packages.ai.gpt_service import AwadeGPTService
 from apps.backend.schemas.lesson_plans import (
     LessonPlanCreate,
     LessonPlanResponse,
-    LessonPlanDetailResponse,
     LessonPlanUpdate,
     LessonResourceCreate,
     LessonResourceUpdate,
@@ -48,78 +45,52 @@ from apps.backend.schemas.lesson_plans import (
 
 router = APIRouter(prefix="/api/lesson-plans", tags=["lesson-plans"])
 
-@router.get("/curriculum-map")
-def map_curriculum_for_lesson(
-    curriculum_structure_id: int = Query(..., description="Curriculum structure ID"),
-    topic_id: Optional[int] = Query(None, description="Topic ID (optional)"),
-    db: Session = Depends(get_db)
-):
-    """
-    Map lesson plan to curriculum structure and topic using the new normalized schema.
-    Returns curriculum structure and topic information for lesson plan alignment.
-    """
-    try:
-        # Get curriculum structure with related data
-        curriculum_structure = db.query(CurriculumStructure).filter(
-            CurriculumStructure.curriculum_structure_id == curriculum_structure_id
-        ).first()
-        
-        if not curriculum_structure:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Curriculum structure {curriculum_structure_id} not found"
-            )
-        
-        # Get related data
-        curriculum = curriculum_structure.curriculum
-        grade_level = curriculum_structure.grade_level
-        subject = curriculum_structure.subject
-        country = curriculum.country
-        
-        # Get topics for this curriculum structure
-        topics = db.query(Topic).filter(
-            Topic.curriculum_structure_id == curriculum_structure_id
-        ).all()
-        
-        # If topic_id is provided, get specific topic
-        specific_topic = None
-        if topic_id:
-            specific_topic = db.query(Topic).filter(Topic.topic_id == topic_id).first()
-            if not specific_topic:
-                raise HTTPException(status_code=404, detail="Topic not found")
-        
-        return {
-            "curriculum_structure_id": curriculum_structure_id,
-            "curriculum": {
-                "curricula_id": curriculum.curricula_id,
-                "curricula_title": curriculum.curricula_title,
-                "country": {
-                    "country_id": country.country_id,
-                    "country_name": country.country_name,
-                    "iso_code": country.iso_code
-                }
-            },
-            "grade_level": {
-                "grade_level_id": grade_level.grade_level_id,
-                "name": grade_level.name
-            },
-            "subject": {
-                "subject_id": subject.subject_id,
-                "name": subject.name
-            },
-            "topics": [
-                {
-                    "topic_id": topic.topic_id,
-                    "topic_title": topic.topic_title
-                } for topic in topics
-            ],
-            "selected_topic": {
-                "topic_id": specific_topic.topic_id,
-                "topic_title": specific_topic.topic_title
-            } if specific_topic else None
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error mapping curriculum: {str(e)}")
+def fetch_curriculum_data(topic_obj):
+    """Helper function to fetch curriculum learning objectives and contents for a topic."""
+    curriculum_learning_objectives = []
+    curriculum_contents = []
+    if topic_obj:
+        curriculum_learning_objectives = [obj.objective for obj in topic_obj.learning_objectives]
+        curriculum_contents = [content.content_area for content in topic_obj.topic_contents]
+    return curriculum_learning_objectives, curriculum_contents
+
+def create_lesson_plan_response(lesson_plan, request_data=None):
+    """Helper function to create a standardized lesson plan response."""
+    # Fetch curriculum data
+    curriculum_learning_objectives, curriculum_contents = fetch_curriculum_data(lesson_plan.topic)
+    
+    # Determine title, subject, grade_level, topic
+    if request_data:
+        # For new lesson plans from request data
+        title = f"{request_data.subject}: {request_data.topic}"
+        subject = request_data.subject
+        grade_level = request_data.grade_level
+        topic = request_data.topic
+        author_id = request_data.user_id
+        duration_minutes = getattr(request_data, 'duration_minutes', 45)
+    else:
+        # For existing lesson plans from database
+        title = f"{lesson_plan.topic.curriculum_structure.subject.name}: {lesson_plan.topic.topic_title}" if lesson_plan.topic else "Untitled Lesson"
+        subject = lesson_plan.topic.curriculum_structure.subject.name if lesson_plan.topic else "Unknown"
+        grade_level = lesson_plan.topic.curriculum_structure.grade_level.name if lesson_plan.topic else "Unknown"
+        topic = lesson_plan.topic.topic_title if lesson_plan.topic else None
+        author_id = 1  # Default author ID for existing lesson plans
+        duration_minutes = 45  # Default duration
+    
+    return LessonPlanResponse(
+        lesson_id=lesson_plan.lesson_plan_id,
+        title=title,
+        subject=subject,
+        grade_level=grade_level,
+        topic=topic,
+        author_id=author_id,
+        duration_minutes=duration_minutes,
+        created_at=lesson_plan.created_at,
+        updated_at=lesson_plan.created_at,  # Using created_at as updated_at
+        status=LessonStatus.DRAFT,
+        curriculum_learning_objectives=curriculum_learning_objectives,
+        curriculum_contents=curriculum_contents
+    )
 
 @router.post("/generate", response_model=LessonPlanResponse)
 async def generate_lesson_plan(
@@ -128,47 +99,29 @@ async def generate_lesson_plan(
 ):
     """
     Generate a lesson plan based on the provided request data.
-
-    Args:
-        request (LessonPlanCreate): The lesson plan creation request.
-        db (Session): Database session dependency.
-
-    Returns:
-        LessonPlanResponse: The generated lesson plan.
+    Fetches curriculum learning objectives and contents for the topic without passing to AI.
     """
-    # Curriculum mapping will be handled separately via curriculum router
     
-    # Generate lesson plan using AI
-    gpt_service = AwadeGPTService()
-    ai_response = gpt_service.generate_lesson_plan(
-        subject=request.subject,
-        grade=request.grade_level,
-        topic=request.topic,
-        objectives=request.objectives,
-        duration=request.duration_minutes,
-        language=request.language,
-        cultural_context=request.cultural_context or "African",
-        local_context=request.local_context
-    )
+    # Fetch curriculum learning objectives and contents for the topic
+    curriculum_learning_objectives = []
+    curriculum_contents = []
+    topic_obj = db.query(Topic).filter(Topic.topic_title == request.topic).first()
+    if topic_obj:
+        curriculum_learning_objectives = [obj.objective for obj in topic_obj.learning_objectives]
+        curriculum_contents = [content.content_area for content in topic_obj.topic_contents]
     
     # Create lesson plan in database
     lesson_plan = LessonPlan(
-        title=ai_response.get("title", f"{request.subject}: {request.topic}"),
-        subject=request.subject,
-        grade_level=request.grade_level,
-        author_id=request.author_id,  # This should come from authenticated user
-        context_description=request.local_context,
-        duration_minutes=request.duration_minutes,
-        status="draft"
+        topic_id=topic_obj.topic_id if topic_obj else None,
+        created_at=datetime.now()
     )
     
     db.add(lesson_plan)
     db.commit()
     db.refresh(lesson_plan)
     
-    # Context handling removed; LessonContext is not implemented
-    
-    return LessonPlanResponse.from_orm(lesson_plan)
+    # Return enhanced response with curriculum data
+    return create_lesson_plan_response(lesson_plan, request)
 
 @router.get("/", response_model=List[LessonPlanResponse])
 async def get_lesson_plans(
@@ -200,7 +153,14 @@ async def get_lesson_plans(
             query = query.filter(LessonPlan.grade_level == grade_level)
         
         lesson_plans = query.offset(skip).limit(limit).all()
-        return [LessonPlanResponse.from_orm(plan) for plan in lesson_plans]
+        
+        # Convert to response models with curriculum data
+        responses = []
+        for plan in lesson_plans:
+            response = create_lesson_plan_response(plan)
+            responses.append(response)
+        
+        return responses
     except Exception as e:
         # Return mock data for contract testing when database is not available
         return [
@@ -211,11 +171,12 @@ async def get_lesson_plans(
                 grade_level="Grade 4",
                 topic="Fractions",
                 author_id=1,
-                context_description="Basic fraction concepts",
                 duration_minutes=45,
-                created_at="2024-01-01T10:00:00Z",
-                updated_at="2024-01-01T10:00:00Z",
-                status="draft"
+                created_at=datetime.now(),
+                updated_at=datetime.now(),
+                status=LessonStatus.DRAFT,
+                curriculum_learning_objectives=["Understand basic fraction concepts", "Compare fractions", "Add simple fractions"],
+                curriculum_contents=["Fraction representation", "Fraction operations", "Real-world applications"]
             )
         ]
 
@@ -232,11 +193,11 @@ async def get_lesson_plan(lesson_id: int, db: Session = Depends(get_db)):
         LessonPlanResponse: The lesson plan record.
     """
     try:
-        lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
+        lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_id).first()
         if not lesson_plan:
             raise HTTPException(status_code=404, detail="Lesson plan not found")
         
-        return LessonPlanResponse.from_orm(lesson_plan)
+        return create_lesson_plan_response(lesson_plan)
     except Exception as e:
         # Return mock data for contract testing when database is not available
         return LessonPlanResponse(
@@ -246,11 +207,12 @@ async def get_lesson_plan(lesson_id: int, db: Session = Depends(get_db)):
             grade_level="Grade 4",
             topic="Fractions",
             author_id=1,
-            context_description="Basic fraction concepts",
             duration_minutes=45,
-            created_at="2024-01-01T10:00:00Z",
-            updated_at="2024-01-01T10:00:00Z",
-            status="draft"
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+            status=LessonStatus.DRAFT,
+            curriculum_learning_objectives=["Understand basic fraction concepts", "Compare fractions", "Add simple fractions"],
+            curriculum_contents=["Fraction representation", "Fraction operations", "Real-world applications"]
         )
 
 @router.put("/{lesson_id}", response_model=LessonPlanResponse)
@@ -271,19 +233,17 @@ async def update_lesson_plan(
         LessonPlanResponse: The updated lesson plan.
     """
     try:
-        lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
+        lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_id).first()
         if not lesson_plan:
             raise HTTPException(status_code=404, detail="Lesson plan not found")
         
-        # Update fields
-        for field, value in request.dict(exclude_unset=True).items():
-            setattr(lesson_plan, field, value)
-        
+        # Update fields - Note: LessonPlan model only has topic_id and created_at
+        # Most fields are derived from the topic relationship
         lesson_plan.updated_at = datetime.now()
         db.commit()
         db.refresh(lesson_plan)
         
-        return LessonPlanResponse.from_orm(lesson_plan)
+        return create_lesson_plan_response(lesson_plan)
     except Exception as e:
         # Return mock data for contract testing when database is not available
         return LessonPlanResponse(
@@ -293,11 +253,12 @@ async def update_lesson_plan(
             grade_level="Grade 4",
             topic="Fractions",
             author_id=1,
-            context_description="Updated lesson plan",
             duration_minutes=45,
-            created_at="2024-01-01T10:00:00Z",
-            updated_at="2024-01-01T11:00:00Z",
-            status="updated"
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+            status=LessonStatus.DRAFT,
+            curriculum_learning_objectives=["Understand basic fraction concepts", "Compare fractions", "Add simple fractions"],
+            curriculum_contents=["Fraction representation", "Fraction operations", "Real-world applications"]
         )
 
 @router.delete("/{lesson_id}")
@@ -313,7 +274,7 @@ async def delete_lesson_plan(lesson_id: int, db: Session = Depends(get_db)):
         dict: Message indicating whether the lesson plan was deleted.
     """
     try:
-        lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
+        lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_id).first()
         if not lesson_plan:
             raise HTTPException(status_code=404, detail="Lesson plan not found")
         
@@ -324,271 +285,6 @@ async def delete_lesson_plan(lesson_id: int, db: Session = Depends(get_db)):
     except Exception as e:
         # Return mock response for contract testing when database is not available
         return {"message": f"Lesson plan {lesson_id} would be deleted", "status": "mock_deletion"}
-
-@router.get("/{lesson_id}/export/pdf")
-async def export_lesson_plan_pdf(lesson_id: int, db: Session = Depends(get_db)):
-    """
-    Export a lesson plan as a PDF file.
-
-    Args:
-        lesson_id (int): The lesson plan ID.
-        db (Session): Database session dependency.
-
-    Returns:
-        dict: Message or PDF export status.
-    """
-    lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
-    if not lesson_plan:
-        raise HTTPException(status_code=404, detail="Lesson plan not found")
-    
-    # Get sections and resources
-    sections = []  # LessonSection is not implemented; return empty list or handle as needed
-    
-    resources = []  # ResourceLink is not implemented; return empty list or handle as needed
-    
-    # Temporarily return mock PDF response for contract testing
-    return {
-        "message": "PDF export functionality temporarily disabled for contract testing",
-        "lesson_id": lesson_id,
-        "status": "mock_response"
-    }
-
-# Context endpoint removed; LessonContext is not implemented
-
-@router.get("/{lesson_id}/detailed", response_model=LessonPlanDetailResponse)
-async def get_lesson_plan_detailed(lesson_id: int, db: Session = Depends(get_db)):
-    """
-    Retrieve a detailed lesson plan with all related data by its ID.
-
-    Args:
-        lesson_id (int): The lesson plan ID.
-        db (Session): Database session dependency.
-
-    Returns:
-        LessonPlanDetailResponse: The detailed lesson plan record.
-    """
-    try:
-        lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
-        if not lesson_plan:
-            raise HTTPException(status_code=404, detail="Lesson plan not found")
-        
-        # Get related data
-        sections = []  # LessonSection is not implemented; return empty list or handle as needed
-        
-        resources = []  # ResourceLink is not implemented; return empty list or handle as needed
-        
-        # Context handling removed; LessonContext is not implemented
-        
-        return LessonPlanDetailResponse(
-            lesson_plan=lesson_plan,
-            sections=sections,
-            resources=resources,
-            context=[] # Placeholder for context data
-        )
-    except Exception as e:
-        # Return mock data for contract testing when database is not available
-        return LessonPlanDetailResponse(
-            lesson_plan=LessonPlanResponse(
-                lesson_id=lesson_id,
-                title=f"Detailed Lesson Plan {lesson_id}",
-                subject="Mathematics",
-                grade_level="Grade 4",
-                topic="Fractions",
-                author_id=1,
-                context_description="Detailed lesson plan with enhanced content",
-                duration_minutes=45,
-                created_at="2024-01-01T10:00:00Z",
-                updated_at="2024-01-01T10:00:00Z",
-                status="detailed"
-            ),
-            sections=[],
-            resources=[],
-            context=[]
-        )
-
-# New endpoints for enhanced GPT functionality
-@router.post("/{lesson_id}/optimize-assessment")
-async def optimize_lesson_assessment(
-    lesson_id: int,
-    assessment_content: str,
-    assessment_type: str = "mixed",
-    db: Session = Depends(get_db)
-):
-    """
-    Optimize assessment content for cultural relevance and effectiveness using AI.
-
-    Args:
-        lesson_id (int): The lesson plan ID.
-        assessment_content (str): The assessment content to optimize.
-        assessment_type (str): The type of assessment (default: "mixed").
-        db (Session): Database session dependency.
-
-    Returns:
-        dict: Optimization result and status.
-    """
-    try:
-        lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
-        if not lesson_plan:
-            raise HTTPException(status_code=404, detail="Lesson plan not found")
-        
-        gpt_service = AwadeGPTService()
-        optimization_result = gpt_service.optimize_assessment(
-            assessment_content=assessment_content,
-            subject=lesson_plan.subject,
-            grade=lesson_plan.grade_level,
-            assessment_type=assessment_type
-        )
-        
-        return {
-            "lesson_id": lesson_id,
-            "optimization_result": optimization_result,
-            "status": "success"
-        }
-    except Exception as e:
-        return {
-            "lesson_id": lesson_id,
-            "error": f"Failed to optimize assessment: {str(e)}",
-            "optimization_result": {
-                "optimized_assessment": assessment_content,
-                "status": "fallback"
-            },
-            "status": "error"
-        }
-
-@router.post("/{lesson_id}/enhance-activities")
-async def enhance_lesson_activities(
-    lesson_id: int,
-    activities_content: str,
-    duration: int = 45,
-    resources: str = "Basic classroom materials",
-    class_size: int = 30,
-    db: Session = Depends(get_db)
-):
-    """
-    Enhance classroom activities for better engagement and cultural relevance using AI.
-
-    Args:
-        lesson_id (int): The lesson plan ID.
-        activities_content (str): The activities content to enhance.
-        duration (int): Duration of the lesson (default: 45).
-        resources (str): Available resources (default: "Basic classroom materials").
-        class_size (int): Number of students (default: 30).
-        db (Session): Database session dependency.
-
-    Returns:
-        dict: Enhancement result and status.
-    """
-    try:
-        lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
-        if not lesson_plan:
-            raise HTTPException(status_code=404, detail="Lesson plan not found")
-        
-        gpt_service = AwadeGPTService()
-        enhancement_result = gpt_service.enhance_activities(
-            activities_content=activities_content,
-            subject=lesson_plan.subject,
-            grade=lesson_plan.grade_level,
-            duration=duration,
-            resources=resources,
-            class_size=class_size
-        )
-        
-        return {
-            "lesson_id": lesson_id,
-            "enhancement_result": enhancement_result,
-            "status": "success"
-        }
-    except Exception as e:
-        return {
-            "lesson_id": lesson_id,
-            "error": f"Failed to enhance activities: {str(e)}",
-            "enhancement_result": {
-                "enhanced_activities": activities_content,
-                "status": "fallback"
-            },
-            "status": "error"
-        }
-
-@router.post("/{lesson_id}/align-curriculum")
-async def align_lesson_curriculum(
-    lesson_id: int,
-    lesson_content: str,
-    country: str = "Nigeria",
-    db: Session = Depends(get_db)
-):
-    """
-    Align lesson content with curriculum standards using AI.
-
-    Args:
-        lesson_id (int): The lesson plan ID.
-        lesson_content (str): The lesson content to align.
-        country (str): Country for curriculum alignment (default: "Nigeria").
-        db (Session): Database session dependency.
-
-    Returns:
-        dict: Alignment result and status.
-    """
-    try:
-        lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
-        if not lesson_plan:
-            raise HTTPException(status_code=404, detail="Lesson plan not found")
-        
-        gpt_service = AwadeGPTService()
-        alignment_result = gpt_service.align_curriculum(
-            lesson_content=lesson_content,
-            subject=lesson_plan.subject,
-            grade=lesson_plan.grade_level,
-            country=country
-        )
-        
-        return {
-            "lesson_id": lesson_id,
-            "alignment_result": alignment_result,
-            "status": "success"
-        }
-    except Exception as e:
-        return {
-            "lesson_id": lesson_id,
-            "error": f"Failed to align curriculum: {str(e)}",
-            "alignment_result": {
-                "curriculum_alignment": "Curriculum alignment analysis unavailable",
-                "status": "fallback"
-            },
-            "status": "error"
-        }
-
-@router.post("/explain-content")
-async def explain_ai_content(
-    content: str,
-    context: str = "General educational context"
-):
-    """
-    Explain AI-generated content in teacher-friendly terms.
-
-    Args:
-        content (str): The AI-generated content to explain.
-        context (str): The context for explanation (default: "General educational context").
-
-    Returns:
-        dict: Explanation and status.
-    """
-    try:
-        gpt_service = AwadeGPTService()
-        explanation = gpt_service.explain_ai_content(
-            content=content,
-            context=context
-        )
-        
-        return {
-            "explanation": explanation,
-            "status": "success"
-        }
-    except Exception as e:
-        return {
-            "error": f"Failed to explain content: {str(e)}",
-            "explanation": "Content explanation unavailable",
-            "status": "error"
-        } 
 
 @router.post("/{lesson_id}/resources/generate", response_model=LessonResourceResponse)
 async def generate_lesson_resource(
@@ -607,18 +303,23 @@ async def generate_lesson_resource(
     Returns:
         LessonResourceResponse: The generated lesson resource.
     """
-    lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_id == lesson_id).first()
+    lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_id).first()
     if not lesson_plan:
         raise HTTPException(status_code=404, detail="Lesson plan not found")
 
+    # Get topic information for AI service
+    topic_info = lesson_plan.topic
+    if not topic_info:
+        raise HTTPException(status_code=404, detail="Topic not found for lesson plan")
+    
     gpt_service = AwadeGPTService()
     ai_content = gpt_service.generate_lesson_resource(
-        subject=lesson_plan.subject,
-        grade=lesson_plan.grade_level,
-        topic=lesson_plan.topic,
-        objectives=lesson_plan.learning_objectives,
-        duration=lesson_plan.duration_minutes,
-        context=data.context_input or lesson_plan.context_description
+        subject=topic_info.curriculum_structure.subject.name,
+        grade=topic_info.curriculum_structure.grade_level.name,
+        topic=topic_info.topic_title,
+        objectives=[obj.objective for obj in topic_info.learning_objectives],
+        duration=45,  # Default duration
+        context=data.context_input
     )
 
     lesson_resource = LessonResource(
