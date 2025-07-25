@@ -196,7 +196,24 @@ def main():
     """Main function to run the documentation update process."""
     print("🔄 Starting API documentation update...")
     
-    # Check for API changes
+    # In CI, always run the update
+    if os.getenv("CI", "false").lower() == "true":
+        print("🏗️  CI environment detected: forcing OpenAPI spec and documentation update.")
+        if generate_openapi_spec():
+            if update_api_documentation():
+                if validate_documentation():
+                    print("🎉 API documentation update completed successfully!")
+                    return True
+                else:
+                    print("⚠️  Documentation updated but validation failed")
+                    return False
+            else:
+                print("❌ Failed to update API documentation")
+                return False
+        else:
+            print("❌ Failed to generate OpenAPI specification")
+            return False
+    # Otherwise, only run if there are API changes
     has_changes, changed_files = check_for_api_changes()
     
     if has_changes:
