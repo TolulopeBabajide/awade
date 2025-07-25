@@ -197,6 +197,11 @@ jobs:
         pip install uvicorn
         cd apps/backend
         pip install -r requirements.txt
+    - name: Generate OpenAPI spec
+      run: |
+        python scripts/update_api_docs.py
+        test -s apps/backend/app/openapi.json
+        python -m json.tool apps/backend/app/openapi.json
     - name: Run contract tests
       env:
         DATABASE_URL: postgresql://awade_user:awade_password@localhost:5432/awade
