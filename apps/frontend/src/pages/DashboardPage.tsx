@@ -5,12 +5,13 @@ const languages = ['English', 'French', 'Swahili'];
 const aiSuggestedTopics = ['Fractions', 'Geometry', 'Measurements', 'Algebra', 'Simultaneous Equations'];
 
 const DashboardPage: React.FC = () => {
+  const [countries, setCountries] = useState<any[]>([]);
+  const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [curriculums, setCurriculums] = useState<any[]>([]);
   const [selectedCurriculum, setSelectedCurriculum] = useState<string>('');
-  const [standards, setStandards] = useState<any[]>([]);
-  const [subjects, setSubjects] = useState<string[]>([]);
+  const [subjects, setSubjects] = useState<any[]>([]);
   const [selectedSubject, setSelectedSubject] = useState<string>('');
-  const [gradeLevels, setGradeLevels] = useState<string[]>([]);
+  const [gradeLevels, setGradeLevels] = useState<any[]>([]);
   const [selectedGradeLevel, setSelectedGradeLevel] = useState<string>('');
   const [form, setForm] = useState({
     teachingStyle: teachingStyles[0],
@@ -22,50 +23,58 @@ const DashboardPage: React.FC = () => {
   });
   const [selectedTopic, setSelectedTopic] = useState('');
 
-  // Fetch curriculums on mount
+  // Fetch countries on mount
   useEffect(() => {
-    fetch('/api/curriculum?country=Kenya') // Assuming Kenya for now, can be changed
+    fetch('/api/countries/')
       .then(res => res.json())
-      .then(setCurriculums);
+      .then(setCountries);
   }, []);
 
-  // Fetch standards (subjects/grades) when a curriculum is selected
+  // Fetch curriculums when country changes
   useEffect(() => {
-    // Only fetch if selectedCurriculum is a valid integer string
-    if (selectedCurriculum && !isNaN(Number(selectedCurriculum))) {
-      fetch(`/api/curriculum/frameworks/${selectedCurriculum}/standards`)
+    if (selectedCountry) {
+      fetch(`/api/curriculum?country_id=${selectedCountry}`)
         .then(res => res.json())
-        .then(data => {
-          setStandards(data);
-          // Extract unique subjects
-          const uniqueSubjects = Array.from(new Set(data.map((std: any) => std.subject))) as string[];
-          setSubjects(uniqueSubjects);
-          setSelectedSubject('');
-          setGradeLevels([]);
-          setSelectedGradeLevel('');
+        .then(setCurriculums);
+    } else {
+      setCurriculums([]);
+    }
+    setSelectedCurriculum('');
+    setSubjects([]);
+    setSelectedSubject('');
+    setGradeLevels([]);
+    setSelectedGradeLevel('');
+  }, [selectedCountry]);
+
+  // Fetch subjects and grade levels when a curriculum is selected
+  useEffect(() => {
+    if (selectedCurriculum) {
+      // Fetch subjects for the selected curriculum
+      fetch(`/api/curriculum-structures?curricula_id=${selectedCurriculum}`)
+        .then(res => res.json())
+        .then(structures => {
+          // Extract unique subject and grade level IDs
+          const subjectIds = Array.from(new Set(structures.map((s: any) => s.subject_id)));
+          const gradeLevelIds = Array.from(new Set(structures.map((s: any) => s.grade_level_id)));
+
+          // Fetch subject details
+          Promise.all([
+            fetch('/api/subjects/').then(res => res.json()),
+            fetch('/api/grade-levels/').then(res => res.json())
+          ]).then(([allSubjects, allGrades]) => {
+            setSubjects(allSubjects.filter((s: any) => subjectIds.includes(s.subject_id)));
+            setGradeLevels(allGrades.filter((g: any) => gradeLevelIds.includes(g.grade_level_id)));
+            setSelectedSubject('');
+            setSelectedGradeLevel('');
+          });
         });
     } else {
-      setStandards([]);
       setSubjects([]);
-      setSelectedSubject('');
       setGradeLevels([]);
+      setSelectedSubject('');
       setSelectedGradeLevel('');
     }
   }, [selectedCurriculum]);
-
-  // Update grade levels when subject changes
-  useEffect(() => {
-    if (selectedSubject) {
-      const grades = standards
-        .filter((std: any) => std.subject === selectedSubject)
-        .map((std: any) => std.grade_level);
-      setGradeLevels(grades);
-      setSelectedGradeLevel('');
-    } else {
-      setGradeLevels([]);
-      setSelectedGradeLevel('');
-    }
-  }, [selectedSubject, standards]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -84,22 +93,26 @@ const DashboardPage: React.FC = () => {
     setSelectedGradeLevel(e.target.value);
   };
 
+  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCountry(e.target.value);
+  };
+
   const handleTopicSelect = (topic: string) => {
     setSelectedTopic(topic);
     setForm({ ...form, topic });
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r flex flex-col py-8 px-4 min-h-screen">
-        <div className="flex items-center mb-8">
+      <aside className="w-full md:w-64 bg-white border-b md:border-b-0 md:border-r flex flex-row md:flex-col py-4 md:py-8 px-4 md:min-h-screen items-center md:items-stretch">
+        <div className="flex items-center mb-8 md:mb-8 w-full justify-center md:justify-start">
           <div className="w-10 h-10 bg-green-200 rounded-full flex items-center justify-center mr-2">
             <span className="text-2xl font-bold text-green-700">O</span>
           </div>
           <span className="font-bold text-xl tracking-widest">AWADE</span>
         </div>
-        <nav className="flex-1 space-y-2">
+        <nav className="flex-1 space-y-2 w-full hidden md:block">
           <button className="w-full text-left px-4 py-2 rounded bg-orange-100 text-orange-700 font-semibold">Dashboard</button>
           <button className="w-full text-left px-4 py-2 rounded hover:bg-gray-100">Lesson Plans</button>
           <button className="w-full text-left px-4 py-2 rounded hover:bg-gray-100">Resources</button>
@@ -107,13 +120,13 @@ const DashboardPage: React.FC = () => {
           <button className="w-full text-left px-4 py-2 rounded hover:bg-gray-100">Support</button>
           <button className="w-full text-left px-4 py-2 rounded hover:bg-gray-100">Settings</button>
         </nav>
-        <button className="mt-8 text-left px-4 py-2 text-red-500 hover:underline">Log out</button>
+        <button className="mt-8 text-left px-4 py-2 text-red-500 hover:underline hidden md:block">Log out</button>
       </aside>
       {/* Main Content */}
-      <main className="flex-1 p-10">
+      <main className="flex-1 p-4 md:p-10">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+          <div className="text-center md:text-left">
             <h2 className="text-2xl font-bold mb-1">Welcome, Ada</h2>
             <p className="text-gray-500">Generate Lesson plans tailored towards your African Classroom.</p>
           </div>
@@ -128,52 +141,49 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
         {/* Create Lesson Plan Form */}
-        <div className="bg-white rounded shadow p-8 mb-10">
+        <div className="bg-white rounded shadow p-4 md:p-8 mb-10">
           <h3 className="text-lg font-bold mb-4">Create Lesson Plan</h3>
-          <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <form className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+            <div>
+              <label className="block text-sm font-semibold mb-1">Country</label>
+              <select value={selectedCountry} onChange={handleCountryChange} className="w-full border rounded px-3 py-2">
+                <option value="">Select Country</option>
+                {countries.map((country: any) => (
+                  <option key={country.country_id} value={country.country_id}>{country.country_name}</option>
+                ))}
+              </select>
+            </div>
             <div>
               <label className="block text-sm font-semibold mb-1">Curriculum</label>
               <select value={selectedCurriculum} onChange={handleCurriculumChange} className="w-full border rounded px-3 py-2">
                 <option value="">Select Curriculum</option>
                 {curriculums.map(curr => (
-                  <option key={curr.id} value={curr.id}>
-                    {curr.theme || `${curr.subject} - ${curr.grade_level} (${curr.country})`}
+                  <option key={curr.curricula_id} value={curr.curricula_id}>
+                    {curr.curricula_title}
                   </option>
                 ))}
               </select>
             </div>
             <div>
               <label className="block text-sm font-semibold mb-1">Subject</label>
-              <select value={selectedSubject} onChange={handleSubjectChange} className="w-full border rounded px-3 py-2" disabled={!selectedCurriculum || subjects.length === 0}>
+              <select value={selectedSubject} onChange={handleSubjectChange} className="w-full border rounded px-3 py-2" disabled={subjects.length === 0}>
                 <option value="">Select Subject</option>
-                {subjects.map(subj => (
-                  <option key={subj} value={subj}>{subj}</option>
+                {subjects.map((subj: any) => (
+                  <option key={subj.subject_id} value={subj.subject_id}>{subj.name}</option>
                 ))}
               </select>
             </div>
             <div>
               <label className="block text-sm font-semibold mb-1">Grade Level</label>
-              <select value={selectedGradeLevel} onChange={handleGradeLevelChange} className="w-full border rounded px-3 py-2" disabled={!selectedSubject || gradeLevels.length === 0}>
+              <select value={selectedGradeLevel} onChange={handleGradeLevelChange} className="w-full border rounded px-3 py-2" disabled={gradeLevels.length === 0}>
                 <option value="">Select Grade Level</option>
-                {gradeLevels.map(grade => (
-                  <option key={grade} value={grade}>{grade}</option>
+                {gradeLevels.map((grade: any) => (
+                  <option key={grade.grade_level_id} value={grade.grade_level_id}>{grade.name}</option>
                 ))}
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-semibold mb-1">Teaching Style</label>
-              <select name="teachingStyle" value={form.teachingStyle} onChange={handleChange} className="w-full border rounded px-3 py-2">
-                {teachingStyles.map(style => <option key={style}>{style}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-semibold mb-1">Language</label>
-              <select name="language" value={form.language} onChange={handleChange} className="w-full border rounded px-3 py-2">
-                {languages.map(lang => <option key={lang}>{lang}</option>)}
-              </select>
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-semibold mb-1">AI Suggested Topics</label>
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-semibold mb-1">Suggested Topics</label>
               <div className="flex flex-wrap gap-2 mb-2">
                 {aiSuggestedTopics.map(topic => (
                   <button
@@ -195,47 +205,7 @@ const DashboardPage: React.FC = () => {
                 className="w-full border rounded px-3 py-2"
               />
             </div>
-            <div>
-              <label className="block text-sm font-semibold mb-1">Generate Lesson curriculum by</label>
-              <select name="by" className="w-full border rounded px-3 py-2">
-                <option>Weeks</option>
-                <option>Months</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-semibold mb-1">Number of Weeks</label>
-              <input
-                type="number"
-                name="weeks"
-                value={form.weeks}
-                onChange={handleChange}
-                className="w-full border rounded px-3 py-2"
-                placeholder="12"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold mb-1">Class Number per Week</label>
-              <input
-                type="number"
-                name="classPerWeek"
-                value={form.classPerWeek}
-                onChange={handleChange}
-                className="w-full border rounded px-3 py-2"
-                placeholder="3"
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-semibold mb-1">Description</label>
-              <textarea
-                name="description"
-                value={form.description}
-                onChange={handleChange}
-                className="w-full border rounded px-3 py-2"
-                placeholder="e.g. Understanding how numbers progress arithmetically"
-                rows={2}
-              />
-            </div>
-            <div className="md:col-span-2 flex justify-end">
+            <div className="sm:col-span-2 flex justify-end">
               <button type="button" className="bg-orange-400 text-white font-semibold px-8 py-2 rounded hover:bg-orange-500">
                 Generate
               </button>
@@ -244,7 +214,7 @@ const DashboardPage: React.FC = () => {
         </div>
         {/* My Lesson Plans Section */}
         <div>
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-2 md:gap-0">
             <h4 className="text-lg font-bold">My Lesson Plans</h4>
             <button className="text-orange-600 underline">View All</button>
           </div>
@@ -259,6 +229,27 @@ const DashboardPage: React.FC = () => {
                 <div className="text-xs text-gray-500 mb-1">{i % 2 === 0 ? 'Grade 6' : 'Grade 2'}</div>
                 <div className="text-xs text-gray-400 mb-2">{i % 2 === 0 ? '2 Weeks Plan' : '12 Weeks Plan'}</div>
                 <div className="text-xs text-gray-600 text-center">{i % 2 === 0 ? 'Human Skeletal System' : 'Importance of United Family'}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* My Lesson Resources Section */}
+        <div className="mt-10">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-2 md:gap-0">
+            <h4 className="text-lg font-bold">My Lesson Resources</h4>
+            <button className="text-orange-600 underline">View All</button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {/* Placeholder cards for lesson resources */}
+            {[1,2,3,4,5].map(i => (
+              <div key={i} className="bg-white rounded shadow p-4 flex flex-col items-center">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                  <span className="text-2xl">{i % 2 === 0 ? '📄' : '🔗'}</span>
+                </div>
+                <div className="font-semibold mb-1">{i % 2 === 0 ? 'Fractions Resource' : 'Geometry Resource'}</div>
+                <div className="text-xs text-gray-500 mb-1">{i % 2 === 0 ? 'PDF' : 'Link'}</div>
+                <div className="text-xs text-gray-400 mb-2">{i % 2 === 0 ? 'Uploaded' : 'Generated'}</div>
+                <div className="text-xs text-gray-600 text-center">{i % 2 === 0 ? 'Fraction Worksheets' : 'Geometry Video'}</div>
               </div>
             ))}
           </div>
