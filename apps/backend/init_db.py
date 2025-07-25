@@ -82,10 +82,12 @@ def create_seed_data(db: Session):
     educator_password = os.getenv("EDUCATOR_PASSWORD")
     
     if not educator_password:
-        # Generate a secure random password if not provided
-        educator_password = secrets.token_urlsafe(12)
-        print(f"⚠️  EDUCATOR_PASSWORD not set. Generated secure password: {educator_password}")
-        print("   Please save this password securely!")
+        try:
+            import getpass
+            educator_password = getpass.getpass("EDUCATOR_PASSWORD not set. Please enter a new password for the educator user: ")
+        except Exception as e:
+            print(f"Error: {e}")
+            return
     
     # Create sample educator user
     educator_user = User(
