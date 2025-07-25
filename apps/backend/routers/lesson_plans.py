@@ -56,41 +56,51 @@ def fetch_curriculum_data(topic_obj):
 
 def create_lesson_plan_response(lesson_plan, request_data=None):
     """Helper function to create a standardized lesson plan response."""
-    # Fetch curriculum data
-    curriculum_learning_objectives, curriculum_contents = fetch_curriculum_data(lesson_plan.topic)
-    
-    # Determine title, subject, grade_level, topic
-    if request_data:
-        # For new lesson plans from request data
-        title = f"{request_data.subject}: {request_data.topic}"
-        subject = request_data.subject
-        grade_level = request_data.grade_level
-        topic = request_data.topic
-        author_id = request_data.user_id
-        duration_minutes = getattr(request_data, 'duration_minutes', 45)
-    else:
-        # For existing lesson plans from database
-        title = f"{lesson_plan.topic.curriculum_structure.subject.name}: {lesson_plan.topic.topic_title}" if lesson_plan.topic else "Untitled Lesson"
-        subject = lesson_plan.topic.curriculum_structure.subject.name if lesson_plan.topic else "Unknown"
-        grade_level = lesson_plan.topic.curriculum_structure.grade_level.name if lesson_plan.topic else "Unknown"
-        topic = lesson_plan.topic.topic_title if lesson_plan.topic else None
-        author_id = 1  # Default author ID for existing lesson plans
-        duration_minutes = 45  # Default duration
-    
-    return LessonPlanResponse(
-        lesson_id=lesson_plan.lesson_plan_id,
-        title=title,
-        subject=subject,
-        grade_level=grade_level,
-        topic=topic,
-        author_id=author_id,
-        duration_minutes=duration_minutes,
-        created_at=lesson_plan.created_at,
-        updated_at=lesson_plan.created_at,  # Using created_at as updated_at
-        status=LessonStatus.DRAFT,
-        curriculum_learning_objectives=curriculum_learning_objectives,
-        curriculum_contents=curriculum_contents
-    )
+    try:
+        # Fetch curriculum data
+        curriculum_learning_objectives, curriculum_contents = fetch_curriculum_data(lesson_plan.topic)
+        
+        # Determine title, subject, grade_level, topic
+        if request_data:
+            # For new lesson plans from request data
+            title = f"{request_data.subject}: {request_data.topic}"
+            subject = request_data.subject
+            grade_level = request_data.grade_level
+            topic = request_data.topic
+            author_id = request_data.user_id
+            duration_minutes = getattr(request_data, 'duration_minutes', 45)
+        else:
+            # For existing lesson plans from database
+            if not lesson_plan.topic:
+                raise ValueError("Lesson plan has no associated topic")
+                
+            title = f"{lesson_plan.topic.curriculum_structure.subject.name}: {lesson_plan.topic.topic_title}" if lesson_plan.topic else "Untitled Lesson"
+            subject = lesson_plan.topic.curriculum_structure.subject.name if lesson_plan.topic else "Unknown"
+            grade_level = lesson_plan.topic.curriculum_structure.grade_level.name if lesson_plan.topic else "Unknown"
+            topic = lesson_plan.topic.topic_title if lesson_plan.topic else None
+            author_id = 1  # Default author ID for existing lesson plans
+            duration_minutes = 45  # Default duration
+        
+        return LessonPlanResponse(
+            lesson_id=lesson_plan.lesson_plan_id,
+            title=title,
+            subject=subject,
+            grade_level=grade_level,
+            topic=topic,
+            author_id=author_id,
+            duration_minutes=duration_minutes,
+            created_at=lesson_plan.created_at,
+            updated_at=lesson_plan.created_at,  # Using created_at as updated_at
+            status=LessonStatus.DRAFT,
+            curriculum_learning_objectives=curriculum_learning_objectives,
+            curriculum_contents=curriculum_contents
+        )
+    except Exception as e:
+        print(f"Error creating lesson plan response: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to create lesson plan response. Please try again."
+        )
 
 @router.post("/generate", response_model=LessonPlanResponse)
 async def generate_lesson_plan(
@@ -101,27 +111,61 @@ async def generate_lesson_plan(
     Generate a lesson plan based on the provided request data.
     Fetches curriculum learning objectives and contents for the topic without passing to AI.
     """
-    
-    # Fetch curriculum learning objectives and contents for the topic
-    curriculum_learning_objectives = []
-    curriculum_contents = []
-    topic_obj = db.query(Topic).filter(Topic.topic_title == request.topic).first()
-    if topic_obj:
+    try:
+        # Validate input data
+        if not request.topic or not request.subject or not request.grade_level:
+            raise HTTPException(
+                status_code=400, 
+                detail="Missing required fields: topic, subject, and grade_level are required"
+            )
+        
+        # Fetch curriculum learning objectives and contents for the topic
+        topic_obj = db.query(Topic).filter(Topic.topic_title == request.topic).first()
+        
+        if not topic_obj:
+            raise HTTPException(
+                status_code=404, 
+                detail=f"Topic '{request.topic}' not found in curriculum database. Please check the topic name or contact support."
+            )
+        
+        # Validate curriculum data availability
         curriculum_learning_objectives = [obj.objective for obj in topic_obj.learning_objectives]
         curriculum_contents = [content.content_area for content in topic_obj.topic_contents]
-    
-    # Create lesson plan in database
-    lesson_plan = LessonPlan(
-        topic_id=topic_obj.topic_id if topic_obj else None,
-        created_at=datetime.now()
-    )
-    
-    db.add(lesson_plan)
-    db.commit()
-    db.refresh(lesson_plan)
-    
-    # Return enhanced response with curriculum data
-    return create_lesson_plan_response(lesson_plan, request)
+        
+        if not curriculum_learning_objectives and not curriculum_contents:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No curriculum data found for topic '{request.topic}'. This topic may not have learning objectives or content defined."
+            )
+        
+        # Create lesson plan in database
+        lesson_plan = LessonPlan(
+            topic_id=topic_obj.topic_id,
+            created_at=datetime.now()
+        )
+        
+        db.add(lesson_plan)
+        db.commit()
+        db.refresh(lesson_plan)
+        
+        # Return enhanced response with curriculum data
+        return create_lesson_plan_response(lesson_plan, request)
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
+    except Exception as e:
+        # Log the error for debugging
+        print(f"Error generating lesson plan: {str(e)}")
+        
+        # Rollback database transaction if needed
+        db.rollback()
+        
+        # Return a user-friendly error message
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to generate lesson plan. Please try again or contact support if the problem persists."
+        )
 
 @router.get("/", response_model=List[LessonPlanResponse])
 async def get_lesson_plans(
@@ -303,36 +347,86 @@ async def generate_lesson_resource(
     Returns:
         LessonResourceResponse: The generated lesson resource.
     """
-    lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_id).first()
-    if not lesson_plan:
-        raise HTTPException(status_code=404, detail="Lesson plan not found")
+    try:
+        # Validate lesson plan exists
+        lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_id).first()
+        if not lesson_plan:
+            raise HTTPException(
+                status_code=404, 
+                detail=f"Lesson plan with ID {lesson_id} not found"
+            )
 
-    # Get topic information for AI service
-    topic_info = lesson_plan.topic
-    if not topic_info:
-        raise HTTPException(status_code=404, detail="Topic not found for lesson plan")
-    
-    gpt_service = AwadeGPTService()
-    ai_content = gpt_service.generate_lesson_resource(
-        subject=topic_info.curriculum_structure.subject.name,
-        grade=topic_info.curriculum_structure.grade_level.name,
-        topic=topic_info.topic_title,
-        objectives=[obj.objective for obj in topic_info.learning_objectives],
-        duration=45,  # Default duration
-        context=data.context_input
-    )
+        # Validate topic information exists
+        topic_info = lesson_plan.topic
+        if not topic_info:
+            raise HTTPException(
+                status_code=404, 
+                detail="Topic information not found for this lesson plan. The lesson plan may be corrupted."
+            )
+        
+        # Validate curriculum structure exists
+        if not topic_info.curriculum_structure:
+            raise HTTPException(
+                status_code=404,
+                detail="Curriculum structure not found for this topic. Please contact support."
+            )
+        
+        # Validate subject and grade level exist
+        if not topic_info.curriculum_structure.subject or not topic_info.curriculum_structure.grade_level:
+            raise HTTPException(
+                status_code=404,
+                detail="Subject or grade level information missing for this topic."
+            )
+        
+        try:
+            # Attempt AI service call
+            gpt_service = AwadeGPTService()
+            ai_content = gpt_service.generate_lesson_resource(
+                subject=topic_info.curriculum_structure.subject.name,
+                grade=topic_info.curriculum_structure.grade_level.name,
+                topic=topic_info.topic_title,
+                objectives=[obj.objective for obj in topic_info.learning_objectives],
+                duration=45,  # Default duration
+                context=data.context_input
+            )
+        except Exception as ai_error:
+            # Handle AI service failures
+            print(f"AI service error: {str(ai_error)}")
+            raise HTTPException(
+                status_code=503,
+                detail="AI service is currently unavailable. Please try again later."
+            )
 
-    lesson_resource = LessonResource(
-        lesson_plan_id=lesson_id,
-        user_id=data.user_id,
-        context_input=data.context_input,
-        ai_generated_content=ai_content,
-        status="draft"
-    )
-    db.add(lesson_resource)
-    db.commit()
-    db.refresh(lesson_resource)
-    return lesson_resource
+        # Create lesson resource
+        lesson_resource = LessonResource(
+            lesson_plan_id=lesson_id,
+            user_id=data.user_id,
+            context_input=data.context_input,
+            ai_generated_content=ai_content,
+            status="draft"
+        )
+        
+        db.add(lesson_resource)
+        db.commit()
+        db.refresh(lesson_resource)
+        
+        return lesson_resource
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
+    except Exception as e:
+        # Log the error for debugging
+        print(f"Error generating lesson resource: {str(e)}")
+        
+        # Rollback database transaction if needed
+        db.rollback()
+        
+        # Return a user-friendly error message
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to generate lesson resource. Please try again or contact support if the problem persists."
+        )
 
 @router.put("/resources/{resource_id}/review", response_model=LessonResourceResponse)
 async def review_lesson_resource(
@@ -351,11 +445,43 @@ async def review_lesson_resource(
     Returns:
         LessonResourceResponse: The updated lesson resource.
     """
-    resource = db.query(LessonResource).filter(LessonResource.lesson_resources_id == resource_id).first()
-    if not resource:
-        raise HTTPException(status_code=404, detail="Lesson resource not found")
-    resource.user_edited_content = data.user_edited_content
-    resource.status = "reviewed"
-    db.commit()
-    db.refresh(resource)
-    return resource 
+    try:
+        # Validate input data
+        if not data.user_edited_content or data.user_edited_content.strip() == "":
+            raise HTTPException(
+                status_code=400,
+                detail="User edited content cannot be empty"
+            )
+        
+        # Validate resource exists
+        resource = db.query(LessonResource).filter(LessonResource.lesson_resources_id == resource_id).first()
+        if not resource:
+            raise HTTPException(
+                status_code=404, 
+                detail=f"Lesson resource with ID {resource_id} not found"
+            )
+        
+        # Update resource
+        resource.user_edited_content = data.user_edited_content
+        resource.status = "reviewed"
+        
+        db.commit()
+        db.refresh(resource)
+        
+        return resource
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
+    except Exception as e:
+        # Log the error for debugging
+        print(f"Error updating lesson resource: {str(e)}")
+        
+        # Rollback database transaction if needed
+        db.rollback()
+        
+        # Return a user-friendly error message
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to update lesson resource. Please try again or contact support if the problem persists."
+        ) 

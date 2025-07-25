@@ -12,7 +12,7 @@
           "lesson-plans"
         ],
         "summary": "Generate Lesson Plan",
-        "description": "Generate a lesson plan based on the provided request data.",
+        "description": "Generate a lesson plan based on the provided request data.\nFetches curriculum learning objectives and contents for the topic without passing to AI.",
         "operationId": "generate_lesson_plan_api_lesson_plans_generate_post",
         "requestBody": {
           "content": {
@@ -1881,73 +1881,9 @@
             "title": "Topic",
             "description": "Specific topic within the subject (e.g., Fractions, Photosynthesis)"
           },
-          "objectives": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Objectives",
-            "description": "Learning objectives (optional - AI will generate if not provided)"
-          },
-          "duration_minutes": {
+          "user_id": {
             "type": "integer",
-            "title": "Duration Minutes",
-            "description": "Lesson duration in minutes",
-            "default": 45
-          },
-          "local_context": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Local Context",
-            "description": "Local context for the lesson (e.g., rural school, urban setting, available resources)"
-          },
-          "language": {
-            "type": "string",
-            "title": "Language",
-            "description": "Primary language for the lesson",
-            "default": "en"
-          },
-          "cultural_context": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Cultural Context",
-            "description": "Cultural context for adaptations",
-            "default": "African"
-          },
-          "country": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Country",
-            "description": "Country for curriculum mapping"
-          },
-          "author_id": {
-            "type": "integer",
-            "title": "Author Id",
+            "title": "User Id",
             "description": "User ID of the lesson plan author"
           }
         },
@@ -1956,7 +1892,7 @@
           "subject",
           "grade_level",
           "topic",
-          "author_id"
+          "user_id"
         ],
         "title": "LessonPlanCreate"
       },
@@ -1994,7 +1930,14 @@
             "title": "Author Id"
           },
           "duration_minutes": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Duration Minutes"
           },
           "created_at": {
@@ -2046,7 +1989,6 @@
           "subject",
           "grade_level",
           "author_id",
-          "duration_minutes",
           "created_at",
           "updated_at",
           "status"
@@ -2131,7 +2073,7 @@
             ],
             "title": "Learning Objectives"
           },
-          "local_context_section": {
+          "topic_content": {
             "anyOf": [
               {
                 "type": "string"
@@ -2140,51 +2082,7 @@
                 "type": "null"
               }
             ],
-            "title": "Local Context Section"
-          },
-          "core_content": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Core Content"
-          },
-          "activities": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Activities"
-          },
-          "quiz": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Quiz"
-          },
-          "related_projects": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Related Projects"
+            "title": "Topic Content"
           }
         },
         "type": "object",
