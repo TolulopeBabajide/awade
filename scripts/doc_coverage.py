@@ -64,7 +64,26 @@ class DocumentationCoverageTracker:
             r'\.DS_Store',
             r'logs/',
             r'dist/',
-            r'build/'
+            r'build/',
+            r'venv/',
+            r'\.venv/',
+            r'env/',
+            r'\.env/',
+            r'cache/',
+            r'\.pytest_cache/',
+            r'\.mypy_cache/',
+            r'\.coverage',
+            r'htmlcov/',
+            r'\.tox/',
+            r'\.eggs/',
+            r'\.idea/',
+            r'\.vscode/',
+            r'\.cursor/',
+            r'\.DS_Store',
+            r'Thumbs\.db',
+            r'\.github/',
+            r'contracts/',
+            r'server\.log'
         ]
         
     def should_ignore(self, path: Path) -> bool:
@@ -447,6 +466,32 @@ class DocumentationCoverageTracker:
         
         print("="*60)
     
+    def print_missing_items(self, report: CoverageReport) -> None:
+        """Print detailed list of missing documentation items."""
+        missing_items = [item for item in report.items if item.status == "missing"]
+        
+        if not missing_items:
+            print("✅ No missing documentation items found!")
+            return
+        
+        print(f"\n❌ MISSING DOCUMENTATION ITEMS ({len(missing_items)} items):")
+        print("="*60)
+        
+        # Group by type
+        by_type = {}
+        for item in missing_items:
+            if item.type not in by_type:
+                by_type[item.type] = []
+            by_type[item.type].append(item)
+        
+        for item_type, items in by_type.items():
+            print(f"\n📁 {item_type.upper()} ({len(items)} items):")
+            for item in sorted(items, key=lambda x: x.path):
+                priority_icon = "🔴" if item.priority == "high" else "🟡" if item.priority == "medium" else "🟢"
+                print(f"  {priority_icon} {item.path} - {item.name}")
+        
+        print("="*60)
+    
     def save_report(self, report: CoverageReport, output_path: str = "logs/doc_coverage_report.json") -> None:
         """Save coverage report to file."""
         # Create logs directory if it doesn't exist
@@ -470,6 +515,7 @@ def main():
                        help="Output path for coverage report")
     parser.add_argument("--save", action="store_true", help="Save detailed report")
     parser.add_argument("--verbose", action="store_true", help="Verbose output")
+    parser.add_argument("--show-missing", action="store_true", help="Show detailed list of missing items")
     
     args = parser.parse_args()
     
@@ -483,6 +529,10 @@ def main():
     
     # Print summary
     tracker.print_summary(report)
+    
+    # Show missing items if requested
+    if args.show_missing:
+        tracker.print_missing_items(report)
     
     # Save report if requested
     if args.save:

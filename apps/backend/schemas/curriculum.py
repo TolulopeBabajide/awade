@@ -10,27 +10,35 @@ from enum import Enum
 
 # New normalized curriculum schemas
 class CurriculumBase(BaseModel):
+    """Base schema for curriculum data."""
     curricula_title: str
     country_id: int
 
 class CurriculumCreate(CurriculumBase):
+    """Schema for creating a new curriculum."""
     pass
 
 class CurriculumResponse(CurriculumBase):
+    """Schema for curriculum response data."""
     curricula_id: int
     class Config:
+        """Pydantic configuration for ORM mode."""
         orm_mode = True
 
 class TopicBase(BaseModel):
+    """Base schema for topic data."""
     curriculum_structure_id: int
     topic_title: str
 
 class TopicCreate(TopicBase):
+    """Schema for creating a new topic."""
     pass
 
 class TopicResponse(TopicBase):
+    """Schema for topic response data."""
     topic_id: int
     class Config:
+        """Pydantic configuration for ORM mode."""
         orm_mode = True
 
 # Learning Objective schemas
@@ -48,23 +56,28 @@ class LearningObjectiveResponse(BaseModel):
     created_at: datetime
 
     class Config:
+        """Pydantic configuration for attribute access."""
         from_attributes = True
 
 # Content schemas
 class ContentCreate(BaseModel):
+    """Schema for creating content."""
     topic_id: int = Field(..., description="ID of the topic")
     content_area: str = Field(..., description="Content area text")
 
 class ContentUpdate(BaseModel):
+    """Schema for updating content."""
     content_area: str = Field(..., description="Content area text")
 
 class ContentResponse(BaseModel):
+    """Schema for content response data."""
     id: int
     topic_id: int
     content_area: str
     created_at: datetime
 
     class Config:
+        """Pydantic configuration for attribute access."""
         from_attributes = True
 
 # Teacher Activity schemas
@@ -137,6 +150,7 @@ class ContentResponse(BaseModel):
 
 # Topic Detail Response
 class TopicDetailResponse(TopicResponse):
+    """Schema for detailed topic response with learning objectives and contents."""
     learning_objectives: List[LearningObjectiveResponse]
     contents: List[ContentResponse]
     # teacher_activities: List[TeacherActivityResponse]
@@ -145,11 +159,14 @@ class TopicDetailResponse(TopicResponse):
     # evaluation_guides: List[EvaluationGuideResponse]
 
     class Config:
+        """Pydantic configuration for attribute access."""
         from_attributes = True
 
 # Curriculum Detail Response
 class CurriculumDetailResponse(CurriculumResponse):
+    """Schema for detailed curriculum response with topics."""
     topics: List[TopicResponse]
 
     class Config:
+        """Pydantic configuration for attribute access."""
         from_attributes = True 

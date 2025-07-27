@@ -8,16 +8,19 @@ from pydantic import BaseModel
 router = APIRouter(prefix="/api/countries", tags=["countries"])
 
 class CountryCreate(BaseModel):
+    """Schema for creating a new country."""
     country_name: str
     iso_code: str = None
     region: str = None
 
 class CountryResponse(BaseModel):
+    """Schema for country response data."""
     country_id: int
     country_name: str
     iso_code: str = None
     region: str = None
     class Config:
+        """Pydantic configuration for ORM mode."""
         orm_mode = True
 
 @router.get("/", response_model=List[CountryResponse])

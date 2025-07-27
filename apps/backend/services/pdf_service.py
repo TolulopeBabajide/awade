@@ -14,16 +14,33 @@ except ImportError:
     WEASYPRINT_AVAILABLE = False
     # Mock classes for when weasyprint is not available
     class HTML:
+        """Mock HTML class when weasyprint is not available."""
         def __init__(self, string):
+            """
+            Initialize mock HTML class.
+            
+            Args:
+                string: HTML content string
+            """
             self.string = string
         def write_pdf(self, **kwargs):
+            """Mock PDF generation method."""
             return b"PDF generation not available - weasyprint not installed"
     
     class CSS:
+        """Mock CSS class when weasyprint is not available."""
         def __init__(self, string, font_config=None):
+            """
+            Initialize mock CSS class.
+            
+            Args:
+                string: CSS content string
+                font_config: Font configuration (ignored in mock)
+            """
             self.string = string
     
     class FontConfiguration:
+        """Mock FontConfiguration class when weasyprint is not available."""
         pass
 from models import LessonPlan
 
@@ -31,6 +48,9 @@ class PDFService:
     """Service for generating PDF exports of lesson plans."""
     
     def __init__(self):
+        """
+        Initialize the PDFService with font configuration and CSS styles.
+        """
         self.font_config = FontConfiguration()
         self.css_styles = self._get_css_styles()
     

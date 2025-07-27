@@ -191,6 +191,19 @@ def update_learning_objective(
 
 @router.delete("/learning-objectives/{objective_id}")
 def delete_learning_objective(objective_id: int, db: Session = Depends(get_db)):
+    """
+    Delete a learning objective by ID.
+    
+    Args:
+        objective_id: The ID of the learning objective to delete
+        db: Database session dependency
+        
+    Returns:
+        dict: Success message confirming deletion
+        
+    Raises:
+        HTTPException: 404 if learning objective not found
+    """
     service = CurriculumService(db)
     success = service.delete_learning_objective(objective_id)
     if not success:
@@ -200,11 +213,31 @@ def delete_learning_objective(objective_id: int, db: Session = Depends(get_db)):
 # Content endpoints
 @router.post("/contents", response_model=ContentResponse)
 def create_content(content_data: ContentCreate, db: Session = Depends(get_db)):
+    """
+    Create a new content item for a topic.
+    
+    Args:
+        content_data: Content creation data including topic_id and content_area
+        db: Database session dependency
+        
+    Returns:
+        ContentResponse: The created content item
+    """
     service = CurriculumService(db)
     return service.create_content(content_data)
 
 @router.get("/topics/{topic_id}/contents", response_model=List[ContentResponse])
 def get_contents(topic_id: int, db: Session = Depends(get_db)):
+    """
+    Get all content items for a specific topic.
+    
+    Args:
+        topic_id: The ID of the topic to get contents for
+        db: Database session dependency
+        
+    Returns:
+        List[ContentResponse]: List of content items for the topic
+    """
     service = CurriculumService(db)
     return service.get_contents(topic_id)
 
@@ -214,6 +247,20 @@ def update_content(
     content_data: ContentUpdate,
     db: Session = Depends(get_db)
 ):
+    """
+    Update a content item by ID.
+    
+    Args:
+        content_id: The ID of the content item to update
+        content_data: Updated content data
+        db: Database session dependency
+        
+    Returns:
+        ContentResponse: The updated content item
+        
+    Raises:
+        HTTPException: 404 if content not found
+    """
     service = CurriculumService(db)
     content = service.update_content(content_id, content_data.content_area)
     if not content:
@@ -222,6 +269,19 @@ def update_content(
 
 @router.delete("/contents/{content_id}")
 def delete_content(content_id: int, db: Session = Depends(get_db)):
+    """
+    Delete a content item by ID.
+    
+    Args:
+        content_id: The ID of the content item to delete
+        db: Database session dependency
+        
+    Returns:
+        dict: Success message confirming deletion
+        
+    Raises:
+        HTTPException: 404 if content not found
+    """
     service = CurriculumService(db)
     success = service.delete_content(content_id)
     if not success:

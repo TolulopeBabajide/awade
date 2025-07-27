@@ -8,16 +8,19 @@ from pydantic import BaseModel
 router = APIRouter(prefix="/api/curriculum-structures", tags=["curriculum-structures"])
 
 class CurriculumStructureCreate(BaseModel):
+    """Schema for creating a new curriculum structure."""
     curricula_id: int
     grade_level_id: int
     subject_id: int
 
 class CurriculumStructureResponse(BaseModel):
+    """Schema for curriculum structure response data."""
     curriculum_structure_id: int
     curricula_id: int
     grade_level_id: int
     subject_id: int
     class Config:
+        """Pydantic configuration for ORM mode."""
         orm_mode = True
 
 @router.get("/", response_model=List[CurriculumStructureResponse])

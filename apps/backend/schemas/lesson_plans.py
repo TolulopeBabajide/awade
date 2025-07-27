@@ -8,6 +8,7 @@ from datetime import datetime
 from enum import Enum
 
 class LessonStatus(str, Enum):
+    """Enumeration of lesson plan status values."""
     DRAFT = "draft"
     EDITED = "edited"
     REVIEWED = "reviewed"
@@ -15,17 +16,20 @@ class LessonStatus(str, Enum):
     ARCHIVED = "archived"
 
 class ResourceType(str, Enum):
+    """Enumeration of resource file types."""
     PDF = "pdf"
     DOCX = "docx"
 
 # Request schemas
 class LessonPlanCreate(BaseModel):
+    """Schema for creating a new lesson plan."""
     subject: str = Field(..., description="Subject area (e.g., Mathematics, Science)")
     grade_level: str = Field(..., description="Grade level (e.g., Grade 4, Grade 7)")
     topic: str = Field(..., description="Specific topic within the subject (e.g., Fractions, Photosynthesis)")
     user_id: int = Field(..., description="User ID of the lesson plan author")
 
 class LessonPlanUpdate(BaseModel):
+    """Schema for updating an existing lesson plan."""
     title: Optional[str] = None
     subject: Optional[str] = None
     grade_level: Optional[str] = None
@@ -37,6 +41,7 @@ class LessonPlanUpdate(BaseModel):
 
 # Response schemas
 class LessonPlanResponse(BaseModel):
+    """Schema for lesson plan response data."""
     lesson_id: int
     title: str
     subject: str
@@ -51,18 +56,22 @@ class LessonPlanResponse(BaseModel):
     curriculum_contents: Optional[List[str]] = None
     
     class Config:
+        """Pydantic configuration for attribute access."""
         from_attributes = True
 
 # LessonResource schemas
 class LessonResourceCreate(BaseModel):
+    """Schema for creating lesson resources."""
     lesson_plan_id: int
     user_id: int
     context_input: Optional[str] = None
 
 class LessonResourceUpdate(BaseModel):
+    """Schema for updating lesson resources."""
     user_edited_content: str
 
 class LessonResourceResponse(BaseModel):
+    """Schema for lesson resource response data."""
     lesson_resources_id: int
     lesson_plan_id: int
     user_id: int
@@ -74,4 +83,5 @@ class LessonResourceResponse(BaseModel):
     created_at: datetime
 
     class Config:
+        """Pydantic configuration for attribute access."""
         from_attributes = True 

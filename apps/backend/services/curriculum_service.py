@@ -22,6 +22,12 @@ class CurriculumService:
     """Service class for curriculum operations."""
     
     def __init__(self, db: Session):
+        """
+        Initialize the CurriculumService with a database session.
+        
+        Args:
+            db (Session): SQLAlchemy database session
+        """
         self.db = db
     
     # Curriculum CRUD operations (normalized)
