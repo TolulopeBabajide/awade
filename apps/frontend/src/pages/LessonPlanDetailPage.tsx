@@ -1,105 +1,244 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 
-const weeks = [
-  { week: 1, title: 'Introduction to Family' },
-  { week: 2, title: 'Types of Family' },
-  { week: 3, title: 'Importance of Family' },
-  { week: 4, title: 'Importance of United Family' },
-];
-
-const lessonPlan = {
-  subject: 'Social Studies',
-  plan: '12 Weeks Plan',
-  grade: 'Grade 2',
-  title: 'Importance of a United Family',
-  week: 1,
-  weekTitle: 'Introduction to Family',
-  objective: 'To introduce pupils to the meaning of family in African Setting',
-  tasks: [
-    'Define What A Family Is',
-    'Give Examples Of Family In African And Western World',
-    'Write A Short Note On How Families Are Formed',
-  ],
-  resources: [
-    { name: 'African Family And Values – Segun Onuha', url: '#' },
-    { name: 'The Importance Of Love In An African Family – Gyan Asamoah', url: '#' },
-  ],
-  standards: ['I056-AP-02', 'I056-AP-03', 'I056-AP-04', 'I056-AP-05', 'I056-AP-06'],
-  video: { title: 'Introduction to Family', url: '#', duration: '11:20min' },
-};
+interface LessonPlanData {
+  lesson_id: number;
+  title: string;
+  subject: string;
+  grade_level: string;
+  topic: string;
+  author_id: number;
+  duration_minutes: number;
+  created_at: string;
+  updated_at: string;
+  status: string;
+  curriculum_learning_objectives: string[];
+  curriculum_contents: string[];
+}
 
 const LessonPlanDetailPage: React.FC = () => {
-  const [selectedWeek, setSelectedWeek] = useState(1);
-  const selected = weeks.find(w => w.week === selectedWeek) || weeks[0];
+  const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [lessonPlan, setLessonPlan] = useState<LessonPlanData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>('');
+  const [context, setContext] = useState('');
+  const [isSubmittingContext, setIsSubmittingContext] = useState(false);
+
+  useEffect(() => {
+    const fetchLessonPlan = async () => {
+      try {
+        // If we have data from navigation state, use it
+        if (location.state?.lessonPlanData) {
+          setLessonPlan(location.state.lessonPlanData);
+          setLoading(false);
+          return;
+        }
+
+        // Otherwise fetch from API
+        const response = await fetch(`/api/lesson-plans/${id}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch lesson plan');
+        }
+        const data = await response.json();
+        setLessonPlan(data);
+      } catch (err: any) {
+        setError(err.message || 'Failed to load lesson plan');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLessonPlan();
+  }, [id, location.state]);
+
+  const handleContextSubmit = async () => {
+    if (!context.trim() || !lessonPlan) return;
+
+    setIsSubmittingContext(true);
+    try {
+      const response = await fetch(`/api/lesson-plans/${lessonPlan.lesson_id}/resources/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          lesson_plan_id: lessonPlan.lesson_id,
+          user_id: lessonPlan.author_id,
+          context_input: context,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to generate resource');
+      }
+
+      // Show success message or redirect to resource
+      alert('Context submitted successfully! Resource generated.');
+      setContext('');
+    } catch (err: any) {
+      setError(err.message || 'Failed to submit context');
+    } finally {
+      setIsSubmittingContext(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-400 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading lesson plan...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !lessonPlan) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error || 'Lesson plan not found'}</p>
+          <button 
+            onClick={() => navigate('/dashboard')}
+            className="bg-orange-400 text-white px-4 py-2 rounded hover:bg-orange-500"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar calendar */}
+      {/* Sidebar */}
       <aside className="w-80 bg-white border-r flex flex-col py-8 px-4 min-h-screen">
         <div className="mb-6">
-          <button className="text-gray-500 text-sm mb-2 flex items-center">&larr; My Lesson Plans</button>
-          <div className="text-lg font-bold mb-2">July</div>
-          <div className="flex justify-between text-xs text-gray-400 mb-2">
-            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+          <button 
+            onClick={() => navigate('/dashboard')}
+            className="text-gray-500 text-sm mb-2 flex items-center hover:text-gray-700"
+          >
+            &larr; Back to Dashboard
+          </button>
+          <div className="text-lg font-bold mb-2">Lesson Plan</div>
+        </div>
+        
+        {/* Context Input Section */}
+        <div className="mb-6">
+          <h3 className="font-bold mb-3">Add Context</h3>
+          <textarea
+            value={context}
+            onChange={(e) => setContext(e.target.value)}
+            placeholder="Add local context, available resources, student background, or any specific requirements..."
+            className="w-full border rounded px-3 py-2 text-sm resize-none"
+            rows={4}
+          />
+          <button
+            onClick={handleContextSubmit}
+            disabled={!context.trim() || isSubmittingContext}
+            className="w-full mt-2 bg-orange-400 text-white font-semibold px-4 py-2 rounded hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+          >
+            {isSubmittingContext ? 'Submitting...' : 'Submit Context'}
+          </button>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="flex-1">
+          <h3 className="font-bold mb-3">Quick Actions</h3>
+          <div className="space-y-2">
+            <button className="w-full text-left px-3 py-2 rounded bg-gray-100 hover:bg-gray-200 text-sm">
+              📝 Edit Plan
+            </button>
+            <button className="w-full text-left px-3 py-2 rounded bg-gray-100 hover:bg-gray-200 text-sm">
+              📄 Export PDF
+            </button>
+            <button className="w-full text-left px-3 py-2 rounded bg-gray-100 hover:bg-gray-200 text-sm">
+              🔗 Share Plan
+            </button>
           </div>
         </div>
-        <div className="flex-1 flex flex-col gap-4">
-          {weeks.map(w => (
-            <button
-              key={w.week}
-              className={`w-full text-left px-4 py-3 rounded-lg mb-2 font-semibold ${selectedWeek === w.week ? 'bg-orange-200 text-orange-900' : 'bg-gray-100 text-gray-700'}`}
-              onClick={() => setSelectedWeek(w.week)}
-            >
-              Week {w.week}: {w.title}
-            </button>
-          ))}
-        </div>
       </aside>
+
       {/* Main Content */}
       <main className="flex-1 p-10">
         {/* Breadcrumb */}
         <div className="flex items-center text-sm text-gray-500 mb-4 gap-2">
           <span className="font-bold text-gray-700">Dashboard</span>
           <span>&gt;</span>
-          <span className="font-bold text-gray-700">My Lesson Plans</span>
+          <span className="font-bold text-gray-700">Lesson Plans</span>
           <span>&gt;</span>
           <span className="font-bold text-orange-700">{lessonPlan.subject}</span>
         </div>
+
         <div className="flex gap-8">
           {/* Main lesson plan panel */}
           <div className="flex-1 bg-white rounded shadow p-8">
             <div className="flex items-center gap-4 mb-2">
               <span className="font-bold text-lg">{lessonPlan.subject}</span>
-              <span className="bg-gray-100 text-gray-700 rounded px-2 py-1 text-xs font-semibold">{lessonPlan.plan}</span>
-              <span className="bg-gray-100 text-gray-700 rounded px-2 py-1 text-xs font-semibold">{lessonPlan.grade}</span>
+              <span className="bg-gray-100 text-gray-700 rounded px-2 py-1 text-xs font-semibold">{lessonPlan.grade_level}</span>
+              <span className="bg-gray-100 text-gray-700 rounded px-2 py-1 text-xs font-semibold capitalize">{lessonPlan.status}</span>
             </div>
             <div className="text-xl font-bold mb-2">{lessonPlan.title}</div>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="bg-gray-200 text-gray-700 rounded px-2 py-1 text-xs font-semibold">Week {selectedWeek}</span>
-              <span className="font-semibold">{selected.title}</span>
+            <div className="text-sm text-gray-500 mb-6">
+              Created: {new Date(lessonPlan.created_at).toLocaleDateString()}
             </div>
-            <div className="mb-4">
-              <div className="font-bold mb-1">Objective</div>
-              <div className="text-gray-700 text-sm">{lessonPlan.objective}</div>
+
+            {/* Curriculum Learning Objectives */}
+            <div className="mb-6">
+              <div className="font-bold mb-3 text-lg">Curriculum Learning Objectives</div>
+              <div className="bg-blue-50 p-4 rounded-lg">
+                {lessonPlan.curriculum_learning_objectives && lessonPlan.curriculum_learning_objectives.length > 0 ? (
+                  <ul className="list-disc ml-6 text-gray-700 space-y-1">
+                    {lessonPlan.curriculum_learning_objectives.map((objective, index) => (
+                      <li key={index} className="text-sm">{objective}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-500 text-sm">No learning objectives available for this topic.</p>
+                )}
+              </div>
             </div>
-            <div className="mb-4">
-              <div className="font-bold mb-1">Task</div>
-              <ul className="list-disc ml-6 text-gray-700 text-sm">
-                {lessonPlan.tasks.map((t, i) => <li key={i}>{t}</li>)}
-              </ul>
+
+            {/* Curriculum Contents */}
+            <div className="mb-6">
+              <div className="font-bold mb-3 text-lg">Curriculum Contents</div>
+              <div className="bg-green-50 p-4 rounded-lg">
+                {lessonPlan.curriculum_contents && lessonPlan.curriculum_contents.length > 0 ? (
+                  <ul className="list-disc ml-6 text-gray-700 space-y-1">
+                    {lessonPlan.curriculum_contents.map((content, index) => (
+                      <li key={index} className="text-sm">{content}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-500 text-sm">No content areas available for this topic.</p>
+                )}
+              </div>
             </div>
-            <div className="mb-4">
-              <div className="font-bold mb-1">Resources</div>
-              <ul className="ml-2 text-gray-700 text-sm">
-                {lessonPlan.resources.map((r, i) => (
-                  <li key={i} className="flex items-center gap-1">
-                    <span className="font-semibold">{r.name}</span>
-                    <a href={r.url} target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline text-xs">↗</a>
-                  </li>
-                ))}
-              </ul>
+
+            {/* Lesson Details */}
+            <div className="mb-6">
+              <div className="font-bold mb-3 text-lg">Lesson Details</div>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-semibold">Topic:</span> {lessonPlan.topic}
+                </div>
+                <div>
+                  <span className="font-semibold">Duration:</span> {lessonPlan.duration_minutes} minutes
+                </div>
+                <div>
+                  <span className="font-semibold">Author ID:</span> {lessonPlan.author_id}
+                </div>
+                <div>
+                  <span className="font-semibold">Status:</span> {lessonPlan.status}
+                </div>
+              </div>
             </div>
-            <div className="flex gap-4 mt-6">
+
+            {/* Action Buttons */}
+            <div className="flex gap-4 mt-8">
               <button className="bg-gray-200 text-gray-700 font-semibold px-6 py-2 rounded hover:bg-gray-300 flex items-center gap-2">
                 ✏️ Edit Plan
               </button>
@@ -108,23 +247,24 @@ const LessonPlanDetailPage: React.FC = () => {
               </button>
             </div>
           </div>
-          {/* Right panel: Video and Standards */}
+
+          {/* Right panel: Additional Info */}
           <div className="w-64 flex flex-col gap-6">
             <div className="bg-white rounded shadow p-4">
-              <div className="font-bold mb-2">Videos</div>
-              <div className="flex items-center gap-2">
-                <span className="bg-red-100 text-red-600 rounded p-2">▶️</span>
-                <div>
-                  <div className="font-semibold text-sm">{lessonPlan.video.title}</div>
-                  <div className="text-xs text-gray-400">{lessonPlan.video.duration}</div>
-                </div>
+              <div className="font-bold mb-2">Lesson Info</div>
+              <div className="text-sm text-gray-600 space-y-1">
+                <div><span className="font-semibold">ID:</span> {lessonPlan.lesson_id}</div>
+                <div><span className="font-semibold">Subject:</span> {lessonPlan.subject}</div>
+                <div><span className="font-semibold">Grade:</span> {lessonPlan.grade_level}</div>
+                <div><span className="font-semibold">Topic:</span> {lessonPlan.topic}</div>
               </div>
             </div>
+
             <div className="bg-white rounded shadow p-4">
-              <div className="font-bold mb-2">Standards</div>
-              <ul className="text-xs text-gray-700">
-                {lessonPlan.standards.map((s, i) => <li key={i}>{s}</li>)}
-              </ul>
+              <div className="font-bold mb-2">Curriculum Standards</div>
+              <div className="text-xs text-gray-700">
+                <p>This lesson plan is aligned with the national curriculum standards for {lessonPlan.subject} in {lessonPlan.grade_level}.</p>
+              </div>
             </div>
           </div>
         </div>

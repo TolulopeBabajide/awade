@@ -25,12 +25,21 @@
 
 ## Frontend
 
+### Completed ✅
+- [x] **integrate-lesson-plan-generation**: Integrate /api/lesson-plans/generate endpoint with UI
+- [x] **update-lesson-plan-detail-page**: Update LessonPlanDetailPage to display curriculum data and allow context input
+- [x] **add-navigation-flow**: Implement navigation from dashboard to lesson plan detail page
+
 ### Pending ⏳
-- [ ] Update lesson plan creation form to display fetched curriculum objectives and contents
-- [ ] Add curriculum data display in lesson plan detail view
+- [ ] Add curriculum data display in lesson plan creation form
 - [ ] Implement error handling for curriculum mapping failures in UI
 - [ ] Add loading states for curriculum data fetching
 - [ ] Add user-friendly error messages for different error types
+- [ ] Add authentication context for user_id
+- [ ] Implement proper form validation with better UX
+- [ ] Add success/error notifications instead of alerts
+- [ ] Add loading spinners and better loading states
+- [ ] Implement proper error boundaries
 
 ## Documentation
 
@@ -38,4 +47,5 @@
 - [ ] Update API documentation with new curriculum fields
 - [ ] Create user guide for curriculum mapping feature
 - [ ] Document the curriculum data flow and relationships
-- [ ] Document error handling patterns and error codes 
+- [ ] Document error handling patterns and error codes
+- [ ] Create frontend integration guide 

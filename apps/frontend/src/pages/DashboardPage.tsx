@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const teachingStyles = ['Lesson', 'Project', 'Discussion'];
 const languages = ['English', 'French', 'Swahili'];
 const aiSuggestedTopics = ['Fractions', 'Geometry', 'Measurements', 'Algebra', 'Simultaneous Equations'];
 
 const DashboardPage: React.FC = () => {
+  const navigate = useNavigate();
   const [countries, setCountries] = useState<any[]>([]);
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [curriculums, setCurriculums] = useState<any[]>([]);
@@ -22,6 +24,8 @@ const DashboardPage: React.FC = () => {
     description: '',
   });
   const [selectedTopic, setSelectedTopic] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string>('');
 
   // Fetch countries on mount
   useEffect(() => {
@@ -100,6 +104,60 @@ const DashboardPage: React.FC = () => {
   const handleTopicSelect = (topic: string) => {
     setSelectedTopic(topic);
     setForm({ ...form, topic });
+  };
+
+  const handleGenerate = async () => {
+    // Validate required fields
+    if (!selectedSubject || !selectedGradeLevel || !form.topic.trim()) {
+      setError('Please select subject, grade level, and enter a topic.');
+      return;
+    }
+
+    setIsGenerating(true);
+    setError('');
+    
+    try {
+      // Get subject and grade level names from the selected options
+      const subjectName = subjects.find(s => s.subject_id === parseInt(selectedSubject))?.name || '';
+      const gradeLevelName = gradeLevels.find(g => g.grade_level_id === parseInt(selectedGradeLevel))?.name || '';
+      
+      // Additional validation for names
+      if (!subjectName || !gradeLevelName) {
+        throw new Error('Invalid subject or grade level selection. Please try again.');
+      }
+
+      const requestBody = {
+        subject: subjectName,
+        grade_level: gradeLevelName,
+        topic: form.topic.trim(),
+        user_id: 1, // TODO: Get from authentication context
+      };
+
+      const response = await fetch('/api/lesson-plans/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // Navigate to lesson plan detail page with the generated data
+      navigate(`/lesson-plans/${data.lesson_id}`, { 
+        state: { lessonPlanData: data } 
+      });
+    } catch (err: any) {
+      setError(err.message || 'Failed to generate lesson plan. Please try again.');
+      console.error(err);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -206,10 +264,18 @@ const DashboardPage: React.FC = () => {
               />
             </div>
             <div className="sm:col-span-2 flex justify-end">
-              <button type="button" className="bg-orange-400 text-white font-semibold px-8 py-2 rounded hover:bg-orange-500">
-                Generate
+              <button
+                type="button"
+                className="bg-orange-400 text-white font-semibold px-8 py-2 rounded hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleGenerate}
+                disabled={isGenerating}
+              >
+                {isGenerating ? 'Generating...' : 'Generate'}
               </button>
             </div>
+            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+            
+
           </form>
         </div>
         {/* My Lesson Plans Section */}
