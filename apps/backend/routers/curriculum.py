@@ -73,24 +73,6 @@ def get_curriculums(
     service = CurriculumService(db)
     return service.get_curriculums(skip=skip, limit=limit, country_id=country_id)
 
-@router.get("/{curriculum_id}", response_model=CurriculumResponse)
-def get_curriculum(curriculum_id: int, db: Session = Depends(get_db)):
-    """
-    Retrieve a curriculum by its ID.
-
-    Args:
-        curriculum_id (int): The curriculum ID.
-        db (Session): Database session dependency.
-
-    Returns:
-        CurriculumResponse: The curriculum record.
-    """
-    service = CurriculumService(db)
-    curriculum = service.get_curriculum(curriculum_id)
-    if not curriculum:
-        raise HTTPException(status_code=404, detail="Curriculum not found")
-    return curriculum
-
 # Topic endpoints
 @router.post("/topics", response_model=TopicResponse)
 def create_topic(
@@ -380,4 +362,23 @@ def delete_content(content_id: int, db: Session = Depends(get_db)):
 #     success = service.delete_evaluation_guide(guide_id)
 #     if not success:
 #         raise HTTPException(status_code=404, detail="Evaluation guide not found")
-#     return {"message": "Evaluation guide deleted successfully"} 
+#     return {"message": "Evaluation guide deleted successfully"}
+
+# Curriculum ID endpoint (moved after specific routes to avoid conflicts)
+@router.get("/{curriculum_id}", response_model=CurriculumResponse)
+def get_curriculum(curriculum_id: int, db: Session = Depends(get_db)):
+    """
+    Retrieve a curriculum by its ID.
+
+    Args:
+        curriculum_id (int): The curriculum ID.
+        db (Session): Database session dependency.
+
+    Returns:
+        CurriculumResponse: The curriculum record.
+    """
+    service = CurriculumService(db)
+    curriculum = service.get_curriculum(curriculum_id)
+    if not curriculum:
+        raise HTTPException(status_code=404, detail="Curriculum not found")
+    return curriculum 
