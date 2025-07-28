@@ -18,6 +18,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
+import json
 
 from apps.backend.database import get_db
 from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator
@@ -61,8 +62,8 @@ def get_all_users(
                 country=user.country,
                 region=user.region,
                 school_name=user.school_name,
-                subjects=user.subjects,
-                grade_levels=user.grade_levels,
+                subjects=json.loads(user.subjects) if user.subjects else None,
+                grade_levels=json.loads(user.grade_levels) if user.grade_levels else None,
                 languages_spoken=user.languages_spoken,
                 created_at=user.created_at,
                 last_login=user.last_login
@@ -96,8 +97,8 @@ def get_user(
             country=user.country,
             region=user.region,
             school_name=user.school_name,
-            subjects=user.subjects,
-            grade_levels=user.grade_levels,
+            subjects=json.loads(user.subjects) if user.subjects else None,
+            grade_levels=json.loads(user.grade_levels) if user.grade_levels else None,
             languages_spoken=user.languages_spoken,
             created_at=user.created_at,
             last_login=user.last_login
@@ -142,9 +143,9 @@ def update_user(
         if user_data.school_name is not None:
             user.school_name = user_data.school_name
         if user_data.subjects is not None:
-            user.subjects = user_data.subjects
+            user.subjects = json.dumps(user_data.subjects)
         if user_data.grade_levels is not None:
-            user.grade_levels = user_data.grade_levels
+            user.grade_levels = json.dumps(user_data.grade_levels)
         if user_data.languages_spoken is not None:
             user.languages_spoken = user_data.languages_spoken
         
@@ -159,8 +160,8 @@ def update_user(
             country=user.country,
             region=user.region,
             school_name=user.school_name,
-            subjects=user.subjects,
-            grade_levels=user.grade_levels,
+            subjects=json.loads(user.subjects) if user.subjects else None,
+            grade_levels=json.loads(user.grade_levels) if user.grade_levels else None,
             languages_spoken=user.languages_spoken,
             created_at=user.created_at,
             last_login=user.last_login
@@ -224,9 +225,9 @@ def update_own_profile(
         if user_data.school_name is not None:
             current_user.school_name = user_data.school_name
         if user_data.subjects is not None:
-            current_user.subjects = user_data.subjects
+            current_user.subjects = json.dumps(user_data.subjects)
         if user_data.grade_levels is not None:
-            current_user.grade_levels = user_data.grade_levels
+            current_user.grade_levels = json.dumps(user_data.grade_levels)
         if user_data.languages_spoken is not None:
             current_user.languages_spoken = user_data.languages_spoken
         
@@ -241,8 +242,8 @@ def update_own_profile(
             country=current_user.country,
             region=current_user.region,
             school_name=current_user.school_name,
-            subjects=current_user.subjects,
-            grade_levels=current_user.grade_levels,
+            subjects=json.loads(current_user.subjects) if current_user.subjects else None,
+            grade_levels=json.loads(current_user.grade_levels) if current_user.grade_levels else None,
             languages_spoken=current_user.languages_spoken,
             created_at=current_user.created_at,
             last_login=current_user.last_login
@@ -267,8 +268,8 @@ def get_own_profile(
         country=current_user.country,
         region=current_user.region,
         school_name=current_user.school_name,
-        subjects=current_user.subjects,
-        grade_levels=current_user.grade_levels,
+        subjects=json.loads(current_user.subjects) if current_user.subjects else None,
+        grade_levels=json.loads(current_user.grade_levels) if current_user.grade_levels else None,
         languages_spoken=current_user.languages_spoken,
         created_at=current_user.created_at,
         last_login=current_user.last_login

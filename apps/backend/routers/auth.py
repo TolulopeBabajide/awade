@@ -28,6 +28,7 @@ import jwt
 from datetime import datetime, timedelta
 import bcrypt
 import secrets
+import json
 
 # In-memory token store for demo (replace with DB/Redis in production)
 reset_tokens = {}
@@ -121,6 +122,10 @@ def google_auth(
     }
     token = jwt.encode(payload, JWT_SECRET_KEY, algorithm=get_jwt_algorithm())
 
+    # Parse JSON strings back to lists for response
+    subjects_list = json.loads(user.subjects) if user.subjects else None
+    grade_levels_list = json.loads(user.grade_levels) if user.grade_levels else None
+    
     user_response = UserResponse(
         user_id=user.user_id,
         email=user.email,
@@ -129,8 +134,8 @@ def google_auth(
         country=user.country,
         region=user.region,
         school_name=user.school_name,
-        subjects=user.subjects,
-        grade_levels=user.grade_levels,
+        subjects=subjects_list,
+        grade_levels=grade_levels_list,
         languages_spoken=user.languages_spoken,
         created_at=user.created_at,
         last_login=user.last_login
@@ -177,8 +182,8 @@ def signup(
         country=user_data.country,
         region=user_data.region,
         school_name=user_data.school_name,
-        subjects=user_data.subjects,
-        grade_levels=user_data.grade_levels,
+        subjects=json.dumps(user_data.subjects) if user_data.subjects else None,
+        grade_levels=json.dumps(user_data.grade_levels) if user_data.grade_levels else None,
         languages_spoken=user_data.languages_spoken,
         created_at=datetime.utcnow()
     )
@@ -194,6 +199,10 @@ def signup(
     }
     token = jwt.encode(payload, JWT_SECRET_KEY, algorithm=get_jwt_algorithm())
 
+    # Parse JSON strings back to lists for response
+    subjects_list = json.loads(user.subjects) if user.subjects else None
+    grade_levels_list = json.loads(user.grade_levels) if user.grade_levels else None
+    
     user_response = UserResponse(
         user_id=user.user_id,
         email=user.email,
@@ -202,8 +211,8 @@ def signup(
         country=user.country,
         region=user.region,
         school_name=user.school_name,
-        subjects=user.subjects,
-        grade_levels=user.grade_levels,
+        subjects=subjects_list,
+        grade_levels=grade_levels_list,
         languages_spoken=user.languages_spoken,
         created_at=user.created_at,
         last_login=user.last_login
@@ -263,6 +272,10 @@ def login(
     }
     token = jwt.encode(payload, JWT_SECRET_KEY, algorithm=get_jwt_algorithm())
 
+    # Parse JSON strings back to lists for response
+    subjects_list = json.loads(user.subjects) if user.subjects else None
+    grade_levels_list = json.loads(user.grade_levels) if user.grade_levels else None
+    
     user_response = UserResponse(
         user_id=user.user_id,
         email=user.email,
@@ -271,8 +284,8 @@ def login(
         country=user.country,
         region=user.region,
         school_name=user.school_name,
-        subjects=user.subjects,
-        grade_levels=user.grade_levels,
+        subjects=subjects_list,
+        grade_levels=grade_levels_list,
         languages_spoken=user.languages_spoken,
         created_at=user.created_at,
         last_login=user.last_login
@@ -290,6 +303,10 @@ def get_current_user_profile(
     """
     Get current user profile.
     """
+    # Parse JSON strings back to lists for response
+    subjects_list = json.loads(current_user.subjects) if current_user.subjects else None
+    grade_levels_list = json.loads(current_user.grade_levels) if current_user.grade_levels else None
+    
     return UserResponse(
         user_id=current_user.user_id,
         email=current_user.email,
@@ -298,8 +315,8 @@ def get_current_user_profile(
         country=current_user.country,
         region=current_user.region,
         school_name=current_user.school_name,
-        subjects=current_user.subjects,
-        grade_levels=current_user.grade_levels,
+        subjects=subjects_list,
+        grade_levels=grade_levels_list,
         languages_spoken=current_user.languages_spoken,
         created_at=current_user.created_at,
         last_login=current_user.last_login
