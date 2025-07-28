@@ -18,8 +18,8 @@ Base = declarative_base()
 # Enums
 class UserRole(enum.Enum):
     """Enumeration of user roles in the Awade platform."""
-    EDUCATOR = "educator"
-    ADMIN = "admin"
+    EDUCATOR = "EDUCATOR"
+    ADMIN = "ADMIN"
 
 class LessonStatus(enum.Enum):
     """Enumeration of lesson plan statuses."""

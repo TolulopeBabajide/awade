@@ -98,7 +98,7 @@ const SignupPage: React.FC = () => {
           email: form.email,
           password: form.password,
           full_name: form.fullName,
-          role: 'educator',
+          role: 'EDUCATOR',
           country: '',
           region: null,
           school_name: null,

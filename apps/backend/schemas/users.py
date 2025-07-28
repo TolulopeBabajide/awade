@@ -10,8 +10,8 @@ import os
 
 class UserRole(str, Enum):
     """Enumeration of user roles in the system."""
-    EDUCATOR = "educator"
-    ADMIN = "admin"
+    EDUCATOR = "EDUCATOR"
+    ADMIN = "ADMIN"
 
 def get_password_min_length() -> int:
     """Get minimum password length from environment variables."""
