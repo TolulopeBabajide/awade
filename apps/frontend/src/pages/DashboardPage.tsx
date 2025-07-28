@@ -299,7 +299,7 @@ const DashboardPage: React.FC = () => {
             ))}
           </div>
         </div>
-        {/* My Lesson Resources Section */}
+        {/* My Lesson Notes Section */}
         <div className="mt-10">
           <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-2 md:gap-0">
             <h4 className="text-lg font-bold">My Lesson Resources</h4>

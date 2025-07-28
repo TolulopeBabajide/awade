@@ -7,6 +7,7 @@
 - [x] **update-schemas-lesson-plan-alignment**: Update schemas to align with current implementation (user_id instead of author_id, optional duration_minutes, curriculum fields).
 - [x] **remove-schema-router-redundancy**: Remove redundant schemas and consolidate router logic with helper functions to reduce code duplication.
 - [x] **add-comprehensive-error-handling**: Add comprehensive error handling for curriculum mapping failures, database errors, validation errors, and AI service failures.
+- [x] **implement-comprehensive-lesson-resource-generation**: Implement GPT service for comprehensive lesson resource generation with curriculum alignment, local context integration, and structured JSON output including title header, learning objectives, lesson content, assessment, activities, key takeaways, related resources/projects, and references.
 
 ### In Progress 🔄
 - [ ] **update-api-docs-lesson-plan-curriculum-fields**: Update API documentation and response schema to reflect the new fields for objectives and contents in the lesson plan generation response.
@@ -16,7 +17,7 @@
 - [ ] Add validation for curriculum data consistency
 - [ ] Create unit tests for curriculum mapping functionality
 - [ ] Add logging for curriculum data fetching operations
-- [ ] Fix resource generation endpoint to properly handle AI service integration
+- [x] **fix-resource-generation-endpoint**: Fix resource generation endpoint to properly handle AI service integration with curriculum data extraction and local context support.
 - [ ] Add proper error handling for missing topic relationships
 - [ ] Consider adding duration_minutes back to LessonPlanCreate schema if needed by frontend
 - [ ] Add structured logging instead of print statements

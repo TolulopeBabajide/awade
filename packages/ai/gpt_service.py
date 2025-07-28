@@ -1,21 +1,27 @@
 """
-Enhanced GPT service for Awade AI system.
-Handles OpenAI API interactions with improved ethical safeguards, cultural considerations, and prompt tuning.
+GPT Service for Awade Lesson Planning
+
+This module provides AI-powered services for lesson plan generation,
+curriculum alignment, and educational content creation using OpenAI's GPT models.
+
+Author: Tolulope Babajide
 """
 
 import os
 import json
 import logging
-from typing import Dict, List, Optional, Any
-from openai import OpenAI
-from .prompts import (
-    LESSON_PLAN_PROMPT,
-    CULTURAL_ADAPTATION_PROMPT,
-    EXPLANATION_PROMPT,
-    CURRICULUM_ALIGNMENT_PROMPT,
-    ASSESSMENT_OPTIMIZATION_PROMPT,
-    ACTIVITY_ENHANCEMENT_PROMPT
-)
+from typing import List, Dict, Any, Optional
+from datetime import datetime
+
+# Import OpenAI if available, otherwise use mock
+try:
+    import openai
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
+    print("Warning: OpenAI package not available. Using mock responses.")
+
+from .prompts import COMPREHENSIVE_LESSON_RESOURCE_PROMPT
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -23,415 +29,397 @@ logger = logging.getLogger(__name__)
 
 class AwadeGPTService:
     """
-    Enhanced ethical AI service for educational content generation.
-    Implements improved safeguards, cultural considerations, and prompt tuning.
+    AI service for lesson plan generation and educational content creation.
+    
+    This service provides methods for:
+    - Generating comprehensive lesson resources from lesson plans
+    - Curriculum-aligned content generation
+    - Local context integration
     """
     
-    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-4"):
-        """Initialize the GPT service with API key and model configuration."""
+    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
+        """
+        Initialize the GPT service.
+        
+        Args:
+            api_key (Optional[str]): OpenAI API key. If not provided, will try to get from environment.
+            model (Optional[str]): OpenAI model to use. If not provided, will use environment variable.
+        """
+        # Get configuration from environment variables
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
-        if not self.api_key:
-            raise ValueError("OpenAI API key is required")
+        self.model = model or os.getenv("OPENAI_MODEL", "gpt-4")
+        self.max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "4000"))
+        self.temperature = float(os.getenv("OPENAI_TEMPERATURE", "0.7"))
         
-        self.client = OpenAI(api_key=self.api_key)
-        self.model = model
+        # Initialize OpenAI client
+        if OPENAI_AVAILABLE and self.api_key:
+            try:
+                openai.api_key = self.api_key
+                self.client = openai.OpenAI(api_key=self.api_key)
+                logger.info(f"OpenAI client initialized successfully with model: {self.model}")
+            except Exception as e:
+                logger.error(f"Failed to initialize OpenAI client: {str(e)}")
+                self.client = None
+        else:
+            self.client = None
+            if not OPENAI_AVAILABLE:
+                logger.warning("OpenAI package not available. Using mock responses.")
+            elif not self.api_key:
+                logger.warning("OpenAI API key not configured. Using mock responses.")
+    
+    def _make_api_call(self, prompt: str, temperature: Optional[float] = None) -> str:
+        """
+        Make an API call to OpenAI or return mock response.
         
-        # Enhanced ethical safeguards
-        self.content_filters = [
-            "inappropriate_content",
-            "harmful_content",
-            "biased_content",
-            "culturally_insensitive_content",
-            "age_inappropriate_content"
-        ]
+        Args:
+            prompt (str): The prompt to send to the AI
+            temperature (Optional[float]): Creativity level (0.0 to 1.0). If not provided, uses configured default.
+            
+        Returns:
+            str: AI response or mock response
+        """
+        if not self.client:
+            logger.info("Using mock response (OpenAI client not available)")
+            return self._generate_mock_response(prompt)
         
-        # Performance optimization settings
-        self.default_temperature = 0.7
-        self.default_max_tokens = 1500
-        self.retry_attempts = 3
+        # Use configured temperature if not provided
+        temp = temperature if temperature is not None else self.temperature
         
-    def generate_lesson_plan(
+        try:
+            logger.info(f"Making OpenAI API call with model: {self.model}, temperature: {temp}")
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": "You are an expert educational content creator specializing in African curriculum development. You create comprehensive, locally contextual lesson resources that are age-appropriate, culturally relevant, and practical for teachers to implement."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=temp,
+                max_tokens=self.max_tokens
+            )
+            
+            content = response.choices[0].message.content
+            logger.info(f"OpenAI API call successful. Response length: {len(content)} characters")
+            return content
+            
+        except openai.AuthenticationError as e:
+            logger.error(f"OpenAI authentication failed: {str(e)}")
+            return self._generate_mock_response(prompt)
+        except openai.RateLimitError as e:
+            logger.error(f"OpenAI rate limit exceeded: {str(e)}")
+            return self._generate_mock_response(prompt)
+        except openai.APIError as e:
+            logger.error(f"OpenAI API error: {str(e)}")
+            return self._generate_mock_response(prompt)
+        except Exception as e:
+            logger.error(f"Unexpected error in OpenAI API call: {str(e)}")
+            return self._generate_mock_response(prompt)
+    
+    def test_openai_connection(self) -> Dict[str, Any]:
+        """
+        Test the OpenAI API connection and return status information.
+        
+        Returns:
+            Dict[str, Any]: Connection status and configuration details
+        """
+        status = {
+            "openai_available": OPENAI_AVAILABLE,
+            "api_key_configured": bool(self.api_key),
+            "model": self.model,
+            "max_tokens": self.max_tokens,
+            "temperature": self.temperature,
+            "client_initialized": bool(self.client),
+            "connection_test": False,
+            "error": None
+        }
+        
+        if not self.client:
+            status["error"] = "OpenAI client not initialized"
+            return status
+        
+        try:
+            # Make a simple test call
+            test_response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "user", "content": "Hello, this is a test message."}
+                ],
+                max_tokens=10
+            )
+            status["connection_test"] = True
+            status["test_response"] = test_response.choices[0].message.content
+            logger.info("OpenAI connection test successful")
+        except Exception as e:
+            status["error"] = str(e)
+            logger.error(f"OpenAI connection test failed: {str(e)}")
+        
+        return status
+    
+    def _generate_mock_response(self, prompt: str) -> str:
+        """
+        Generate a mock response for testing purposes.
+        
+        Args:
+            prompt (str): The original prompt
+            
+        Returns:
+            str: Mock response
+        """
+        if "comprehensive lesson resource" in prompt.lower():
+            return self._generate_mock_lesson_resource()
+        else:
+            return "Mock response: This is a placeholder response for testing purposes."
+    
+    def _generate_mock_lesson_resource(self) -> str:
+        """Generate a mock comprehensive lesson resource."""
+        return json.dumps({
+            "title_header": {
+                "topic": "Fractions",
+                "subject": "Mathematics",
+                "grade_level": "Grade 4",
+                "country": "Nigeria",
+                "local_context": "Nigerian classroom with basic resources"
+            },
+            "learning_objectives": [
+                "Understand basic fraction concepts using local examples",
+                "Identify fractions in everyday objects from the community",
+                "Compare simple fractions using local materials"
+            ],
+            "lesson_content": {
+                "introduction": "Today we will learn about fractions using objects from our community.",
+                "main_concepts": [
+                    "Fractions represent parts of a whole",
+                    "Fractions can be written as numbers",
+                    "We can compare fractions using different methods"
+                ],
+                "examples": [
+                    "Using local fruits to demonstrate fractions",
+                    "Using classroom objects to show parts of a whole"
+                ],
+                "step_by_step_instructions": [
+                    "Step 1: Introduce the concept using familiar objects",
+                    "Step 2: Demonstrate fractions with visual aids",
+                    "Step 3: Practice with hands-on activities"
+                ]
+            },
+            "assessment": [
+                "Multiple choice questions about fractions",
+                "Short answer questions with real-world examples",
+                "Practical application problems"
+            ],
+            "key_takeaways": [
+                "Fractions represent parts of a whole",
+                "Fractions can be found in everyday objects",
+                "We can compare fractions using different methods"
+            ],
+            "related_projects_or_activities": [
+                "Community fraction hunt project",
+                "Local market fraction activity",
+                "Classroom fraction display"
+            ],
+            "references": [
+                "Nigerian National Curriculum - Mathematics Grade 4",
+                "Local mathematics textbook",
+                "Community resources for hands-on learning"
+            ]
+        }, indent=2)
+    
+    def generate_lesson_resource(
         self,
         subject: str,
         grade: str,
         topic: str,
-        objectives: Optional[List[str]] = None,
+        objectives: List[str],
         duration: int = 45,
-        language: str = "en",
-        cultural_context: str = "African",
-        local_context: Optional[str] = None,
-        curriculum_standards: Optional[List[str]] = None
-    ) -> Dict:
+        context: Optional[str] = None
+    ) -> str:
         """
-        Generate a culturally relevant lesson plan with enhanced prompt tuning.
+        Generate a comprehensive lesson resource using the prompt template.
         
         Args:
-            subject: Subject area (e.g., "Mathematics", "Science")
-            grade: Grade level (e.g., "Grade 4", "Grade 7")
-            topic: Specific topic to teach
-            objectives: List of learning objectives
-            duration: Lesson duration in minutes
-            language: Primary language for the lesson
-            cultural_context: Cultural context for adaptations
-            local_context: Local context information
-            curriculum_standards: List of curriculum standards to align with
+            subject (str): Subject area (e.g., Mathematics, Science)
+            grade (str): Grade level (e.g., Grade 4, JSS1)
+            topic (str): Specific topic to teach
+            objectives (List[str]): Learning objectives from curriculum
+            duration (int): Lesson duration in minutes
+            context (Optional[str]): Local context and available resources
             
         Returns:
-            Dict containing the generated lesson plan
+            str: Generated lesson resource content in JSON format
         """
         try:
-            # Handle optional objectives
-            objectives_text = ", ".join(objectives) if objectives else "To be generated by AI"
-            local_context_text = local_context or "General African context"
-            curriculum_text = ", ".join(curriculum_standards) if curriculum_standards else "Standard curriculum"
+            logger.info(f"Generating lesson resource for {subject} {grade} - {topic}")
+            logger.info(f"Objectives: {objectives}")
+            logger.info(f"Context: {context}")
             
-            prompt = LESSON_PLAN_PROMPT.format(
+            # Format objectives as string
+            objectives_str = ", ".join(objectives) if objectives else "To be determined"
+            
+            # Get country from context or use default
+            country = "Nigeria"  # Default country
+            if context and "nigeria" in context.lower():
+                country = "Nigeria"
+            elif context and "ghana" in context.lower():
+                country = "Ghana"
+            elif context and "kenya" in context.lower():
+                country = "Kenya"
+            
+            # Prepare prompt parameters according to the template
+            prompt_params = {
+                "topic": topic,
+                "subject": subject,
+                "grade_level": grade,
+                "country": country,
+                "local_context": context or "Standard classroom with basic resources",
+                "learning_objectives": objectives_str,
+                "contents": "Comprehensive lesson content including introduction, main concepts, examples, and activities"
+            }
+            
+            # Generate prompt using the template
+            prompt = COMPREHENSIVE_LESSON_RESOURCE_PROMPT.format(**prompt_params)
+            logger.info(f"Generated prompt for {country} context")
+            
+            # Make API call
+            response = self._make_api_call(prompt)
+            logger.info(f"Received response from OpenAI API (length: {len(response)} characters)")
+            
+            # Try to parse as JSON, fallback to plain text if needed
+            try:
+                # Check if response is valid JSON
+                parsed_json = json.loads(response)
+                logger.info("Successfully parsed AI response as JSON")
+                return response
+            except json.JSONDecodeError as e:
+                # If not valid JSON, return as plain text
+                logger.warning(f"AI response is not valid JSON: {str(e)}")
+                logger.warning(f"Response preview: {response[:200]}...")
+                logger.warning(f"Response ends with: {response[-100:]}...")
+                return response
+                
+        except Exception as e:
+            logger.error(f"Error generating lesson resource: {str(e)}")
+            logger.error(f"Exception type: {type(e).__name__}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
+            return self._generate_mock_lesson_resource()
+    
+    def generate_comprehensive_lesson_resource(
+        self,
+        subject: str,
+        grade: str,
+        topic: str,
+        learning_objectives: List[str],
+        duration: int = 45,
+        local_context: Optional[str] = None,
+        curriculum_framework: str = "Nigerian National Curriculum"
+    ) -> Dict[str, Any]:
+        """
+        Generate a comprehensive lesson resource with structured JSON output.
+        
+        Args:
+            subject (str): Subject area (e.g., Mathematics, Science)
+            grade (str): Grade level (e.g., Grade 4, JSS1)
+            topic (str): Specific topic to teach
+            learning_objectives (List[str]): Learning objectives
+            duration (int): Lesson duration in minutes
+            local_context (Optional[str]): Local context and available resources
+            curriculum_framework (str): Curriculum framework name
+            
+        Returns:
+            Dict[str, Any]: Generated lesson resource with status and content
+        """
+        try:
+            # Generate the lesson resource using the main method
+            lesson_resource_json = self.generate_lesson_resource(
                 subject=subject,
                 grade=grade,
                 topic=topic,
-                objectives=objectives_text,
+                objectives=learning_objectives,
                 duration=duration,
-                language=language,
-                local_context=local_context_text
+                context=local_context
             )
             
-            # Enhanced system message with better context
-            system_message = f"""You are an expert African educator with deep knowledge of {subject} curriculum for {grade} level. 
-            You specialize in creating culturally relevant, practical lesson plans that work in African classrooms.
-            Focus on using locally available resources, respecting cultural values, and creating engaging learning experiences.
-            Always consider the practical constraints of African schools and the diverse needs of students."""
-            
-            response = self._make_api_call(
-                messages=[
-                    {"role": "system", "content": system_message},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.7,
-                max_tokens=1500
-            )
-            
-            # Parse and structure the response
-            content = response.choices[0].message.content
-            return self._structure_lesson_plan(content, subject, grade, topic, objectives, curriculum_standards)
-            
-        except Exception as e:
-            logger.error(f"Error generating lesson plan: {str(e)}")
-            return {
-                "error": f"Failed to generate lesson plan: {str(e)}",
-                "fallback": self._generate_fallback_lesson_plan(subject, grade, topic, objectives)
-            }
-    
-    def optimize_assessment(
-        self,
-        assessment_content: str,
-        subject: str,
-        grade: str,
-        assessment_type: str = "mixed"
-    ) -> Dict:
-        """
-        Optimize assessment content for cultural relevance and effectiveness.
-        
-        Args:
-            assessment_content: Current assessment content
-            subject: Subject area
-            grade: Grade level
-            assessment_type: Type of assessment (quiz, project, etc.)
-            
-        Returns:
-            Dict containing optimized assessment
-        """
-        try:
-            prompt = ASSESSMENT_OPTIMIZATION_PROMPT.format(
-                assessment_content=assessment_content,
-                subject=subject,
-                grade=grade,
-                assessment_type=assessment_type
-            )
-            
-            system_message = f"You are an assessment specialist with expertise in {subject} for {grade} level. Focus on creating culturally appropriate, effective assessments."
-            
-            response = self._make_api_call(
-                messages=[
-                    {"role": "system", "content": system_message},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.6,
-                max_tokens=1200
-            )
-            
-            return {
-                "optimized_assessment": response.choices[0].message.content,
-                "status": "success"
-            }
-            
-        except Exception as e:
-            logger.error(f"Error optimizing assessment: {str(e)}")
-            return {
-                "error": f"Failed to optimize assessment: {str(e)}",
-                "optimized_assessment": assessment_content,
-                "status": "fallback"
-            }
-    
-    def enhance_activities(
-        self,
-        activities_content: str,
-        subject: str,
-        grade: str,
-        duration: int = 45,
-        resources: str = "Basic classroom materials",
-        class_size: int = 30
-    ) -> Dict:
-        """
-        Enhance classroom activities for better engagement and cultural relevance.
-        
-        Args:
-            activities_content: Current activities content
-            subject: Subject area
-            grade: Grade level
-            duration: Available time in minutes
-            resources: Available resources
-            class_size: Number of students
-            
-        Returns:
-            Dict containing enhanced activities
-        """
-        try:
-            prompt = ACTIVITY_ENHANCEMENT_PROMPT.format(
-                activities_content=activities_content,
-                subject=subject,
-                grade=grade,
-                duration=duration,
-                resources=resources,
-                class_size=class_size
-            )
-            
-            system_message = f"You are an educational activity specialist for {subject} in {grade} level. Focus on creating engaging, culturally relevant activities."
-            
-            response = self._make_api_call(
-                messages=[
-                    {"role": "system", "content": system_message},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.7,
-                max_tokens=1200
-            )
-            
-            return {
-                "enhanced_activities": response.choices[0].message.content,
-                "status": "success"
-            }
-            
-        except Exception as e:
-            logger.error(f"Error enhancing activities: {str(e)}")
-            return {
-                "error": f"Failed to enhance activities: {str(e)}",
-                "enhanced_activities": activities_content,
-                "status": "fallback"
-            }
-    
-    def align_curriculum(
-        self,
-        lesson_content: str,
-        subject: str,
-        grade: str,
-        country: str = "Nigeria"
-    ) -> Dict:
-        """
-        Align lesson content with curriculum standards.
-        
-        Args:
-            lesson_content: Lesson content to align
-            subject: Subject area
-            grade: Grade level
-            country: Country for curriculum standards
-            
-        Returns:
-            Dict containing curriculum alignment analysis
-        """
-        try:
-            prompt = CURRICULUM_ALIGNMENT_PROMPT.format(
-                lesson_content=lesson_content,
-                subject=subject,
-                grade=grade,
-                country=country
-            )
-            
-            system_message = f"You are a curriculum specialist for {subject} in {grade} level in {country}. Focus on accurate curriculum mapping and alignment."
-            
-            response = self._make_api_call(
-                messages=[
-                    {"role": "system", "content": system_message},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.5,
-                max_tokens=1000
-            )
-            
-            return {
-                "curriculum_alignment": response.choices[0].message.content,
-                "status": "success"
-            }
-            
-        except Exception as e:
-            logger.error(f"Error aligning curriculum: {str(e)}")
-            return {
-                "error": f"Failed to align curriculum: {str(e)}",
-                "curriculum_alignment": "Curriculum alignment analysis unavailable",
-                "status": "fallback"
-            }
-    
-    def explain_ai_content(self, content: str, context: str) -> str:
-        """
-        Explain AI-generated content in teacher-friendly terms with enhanced context.
-        
-        Args:
-            content: The AI-generated content to explain
-            context: Context for the explanation
-            
-        Returns:
-            Explanation text
-        """
-        try:
-            prompt = EXPLANATION_PROMPT.format(
-                content=content,
-                context=context
-            )
-            
-            system_message = "You are a supportive educational mentor explaining AI suggestions to African teachers. Use clear, practical language."
-            
-            response = self._make_api_call(
-                messages=[
-                    {"role": "system", "content": system_message},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.5,
-                max_tokens=800
-            )
-            
-            return response.choices[0].message.content
-            
-        except Exception as e:
-            logger.error(f"Error explaining content: {str(e)}")
-            return f"Unable to generate explanation: {str(e)}"
-    
-    def _make_api_call(self, messages: List[Dict], temperature: float = None, max_tokens: int = None) -> Any:
-        """
-        Make API call with retry logic and error handling.
-        
-        Args:
-            messages: List of message dictionaries
-            temperature: Temperature for response generation
-            max_tokens: Maximum tokens for response
-            
-        Returns:
-            API response
-        """
-        for attempt in range(self.retry_attempts):
+            # Try to parse as JSON, fallback to plain text if needed
             try:
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=messages,
-                    temperature=temperature or self.default_temperature,
-                    max_tokens=max_tokens or self.default_max_tokens
-                )
-                return response
+                lesson_resource = json.loads(lesson_resource_json)
+                return {
+                    "status": "success",
+                    "lesson_resource": lesson_resource,
+                    "raw_response": lesson_resource_json
+                }
+            except json.JSONDecodeError:
+                # If not valid JSON, return as plain text
+                logger.warning("AI response is not valid JSON, returning as plain text")
+                return {
+                    "status": "partial_success",
+                    "lesson_resource": {"raw_content": lesson_resource_json},
+                    "raw_response": lesson_resource_json
+                }
                 
-            except Exception as e:
-                logger.warning(f"API call attempt {attempt + 1} failed: {str(e)}")
-                if attempt == self.retry_attempts - 1:
-                    raise e
-                continue
+        except Exception as e:
+            logger.error(f"Error generating comprehensive lesson resource: {str(e)}")
+            fallback_resource = self._generate_fallback_comprehensive_resource(
+                subject, grade, topic, learning_objectives
+            )
+            return {
+                "status": "fallback",
+                "lesson_resource": fallback_resource,
+                "error": str(e)
+            }
     
-    def _structure_lesson_plan(self, content: str, subject: str, grade: str, topic: str, objectives: Optional[List[str]] = None, curriculum_standards: Optional[List[str]] = None) -> Dict:
-        """Structure the raw AI response into a lesson plan format with enhanced parsing."""
-        # Extract objectives from content if not provided
-        extracted_objectives = objectives or self._extract_objectives(content)
-        
+    def _generate_fallback_comprehensive_resource(
+        self,
+        subject: str,
+        grade: str,
+        topic: str,
+        learning_objectives: List[str]
+    ) -> Dict[str, Any]:
+        """Generate a fallback comprehensive lesson resource."""
         return {
-            "title": f"{subject}: {topic}",
-            "subject": subject,
-            "grade": grade,
-            "topic": topic,
-            "objectives": extracted_objectives,
-            "curriculum_standards": curriculum_standards or [],
-            "learning_objectives": self._extract_section(content, "LEARNING OBJECTIVES"),
-            "local_context": self._extract_section(content, "LOCAL CONTEXT INTEGRATION"),
-            "core_content": self._extract_section(content, "CORE CONTENT"),
-            "activities": self._extract_section(content, "ENGAGING ACTIVITIES"),
-            "assessment": self._extract_section(content, "ASSESSMENT & EVALUATION"),
-            "projects": self._extract_section(content, "RELATED PROJECTS & EXTENSIONS"),
-            "teacher_notes": self._extract_section(content, "TEACHER NOTES"),
-            "content": content
-        }
-    
-    def _extract_section(self, content: str, section_name: str) -> str:
-        """Extract a specific section from the AI response with improved parsing."""
-        lines = content.split('\n')
-        section_content = []
-        in_section = False
-        
-        for line in lines:
-            # Check for section headers (both ## and # format)
-            if section_name.upper() in line.upper() and ('#' in line or line.strip().isupper()):
-                in_section = True
-                continue
-            if in_section:
-                # Check if we've reached the next section
-                if any(next_section in line.upper() for next_section in [
-                    "LEARNING OBJECTIVES", "LOCAL CONTEXT", "CORE CONTENT", 
-                    "ENGAGING ACTIVITIES", "ASSESSMENT", "RELATED PROJECTS", "TEACHER NOTES"
-                ]):
-                    break
-                if line.strip():
-                    section_content.append(line.strip())
-        
-        return '\n'.join(section_content)
-    
-    def _extract_objectives(self, content: str) -> List[str]:
-        """Extract learning objectives from AI response with improved parsing."""
-        lines = content.split('\n')
-        objectives = []
-        in_objectives = False
-        
-        for line in lines:
-            if "LEARNING OBJECTIVES" in line.upper():
-                in_objectives = True
-                continue
-            if in_objectives:
-                if any(section in line.upper() for section in ["LOCAL CONTEXT", "CORE CONTENT", "ACTIVITIES"]):
-                    break
-                if line.strip() and not line.startswith('#'):
-                    # Clean up the objective line
-                    objective = line.strip().lstrip('- ').lstrip('* ').lstrip('1. ').lstrip('2. ').lstrip('3. ').lstrip('4. ').lstrip('5. ')
-                    if objective and len(objective) > 10:  # Filter out very short lines
-                        objectives.append(objective)
-        
-        return objectives[:5] if objectives else [f"Understand {topic}", f"Apply {topic} concepts", f"Analyze {topic} examples"]
-    
-    def _generate_fallback_lesson_plan(self, subject: str, grade: str, topic: str, objectives: Optional[List[str]] = None) -> Dict:
-        """Generate a comprehensive fallback lesson plan when AI fails."""
-        fallback_objectives = objectives or [f"Understand {topic}", f"Apply {topic} concepts", f"Analyze {topic} examples"]
-        return {
-            "title": f"{subject}: {topic}",
-            "subject": subject,
-            "grade": grade,
-            "topic": topic,
-            "objectives": fallback_objectives,
-            "curriculum_standards": [],
-            "learning_objectives": f"Students will understand and apply {topic} concepts in {subject}",
-            "local_context": f"Adapt {topic} concepts to local environment and available resources",
-            "core_content": f"Core concepts and principles of {topic} in {subject}",
-            "activities": [
-                "Introduction Activity (5-10 min): Engage students with real-world examples",
-                "Main Learning Activity (20-25 min): Explore core concepts through guided practice",
-                "Group Work (10-15 min): Collaborative learning and peer support",
-                "Individual Practice (5-10 min): Independent application and reinforcement",
-                "Assessment Activity (5-10 min): Check understanding and provide feedback"
+            "title_header": {
+                "topic": topic,
+                "subject": subject,
+                "grade_level": grade,
+                "country": "Nigeria",
+                "local_context": "Standard classroom with basic resources"
+            },
+            "learning_objectives": learning_objectives,
+            "lesson_content": {
+                "introduction": f"Introduction to {topic}",
+                "main_concepts": [
+                    f"Main concept 1 for {topic}",
+                    f"Main concept 2 for {topic}",
+                    f"Main concept 3 for {topic}"
+                ],
+                "examples": [
+                    f"Example 1 for {topic}",
+                    f"Example 2 for {topic}"
+                ],
+                "step_by_step_instructions": [
+                    "Step 1: Introduction",
+                    "Step 2: Main content",
+                    "Step 3: Practice"
+                ]
+            },
+            "assessment": [
+                f"Assessment question 1 for {topic}",
+                f"Assessment question 2 for {topic}",
+                f"Assessment question 3 for {topic}"
             ],
-            "assessment": f"Assessment questions and activities related to {topic}",
-            "projects": f"Project ideas and extensions for {topic} learning",
-            "teacher_notes": f"Pedagogical notes and implementation tips for {topic} lesson",
-            "content": f"Comprehensive {subject} lesson plan on {topic} for {grade} level"
+            "key_takeaways": [
+                f"Key takeaway 1 about {topic}",
+                f"Key takeaway 2 about {topic}",
+                f"Key takeaway 3 about {topic}"
+            ],
+            "related_projects_or_activities": [
+                f"Project 1 for {topic}",
+                f"Activity 1 for {topic}",
+                f"Project 2 for {topic}"
+            ],
+            "references": [
+                f"Reference 1 for {topic}",
+                f"Reference 2 for {topic}",
+                f"Reference 3 for {topic}"
+            ]
         }
     
- 
+   

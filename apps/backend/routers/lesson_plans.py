@@ -7,7 +7,6 @@ Endpoints:
 - /api/lesson-plans: CRUD for lesson plans
 - /api/lesson-plans/generate:lesson plan generation
 - /api/lesson-plans/{lesson_id}/export/pdf: PDF export
-
 - /api/lesson-plans/{lesson_id}/resources/generate: AI lesson resource generation
 - /api/lesson-plans/resources/{resource_id}/review: Resource review and update
 
@@ -379,15 +378,24 @@ async def generate_lesson_resource(
             )
         
         try:
-            # Attempt AI service call
+            # Get curriculum data for the topic
+            learning_objectives = [obj.objective for obj in topic_info.learning_objectives]
+            topic_contents = [content.content_area for content in topic_info.topic_contents]
+            
+            # Get country from curriculum structure
+            country = "Nigeria"  # Default
+            if topic_info.curriculum_structure.curriculum:
+                country = topic_info.curriculum_structure.curriculum.country.country_name
+            
+            # Attempt AI service call with comprehensive data
             gpt_service = AwadeGPTService()
             ai_content = gpt_service.generate_lesson_resource(
                 subject=topic_info.curriculum_structure.subject.name,
                 grade=topic_info.curriculum_structure.grade_level.name,
                 topic=topic_info.topic_title,
-                objectives=[obj.objective for obj in topic_info.learning_objectives],
+                objectives=learning_objectives,
                 duration=45,  # Default duration
-                context=data.context_input
+                context=data.context_input or f"Classroom in {country}"
             )
         except Exception as ai_error:
             # Handle AI service failures
@@ -427,6 +435,29 @@ async def generate_lesson_resource(
             status_code=500,
             detail="Failed to generate lesson resource. Please try again or contact support if the problem persists."
         )
+
+@router.get("/ai/health")
+async def check_ai_service_health():
+    """
+    Check the health and configuration of the AI service.
+    
+    Returns:
+        dict: AI service status and configuration details
+    """
+    try:
+        gpt_service = AwadeGPTService()
+        status = gpt_service.test_openai_connection()
+        return {
+            "status": "success",
+            "ai_service": status,
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        }
 
 @router.put("/resources/{resource_id}/review", response_model=LessonResourceResponse)
 async def review_lesson_resource(

@@ -800,6 +800,7 @@
           "curriculum"
         ],
         "summary": "Delete Learning Objective",
+        "description": "Delete a learning objective by ID.\n\nArgs:\n    objective_id: The ID of the learning objective to delete\n    db: Database session dependency\n    \nReturns:\n    dict: Success message confirming deletion\n    \nRaises:\n    HTTPException: 404 if learning objective not found",
         "operationId": "delete_learning_objective_api_curriculum_learning_objectives__objective_id__delete",
         "parameters": [
           {
@@ -840,6 +841,7 @@
           "curriculum"
         ],
         "summary": "Create Content",
+        "description": "Create a new content item for a topic.\n\nArgs:\n    content_data: Content creation data including topic_id and content_area\n    db: Database session dependency\n    \nReturns:\n    ContentResponse: The created content item",
         "operationId": "create_content_api_curriculum_contents_post",
         "requestBody": {
           "content": {
@@ -881,6 +883,7 @@
           "curriculum"
         ],
         "summary": "Get Contents",
+        "description": "Get all content items for a specific topic.\n\nArgs:\n    topic_id: The ID of the topic to get contents for\n    db: Database session dependency\n    \nReturns:\n    List[ContentResponse]: List of content items for the topic",
         "operationId": "get_contents_api_curriculum_topics__topic_id__contents_get",
         "parameters": [
           {
@@ -927,6 +930,7 @@
           "curriculum"
         ],
         "summary": "Update Content",
+        "description": "Update a content item by ID.\n\nArgs:\n    content_id: The ID of the content item to update\n    content_data: Updated content data\n    db: Database session dependency\n    \nReturns:\n    ContentResponse: The updated content item\n    \nRaises:\n    HTTPException: 404 if content not found",
         "operationId": "update_content_api_curriculum_contents__content_id__put",
         "parameters": [
           {
@@ -977,6 +981,7 @@
           "curriculum"
         ],
         "summary": "Delete Content",
+        "description": "Delete a content item by ID.\n\nArgs:\n    content_id: The ID of the content item to delete\n    db: Database session dependency\n    \nReturns:\n    dict: Success message confirming deletion\n    \nRaises:\n    HTTPException: 404 if content not found",
         "operationId": "delete_content_api_curriculum_contents__content_id__delete",
         "parameters": [
           {
@@ -1539,7 +1544,8 @@
           "access_token",
           "user"
         ],
-        "title": "AuthResponse"
+        "title": "AuthResponse",
+        "description": "Schema for authentication response."
       },
       "ContentCreate": {
         "properties": {
@@ -1559,7 +1565,8 @@
           "topic_id",
           "content_area"
         ],
-        "title": "ContentCreate"
+        "title": "ContentCreate",
+        "description": "Schema for creating content."
       },
       "ContentResponse": {
         "properties": {
@@ -1588,7 +1595,8 @@
           "content_area",
           "created_at"
         ],
-        "title": "ContentResponse"
+        "title": "ContentResponse",
+        "description": "Schema for content response data."
       },
       "ContentUpdate": {
         "properties": {
@@ -1602,7 +1610,8 @@
         "required": [
           "content_area"
         ],
-        "title": "ContentUpdate"
+        "title": "ContentUpdate",
+        "description": "Schema for updating content."
       },
       "CountryCreate": {
         "properties": {
@@ -1623,7 +1632,8 @@
         "required": [
           "country_name"
         ],
-        "title": "CountryCreate"
+        "title": "CountryCreate",
+        "description": "Schema for creating a new country."
       },
       "CountryResponse": {
         "properties": {
@@ -1649,7 +1659,8 @@
           "country_id",
           "country_name"
         ],
-        "title": "CountryResponse"
+        "title": "CountryResponse",
+        "description": "Schema for country response data."
       },
       "CurriculumCreate": {
         "properties": {
@@ -1667,7 +1678,8 @@
           "curricula_title",
           "country_id"
         ],
-        "title": "CurriculumCreate"
+        "title": "CurriculumCreate",
+        "description": "Schema for creating a new curriculum."
       },
       "CurriculumResponse": {
         "properties": {
@@ -1690,7 +1702,8 @@
           "country_id",
           "curricula_id"
         ],
-        "title": "CurriculumResponse"
+        "title": "CurriculumResponse",
+        "description": "Schema for curriculum response data."
       },
       "CurriculumStructureCreate": {
         "properties": {
@@ -1713,7 +1726,8 @@
           "grade_level_id",
           "subject_id"
         ],
-        "title": "CurriculumStructureCreate"
+        "title": "CurriculumStructureCreate",
+        "description": "Schema for creating a new curriculum structure."
       },
       "CurriculumStructureResponse": {
         "properties": {
@@ -1741,7 +1755,8 @@
           "grade_level_id",
           "subject_id"
         ],
-        "title": "CurriculumStructureResponse"
+        "title": "CurriculumStructureResponse",
+        "description": "Schema for curriculum structure response data."
       },
       "GoogleAuthRequest": {
         "properties": {
@@ -1894,7 +1909,8 @@
           "topic",
           "user_id"
         ],
-        "title": "LessonPlanCreate"
+        "title": "LessonPlanCreate",
+        "description": "Schema for creating a new lesson plan."
       },
       "LessonPlanResponse": {
         "properties": {
@@ -1993,7 +2009,8 @@
           "updated_at",
           "status"
         ],
-        "title": "LessonPlanResponse"
+        "title": "LessonPlanResponse",
+        "description": "Schema for lesson plan response data."
       },
       "LessonPlanUpdate": {
         "properties": {
@@ -2086,7 +2103,8 @@
           }
         },
         "type": "object",
-        "title": "LessonPlanUpdate"
+        "title": "LessonPlanUpdate",
+        "description": "Schema for updating an existing lesson plan."
       },
       "LessonResourceCreate": {
         "properties": {
@@ -2115,7 +2133,8 @@
           "lesson_plan_id",
           "user_id"
         ],
-        "title": "LessonResourceCreate"
+        "title": "LessonResourceCreate",
+        "description": "Schema for creating lesson resources."
       },
       "LessonResourceResponse": {
         "properties": {
@@ -2193,7 +2212,8 @@
           "status",
           "created_at"
         ],
-        "title": "LessonResourceResponse"
+        "title": "LessonResourceResponse",
+        "description": "Schema for lesson resource response data."
       },
       "LessonResourceUpdate": {
         "properties": {
@@ -2206,7 +2226,8 @@
         "required": [
           "user_edited_content"
         ],
-        "title": "LessonResourceUpdate"
+        "title": "LessonResourceUpdate",
+        "description": "Schema for updating lesson resources."
       },
       "LessonStatus": {
         "type": "string",
@@ -2217,7 +2238,8 @@
           "exported",
           "archived"
         ],
-        "title": "LessonStatus"
+        "title": "LessonStatus",
+        "description": "Enumeration of lesson plan status values."
       },
       "PasswordReset": {
         "properties": {
@@ -2238,7 +2260,8 @@
           "token",
           "new_password"
         ],
-        "title": "PasswordReset"
+        "title": "PasswordReset",
+        "description": "Schema for password reset confirmation."
       },
       "PasswordResetRequest": {
         "properties": {
@@ -2253,7 +2276,8 @@
         "required": [
           "email"
         ],
-        "title": "PasswordResetRequest"
+        "title": "PasswordResetRequest",
+        "description": "Schema for password reset request."
       },
       "SubjectCreate": {
         "properties": {
@@ -2302,7 +2326,8 @@
           "curriculum_structure_id",
           "topic_title"
         ],
-        "title": "TopicCreate"
+        "title": "TopicCreate",
+        "description": "Schema for creating a new topic."
       },
       "TopicResponse": {
         "properties": {
@@ -2325,7 +2350,8 @@
           "topic_title",
           "topic_id"
         ],
-        "title": "TopicResponse"
+        "title": "TopicResponse",
+        "description": "Schema for topic response data."
       },
       "UserCreate": {
         "properties": {
@@ -2430,7 +2456,8 @@
           "full_name",
           "country"
         ],
-        "title": "UserCreate"
+        "title": "UserCreate",
+        "description": "Schema for creating a new user account."
       },
       "UserResponse": {
         "properties": {
@@ -2547,7 +2574,8 @@
           "created_at",
           "last_login"
         ],
-        "title": "UserResponse"
+        "title": "UserResponse",
+        "description": "Schema for user response data."
       },
       "UserRole": {
         "type": "string",
@@ -2555,7 +2583,8 @@
           "educator",
           "admin"
         ],
-        "title": "UserRole"
+        "title": "UserRole",
+        "description": "Enumeration of user roles in the system."
       },
       "ValidationError": {
         "properties": {
