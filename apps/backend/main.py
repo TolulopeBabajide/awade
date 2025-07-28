@@ -5,7 +5,7 @@ This module initializes and configures the Awade FastAPI application, which serv
 
 Key Features:
 - Loads environment variables and configures CORS for cross-origin requests.
-- Registers all API routers, including lesson plans, curriculum, authentication, country, grade level, subject, and curriculum structure.
+- Registers all API routers, including lesson plans, curriculum, authentication, country, grade level, subject, curriculum structure, and users.
 - Provides root and health check endpoints for service status and API information.
 - Integrates with SQLAlchemy for database access and dependency injection.
 - Designed for extensibility and deployment in both development and production environments.
@@ -35,13 +35,13 @@ sys.path.extend([parent_dir, root_dir])
 
 # Import routers
 try:
-    from apps.backend.routers import lesson_plans, curriculum
+    from apps.backend.routers import lesson_plans, curriculum, users
     from routers import auth
     from database import get_db
     from apps.backend.routers import country, grade_level, subject, curriculum_structure
 except ImportError:
     # Fallback for Docker container
-    from apps.backend.routers import lesson_plans, curriculum
+    from apps.backend.routers import lesson_plans, curriculum, users
     from apps.backend.routers import auth
     from apps.backend.database import get_db
     from apps.backend.routers import country, grade_level, subject, curriculum_structure
@@ -70,6 +70,7 @@ app.add_middleware(
 app.include_router(lesson_plans.router)
 app.include_router(curriculum.router)
 app.include_router(auth.router)
+app.include_router(users.router)
 app.include_router(country.router)
 app.include_router(grade_level.router)
 app.include_router(subject.router)

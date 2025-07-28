@@ -18,6 +18,7 @@ from typing import List, Optional
 from datetime import datetime
 
 from apps.backend.database import get_db
+from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator, get_optional_current_user
 from apps.backend.services.curriculum_service import CurriculumService
 from apps.backend.schemas.curriculum import (
     CurriculumCreate, CurriculumResponse, TopicCreate, TopicResponse,
@@ -28,7 +29,7 @@ from apps.backend.schemas.curriculum import (
     # TeachingMaterialCreate, TeachingMaterialUpdate, TeachingMaterialResponse,
     # EvaluationGuideCreate, EvaluationGuideUpdate, EvaluationGuideResponse
 )
-from apps.backend.models import Topic
+from apps.backend.models import Topic, User
 
 router = APIRouter(prefix="/api/curriculum", tags=["curriculum"])
 
@@ -36,17 +37,12 @@ router = APIRouter(prefix="/api/curriculum", tags=["curriculum"])
 @router.post("/", response_model=CurriculumResponse)
 def create_curriculum(
     curriculum_data: CurriculumCreate,
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
     """
     Create a new curriculum record.
-
-    Args:
-        curriculum_data (CurriculumCreate): The curriculum data to create.
-        db (Session): Database session dependency.
-
-    Returns:
-        CurriculumResponse: The created curriculum.
+    Requires admin authentication.
     """
     service = CurriculumService(db)
     return service.create_curriculum(curriculum_data)
@@ -56,19 +52,12 @@ def get_curriculums(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     country_id: Optional[int] = None,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
     Retrieve a list of curriculums, optionally filtered by country.
-
-    Args:
-        skip (int): Number of records to skip.
-        limit (int): Maximum number of records to return.
-        country_id (Optional[int]): Filter by country ID.
-        db (Session): Database session dependency.
-
-    Returns:
-        List[CurriculumResponse]: List of curriculums.
+    Requires authentication.
     """
     service = CurriculumService(db)
     return service.get_curriculums(skip=skip, limit=limit, country_id=country_id)
@@ -77,17 +66,12 @@ def get_curriculums(
 @router.post("/topics", response_model=TopicResponse)
 def create_topic(
     topic_data: TopicCreate,
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
     """
     Create a new topic within a curriculum structure.
-
-    Args:
-        topic_data (TopicCreate): The topic data to create.
-        db (Session): Database session dependency.
-
-    Returns:
-        TopicResponse: The created topic.
+    Requires admin authentication.
     """
     service = CurriculumService(db)
     return service.create_topic(topic_data)
@@ -97,71 +81,52 @@ def get_topics(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     curriculum_structure_id: Optional[int] = None,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
     Retrieve a list of topics, optionally filtered by curriculum structure.
-
-    Args:
-        skip (int): Number of records to skip.
-        limit (int): Maximum number of records to return.
-        curriculum_structure_id (Optional[int]): Filter by curriculum structure ID.
-        db (Session): Database session dependency.
-
-    Returns:
-        List[TopicResponse]: List of topics.
+    Requires authentication.
     """
     service = CurriculumService(db)
     return service.get_topics(skip=skip, limit=limit, curriculum_structure_id=curriculum_structure_id)
 
 @router.get("/topics/{topic_id}", response_model=TopicResponse)
-def get_topic(topic_id: int, db: Session = Depends(get_db)):
+def get_topic(
+    topic_id: int, 
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """
-    Retrieve a topic by its ID.
-
-    Args:
-        topic_id (int): The topic ID.
-        db (Session): Database session dependency.
-
-    Returns:
-        TopicResponse: The topic record.
+    Retrieve a specific topic by ID.
+    Requires authentication.
     """
     service = CurriculumService(db)
-    topic = service.get_topic(topic_id)
-    if not topic:
-        raise HTTPException(status_code=404, detail="Topic not found")
-    return topic
+    return service.get_topic(topic_id)
 
 # Learning Objective endpoints
 @router.post("/learning-objectives", response_model=LearningObjectiveResponse)
 def create_learning_objective(
     objective_data: LearningObjectiveCreate,
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
     """
     Create a new learning objective for a topic.
-
-    Args:
-        objective_data (LearningObjectiveCreate): The learning objective data to create.
-        db (Session): Database session dependency.
-
-    Returns:
-        LearningObjectiveResponse: The created learning objective.
+    Requires admin authentication.
     """
     service = CurriculumService(db)
     return service.create_learning_objective(objective_data)
 
 @router.get("/topics/{topic_id}/learning-objectives", response_model=List[LearningObjectiveResponse])
-def get_learning_objectives(topic_id: int, db: Session = Depends(get_db)):
+def get_learning_objectives(
+    topic_id: int, 
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """
-    Retrieve all learning objectives for a given topic.
-
-    Args:
-        topic_id (int): The topic ID.
-        db (Session): Database session dependency.
-
-    Returns:
-        List[LearningObjectiveResponse]: List of learning objectives.
+    Retrieve learning objectives for a specific topic.
+    Requires authentication.
     """
     service = CurriculumService(db)
     return service.get_learning_objectives(topic_id)
@@ -170,73 +135,52 @@ def get_learning_objectives(topic_id: int, db: Session = Depends(get_db)):
 def update_learning_objective(
     objective_id: int,
     objective_data: LearningObjectiveUpdate,
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
     """
-    Update a learning objective by its ID.
-
-    Args:
-        objective_id (int): The learning objective ID.
-        objective_data (LearningObjectiveUpdate): The updated objective data.
-        db (Session): Database session dependency.
-
-    Returns:
-        LearningObjectiveResponse: The updated learning objective.
+    Update a learning objective.
+    Requires admin authentication.
     """
     service = CurriculumService(db)
-    objective = service.update_learning_objective(objective_id, objective_data.objective)
-    if not objective:
-        raise HTTPException(status_code=404, detail="Learning objective not found")
-    return objective
+    return service.update_learning_objective(objective_id, objective_data)
 
 @router.delete("/learning-objectives/{objective_id}")
-def delete_learning_objective(objective_id: int, db: Session = Depends(get_db)):
+def delete_learning_objective(
+    objective_id: int, 
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
     """
-    Delete a learning objective by ID.
-    
-    Args:
-        objective_id: The ID of the learning objective to delete
-        db: Database session dependency
-        
-    Returns:
-        dict: Success message confirming deletion
-        
-    Raises:
-        HTTPException: 404 if learning objective not found
+    Delete a learning objective.
+    Requires admin authentication.
     """
     service = CurriculumService(db)
-    success = service.delete_learning_objective(objective_id)
-    if not success:
-        raise HTTPException(status_code=404, detail="Learning objective not found")
-    return {"message": "Learning objective deleted successfully"}
+    return service.delete_learning_objective(objective_id)
 
 # Content endpoints
 @router.post("/contents", response_model=ContentResponse)
-def create_content(content_data: ContentCreate, db: Session = Depends(get_db)):
+def create_content(
+    content_data: ContentCreate, 
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
     """
-    Create a new content item for a topic.
-    
-    Args:
-        content_data: Content creation data including topic_id and content_area
-        db: Database session dependency
-        
-    Returns:
-        ContentResponse: The created content item
+    Create a new content area for a topic.
+    Requires admin authentication.
     """
     service = CurriculumService(db)
     return service.create_content(content_data)
 
 @router.get("/topics/{topic_id}/contents", response_model=List[ContentResponse])
-def get_contents(topic_id: int, db: Session = Depends(get_db)):
+def get_contents(
+    topic_id: int, 
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """
-    Get all content items for a specific topic.
-    
-    Args:
-        topic_id: The ID of the topic to get contents for
-        db: Database session dependency
-        
-    Returns:
-        List[ContentResponse]: List of content items for the topic
+    Retrieve content areas for a specific topic.
+    Requires authentication.
     """
     service = CurriculumService(db)
     return service.get_contents(topic_id)
@@ -245,48 +189,28 @@ def get_contents(topic_id: int, db: Session = Depends(get_db)):
 def update_content(
     content_id: int,
     content_data: ContentUpdate,
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
     """
-    Update a content item by ID.
-    
-    Args:
-        content_id: The ID of the content item to update
-        content_data: Updated content data
-        db: Database session dependency
-        
-    Returns:
-        ContentResponse: The updated content item
-        
-    Raises:
-        HTTPException: 404 if content not found
+    Update a content area.
+    Requires admin authentication.
     """
     service = CurriculumService(db)
-    content = service.update_content(content_id, content_data.content_area)
-    if not content:
-        raise HTTPException(status_code=404, detail="Content not found")
-    return content
+    return service.update_content(content_id, content_data)
 
 @router.delete("/contents/{content_id}")
-def delete_content(content_id: int, db: Session = Depends(get_db)):
+def delete_content(
+    content_id: int, 
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
     """
-    Delete a content item by ID.
-    
-    Args:
-        content_id: The ID of the content item to delete
-        db: Database session dependency
-        
-    Returns:
-        dict: Success message confirming deletion
-        
-    Raises:
-        HTTPException: 404 if content not found
+    Delete a content area.
+    Requires admin authentication.
     """
     service = CurriculumService(db)
-    success = service.delete_content(content_id)
-    if not success:
-        raise HTTPException(status_code=404, detail="Content not found")
-    return {"message": "Content deleted successfully"}
+    return service.delete_content(content_id)
 
 # Teacher Activity endpoints
 # @router.post("/teacher-activities", response_model=TeacherActivityResponse)
@@ -426,19 +350,14 @@ def delete_content(content_id: int, db: Session = Depends(get_db)):
 
 # Curriculum ID endpoint (moved after specific routes to avoid conflicts)
 @router.get("/{curriculum_id}", response_model=CurriculumResponse)
-def get_curriculum(curriculum_id: int, db: Session = Depends(get_db)):
+def get_curriculum(
+    curriculum_id: int, 
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """
-    Retrieve a curriculum by its ID.
-
-    Args:
-        curriculum_id (int): The curriculum ID.
-        db (Session): Database session dependency.
-
-    Returns:
-        CurriculumResponse: The curriculum record.
+    Retrieve a specific curriculum by ID.
+    Requires authentication.
     """
     service = CurriculumService(db)
-    curriculum = service.get_curriculum(curriculum_id)
-    if not curriculum:
-        raise HTTPException(status_code=404, detail="Curriculum not found")
-    return curriculum 
+    return service.get_curriculum(curriculum_id) 

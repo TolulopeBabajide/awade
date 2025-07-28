@@ -324,6 +324,26 @@
         }
       }
     },
+    "/api/lesson-plans/ai/health": {
+      "get": {
+        "tags": [
+          "lesson-plans"
+        ],
+        "summary": "Check Ai Service Health",
+        "description": "Check the health and configuration of the AI service.\n\nReturns:\n    dict: AI service status and configuration details",
+        "operationId": "check_ai_service_health_api_lesson_plans_ai_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/lesson-plans/resources/{resource_id}/review": {
       "put": {
         "tags": [

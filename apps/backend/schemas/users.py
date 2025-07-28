@@ -2,21 +2,30 @@
 Pydantic schemas for user management API endpoints.
 """
 
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, validator
 from typing import List, Optional
 from datetime import datetime
 from enum import Enum
+import os
 
 class UserRole(str, Enum):
     """Enumeration of user roles in the system."""
     EDUCATOR = "educator"
     ADMIN = "admin"
 
+def get_password_min_length() -> int:
+    """Get minimum password length from environment variables."""
+    return int(os.getenv("PASSWORD_MIN_LENGTH", "8"))
+
+def get_password_max_length() -> int:
+    """Get maximum password length from environment variables."""
+    return int(os.getenv("PASSWORD_MAX_LENGTH", "128"))
+
 # Request schemas
 class UserCreate(BaseModel):
     """Schema for creating a new user account."""
     email: EmailStr = Field(..., description="User email address")
-    password: str = Field(..., min_length=8, description="User password (minimum 8 characters)")
+    password: str = Field(..., description="User password")
     full_name: str = Field(..., description="User's full name")
     role: UserRole = Field(UserRole.EDUCATOR, description="User role")
     country: str = Field(..., description="User's country")
@@ -25,6 +34,23 @@ class UserCreate(BaseModel):
     subjects: Optional[List[str]] = Field(None, description="List of subjects taught")
     grade_levels: Optional[List[str]] = Field(None, description="List of grade levels taught")
     languages_spoken: Optional[str] = Field(None, description="Comma-separated list of languages spoken")
+
+    @validator('password')
+    def validate_password(cls, v):
+        min_length = get_password_min_length()
+        max_length = get_password_max_length()
+        
+        if len(v) < min_length:
+            raise ValueError(f'Password must be at least {min_length} characters long')
+        if len(v) > max_length:
+            raise ValueError(f'Password must be no more than {max_length} characters long')
+        
+        # Check for common weak passwords
+        weak_passwords = ['password', '123456', 'qwerty', 'admin', 'letmein']
+        if v.lower() in weak_passwords:
+            raise ValueError('Password is too common. Please choose a stronger password.')
+        
+        return v
 
 class UserUpdate(BaseModel):
     """Schema for updating user profile information."""
@@ -88,4 +114,21 @@ class PasswordResetRequest(BaseModel):
 class PasswordReset(BaseModel):
     """Schema for password reset confirmation."""
     token: str = Field(..., description="Password reset token")
-    new_password: str = Field(..., min_length=8, description="New password (minimum 8 characters)") 
+    new_password: str = Field(..., description="New password")
+
+    @validator('new_password')
+    def validate_new_password(cls, v):
+        min_length = get_password_min_length()
+        max_length = get_password_max_length()
+        
+        if len(v) < min_length:
+            raise ValueError(f'Password must be at least {min_length} characters long')
+        if len(v) > max_length:
+            raise ValueError(f'Password must be no more than {max_length} characters long')
+        
+        # Check for common weak passwords
+        weak_passwords = ['password', '123456', 'qwerty', 'admin', 'letmein']
+        if v.lower() in weak_passwords:
+            raise ValueError('Password is too common. Please choose a stronger password.')
+        
+        return v 

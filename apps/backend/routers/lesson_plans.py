@@ -29,7 +29,8 @@ sys.path.extend([parent_dir, root_dir])
 
 # Import dependencies
 from apps.backend.database import get_db
-from apps.backend.models import LessonPlan, User, Topic, CurriculumStructure, Curriculum, Country, GradeLevel, Subject, LessonResource, LessonStatus
+from apps.backend.models import LessonPlan, User, Topic, CurriculumStructure, Curriculum, Country, GradeLevel, Subject, LessonResource, LessonStatus, UserRole
+from apps.backend.dependencies import get_current_user, require_educator, require_admin_or_educator, get_optional_current_user
 # Curriculum service removed - using separate curriculum router
 # from services.pdf_service import PDFService  # Temporarily disabled for contract testing
 from packages.ai.gpt_service import AwadeGPTService
@@ -98,73 +99,49 @@ def create_lesson_plan_response(lesson_plan, request_data=None):
         print(f"Error creating lesson plan response: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail="Failed to create lesson plan response. Please try again."
+            detail=f"Error creating lesson plan response: {str(e)}"
         )
 
 @router.post("/generate", response_model=LessonPlanResponse)
 async def generate_lesson_plan(
     request: LessonPlanCreate,
+    current_user: User = Depends(require_educator),
     db: Session = Depends(get_db)
 ):
     """
-    Generate a lesson plan based on the provided request data.
-    Fetches curriculum learning objectives and contents for the topic without passing to AI.
+    Generate a new lesson plan using AI.
+    Requires educator authentication.
     """
     try:
-        # Validate input data
-        if not request.topic or not request.subject or not request.grade_level:
-            raise HTTPException(
-                status_code=400, 
-                detail="Missing required fields: topic, subject, and grade_level are required"
-            )
+        # Use current user's ID as author
+        request.user_id = current_user.user_id
         
-        # Fetch curriculum learning objectives and contents for the topic
-        topic_obj = db.query(Topic).filter(Topic.topic_title == request.topic).first()
+        # Find topic based on curriculum structure
+        topic = db.query(Topic).join(CurriculumStructure).join(Subject).join(GradeLevel).filter(
+            Subject.name == request.subject,
+            GradeLevel.name == request.grade_level,
+            Topic.topic_title == request.topic
+        ).first()
         
-        if not topic_obj:
-            raise HTTPException(
-                status_code=404, 
-                detail=f"Topic '{request.topic}' not found in curriculum database. Please check the topic name or contact support."
-            )
+        if not topic:
+            raise HTTPException(status_code=404, detail="Topic not found in curriculum")
         
-        # Validate curriculum data availability
-        curriculum_learning_objectives = [obj.objective for obj in topic_obj.learning_objectives]
-        curriculum_contents = [content.content_area for content in topic_obj.topic_contents]
-        
-        if not curriculum_learning_objectives and not curriculum_contents:
-            raise HTTPException(
-                status_code=404,
-                detail=f"No curriculum data found for topic '{request.topic}'. This topic may not have learning objectives or content defined."
-            )
-        
-        # Create lesson plan in database
+        # Create lesson plan
         lesson_plan = LessonPlan(
-            topic_id=topic_obj.topic_id,
-            created_at=datetime.now()
+            topic_id=topic.topic_id,
+            created_at=datetime.utcnow()
         )
-        
         db.add(lesson_plan)
         db.commit()
         db.refresh(lesson_plan)
         
-        # Return enhanced response with curriculum data
         return create_lesson_plan_response(lesson_plan, request)
         
     except HTTPException:
-        # Re-raise HTTP exceptions as-is
         raise
     except Exception as e:
-        # Log the error for debugging
         print(f"Error generating lesson plan: {str(e)}")
-        
-        # Rollback database transaction if needed
-        db.rollback()
-        
-        # Return a user-friendly error message
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to generate lesson plan. Please try again or contact support if the problem persists."
-        )
+        raise HTTPException(status_code=500, detail=f"Error generating lesson plan: {str(e)}")
 
 @router.get("/", response_model=List[LessonPlanResponse])
 async def get_lesson_plans(
@@ -172,68 +149,40 @@ async def get_lesson_plans(
     limit: int = 100,
     subject: Optional[str] = None,
     grade_level: Optional[str] = None,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
-    Retrieve all lesson plans with optional filtering by subject and grade level.
-
-    Args:
-        skip (int): Number of records to skip.
-        limit (int): Maximum number of records to return.
-        subject (Optional[str]): Filter by subject.
-        grade_level (Optional[str]): Filter by grade level.
-        db (Session): Database session dependency.
-
-    Returns:
-        List[LessonPlanResponse]: List of lesson plans.
+    Get all lesson plans with optional filtering.
+    Requires authentication.
     """
     try:
         query = db.query(LessonPlan)
         
+        # Apply filters
         if subject:
-            query = query.filter(LessonPlan.subject.ilike(f"%{subject}%"))
+            query = query.join(Topic).join(CurriculumStructure).join(Subject).filter(Subject.name == subject)
         if grade_level:
-            query = query.filter(LessonPlan.grade_level == grade_level)
+            query = query.join(Topic).join(CurriculumStructure).join(GradeLevel).filter(GradeLevel.name == grade_level)
         
+        # Apply pagination
         lesson_plans = query.offset(skip).limit(limit).all()
         
-        # Convert to response models with curriculum data
-        responses = []
-        for plan in lesson_plans:
-            response = create_lesson_plan_response(plan)
-            responses.append(response)
+        return [create_lesson_plan_response(lesson_plan) for lesson_plan in lesson_plans]
         
-        return responses
     except Exception as e:
-        # Return mock data for contract testing when database is not available
-        return [
-            LessonPlanResponse(
-                lesson_id=1,
-                title="Sample Mathematics Lesson",
-                subject="Mathematics",
-                grade_level="Grade 4",
-                topic="Fractions",
-                author_id=1,
-                duration_minutes=45,
-                created_at=datetime.now(),
-                updated_at=datetime.now(),
-                status=LessonStatus.DRAFT,
-                curriculum_learning_objectives=["Understand basic fraction concepts", "Compare fractions", "Add simple fractions"],
-                curriculum_contents=["Fraction representation", "Fraction operations", "Real-world applications"]
-            )
-        ]
+        print(f"Error fetching lesson plans: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching lesson plans: {str(e)}")
 
 @router.get("/{lesson_id}", response_model=LessonPlanResponse)
-async def get_lesson_plan(lesson_id: int, db: Session = Depends(get_db)):
+async def get_lesson_plan(
+    lesson_id: int, 
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """
-    Retrieve a specific lesson plan by its ID.
-
-    Args:
-        lesson_id (int): The lesson plan ID.
-        db (Session): Database session dependency.
-
-    Returns:
-        LessonPlanResponse: The lesson plan record.
+    Get a specific lesson plan by ID.
+    Requires authentication.
     """
     try:
         lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_id).first()
@@ -241,278 +190,209 @@ async def get_lesson_plan(lesson_id: int, db: Session = Depends(get_db)):
             raise HTTPException(status_code=404, detail="Lesson plan not found")
         
         return create_lesson_plan_response(lesson_plan)
+        
+    except HTTPException:
+        raise
     except Exception as e:
-        # Return mock data for contract testing when database is not available
-        return LessonPlanResponse(
-            lesson_id=lesson_id,
-            title=f"Sample Lesson Plan {lesson_id}",
-            subject="Mathematics",
-            grade_level="Grade 4",
-            topic="Fractions",
-            author_id=1,
-            duration_minutes=45,
-            created_at=datetime.now(),
-            updated_at=datetime.now(),
-            status=LessonStatus.DRAFT,
-            curriculum_learning_objectives=["Understand basic fraction concepts", "Compare fractions", "Add simple fractions"],
-            curriculum_contents=["Fraction representation", "Fraction operations", "Real-world applications"]
-        )
+        print(f"Error fetching lesson plan: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching lesson plan: {str(e)}")
 
 @router.put("/{lesson_id}", response_model=LessonPlanResponse)
 async def update_lesson_plan(
     lesson_id: int,
     request: LessonPlanUpdate,
+    current_user: User = Depends(require_admin_or_educator),
     db: Session = Depends(get_db)
 ):
     """
-    Update a lesson plan by its ID.
-
-    Args:
-        lesson_id (int): The lesson plan ID.
-        request (LessonPlanUpdate): The updated lesson plan data.
-        db (Session): Database session dependency.
-
-    Returns:
-        LessonPlanResponse: The updated lesson plan.
+    Update a lesson plan.
+    Requires educator or admin authentication.
     """
     try:
         lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_id).first()
         if not lesson_plan:
             raise HTTPException(status_code=404, detail="Lesson plan not found")
         
-        # Update fields - Note: LessonPlan model only has topic_id and created_at
-        # Most fields are derived from the topic relationship
-        lesson_plan.updated_at = datetime.now()
+        # Check if user is admin or the lesson plan author
+        # Note: This is a simplified check - you might want to add author_id to LessonPlan model
+        if current_user.role != UserRole.ADMIN:
+            # For now, allow educators to edit any lesson plan
+            # In a more sophisticated system, you'd check if current_user is the author
+            pass
+        
+        # Update lesson plan fields
+        # Note: This is a placeholder - you'll need to add the fields you want to update
+        # For example: lesson_plan.title = request.title
+        
         db.commit()
         db.refresh(lesson_plan)
         
         return create_lesson_plan_response(lesson_plan)
+        
+    except HTTPException:
+        raise
     except Exception as e:
-        # Return mock data for contract testing when database is not available
-        return LessonPlanResponse(
-            lesson_id=lesson_id,
-            title=f"Updated Lesson Plan {lesson_id}",
-            subject="Mathematics",
-            grade_level="Grade 4",
-            topic="Fractions",
-            author_id=1,
-            duration_minutes=45,
-            created_at=datetime.now(),
-            updated_at=datetime.now(),
-            status=LessonStatus.DRAFT,
-            curriculum_learning_objectives=["Understand basic fraction concepts", "Compare fractions", "Add simple fractions"],
-            curriculum_contents=["Fraction representation", "Fraction operations", "Real-world applications"]
-        )
+        print(f"Error updating lesson plan: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error updating lesson plan: {str(e)}")
 
 @router.delete("/{lesson_id}")
-async def delete_lesson_plan(lesson_id: int, db: Session = Depends(get_db)):
+async def delete_lesson_plan(
+    lesson_id: int, 
+    current_user: User = Depends(require_admin_or_educator),
+    db: Session = Depends(get_db)
+):
     """
-    Delete a lesson plan by its ID.
-
-    Args:
-        lesson_id (int): The lesson plan ID.
-        db (Session): Database session dependency.
-
-    Returns:
-        dict: Message indicating whether the lesson plan was deleted.
+    Delete a lesson plan.
+    Requires educator or admin authentication.
     """
     try:
         lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_id).first()
         if not lesson_plan:
             raise HTTPException(status_code=404, detail="Lesson plan not found")
+        
+        # Check if user is admin or the lesson plan author
+        if current_user.role != UserRole.ADMIN:
+            # For now, allow educators to delete any lesson plan
+            # In a more sophisticated system, you'd check if current_user is the author
+            pass
         
         db.delete(lesson_plan)
         db.commit()
         
         return {"message": "Lesson plan deleted successfully"}
+        
+    except HTTPException:
+        raise
     except Exception as e:
-        # Return mock response for contract testing when database is not available
-        return {"message": f"Lesson plan {lesson_id} would be deleted", "status": "mock_deletion"}
+        print(f"Error deleting lesson plan: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error deleting lesson plan: {str(e)}")
 
 @router.post("/{lesson_id}/resources/generate", response_model=LessonResourceResponse)
 async def generate_lesson_resource(
     lesson_id: int,
     data: LessonResourceCreate,
+    current_user: User = Depends(require_educator),
     db: Session = Depends(get_db)
 ):
     """
-    Generate a comprehensive lesson resource using AwadeGPTService based on an existing lesson plan.
-
-    Args:
-        lesson_id (int): The lesson plan ID.
-        data (LessonResourceCreate): The lesson resource creation request.
-        db (Session): Database session dependency.
-
-    Returns:
-        LessonResourceResponse: The generated lesson resource.
+    Generate AI-powered lesson resources for a specific lesson plan.
+    Requires educator authentication.
     """
     try:
-        # Validate lesson plan exists
+        # Verify lesson plan exists
         lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_id).first()
         if not lesson_plan:
-            raise HTTPException(
-                status_code=404, 
-                detail=f"Lesson plan with ID {lesson_id} not found"
-            )
-
-        # Validate topic information exists
-        topic_info = lesson_plan.topic
-        if not topic_info:
-            raise HTTPException(
-                status_code=404, 
-                detail="Topic information not found for this lesson plan. The lesson plan may be corrupted."
-            )
+            raise HTTPException(status_code=404, detail="Lesson plan not found")
         
-        # Validate curriculum structure exists
-        if not topic_info.curriculum_structure:
-            raise HTTPException(
-                status_code=404,
-                detail="Curriculum structure not found for this topic. Please contact support."
-            )
+        # Initialize AI service
+        ai_service = AwadeGPTService()
         
-        # Validate subject and grade level exist
-        if not topic_info.curriculum_structure.subject or not topic_info.curriculum_structure.grade_level:
-            raise HTTPException(
-                status_code=404,
-                detail="Subject or grade level information missing for this topic."
-            )
+        # Generate AI content
+        ai_content = ai_service.generate_lesson_resource(
+            subject=data.subject,
+            grade_level=data.grade_level,
+            topic=data.topic,
+            context_input=data.context_input
+        )
         
-        try:
-            # Get curriculum data for the topic
-            learning_objectives = [obj.objective for obj in topic_info.learning_objectives]
-            topic_contents = [content.content_area for content in topic_info.topic_contents]
-            
-            # Get country from curriculum structure
-            country = "Nigeria"  # Default
-            if topic_info.curriculum_structure.curriculum:
-                country = topic_info.curriculum_structure.curriculum.country.country_name
-            
-            # Attempt AI service call with comprehensive data
-            gpt_service = AwadeGPTService()
-            ai_content = gpt_service.generate_lesson_resource(
-                subject=topic_info.curriculum_structure.subject.name,
-                grade=topic_info.curriculum_structure.grade_level.name,
-                topic=topic_info.topic_title,
-                objectives=learning_objectives,
-                duration=45,  # Default duration
-                context=data.context_input or f"Classroom in {country}"
-            )
-        except Exception as ai_error:
-            # Handle AI service failures
-            print(f"AI service error: {str(ai_error)}")
-            raise HTTPException(
-                status_code=503,
-                detail="AI service is currently unavailable. Please try again later."
-            )
-
         # Create lesson resource
         lesson_resource = LessonResource(
             lesson_plan_id=lesson_id,
-            user_id=data.user_id,
+            user_id=current_user.user_id,
             context_input=data.context_input,
             ai_generated_content=ai_content,
-            status="draft"
+            export_format=data.export_format,
+            status='draft',
+            created_at=datetime.utcnow()
         )
         
         db.add(lesson_resource)
         db.commit()
         db.refresh(lesson_resource)
         
-        return lesson_resource
+        return LessonResourceResponse(
+            resource_id=lesson_resource.lesson_resources_id,
+            lesson_plan_id=lesson_resource.lesson_plan_id,
+            user_id=lesson_resource.user_id,
+            context_input=lesson_resource.context_input,
+            ai_generated_content=lesson_resource.ai_generated_content,
+            user_edited_content=lesson_resource.user_edited_content,
+            export_format=lesson_resource.export_format,
+            status=lesson_resource.status,
+            created_at=lesson_resource.created_at
+        )
         
     except HTTPException:
-        # Re-raise HTTP exceptions as-is
         raise
     except Exception as e:
-        # Log the error for debugging
         print(f"Error generating lesson resource: {str(e)}")
-        
-        # Rollback database transaction if needed
-        db.rollback()
-        
-        # Return a user-friendly error message
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to generate lesson resource. Please try again or contact support if the problem persists."
-        )
+        raise HTTPException(status_code=500, detail=f"Error generating lesson resource: {str(e)}")
 
 @router.get("/ai/health")
 async def check_ai_service_health():
     """
-    Check the health and configuration of the AI service.
-    
-    Returns:
-        dict: AI service status and configuration details
+    Check AI service health.
+    Public endpoint - no authentication required.
     """
     try:
-        gpt_service = AwadeGPTService()
-        status = gpt_service.test_openai_connection()
+        ai_service = AwadeGPTService()
+        health_status = ai_service.check_health()
         return {
-            "status": "success",
-            "ai_service": status,
-            "timestamp": datetime.now().isoformat()
+            "status": "healthy" if health_status else "unhealthy",
+            "service": "AwadeGPTService",
+            "timestamp": datetime.utcnow().isoformat()
         }
     except Exception as e:
         return {
-            "status": "error",
+            "status": "unhealthy",
+            "service": "AwadeGPTService",
             "error": str(e),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.utcnow().isoformat()
         }
 
 @router.put("/resources/{resource_id}/review", response_model=LessonResourceResponse)
 async def review_lesson_resource(
     resource_id: int,
     data: LessonResourceUpdate,
+    current_user: User = Depends(require_educator),
     db: Session = Depends(get_db)
 ):
     """
-    Update the lesson resource with user-reviewed content (user_edited_content).
-
-    Args:
-        resource_id (int): The lesson resource ID.
-        data (LessonResourceUpdate): The reviewed content update request.
-        db (Session): Database session dependency.
-
-    Returns:
-        LessonResourceResponse: The updated lesson resource.
+    Review and update a lesson resource.
+    Requires educator authentication.
     """
     try:
-        # Validate input data
-        if not data.user_edited_content or data.user_edited_content.strip() == "":
-            raise HTTPException(
-                status_code=400,
-                detail="User edited content cannot be empty"
-            )
+        lesson_resource = db.query(LessonResource).filter(LessonResource.lesson_resources_id == resource_id).first()
+        if not lesson_resource:
+            raise HTTPException(status_code=404, detail="Lesson resource not found")
         
-        # Validate resource exists
-        resource = db.query(LessonResource).filter(LessonResource.lesson_resources_id == resource_id).first()
-        if not resource:
-            raise HTTPException(
-                status_code=404, 
-                detail=f"Lesson resource with ID {resource_id} not found"
-            )
+        # Check if user is the resource author or admin
+        if current_user.user_id != lesson_resource.user_id and current_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=403, detail="You can only review your own resources")
         
         # Update resource
-        resource.user_edited_content = data.user_edited_content
-        resource.status = "reviewed"
+        if data.user_edited_content is not None:
+            lesson_resource.user_edited_content = data.user_edited_content
+        if data.status is not None:
+            lesson_resource.status = data.status
         
         db.commit()
-        db.refresh(resource)
+        db.refresh(lesson_resource)
         
-        return resource
+        return LessonResourceResponse(
+            resource_id=lesson_resource.lesson_resources_id,
+            lesson_plan_id=lesson_resource.lesson_plan_id,
+            user_id=lesson_resource.user_id,
+            context_input=lesson_resource.context_input,
+            ai_generated_content=lesson_resource.ai_generated_content,
+            user_edited_content=lesson_resource.user_edited_content,
+            export_format=lesson_resource.export_format,
+            status=lesson_resource.status,
+            created_at=lesson_resource.created_at
+        )
         
     except HTTPException:
-        # Re-raise HTTP exceptions as-is
         raise
     except Exception as e:
-        # Log the error for debugging
-        print(f"Error updating lesson resource: {str(e)}")
-        
-        # Rollback database transaction if needed
-        db.rollback()
-        
-        # Return a user-friendly error message
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to update lesson resource. Please try again or contact support if the problem persists."
-        ) 
+        print(f"Error reviewing lesson resource: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error reviewing lesson resource: {str(e)}") 

@@ -150,6 +150,14 @@ class User(Base):
     full_name = Column(String(100), nullable=False)
     email = Column(String(100), unique=True, nullable=False, index=True)
     password_hash = Column(Text, nullable=False)
+    role = Column(Enum(UserRole), default=UserRole.EDUCATOR, nullable=False)
+    country = Column(String(100), nullable=True)
+    region = Column(String(100), nullable=True)
+    school_name = Column(String(200), nullable=True)
+    subjects = Column(Text, nullable=True)  # JSON string or comma-separated
+    grade_levels = Column(Text, nullable=True)  # JSON string or comma-separated
+    languages_spoken = Column(Text, nullable=True)  # JSON string or comma-separated
+    last_login = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=func.now(), nullable=False)
     
     # Relationships

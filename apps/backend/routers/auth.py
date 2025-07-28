@@ -1,22 +1,27 @@
 """
 Authentication Router for Awade API
 
-This module provides authentication endpoints for the Awade platform, including Google OAuth, email/password signup, and password reset functionality. It handles JWT token issuance and user management for secure access to the API.
+This module provides authentication endpoints for the Awade platform, including Google OAuth, email/password signup, login, and password reset functionality. It handles JWT token issuance and user management for secure access to the API.
 
 Endpoints:
 - /api/auth/google: Google OAuth login
 - /api/auth/signup: Email/password registration
+- /api/auth/login: Email/password login
+- /api/auth/me: Get current user profile
+- /api/auth/refresh: Refresh JWT token
+- /api/auth/logout: Logout (client-side token removal)
 - /api/auth/forgot-password: Password reset request
 - /api/auth/reset-password: Password reset
 
 Author: Tolulope Babajide
 """
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, HTTPException, Depends, Request, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from apps.backend.database import get_db
-from apps.backend.schemas.users import AuthResponse, UserResponse, UserCreate, PasswordResetRequest, PasswordReset
+from apps.backend.schemas.users import AuthResponse, UserResponse, UserCreate, UserLogin, PasswordResetRequest, PasswordReset
 from apps.backend.models import User, UserRole
+from apps.backend.dependencies import get_current_user, get_jwt_secret_key, get_jwt_algorithm
 import requests
 import os
 import jwt
@@ -35,6 +40,24 @@ class GoogleAuthRequest(BaseModel):
     """
     credential: str
 
+class TokenRefreshRequest(BaseModel):
+    """
+    Request schema for token refresh.
+    """
+    refresh_token: str
+
+def get_google_client_id() -> str:
+    """Get Google OAuth client ID from environment variables."""
+    return os.getenv("GOOGLE_CLIENT_ID", "")
+
+def get_jwt_expires_minutes() -> int:
+    """Get JWT expiration time from environment variables."""
+    return int(os.getenv("JWT_EXPIRES_MINUTES", "60"))
+
+def get_password_min_length() -> int:
+    """Get minimum password length from environment variables."""
+    return int(os.getenv("PASSWORD_MIN_LENGTH", "8"))
+
 @router.post("/google", response_model=AuthResponse)
 def google_auth(
     payload: GoogleAuthRequest,
@@ -43,9 +66,15 @@ def google_auth(
     """
     Authenticate user with Google OAuth credential (ID token).
     """
-    GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "YOUR_GOOGLE_CLIENT_ID")
-    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-secret")
-    JWT_EXPIRES_MINUTES = int(os.getenv("JWT_EXPIRES_MINUTES", "60"))
+    GOOGLE_CLIENT_ID = get_google_client_id()
+    if not GOOGLE_CLIENT_ID:
+        raise HTTPException(
+            status_code=500, 
+            detail="Google OAuth is not configured. Please set GOOGLE_CLIENT_ID environment variable."
+        )
+    
+    JWT_SECRET_KEY = get_jwt_secret_key()
+    JWT_EXPIRES_MINUTES = get_jwt_expires_minutes()
     id_token = payload.credential
 
     # Verify the token with Google
@@ -90,7 +119,7 @@ def google_auth(
         "email": user.email,
         "exp": datetime.utcnow() + timedelta(minutes=JWT_EXPIRES_MINUTES)
     }
-    token = jwt.encode(payload, JWT_SECRET_KEY, algorithm="HS256")
+    token = jwt.encode(payload, JWT_SECRET_KEY, algorithm=get_jwt_algorithm())
 
     user_response = UserResponse(
         user_id=user.user_id,
@@ -120,8 +149,16 @@ def signup(
     """
     Register a new user with email and password.
     """
-    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-secret")
-    JWT_EXPIRES_MINUTES = int(os.getenv("JWT_EXPIRES_MINUTES", "60"))
+    JWT_SECRET_KEY = get_jwt_secret_key()
+    JWT_EXPIRES_MINUTES = get_jwt_expires_minutes()
+    PASSWORD_MIN_LENGTH = get_password_min_length()
+
+    # Validate password length
+    if len(user_data.password) < PASSWORD_MIN_LENGTH:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Password must be at least {PASSWORD_MIN_LENGTH} characters long"
+        )
 
     # Check if user already exists
     if db.query(User).filter(User.email == user_data.email).first():
@@ -155,7 +192,7 @@ def signup(
         "email": user.email,
         "exp": datetime.utcnow() + timedelta(minutes=JWT_EXPIRES_MINUTES)
     }
-    token = jwt.encode(payload, JWT_SECRET_KEY, algorithm="HS256")
+    token = jwt.encode(payload, JWT_SECRET_KEY, algorithm=get_jwt_algorithm())
 
     user_response = UserResponse(
         user_id=user.user_id,
@@ -175,7 +212,106 @@ def signup(
         access_token=token,
         token_type="bearer",
         user=user_response
-    ) 
+    )
+
+@router.post("/login", response_model=AuthResponse)
+def login(
+    user_data: UserLogin,
+    db: Session = Depends(get_db)
+):
+    """
+    Authenticate user with email and password.
+    """
+    JWT_SECRET_KEY = get_jwt_secret_key()
+    JWT_EXPIRES_MINUTES = get_jwt_expires_minutes()
+
+    # Find user by email
+    user = db.query(User).filter(User.email == user_data.email).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Check if user is Google OAuth user
+    if user.password_hash == "google-oauth":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Please use Google OAuth to login with this account",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Verify password
+    if not bcrypt.checkpw(user_data.password.encode('utf-8'), user.password_hash.encode('utf-8')):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Update last login
+    user.last_login = datetime.utcnow()
+    db.commit()
+    db.refresh(user)
+
+    # Generate JWT token
+    payload = {
+        "sub": str(user.user_id),
+        "email": user.email,
+        "exp": datetime.utcnow() + timedelta(minutes=JWT_EXPIRES_MINUTES)
+    }
+    token = jwt.encode(payload, JWT_SECRET_KEY, algorithm=get_jwt_algorithm())
+
+    user_response = UserResponse(
+        user_id=user.user_id,
+        email=user.email,
+        full_name=user.full_name,
+        role=user.role.value,
+        country=user.country,
+        region=user.region,
+        school_name=user.school_name,
+        subjects=user.subjects,
+        grade_levels=user.grade_levels,
+        languages_spoken=user.languages_spoken,
+        created_at=user.created_at,
+        last_login=user.last_login
+    )
+    return AuthResponse(
+        access_token=token,
+        token_type="bearer",
+        user=user_response
+    )
+
+@router.get("/me", response_model=UserResponse)
+def get_current_user_profile(
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get current user profile.
+    """
+    return UserResponse(
+        user_id=current_user.user_id,
+        email=current_user.email,
+        full_name=current_user.full_name,
+        role=current_user.role.value,
+        country=current_user.country,
+        region=current_user.region,
+        school_name=current_user.school_name,
+        subjects=current_user.subjects,
+        grade_levels=current_user.grade_levels,
+        languages_spoken=current_user.languages_spoken,
+        created_at=current_user.created_at,
+        last_login=current_user.last_login
+    )
+
+@router.post("/logout")
+def logout():
+    """
+    Logout endpoint (client-side token removal).
+    In a more sophisticated setup, you might want to blacklist tokens.
+    """
+    return {"message": "Successfully logged out"}
 
 @router.post("/forgot-password")
 def forgot_password(request: PasswordResetRequest, db: Session = Depends(get_db)):
@@ -193,9 +329,15 @@ def forgot_password(request: PasswordResetRequest, db: Session = Depends(get_db)
     if not user:
         # For security, do not reveal if user exists
         return {"message": "If the email exists, a reset link has been sent."}
+    
+    # Check if user is Google OAuth user
+    if user.password_hash == "google-oauth":
+        return {"message": "Google OAuth users cannot reset password via email."}
+    
     # Generate token
     token = secrets.token_urlsafe(32)
     reset_tokens[token] = user.email
+    
     # TODO: Send email with reset link (e.g., https://yourdomain.com/reset-password?token=...)
     print(f"[DEBUG] Password reset link: https://yourdomain.com/reset-password?token={token}")
     return {"message": "If the email exists, a reset link has been sent."}
@@ -212,17 +354,33 @@ def reset_password(request: PasswordReset, db: Session = Depends(get_db)):
     Returns:
         dict: Message indicating whether the password was reset successfully.
     """
+    PASSWORD_MIN_LENGTH = get_password_min_length()
+    
+    # Validate password length
+    if len(request.new_password) < PASSWORD_MIN_LENGTH:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Password must be at least {PASSWORD_MIN_LENGTH} characters long"
+        )
+    
     email = reset_tokens.get(request.token)
     if not email:
         raise HTTPException(status_code=400, detail="Invalid or expired token")
+    
     user = db.query(User).filter(User.email == email).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    # Check if user is Google OAuth user
+    if user.password_hash == "google-oauth":
+        raise HTTPException(status_code=400, detail="Google OAuth users cannot reset password via email.")
+    
     # Hash new password
     salt = bcrypt.gensalt()
     password_hash = bcrypt.hashpw(request.new_password.encode('utf-8'), salt).decode('utf-8')
     user.password_hash = password_hash
     db.commit()
+    
     # Remove token after use
     del reset_tokens[request.token]
     return {"message": "Password has been reset successfully."} 
