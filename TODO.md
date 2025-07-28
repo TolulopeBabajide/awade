@@ -8,6 +8,7 @@
 - [x] **remove-schema-router-redundancy**: Remove redundant schemas and consolidate router logic with helper functions to reduce code duplication.
 - [x] **add-comprehensive-error-handling**: Add comprehensive error handling for curriculum mapping failures, database errors, validation errors, and AI service failures.
 - [x] **implement-comprehensive-lesson-resource-generation**: Implement GPT service for comprehensive lesson resource generation with curriculum alignment, local context integration, and structured JSON output including title header, learning objectives, lesson content, assessment, activities, key takeaways, related resources/projects, and references.
+- [x] **implement-real-openai-api-integration**: Implement real OpenAI API integration with GPT-4 model, environment variable configuration, comprehensive error handling, health check endpoints, and enhanced logging for production-ready AI service.
 
 ### In Progress 🔄
 - [ ] **update-api-docs-lesson-plan-curriculum-fields**: Update API documentation and response schema to reflect the new fields for objectives and contents in the lesson plan generation response.
@@ -16,11 +17,12 @@
 - [ ] Implement proper authentication and authorization for lesson plan endpoints
 - [ ] Add validation for curriculum data consistency
 - [ ] Create unit tests for curriculum mapping functionality
-- [ ] Add logging for curriculum data fetching operations
+- [x] **add-enhanced-logging-for-ai-service**: Add comprehensive logging for AI service operations including API calls, response validation, error handling, and performance monitoring.
 - [x] **fix-resource-generation-endpoint**: Fix resource generation endpoint to properly handle AI service integration with curriculum data extraction and local context support.
+- [x] **fix-prompt-template-json-formatting**: Fix prompt template JSON formatting issues and resolve curly brace conflicts for proper AI response generation.
 - [ ] Add proper error handling for missing topic relationships
 - [ ] Consider adding duration_minutes back to LessonPlanCreate schema if needed by frontend
-- [ ] Add structured logging instead of print statements
+- [x] **add-structured-logging**: Add structured logging instead of print statements with proper log levels, context information, and error tracking.
 - [ ] Implement retry logic for database operations
 - [ ] Add metrics and monitoring for error rates
 
@@ -45,7 +47,7 @@
 ## Documentation
 
 ### Pending ⏳
-- [ ] Update API documentation with new curriculum fields
+- [x] **update-api-documentation**: Update API documentation with new curriculum fields, AI service endpoints, and enhanced response schemas.
 - [ ] Create user guide for curriculum mapping feature
 - [ ] Document the curriculum data flow and relationships
 - [ ] Document error handling patterns and error codes
