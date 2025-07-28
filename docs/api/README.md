@@ -1,6 +1,6 @@
 # Awade API Documentation
 
-> **Last generated: 2025-07-28 23:59:10
+> **Last generated: 2025-07-28 23:59:38
 
 
 > **For detailed endpoint contracts and example payloads, see [Internal API Contracts](../internal/api-contracts.md).**
