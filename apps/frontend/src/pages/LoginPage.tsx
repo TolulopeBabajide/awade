@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function isAlphanumeric(str: string) {
   return /^[a-zA-Z0-9]+$/.test(str);
 }
 
 const LoginPage: React.FC = () => {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -33,8 +34,8 @@ const LoginPage: React.FC = () => {
       const data = await res.json();
       localStorage.setItem('access_token', data.access_token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      // TODO: Redirect or update UI as needed
       console.log('Authenticated user:', data.user);
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Google login failed');
     }
@@ -121,8 +122,8 @@ const LoginPage: React.FC = () => {
       const data = await res.json();
       localStorage.setItem('access_token', data.access_token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      // TODO: Redirect or update UI as needed
       console.log('Logged in user:', data.user);
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Login failed');
     } finally {
