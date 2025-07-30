@@ -2790,14 +2790,14 @@
         }
       }
     },
-    "/contexts/": {
+    "/api/contexts/": {
       "post": {
         "tags": [
           "contexts"
         ],
         "summary": "Create Context",
         "description": "Create a new context for a lesson plan.",
-        "operationId": "create_context_contexts__post",
+        "operationId": "create_context_api_contexts__post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -2832,14 +2832,14 @@
         }
       }
     },
-    "/contexts/lesson-plan/{lesson_plan_id}": {
+    "/api/contexts/lesson-plan/{lesson_plan_id}": {
       "get": {
         "tags": [
           "contexts"
         ],
         "summary": "Get Contexts By Lesson Plan",
         "description": "Get all contexts for a specific lesson plan.",
-        "operationId": "get_contexts_by_lesson_plan_contexts_lesson_plan__lesson_plan_id__get",
+        "operationId": "get_contexts_by_lesson_plan_api_contexts_lesson_plan__lesson_plan_id__get",
         "parameters": [
           {
             "name": "lesson_plan_id",
@@ -2875,14 +2875,14 @@
         }
       }
     },
-    "/contexts/{context_id}": {
+    "/api/contexts/{context_id}": {
       "get": {
         "tags": [
           "contexts"
         ],
         "summary": "Get Context",
         "description": "Get a specific context by ID.",
-        "operationId": "get_context_contexts__context_id__get",
+        "operationId": "get_context_api_contexts__context_id__get",
         "parameters": [
           {
             "name": "context_id",
@@ -2923,7 +2923,7 @@
         ],
         "summary": "Update Context",
         "description": "Update a specific context.",
-        "operationId": "update_context_contexts__context_id__put",
+        "operationId": "update_context_api_contexts__context_id__put",
         "parameters": [
           {
             "name": "context_id",
@@ -2974,7 +2974,7 @@
         ],
         "summary": "Delete Context",
         "description": "Delete a specific context.",
-        "operationId": "delete_context_contexts__context_id__delete",
+        "operationId": "delete_context_api_contexts__context_id__delete",
         "parameters": [
           {
             "name": "context_id",
@@ -3003,14 +3003,14 @@
         }
       }
     },
-    "/contexts/lesson-plan/{lesson_plan_id}/submit": {
+    "/api/contexts/lesson-plan/{lesson_plan_id}/submit": {
       "post": {
         "tags": [
           "contexts"
         ],
         "summary": "Submit Context",
         "description": "Submit context for a lesson plan (frontend endpoint).",
-        "operationId": "submit_context_contexts_lesson_plan__lesson_plan_id__submit_post",
+        "operationId": "submit_context_api_contexts_lesson_plan__lesson_plan_id__submit_post",
         "parameters": [
           {
             "name": "lesson_plan_id",
