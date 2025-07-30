@@ -2,36 +2,47 @@
 
 ## 🚀 Getting Started
 
-Welcome to the Awade development environment! This guide will help you set up and contribute to the AI-powered educator support platform.
+Welcome to the Awade development environment! This guide will help you set up and contribute to the AI-powered educator support platform for African teachers.
 
 ## 📋 Prerequisites
 
 ### Required Software
 - **Python 3.10+** - Backend development
-- **Node.js 18+** - Frontend development (optional)
+- **Node.js 18+** - Frontend development
 - **PostgreSQL 13+** - Database
 - **Git** - Version control
-- **Docker** - Containerization (recommended)
+- **Docker & Docker Compose** - Containerization (recommended)
 
 ### Recommended Tools
-- **Cursor** - AI-assisted development
-- **VS Code** - Code editor
-- **Postman** - API testing
+- **Cursor** - AI-assisted development with MCP integration
+- **VS Code** - Code editor with Python/TypeScript extensions
+- **Postman** - API testing and documentation
 - **pgAdmin** - Database management
+- **DBeaver** - Universal database tool
 
 ## 🛠️ Quick Setup
 
-### Option 1: Automated Setup (Recommended)
+### Option 1: Docker Setup (Recommended)
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/awade.git
+git clone https://github.com/TolulopeBabajide/awade.git
 cd awade
 
-# Run the setup script
-./scripts/setup.sh
+# Copy environment file
+cp env.example .env
+# Edit .env with your configuration
+
+# Start all services
+docker-compose up -d
+
+# Check services are running
+docker-compose ps
+
+# View logs
+docker-compose logs -f
 ```
 
-### Option 2: Manual Setup
+### Option 2: Local Development Setup
 ```bash
 # 1. Set up Python environment
 python3 -m venv venv
@@ -42,7 +53,7 @@ pip install -r apps/backend/requirements.txt
 cp env.example .env
 # Edit .env with your actual values
 
-# 3. Set up frontend (optional)
+# 3. Set up frontend
 cd apps/frontend
 npm install
 cd ../..
@@ -51,13 +62,14 @@ cd ../..
 # Install and start PostgreSQL service
 ```
 
-### Option 3: Docker Setup
+### Option 3: Hybrid Setup (Backend Local, Frontend Docker)
 ```bash
-# Start all services
-docker-compose up -d
+# Start only database and frontend with Docker
+docker-compose up postgres frontend -d
 
-# View logs
-docker-compose logs -f
+# Run backend locally
+cd apps/backend
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ## 🏗️ Project Structure
@@ -67,10 +79,18 @@ awade/
 ├── apps/
 │   ├── backend/           # FastAPI application
 │   │   ├── main.py       # Application entry point
+│   │   ├── models.py     # SQLAlchemy models
+│   │   ├── routers/      # API route handlers
+│   │   ├── schemas/      # Pydantic schemas
+│   │   ├── services/     # Business logic
 │   │   └── requirements.txt
 │   └── frontend/         # React frontend
-│       ├── package.json
-│       └── src/
+│       ├── src/
+│       │   ├── components/  # React components
+│       │   ├── pages/       # Page components
+│       │   ├── services/    # API services
+│       │   └── types/       # TypeScript types
+│       └── package.json
 ├── packages/
 │   ├── ai/              # AI logic and prompts
 │   │   ├── prompts.py   # Prompt templates
@@ -78,7 +98,11 @@ awade/
 │   └── shared/          # Shared models
 │       └── models.py    # Pydantic models
 ├── docs/                # Documentation
+│   ├── public/         # Public documentation
+│   └── private/        # Internal documentation
 ├── scripts/             # Automation scripts
+│   ├── public/         # Public scripts
+│   └── private/        # Internal scripts
 ├── docker-compose.yml   # Development environment
 └── README.md
 ```
@@ -92,7 +116,9 @@ source venv/bin/activate
 
 # Set environment variables
 export OPENAI_API_KEY="your_api_key"
-export DATABASE_URL="postgres://user:pass@localhost:5432/awade"
+export DATABASE_URL="postgresql://awade_user:password@localhost:5432/awade"
+export SECRET_KEY="your_secret_key"
+export JWT_ALGORITHM="HS256"
 ```
 
 ### 2. Backend Development
@@ -135,11 +161,24 @@ uvicorn apps.backend.main:app --reload --host 0.0.0.0 --port 8000
 open http://localhost:8000/docs
 ```
 
+#### Database Initialization
+```bash
+# Initialize database with tables and seed data
+cd apps/backend
+python init_db.py
+
+# Or using Docker
+docker-compose exec backend python init_db.py
+```
+
 #### Contract Testing
 The flat import structure enables contract testing to work properly:
 ```bash
 # Run contract tests (will start backend automatically)
-python scripts/contract_testing.py --base-url http://localhost:8000 --start-server --save
+python scripts/private/contract_testing.py --base-url http://localhost:8000 --start-server --save
+
+# Run with Docker
+python scripts/private/contract_testing.py --base-url http://localhost:8000 --start-containers --save
 ```
 
 ### 3. Frontend Development
@@ -147,6 +186,9 @@ python scripts/contract_testing.py --base-url http://localhost:8000 --start-serv
 # Start the frontend development server
 cd apps/frontend
 npm run dev
+
+# Or using Docker
+docker-compose up frontend
 
 # Access the application
 open http://localhost:3000
@@ -159,6 +201,9 @@ docker-compose exec postgres psql -U awade_user -d awade
 
 # Using local PostgreSQL
 psql -U awade_user -d awade
+
+# Create test user
+python scripts/private/create_test_user.py
 ```
 
 ## 🧪 Testing
@@ -166,14 +211,17 @@ psql -U awade_user -d awade
 ### Backend Testing
 ```bash
 # Install test dependencies
-pip install pytest pytest-asyncio
+pip install pytest pytest-asyncio pytest-cov
 
 # Run tests
 cd apps/backend
 pytest
 
 # Run with coverage
-pytest --cov=.
+pytest --cov=. --cov-report=html
+
+# Run specific test file
+pytest test_curriculum_mapping.py -v
 ```
 
 ### Frontend Testing
@@ -184,13 +232,28 @@ npm test
 
 # Run with coverage
 npm run test:coverage
+
+# Run in watch mode
+npm test -- --watch
 ```
 
 ### Integration Testing
 ```bash
 # Test the complete stack
 docker-compose up -d
-./scripts/test-integration.sh
+python scripts/private/contract_testing.py --start-containers --save
+
+# Test curriculum mapping
+python scripts/private/test_curriculum_mapping.py
+```
+
+### Documentation Testing
+```bash
+# Check documentation coverage
+python scripts/private/doc_coverage.py --save
+
+# Generate coverage dashboard
+python scripts/private/generate_coverage_dashboard.py
 ```
 
 ## 📝 Code Standards
@@ -200,16 +263,23 @@ docker-compose up -d
 - **Linter**: Flake8
 - **Type Checking**: mypy
 - **Docstrings**: Google style
+- **Import Sorting**: isort
 
 ```bash
 # Format code
 black apps/backend/ packages/
+
+# Sort imports
+isort apps/backend/ packages/
 
 # Lint code
 flake8 apps/backend/ packages/
 
 # Type check
 mypy apps/backend/ packages/
+
+# Run all checks
+./scripts/private/lint_backend.sh
 ```
 
 ### JavaScript/TypeScript (Frontend)
@@ -226,6 +296,9 @@ npm run lint
 
 # Type check
 npm run type-check
+
+# Fix linting issues
+npm run lint:fix
 ```
 
 ### Git Workflow
@@ -241,6 +314,14 @@ git commit -m "feat: add new lesson planning feature"
 git push origin feature/your-feature-name
 ```
 
+### Pre-commit Hooks
+The project includes pre-commit hooks that automatically:
+- Check documentation coverage
+- Validate markdown syntax
+- Verify environment files
+- Run MCP health checks
+- Validate API contracts
+
 ## 🔍 Debugging
 
 ### Backend Debugging
@@ -253,6 +334,9 @@ import pdb; pdb.set_trace()
 
 # Check logs
 tail -f logs/awade.log
+
+# Debug with Docker
+docker-compose logs backend -f
 ```
 
 ### Frontend Debugging
@@ -262,15 +346,35 @@ tail -f logs/awade.log
 
 # Use browser dev tools
 # Check console for errors
+
+# Debug with Docker
+docker-compose logs frontend -f
 ```
 
 ### Database Debugging
 ```bash
 # Check database connection
-python -c "from sqlalchemy import create_engine; print(create_engine('postgres://...').connect())"
+python -c "from sqlalchemy import create_engine; print(create_engine('postgresql://...').connect())"
 
 # View database logs
 docker-compose logs postgres
+
+# Check database schema
+docker-compose exec postgres psql -U awade_user -d awade -c "\dt"
+```
+
+### API Debugging
+```bash
+# Test API endpoints
+curl http://localhost:8000/health
+
+# Check OpenAPI spec
+curl http://localhost:8000/openapi.json
+
+# Test authentication
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "test@awade.com", "password": "testpass123"}'
 ```
 
 ## 🚀 Deployment
@@ -281,7 +385,7 @@ docker-compose logs postgres
 docker-compose up --build
 
 # Or deploy to development server
-./scripts/deploy-dev.sh
+./scripts/public/deploy-dev.sh
 ```
 
 ### Production Deployment
@@ -293,7 +397,22 @@ export ENVIRONMENT=production
 docker-compose -f docker-compose.prod.yml build
 
 # Deploy to production
-./scripts/deploy-prod.sh
+./scripts/public/deploy-prod.sh
+```
+
+### Health Checks
+```bash
+# Check all services
+docker-compose ps
+
+# Check API health
+curl http://localhost:8000/health
+
+# Check frontend
+curl http://localhost:3000
+
+# Check database
+docker-compose exec postgres pg_isready -U awade_user
 ```
 
 ## 📚 MCP Integration
@@ -301,41 +420,68 @@ docker-compose -f docker-compose.prod.yml build
 The project includes MCP (Model Context Protocol) servers for AI-assisted development:
 
 ### Available MCP Servers
-- **`openapi`** - API documentation
-- **`docs`** - Project documentation
-- **`code`** - Source code access
-- **`db`** - Database schema
-- **`env`** - Environment configuration
+- **`openapi`** - API documentation and schema
+- **`docs`** - Project documentation access
+- **`code`** - Source code analysis and generation
+- **`db`** - Database schema and queries
+- **`env`** - Environment configuration management
+- **`internal`** - Internal documentation
+- **`external`** - External documentation
+- **`design`** - Design brief and specifications
 
 ### Using MCP with Cursor
-1. Install the MCP extension
+1. Install the MCP extension in Cursor
 2. Configure `mcp.json` in your workspace
 3. Use AI assistants for development tasks
+4. Access project context through MCP servers
 
-## 🐘 Database Initialization
+### MCP Health Check
+```bash
+# Check MCP server status
+python scripts/private/mcp_health_check.py
 
-To set up the initial database tables and seed users:
+# View MCP configuration
+cat mcp.json
+```
 
-1. **Set environment variables in your `.env` file** for:
-   - `ADMIN_EMAIL`, `ADMIN_PASSWORD` (for initial admin user)
-   - `EDUCATOR_EMAIL`, `EDUCATOR_PASSWORD` (for initial educator user)
-   > These are ONLY used for the first database initialization and are not used for production authentication.
+## 🐘 Database Management
 
-2. **Install backend dependencies** (includes bcrypt for secure password hashing):
-   ```bash
-   pip install -r apps/backend/requirements.txt
-   ```
+### Initial Setup
+```bash
+# 1. Set environment variables in your `.env` file:
+ADMIN_EMAIL=admin@awade.org
+ADMIN_PASSWORD=secure_password
+EDUCATOR_EMAIL=teacher@awade.org
+EDUCATOR_PASSWORD=secure_password
 
-3. **Run the database initialization script:**
-   ```bash
-   python apps/backend/init_db.py
-   ```
-   This will create all tables and seed the admin/educator users securely.
+# 2. Initialize database
+python apps/backend/init_db.py
 
-4. **Security Note:**
-   - No credentials are hardcoded in the codebase.
-   - Passwords are hashed using bcrypt.
-   - You can safely change/remove these environment variables after initialization.
+# 3. Create test user (optional)
+python scripts/private/create_test_user.py
+```
+
+### Database Migrations
+```bash
+# Run migrations
+cd apps/backend
+alembic upgrade head
+
+# Create new migration
+alembic revision --autogenerate -m "description"
+
+# Check migration status
+alembic current
+```
+
+### Database Backup
+```bash
+# Create backup
+docker-compose exec postgres pg_dump -U awade_user awade > backup_$(date +%Y%m%d_%H%M%S).sql
+
+# Restore backup
+docker-compose exec -T postgres psql -U awade_user awade < backup_file.sql
+```
 
 ## 🤝 Contributing
 
@@ -358,6 +504,14 @@ To set up the initial database tables and seed users:
 - [ ] Documentation is updated
 - [ ] Security considerations addressed
 - [ ] Performance impact assessed
+- [ ] API contracts are maintained
+- [ ] Documentation coverage is maintained
+
+### Documentation Standards
+- [ ] All new functions have docstrings
+- [ ] API endpoints are documented
+- [ ] Configuration changes are documented
+- [ ] User-facing changes have user guide updates
 
 ## 🆘 Troubleshooting
 
@@ -383,32 +537,14 @@ cd /path/to/awade
 uvicorn apps.backend.main:app --reload
 
 # Option 3: Use the contract testing script
-python scripts/contract_testing.py --start-server
-```
-
-**Problem**: `ImportError: attempted relative import beyond top-level package`
-```bash
-# Error when running scripts that import backend modules
-python scripts/some_script.py  # ❌ Fails
-```
-
-**Solution**: The backend automatically adjusts Python path. If you're writing new scripts, use flat imports:
-```python
-# ✅ Correct
-import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), 'apps', 'backend'))
-from models import LessonPlan
-
-# ❌ Avoid
-from apps.backend.models import LessonPlan
+python scripts/private/contract_testing.py --start-server
 ```
 
 #### Contract Testing Issues
 
 **Problem**: Contract tests fail with import errors
 ```bash
-python scripts/contract_testing.py --start-server  # ❌ Fails
+python scripts/private/contract_testing.py --start-server  # ❌ Fails
 ```
 
 **Solution**: 
@@ -420,27 +556,6 @@ python scripts/contract_testing.py --start-server  # ❌ Fails
    uvicorn main:app --reload  # Should work
    ```
 
-#### Python Import Errors
-```bash
-# Ensure virtual environment is activated
-source venv/bin/activate
-
-# Check Python path
-export PYTHONPATH="${PYTHONPATH}:$(pwd)"
-```
-
-#### Database Connection Issues
-```bash
-# Check PostgreSQL is running
-sudo systemctl status postgresql
-
-# Verify connection string
-echo $DATABASE_URL
-
-# Test connection
-psql $DATABASE_URL -c "SELECT 1;"
-```
-
 #### Docker Issues
 ```bash
 # Clean up containers
@@ -451,11 +566,40 @@ docker-compose build --no-cache
 
 # Check logs
 docker-compose logs
+
+# Reset database
+docker-compose down -v
+docker-compose up postgres -d
+python apps/backend/init_db.py
+```
+
+#### Database Connection Issues
+```bash
+# Check PostgreSQL is running
+docker-compose ps postgres
+
+# Verify connection string
+echo $DATABASE_URL
+
+# Test connection
+docker-compose exec postgres psql -U awade_user -d awade -c "SELECT 1;"
+```
+
+#### Frontend Build Issues
+```bash
+# Clear node modules
+cd apps/frontend
+rm -rf node_modules package-lock.json
+npm install
+
+# Rebuild with Docker
+docker-compose build frontend --no-cache
 ```
 
 ## 📞 Getting Help
 
 - **Documentation**: Check the [docs](../README.md) directory
+- **API Documentation**: [API Guide](../api/README.md)
 - **Issues**: Create a GitHub issue
 - **Discussions**: Use GitHub Discussions
 - **Security**: Follow [security guidelines](../../SECURITY.md)
@@ -463,6 +607,14 @@ docker-compose logs
 ## 🔗 Useful Links
 
 - [API Documentation](../api/README.md)
+- [Frontend Development](frontend.md)
+- [Contributing Guidelines](contributing.md)
 - [Design Brief](../../awade_design_brief.md)
 - [Security Guidelines](../../SECURITY.md)
-- [Contributing Guidelines](contributing.md) 
+- [Deployment Guide](../deployment/README.md)
+
+---
+
+*This development guide is maintained by the Awade development team. For questions or suggestions, please create an issue or pull request.*
+
+*Last updated: January 2024* 
