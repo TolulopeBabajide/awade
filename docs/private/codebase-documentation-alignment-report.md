@@ -112,9 +112,9 @@ This report analyzes the alignment between the current documentation and the act
 **Note**: Training Module components have been removed from MVP scope and documentation updated accordingly.
 
 **Export Functionality**
-- ❌ **Documentation shows**: Different export endpoint structure
+- ✅ **Documentation updated**: Added export endpoint documentation
 - ✅ **Implementation**: `/api/lesson-plans/resources/{resource_id}/export`
-- **Impact**: Frontend may use wrong endpoint
+- **Impact**: Documentation now matches implementation
 
 ### 4. Database Schema Alignment
 
@@ -185,10 +185,9 @@ This report analyzes the alignment between the current documentation and the act
 - **Impact**: API consumers now have accurate documentation
 
 ### 3. Export Endpoint Documentation
-**Severity**: Medium
-- **Issue**: Export endpoint documentation doesn't match implementation
-- **Impact**: Frontend may use wrong endpoint
-- **Action**: Update documentation to match actual endpoint
+**Status**: ✅ Resolved
+- **Action**: Added export endpoint documentation to match implementation
+- **Impact**: Documentation now includes all lesson resource endpoints
 
 ## ✅ Strengths
 
@@ -229,11 +228,12 @@ This report analyzes the alignment between the current documentation and the act
    # Added correct fields: subject, grade_level, topic, user_id ✅
    ```
 
-3. **Fix Export Endpoint Documentation**
+3. **Export Endpoint Documentation Added**
    ```markdown
-   # Update docs/public/api/README.md
-   # Change from: /api/lesson-plans/{id}/export/pdf
-   # To: /api/lesson-plans/resources/{resource_id}/export
+   # Added to docs/public/api/README.md:
+   # - POST /api/lesson-plans/resources/{resource_id}/export
+   # - Lesson resource endpoints documentation
+   # - Export format examples and curl commands
    ```
 
 ### Medium Priority Actions

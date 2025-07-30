@@ -16,8 +16,8 @@
 
 #### 2. API Schema Mismatches (Medium Priority)
 - **LessonPlanRequest**: ✅ **Resolved** - Updated to match LessonPlanCreate schema
-- **Export Endpoint**: Documentation shows wrong path
-  - Documented: `/api/lesson-plans/{id}/export/pdf`
+- **Export Endpoint**: ✅ **Resolved** - Added export endpoint documentation
+  - Documented: `/api/lesson-plans/resources/{resource_id}/export`
   - Implemented: `/api/lesson-plans/resources/{resource_id}/export`
 
 #### 3. Documentation Gaps (Medium Priority)
@@ -27,12 +27,12 @@
 
 ## 🚨 Immediate Action Items
 
-### 1. Fix API Documentation (Medium Priority)
+### 1. ✅ API Documentation Updated (Resolved)
 ```markdown
-# Update docs/public/api/README.md
+# Updated docs/public/api/README.md
 - ✅ Training module endpoints removed (not part of MVP)
-- Update lesson plan request schema to match implementation
-- Fix export endpoint documentation
+- ✅ Lesson plan request schema updated to match implementation
+- ✅ Export endpoint documentation added
 ```
 
 ### 2. ✅ Schema Documentation Updated (Resolved)
@@ -72,11 +72,12 @@
 # - TrainingModule model documentation
 ```
 
-### 2. Update Export Endpoint Documentation
+### 2. ✅ Export Endpoint Documentation Added
 ```markdown
-# Change in docs/public/api/README.md:
-# FROM: /api/lesson-plans/{id}/export/pdf
-# TO: /api/lesson-plans/resources/{resource_id}/export
+# Added to docs/public/api/README.md:
+# - POST /api/lesson-plans/resources/{resource_id}/export
+# - Lesson resource endpoints documentation
+# - Export format examples and curl commands
 ```
 
 ### 3. ✅ Lesson Plan Request Schema Fixed

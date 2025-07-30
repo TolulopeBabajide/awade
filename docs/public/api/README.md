@@ -85,6 +85,60 @@ Retrieve a specific lesson plan by ID.
 **Parameters:**
 - `plan_id` (string): Unique lesson plan identifier
 
+### Lesson Resources
+
+#### POST `/api/lesson-plans/{lesson_id}/resources/generate`
+Generate AI-powered lesson resources for a lesson plan.
+
+**Request Body:**
+```json
+{
+  "lesson_plan_id": 123,
+  "user_id": 1,
+  "context_input": "Optional context for AI generation",
+  "export_format": "pdf"
+}
+```
+
+#### GET `/api/lesson-plans/{lesson_id}/resources`
+Retrieve all lesson resources for a lesson plan.
+
+#### GET `/api/lesson-plans/resources/{resource_id}`
+Retrieve a specific lesson resource by ID.
+
+#### PUT `/api/lesson-plans/resources/{resource_id}/review`
+Update a lesson resource with user edits.
+
+**Request Body:**
+```json
+{
+  "user_edited_content": "Updated lesson content",
+  "status": "reviewed"
+}
+```
+
+#### POST `/api/lesson-plans/resources/{resource_id}/export`
+Export a lesson resource to PDF or DOCX format.
+
+**Request Body:**
+```json
+{
+  "format": "pdf"
+}
+```
+
+**Response:** Binary file (PDF or DOCX)
+
+**Supported Formats:**
+- `pdf`: Portable Document Format
+- `docx`: Microsoft Word Document
+
+**Headers:**
+```
+Content-Disposition: attachment; filename="lesson-resource-{resource_id}.pdf"
+Content-Type: application/pdf
+```
+
 ### Curriculum Management
 
 #### GET `/api/curriculum/map`
@@ -172,6 +226,38 @@ Authorization: Basic <base64-encoded-credentials>
   status: "draft" | "edited" | "reviewed" | "exported" | "archived",
   curriculum_learning_objectives: string[],
   curriculum_contents: string[]
+}
+
+### LessonResourceCreate
+```typescript
+{
+  lesson_plan_id: number,
+  user_id: number,
+  context_input?: string,
+  export_format?: string
+}
+```
+
+### LessonResourceUpdate
+```typescript
+{
+  user_edited_content: string,
+  status?: string
+}
+```
+
+### LessonResourceResponse
+```typescript
+{
+  lesson_resources_id: number,
+  lesson_plan_id: number,
+  user_id: number,
+  context_input?: string,
+  ai_generated_content?: string,
+  user_edited_content?: string,
+  export_format?: string,
+  status: string,
+  created_at: string
 }
 ```
 
@@ -376,6 +462,17 @@ curl -X POST "http://localhost:8000/api/lesson-plans/generate" \
     "topic": "Photosynthesis",
     "user_id": 1
   }'
+```
+
+### Export a Lesson Resource to PDF
+```bash
+curl -X POST "http://localhost:8000/api/lesson-plans/resources/123/export" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{
+    "format": "pdf"
+  }' \
+  --output lesson-resource-123.pdf
 ```
 
 
