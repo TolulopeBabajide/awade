@@ -87,4 +87,7 @@ build/
 
 # Temporary files
 *.tmp
-*.temp 
+*.temp
+
+# Private scripts (contain sensitive operations and development tools)
+scripts/private/ 
