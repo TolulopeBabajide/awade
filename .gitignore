@@ -90,4 +90,7 @@ build/
 *.temp
 
 # Private scripts (contain sensitive operations and development tools)
-scripts/private/ 
+scripts/private/
+
+# Internal documentation (contains sensitive information)
+docs/internal/ 

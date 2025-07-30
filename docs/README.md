@@ -1,83 +1,135 @@
 # Awade Documentation
 
-Welcome to the comprehensive documentation for the Awade platform - an AI-powered educator support platform for African teachers.
+This directory contains all documentation for the Awade project, organized by visibility and purpose.
 
-## 📚 Documentation Structure
+## 📁 Directory Structure
 
-### 🚀 Getting Started
-- **[Project Overview](../README.md)** - Main project introduction and setup
-- **[Design Brief](../awade_design_brief.md)** - Comprehensive MVP design and architecture
-- **[Security Guidelines](../SECURITY.md)** - Security best practices and configuration
+### `public/` - Public Documentation
+These documents are safe for public consumption and help users and developers understand the platform.
 
-### 🛠️ Development
-- **[API Documentation](api/README.md)** - Backend API reference and examples
-- **[Development Guide](development/README.md)** - Development setup and workflows
-- **[Deployment Guide](deployment/README.md)** - Production deployment instructions
+**Available Documentation:**
+- **`external/`** - User-facing documentation
+  - `user-guide.md` - Complete user guide for the platform
+  - `faq.md` - Frequently asked questions
+- **`user-guide/`** - Role-specific user guides
+  - `teacher.md` - Guide for teachers
+  - `admin.md` - Guide for administrators
+  - `lesson-planning.md` - Lesson planning guide
+  - `analytics.md` - Analytics and reporting guide
+  - `user-management.md` - User management guide
+  - `training.md` - Training and professional development guide
+- **`api/`** - API documentation
+  - `README.md` - API overview and getting started
+  - `database.md` - Database schema documentation
+  - `ai-integration.md` - AI integration guide
+- **`development/`** - Development documentation
+  - `README.md` - Development setup and guidelines
+  - `contributing.md` - Contribution guidelines
+  - `frontend.md` - Frontend development guide
+- **`deployment/`** - Deployment documentation
+  - `README.md` - Deployment guide
 
-### 📖 User Guides
-- **[Teacher Guide](user-guide/teacher.md)** - How teachers can use Awade
-- **[Administrator Guide](user-guide/admin.md)** - School administrator features
-- **[Training Modules](user-guide/training.md)** - Professional development resources
+### `private/` - Private Documentation ⚠️
+These documents contain sensitive information, internal architecture details, and development specifications that should not be exposed publicly.
 
-### 🔧 Technical Reference
-- **[AI Integration](api/ai-integration.md)** - How AI is used in the platform
-- **[Database Schema](api/database.md)** - Database structure and relationships
-- **[Frontend Architecture](development/frontend.md)** - React/HTML frontend details
-- **[Lesson Plan Architecture](internal/lesson-plan-architecture.md)** - End-to-end lesson plan feature architecture with 6-section structure
-- **[API Contracts](internal/api-contracts.md)** - Detailed API specifications and contracts
+**Private Documentation (Internal Use Only):**
+- **`authentication-authorization.md`** - Internal auth system details
+- **`requirements.md`** - Detailed project requirements and specifications
+- **`security-guidelines.md`** - Internal security protocols and guidelines
+- **`lesson-plan-architecture.md`** - Internal lesson plan system architecture
+- **`project-workflow.md`** - Internal development workflow
+- **`curriculum-mapping-system.md`** - Internal curriculum system details
+- **`erd-structure.md`** - Database entity relationship diagrams
+- **`curriculum-database-guide.md`** - Internal database guide
+- **`api-contracts.md`** - Internal API contract specifications
+- **`contract-testing.md`** - Internal testing protocols
+- **`testing.md`** - Internal testing guidelines
+- **`schema-fixes-summary.md`** - Internal schema change documentation
+- **`curriculum-mapping-acceptance-criteria.md`** - Internal acceptance criteria
+- **`documentation-coverage-summary.md`** - Internal documentation analysis
+- **`doc-coverage.md`** - Internal documentation coverage metrics
 
-## 🎯 Quick Links
+## 🚨 Security Notice
 
-### For Developers
-- [Development Setup](development/README.md)
-- [API Reference](api/README.md)
-- [Contributing Guidelines](development/contributing.md)
+**Never commit private documentation to public repositories!** These documents may contain:
+- Internal system architecture details
+- Security protocols and guidelines
+- Database schemas and relationships
+- API contract specifications
+- Development workflow details
+- Testing strategies and acceptance criteria
 
-### For Teachers
-- [Getting Started Guide](user-guide/teacher.md)
-- [Lesson Planning Tutorial](user-guide/lesson-planning.md) - Learn to create 6-section lesson plans
-- [Training Modules](user-guide/training.md)
+## 📖 Documentation Guidelines
 
-### For Administrators
-- [School Setup](user-guide/admin.md)
-- [User Management](user-guide/user-management.md)
-- [Analytics Dashboard](user-guide/analytics.md)
+### For Public Documentation
+- **User-focused**: Write for end users and external developers
+- **Clear and concise**: Use simple language and examples
+- **Comprehensive**: Cover all necessary topics for public use
+- **Up-to-date**: Keep documentation current with the codebase
 
-## 🔍 Documentation Features
+### For Private Documentation
+- **Internal use only**: Never expose to public repositories
+- **Detailed specifications**: Include technical details and architecture
+- **Security-conscious**: Include security guidelines and protocols
+- **Development-focused**: Include workflow and testing details
 
-### MCP Integration
-This documentation is accessible through MCP servers:
-- **`docs`** - All markdown documentation
-- **`design`** - Design briefs and specifications
-- **`code`** - Source code files
-- **`openapi`** - API specifications
+## 🔒 Access Control
 
-### Search and Navigation
-- Use the table of contents for quick navigation
-- Search functionality available in most documentation tools
-- Cross-references between related documents
+### Public Documentation
+- ✅ Available to all users and developers
+- ✅ Can be referenced in public repositories
+- ✅ Safe for external sharing and collaboration
+
+### Private Documentation
+- 🔒 Internal use only
+- 🔒 Protected by `.gitignore`
+- 🔒 Contains sensitive information
+- 🔒 Should be stored in private repositories or secure locations
 
 ## 📝 Contributing to Documentation
 
-### Adding New Documentation
-1. Create markdown files in the appropriate directory
-2. Follow the existing naming conventions
-3. Update this index file with new links
-4. Ensure proper formatting and structure
+When adding new documentation:
 
-### Documentation Standards
-- Use clear, concise language
-- Include code examples where relevant
-- Add screenshots for UI-related content
-- Keep information up-to-date with code changes
+1. **Determine visibility**:
+   - **Public**: User guides, API docs, development setup
+   - **Private**: Internal architecture, security, testing details
 
-## 🆘 Getting Help
+2. **Place in appropriate directory**:
+   - Public docs → `docs/public/`
+   - Private docs → `docs/private/`
 
-- **Technical Issues**: Check the [Development Guide](development/README.md)
-- **API Questions**: Refer to [API Documentation](api/README.md)
-- **Security Concerns**: Review [Security Guidelines](../SECURITY.md)
-- **Feature Requests**: See [Design Brief](../awade_design_brief.md)
+3. **Follow guidelines**:
+   - Use clear, consistent formatting
+   - Include examples where helpful
+   - Keep documentation current
 
----
+4. **Security considerations**:
+   - Never include hardcoded secrets
+   - Use placeholder examples
+   - Review for sensitive information before committing
 
-*Last updated: January 2025* 
+## 🛠️ Documentation Tools
+
+- **Coverage Analysis**: Use `scripts/private/doc_coverage.py` to analyze documentation coverage
+- **API Documentation**: Auto-generated from OpenAPI specifications
+- **Markdown Linting**: Ensure consistent formatting
+- **Link Validation**: Check for broken links and references
+
+## 📚 Documentation Standards
+
+### Markdown Guidelines
+- Use consistent heading structure
+- Include table of contents for long documents
+- Use code blocks with language specification
+- Include examples and screenshots where helpful
+
+### File Naming
+- Use kebab-case for file names
+- Include descriptive names
+- Group related documentation in subdirectories
+
+### Content Organization
+- Start with overview and purpose
+- Include step-by-step instructions
+- Provide troubleshooting sections
+- Include references and links 
