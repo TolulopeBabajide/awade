@@ -67,7 +67,20 @@ class Curriculum(Base):
     curriculum_structures = relationship("CurriculumStructure", back_populates="curriculum", cascade="all, delete-orphan")
 
 class GradeLevel(Base):
-    """Grade levels table."""
+    """
+    Grade levels table for educational curriculum organization.
+    
+    This table stores the different grade levels supported by the platform,
+    from primary to secondary education. Each grade level can be associated
+    with multiple curriculum structures and subjects.
+    
+    Attributes:
+        grade_level_id: Primary key for the grade level
+        name: Human-readable grade level name (e.g., "Grade 5", "JSS 1")
+        
+    Relationships:
+        curriculum_structures: One-to-many relationship with curriculum structures
+    """
     __tablename__ = 'grade_levels'
     
     grade_level_id = Column(Integer, primary_key=True, autoincrement=True)
@@ -77,7 +90,20 @@ class GradeLevel(Base):
     curriculum_structures = relationship("CurriculumStructure", back_populates="grade_level")
 
 class Subject(Base):
-    """Subjects table."""
+    """
+    Subjects table for educational curriculum organization.
+    
+    This table stores the different academic subjects supported by the platform,
+    such as Mathematics, Science, English, etc. Each subject can be taught
+    across multiple grade levels and curriculum structures.
+    
+    Attributes:
+        subject_id: Primary key for the subject
+        name: Human-readable subject name (e.g., "Mathematics", "Science")
+        
+    Relationships:
+        curriculum_structures: One-to-many relationship with curriculum structures
+    """
     __tablename__ = 'subjects'
     
     subject_id = Column(Integer, primary_key=True, autoincrement=True)

@@ -24,7 +24,16 @@ def get_jwt_secret_key() -> str:
     return os.getenv("JWT_SECRET_KEY", "dev-secret")
 
 def get_jwt_algorithm() -> str:
-    """Get JWT algorithm."""
+    """
+    Get JWT algorithm for token signing and verification.
+    
+    Returns:
+        str: The JWT algorithm used for token operations (currently "HS256")
+        
+    Note:
+        This function returns a hardcoded algorithm for consistency.
+        In production, this could be made configurable via environment variables.
+    """
     return "HS256"
 
 def verify_jwt_token(token: str) -> dict:
