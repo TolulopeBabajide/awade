@@ -120,8 +120,7 @@ Located at `contracts/api-contracts.json`, this file defines:
 - **Delete Lesson Plan** - DELETE `/api/lesson-plans/{id}`
 
 ### **Training Module APIs**
-- **Get Training Modules** - GET `/api/training-modules`
-- **Get Module Details** - GET `/api/training-modules/{id}`
+- **Note**: Training module endpoints removed from MVP scope
 - **Update Progress** - POST `/api/user-progress`
 - **Get Progress** - GET `/api/user-progress`
 

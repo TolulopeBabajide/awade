@@ -143,30 +143,7 @@ Retrieve all available grade levels.
 #### POST `/api/curriculum/standards`
 Add new curriculum standards.
 
-### Training Modules
 
-#### GET `/api/training-modules`
-Retrieve all available training modules.
-
-**Response:**
-```json
-[
-  {
-    "id": "tm_001",
-    "title": "Effective Classroom Management",
-    "description": "Learn strategies for maintaining an engaging classroom",
-    "duration": 15,
-    "category": "Classroom Management",
-    "language": "en",
-    "is_offline": true,
-    "objectives": ["Understand key concepts", "Apply new knowledge"],
-    "steps": ["Introduction", "Main content", "Practice", "Reflection"]
-  }
-]
-```
-
-#### GET `/api/training-modules/{module_id}`
-Retrieve a specific training module by ID.
 
 ## 🔐 Authentication
 
@@ -227,22 +204,7 @@ Authorization: Basic <base64-encoded-credentials>
 }
 ```
 
-### TrainingModule
-```typescript
-{
-  id: string,
-  title: string,
-  description: string,
-  duration: number,
-  category: "Classroom Management" | "Pedagogy" | "Technology Integration" | "Assessment" | "Cultural Relevance" | "Special Needs" | "Leadership",
-  language: Language,
-  is_offline: boolean,
-  objectives: string[],
-  steps: string[],
-  created_at: string,
-  completion_rate?: number
-}
-```
+
 
 ## 🚨 Error Handling
 
@@ -446,11 +408,7 @@ curl -X POST "http://localhost:8000/api/lesson-plans/generate" \
   }'
 ```
 
-### Get All Training Modules
-```bash
-curl -X GET "http://localhost:8000/api/training-modules" \
-  -H "Accept: application/json"
-```
+
 
 ## 🔗 Related Documentation
 

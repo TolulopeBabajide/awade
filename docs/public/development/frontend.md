@@ -42,15 +42,7 @@ interface LessonPlanForm {
   language: string;
 }
 
-// Training Module Components
-interface TrainingModule {
-  id: string;
-  title: string;
-  description: string;
-  duration: number;
-  category: string;
-  content: ModuleContent[];
-}
+// Note: Training Module components removed from MVP scope
 
 // User Profile Components
 interface UserProfile {
@@ -73,7 +65,6 @@ App
 ├── Pages
 │   ├── Dashboard
 │   ├── LessonPlanner
-│   ├── TrainingModules
 │   ├── Profile
 │   └── Settings
 └── Shared Components
@@ -127,12 +118,7 @@ interface LessonPlanContext {
   error: string | null;
 }
 
-// Training Context
-interface TrainingContext {
-  modules: TrainingModule[];
-  progress: UserProgress[];
-  currentModule: TrainingModule | null;
-}
+// Note: Training Context removed from MVP scope
 ```
 
 ### Data Flow
@@ -280,11 +266,11 @@ test('submits lesson plan form', async () => {
 ```typescript
 // Lazy load components
 const LessonPlanner = lazy(() => import('./pages/LessonPlanner'));
-const TrainingModules = lazy(() => import('./pages/TrainingModules'));
+// Note: TrainingModules component removed from MVP scope
 
 // Route-based code splitting
 <Route path="/lesson-planner" element={<LessonPlanner />} />
-<Route path="/training" element={<TrainingModules />} />
+{/* Note: Training route removed from MVP scope */}
 ```
 
 ### Performance Features
