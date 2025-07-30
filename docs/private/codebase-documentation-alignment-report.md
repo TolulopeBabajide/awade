@@ -86,12 +86,10 @@ This report analyzes the alignment between the current documentation and the act
 
 **Note**: TrainingModule model has been removed from MVP scope and documentation updated accordingly.
 
-**LessonPlanRequest Schema**
-- ❌ **Documented fields not in implementation**:
-  - `local_context` (not in LessonPlanCreate schema)
-  - `language` (not in LessonPlanCreate schema)
-  - `cultural_context` (not in LessonPlanCreate schema)
-  - `objectives` (not in LessonPlanCreate schema)
+**LessonPlanCreate Schema**
+- ✅ **Documentation updated to match implementation**:
+  - Removed `local_context`, `language`, `cultural_context`, `objectives`
+  - Added correct fields: `subject`, `grade_level`, `topic`, `user_id`
 
 ### 3. Frontend-Backend Alignment
 
@@ -182,10 +180,9 @@ This report analyzes the alignment between the current documentation and the act
 - **Impact**: Documentation now accurately reflects MVP implementation
 
 ### 2. Lesson Plan Request Schema
-**Severity**: Medium
-- **Issue**: Documented request schema doesn't match implementation
-- **Impact**: API consumers may send wrong data
-- **Action**: Update documentation to match actual schema
+**Status**: ✅ Resolved
+- **Action**: Updated documentation to match actual LessonPlanCreate schema
+- **Impact**: API consumers now have accurate documentation
 
 ### 3. Export Endpoint Documentation
 **Severity**: Medium
@@ -221,14 +218,15 @@ This report analyzes the alignment between the current documentation and the act
    # Documentation updated to reflect current implementation
    ```
 
-2. **Update Lesson Plan Request Documentation**
+2. **Lesson Plan Request Documentation Updated**
    ```markdown
-   # Update docs/public/api/README.md
-   # Remove fields not in implementation:
-   # - local_context
-   # - language  
-   # - cultural_context
-   # - objectives
+   # Updated docs/public/api/README.md
+   # Removed fields not in implementation:
+   # - local_context ✅
+   # - language ✅
+   # - cultural_context ✅
+   # - objectives ✅
+   # Added correct fields: subject, grade_level, topic, user_id ✅
    ```
 
 3. **Fix Export Endpoint Documentation**

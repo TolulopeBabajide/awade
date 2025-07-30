@@ -15,8 +15,7 @@
 - **Impact**: Documentation now accurately reflects MVP implementation
 
 #### 2. API Schema Mismatches (Medium Priority)
-- **LessonPlanRequest**: Documented fields not in implementation
-  - `local_context`, `language`, `cultural_context`, `objectives`
+- **LessonPlanRequest**: ✅ **Resolved** - Updated to match LessonPlanCreate schema
 - **Export Endpoint**: Documentation shows wrong path
   - Documented: `/api/lesson-plans/{id}/export/pdf`
   - Implemented: `/api/lesson-plans/resources/{resource_id}/export`
@@ -36,14 +35,15 @@
 - Fix export endpoint documentation
 ```
 
-### 2. Update Schema Documentation (Medium Priority)
+### 2. ✅ Schema Documentation Updated (Resolved)
 ```python
-# Update LessonPlanCreate schema documentation
-# Remove fields not in implementation:
-# - local_context
-# - language
-# - cultural_context  
-# - objectives
+# Updated LessonPlanCreate schema documentation
+# Removed fields not in implementation:
+# - local_context ✅
+# - language ✅
+# - cultural_context ✅
+# - objectives ✅
+# Added correct fields: subject, grade_level, topic, user_id ✅
 ```
 
 ### 3. Expand Placeholder Content (Medium Priority)
@@ -79,14 +79,15 @@
 # TO: /api/lesson-plans/resources/{resource_id}/export
 ```
 
-### 3. Fix Lesson Plan Request Schema
+### 3. ✅ Lesson Plan Request Schema Fixed
 ```markdown
-# Update in docs/public/api/README.md:
-# Remove fields not in LessonPlanCreate:
-# - local_context
-# - language
-# - cultural_context
-# - objectives
+# Updated in docs/public/api/README.md:
+# Removed fields not in LessonPlanCreate:
+# - local_context ✅
+# - language ✅
+# - cultural_context ✅
+# - objectives ✅
+# Added correct fields: subject, grade_level, topic, user_id ✅
 ```
 
 ## 📈 Success Metrics

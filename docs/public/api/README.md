@@ -40,13 +40,7 @@ Generate an AI-powered lesson plan with 6-section structure.
   "subject": "Mathematics",
   "grade_level": "Grade 5",
   "topic": "Fractions and Decimals",
-  "objectives": ["Understand fraction-decimal relationships"], // Optional
-  "duration_minutes": 45,
-  "local_context": "Rural school with limited resources, students familiar with local market activities",
-  "language": "en",
-  "cultural_context": "African",
-  "country": "Nigeria",
-  "author_id": 1
+  "user_id": 1
 }
 ```
 
@@ -67,25 +61,7 @@ Generate an AI-powered lesson plan with 6-section structure.
 }
 ```
 
-#### GET `/api/lesson-plans/{id}/detailed`
-Retrieve a detailed lesson plan with all 6 sections.
 
-**Response:**
-```json
-{
-  "lesson_id": 123,
-  "title": "Mathematics: Fractions and Decimals",
-  "subject": "Mathematics",
-  "grade_level": "Grade 5",
-  "topic": "Fractions and Decimals",
-  "learning_objectives": "1. Students will understand fraction-decimal relationships\n2. Students will apply concepts using local market examples",
-  "local_context": "Integrates local market activities, uses available resources like fruits and vegetables",
-  "core_content": "Main concepts and knowledge breakdown...",
-  "activities": "3-5 engaging activities with local resources...",
-  "quiz": "5-8 assessment questions with answer key...",
-  "related_projects": "2-3 community-linked projects..."
-}
-```
 
 #### GET `/api/lesson-plans`
 Retrieve all saved lesson plans.
@@ -156,19 +132,13 @@ Authorization: Basic <base64-encoded-credentials>
 
 ## 📊 Data Models
 
-### LessonPlanRequest
+### LessonPlanCreate
 ```typescript
 {
-  subject: "Mathematics" | "Science" | "English" | "History" | "Geography" | "Civics" | "Art" | "Music" | "Physical Education" | "Technology",
-  grade_level: "Grade 1" | "Grade 2" | "Grade 3" | "Grade 4" | "Grade 5" | "Grade 6" | "Grade 7" | "Grade 8" | "Grade 9" | "Grade 10" | "Grade 11" | "Grade 12",
-  topic: string,
-  objectives?: string[], // Optional - AI can generate these
-  duration_minutes: number, // 15-120 minutes
-  local_context?: string, // Local environment, resources, community context
-  language: "en" | "fr" | "sw" | "yo" | "ig" | "ha",
-  cultural_context?: string,
-  country: string,
-  author_id: number
+  subject: string, // Subject area (e.g., Mathematics, Science)
+  grade_level: string, // Grade level (e.g., Grade 4, Grade 7)
+  topic: string, // Specific topic within the subject (e.g., Fractions, Photosynthesis)
+  user_id: number // User ID of the lesson plan author
 }
 ```
 
@@ -188,19 +158,20 @@ Authorization: Basic <base64-encoded-credentials>
   status: "draft" | "published" | "archived"
 }
 
-// Detailed Lesson Plan (6 sections)
+// Lesson Plan Response (matches actual implementation)
 {
   lesson_id: number,
   title: string,
   subject: string,
   grade_level: string,
   topic: string,
-  learning_objectives: string, // AI-generated section
-  local_context: string,       // AI-generated section
-  core_content: string,        // AI-generated section
-  activities: string,          // AI-generated section
-  quiz: string,               // AI-generated section
-  related_projects: string    // AI-generated section
+  author_id: number,
+  duration_minutes: number,
+  created_at: string,
+  updated_at: string,
+  status: "draft" | "edited" | "reviewed" | "exported" | "archived",
+  curriculum_learning_objectives: string[],
+  curriculum_contents: string[]
 }
 ```
 
@@ -401,10 +372,9 @@ curl -X POST "http://localhost:8000/api/lesson-plans/generate" \
   -H "Content-Type: application/json" \
   -d '{
     "subject": "Science",
-    "grade": "Grade 6",
-    "objectives": ["Understand photosynthesis", "Identify plant parts"],
-    "duration": 60,
-    "language": "en"
+    "grade_level": "Grade 6",
+    "topic": "Photosynthesis",
+    "user_id": 1
   }'
 ```
 
