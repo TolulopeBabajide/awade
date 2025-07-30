@@ -1,0 +1,59 @@
+# Docker Compose configuration for Awade Backend Services Only
+# Frontend should be run locally with: npm run dev
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: awade-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-awade}
+      POSTGRES_USER: ${POSTGRES_USER:-awade_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-awade_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-awade_user} -d ${POSTGRES_DB:-awade}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Awade Backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: awade-backend
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-awade_user}:${POSTGRES_PASSWORD:-awade_password}@postgres:5432/${POSTGRES_DB:-awade}
+      - DEBUG=${DEBUG:-True}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - SECRET_KEY=${SECRET_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_EXPIRES_MINUTES=${JWT_EXPIRES_MINUTES:-60}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./apps/backend:/app/apps/backend
+      - ./packages:/app/packages
+      - ./scripts:/app/scripts
+    command: uvicorn apps.backend.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: awade-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data: 

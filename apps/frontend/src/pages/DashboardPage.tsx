@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import apiService from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 const teachingStyles = ['Lesson', 'Project', 'Discussion'];
 const languages = ['English', 'French', 'Swahili'];
@@ -7,6 +9,7 @@ const aiSuggestedTopics = ['Fractions', 'Geometry', 'Measurements', 'Algebra', '
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [countries, setCountries] = useState<any[]>([]);
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [curriculums, setCurriculums] = useState<any[]>([]);
@@ -26,20 +29,95 @@ const DashboardPage: React.FC = () => {
   const [selectedTopic, setSelectedTopic] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string>('');
+  const [lessonPlans, setLessonPlans] = useState<any[]>([]);
+  const [lessonResources, setLessonResources] = useState<any[]>([]);
 
   // Fetch countries on mount
   useEffect(() => {
-    fetch('/api/countries/')
-      .then(res => res.json())
-      .then(setCountries);
-  }, []);
+    const loadCountries = async () => {
+      // Only load if user is authenticated
+      if (!user) {
+        return;
+      }
+      
+      try {
+        const response = await apiService.getCountries();
+        if (response.data) {
+          setCountries(response.data);
+        } else if (response.error) {
+          console.error('Error loading countries:', response.error);
+          setError(response.error);
+        }
+      } catch (err: any) {
+        console.error('Error fetching countries:', err);
+        setError('Failed to load countries');
+      }
+    };
+
+    loadCountries();
+  }, [user]); // Add user as dependency
+
+  // Load lesson plans and resources
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      // Only load if user is authenticated
+      if (!user) {
+        return;
+      }
+      
+      try {
+        // Load lesson plans
+        const plansResponse = await apiService.getLessonPlans();
+        if (plansResponse.data) {
+          setLessonPlans(plansResponse.data);
+        } else if (plansResponse.error) {
+          console.error('Error loading lesson plans:', plansResponse.error);
+        }
+
+        // For now, we'll use placeholder data for lesson resources
+        // In a real implementation, we'd have an endpoint to get all resources
+        setLessonResources([
+          {
+            lesson_resources_id: 1,
+            lesson_plan_id: 1,
+            title: 'Fractions Resource',
+            format: 'PDF',
+            status: 'Generated',
+            description: 'Fraction Worksheets'
+          },
+          {
+            lesson_resources_id: 2,
+            lesson_plan_id: 1,
+            title: 'Geometry Resource',
+            format: 'DOCX',
+            status: 'Generated',
+            description: 'Geometry Video'
+          }
+        ]);
+      } catch (err: any) {
+        console.error('Error loading dashboard data:', err);
+      }
+    };
+
+    loadDashboardData();
+  }, [user]); // Add user as dependency
 
   // Fetch curriculums when country changes
   useEffect(() => {
     if (selectedCountry) {
-      fetch(`/api/curriculum?country_id=${selectedCountry}`)
-        .then(res => res.json())
-        .then(setCurriculums);
+      apiService.getCurriculums(parseInt(selectedCountry))
+        .then(response => {
+          if (response.data) {
+            setCurriculums(response.data);
+          } else if (response.error) {
+            console.error('Error fetching curriculums:', response.error);
+            setError('Failed to load curriculums');
+          }
+        })
+        .catch(err => {
+          console.error('Error fetching curriculums:', err);
+          setError('Failed to load curriculums');
+        });
     } else {
       setCurriculums([]);
     }
@@ -53,24 +131,41 @@ const DashboardPage: React.FC = () => {
   // Fetch subjects and grade levels when a curriculum is selected
   useEffect(() => {
     if (selectedCurriculum) {
-      // Fetch subjects for the selected curriculum
-      fetch(`/api/curriculum-structures?curricula_id=${selectedCurriculum}`)
-        .then(res => res.json())
-        .then(structures => {
-          // Extract unique subject and grade level IDs
-          const subjectIds = Array.from(new Set(structures.map((s: any) => s.subject_id)));
-          const gradeLevelIds = Array.from(new Set(structures.map((s: any) => s.grade_level_id)));
+      // Fetch curriculum structures for the selected curriculum
+      apiService.getCurriculumStructures(parseInt(selectedCurriculum))
+        .then(response => {
+          if (response.data) {
+            const structures = response.data;
+            // Extract unique subject and grade level IDs
+            const subjectIds = Array.from(new Set(structures.map((s: any) => s.subject_id)));
+            const gradeLevelIds = Array.from(new Set(structures.map((s: any) => s.grade_level_id)));
 
-          // Fetch subject details
-          Promise.all([
-            fetch('/api/subjects/').then(res => res.json()),
-            fetch('/api/grade-levels/').then(res => res.json())
-          ]).then(([allSubjects, allGrades]) => {
-            setSubjects(allSubjects.filter((s: any) => subjectIds.includes(s.subject_id)));
-            setGradeLevels(allGrades.filter((g: any) => gradeLevelIds.includes(g.grade_level_id)));
-            setSelectedSubject('');
-            setSelectedGradeLevel('');
-          });
+            // Fetch subject and grade level details
+            Promise.all([
+              apiService.getSubjects(),
+              apiService.getGradeLevels()
+            ]).then(([subjectsResponse, gradesResponse]) => {
+              if (subjectsResponse.data && gradesResponse.data) {
+                setSubjects(subjectsResponse.data.filter((s: any) => subjectIds.includes(s.subject_id)));
+                setGradeLevels(gradesResponse.data.filter((g: any) => gradeLevelIds.includes(g.grade_level_id)));
+                setSelectedSubject('');
+                setSelectedGradeLevel('');
+              } else {
+                console.error('Error fetching subjects/grade levels:', subjectsResponse.error || gradesResponse.error);
+                setError('Failed to load subjects and grade levels');
+              }
+            }).catch(err => {
+              console.error('Error fetching subjects/grade levels:', err);
+              setError('Failed to load subjects and grade levels');
+            });
+          } else if (response.error) {
+            console.error('Error fetching curriculum structures:', response.error);
+            setError('Failed to load curriculum structures');
+          }
+        })
+        .catch(err => {
+          console.error('Error fetching curriculum structures:', err);
+          setError('Failed to load curriculum structures');
         });
     } else {
       setSubjects([]);
@@ -130,28 +225,21 @@ const DashboardPage: React.FC = () => {
         subject: subjectName,
         grade_level: gradeLevelName,
         topic: form.topic.trim(),
-        user_id: 1, // TODO: Get from authentication context
+        user_id: user?.user_id || 1,
       };
 
-      const response = await fetch('/api/lesson-plans/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
+      const response = await apiService.generateLessonPlan(requestBody);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+      if (response.error) {
+        throw new Error(response.error);
       }
 
-      const data = await response.json();
-      
-      // Navigate to lesson plan detail page with the generated data
-      navigate(`/lesson-plans/${data.lesson_id}`, { 
-        state: { lessonPlanData: data } 
-      });
+      if (response.data) {
+        // Navigate to lesson plan detail page with the generated data
+        navigate(`/lesson-plans/${response.data.lesson_id}`, { 
+          state: { lessonPlanData: response.data } 
+        });
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to generate lesson plan. Please try again.');
       console.error(err);
@@ -178,26 +266,35 @@ const DashboardPage: React.FC = () => {
           <button className="w-full text-left px-4 py-2 rounded hover:bg-gray-100">Support</button>
           <button className="w-full text-left px-4 py-2 rounded hover:bg-gray-100">Settings</button>
         </nav>
-        <button className="mt-8 text-left px-4 py-2 text-red-500 hover:underline hidden md:block">Log out</button>
+        <button className="mt-8 text-left px-4 py-2 text-red-500 hover:underline hidden md:block" onClick={logout}>Log out</button>
       </aside>
       {/* Main Content */}
       <main className="flex-1 p-4 md:p-10">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
           <div className="text-center md:text-left">
-            <h2 className="text-2xl font-bold mb-1">Welcome, Ada</h2>
+            <h2 className="text-2xl font-bold mb-1">Welcome, {user?.full_name || 'User'}</h2>
             <p className="text-gray-500">Generate Lesson plans tailored towards your African Classroom.</p>
           </div>
           <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded shadow">
             <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-              <span className="text-lg font-bold text-gray-700">A</span>
+              <span className="text-lg font-bold text-gray-700">{user?.full_name?.charAt(0) || 'U'}</span>
             </div>
             <div>
-              <div className="font-semibold text-sm">Ada, Oljude</div>
-              <div className="text-xs text-gray-500">Educator</div>
+              <div className="font-semibold text-sm">{user?.full_name || 'User'}</div>
+              <div className="text-xs text-gray-500">{user?.role || 'Educator'}</div>
             </div>
+            {/* Mobile logout button */}
+            <button 
+              className="md:hidden ml-2 text-red-500 hover:text-red-700 text-sm font-medium"
+              onClick={logout}
+            >
+              Logout
+            </button>
           </div>
         </div>
+        
+
         {/* Create Lesson Plan Form */}
         <div className="bg-white rounded shadow p-4 md:p-8 mb-10">
           <h3 className="text-lg font-bold mb-4">Create Lesson Plan</h3>
@@ -285,18 +382,33 @@ const DashboardPage: React.FC = () => {
             <button className="text-orange-600 underline">View All</button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {/* Placeholder cards */}
-            {[1,2,3,4,5].map(i => (
-              <div key={i} className="bg-white rounded shadow p-4 flex flex-col items-center">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-2">
-                  <span className="text-2xl">{i % 2 === 0 ? '🧪' : '📚'}</span>
+            {lessonPlans.length > 0 ? (
+              lessonPlans.map((plan: any) => (
+                <div key={plan.lesson_id} className="bg-white rounded shadow p-4 flex flex-col items-center cursor-pointer hover:shadow-md transition-shadow"
+                     onClick={() => navigate(`/lesson-plans/${plan.lesson_id}`)}>
+                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-2">
+                    <span className="text-2xl">📚</span>
+                  </div>
+                  <div className="font-semibold mb-1 text-center">{plan.subject}</div>
+                  <div className="text-xs text-gray-500 mb-1">{plan.grade_level}</div>
+                  <div className="text-xs text-gray-400 mb-2">{plan.duration_minutes} min</div>
+                  <div className="text-xs text-gray-600 text-center">{plan.topic || 'No topic'}</div>
                 </div>
-                <div className="font-semibold mb-1">{i % 2 === 0 ? 'Biology' : 'Social Studies'}</div>
-                <div className="text-xs text-gray-500 mb-1">{i % 2 === 0 ? 'Grade 6' : 'Grade 2'}</div>
-                <div className="text-xs text-gray-400 mb-2">{i % 2 === 0 ? '2 Weeks Plan' : '12 Weeks Plan'}</div>
-                <div className="text-xs text-gray-600 text-center">{i % 2 === 0 ? 'Human Skeletal System' : 'Importance of United Family'}</div>
-              </div>
-            ))}
+              ))
+            ) : (
+              // Placeholder cards when no lesson plans
+              [1,2,3,4,5].map(i => (
+                <div key={i} className="bg-white rounded shadow p-4 flex flex-col items-center">
+                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-2">
+                    <span className="text-2xl">{i % 2 === 0 ? '🧪' : '📚'}</span>
+                  </div>
+                  <div className="font-semibold mb-1">{i % 2 === 0 ? 'Biology' : 'Social Studies'}</div>
+                  <div className="text-xs text-gray-500 mb-1">{i % 2 === 0 ? 'Grade 6' : 'Grade 2'}</div>
+                  <div className="text-xs text-gray-400 mb-2">{i % 2 === 0 ? '2 Weeks Plan' : '12 Weeks Plan'}</div>
+                  <div className="text-xs text-gray-600 text-center">{i % 2 === 0 ? 'Human Skeletal System' : 'Importance of United Family'}</div>
+                </div>
+              ))
+            )}
           </div>
         </div>
         {/* My Lesson Notes Section */}
@@ -306,18 +418,34 @@ const DashboardPage: React.FC = () => {
             <button className="text-orange-600 underline">View All</button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {/* Placeholder cards for lesson resources */}
-            {[1,2,3,4,5].map(i => (
-              <div key={i} className="bg-white rounded shadow p-4 flex flex-col items-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
-                  <span className="text-2xl">{i % 2 === 0 ? '📄' : '🔗'}</span>
+            {lessonResources.length > 0 ? (
+              lessonResources.map((resource: any) => (
+                <div key={resource.lesson_resources_id} 
+                     className="bg-white rounded shadow p-4 flex flex-col items-center cursor-pointer hover:shadow-md transition-shadow"
+                     onClick={() => navigate(`/lesson-plans/${resource.lesson_plan_id}/resources/edit`)}>
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                    <span className="text-2xl">{resource.format === 'PDF' ? '📄' : '📝'}</span>
+                  </div>
+                  <div className="font-semibold mb-1 text-center">{resource.title}</div>
+                  <div className="text-xs text-gray-500 mb-1">{resource.format}</div>
+                  <div className="text-xs text-gray-400 mb-2">{resource.status}</div>
+                  <div className="text-xs text-gray-600 text-center">{resource.description}</div>
                 </div>
-                <div className="font-semibold mb-1">{i % 2 === 0 ? 'Fractions Resource' : 'Geometry Resource'}</div>
-                <div className="text-xs text-gray-500 mb-1">{i % 2 === 0 ? 'PDF' : 'Link'}</div>
-                <div className="text-xs text-gray-400 mb-2">{i % 2 === 0 ? 'Uploaded' : 'Generated'}</div>
-                <div className="text-xs text-gray-600 text-center">{i % 2 === 0 ? 'Fraction Worksheets' : 'Geometry Video'}</div>
-              </div>
-            ))}
+              ))
+            ) : (
+              // Placeholder cards when no lesson resources
+              [1,2,3,4,5].map(i => (
+                <div key={i} className="bg-white rounded shadow p-4 flex flex-col items-center">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                    <span className="text-2xl">{i % 2 === 0 ? '📄' : '🔗'}</span>
+                  </div>
+                  <div className="font-semibold mb-1">{i % 2 === 0 ? 'Fractions Resource' : 'Geometry Resource'}</div>
+                  <div className="text-xs text-gray-500 mb-1">{i % 2 === 0 ? 'PDF' : 'Link'}</div>
+                  <div className="text-xs text-gray-400 mb-2">{i % 2 === 0 ? 'Uploaded' : 'Generated'}</div>
+                  <div className="text-xs text-gray-600 text-center">{i % 2 === 0 ? 'Fraction Worksheets' : 'Geometry Video'}</div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </main>

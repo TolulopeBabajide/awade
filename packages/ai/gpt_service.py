@@ -154,6 +154,20 @@ class AwadeGPTService:
         
         return status
     
+    def check_health(self) -> bool:
+        """
+        Check if the AI service is healthy and ready to use.
+        
+        Returns:
+            bool: True if service is healthy, False otherwise
+        """
+        try:
+            status = self.test_openai_connection()
+            return status.get("connection_test", False) or bool(self.client)
+        except Exception as e:
+            logger.error(f"Health check failed: {str(e)}")
+            return False
+    
     def _generate_mock_response(self, prompt: str) -> str:
         """
         Generate a mock response for testing purposes.

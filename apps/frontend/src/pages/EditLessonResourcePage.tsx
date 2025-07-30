@@ -228,6 +228,7 @@ const EditLessonResourcePage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string>('');
+  const [successMessage, setSuccessMessage] = useState<string>('');
   
   // Form states
   const [aiContent, setAiContent] = useState('');
@@ -247,6 +248,7 @@ const EditLessonResourcePage: React.FC = () => {
       
       if (response.error) {
         setError(response.error);
+        setSuccessMessage(''); // Clear success message
         return;
       }
 
@@ -255,13 +257,14 @@ const EditLessonResourcePage: React.FC = () => {
         setLessonResource(resource);
         setAiContent(resource.ai_generated_content || '');
         setUserEditedContent(resource.user_edited_content || '');
-        setExportFormat(resource.export_format as 'pdf' | 'docx' || 'pdf');
+        setExportFormat((resource.export_format as 'pdf' | 'docx') || 'pdf');
       } else {
         // No existing resource, generate one
         await generateLessonResource();
       }
     } catch (err: any) {
       setError(err.message || 'Failed to load lesson resource');
+      setSuccessMessage(''); // Clear success message
     } finally {
       setIsLoading(false);
     }
@@ -359,6 +362,8 @@ const EditLessonResourcePage: React.FC = () => {
 
   const generateLessonResource = async () => {
     try {
+      setError(''); // Clear any previous errors
+      setSuccessMessage(''); // Clear any previous success messages
       const response = await apiService.generateLessonResource(lessonPlanId!, '');
       
       if (response.error) {
@@ -370,6 +375,9 @@ const EditLessonResourcePage: React.FC = () => {
         setLessonResource(response.data);
         setAiContent(response.data.ai_generated_content || '');
         setUserEditedContent(response.data.user_edited_content || '');
+        setExportFormat((response.data.export_format as 'pdf' | 'docx') || 'pdf');
+      } else {
+        setError('No data received from lesson resource generation');
       }
     } catch (err: any) {
       setError(err.message || 'Failed to generate lesson resource');
@@ -377,10 +385,15 @@ const EditLessonResourcePage: React.FC = () => {
   };
 
   const saveLessonResource = async () => {
-    if (!lessonResource) return;
+    if (!lessonResource) {
+      setError('No lesson resource available to save');
+      setSuccessMessage(''); // Clear success message
+      return;
+    }
 
     setIsSaving(true);
     setError('');
+    setSuccessMessage(''); // Clear any previous success message
 
     try {
       const response = await apiService.updateLessonResource(
@@ -395,7 +408,11 @@ const EditLessonResourcePage: React.FC = () => {
 
       if (response.data) {
         setLessonResource(response.data);
-        alert('Lesson resource saved successfully!');
+        setSuccessMessage('Lesson resource saved successfully!');
+        // Clear success message after 3 seconds
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } else {
+        setError('No data received from save request');
       }
     } catch (err: any) {
       setError(err.message || 'Failed to save lesson resource');
@@ -405,9 +422,15 @@ const EditLessonResourcePage: React.FC = () => {
   };
 
   const exportLessonResource = async (format: 'pdf' | 'docx') => {
-    if (!lessonResource) return;
+    if (!lessonResource) {
+      setError('No lesson resource available for export');
+      setSuccessMessage(''); // Clear success message
+      return;
+    }
 
     try {
+      setError(''); // Clear any previous errors
+      setSuccessMessage(''); // Clear any previous success messages
       const response = await apiService.exportLessonResource(
         lessonResource.lesson_resources_id.toString(),
         format
@@ -419,6 +442,7 @@ const EditLessonResourcePage: React.FC = () => {
       }
 
       if (response.data) {
+        // Create download link
         const url = window.URL.createObjectURL(response.data);
         const a = document.createElement('a');
         a.href = url;
@@ -427,6 +451,12 @@ const EditLessonResourcePage: React.FC = () => {
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
+        
+        // Show success message
+        setSuccessMessage(`Lesson resource exported successfully as ${format.toUpperCase()}!`);
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } else {
+        setError('No data received from export request');
       }
     } catch (err: any) {
       setError(err.message || 'Failed to export lesson resource');
@@ -477,6 +507,11 @@ const EditLessonResourcePage: React.FC = () => {
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
             <p className="text-red-800">{error}</p>
+          </div>
+        )}
+        {successMessage && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
+            <p className="text-green-800">{successMessage}</p>
           </div>
         )}
 

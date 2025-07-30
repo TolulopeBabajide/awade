@@ -273,8 +273,15 @@ def login(
     token = jwt.encode(payload, JWT_SECRET_KEY, algorithm=get_jwt_algorithm())
 
     # Parse JSON strings back to lists for response
-    subjects_list = json.loads(user.subjects) if user.subjects else None
-    grade_levels_list = json.loads(user.grade_levels) if user.grade_levels else None
+    try:
+        subjects_list = json.loads(user.subjects) if user.subjects else None
+    except (json.JSONDecodeError, TypeError):
+        subjects_list = None
+    
+    try:
+        grade_levels_list = json.loads(user.grade_levels) if user.grade_levels else None
+    except (json.JSONDecodeError, TypeError):
+        grade_levels_list = None
     
     user_response = UserResponse(
         user_id=user.user_id,
@@ -304,8 +311,15 @@ def get_current_user_profile(
     Get current user profile.
     """
     # Parse JSON strings back to lists for response
-    subjects_list = json.loads(current_user.subjects) if current_user.subjects else None
-    grade_levels_list = json.loads(current_user.grade_levels) if current_user.grade_levels else None
+    try:
+        subjects_list = json.loads(current_user.subjects) if current_user.subjects else None
+    except (json.JSONDecodeError, TypeError):
+        subjects_list = None
+    
+    try:
+        grade_levels_list = json.loads(current_user.grade_levels) if current_user.grade_levels else None
+    except (json.JSONDecodeError, TypeError):
+        grade_levels_list = None
     
     return UserResponse(
         user_id=current_user.user_id,

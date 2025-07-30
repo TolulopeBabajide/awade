@@ -65,10 +65,12 @@ class LessonResourceCreate(BaseModel):
     lesson_plan_id: int
     user_id: int
     context_input: Optional[str] = None
+    export_format: Optional[str] = None
 
 class LessonResourceUpdate(BaseModel):
     """Schema for updating lesson resources."""
     user_edited_content: str
+    status: Optional[str] = None
 
 class LessonResourceResponse(BaseModel):
     """Schema for lesson resource response data."""

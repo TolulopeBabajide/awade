@@ -1,148 +1,246 @@
 """
-PDF export service for lesson plans.
-Generates professional PDF documents from lesson plan data.
+PDF Export Service for Awade Lesson Resources
+
+This service handles the generation of professional PDF documents
+for lesson resources, including both AI-generated and user-edited content.
 """
 
 import os
-from typing import Dict, List, Optional
+import tempfile
 from datetime import datetime
+from typing import Optional, Dict, Any
+from pathlib import Path
+
 try:
     from weasyprint import HTML, CSS
-    from weasyprint.text.fonts import FontConfiguration
     WEASYPRINT_AVAILABLE = True
 except ImportError:
     WEASYPRINT_AVAILABLE = False
-    # Mock classes for when weasyprint is not available
-    class HTML:
-        """Mock HTML class when weasyprint is not available."""
-        def __init__(self, string):
-            """
-            Initialize mock HTML class.
-            
-            Args:
-                string: HTML content string
-            """
-            self.string = string
-        def write_pdf(self, **kwargs):
-            """Mock PDF generation method."""
-            return b"PDF generation not available - weasyprint not installed"
-    
-    class CSS:
-        """Mock CSS class when weasyprint is not available."""
-        def __init__(self, string, font_config=None):
-            """
-            Initialize mock CSS class.
-            
-            Args:
-                string: CSS content string
-                font_config: Font configuration (ignored in mock)
-            """
-            self.string = string
-    
-    class FontConfiguration:
-        """Mock FontConfiguration class when weasyprint is not available."""
-        pass
-from models import LessonPlan
+    print("Warning: WeasyPrint not available. PDF generation will be disabled.")
+
+from sqlalchemy.orm import Session
+from ..models import LessonResource, LessonPlan, Topic, CurriculumStructure, Subject, GradeLevel, Curriculum
+
 
 class PDFService:
-    """Service for generating PDF exports of lesson plans."""
+    """Service for generating PDF documents from lesson resources."""
     
     def __init__(self):
+        self.template_dir = Path(__file__).parent.parent / "templates"
+        self.template_dir.mkdir(exist_ok=True)
+        
+    def generate_lesson_resource_pdf(self, lesson_resource: LessonResource, db: Session) -> bytes:
         """
-        Initialize the PDFService with font configuration and CSS styles.
-        """
-        self.font_config = FontConfiguration()
-        self.css_styles = self._get_css_styles()
-    
-    def generate_lesson_plan_pdf(self, lesson_plan: LessonPlan, sections: list, resources: list) -> bytes:
-        """
-        Generate a PDF document from lesson plan data.
+        Generate a professional PDF document from a lesson resource.
         
         Args:
-            lesson_plan: The lesson plan object
-            sections: List of lesson sections
-            resources: List of resource links
+            lesson_resource: The lesson resource to export
+            db: Database session
             
         Returns:
-            PDF content as bytes
+            PDF document as bytes
         """
-        html_content = self._generate_html_content(lesson_plan, sections, resources)
+        if not WEASYPRINT_AVAILABLE:
+            raise RuntimeError("WeasyPrint is not available. Please install it with: pip install weasyprint")
         
-        # Create PDF from HTML
+        # Get lesson plan and curriculum data
+        lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_resource.lesson_plan_id).first()
+        if not lesson_plan:
+            raise ValueError("Lesson plan not found")
+        
+        # Get topic and curriculum structure
+        topic = db.query(Topic).filter(Topic.topic_id == lesson_plan.topic_id).first()
+        if not topic:
+            raise ValueError("Topic not found")
+        
+        curriculum_structure = db.query(CurriculumStructure).filter(
+            CurriculumStructure.curriculum_structure_id == topic.curriculum_structure_id
+        ).first()
+        if not curriculum_structure:
+            raise ValueError("Curriculum structure not found")
+        
+        # Get subject and grade level
+        subject = db.query(Subject).filter(Subject.subject_id == curriculum_structure.subject_id).first()
+        grade_level = db.query(GradeLevel).filter(GradeLevel.grade_level_id == curriculum_structure.grade_level_id).first()
+        curriculum = db.query(Curriculum).filter(Curriculum.curricula_id == curriculum_structure.curricula_id).first()
+        
+        # Generate HTML content
+        html_content = self._generate_html_content(
+            lesson_resource=lesson_resource,
+            topic=topic,
+            subject=subject,
+            grade_level=grade_level,
+            curriculum=curriculum
+        )
+        
+        # Generate PDF
         html = HTML(string=html_content)
-        css = CSS(string=self.css_styles, font_config=self.font_config)
+        css = CSS(string=self._get_css_styles())
         
-        pdf_bytes = html.write_pdf(stylesheets=[css], font_config=self.font_config)
-        return pdf_bytes
+        return html.write_pdf(stylesheets=[css])
     
-    def _generate_html_content(self, lesson_plan: LessonPlan, sections: list, resources: list) -> str:
-        """Generate HTML content for the lesson plan."""
+    def export_to_docx(self, lesson_resource: LessonResource, db: Session) -> bytes:
+        """
+        Export lesson resource to DOCX format.
         
-        sections_html = ""
-        for section in sections:
-            sections_html += f"""
-            <div class="section">
-                <h3>{section.section_title}</h3>
-                <div class="content">{section.content_text}</div>
-                {f'<div class="media"><strong>Media:</strong> <a href="{section.media_link}">{section.media_link}</a></div>' if section.media_link else ''}
-            </div>
-            """
+        Args:
+            lesson_resource: The lesson resource to export
+            db: Database session
+            
+        Returns:
+            DOCX document as bytes
+        """
+        # For now, return a simple text representation
+        # In a full implementation, you would use python-docx library
+        content = self._generate_docx_content(lesson_resource, db)
+        return content.encode('utf-8')
+    
+    def include_ai_and_user_content(self, lesson_resource: LessonResource) -> str:
+        """
+        Combine AI-generated and user-edited content.
         
-        resources_html = ""
-        if resources:
-            resources_html = "<h3>Resources</h3><ul>"
-            for resource in resources:
-                resources_html += f'<li><a href="{resource.link_url}">{resource.description or resource.link_url}</a> ({resource.type.value})</li>'
-            resources_html += "</ul>"
+        Args:
+            lesson_resource: The lesson resource
+            
+        Returns:
+            Combined content as string
+        """
+        combined_content = []
         
-        html_content = f"""
+        if lesson_resource.ai_generated_content:
+            combined_content.append("## AI-Generated Content")
+            combined_content.append(lesson_resource.ai_generated_content)
+            combined_content.append("")
+        
+        if lesson_resource.user_edited_content:
+            combined_content.append("## Teacher Customizations")
+            combined_content.append(lesson_resource.user_edited_content)
+            combined_content.append("")
+        
+        if lesson_resource.context_input:
+            combined_content.append("## Local Context")
+            combined_content.append(lesson_resource.context_input)
+            combined_content.append("")
+        
+        return "\n".join(combined_content)
+    
+    def format_curriculum_alignment(self, topic: Topic, db: Session) -> str:
+        """
+        Format curriculum alignment documentation.
+        
+        Args:
+            topic: The topic
+            db: Database session
+            
+        Returns:
+            Formatted curriculum alignment text
+        """
+        alignment_text = []
+        
+        # Get learning objectives
+        for objective in topic.learning_objectives:
+            alignment_text.append(f"• {objective.objective}")
+        
+        alignment_text.append("")
+        alignment_text.append("## Topic Contents")
+        
+        # Get topic contents
+        for content in topic.topic_contents:
+            alignment_text.append(f"• {content.content_area}")
+        
+        return "\n".join(alignment_text)
+    
+    def _generate_html_content(self, lesson_resource: LessonResource, topic: Topic, 
+                             subject: Any, grade_level: Any, curriculum: Any) -> str:
+        """Generate HTML content for PDF generation."""
+        
+        # Get combined content
+        combined_content = self.include_ai_and_user_content(lesson_resource)
+        
+        # Get curriculum alignment
+        curriculum_alignment = self.format_curriculum_alignment(topic, lesson_resource.lesson_plan._sa_instance_state.session)
+        
+        # Format creation date
+        created_date = lesson_resource.created_at.strftime("%B %d, %Y") if lesson_resource.created_at else "Unknown"
+        
+        html = f"""
         <!DOCTYPE html>
-        <html>
+        <html lang="en">
         <head>
             <meta charset="UTF-8">
-            <title>{lesson_plan.title}</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Lesson Resource - {topic.topic_title}</title>
         </head>
         <body>
-            <div class="header">
-                <h1>{lesson_plan.title}</h1>
-                <div class="metadata">
-                    <p><strong>Subject:</strong> {lesson_plan.subject}</p>
-                    <p><strong>Grade Level:</strong> {lesson_plan.grade_level}</p>
-                    <p><strong>Duration:</strong> {lesson_plan.duration_minutes} minutes</p>
-                    <p><strong>Created:</strong> {lesson_plan.created_at.strftime('%B %d, %Y')}</p>
+            <div class="container">
+                <header class="header">
+                    <div class="logo">
+                        <h1>Awade</h1>
+                        <p>AI-Powered Lesson Resources</p>
+                    </div>
+                    <div class="metadata">
+                        <p><strong>Generated:</strong> {created_date}</p>
+                        <p><strong>Resource ID:</strong> {lesson_resource.lesson_resources_id}</p>
+                    </div>
+                </header>
+                
+                <div class="content">
+                    <div class="curriculum-info">
+                        <h2>Curriculum Information</h2>
+                        <table class="info-table">
+                            <tr>
+                                <td><strong>Curriculum:</strong></td>
+                                <td>{curriculum.curricula_title if curriculum else 'N/A'}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Subject:</strong></td>
+                                <td>{subject.name if subject else 'N/A'}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Grade Level:</strong></td>
+                                <td>{grade_level.name if grade_level else 'N/A'}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Topic:</strong></td>
+                                <td>{topic.topic_title}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="curriculum-alignment">
+                        <h2>Curriculum Alignment</h2>
+                        <div class="alignment-content">
+                            {curriculum_alignment.replace(chr(10), '<br>')}
+                        </div>
+                    </div>
+                    
+                    <div class="lesson-content">
+                        <h2>Lesson Resource Content</h2>
+                        <div class="content-text">
+                            {combined_content.replace(chr(10), '<br>')}
+                        </div>
+                    </div>
+                    
+                    <div class="footer">
+                        <p>Generated by Awade - AI-Powered Lesson Resources</p>
+                        <p>This resource is designed to be culturally relevant and adaptable to local contexts.</p>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="context">
-                <h3>Context</h3>
-                <p>{lesson_plan.context_description or 'No context provided'}</p>
-            </div>
-            
-            <div class="sections">
-                <h2>Lesson Sections</h2>
-                {sections_html}
-            </div>
-            
-            {resources_html}
-            
-            <div class="footer">
-                <p>Generated by Awade - AI-powered educator support platform</p>
-                <p>Generated on: {datetime.now().strftime('%B %d, %Y at %I:%M %p')}</p>
             </div>
         </body>
         </html>
         """
         
-        return html_content
+        return html
     
     def _get_css_styles(self) -> str:
-        """Get CSS styles for the PDF."""
+        """Get CSS styles for PDF generation."""
         return """
         @page {
             size: A4;
             margin: 2cm;
             @top-center {
-                content: "Awade Lesson Plan";
+                content: "Awade Lesson Resource";
                 font-size: 10pt;
                 color: #666;
             }
@@ -161,93 +259,147 @@ class PDFService:
             padding: 0;
         }
         
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
         .header {
-            border-bottom: 3px solid #2c5aa0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 3px solid #f97316;
             padding-bottom: 20px;
             margin-bottom: 30px;
         }
         
-        .header h1 {
-            color: #2c5aa0;
-            margin: 0 0 15px 0;
-            font-size: 28pt;
+        .logo h1 {
+            color: #f97316;
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .logo p {
+            margin: 5px 0 0 0;
+            color: #666;
+            font-size: 14px;
         }
         
         .metadata {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            font-size: 12pt;
-        }
-        
-        .metadata p {
-            margin: 5px 0;
-        }
-        
-        .context {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
-        
-        .context h3 {
-            color: #2c5aa0;
-            margin-top: 0;
-        }
-        
-        .sections h2 {
-            color: #2c5aa0;
-            border-bottom: 2px solid #e9ecef;
-            padding-bottom: 10px;
-        }
-        
-        .section {
-            margin-bottom: 25px;
-            padding: 15px;
-            border-left: 4px solid #2c5aa0;
-            background-color: #f8f9fa;
-        }
-        
-        .section h3 {
-            color: #2c5aa0;
-            margin-top: 0;
-            font-size: 16pt;
-        }
-        
-        .content {
-            margin-bottom: 10px;
-        }
-        
-        .media {
-            font-size: 11pt;
+            text-align: right;
+            font-size: 12px;
             color: #666;
         }
         
-        .media a {
-            color: #2c5aa0;
-            text-decoration: none;
+        .metadata p {
+            margin: 2px 0;
         }
         
-        ul {
-            padding-left: 20px;
+        .content {
+            margin-top: 30px;
         }
         
-        li {
-            margin-bottom: 5px;
+        h2 {
+            color: #f97316;
+            border-bottom: 2px solid #f97316;
+            padding-bottom: 5px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .info-table td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .info-table td:first-child {
+            font-weight: bold;
+            width: 30%;
+        }
+        
+        .alignment-content {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-left: 4px solid #f97316;
+            margin-bottom: 20px;
+        }
+        
+        .content-text {
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
         }
         
         .footer {
             margin-top: 40px;
             padding-top: 20px;
-            border-top: 1px solid #e9ecef;
+            border-top: 1px solid #eee;
             text-align: center;
-            font-size: 10pt;
+            font-size: 12px;
             color: #666;
         }
         
-        h3 {
-            color: #2c5aa0;
-            font-size: 14pt;
+        .footer p {
+            margin: 5px 0;
         }
-        """ 
+        
+        /* Print-specific styles */
+        @media print {
+            .header {
+                border-bottom-color: #000;
+            }
+            
+            h2 {
+                color: #000;
+                border-bottom-color: #000;
+            }
+            
+            .alignment-content {
+                border-left-color: #000;
+            }
+        }
+        """
+    
+    def _generate_docx_content(self, lesson_resource: LessonResource, db: Session) -> str:
+        """Generate simple text content for DOCX export."""
+        # This is a simplified version. In production, use python-docx library
+        content = []
+        content.append("AWADE LESSON RESOURCE")
+        content.append("=" * 50)
+        content.append("")
+        
+        # Add lesson resource content
+        if lesson_resource.ai_generated_content:
+            content.append("AI-GENERATED CONTENT:")
+            content.append("-" * 30)
+            content.append(lesson_resource.ai_generated_content)
+            content.append("")
+        
+        if lesson_resource.user_edited_content:
+            content.append("TEACHER CUSTOMIZATIONS:")
+            content.append("-" * 30)
+            content.append(lesson_resource.user_edited_content)
+            content.append("")
+        
+        if lesson_resource.context_input:
+            content.append("LOCAL CONTEXT:")
+            content.append("-" * 30)
+            content.append(lesson_resource.context_input)
+            content.append("")
+        
+        content.append("Generated by Awade - AI-Powered Lesson Resources")
+        
+        return "\n".join(content)
+
+
+# Create a singleton instance
+pdf_service = PDFService() 

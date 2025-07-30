@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import apiService from '../services/api';
 
 function isAlphanumeric(str: string) {
   return /^[a-zA-Z0-9]+$/.test(str);
@@ -8,6 +10,13 @@ function isAlphanumeric(str: string) {
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
+  
+  // Get the redirect path from location state, or default to dashboard
+  const from = (location.state as any)?.from?.pathname || '/dashboard';
+  const isRedirected = (location.state as any)?.from;
+  
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -23,26 +32,25 @@ const LoginPage: React.FC = () => {
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setError(null);
     try {
-      const res = await fetch('/api/auth/google', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ credential: credentialResponse.credential }),
-      });
-      if (!res.ok) {
-        throw new Error('Google authentication failed');
+      const response = await apiService.googleAuth(credentialResponse.credential);
+      if (response.error) {
+        throw new Error(response.error);
       }
-      const data = await res.json();
-      localStorage.setItem('access_token', data.access_token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      console.log('Authenticated user:', data.user);
-      navigate('/dashboard');
+      if (response.data) {
+        const { access_token, user } = response.data;
+        localStorage.setItem('access_token', access_token);
+        localStorage.setItem('user_data', JSON.stringify(user));
+        console.log('Authenticated user:', user);
+        navigate(from, { replace: true });
+      }
     } catch (err: any) {
-      setError(err.message || 'Google login failed');
+      console.error('Google OAuth error:', err);
+      setError(err.message || 'Google login failed. Please try email/password login instead.');
     }
   };
 
   const handleGoogleError = () => {
-    setError('Google Sign In was unsuccessful');
+    setError('Google Sign In was unsuccessful. Please try email/password login instead.');
   };
 
   // Input change handler
@@ -61,13 +69,12 @@ const LoginPage: React.FC = () => {
     }
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: forgotEmail }),
-      });
-      const data = await res.json();
-      setForgotMsg(data.message || 'If the email exists, a reset link has been sent.');
+      const response = await apiService.forgotPassword(forgotEmail);
+      if (response.error) {
+        setError('Failed to request password reset.');
+      } else {
+        setForgotMsg(response.data?.message || 'If the email exists, a reset link has been sent.');
+      }
     } catch (err: any) {
       setError('Failed to request password reset.');
     } finally {
@@ -103,27 +110,15 @@ const LoginPage: React.FC = () => {
     if (!validate()) return;
     setLoading(true);
     setError(null);
+    
     try {
-      const url = (import.meta as any).env.MODE === 'production'
-        ? 'https://your-production-domain.com/api/auth/login'
-        : '/api/auth/login';
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: form.email,
-          password: form.password,
-        }),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.detail || 'Login failed');
+      const success = await login(form.email, form.password);
+      if (success) {
+        // Navigate to the originally requested page or dashboard
+        navigate(from, { replace: true });
+      } else {
+        setError('Invalid email or password');
       }
-      const data = await res.json();
-      localStorage.setItem('access_token', data.access_token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      console.log('Logged in user:', data.user);
-      navigate('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Login failed');
     } finally {
@@ -148,6 +143,16 @@ const LoginPage: React.FC = () => {
           <p className="text-center text-gray-500 text-sm mb-6">
             Log in to access your personalized teaching dashboard and resources.
           </p>
+          
+          {/* Show redirect message if user was redirected */}
+          {isRedirected && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+              <p className="text-blue-800 text-sm text-center">
+                Please log in to access the requested page.
+              </p>
+            </div>
+          )}
+          
           {/* Google Login */}
           <div className="flex items-center justify-center w-full mb-4">
             <GoogleLogin
@@ -207,43 +212,41 @@ const LoginPage: React.FC = () => {
               <div className="relative">
                 <label className="block text-sm font-semibold mb-1">Password</label>
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   value={form.password}
                   onChange={handleChange}
-                  placeholder="Enter your Password"
-                  className="w-full border border-gray-300 rounded px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                  placeholder="Enter your password"
+                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                   required
-                  minLength={8}
-                  pattern="[a-zA-Z0-9]+"
                 />
                 <button
                   type="button"
-                  className="absolute right-2 top-8 text-gray-400 hover:text-gray-600"
-                  tabIndex={-1}
-                  onClick={() => setShowPassword((v) => !v)}
-                  aria-label="Toggle password visibility"
+                  className="absolute right-3 top-8 text-gray-400 hover:text-gray-600"
+                  onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? '🙈' : '👁️'}
-                </button>
-              </div>
-              <div className="text-right text-xs">
-                <button type="button" className="underline text-indigo-600" onClick={() => setShowForgot(true)}>
-                  Forgot Password?
+                  {showPassword ? "👁️" : "👁️‍🗨️"}
                 </button>
               </div>
               <button
                 type="submit"
-                className="w-full bg-purple-200 text-gray-700 font-semibold py-2 rounded mt-2 hover:bg-purple-300 disabled:opacity-50"
+                className="w-full bg-indigo-600 text-white font-semibold py-2 rounded mt-2 hover:bg-indigo-700 disabled:opacity-50"
                 disabled={loading}
               >
-                {loading ? 'Logging In...' : 'Log In'}
+                {loading ? 'Logging in...' : 'Log In'}
               </button>
+              <div className="text-center text-xs text-gray-500 mt-2">
+                <button type="button" className="underline text-indigo-600" onClick={() => setShowForgot(true)}>
+                  Forgot Password?
+                </button>
+              </div>
             </form>
           )}
           <div className="text-center text-xs text-gray-500 mt-4">
-            Don&apos;t have an account?{' '}
-            <Link to="/signup" className="underline text-indigo-600">Sign Up</Link>
+            Don't have an account?{' '}
+            <Link to="/signup" className="underline text-indigo-600">
+              Sign up
+            </Link>
           </div>
         </div>
       </div>

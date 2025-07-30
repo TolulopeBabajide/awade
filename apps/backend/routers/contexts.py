@@ -10,9 +10,9 @@ from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime
 
-from ..database import get_db
-from ..models import Context, LessonPlan
-from ..schemas.contexts import (
+from database import get_db
+from models import Context, LessonPlan
+from schemas.contexts import (
     ContextCreate, 
     ContextUpdate, 
     ContextResponse, 
@@ -20,7 +20,7 @@ from ..schemas.contexts import (
     ContextSubmissionRequest
 )
 
-router = APIRouter(prefix="/contexts", tags=["contexts"])
+router = APIRouter(prefix="/api/contexts", tags=["contexts"])
 
 @router.post("/", response_model=ContextResponse, status_code=status.HTTP_201_CREATED)
 async def create_context(

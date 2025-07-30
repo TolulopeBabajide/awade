@@ -172,7 +172,7 @@ class ApiService {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify({
-        export_format: format
+        format: format
       })
     });
     

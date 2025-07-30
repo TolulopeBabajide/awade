@@ -354,6 +354,58 @@
         }
       }
     },
+    "/api/lesson-plans/{lesson_id}/resources": {
+      "get": {
+        "tags": [
+          "lesson-plans"
+        ],
+        "summary": "Get Lesson Resources By Plan",
+        "description": "Get all lesson resources for a specific lesson plan.\nRequires authentication.",
+        "operationId": "get_lesson_resources_by_plan_api_lesson_plans__lesson_id__resources_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "lesson_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Lesson Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LessonResourceResponse"
+                  },
+                  "title": "Response Get Lesson Resources By Plan Api Lesson Plans  Lesson Id  Resources Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/lesson-plans/ai/health": {
       "get": {
         "tags": [
@@ -408,6 +460,112 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonResourceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lesson-plans/resources/{resource_id}/export": {
+      "post": {
+        "tags": [
+          "lesson-plans"
+        ],
+        "summary": "Export Lesson Resource",
+        "description": "Export a lesson resource to PDF or DOCX format.\nRequires educator authentication.",
+        "operationId": "export_lesson_resource_api_lesson_plans_resources__resource_id__export_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "resource_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Resource Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Data"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lesson-plans/resources/{resource_id}": {
+      "get": {
+        "tags": [
+          "lesson-plans"
+        ],
+        "summary": "Get Lesson Resource",
+        "description": "Get a specific lesson resource.\nRequires authentication.",
+        "operationId": "get_lesson_resource_api_lesson_plans_resources__resource_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "resource_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Resource Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -2632,6 +2790,272 @@
         }
       }
     },
+    "/contexts/": {
+      "post": {
+        "tags": [
+          "contexts"
+        ],
+        "summary": "Create Context",
+        "description": "Create a new context for a lesson plan.",
+        "operationId": "create_context_contexts__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContextCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contexts/lesson-plan/{lesson_plan_id}": {
+      "get": {
+        "tags": [
+          "contexts"
+        ],
+        "summary": "Get Contexts By Lesson Plan",
+        "description": "Get all contexts for a specific lesson plan.",
+        "operationId": "get_contexts_by_lesson_plan_contexts_lesson_plan__lesson_plan_id__get",
+        "parameters": [
+          {
+            "name": "lesson_plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Lesson Plan Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contexts/{context_id}": {
+      "get": {
+        "tags": [
+          "contexts"
+        ],
+        "summary": "Get Context",
+        "description": "Get a specific context by ID.",
+        "operationId": "get_context_contexts__context_id__get",
+        "parameters": [
+          {
+            "name": "context_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Context Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "contexts"
+        ],
+        "summary": "Update Context",
+        "description": "Update a specific context.",
+        "operationId": "update_context_contexts__context_id__put",
+        "parameters": [
+          {
+            "name": "context_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Context Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContextUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "contexts"
+        ],
+        "summary": "Delete Context",
+        "description": "Delete a specific context.",
+        "operationId": "delete_context_contexts__context_id__delete",
+        "parameters": [
+          {
+            "name": "context_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Context Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contexts/lesson-plan/{lesson_plan_id}/submit": {
+      "post": {
+        "tags": [
+          "contexts"
+        ],
+        "summary": "Submit Context",
+        "description": "Submit context for a lesson plan (frontend endpoint).",
+        "operationId": "submit_context_contexts_lesson_plan__lesson_plan_id__submit_post",
+        "parameters": [
+          {
+            "name": "lesson_plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Lesson Plan Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContextSubmissionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/": {
       "get": {
         "summary": "Root",
@@ -2757,6 +3181,168 @@
         ],
         "title": "ContentUpdate",
         "description": "Schema for updating content."
+      },
+      "ContextCreate": {
+        "properties": {
+          "context_text": {
+            "type": "string",
+            "title": "Context Text",
+            "description": "The context text content"
+          },
+          "context_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Type",
+            "description": "Type of context (e.g., cultural, resources, student_background)"
+          },
+          "lesson_plan_id": {
+            "type": "integer",
+            "title": "Lesson Plan Id",
+            "description": "ID of the lesson plan this context belongs to"
+          }
+        },
+        "type": "object",
+        "required": [
+          "context_text",
+          "lesson_plan_id"
+        ],
+        "title": "ContextCreate",
+        "description": "Schema for creating a new context."
+      },
+      "ContextListResponse": {
+        "properties": {
+          "contexts": {
+            "items": {
+              "$ref": "#/components/schemas/ContextResponse"
+            },
+            "type": "array",
+            "title": "Contexts"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "contexts",
+          "total"
+        ],
+        "title": "ContextListResponse",
+        "description": "Schema for list of contexts response."
+      },
+      "ContextResponse": {
+        "properties": {
+          "context_text": {
+            "type": "string",
+            "title": "Context Text",
+            "description": "The context text content"
+          },
+          "context_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Type",
+            "description": "Type of context (e.g., cultural, resources, student_background)"
+          },
+          "context_id": {
+            "type": "integer",
+            "title": "Context Id"
+          },
+          "lesson_plan_id": {
+            "type": "integer",
+            "title": "Lesson Plan Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "context_text",
+          "context_id",
+          "lesson_plan_id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ContextResponse",
+        "description": "Schema for context response."
+      },
+      "ContextSubmissionRequest": {
+        "properties": {
+          "context_text": {
+            "type": "string",
+            "title": "Context Text",
+            "description": "The context text content"
+          },
+          "context_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Type",
+            "description": "Type of context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "context_text"
+        ],
+        "title": "ContextSubmissionRequest",
+        "description": "Schema for submitting context from frontend."
+      },
+      "ContextUpdate": {
+        "properties": {
+          "context_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Text",
+            "description": "The context text content"
+          },
+          "context_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Type",
+            "description": "Type of context"
+          }
+        },
+        "type": "object",
+        "title": "ContextUpdate",
+        "description": "Schema for updating an existing context."
       },
       "CountryCreate": {
         "properties": {
@@ -3271,6 +3857,17 @@
               }
             ],
             "title": "Context Input"
+          },
+          "export_format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Export Format"
           }
         },
         "type": "object",
@@ -3365,6 +3962,17 @@
           "user_edited_content": {
             "type": "string",
             "title": "User Edited Content"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
           }
         },
         "type": "object",
