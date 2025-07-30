@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import apiService from '../services/api';
 
 interface LessonPlanData {
   lesson_id: number;
@@ -25,6 +26,7 @@ const LessonPlanDetailPage: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [context, setContext] = useState('');
   const [isSubmittingContext, setIsSubmittingContext] = useState(false);
+  const [isGeneratingLessonNote, setIsGeneratingLessonNote] = useState(false);
 
   useEffect(() => {
     const fetchLessonPlan = async () => {
@@ -58,30 +60,57 @@ const LessonPlanDetailPage: React.FC = () => {
 
     setIsSubmittingContext(true);
     try {
-      const response = await fetch(`/api/lesson-plans/${lessonPlan.lesson_id}/resources/generate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          lesson_plan_id: lessonPlan.lesson_id,
-          user_id: lessonPlan.author_id,
-          context_input: context,
-        }),
-      });
+      // Submit context to database
+      const contextResponse = await apiService.submitContext(
+        lessonPlan.lesson_id.toString(),
+        context
+      );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to generate resource');
+      if (contextResponse.error) {
+        throw new Error(contextResponse.error);
       }
 
-      // Show success message or redirect to resource
+      // Generate lesson resource with the submitted context
+      const resourceResponse = await apiService.generateLessonResource(
+        lessonPlan.lesson_id.toString(),
+        context
+      );
+
+      if (resourceResponse.error) {
+        throw new Error(resourceResponse.error);
+      }
+
+      // Show success message
       alert('Context submitted successfully! Resource generated.');
       setContext('');
     } catch (err: any) {
       setError(err.message || 'Failed to submit context');
     } finally {
       setIsSubmittingContext(false);
+    }
+  };
+
+  const handleGenerateLessonNote = async () => {
+    if (!lessonPlan) return;
+
+    setIsGeneratingLessonNote(true);
+    try {
+      // Generate lesson resource using GPT service
+      const response = await apiService.generateLessonResource(
+        lessonPlan.lesson_id.toString(),
+        context || 'Generate a comprehensive lesson note for this lesson plan'
+      );
+
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      // Navigate to the edit page after successful generation
+      navigate(`/lesson-plans/${lessonPlan.lesson_id}/resources/edit`);
+    } catch (err: any) {
+      setError(err.message || 'Failed to generate lesson resource');
+    } finally {
+      setIsGeneratingLessonNote(false);
     }
   };
 
@@ -151,6 +180,13 @@ const LessonPlanDetailPage: React.FC = () => {
           <div className="space-y-2">
             <button className="w-full text-left px-3 py-2 rounded bg-gray-100 hover:bg-gray-200 text-sm">
               📝 Edit Plan
+            </button>
+            <button 
+              onClick={handleGenerateLessonNote}
+              disabled={isGeneratingLessonNote}
+              className="w-full text-left px-3 py-2 rounded bg-gray-100 hover:bg-gray-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isGeneratingLessonNote ? 'Generating...' : '📝 Generate Lesson Note'}
             </button>
             <button className="w-full text-left px-3 py-2 rounded bg-gray-100 hover:bg-gray-200 text-sm">
               📄 Export PDF
@@ -242,8 +278,12 @@ const LessonPlanDetailPage: React.FC = () => {
               <button className="bg-gray-200 text-gray-700 font-semibold px-6 py-2 rounded hover:bg-gray-300 flex items-center gap-2">
                 ✏️ Edit Plan
               </button>
-              <button className="bg-orange-400 text-white font-semibold px-6 py-2 rounded hover:bg-orange-500 flex items-center gap-2">
-                📝 Generate Lesson Note
+              <button 
+                onClick={handleGenerateLessonNote}
+                disabled={isGeneratingLessonNote}
+                className="bg-orange-400 text-white font-semibold px-6 py-2 rounded hover:bg-orange-500 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isGeneratingLessonNote ? 'Generating...' : '📝 Generate Lesson Note'}
               </button>
             </div>
           </div>

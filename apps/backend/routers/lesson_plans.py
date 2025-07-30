@@ -29,7 +29,7 @@ sys.path.extend([parent_dir, root_dir])
 
 # Import dependencies
 from apps.backend.database import get_db
-from apps.backend.models import LessonPlan, User, Topic, CurriculumStructure, Curriculum, Country, GradeLevel, Subject, LessonResource, LessonStatus, UserRole
+from apps.backend.models import LessonPlan, User, Topic, CurriculumStructure, Curriculum, Country, GradeLevel, Subject, LessonResource, LessonStatus, UserRole, Context
 from apps.backend.dependencies import get_current_user, require_educator, require_admin_or_educator, get_optional_current_user
 # Curriculum service removed - using separate curriculum router
 # from services.pdf_service import PDFService  # Temporarily disabled for contract testing
@@ -284,15 +284,48 @@ async def generate_lesson_resource(
         if not lesson_plan:
             raise HTTPException(status_code=404, detail="Lesson plan not found")
         
+        # Get lesson plan data
+        lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_id).first()
+        if not lesson_plan:
+            raise HTTPException(status_code=404, detail="Lesson plan not found")
+        
+        # Get topic and curriculum data
+        topic = db.query(Topic).filter(Topic.topic_id == lesson_plan.topic_id).first()
+        if not topic:
+            raise HTTPException(status_code=404, detail="Topic not found")
+        
+        # Get learning objectives
+        objectives = [obj.objective for obj in topic.learning_objectives] if topic.learning_objectives else []
+        
+        # Get subject and grade level from curriculum structure
+        curriculum_structure = db.query(CurriculumStructure).filter(
+            CurriculumStructure.curriculum_structure_id == topic.curriculum_structure_id
+        ).first()
+        
+        subject = db.query(Subject).filter(Subject.subject_id == curriculum_structure.subject_id).first()
+        grade_level = db.query(GradeLevel).filter(GradeLevel.grade_level_id == curriculum_structure.grade_level_id).first()
+        
+        # Get contexts from database for this lesson plan
+        contexts = db.query(Context).filter(Context.lesson_plan_id == lesson_id).all()
+        context_texts = [ctx.context_text for ctx in contexts]
+        
+        # Combine context from database with input context
+        combined_context = ""
+        if context_texts:
+            combined_context += "Stored Context:\n" + "\n".join(context_texts) + "\n\n"
+        if data.context_input:
+            combined_context += "Additional Context:\n" + data.context_input
+        
         # Initialize AI service
         ai_service = AwadeGPTService()
         
         # Generate AI content
         ai_content = ai_service.generate_lesson_resource(
-            subject=data.subject,
-            grade_level=data.grade_level,
-            topic=data.topic,
-            context_input=data.context_input
+            subject=subject.name if subject else "Mathematics",
+            grade=grade_level.name if grade_level else "JSS 1",
+            topic=topic.topic_title,
+            objectives=objectives,
+            context=combined_context if combined_context else None
         )
         
         # Create lesson resource
@@ -311,7 +344,7 @@ async def generate_lesson_resource(
         db.refresh(lesson_resource)
         
         return LessonResourceResponse(
-            resource_id=lesson_resource.lesson_resources_id,
+            lesson_resources_id=lesson_resource.lesson_resources_id,
             lesson_plan_id=lesson_resource.lesson_plan_id,
             user_id=lesson_resource.user_id,
             context_input=lesson_resource.context_input,
@@ -327,6 +360,48 @@ async def generate_lesson_resource(
     except Exception as e:
         print(f"Error generating lesson resource: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error generating lesson resource: {str(e)}")
+
+@router.get("/{lesson_id}/resources", response_model=List[LessonResourceResponse])
+async def get_lesson_resources_by_plan(
+    lesson_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get all lesson resources for a specific lesson plan.
+    Requires authentication.
+    """
+    try:
+        # Verify lesson plan exists
+        lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_id).first()
+        if not lesson_plan:
+            raise HTTPException(status_code=404, detail="Lesson plan not found")
+        
+        # Get lesson resources for this lesson plan
+        lesson_resources = db.query(LessonResource).filter(
+            LessonResource.lesson_plan_id == lesson_id
+        ).order_by(LessonResource.created_at.desc()).all()
+        
+        return [
+            LessonResourceResponse(
+                lesson_resources_id=resource.lesson_resources_id,
+                lesson_plan_id=resource.lesson_plan_id,
+                user_id=resource.user_id,
+                context_input=resource.context_input,
+                ai_generated_content=resource.ai_generated_content,
+                user_edited_content=resource.user_edited_content,
+                export_format=resource.export_format,
+                status=resource.status,
+                created_at=resource.created_at
+            )
+            for resource in lesson_resources
+        ]
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error getting lesson resources: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error getting lesson resources: {str(e)}")
 
 @router.get("/ai/health")
 async def check_ai_service_health():
@@ -380,7 +455,7 @@ async def review_lesson_resource(
         db.refresh(lesson_resource)
         
         return LessonResourceResponse(
-            resource_id=lesson_resource.lesson_resources_id,
+            lesson_resources_id=lesson_resource.lesson_resources_id,
             lesson_plan_id=lesson_resource.lesson_plan_id,
             user_id=lesson_resource.user_id,
             context_input=lesson_resource.context_input,
@@ -395,4 +470,97 @@ async def review_lesson_resource(
         raise
     except Exception as e:
         print(f"Error reviewing lesson resource: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error reviewing lesson resource: {str(e)}") 
+        raise HTTPException(status_code=500, detail=f"Error reviewing lesson resource: {str(e)}")
+
+@router.post("/resources/{resource_id}/export")
+async def export_lesson_resource(
+    resource_id: int,
+    data: dict,
+    current_user: User = Depends(require_educator),
+    db: Session = Depends(get_db)
+):
+    """
+    Export a lesson resource to PDF or DOCX format.
+    Requires educator authentication.
+    """
+    try:
+        lesson_resource = db.query(LessonResource).filter(LessonResource.lesson_resources_id == resource_id).first()
+        if not lesson_resource:
+            raise HTTPException(status_code=404, detail="Lesson resource not found")
+        
+        # Check if user is the resource author or admin
+        if current_user.user_id != lesson_resource.user_id and current_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=403, detail="You can only export your own resources")
+        
+        export_format = data.get('format', 'pdf')
+        if export_format not in ['pdf', 'docx']:
+            raise HTTPException(status_code=400, detail="Export format must be 'pdf' or 'docx'")
+        
+        # Import PDF service
+        from ..services.pdf_service import pdf_service
+        
+        try:
+            if export_format == 'pdf':
+                pdf_bytes = pdf_service.generate_lesson_resource_pdf(lesson_resource, db)
+                return Response(
+                    content=pdf_bytes,
+                    media_type='application/pdf',
+                    headers={
+                        'Content-Disposition': f'attachment; filename="lesson-resource-{resource_id}.pdf"'
+                    }
+                )
+            else:  # docx
+                docx_bytes = pdf_service.export_to_docx(lesson_resource, db)
+                return Response(
+                    content=docx_bytes,
+                    media_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    headers={
+                        'Content-Disposition': f'attachment; filename="lesson-resource-{resource_id}.docx"'
+                    }
+                )
+        except Exception as e:
+            print(f"Error generating export: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Error generating export: {str(e)}")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error exporting lesson resource: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error exporting lesson resource: {str(e)}")
+
+@router.get("/resources/{resource_id}", response_model=LessonResourceResponse)
+async def get_lesson_resource(
+    resource_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get a specific lesson resource.
+    Requires authentication.
+    """
+    try:
+        lesson_resource = db.query(LessonResource).filter(LessonResource.lesson_resources_id == resource_id).first()
+        if not lesson_resource:
+            raise HTTPException(status_code=404, detail="Lesson resource not found")
+        
+        # Check if user is the resource author or admin
+        if current_user.user_id != lesson_resource.user_id and current_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=403, detail="You can only view your own resources")
+        
+        return LessonResourceResponse(
+            lesson_resources_id=lesson_resource.lesson_resources_id,
+            lesson_plan_id=lesson_resource.lesson_plan_id,
+            user_id=lesson_resource.user_id,
+            context_input=lesson_resource.context_input,
+            ai_generated_content=lesson_resource.ai_generated_content,
+            user_edited_content=lesson_resource.user_edited_content,
+            export_format=lesson_resource.export_format,
+            status=lesson_resource.status,
+            created_at=lesson_resource.created_at
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error getting lesson resource: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error getting lesson resource: {str(e)}") 

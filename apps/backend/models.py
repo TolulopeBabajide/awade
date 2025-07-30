@@ -174,6 +174,21 @@ class LessonPlan(Base):
     # Relationships
     topic = relationship("Topic", back_populates="lesson_plans")
     lesson_resources = relationship("LessonResource", back_populates="lesson_plan", cascade="all, delete-orphan")
+    contexts = relationship("Context", back_populates="lesson_plan", cascade="all, delete-orphan")
+
+class Context(Base):
+    """Context information for lesson plans to improve AI generation."""
+    __tablename__ = 'contexts'
+    
+    context_id = Column(Integer, primary_key=True, autoincrement=True)
+    lesson_plan_id = Column(Integer, ForeignKey('lesson_plans.lesson_plan_id', ondelete='CASCADE'), nullable=False)
+    context_text = Column(Text, nullable=False)
+    context_type = Column(String(50), nullable=True)  # e.g., 'cultural', 'resources', 'student_background'
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
+    
+    # Relationships
+    lesson_plan = relationship("LessonPlan", back_populates="contexts")
 
 class LessonResource(Base):
     """Lesson resources with AI-generated content."""
