@@ -542,14 +542,11 @@ async def get_all_lesson_resources(
     Requires authentication.
     """
     try:
-        print(f"Getting lesson resources for user {current_user.user_id}")
         lesson_resources = db.query(LessonResource).filter(
             LessonResource.user_id == current_user.user_id
         ).order_by(LessonResource.created_at.desc()).all()
         
-        print(f"Found {len(lesson_resources)} lesson resources")
-        
-        result = [
+        return [
             LessonResourceResponse(
                 lesson_resources_id=resource.lesson_resources_id,
                 lesson_plan_id=resource.lesson_plan_id,
@@ -563,9 +560,6 @@ async def get_all_lesson_resources(
             )
             for resource in lesson_resources
         ]
-        
-        print(f"Returning {len(result)} lesson resources")
-        return result
         
     except Exception as e:
         print(f"Error getting lesson resources: {str(e)}")

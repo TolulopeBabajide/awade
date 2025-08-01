@@ -62,16 +62,12 @@ const DashboardPage: React.FC = () => {
     const loadDashboardData = async () => {
       // Only load if user is authenticated
       if (!user) {
-        console.log('No user authenticated, skipping dashboard data load');
         return;
       }
-      
-      console.log('Loading dashboard data for user:', user);
       
       try {
         // Load lesson plans
         const plansResponse = await apiService.getLessonPlans();
-        console.log('Lesson plans response:', plansResponse);
         if (plansResponse.data) {
           setLessonPlans(plansResponse.data);
         } else if (plansResponse.error) {
@@ -80,16 +76,10 @@ const DashboardPage: React.FC = () => {
 
         // Load lesson resources
         const resourcesResponse = await apiService.getAllLessonResources();
-        console.log('Lesson resources response:', resourcesResponse);
         if (resourcesResponse.data) {
-          console.log('Setting lesson resources:', resourcesResponse.data);
           setLessonResources(resourcesResponse.data);
         } else if (resourcesResponse.error) {
           console.error('Error loading lesson resources:', resourcesResponse.error);
-          // Check if it's an authentication error
-          if (resourcesResponse.error.includes('403') || resourcesResponse.error.includes('Not authenticated')) {
-            console.log('Authentication required for lesson resources');
-          }
           // Don't set error for resources as it's not critical for dashboard functionality
         }
       } catch (err: any) {

@@ -8,7 +8,6 @@ interface ApiResponse<T> {
 class ApiService {
   private getAuthHeaders(): HeadersInit {
     const token = localStorage.getItem('access_token');
-    console.log('Getting auth headers, token:', token ? 'present' : 'missing');
     return {
       'Content-Type': 'application/json',
       ...(token && { 'Authorization': `Bearer ${token}` })
@@ -151,11 +150,9 @@ class ApiService {
   }
 
   async getAllLessonResources(): Promise<ApiResponse<any[]>> {
-    console.log('Calling getAllLessonResources');
     const response = await fetch(`${API_BASE_URL}/lesson-plans/resources`, {
       headers: this.getAuthHeaders()
     });
-    console.log('getAllLessonResources response status:', response.status);
     return this.handleResponse(response);
   }
 
