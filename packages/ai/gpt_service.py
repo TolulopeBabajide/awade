@@ -234,7 +234,14 @@ class AwadeGPTService:
                 "Nigerian National Curriculum - Mathematics Grade 4",
                 "Local mathematics textbook",
                 "Community resources for hands-on learning"
-            ]
+            ],
+            "explanations": {
+                "learning_objectives": "These learning objectives were chosen to align with the Nigerian National Curriculum for Grade 4 Mathematics. They focus on practical, hands-on learning using local examples that students can relate to, ensuring cultural relevance and engagement.",
+                "lesson_content": "The lesson content follows a progressive pedagogical approach starting with familiar objects to build conceptual understanding. The use of local examples and step-by-step instructions ensures accessibility for diverse learning styles and classroom environments.",
+                "assessment": "The assessment strategies include multiple formats to accommodate different learning styles. Real-world examples and practical problems ensure students can apply their knowledge in meaningful contexts beyond the classroom.",
+                "key_takeaways": "These key takeaways summarize the most essential concepts that students should retain. They focus on practical understanding rather than memorization, preparing students for future mathematical concepts.",
+                "related_projects_or_activities": "These activities provide hands-on learning opportunities that reinforce classroom concepts through real-world application. They encourage community engagement and make learning relevant to students' daily lives."
+            }
         }, indent=2)
     
     def generate_lesson_resource(
@@ -433,7 +440,14 @@ class AwadeGPTService:
                 f"Reference 1 for {topic}",
                 f"Reference 2 for {topic}",
                 f"Reference 3 for {topic}"
-            ]
+            ],
+            "explanations": {
+                "learning_objectives": f"These learning objectives for {topic} are designed to align with curriculum standards and provide clear, measurable outcomes for student learning. They focus on practical understanding and application.",
+                "lesson_content": f"The lesson content for {topic} follows a structured pedagogical approach with clear progression from introduction to practice. The content is designed to be engaging and accessible for diverse learners.",
+                "assessment": f"Assessment strategies for {topic} include multiple formats to accommodate different learning styles and provide comprehensive evaluation of student understanding and progress.",
+                "key_takeaways": f"Key takeaways for {topic} summarize the most essential concepts that students should retain. These points prepare students for future learning and real-world application.",
+                "related_projects_or_activities": f"Related projects and activities for {topic} provide hands-on learning opportunities that reinforce classroom concepts through practical application and real-world engagement."
+            }
         }
     
    

@@ -59,7 +59,14 @@ Please create the comprehensive lesson resource in the following JSON structure:
   ],
   "references": [
     "...", "..."
-  ]
+  ],
+  "explanations": {{
+    "learning_objectives": "Explanation of why these learning objectives were chosen and how they align with the curriculum and grade level...",
+    "lesson_content": "Explanation of the pedagogical approach used in this lesson content, including why these concepts, examples, and instructions were selected...",
+    "assessment": "Explanation of the assessment strategies chosen and how they effectively measure student understanding...",
+    "key_takeaways": "Explanation of why these key takeaways are important for student retention and future learning...",
+    "related_projects_or_activities": "Explanation of how these activities enhance learning and provide practical application of concepts..."
+  }}
 }}
 
 

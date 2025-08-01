@@ -34,7 +34,58 @@ interface StructuredLessonContent {
   key_takeaways?: string[];
   related_projects_or_activities?: string[];
   references?: string[];
+  explanations?: {
+    learning_objectives?: string;
+    lesson_content?: string;
+    assessment?: string;
+    key_takeaways?: string;
+    related_projects_or_activities?: string;
+    references?: string;
+  };
 }
+
+// Tooltip component
+interface TooltipProps {
+  content: string;
+  children: React.ReactNode;
+}
+
+// Helper function to get fallback explanations
+const getFallbackExplanation = (title: string): string => {
+  const explanations: { [key: string]: string } = {
+    'Lesson Content': 'This section contains the main instructional content including introduction, main concepts, examples, and step-by-step instructions. The content is designed to be engaging and age-appropriate for your students.',
+    'Assessment': 'This section provides various assessment strategies to measure student understanding and progress. These assessments are designed to be practical and aligned with learning objectives.',
+    'Key Takeaways': 'These are the essential points that students should remember from this lesson. They summarize the most important concepts and skills covered.',
+    'Related Projects & Activities': 'These activities provide hands-on learning opportunities and practical applications of the lesson concepts. They help reinforce learning through active engagement.',
+    'References': 'This section lists relevant resources, materials, and references that support the lesson content and provide additional context for teachers and students.'
+  };
+  
+  return explanations[title] || `This section contains AI-generated content for ${title} that can be customized for your classroom needs.`;
+};
+
+const Tooltip: React.FC<TooltipProps> = ({ content, children }) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  return (
+    <div className="relative inline-block">
+      <div
+        onMouseEnter={() => setIsVisible(true)}
+        onMouseLeave={() => setIsVisible(false)}
+        className="cursor-help"
+      >
+        {children}
+      </div>
+      {isVisible && (
+        <div className="absolute z-50 w-80 p-3 bg-gray-900 text-white text-sm rounded-lg shadow-lg -top-2 left-full ml-2 border border-gray-700">
+          <div className="relative">
+            <div className="absolute -left-2 top-3 w-0 h-0 border-t-4 border-b-4 border-r-4 border-transparent border-r-gray-900"></div>
+            <p className="whitespace-pre-wrap leading-relaxed">{content}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Editable section component
 interface EditableSectionProps {
@@ -47,6 +98,7 @@ interface EditableSectionProps {
   bgColor: string;
   textColor: string;
   borderColor: string;
+  explanation?: string;
 }
 
 const EditableSection: React.FC<EditableSectionProps> = ({
@@ -58,7 +110,8 @@ const EditableSection: React.FC<EditableSectionProps> = ({
   onCancel,
   bgColor,
   textColor,
-  borderColor
+  borderColor,
+  explanation
 }) => {
   const [editContent, setEditContent] = useState<any>(content);
 
@@ -215,7 +268,22 @@ const EditableSection: React.FC<EditableSectionProps> = ({
   return (
     <div className={`${bgColor} rounded-lg p-4 border ${borderColor}`}>
       <div className="flex justify-between items-center mb-3">
-        <h3 className={`font-semibold ${textColor}`}>{title}</h3>
+        <div className="flex items-center gap-2">
+          <h3 className={`font-semibold ${textColor}`}>{title}</h3>
+          {explanation ? (
+            <Tooltip content={explanation}>
+              <svg className="w-4 h-4 text-gray-500 hover:text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+              </svg>
+            </Tooltip>
+          ) : (
+            <Tooltip content={getFallbackExplanation(title)}>
+              <svg className="w-4 h-4 text-gray-400 hover:text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+              </svg>
+            </Tooltip>
+          )}
+        </div>
         {!isEditing ? (
           <button
             onClick={onEdit}
@@ -287,6 +355,15 @@ const EditLessonResourcePage: React.FC = () => {
         if (contentToParse) {
           try {
             const parsed = JSON.parse(contentToParse);
+            console.log('Parsed structured content:', parsed);
+            console.log('Explanations available:', parsed.explanations);
+            console.log('Explanations structure:', {
+              learning_objectives: parsed.explanations?.learning_objectives,
+              lesson_content: parsed.explanations?.lesson_content,
+              assessment: parsed.explanations?.assessment,
+              key_takeaways: parsed.explanations?.key_takeaways,
+              related_projects_or_activities: parsed.explanations?.related_projects_or_activities
+            });
             setStructuredContent(parsed);
           } catch (error) {
             setError('Failed to parse lesson resource content');
@@ -320,6 +397,15 @@ const EditLessonResourcePage: React.FC = () => {
         if (contentToParse) {
           try {
             const parsed = JSON.parse(contentToParse);
+            console.log('Generated structured content:', parsed);
+            console.log('Explanations available:', parsed.explanations);
+            console.log('Explanations structure:', {
+              learning_objectives: parsed.explanations?.learning_objectives,
+              lesson_content: parsed.explanations?.lesson_content,
+              assessment: parsed.explanations?.assessment,
+              key_takeaways: parsed.explanations?.key_takeaways,
+              related_projects_or_activities: parsed.explanations?.related_projects_or_activities
+            });
             setStructuredContent(parsed);
           } catch (error) {
             setError('Failed to parse lesson resource content');
@@ -534,7 +620,14 @@ const EditLessonResourcePage: React.FC = () => {
             {structuredContent.title_header && (
               <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
                 <div className="mb-3">
-                  <h3 className="font-semibold text-blue-900">Lesson Overview</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-blue-900">Lesson Overview</h3>
+                    <Tooltip content="This section contains the basic information about the lesson including topic, subject, grade level, and local context. This information is automatically generated based on your lesson plan and cannot be edited.">
+                      <svg className="w-4 h-4 text-blue-500 hover:text-blue-700" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                      </svg>
+                    </Tooltip>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   {Object.entries(structuredContent.title_header).map(([key, value]) => (
@@ -550,7 +643,14 @@ const EditLessonResourcePage: React.FC = () => {
             {structuredContent.learning_objectives && (
               <div className="bg-green-50 rounded-lg p-4 border border-green-200">
                 <div className="mb-3">
-                  <h3 className="font-semibold text-green-900">Learning Objectives</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-green-900">Learning Objectives</h3>
+                    <Tooltip content={structuredContent.explanations?.learning_objectives || "Learning objectives define what students should know, understand, and be able to do by the end of the lesson. These are aligned with curriculum standards and grade-level expectations."}>
+                      <svg className="w-4 h-4 text-green-500 hover:text-green-700" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                      </svg>
+                    </Tooltip>
+                  </div>
                 </div>
                 <ul className="list-disc list-inside space-y-1 text-sm">
                   {structuredContent.learning_objectives.map((objective, index) => (
@@ -572,6 +672,7 @@ const EditLessonResourcePage: React.FC = () => {
                 bgColor="bg-purple-50"
                 textColor="text-purple-900"
                 borderColor="border-purple-200"
+                explanation={structuredContent.explanations?.lesson_content}
               />
             )}
 
@@ -586,6 +687,7 @@ const EditLessonResourcePage: React.FC = () => {
                 bgColor="bg-orange-50"
                 textColor="text-orange-900"
                 borderColor="border-orange-200"
+                explanation={structuredContent.explanations?.assessment}
               />
             )}
 
@@ -600,6 +702,7 @@ const EditLessonResourcePage: React.FC = () => {
                 bgColor="bg-indigo-50"
                 textColor="text-indigo-900"
                 borderColor="border-indigo-200"
+                explanation={structuredContent.explanations?.key_takeaways}
               />
             )}
 
@@ -614,6 +717,7 @@ const EditLessonResourcePage: React.FC = () => {
                 bgColor="bg-teal-50"
                 textColor="text-teal-900"
                 borderColor="border-teal-200"
+                explanation={structuredContent.explanations?.related_projects_or_activities}
               />
             )}
 
@@ -628,6 +732,7 @@ const EditLessonResourcePage: React.FC = () => {
                 bgColor="bg-gray-50"
                 textColor="text-gray-900"
                 borderColor="border-gray-200"
+                explanation={structuredContent.explanations?.references}
               />
             )}
           </div>
