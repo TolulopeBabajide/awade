@@ -36,186 +36,212 @@ interface StructuredLessonContent {
   references?: string[];
 }
 
-// Component to render structured content
-const StructuredContentRenderer: React.FC<{ content: string }> = ({ content }) => {
-  const [parsedContent, setParsedContent] = useState<StructuredLessonContent | null>(null);
-  const [parseError, setParseError] = useState<string>('');
+// Editable section component
+interface EditableSectionProps {
+  title: string;
+  content: any;
+  onSave: (updatedContent: any) => void;
+  isEditing: boolean;
+  onEdit: () => void;
+  onCancel: () => void;
+  bgColor: string;
+  textColor: string;
+  borderColor: string;
+}
+
+const EditableSection: React.FC<EditableSectionProps> = ({
+  title,
+  content,
+  onSave,
+  isEditing,
+  onEdit,
+  onCancel,
+  bgColor,
+  textColor,
+  borderColor
+}) => {
+  const [editContent, setEditContent] = useState<any>(content);
 
   useEffect(() => {
-    if (!content) return;
-
-    try {
-      const parsed = JSON.parse(content);
-      setParsedContent(parsed);
-      setParseError('');
-    } catch (error) {
-      setParseError('Failed to parse structured content');
-      setParsedContent(null);
-    }
+    setEditContent(content);
   }, [content]);
 
-  if (parseError) {
-    return (
-      <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-        <p className="text-yellow-800 text-sm">{parseError}</p>
-        <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-auto max-h-64">
-          {content}
-        </pre>
-      </div>
-    );
-  }
+  const handleSave = () => {
+    onSave(editContent);
+  };
 
-  if (!parsedContent) {
-    return (
-      <div className="bg-gray-50 rounded-md p-4">
-        <p className="text-sm text-gray-600">No structured content available</p>
-      </div>
-    );
-  }
+  const renderContent = () => {
+    if (Array.isArray(content)) {
+      return (
+        <ul className="list-disc list-inside space-y-1 text-sm">
+          {content.map((item, index) => (
+            <li key={index} className={textColor}>{item}</li>
+          ))}
+        </ul>
+      );
+    } else if (typeof content === 'object' && content !== null) {
+      return (
+        <div className="space-y-2">
+          {Object.entries(content).map(([key, value]) => (
+            <div key={key}>
+              <span className="font-medium capitalize">{key.replace(/_/g, ' ')}:</span>
+              {Array.isArray(value) ? (
+                <ul className="list-disc list-inside ml-4 mt-1">
+                  {value.map((item: string, index: number) => (
+                    <li key={index} className="text-sm">{item}</li>
+                  ))}
+                </ul>
+              ) : (
+                <span className="ml-2 text-sm">{value as string}</span>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    } else {
+      return <p className="text-sm">{content}</p>;
+    }
+  };
+
+  const renderEditForm = () => {
+    if (Array.isArray(content)) {
+      return (
+        <div className="space-y-2">
+          {editContent.map((item: string, index: number) => (
+            <div key={index} className="flex gap-2">
+              <input
+                type="text"
+                value={item}
+                onChange={(e) => {
+                  const newContent = [...editContent];
+                  newContent[index] = e.target.value;
+                  setEditContent(newContent);
+                }}
+                className="flex-1 p-2 border border-gray-300 rounded text-sm"
+              />
+              <button
+                onClick={() => {
+                  const newContent = editContent.filter((_: string, i: number) => i !== index);
+                  setEditContent(newContent);
+                }}
+                className="px-2 py-1 text-red-600 hover:text-red-800 text-sm"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+          <button
+            onClick={() => setEditContent([...editContent, ''])}
+            className="text-sm text-blue-600 hover:text-blue-800"
+          >
+            + Add Item
+          </button>
+        </div>
+      );
+    } else if (typeof content === 'object' && content !== null) {
+      return (
+        <div className="space-y-3">
+          {Object.entries(content).map(([key, value]) => (
+            <div key={key}>
+              <label className="block text-sm font-medium mb-1 capitalize">
+                {key.replace(/_/g, ' ')}
+              </label>
+              {Array.isArray(value) ? (
+                <div className="space-y-2">
+                  {editContent[key].map((item: string, index: number) => (
+                    <div key={index} className="flex gap-2">
+                      <input
+                        type="text"
+                        value={item}
+                        onChange={(e) => {
+                          const newContent = { ...editContent };
+                          newContent[key] = [...newContent[key]];
+                          newContent[key][index] = e.target.value;
+                          setEditContent(newContent);
+                        }}
+                        className="flex-1 p-2 border border-gray-300 rounded text-sm"
+                      />
+                      <button
+                        onClick={() => {
+                          const newContent = { ...editContent };
+                          newContent[key] = newContent[key].filter((_: string, i: number) => i !== index);
+                          setEditContent(newContent);
+                        }}
+                        className="px-2 py-1 text-red-600 hover:text-red-800 text-sm"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => {
+                      const newContent = { ...editContent };
+                      newContent[key] = [...newContent[key], ''];
+                      setEditContent(newContent);
+                    }}
+                    className="text-sm text-blue-600 hover:text-blue-800"
+                  >
+                    + Add {key.replace(/_/g, ' ')}
+                  </button>
+                </div>
+              ) : (
+                <textarea
+                  value={editContent[key]}
+                  onChange={(e) => {
+                    const newContent = { ...editContent };
+                    newContent[key] = e.target.value;
+                    setEditContent(newContent);
+                  }}
+                  className="w-full p-2 border border-gray-300 rounded text-sm"
+                  rows={3}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    } else {
+      return (
+        <textarea
+          value={editContent}
+          onChange={(e) => setEditContent(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded text-sm"
+          rows={4}
+        />
+      );
+    }
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Title Header */}
-      {parsedContent.title_header && (
-        <div className="bg-blue-50 rounded-lg p-4">
-          <h3 className="font-semibold text-blue-900 mb-3">Lesson Overview</h3>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            {parsedContent.title_header.topic && (
-              <div>
-                <span className="font-medium">Topic:</span> {parsedContent.title_header.topic}
-              </div>
-            )}
-            {parsedContent.title_header.subject && (
-              <div>
-                <span className="font-medium">Subject:</span> {parsedContent.title_header.subject}
-              </div>
-            )}
-            {parsedContent.title_header.grade_level && (
-              <div>
-                <span className="font-medium">Grade Level:</span> {parsedContent.title_header.grade_level}
-              </div>
-            )}
-            {parsedContent.title_header.country && (
-              <div>
-                <span className="font-medium">Country:</span> {parsedContent.title_header.country}
-              </div>
-            )}
+    <div className={`${bgColor} rounded-lg p-4 border ${borderColor}`}>
+      <div className="flex justify-between items-center mb-3">
+        <h3 className={`font-semibold ${textColor}`}>{title}</h3>
+        {!isEditing ? (
+          <button
+            onClick={onEdit}
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+          >
+            Edit
+          </button>
+        ) : (
+          <div className="flex gap-2">
+            <button
+              onClick={handleSave}
+              className="text-sm text-green-600 hover:text-green-800 font-medium"
+            >
+              Save
+            </button>
+            <button
+              onClick={onCancel}
+              className="text-sm text-gray-600 hover:text-gray-800 font-medium"
+            >
+              Cancel
+            </button>
           </div>
-          {parsedContent.title_header.local_context && (
-            <div className="mt-3">
-              <span className="font-medium">Local Context:</span>
-              <p className="text-sm mt-1">{parsedContent.title_header.local_context}</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Learning Objectives */}
-      {parsedContent.learning_objectives && parsedContent.learning_objectives.length > 0 && (
-        <div className="bg-green-50 rounded-lg p-4">
-          <h3 className="font-semibold text-green-900 mb-3">Learning Objectives</h3>
-          <ul className="list-disc list-inside space-y-1 text-sm">
-            {parsedContent.learning_objectives.map((objective, index) => (
-              <li key={index} className="text-green-800">{objective}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Lesson Content */}
-      {parsedContent.lesson_content && (
-        <div className="bg-purple-50 rounded-lg p-4">
-          <h3 className="font-semibold text-purple-900 mb-3">Lesson Content</h3>
-          
-          {parsedContent.lesson_content.introduction && (
-            <div className="mb-4">
-              <h4 className="font-medium text-purple-800 mb-2">Introduction</h4>
-              <p className="text-sm text-purple-700">{parsedContent.lesson_content.introduction}</p>
-            </div>
-          )}
-
-          {parsedContent.lesson_content.main_concepts && parsedContent.lesson_content.main_concepts.length > 0 && (
-            <div className="mb-4">
-              <h4 className="font-medium text-purple-800 mb-2">Main Concepts</h4>
-              <ul className="list-disc list-inside space-y-1 text-sm">
-                {parsedContent.lesson_content.main_concepts.map((concept, index) => (
-                  <li key={index} className="text-purple-700">{concept}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {parsedContent.lesson_content.examples && parsedContent.lesson_content.examples.length > 0 && (
-            <div className="mb-4">
-              <h4 className="font-medium text-purple-800 mb-2">Examples</h4>
-              <ul className="list-disc list-inside space-y-1 text-sm">
-                {parsedContent.lesson_content.examples.map((example, index) => (
-                  <li key={index} className="text-purple-700">{example}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {parsedContent.lesson_content.step_by_step_instructions && parsedContent.lesson_content.step_by_step_instructions.length > 0 && (
-            <div>
-              <h4 className="font-medium text-purple-800 mb-2">Step-by-Step Instructions</h4>
-              <ol className="list-decimal list-inside space-y-1 text-sm">
-                {parsedContent.lesson_content.step_by_step_instructions.map((step, index) => (
-                  <li key={index} className="text-purple-700">{step}</li>
-                ))}
-              </ol>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Assessment */}
-      {parsedContent.assessment && parsedContent.assessment.length > 0 && (
-        <div className="bg-orange-50 rounded-lg p-4">
-          <h3 className="font-semibold text-orange-900 mb-3">Assessment</h3>
-          <ul className="list-disc list-inside space-y-1 text-sm">
-            {parsedContent.assessment.map((item, index) => (
-              <li key={index} className="text-orange-800">{item}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Key Takeaways */}
-      {parsedContent.key_takeaways && parsedContent.key_takeaways.length > 0 && (
-        <div className="bg-indigo-50 rounded-lg p-4">
-          <h3 className="font-semibold text-indigo-900 mb-3">Key Takeaways</h3>
-          <ul className="list-disc list-inside space-y-1 text-sm">
-            {parsedContent.key_takeaways.map((takeaway, index) => (
-              <li key={index} className="text-indigo-800">{takeaway}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Related Projects/Activities */}
-      {parsedContent.related_projects_or_activities && parsedContent.related_projects_or_activities.length > 0 && (
-        <div className="bg-teal-50 rounded-lg p-4">
-          <h3 className="font-semibold text-teal-900 mb-3">Related Projects & Activities</h3>
-          <ul className="list-disc list-inside space-y-1 text-sm">
-            {parsedContent.related_projects_or_activities.map((activity, index) => (
-              <li key={index} className="text-teal-800">{activity}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* References */}
-      {parsedContent.references && parsedContent.references.length > 0 && (
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h3 className="font-semibold text-gray-900 mb-3">References</h3>
-          <ul className="list-disc list-inside space-y-1 text-sm">
-            {parsedContent.references.map((reference, index) => (
-              <li key={index} className="text-gray-700">{reference}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+        )}
+      </div>
+      
+      {isEditing ? renderEditForm() : renderContent()}
     </div>
   );
 };
@@ -230,9 +256,11 @@ const EditLessonResourcePage: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
   
-  // Form states
-  const [aiContent, setAiContent] = useState('');
-  const [userEditedContent, setUserEditedContent] = useState('');
+  // Structured content state
+  const [structuredContent, setStructuredContent] = useState<StructuredLessonContent | null>(null);
+  const [editingSection, setEditingSection] = useState<string | null>(null);
+  
+  // Export format
   const [exportFormat, setExportFormat] = useState<'pdf' | 'docx'>('pdf');
   
   useEffect(() => {
@@ -243,127 +271,40 @@ const EditLessonResourcePage: React.FC = () => {
 
   const loadLessonResource = async () => {
     try {
-      // First, try to get existing lesson resource
       const response = await apiService.getLessonResources(lessonPlanId!);
       
       if (response.error) {
         setError(response.error);
-        setSuccessMessage(''); // Clear success message
         return;
       }
 
       if (response.data && response.data.length > 0) {
-        const resource = response.data[0]; // Get the most recent resource
+        const resource = response.data[0];
         setLessonResource(resource);
-        setAiContent(resource.ai_generated_content || '');
-        setUserEditedContent(resource.user_edited_content || '');
-        setExportFormat((resource.export_format as 'pdf' | 'docx') || 'pdf');
+        
+        // Parse structured content - prioritize user_edited_content over ai_generated_content
+        let contentToParse = resource.user_edited_content || resource.ai_generated_content;
+        if (contentToParse) {
+          try {
+            const parsed = JSON.parse(contentToParse);
+            setStructuredContent(parsed);
+          } catch (error) {
+            setError('Failed to parse lesson resource content');
+          }
+        }
       } else {
-        // No existing resource, generate one
         await generateLessonResource();
       }
     } catch (err: any) {
       setError(err.message || 'Failed to load lesson resource');
-      setSuccessMessage(''); // Clear success message
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Function to convert structured JSON to readable format for editing
-  const convertStructuredToReadable = (jsonContent: string): string => {
-    try {
-      const parsed = JSON.parse(jsonContent);
-      let readable = '';
-
-      if (parsed.title_header) {
-        readable += `# Lesson Overview\n`;
-        if (parsed.title_header.topic) readable += `Topic: ${parsed.title_header.topic}\n`;
-        if (parsed.title_header.subject) readable += `Subject: ${parsed.title_header.subject}\n`;
-        if (parsed.title_header.grade_level) readable += `Grade Level: ${parsed.title_header.grade_level}\n`;
-        if (parsed.title_header.country) readable += `Country: ${parsed.title_header.country}\n`;
-        if (parsed.title_header.local_context) readable += `Local Context: ${parsed.title_header.local_context}\n`;
-        readable += '\n';
-      }
-
-      if (parsed.learning_objectives && parsed.learning_objectives.length > 0) {
-        readable += `# Learning Objectives\n`;
-        parsed.learning_objectives.forEach((objective: string, index: number) => {
-          readable += `${index + 1}. ${objective}\n`;
-        });
-        readable += '\n';
-      }
-
-      if (parsed.lesson_content) {
-        readable += `# Lesson Content\n`;
-        if (parsed.lesson_content.introduction) {
-          readable += `## Introduction\n${parsed.lesson_content.introduction}\n\n`;
-        }
-        if (parsed.lesson_content.main_concepts && parsed.lesson_content.main_concepts.length > 0) {
-          readable += `## Main Concepts\n`;
-          parsed.lesson_content.main_concepts.forEach((concept: string, index: number) => {
-            readable += `${index + 1}. ${concept}\n`;
-          });
-          readable += '\n';
-        }
-        if (parsed.lesson_content.examples && parsed.lesson_content.examples.length > 0) {
-          readable += `## Examples\n`;
-          parsed.lesson_content.examples.forEach((example: string, index: number) => {
-            readable += `${index + 1}. ${example}\n`;
-          });
-          readable += '\n';
-        }
-        if (parsed.lesson_content.step_by_step_instructions && parsed.lesson_content.step_by_step_instructions.length > 0) {
-          readable += `## Step-by-Step Instructions\n`;
-          parsed.lesson_content.step_by_step_instructions.forEach((step: string, index: number) => {
-            readable += `${index + 1}. ${step}\n`;
-          });
-          readable += '\n';
-        }
-      }
-
-      if (parsed.assessment && parsed.assessment.length > 0) {
-        readable += `# Assessment\n`;
-        parsed.assessment.forEach((item: string, index: number) => {
-          readable += `${index + 1}. ${item}\n`;
-        });
-        readable += '\n';
-      }
-
-      if (parsed.key_takeaways && parsed.key_takeaways.length > 0) {
-        readable += `# Key Takeaways\n`;
-        parsed.key_takeaways.forEach((takeaway: string, index: number) => {
-          readable += `${index + 1}. ${takeaway}\n`;
-        });
-        readable += '\n';
-      }
-
-      if (parsed.related_projects_or_activities && parsed.related_projects_or_activities.length > 0) {
-        readable += `# Related Projects & Activities\n`;
-        parsed.related_projects_or_activities.forEach((activity: string, index: number) => {
-          readable += `${index + 1}. ${activity}\n`;
-        });
-        readable += '\n';
-      }
-
-      if (parsed.references && parsed.references.length > 0) {
-        readable += `# References\n`;
-        parsed.references.forEach((reference: string, index: number) => {
-          readable += `${index + 1}. ${reference}\n`;
-        });
-        readable += '\n';
-      }
-
-      return readable.trim();
-    } catch (error) {
-      return jsonContent; // Return original content if parsing fails
-    }
-  };
-
   const generateLessonResource = async () => {
     try {
-      setError(''); // Clear any previous errors
-      setSuccessMessage(''); // Clear any previous success messages
+      setError('');
       const response = await apiService.generateLessonResource(lessonPlanId!, '');
       
       if (response.error) {
@@ -373,9 +314,17 @@ const EditLessonResourcePage: React.FC = () => {
 
       if (response.data) {
         setLessonResource(response.data);
-        setAiContent(response.data.ai_generated_content || '');
-        setUserEditedContent(response.data.user_edited_content || '');
-        setExportFormat((response.data.export_format as 'pdf' | 'docx') || 'pdf');
+        
+        // Parse structured content - prioritize user_edited_content over ai_generated_content
+        let contentToParse = response.data.user_edited_content || response.data.ai_generated_content;
+        if (contentToParse) {
+          try {
+            const parsed = JSON.parse(contentToParse);
+            setStructuredContent(parsed);
+          } catch (error) {
+            setError('Failed to parse lesson resource content');
+          }
+        }
       } else {
         setError('No data received from lesson resource generation');
       }
@@ -384,21 +333,36 @@ const EditLessonResourcePage: React.FC = () => {
     }
   };
 
-  const saveLessonResource = async () => {
-    if (!lessonResource) {
+  const handleSectionSave = (sectionKey: string, updatedContent: any) => {
+    if (!structuredContent) return;
+
+    const updatedStructuredContent = {
+      ...structuredContent,
+      [sectionKey]: updatedContent
+    };
+
+    setStructuredContent(updatedStructuredContent);
+    setEditingSection(null);
+  };
+
+  const saveAllChanges = async () => {
+    if (!lessonResource || !structuredContent) {
       setError('No lesson resource available to save');
-      setSuccessMessage(''); // Clear success message
       return;
     }
 
     setIsSaving(true);
     setError('');
-    setSuccessMessage(''); // Clear any previous success message
 
     try {
+      // Convert structured content back to JSON string for storage
+      const updatedContent = JSON.stringify(structuredContent, null, 2);
+      
+      console.log('Saving updated content:', updatedContent);
+      
       const response = await apiService.updateLessonResource(
         lessonResource.lesson_resources_id.toString(),
-        userEditedContent
+        updatedContent
       );
 
       if (response.error) {
@@ -407,14 +371,25 @@ const EditLessonResourcePage: React.FC = () => {
       }
 
       if (response.data) {
+        // Update the lesson resource with the response data
         setLessonResource(response.data);
-        setSuccessMessage('Lesson resource saved successfully!');
-        // Clear success message after 3 seconds
-        setTimeout(() => setSuccessMessage(''), 3000);
+        
+        // Update the AI generated content in the resource to reflect our changes
+        const updatedResource = {
+          ...response.data,
+          ai_generated_content: updatedContent
+        };
+        setLessonResource(updatedResource);
+        
+        setSuccessMessage('Lesson resource saved successfully! All changes have been persisted to the database.');
+        setTimeout(() => setSuccessMessage(''), 5000);
+        
+        console.log('Successfully saved lesson resource:', response.data);
       } else {
         setError('No data received from save request');
       }
     } catch (err: any) {
+      console.error('Error saving lesson resource:', err);
       setError(err.message || 'Failed to save lesson resource');
     } finally {
       setIsSaving(false);
@@ -424,13 +399,11 @@ const EditLessonResourcePage: React.FC = () => {
   const exportLessonResource = async (format: 'pdf' | 'docx') => {
     if (!lessonResource) {
       setError('No lesson resource available for export');
-      setSuccessMessage(''); // Clear success message
       return;
     }
 
     try {
-      setError(''); // Clear any previous errors
-      setSuccessMessage(''); // Clear any previous success messages
+      setError('');
       const response = await apiService.exportLessonResource(
         lessonResource.lesson_resources_id.toString(),
         format
@@ -442,7 +415,6 @@ const EditLessonResourcePage: React.FC = () => {
       }
 
       if (response.data) {
-        // Create download link
         const url = window.URL.createObjectURL(response.data);
         const a = document.createElement('a');
         a.href = url;
@@ -452,7 +424,6 @@ const EditLessonResourcePage: React.FC = () => {
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
         
-        // Show success message
         setSuccessMessage(`Lesson resource exported successfully as ${format.toUpperCase()}!`);
         setTimeout(() => setSuccessMessage(''), 3000);
       } else {
@@ -474,6 +445,22 @@ const EditLessonResourcePage: React.FC = () => {
     );
   }
 
+  if (!structuredContent) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">No structured content available</p>
+          <button
+            onClick={generateLessonResource}
+            className="mt-4 px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
+          >
+            Generate Lesson Resource
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -482,7 +469,7 @@ const EditLessonResourcePage: React.FC = () => {
           <div className="flex justify-between items-center py-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Edit Lesson Resource</h1>
-              <p className="text-gray-600">Customize AI-generated content for your classroom</p>
+              <p className="text-gray-600">Edit each section directly to customize for your classroom</p>
             </div>
             <div className="flex space-x-3">
               <button
@@ -492,11 +479,11 @@ const EditLessonResourcePage: React.FC = () => {
                 Back to Dashboard
               </button>
               <button
-                onClick={saveLessonResource}
+                onClick={saveAllChanges}
                 disabled={isSaving}
                 className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 disabled:opacity-50"
               >
-                {isSaving ? 'Saving...' : 'Save Changes'}
+                {isSaving ? 'Saving...' : 'Save All Changes'}
               </button>
             </div>
           </div>
@@ -518,63 +505,131 @@ const EditLessonResourcePage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* AI Generated Content */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold mb-4">AI Generated Content</h2>
-              
-              {/* AI Disclaimer */}
-              <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mb-4">
-                <div className="flex items-start">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-amber-800">AI-Generated Content Disclaimer</h3>
-                    <div className="mt-2 text-sm text-amber-700">
-                      <p>This lesson resource has been generated by AI and may contain inaccuracies or require adjustments. As an educator, you should:</p>
-                      <ul className="list-disc list-inside mt-2 space-y-1">
-                        <li>Review all content for accuracy and appropriateness</li>
-                        <li>Edit and customize to align with your curriculum standards</li>
-                        <li>Adapt to your students' specific needs and learning levels</li>
-                        <li>Verify cultural relevance and local context</li>
-                        <li>Ensure alignment with your teaching methodology</li>
-                      </ul>
-                    </div>
+            {/* AI Disclaimer */}
+            <div className="bg-amber-50 border border-amber-200 rounded-md p-4">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-amber-800">AI-Generated Content Disclaimer</h3>
+                  <div className="mt-2 text-sm text-amber-700">
+                    <p>This lesson resource has been generated by AI and may contain inaccuracies or require adjustments. As an educator, you should:</p>
+                    <ul className="list-disc list-inside mt-2 space-y-1">
+                      <li>Review all content for accuracy and appropriateness</li>
+                      <li>Edit and customize to align with your curriculum standards</li>
+                      <li>Adapt to your students' specific needs and learning levels</li>
+                      <li>Verify cultural relevance and local context</li>
+                      <li>Ensure alignment with your teaching methodology</li>
+                    </ul>
+                    <p className="mt-2">Click the "Edit" button on any section to customize the content for your classroom needs.</p>
                   </div>
                 </div>
               </div>
-              
-              <div className="mb-4">
-                <p className="text-sm text-gray-600 mb-2">Structured lesson content:</p>
-                <StructuredContentRenderer content={aiContent} />
-              </div>
             </div>
 
-            {/* User Edited Content */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold">Your Customizations</h2>
-                <button
-                  onClick={() => setUserEditedContent(convertStructuredToReadable(aiContent))}
-                  className="text-sm text-green-600 hover:text-green-800 underline"
-                >
-                  Convert AI Content to Editable Format
-                </button>
+            {/* Read-only Sections */}
+            {structuredContent.title_header && (
+              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                <div className="mb-3">
+                  <h3 className="font-semibold text-blue-900">Lesson Overview</h3>
+                </div>
+                <div className="space-y-2">
+                  {Object.entries(structuredContent.title_header).map(([key, value]) => (
+                    <div key={key}>
+                      <span className="font-medium capitalize">{key.replace(/_/g, ' ')}:</span>
+                      <span className="ml-2 text-sm text-blue-700">{value as string}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <textarea
-                value={userEditedContent}
-                onChange={(e) => setUserEditedContent(e.target.value)}
-                placeholder="Edit and customize the AI-generated content for your classroom... Click 'Convert AI Content to Editable Format' to start with the structured content."
-                className="w-full h-64 p-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            )}
+
+            {structuredContent.learning_objectives && (
+              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                <div className="mb-3">
+                  <h3 className="font-semibold text-green-900">Learning Objectives</h3>
+                </div>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  {structuredContent.learning_objectives.map((objective, index) => (
+                    <li key={index} className="text-green-800">{objective}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Editable Sections */}
+            {structuredContent.lesson_content && (
+              <EditableSection
+                title="Lesson Content"
+                content={structuredContent.lesson_content}
+                onSave={(updatedContent) => handleSectionSave('lesson_content', updatedContent)}
+                isEditing={editingSection === 'lesson_content'}
+                onEdit={() => setEditingSection('lesson_content')}
+                onCancel={() => setEditingSection(null)}
+                bgColor="bg-purple-50"
+                textColor="text-purple-900"
+                borderColor="border-purple-200"
               />
-              <p className="text-sm text-gray-600 mt-2">
-                Customize the content to fit your teaching style and classroom needs. You can convert the structured AI content to a readable format for easier editing.
-              </p>
-            </div>
+            )}
 
+            {structuredContent.assessment && (
+              <EditableSection
+                title="Assessment"
+                content={structuredContent.assessment}
+                onSave={(updatedContent) => handleSectionSave('assessment', updatedContent)}
+                isEditing={editingSection === 'assessment'}
+                onEdit={() => setEditingSection('assessment')}
+                onCancel={() => setEditingSection(null)}
+                bgColor="bg-orange-50"
+                textColor="text-orange-900"
+                borderColor="border-orange-200"
+              />
+            )}
 
+            {structuredContent.key_takeaways && (
+              <EditableSection
+                title="Key Takeaways"
+                content={structuredContent.key_takeaways}
+                onSave={(updatedContent) => handleSectionSave('key_takeaways', updatedContent)}
+                isEditing={editingSection === 'key_takeaways'}
+                onEdit={() => setEditingSection('key_takeaways')}
+                onCancel={() => setEditingSection(null)}
+                bgColor="bg-indigo-50"
+                textColor="text-indigo-900"
+                borderColor="border-indigo-200"
+              />
+            )}
+
+            {structuredContent.related_projects_or_activities && (
+              <EditableSection
+                title="Related Projects & Activities"
+                content={structuredContent.related_projects_or_activities}
+                onSave={(updatedContent) => handleSectionSave('related_projects_or_activities', updatedContent)}
+                isEditing={editingSection === 'related_projects_or_activities'}
+                onEdit={() => setEditingSection('related_projects_or_activities')}
+                onCancel={() => setEditingSection(null)}
+                bgColor="bg-teal-50"
+                textColor="text-teal-900"
+                borderColor="border-teal-200"
+              />
+            )}
+
+            {structuredContent.references && (
+              <EditableSection
+                title="References"
+                content={structuredContent.references}
+                onSave={(updatedContent) => handleSectionSave('references', updatedContent)}
+                isEditing={editingSection === 'references'}
+                onEdit={() => setEditingSection('references')}
+                onCancel={() => setEditingSection(null)}
+                bgColor="bg-gray-50"
+                textColor="text-gray-900"
+                borderColor="border-gray-200"
+              />
+            )}
           </div>
 
           {/* Sidebar */}
