@@ -204,13 +204,13 @@ def update_api_documentation():
     """Update API documentation files."""
     try:
         # Read the current API contracts
-        contracts_file = Path('docs/internal/api-contracts.md')
+        contracts_file = Path('docs/private/api-contracts.md')
         if not contracts_file.exists():
             print("❌ API contracts file not found")
             return False
             
         # Update the API README with generation timestamp
-        api_readme = Path('docs/api/README.md')
+        api_readme = Path('docs/public/api/README.md')
         if api_readme.exists():
             with open(api_readme, 'r') as f:
                 content = f.read()
@@ -248,9 +248,9 @@ def validate_documentation():
     
     # Check if required files exist
     required_files = [
-        'docs/internal/api-contracts.md',
-        'docs/api/README.md',
-        'docs/internal/requirements.md'
+        'docs/private/api-contracts.md',
+        'docs/public/api/README.md',
+        'docs/private/requirements.md'
     ]
     
     for file_path in required_files:
