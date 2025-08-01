@@ -718,6 +718,25 @@ def start_backend_server() -> bool:
             print(f"❌ Failed to install backend dependencies: {e}")
             return False
         
+        # Initialize database before starting server
+        print("🗄️  Initializing database...")
+        try:
+            # Set up environment variables for database initialization
+            env = os.environ.copy()
+            
+            # Run database initialization
+            subprocess.run(
+                [sys.executable, "init_db.py"],
+                cwd="apps/backend",
+                env=env,
+                check=True,
+                capture_output=True
+            )
+            print("✅ Database initialized successfully")
+        except subprocess.CalledProcessError as e:
+            print(f"⚠️  Database initialization failed (tables may already exist): {e}")
+            # Continue anyway as tables might already exist
+        
         # Set up environment variables for the backend
         # Use the environment variables that were loaded and validated
         env = os.environ.copy()
