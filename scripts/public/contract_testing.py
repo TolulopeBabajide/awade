@@ -480,6 +480,111 @@ class ContractValidator:
                 )
                 if response.status_code not in [200, 201]:
                     print(f"⚠️  Could not create curriculum: {response.status_code}")
+                    
+            # Create curriculum structure data directly in database
+            # This is needed because the lesson plan generation endpoint expects specific curriculum structure
+            import psycopg2
+            from urllib.parse import urlparse
+            
+            # Parse DATABASE_URL to get connection details
+            db_url = os.getenv("DATABASE_URL")
+            if db_url:
+                parsed = urlparse(db_url)
+                conn = psycopg2.connect(
+                    host=parsed.hostname,
+                    port=parsed.port,
+                    database=parsed.path[1:],
+                    user=parsed.username,
+                    password=parsed.password
+                )
+                
+                with conn.cursor() as cursor:
+                    # Check if data already exists
+                    cursor.execute("SELECT COUNT(*) FROM countries WHERE country_name = 'Nigeria'")
+                    if cursor.fetchone()[0] == 0:
+                        # Create country
+                        cursor.execute("INSERT INTO countries (country_name, iso_code, region) VALUES ('Nigeria', 'NG', 'West Africa')")
+                    
+                    # Check if subject exists
+                    cursor.execute("SELECT COUNT(*) FROM subjects WHERE name = 'Mathematics'")
+                    if cursor.fetchone()[0] == 0:
+                        # Create subject
+                        cursor.execute("INSERT INTO subjects (name) VALUES ('Mathematics')")
+                    
+                    # Check if grade level exists
+                    cursor.execute("SELECT COUNT(*) FROM grade_levels WHERE name = 'JSS 1'")
+                    if cursor.fetchone()[0] == 0:
+                        # Create grade level
+                        cursor.execute("INSERT INTO grade_levels (name) VALUES ('JSS 1')")
+                    
+                    # Check if curriculum exists
+                    cursor.execute("SELECT COUNT(*) FROM curricula WHERE curricula_title = 'Nigeria JSS1 Mathematics'")
+                    if cursor.fetchone()[0] == 0:
+                        # Get country_id
+                        cursor.execute("SELECT country_id FROM countries WHERE country_name = 'Nigeria'")
+                        country_id = cursor.fetchone()[0]
+                        # Create curriculum
+                        cursor.execute("INSERT INTO curricula (curricula_title, country_id, created_at) VALUES ('Nigeria JSS1 Mathematics', %s, NOW())", (country_id,))
+                    
+                    # Check if curriculum structure exists
+                    cursor.execute("""
+                        SELECT COUNT(*) FROM curriculum_structures cs
+                        JOIN curricula c ON cs.curricula_id = c.curricula_id
+                        JOIN subjects s ON cs.subject_id = s.subject_id
+                        JOIN grade_levels gl ON cs.grade_level_id = gl.grade_level_id
+                        WHERE c.curricula_title = 'Nigeria JSS1 Mathematics'
+                        AND s.name = 'Mathematics'
+                        AND gl.name = 'JSS 1'
+                    """)
+                    if cursor.fetchone()[0] == 0:
+                        # Get IDs
+                        cursor.execute("SELECT curricula_id FROM curricula WHERE curricula_title = 'Nigeria JSS1 Mathematics'")
+                        curricula_id = cursor.fetchone()[0]
+                        cursor.execute("SELECT subject_id FROM subjects WHERE name = 'Mathematics'")
+                        subject_id = cursor.fetchone()[0]
+                        cursor.execute("SELECT grade_level_id FROM grade_levels WHERE name = 'JSS 1'")
+                        grade_level_id = cursor.fetchone()[0]
+                        # Create curriculum structure
+                        cursor.execute("""
+                            INSERT INTO curriculum_structures (curricula_id, grade_level_id, subject_id)
+                            VALUES (%s, %s, %s)
+                        """, (curricula_id, grade_level_id, subject_id))
+                    
+                    # Check if topic exists
+                    cursor.execute("""
+                        SELECT COUNT(*) FROM topics t
+                        JOIN curriculum_structures cs ON t.curriculum_structure_id = cs.curriculum_structure_id
+                        JOIN curricula c ON cs.curricula_id = c.curricula_id
+                        JOIN subjects s ON cs.subject_id = s.subject_id
+                        JOIN grade_levels gl ON cs.grade_level_id = gl.grade_level_id
+                        WHERE c.curricula_title = 'Nigeria JSS1 Mathematics'
+                        AND s.name = 'Mathematics'
+                        AND gl.name = 'JSS 1'
+                        AND t.topic_title = 'Fractions'
+                    """)
+                    if cursor.fetchone()[0] == 0:
+                        # Get curriculum structure ID
+                        cursor.execute("""
+                            SELECT cs.curriculum_structure_id FROM curriculum_structures cs
+                            JOIN curricula c ON cs.curricula_id = c.curricula_id
+                            JOIN subjects s ON cs.subject_id = s.subject_id
+                            JOIN grade_levels gl ON cs.grade_level_id = gl.grade_level_id
+                            WHERE c.curricula_title = 'Nigeria JSS1 Mathematics'
+                            AND s.name = 'Mathematics'
+                            AND gl.name = 'JSS 1'
+                        """)
+                        curriculum_structure_id = cursor.fetchone()[0]
+                        # Create topic
+                        cursor.execute("""
+                            INSERT INTO topics (curriculum_structure_id, topic_title)
+                            VALUES (%s, 'Fractions')
+                        """, (curriculum_structure_id,))
+                    
+                    conn.commit()
+                    print("✅ Created curriculum structure data for testing")
+                
+                conn.close()
+                
         except Exception as e:
             print(f"⚠️  Error ensuring curriculum exists: {e}")
     
