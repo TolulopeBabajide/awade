@@ -360,7 +360,7 @@
           "lesson-plans"
         ],
         "summary": "Get Lesson Resources By Plan",
-        "description": "Get all lesson resources for a specific lesson plan.\nRequires authentication.",
+        "description": "Get all lesson resources for a specific lesson plan.\nRequires authentication and ownership.",
         "operationId": "get_lesson_resources_by_plan_api_lesson_plans__lesson_id__resources_get",
         "security": [
           {
