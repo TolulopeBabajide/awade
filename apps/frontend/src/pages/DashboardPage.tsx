@@ -80,6 +80,7 @@ const DashboardPage: React.FC = () => {
           setLessonResources(resourcesResponse.data);
         } else if (resourcesResponse.error) {
           console.error('Error loading lesson resources:', resourcesResponse.error);
+          // Don't set error for resources as it's not critical for dashboard functionality
         }
       } catch (err: any) {
         console.error('Error loading dashboard data:', err);

@@ -59,7 +59,7 @@
           "lesson-plans"
         ],
         "summary": "Get Lesson Plans",
-        "description": "Get all lesson plans with optional filtering.\nRequires authentication.",
+        "description": "Get lesson plans for the current user with optional filtering.\nRequires authentication.",
         "operationId": "get_lesson_plans_api_lesson_plans__get",
         "security": [
           {
@@ -154,7 +154,7 @@
           "lesson-plans"
         ],
         "summary": "Get Lesson Plan",
-        "description": "Get a specific lesson plan by ID.\nRequires authentication.",
+        "description": "Get a specific lesson plan by ID.\nRequires authentication and ownership.",
         "operationId": "get_lesson_plan_api_lesson_plans__lesson_id__get",
         "security": [
           {
@@ -200,7 +200,7 @@
           "lesson-plans"
         ],
         "summary": "Update Lesson Plan",
-        "description": "Update a lesson plan.\nRequires educator or admin authentication.",
+        "description": "Update a lesson plan.\nRequires educator or admin authentication and ownership.",
         "operationId": "update_lesson_plan_api_lesson_plans__lesson_id__put",
         "security": [
           {
@@ -256,7 +256,7 @@
           "lesson-plans"
         ],
         "summary": "Delete Lesson Plan",
-        "description": "Delete a lesson plan.\nRequires educator or admin authentication.",
+        "description": "Delete a lesson plan.\nRequires educator or admin authentication and ownership.",
         "operationId": "delete_lesson_plan_api_lesson_plans__lesson_id__delete",
         "security": [
           {
@@ -540,6 +540,37 @@
             }
           }
         }
+      }
+    },
+    "/api/lesson-plans/resources": {
+      "get": {
+        "tags": [
+          "lesson-plans"
+        ],
+        "summary": "Get All Lesson Resources",
+        "description": "Get all lesson resources for the current user.\nRequires authentication.",
+        "operationId": "get_all_lesson_resources_api_lesson_plans_resources_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/LessonResourceResponse"
+                  },
+                  "type": "array",
+                  "title": "Response Get All Lesson Resources Api Lesson Plans Resources Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/lesson-plans/resources/{resource_id}": {

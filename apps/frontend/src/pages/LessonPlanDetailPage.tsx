@@ -39,14 +39,24 @@ const LessonPlanDetailPage: React.FC = () => {
         }
 
         // Otherwise fetch from API
-        const response = await fetch(`/api/lesson-plans/${id}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch lesson plan');
+        const response = await apiService.getLessonPlan(id!);
+        if (response.error) {
+          throw new Error(response.error);
         }
-        const data = await response.json();
-        setLessonPlan(data);
+        if (response.data) {
+          setLessonPlan(response.data);
+        } else {
+          throw new Error('No data received from lesson plan request');
+        }
       } catch (err: any) {
-        setError(err.message || 'Failed to load lesson plan');
+        console.error('Error loading lesson plan:', err);
+        if (err.message?.includes('403')) {
+          setError('You do not have permission to access this lesson plan. It may belong to another user.');
+        } else if (err.message?.includes('404')) {
+          setError('Lesson plan not found. It may have been deleted or moved.');
+        } else {
+          setError(err.message || 'Failed to load lesson plan. Please try again.');
+        }
       } finally {
         setLoading(false);
       }

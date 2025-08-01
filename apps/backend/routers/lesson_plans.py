@@ -280,15 +280,14 @@ async def generate_lesson_resource(
     Requires educator authentication.
     """
     try:
-        # Verify lesson plan exists
+        # Verify lesson plan exists and user has access
         lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_id).first()
         if not lesson_plan:
             raise HTTPException(status_code=404, detail="Lesson plan not found")
         
-        # Get lesson plan data
-        lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_id).first()
-        if not lesson_plan:
-            raise HTTPException(status_code=404, detail="Lesson plan not found")
+        # Check if user owns the lesson plan or is admin
+        if lesson_plan.user_id != current_user.user_id and current_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=403, detail="You can only generate resources for your own lesson plans")
         
         # Get topic and curriculum data
         topic = db.query(Topic).filter(Topic.topic_id == lesson_plan.topic_id).first()
@@ -370,13 +369,17 @@ async def get_lesson_resources_by_plan(
 ):
     """
     Get all lesson resources for a specific lesson plan.
-    Requires authentication.
+    Requires authentication and ownership.
     """
     try:
         # Verify lesson plan exists
         lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_id).first()
         if not lesson_plan:
             raise HTTPException(status_code=404, detail="Lesson plan not found")
+        
+        # Check if user owns the lesson plan or is admin
+        if lesson_plan.user_id != current_user.user_id and current_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=403, detail="You can only access resources for your own lesson plans")
         
         # Get lesson resources for this lesson plan
         lesson_resources = db.query(LessonResource).filter(
