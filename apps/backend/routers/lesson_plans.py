@@ -78,7 +78,7 @@ def create_lesson_plan_response(lesson_plan, request_data=None):
             subject = lesson_plan.topic.curriculum_structure.subject.name if lesson_plan.topic else "Unknown"
             grade_level = lesson_plan.topic.curriculum_structure.grade_level.name if lesson_plan.topic else "Unknown"
             topic = lesson_plan.topic.topic_title if lesson_plan.topic else None
-            author_id = 1  # Default author ID for existing lesson plans
+            author_id = lesson_plan.user_id  # Use actual user_id from lesson plan
             duration_minutes = 45  # Default duration
         
         return LessonPlanResponse(
@@ -126,9 +126,10 @@ async def generate_lesson_plan(
         if not topic:
             raise HTTPException(status_code=404, detail="Topic not found in curriculum")
         
-        # Create lesson plan
+        # Create lesson plan with user_id
         lesson_plan = LessonPlan(
             topic_id=topic.topic_id,
+            user_id=current_user.user_id,
             created_at=datetime.utcnow()
         )
         db.add(lesson_plan)
@@ -153,13 +154,14 @@ async def get_lesson_plans(
     db: Session = Depends(get_db)
 ):
     """
-    Get all lesson plans with optional filtering.
+    Get lesson plans for the current user with optional filtering.
     Requires authentication.
     """
     try:
-        query = db.query(LessonPlan)
+        # Start with lesson plans for the current user
+        query = db.query(LessonPlan).filter(LessonPlan.user_id == current_user.user_id)
         
-        # Apply filters
+        # Apply additional filters
         if subject:
             query = query.join(Topic).join(CurriculumStructure).join(Subject).filter(Subject.name == subject)
         if grade_level:
@@ -182,10 +184,14 @@ async def get_lesson_plan(
 ):
     """
     Get a specific lesson plan by ID.
-    Requires authentication.
+    Requires authentication and ownership.
     """
     try:
-        lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_id).first()
+        lesson_plan = db.query(LessonPlan).filter(
+            LessonPlan.lesson_plan_id == lesson_id,
+            LessonPlan.user_id == current_user.user_id
+        ).first()
+        
         if not lesson_plan:
             raise HTTPException(status_code=404, detail="Lesson plan not found")
         
@@ -206,19 +212,16 @@ async def update_lesson_plan(
 ):
     """
     Update a lesson plan.
-    Requires educator or admin authentication.
+    Requires educator or admin authentication and ownership.
     """
     try:
-        lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_id).first()
+        lesson_plan = db.query(LessonPlan).filter(
+            LessonPlan.lesson_plan_id == lesson_id,
+            LessonPlan.user_id == current_user.user_id
+        ).first()
+        
         if not lesson_plan:
             raise HTTPException(status_code=404, detail="Lesson plan not found")
-        
-        # Check if user is admin or the lesson plan author
-        # Note: This is a simplified check - you might want to add author_id to LessonPlan model
-        if current_user.role != UserRole.ADMIN:
-            # For now, allow educators to edit any lesson plan
-            # In a more sophisticated system, you'd check if current_user is the author
-            pass
         
         # Update lesson plan fields
         # Note: This is a placeholder - you'll need to add the fields you want to update
@@ -243,18 +246,16 @@ async def delete_lesson_plan(
 ):
     """
     Delete a lesson plan.
-    Requires educator or admin authentication.
+    Requires educator or admin authentication and ownership.
     """
     try:
-        lesson_plan = db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_id).first()
+        lesson_plan = db.query(LessonPlan).filter(
+            LessonPlan.lesson_plan_id == lesson_id,
+            LessonPlan.user_id == current_user.user_id
+        ).first()
+        
         if not lesson_plan:
             raise HTTPException(status_code=404, detail="Lesson plan not found")
-        
-        # Check if user is admin or the lesson plan author
-        if current_user.role != UserRole.ADMIN:
-            # For now, allow educators to delete any lesson plan
-            # In a more sophisticated system, you'd check if current_user is the author
-            pass
         
         db.delete(lesson_plan)
         db.commit()
@@ -527,6 +528,39 @@ async def export_lesson_resource(
     except Exception as e:
         print(f"Error exporting lesson resource: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error exporting lesson resource: {str(e)}")
+
+@router.get("/resources", response_model=List[LessonResourceResponse])
+async def get_all_lesson_resources(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get all lesson resources for the current user.
+    Requires authentication.
+    """
+    try:
+        lesson_resources = db.query(LessonResource).filter(
+            LessonResource.user_id == current_user.user_id
+        ).order_by(LessonResource.created_at.desc()).all()
+        
+        return [
+            LessonResourceResponse(
+                lesson_resources_id=resource.lesson_resources_id,
+                lesson_plan_id=resource.lesson_plan_id,
+                user_id=resource.user_id,
+                context_input=resource.context_input,
+                ai_generated_content=resource.ai_generated_content,
+                user_edited_content=resource.user_edited_content,
+                export_format=resource.export_format,
+                status=resource.status,
+                created_at=resource.created_at
+            )
+            for resource in lesson_resources
+        ]
+        
+    except Exception as e:
+        print(f"Error getting lesson resources: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error getting lesson resources: {str(e)}")
 
 @router.get("/resources/{resource_id}", response_model=LessonResourceResponse)
 async def get_lesson_resource(

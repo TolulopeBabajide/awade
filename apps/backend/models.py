@@ -188,6 +188,7 @@ class User(Base):
     
     # Relationships
     lesson_resources = relationship("LessonResource", back_populates="user")
+    lesson_plans = relationship("LessonPlan", back_populates="user", cascade="all, delete-orphan")
 
 class LessonPlan(Base):
     """Lesson plans created by educators."""
@@ -195,10 +196,12 @@ class LessonPlan(Base):
     
     lesson_plan_id = Column(Integer, primary_key=True, autoincrement=True)
     topic_id = Column(Integer, ForeignKey('topics.topic_id', ondelete='CASCADE'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
     created_at = Column(DateTime, default=func.now(), nullable=False)
     
     # Relationships
     topic = relationship("Topic", back_populates="lesson_plans")
+    user = relationship("User", back_populates="lesson_plans")
     lesson_resources = relationship("LessonResource", back_populates="lesson_plan", cascade="all, delete-orphan")
     contexts = relationship("Context", back_populates="lesson_plan", cascade="all, delete-orphan")
 

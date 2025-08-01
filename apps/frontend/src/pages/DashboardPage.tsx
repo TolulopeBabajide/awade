@@ -74,26 +74,13 @@ const DashboardPage: React.FC = () => {
           console.error('Error loading lesson plans:', plansResponse.error);
         }
 
-        // For now, we'll use placeholder data for lesson resources
-        // In a real implementation, we'd have an endpoint to get all resources
-        setLessonResources([
-          {
-            lesson_resources_id: 1,
-            lesson_plan_id: 1,
-            title: 'Fractions Resource',
-            format: 'PDF',
-            status: 'Generated',
-            description: 'Fraction Worksheets'
-          },
-          {
-            lesson_resources_id: 2,
-            lesson_plan_id: 1,
-            title: 'Geometry Resource',
-            format: 'DOCX',
-            status: 'Generated',
-            description: 'Geometry Video'
-          }
-        ]);
+        // Load lesson resources
+        const resourcesResponse = await apiService.getAllLessonResources();
+        if (resourcesResponse.data) {
+          setLessonResources(resourcesResponse.data);
+        } else if (resourcesResponse.error) {
+          console.error('Error loading lesson resources:', resourcesResponse.error);
+        }
       } catch (err: any) {
         console.error('Error loading dashboard data:', err);
       }
@@ -379,72 +366,119 @@ const DashboardPage: React.FC = () => {
         <div>
           <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-2 md:gap-0">
             <h4 className="text-lg font-bold">My Lesson Plans</h4>
-            <button className="text-orange-600 underline">View All</button>
+            <button 
+              className="text-orange-600 underline"
+              onClick={() => navigate('/lesson-plans')}
+            >
+              View All
+            </button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {lessonPlans.length > 0 ? (
-              lessonPlans.map((plan: any) => (
+              lessonPlans.slice(0, 5).map((plan: any) => (
                 <div key={plan.lesson_id} className="bg-white rounded shadow p-4 flex flex-col items-center cursor-pointer hover:shadow-md transition-shadow"
                      onClick={() => navigate(`/lesson-plans/${plan.lesson_id}`)}>
                   <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-2">
                     <span className="text-2xl">📚</span>
                   </div>
-                  <div className="font-semibold mb-1 text-center">{plan.subject}</div>
+                  <div className="font-semibold mb-1 text-center text-sm">{plan.subject}</div>
                   <div className="text-xs text-gray-500 mb-1">{plan.grade_level}</div>
-                  <div className="text-xs text-gray-400 mb-2">{plan.duration_minutes} min</div>
-                  <div className="text-xs text-gray-600 text-center">{plan.topic || 'No topic'}</div>
+                  <div className="text-xs text-gray-400 mb-2">{plan.duration_minutes || 45} min</div>
+                  <div className="text-xs text-gray-600 text-center line-clamp-2">{plan.topic || 'No topic'}</div>
                 </div>
               ))
             ) : (
-              // Placeholder cards when no lesson plans
-              [1,2,3,4,5].map(i => (
-                <div key={i} className="bg-white rounded shadow p-4 flex flex-col items-center">
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-2">
-                    <span className="text-2xl">{i % 2 === 0 ? '🧪' : '📚'}</span>
-                  </div>
-                  <div className="font-semibold mb-1">{i % 2 === 0 ? 'Biology' : 'Social Studies'}</div>
-                  <div className="text-xs text-gray-500 mb-1">{i % 2 === 0 ? 'Grade 6' : 'Grade 2'}</div>
-                  <div className="text-xs text-gray-400 mb-2">{i % 2 === 0 ? '2 Weeks Plan' : '12 Weeks Plan'}</div>
-                  <div className="text-xs text-gray-600 text-center">{i % 2 === 0 ? 'Human Skeletal System' : 'Importance of United Family'}</div>
+              // Empty state when no lesson plans
+              <div className="col-span-full text-center py-8">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">📚</span>
                 </div>
-              ))
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">No Lesson Plans Yet</h3>
+                <p className="text-gray-500 mb-4">Create your first lesson plan to get started</p>
+                <button 
+                  className="bg-orange-400 text-white px-4 py-2 rounded hover:bg-orange-500"
+                  onClick={() => {
+                    // Scroll to the form and focus on the topic input
+                    const topicInput = document.querySelector('input[name="topic"]') as HTMLInputElement;
+                    if (topicInput) {
+                      topicInput.scrollIntoView({ behavior: 'smooth' });
+                      topicInput.focus();
+                    }
+                  }}
+                >
+                  Create Lesson Plan
+                </button>
+              </div>
             )}
           </div>
         </div>
-        {/* My Lesson Notes Section */}
+        {/* My Lesson Resources Section */}
         <div className="mt-10">
           <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-2 md:gap-0">
             <h4 className="text-lg font-bold">My Lesson Resources</h4>
-            <button className="text-orange-600 underline">View All</button>
+            <button 
+              className="text-orange-600 underline"
+              onClick={() => navigate('/lesson-plans')}
+            >
+              View All
+            </button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {lessonResources.length > 0 ? (
-              lessonResources.map((resource: any) => (
-                <div key={resource.lesson_resources_id} 
-                     className="bg-white rounded shadow p-4 flex flex-col items-center cursor-pointer hover:shadow-md transition-shadow"
-                     onClick={() => navigate(`/lesson-plans/${resource.lesson_plan_id}/resources/edit`)}>
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
-                    <span className="text-2xl">{resource.format === 'PDF' ? '📄' : '📝'}</span>
+              lessonResources.slice(0, 5).map((resource: any) => {
+                // Parse AI content to get title if available
+                let title = 'Lesson Resource';
+                let description = 'AI-generated content';
+                
+                try {
+                  if (resource.ai_generated_content) {
+                    const parsedContent = JSON.parse(resource.ai_generated_content);
+                    if (parsedContent.title_header?.topic) {
+                      title = `${parsedContent.title_header.subject || 'Subject'}: ${parsedContent.title_header.topic}`;
+                    }
+                    if (parsedContent.lesson_content?.introduction) {
+                      description = parsedContent.lesson_content.introduction.substring(0, 50) + '...';
+                    }
+                  }
+                } catch (e) {
+                  // If parsing fails, use default values
+                }
+                
+                return (
+                  <div key={resource.lesson_resources_id} 
+                       className="bg-white rounded shadow p-4 flex flex-col items-center cursor-pointer hover:shadow-md transition-shadow"
+                       onClick={() => navigate(`/lesson-plans/${resource.lesson_plan_id}/resources/edit`)}>
+                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                      <span className="text-2xl">{resource.export_format === 'pdf' ? '📄' : '📝'}</span>
+                    </div>
+                    <div className="font-semibold mb-1 text-center text-sm line-clamp-2">{title}</div>
+                    <div className="text-xs text-gray-500 mb-1">{resource.export_format?.toUpperCase() || 'DRAFT'}</div>
+                    <div className="text-xs text-gray-400 mb-2">{resource.status}</div>
+                    <div className="text-xs text-gray-600 text-center line-clamp-2">{description}</div>
                   </div>
-                  <div className="font-semibold mb-1 text-center">{resource.title}</div>
-                  <div className="text-xs text-gray-500 mb-1">{resource.format}</div>
-                  <div className="text-xs text-gray-400 mb-2">{resource.status}</div>
-                  <div className="text-xs text-gray-600 text-center">{resource.description}</div>
-                </div>
-              ))
+                );
+              })
             ) : (
-              // Placeholder cards when no lesson resources
-              [1,2,3,4,5].map(i => (
-                <div key={i} className="bg-white rounded shadow p-4 flex flex-col items-center">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
-                    <span className="text-2xl">{i % 2 === 0 ? '📄' : '🔗'}</span>
-                  </div>
-                  <div className="font-semibold mb-1">{i % 2 === 0 ? 'Fractions Resource' : 'Geometry Resource'}</div>
-                  <div className="text-xs text-gray-500 mb-1">{i % 2 === 0 ? 'PDF' : 'Link'}</div>
-                  <div className="text-xs text-gray-400 mb-2">{i % 2 === 0 ? 'Uploaded' : 'Generated'}</div>
-                  <div className="text-xs text-gray-600 text-center">{i % 2 === 0 ? 'Fraction Worksheets' : 'Geometry Video'}</div>
+              // Empty state when no lesson resources
+              <div className="col-span-full text-center py-8">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">📄</span>
                 </div>
-              ))
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">No Lesson Resources Yet</h3>
+                <p className="text-gray-500 mb-4">Create lesson plans to generate AI-powered resources</p>
+                <button 
+                  className="bg-orange-400 text-white px-4 py-2 rounded hover:bg-orange-500"
+                  onClick={() => {
+                    const topicInput = document.querySelector('input[name="topic"]') as HTMLInputElement;
+                    if (topicInput) {
+                      topicInput.scrollIntoView({ behavior: 'smooth' });
+                      topicInput.focus();
+                    }
+                  }}
+                >
+                  Create Lesson Plan
+                </button>
+              </div>
             )}
           </div>
         </div>

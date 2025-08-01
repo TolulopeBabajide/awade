@@ -149,6 +149,13 @@ class ApiService {
     return this.handleResponse(response);
   }
 
+  async getAllLessonResources(): Promise<ApiResponse<any[]>> {
+    const response = await fetch(`${API_BASE_URL}/lesson-plans/resources`, {
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
   async getLessonResource(resourceId: string): Promise<ApiResponse<any>> {
     const response = await fetch(`${API_BASE_URL}/lesson-plans/resources/${resourceId}`, {
       headers: this.getAuthHeaders()

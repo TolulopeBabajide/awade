@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { Link, useNavigate } from 'react-router-dom';
+import apiService from '../services/api';
 
 function isAlphanumeric(str: string) {
   return /^[a-zA-Z0-9]+$/.test(str);
@@ -33,23 +34,22 @@ const SignupPage: React.FC = () => {
     }
   }, [showSuccessModal, navigate]);
 
-  // Google OAuth handler (unchanged)
+  // Google OAuth handler
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setError(null);
     try {
-      const res = await fetch('/api/auth/google', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ credential: credentialResponse.credential }),
-      });
-      if (!res.ok) {
-        throw new Error('Google authentication failed');
+      const response = await apiService.googleAuth(credentialResponse.credential);
+      
+      if (response.error) {
+        throw new Error(response.error);
       }
-      const data = await res.json();
-      localStorage.setItem('access_token', data.access_token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      // TODO: Redirect or update UI as needed
-      console.log('Authenticated user:', data.user);
+      
+      if (response.data) {
+        localStorage.setItem('access_token', response.data.access_token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        // TODO: Redirect or update UI as needed
+        console.log('Authenticated user:', response.data.user);
+      }
     } catch (err: any) {
       setError(err.message || 'Google login failed');
     }
@@ -101,35 +101,29 @@ const SignupPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      // Always use HTTPS in production
-      const url = (import.meta as any).env.MODE === 'production'
-        ? 'https://your-production-domain.com/api/auth/signup'
-        : '/api/auth/signup';
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: form.email,
-          password: form.password,
-          full_name: form.fullName,
-          role: 'EDUCATOR',
-          country: '',
-          region: null,
-          school_name: null,
-          subjects: null,
-          grade_levels: null,
-          languages_spoken: null,
-        }),
+      const response = await apiService.signup({
+        email: form.email,
+        password: form.password,
+        full_name: form.fullName,
+        role: 'EDUCATOR',
+        country: '',
+        region: null,
+        school_name: null,
+        subjects: null,
+        grade_levels: null,
+        languages_spoken: null,
       });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.detail || 'Signup failed');
+      
+      if (response.error) {
+        throw new Error(response.error);
       }
-      const data = await res.json();
-      localStorage.setItem('access_token', data.access_token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      setShowSuccessModal(true);
-      console.log('Signed up user:', data.user);
+      
+      if (response.data) {
+        localStorage.setItem('access_token', response.data.access_token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        setShowSuccessModal(true);
+        console.log('Signed up user:', response.data.user);
+      }
     } catch (err: any) {
       setError(err.message || 'Signup failed');
     } finally {
