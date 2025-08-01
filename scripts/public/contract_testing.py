@@ -56,7 +56,7 @@ class ContractValidator:
             # Create a test user for contract testing
             test_user_data = {
                 "full_name": "Contract Test User",
-                "email": "contract-test@awade.test",
+                "email": "contract-test@awade.com",
                 "password": "testpassword123",
                 "role": "EDUCATOR",
                 "country": "Nigeria"
