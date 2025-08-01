@@ -53,6 +53,85 @@
         ]
       }
     },
+    "/api/lesson-plans/resources": {
+      "get": {
+        "tags": [
+          "lesson-plans"
+        ],
+        "summary": "Get All Lesson Resources",
+        "description": "Get all lesson resources for the current user.\nRequires authentication.",
+        "operationId": "get_all_lesson_resources_api_lesson_plans_resources_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/LessonResourceResponse"
+                  },
+                  "type": "array",
+                  "title": "Response Get All Lesson Resources Api Lesson Plans Resources Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/lesson-plans/resources/{resource_id}": {
+      "get": {
+        "tags": [
+          "lesson-plans"
+        ],
+        "summary": "Get Lesson Resource",
+        "description": "Get a specific lesson resource.\nRequires authentication.",
+        "operationId": "get_lesson_resource_api_lesson_plans_resources__resource_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "resource_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Resource Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonResourceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/lesson-plans/": {
       "get": {
         "tags": [
@@ -526,85 +605,6 @@
             "content": {
               "application/json": {
                 "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/lesson-plans/resources": {
-      "get": {
-        "tags": [
-          "lesson-plans"
-        ],
-        "summary": "Get All Lesson Resources",
-        "description": "Get all lesson resources for the current user.\nRequires authentication.",
-        "operationId": "get_all_lesson_resources_api_lesson_plans_resources_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/LessonResourceResponse"
-                  },
-                  "type": "array",
-                  "title": "Response Get All Lesson Resources Api Lesson Plans Resources Get"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/api/lesson-plans/resources/{resource_id}": {
-      "get": {
-        "tags": [
-          "lesson-plans"
-        ],
-        "summary": "Get Lesson Resource",
-        "description": "Get a specific lesson resource.\nRequires authentication.",
-        "operationId": "get_lesson_resource_api_lesson_plans_resources__resource_id__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "resource_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Resource Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LessonResourceResponse"
-                }
               }
             }
           },
@@ -3874,10 +3874,6 @@
             "type": "integer",
             "title": "Lesson Plan Id"
           },
-          "user_id": {
-            "type": "integer",
-            "title": "User Id"
-          },
           "context_input": {
             "anyOf": [
               {
@@ -3903,8 +3899,7 @@
         },
         "type": "object",
         "required": [
-          "lesson_plan_id",
-          "user_id"
+          "lesson_plan_id"
         ],
         "title": "LessonResourceCreate",
         "description": "Schema for creating lesson resources."
