@@ -58,7 +58,8 @@ class ContractValidator:
                 "full_name": "Contract Test User",
                 "email": "contract-test@awade.test",
                 "password": "testpassword123",
-                "role": "EDUCATOR"
+                "role": "EDUCATOR",
+                "country": "Nigeria"
             }
             
             # Try to create the test user
@@ -69,29 +70,31 @@ class ContractValidator:
             )
             
             if response.status_code in [200, 201, 422]:  # 422 means user already exists
-                # Now try to login to get the token
-                login_data = {
-                    "email": test_user_data["email"],
-                    "password": test_user_data["password"]
-                }
-                
-                login_response = requests.post(
-                    f"{self.base_url}/api/auth/login",
-                    json=login_data,
-                    headers={"Content-Type": "application/json"}
-                )
-                
-                if login_response.status_code == 200:
-                    login_result = login_response.json()
-                    self.auth_token = login_result.get("access_token")
-                    self.test_user_id = login_result.get("user", {}).get("user_id")
-                    print(f"✅ Authentication setup complete - User ID: {self.test_user_id}")
-                    return True
-                else:
-                    print(f"❌ Failed to login test user: {login_response.status_code}")
-                    return False
+                print(f"✅ User creation successful or user already exists: {response.status_code}")
             else:
-                print(f"❌ Failed to create test user: {response.status_code}")
+                print(f"⚠️  User creation response: {response.status_code} - {response.text}")
+            
+            # Now try to login to get the token
+            login_data = {
+                "email": test_user_data["email"],
+                "password": test_user_data["password"]
+            }
+            
+            login_response = requests.post(
+                f"{self.base_url}/api/auth/login",
+                json=login_data,
+                headers={"Content-Type": "application/json"}
+            )
+            
+            if login_response.status_code == 200:
+                login_result = login_response.json()
+                self.auth_token = login_result.get("access_token")
+                self.test_user_id = login_result.get("user", {}).get("user_id")
+                print(f"✅ Authentication setup complete - User ID: {self.test_user_id}")
+                return True
+            else:
+                print(f"❌ Failed to login test user: {login_response.status_code}")
+                print(f"Response: {login_response.text}")
                 return False
                 
         except Exception as e:
