@@ -47,7 +47,57 @@ class ContractValidator:
         self.openapi_spec = None
         self.contract_tests = []
         self.results = []
+        self.auth_token = None
+        self.test_user_id = None
         
+    def setup_test_authentication(self) -> bool:
+        """Set up authentication for contract testing."""
+        try:
+            # Create a test user for contract testing
+            test_user_data = {
+                "full_name": "Contract Test User",
+                "email": "contract-test@awade.test",
+                "password": "testpassword123",
+                "role": "EDUCATOR"
+            }
+            
+            # Try to create the test user
+            response = requests.post(
+                f"{self.base_url}/api/auth/signup",
+                json=test_user_data,
+                headers={"Content-Type": "application/json"}
+            )
+            
+            if response.status_code in [200, 201, 422]:  # 422 means user already exists
+                # Now try to login to get the token
+                login_data = {
+                    "email": test_user_data["email"],
+                    "password": test_user_data["password"]
+                }
+                
+                login_response = requests.post(
+                    f"{self.base_url}/api/auth/login",
+                    json=login_data,
+                    headers={"Content-Type": "application/json"}
+                )
+                
+                if login_response.status_code == 200:
+                    login_result = login_response.json()
+                    self.auth_token = login_result.get("access_token")
+                    self.test_user_id = login_result.get("user", {}).get("user_id")
+                    print(f"✅ Authentication setup complete - User ID: {self.test_user_id}")
+                    return True
+                else:
+                    print(f"❌ Failed to login test user: {login_response.status_code}")
+                    return False
+            else:
+                print(f"❌ Failed to create test user: {response.status_code}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Error setting up authentication: {e}")
+            return False
+
     def load_openapi_spec(self, spec_path: str = "apps/backend/app/openapi.json") -> bool:
         """Load OpenAPI specification from file."""
         try:
@@ -176,6 +226,10 @@ class ContractValidator:
             # Prepare request
             url = f"{self.base_url}{test.endpoint}"
             headers = {"Content-Type": "application/json"}
+            
+            # Add authentication header for protected endpoints
+            if self.auth_token and "/api/auth/" not in test.endpoint:
+                headers["Authorization"] = f"Bearer {self.auth_token}"
             
             # Handle path parameters - be more specific to avoid conflicts
             if "{lesson_id}" in url:
@@ -843,6 +897,15 @@ def main():
     
     # Initialize validator
     validator = ContractValidator(args.base_url)
+    
+    # Set up authentication for contract testing
+    if not validator.setup_test_authentication():
+        print("❌ Failed to set up authentication for contract testing")
+        if args.stop_containers:
+            stop_docker_containers()
+        if args.start_server:
+            stop_backend_server()
+        sys.exit(1)
     
     # Load OpenAPI spec
     if not validator.load_openapi_spec(args.spec_path):
