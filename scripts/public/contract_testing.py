@@ -423,7 +423,11 @@ class ContractValidator:
         """Ensure a lesson plan exists for testing."""
         try:
             # First, try to get any existing lesson plan
-            response = requests.get(f"{self.base_url}/api/lesson-plans")
+            headers = {"Content-Type": "application/json"}
+            if self.auth_token:
+                headers["Authorization"] = f"Bearer {self.auth_token}"
+            
+            response = requests.get(f"{self.base_url}/api/lesson-plans", headers=headers)
             if response.status_code == 200:
                 lesson_plans = response.json()
                 if lesson_plans:
@@ -441,7 +445,7 @@ class ContractValidator:
             create_response = requests.post(
                 f"{self.base_url}/api/lesson-plans/generate",
                 json=lesson_plan_data,
-                headers={"Content-Type": "application/json"}
+                headers=headers
             )
             if create_response.status_code in [200, 201]:
                 created_plan = create_response.json()
@@ -456,7 +460,11 @@ class ContractValidator:
         """Ensure curriculum data exists for testing."""
         try:
             # Check if curriculum with ID 1 exists
-            response = requests.get(f"{self.base_url}/api/curriculum/1")
+            headers = {"Content-Type": "application/json"}
+            if self.auth_token:
+                headers["Authorization"] = f"Bearer {self.auth_token}"
+            
+            response = requests.get(f"{self.base_url}/api/curriculum/1", headers=headers)
             if response.status_code == 404:
                 # Create a curriculum if it doesn't exist
                 curriculum_data = {
@@ -467,7 +475,8 @@ class ContractValidator:
                 }
                 response = requests.post(
                     f"{self.base_url}/api/curriculum/",
-                    json=curriculum_data
+                    json=curriculum_data,
+                    headers=headers
                 )
                 if response.status_code not in [200, 201]:
                     print(f"⚠️  Could not create curriculum: {response.status_code}")
@@ -566,6 +575,12 @@ class ContractValidator:
         """Run all contract tests."""
         if not self.contract_tests:
             self.generate_contract_tests()
+        
+        # Set up test data before running tests
+        print("🔧 Setting up test data...")
+        self.ensure_curriculum_exists()
+        self.ensure_lesson_plan_exists()
+        print("✅ Test data setup complete")
         
         print(f"🚀 Running {len(self.contract_tests)} contract tests...")
         
