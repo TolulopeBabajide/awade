@@ -63,7 +63,6 @@ class LessonPlanResponse(BaseModel):
 class LessonResourceCreate(BaseModel):
     """Schema for creating lesson resources."""
     lesson_plan_id: int
-    user_id: int
     context_input: Optional[str] = None
     export_format: Optional[str] = None
 

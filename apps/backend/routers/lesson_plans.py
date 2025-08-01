@@ -144,6 +144,76 @@ async def generate_lesson_plan(
         print(f"Error generating lesson plan: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error generating lesson plan: {str(e)}")
 
+@router.get("/resources", response_model=List[LessonResourceResponse])
+async def get_all_lesson_resources(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get all lesson resources for the current user.
+    Requires authentication.
+    """
+    try:
+        lesson_resources = db.query(LessonResource).filter(
+            LessonResource.user_id == current_user.user_id
+        ).order_by(LessonResource.created_at.desc()).all()
+        
+        return [
+            LessonResourceResponse(
+                lesson_resources_id=resource.lesson_resources_id,
+                lesson_plan_id=resource.lesson_plan_id,
+                user_id=resource.user_id,
+                context_input=resource.context_input,
+                ai_generated_content=resource.ai_generated_content,
+                user_edited_content=resource.user_edited_content,
+                export_format=resource.export_format,
+                status=resource.status,
+                created_at=resource.created_at
+            )
+            for resource in lesson_resources
+        ]
+        
+    except Exception as e:
+        print(f"Error getting lesson resources: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error getting lesson resources: {str(e)}")
+
+@router.get("/resources/{resource_id}", response_model=LessonResourceResponse)
+async def get_lesson_resource(
+    resource_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get a specific lesson resource.
+    Requires authentication.
+    """
+    try:
+        lesson_resource = db.query(LessonResource).filter(LessonResource.lesson_resources_id == resource_id).first()
+        if not lesson_resource:
+            raise HTTPException(status_code=404, detail="Lesson resource not found")
+        
+        # Check if user is the resource author or admin
+        if current_user.user_id != lesson_resource.user_id and current_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=403, detail="You can only view your own resources")
+        
+        return LessonResourceResponse(
+            lesson_resources_id=lesson_resource.lesson_resources_id,
+            lesson_plan_id=lesson_resource.lesson_plan_id,
+            user_id=lesson_resource.user_id,
+            context_input=lesson_resource.context_input,
+            ai_generated_content=lesson_resource.ai_generated_content,
+            user_edited_content=lesson_resource.user_edited_content,
+            export_format=lesson_resource.export_format,
+            status=lesson_resource.status,
+            created_at=lesson_resource.created_at
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error getting lesson resource: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error getting lesson resource: {str(e)}")
+
 @router.get("/", response_model=List[LessonPlanResponse])
 async def get_lesson_plans(
     skip: int = 0,
@@ -328,10 +398,10 @@ async def generate_lesson_resource(
             context=combined_context if combined_context else None
         )
         
-        # Create lesson resource
+        # Create lesson resource - user_id comes from authenticated user
         lesson_resource = LessonResource(
             lesson_plan_id=lesson_id,
-            user_id=current_user.user_id,
+            user_id=current_user.user_id,  # Use authenticated user's ID
             context_input=data.context_input,
             ai_generated_content=ai_content,
             export_format=data.export_format,
@@ -530,74 +600,4 @@ async def export_lesson_resource(
         raise
     except Exception as e:
         print(f"Error exporting lesson resource: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error exporting lesson resource: {str(e)}")
-
-@router.get("/resources", response_model=List[LessonResourceResponse])
-async def get_all_lesson_resources(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    Get all lesson resources for the current user.
-    Requires authentication.
-    """
-    try:
-        lesson_resources = db.query(LessonResource).filter(
-            LessonResource.user_id == current_user.user_id
-        ).order_by(LessonResource.created_at.desc()).all()
-        
-        return [
-            LessonResourceResponse(
-                lesson_resources_id=resource.lesson_resources_id,
-                lesson_plan_id=resource.lesson_plan_id,
-                user_id=resource.user_id,
-                context_input=resource.context_input,
-                ai_generated_content=resource.ai_generated_content,
-                user_edited_content=resource.user_edited_content,
-                export_format=resource.export_format,
-                status=resource.status,
-                created_at=resource.created_at
-            )
-            for resource in lesson_resources
-        ]
-        
-    except Exception as e:
-        print(f"Error getting lesson resources: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error getting lesson resources: {str(e)}")
-
-@router.get("/resources/{resource_id}", response_model=LessonResourceResponse)
-async def get_lesson_resource(
-    resource_id: int,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    Get a specific lesson resource.
-    Requires authentication.
-    """
-    try:
-        lesson_resource = db.query(LessonResource).filter(LessonResource.lesson_resources_id == resource_id).first()
-        if not lesson_resource:
-            raise HTTPException(status_code=404, detail="Lesson resource not found")
-        
-        # Check if user is the resource author or admin
-        if current_user.user_id != lesson_resource.user_id and current_user.role != UserRole.ADMIN:
-            raise HTTPException(status_code=403, detail="You can only view your own resources")
-        
-        return LessonResourceResponse(
-            lesson_resources_id=lesson_resource.lesson_resources_id,
-            lesson_plan_id=lesson_resource.lesson_plan_id,
-            user_id=lesson_resource.user_id,
-            context_input=lesson_resource.context_input,
-            ai_generated_content=lesson_resource.ai_generated_content,
-            user_edited_content=lesson_resource.user_edited_content,
-            export_format=lesson_resource.export_format,
-            status=lesson_resource.status,
-            created_at=lesson_resource.created_at
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        print(f"Error getting lesson resource: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error getting lesson resource: {str(e)}") 
+        raise HTTPException(status_code=500, detail=f"Error exporting lesson resource: {str(e)}") 

@@ -213,7 +213,7 @@ const DashboardPage: React.FC = () => {
         subject: subjectName,
         grade_level: gradeLevelName,
         topic: form.topic.trim(),
-        user_id: user?.user_id || 1,
+        user_id: user?.user_id,
       };
 
       const response = await apiService.generateLessonPlan(requestBody);
@@ -437,6 +437,7 @@ const DashboardPage: React.FC = () => {
               </p>
             </div>
           )}
+
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {lessonResources.length > 0 ? (
               lessonResources.slice(0, 5).map((resource: any) => {

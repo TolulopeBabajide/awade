@@ -95,7 +95,6 @@ class ApiService {
       headers: this.getAuthHeaders(),
       body: JSON.stringify({
         lesson_plan_id: parseInt(lessonPlanId),
-        user_id: 1, // TODO: Get from auth context
         context_input: contextInput
       })
     });
