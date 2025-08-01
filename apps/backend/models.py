@@ -1,11 +1,11 @@
 """
 SQLAlchemy models for Awade database schema.
-Based on the MVP requirements for African educator support platform.
+Simplified and clean implementation based on the new schema.
 """
 
 from sqlalchemy import (
-    Column, Integer, String, Text, DateTime, Boolean, ForeignKey, 
-    Enum, JSON, Float, Table, MetaData, Index
+    Column, Integer, String, Text, DateTime, ForeignKey, 
+    Enum, Table, MetaData, Index
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -17,102 +17,227 @@ Base = declarative_base()
 
 # Enums
 class UserRole(enum.Enum):
-    EDUCATOR = "educator"
-    ADMIN = "admin"
+    """Enumeration of user roles in the Awade platform."""
+    EDUCATOR = "EDUCATOR"
+    ADMIN = "ADMIN"
 
 class LessonStatus(enum.Enum):
+    """Enumeration of lesson plan statuses."""
     DRAFT = "draft"
-    PUBLISHED = "published"
+    EDITED = "edited"
+    REVIEWED = "reviewed"
+    EXPORTED = "exported"  
 
 class ResourceType(enum.Enum):
+    """Enumeration of resource types for lesson exports."""
     PDF = "pdf"
-    VIDEO = "video"
-    TOOL = "tool"
-    EXTERNAL = "external"
-
-class QuestionType(enum.Enum):
-    MCQ = "mcq"
-    OPEN_ENDED = "open-ended"
+    DOCX = "docx"
 
 # Association tables for many-to-many relationships
 lesson_tags = Table(
     'lesson_tags',
     Base.metadata,
-    Column('lesson_id', Integer, ForeignKey('lesson_plans.lesson_id'), primary_key=True),
+    Column('lesson_plan_id', Integer, ForeignKey('lesson_plans.lesson_plan_id'), primary_key=True),
     Column('tag_id', Integer, ForeignKey('tags.tag_id'), primary_key=True)
 )
+
+class Country(Base):
+    """Countries table for curriculum organization."""
+    __tablename__ = 'countries'
+    
+    country_id = Column(Integer, primary_key=True, autoincrement=True)
+    country_name = Column(String(100), unique=True, nullable=False)
+    iso_code = Column(String(2), nullable=True)
+    region = Column(String(100), nullable=True)
+    
+    # Relationships
+    curricula = relationship("Curriculum", back_populates="country")
+
+class Curriculum(Base):
+    """Curricula table - main curriculum records."""
+    __tablename__ = 'curricula'
+    
+    curricula_id = Column(Integer, primary_key=True, autoincrement=True)
+    curricula_title = Column(String(255), nullable=False)
+    country_id = Column(Integer, ForeignKey('countries.country_id'), nullable=False)
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    
+    # Relationships
+    country = relationship("Country", back_populates="curricula")
+    curriculum_structures = relationship("CurriculumStructure", back_populates="curriculum", cascade="all, delete-orphan")
+
+class GradeLevel(Base):
+    """
+    Grade levels table for educational curriculum organization.
+    
+    This table stores the different grade levels supported by the platform,
+    from primary to secondary education. Each grade level can be associated
+    with multiple curriculum structures and subjects.
+    
+    Attributes:
+        grade_level_id: Primary key for the grade level
+        name: Human-readable grade level name (e.g., "Grade 5", "JSS 1")
+        
+    Relationships:
+        curriculum_structures: One-to-many relationship with curriculum structures
+    """
+    __tablename__ = 'grade_levels'
+    
+    grade_level_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(50), nullable=False, unique=True)
+    
+    # Relationships
+    curriculum_structures = relationship("CurriculumStructure", back_populates="grade_level")
+
+class Subject(Base):
+    """
+    Subjects table for educational curriculum organization.
+    
+    This table stores the different academic subjects supported by the platform,
+    such as Mathematics, Science, English, etc. Each subject can be taught
+    across multiple grade levels and curriculum structures.
+    
+    Attributes:
+        subject_id: Primary key for the subject
+        name: Human-readable subject name (e.g., "Mathematics", "Science")
+        
+    Relationships:
+        curriculum_structures: One-to-many relationship with curriculum structures
+    """
+    __tablename__ = 'subjects'
+    
+    subject_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(100), nullable=False, unique=True)
+    
+    # Relationships
+    curriculum_structures = relationship("CurriculumStructure", back_populates="subject")
+
+class CurriculumStructure(Base):
+    """Curriculum structures linking curricula, grade levels, and subjects."""
+    __tablename__ = 'curriculum_structures'
+    
+    curriculum_structure_id = Column(Integer, primary_key=True, autoincrement=True)
+    curricula_id = Column(Integer, ForeignKey('curricula.curricula_id', ondelete='CASCADE'), nullable=False)
+    grade_level_id = Column(Integer, ForeignKey('grade_levels.grade_level_id'), nullable=False)
+    subject_id = Column(Integer, ForeignKey('subjects.subject_id'), nullable=False)
+    
+    # Relationships
+    curriculum = relationship("Curriculum", back_populates="curriculum_structures")
+    grade_level = relationship("GradeLevel", back_populates="curriculum_structures")
+    subject = relationship("Subject", back_populates="curriculum_structures")
+    topics = relationship("Topic", back_populates="curriculum_structure", cascade="all, delete-orphan")
+    
+    # Unique constraint to prevent duplicate structures
+    __table_args__ = (
+        Index('idx_curriculum_structure_unique', 'curricula_id', 'grade_level_id', 'subject_id', unique=True),
+    )
+
+class Topic(Base):
+    """Topics within curriculum structures."""
+    __tablename__ = 'topics'
+    
+    topic_id = Column(Integer, primary_key=True, autoincrement=True)
+    curriculum_structure_id = Column(Integer, ForeignKey('curriculum_structures.curriculum_structure_id', ondelete='CASCADE'), nullable=False)
+    topic_title = Column(Text, nullable=False)
+    
+    # Relationships
+    curriculum_structure = relationship("CurriculumStructure", back_populates="topics")
+    learning_objectives = relationship("LearningObjective", back_populates="topic", cascade="all, delete-orphan")
+    topic_contents = relationship("TopicContent", back_populates="topic", cascade="all, delete-orphan")
+    lesson_plans = relationship("LessonPlan", back_populates="topic", cascade="all, delete-orphan")
+
+class LearningObjective(Base):
+    """Learning objectives for each topic."""
+    __tablename__ = 'learning_objectives'
+    
+    learning_objective_id = Column(Integer, primary_key=True, autoincrement=True)
+    topic_id = Column(Integer, ForeignKey('topics.topic_id', ondelete='CASCADE'), nullable=False)
+    objective = Column(Text, nullable=False)
+    
+    # Relationships
+    topic = relationship("Topic", back_populates="learning_objectives")
+
+class TopicContent(Base):
+    """Topic contents for each topic."""
+    __tablename__ = 'topic_contents'
+    
+    topic_contents_id = Column(Integer, primary_key=True, autoincrement=True)
+    topic_id = Column(Integer, ForeignKey('topics.topic_id', ondelete='CASCADE'), nullable=False)
+    content_area = Column(Text, nullable=False)
+    
+    # Relationships
+    topic = relationship("Topic", back_populates="topic_contents")
 
 class User(Base):
     """User accounts for the platform."""
     __tablename__ = 'users'
     
     user_id = Column(Integer, primary_key=True, autoincrement=True)
-    email = Column(String(255), unique=True, nullable=False, index=True)
-    password_hash = Column(String(255), nullable=False)
-    role = Column(Enum(UserRole), nullable=False, default=UserRole.EDUCATOR)
-    created_at = Column(DateTime, default=func.now(), nullable=False)
-    last_login = Column(DateTime, nullable=True)
-    
-    # Relationships
-    educator_profile = relationship("EducatorProfile", back_populates="user", uselist=False)
-    lesson_plans = relationship("LessonPlan", back_populates="author")
-    feedback = relationship("Feedback", back_populates="user")
-
-class EducatorProfile(Base):
-    """Detailed profile information for educators."""
-    __tablename__ = 'educator_profiles'
-    
-    profile_id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False, unique=True)
-    full_name = Column(String(255), nullable=False)
-    country = Column(String(100), nullable=False)
+    full_name = Column(String(100), nullable=False)
+    email = Column(String(100), unique=True, nullable=False, index=True)
+    password_hash = Column(Text, nullable=False)
+    role = Column(Enum(UserRole), default=UserRole.EDUCATOR, nullable=False)
+    country = Column(String(100), nullable=True)
     region = Column(String(100), nullable=True)
-    school_name = Column(String(255), nullable=True)
-    subjects = Column(JSON, nullable=True)  # List of subjects taught
-    grade_levels = Column(JSON, nullable=True)  # List of grade levels
-    languages_spoken = Column(Text, nullable=True)  # Comma-separated languages
+    school_name = Column(String(200), nullable=True)
+    subjects = Column(Text, nullable=True)  # JSON string or comma-separated
+    grade_levels = Column(Text, nullable=True)  # JSON string or comma-separated
+    languages_spoken = Column(Text, nullable=True)  # JSON string or comma-separated
+    last_login = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=func.now(), nullable=False)
     
     # Relationships
-    user = relationship("User", back_populates="educator_profile")
+    lesson_resources = relationship("LessonResource", back_populates="user")
+    lesson_plans = relationship("LessonPlan", back_populates="user", cascade="all, delete-orphan")
 
 class LessonPlan(Base):
     """Lesson plans created by educators."""
     __tablename__ = 'lesson_plans'
     
-    lesson_id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(String(255), nullable=False)
-    subject = Column(String(100), nullable=False)
-    grade_level = Column(String(50), nullable=False)
-    author_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
-    context_description = Column(Text, nullable=True)
-    duration_minutes = Column(Integer, nullable=False)
+    lesson_plan_id = Column(Integer, primary_key=True, autoincrement=True)
+    topic_id = Column(Integer, ForeignKey('topics.topic_id', ondelete='CASCADE'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    
+    # Relationships
+    topic = relationship("Topic", back_populates="lesson_plans")
+    user = relationship("User", back_populates="lesson_plans")
+    lesson_resources = relationship("LessonResource", back_populates="lesson_plan", cascade="all, delete-orphan")
+    contexts = relationship("Context", back_populates="lesson_plan", cascade="all, delete-orphan")
+
+class Context(Base):
+    """Context information for lesson plans to improve AI generation."""
+    __tablename__ = 'contexts'
+    
+    context_id = Column(Integer, primary_key=True, autoincrement=True)
+    lesson_plan_id = Column(Integer, ForeignKey('lesson_plans.lesson_plan_id', ondelete='CASCADE'), nullable=False)
+    context_text = Column(Text, nullable=False)
+    context_type = Column(String(50), nullable=True)  # e.g., 'cultural', 'resources', 'student_background'
     created_at = Column(DateTime, default=func.now(), nullable=False)
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
-    status = Column(Enum(LessonStatus), default=LessonStatus.DRAFT, nullable=False)
     
     # Relationships
-    author = relationship("User", back_populates="lesson_plans")
-    sections = relationship("LessonSection", back_populates="lesson_plan", order_by="LessonSection.order_number")
-    resource_links = relationship("ResourceLink", back_populates="lesson_plan")
-    quizzes = relationship("Quiz", back_populates="lesson_plan")
-    feedback = relationship("Feedback", back_populates="lesson_plan")
-    tags = relationship("Tag", secondary=lesson_tags, back_populates="lesson_plans")
-    contexts = relationship("LessonContext", back_populates="lesson_plan")
+    lesson_plan = relationship("LessonPlan", back_populates="contexts")
 
-class LessonSection(Base):
-    """Individual sections within a lesson plan."""
-    __tablename__ = 'lesson_sections'
+class LessonResource(Base):
+    """Lesson resources with AI-generated content."""
+    __tablename__ = 'lesson_resources'
     
-    section_id = Column(Integer, primary_key=True, autoincrement=True)
-    lesson_id = Column(Integer, ForeignKey('lesson_plans.lesson_id'), nullable=False)
-    section_title = Column(String(255), nullable=False)
-    content_text = Column(Text, nullable=False)
-    media_link = Column(String(500), nullable=True)
-    order_number = Column(Integer, nullable=False)
+    lesson_resources_id = Column(Integer, primary_key=True, autoincrement=True)
+    lesson_plan_id = Column(Integer, ForeignKey('lesson_plans.lesson_plan_id', ondelete='CASCADE'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
+    context_input = Column(Text, nullable=True)
+    ai_generated_content = Column(Text, nullable=True)
+    user_edited_content = Column(Text, nullable=True)
+    export_format = Column(String(10), nullable=True)
+    status = Column(String(20), default='draft', nullable=False)
+    created_at = Column(DateTime, default=func.now(), nullable=False)
     
     # Relationships
-    lesson_plan = relationship("LessonPlan", back_populates="sections")
+    lesson_plan = relationship("LessonPlan", back_populates="lesson_resources")
+    user = relationship("User", back_populates="lesson_resources")
 
+# Additional tables for enhanced functionality (keeping some useful ones)
 class Tag(Base):
     """Tags for categorizing lesson plans."""
     __tablename__ = 'tags'
@@ -124,103 +249,5 @@ class Tag(Base):
     # Relationships
     lesson_plans = relationship("LessonPlan", secondary=lesson_tags, back_populates="tags")
 
-class ResourceLink(Base):
-    """External resources linked to lesson plans."""
-    __tablename__ = 'resource_links'
-    
-    resource_id = Column(Integer, primary_key=True, autoincrement=True)
-    lesson_id = Column(Integer, ForeignKey('lesson_plans.lesson_id'), nullable=False)
-    link_url = Column(String(500), nullable=False)
-    type = Column(Enum(ResourceType), nullable=False)
-    description = Column(Text, nullable=True)
-    
-    # Relationships
-    lesson_plan = relationship("LessonPlan", back_populates="resource_links")
-
-class Quiz(Base):
-    """Quizzes associated with lesson plans."""
-    __tablename__ = 'quizzes'
-    
-    quiz_id = Column(Integer, primary_key=True, autoincrement=True)
-    lesson_id = Column(Integer, ForeignKey('lesson_plans.lesson_id'), nullable=False)
-    title = Column(String(255), nullable=False)
-    created_at = Column(DateTime, default=func.now(), nullable=False)
-    
-    # Relationships
-    lesson_plan = relationship("LessonPlan", back_populates="quizzes")
-    questions = relationship("Question", back_populates="quiz", order_by="Question.question_id")
-
-class Question(Base):
-    """Questions within quizzes."""
-    __tablename__ = 'questions'
-    
-    question_id = Column(Integer, primary_key=True, autoincrement=True)
-    quiz_id = Column(Integer, ForeignKey('quizzes.quiz_id'), nullable=False)
-    question_text = Column(Text, nullable=False)
-    question_type = Column(Enum(QuestionType), nullable=False)
-    
-    # Relationships
-    quiz = relationship("Quiz", back_populates="questions")
-    answers = relationship("Answer", back_populates="question")
-
-class Answer(Base):
-    """Answer options for quiz questions."""
-    __tablename__ = 'answers'
-    
-    answer_id = Column(Integer, primary_key=True, autoincrement=True)
-    question_id = Column(Integer, ForeignKey('questions.question_id'), nullable=False)
-    answer_text = Column(Text, nullable=False)
-    is_correct = Column(Boolean, default=False, nullable=False)
-    
-    # Relationships
-    question = relationship("Question", back_populates="answers")
-
-class Feedback(Base):
-    """Feedback and ratings for lesson plans."""
-    __tablename__ = 'feedback'
-    
-    feedback_id = Column(Integer, primary_key=True, autoincrement=True)
-    lesson_id = Column(Integer, ForeignKey('lesson_plans.lesson_id'), nullable=False)
-    user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
-    rating = Column(Integer, nullable=False)  # Scale 1-5
-    comment = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=func.now(), nullable=False)
-    
-    # Relationships
-    lesson_plan = relationship("LessonPlan", back_populates="feedback")
-    user = relationship("User", back_populates="feedback")
-
-class CurriculumMap(Base):
-    """Curriculum standards mapping for different subjects and grades."""
-    __tablename__ = 'curriculum_map'
-    
-    curriculum_id = Column(Integer, primary_key=True, autoincrement=True)
-    subject = Column(String(100), nullable=False, index=True)
-    grade_level = Column(String(50), nullable=False, index=True)
-    curriculum_standard = Column(String(255), nullable=False)
-    description = Column(Text, nullable=False)
-    country = Column(String(100), nullable=True)  # For country-specific curricula
-    created_at = Column(DateTime, default=func.now(), nullable=False)
-    
-    # Composite index for efficient lookups
-    __table_args__ = (
-        Index('idx_curriculum_subject_grade', 'subject', 'grade_level'),
-    )
-
-class LessonContext(Base):
-    """Teacher-provided local context for lesson plans."""
-    __tablename__ = 'lesson_context'
-    
-    context_id = Column(Integer, primary_key=True, autoincrement=True)
-    lesson_id = Column(Integer, ForeignKey('lesson_plans.lesson_id'), nullable=False)
-    context_key = Column(String(100), nullable=False)  # e.g., 'local_resources', 'student_background'
-    context_value = Column(Text, nullable=False)
-    created_at = Column(DateTime, default=func.now(), nullable=False)
-    
-    # Relationships
-    lesson_plan = relationship("LessonPlan", back_populates="contexts")
-    
-    # Composite index for efficient lookups
-    __table_args__ = (
-        Index('idx_context_lesson_key', 'lesson_id', 'context_key'),
-    ) 
+# Add tags relationship to LessonPlan
+LessonPlan.tags = relationship("Tag", secondary=lesson_tags, back_populates="lesson_plans") 

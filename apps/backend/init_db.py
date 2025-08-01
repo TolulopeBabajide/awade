@@ -18,8 +18,8 @@ sys.path.insert(0, str(backend_dir))
 
 from database import engine, SessionLocal, create_tables
 from models import (
-    Base, User, EducatorProfile, Tag, UserRole, LessonStatus, 
-    ResourceType, QuestionType, CurriculumMap
+    Base, User, Tag, UserRole, LessonStatus, 
+    ResourceType
 )
 from sqlalchemy.orm import Session
 import hashlib
@@ -71,7 +71,7 @@ def create_seed_data(db: Session):
         admin_user = User(
             email=admin_email,
             password_hash=hash_password(admin_password),
-            role=UserRole.ADMIN,
+            full_name="Admin User",
             created_at=datetime.now()
         )
         db.add(admin_user)
@@ -82,88 +82,40 @@ def create_seed_data(db: Session):
     educator_password = os.getenv("EDUCATOR_PASSWORD")
     
     if not educator_password:
-        # Generate a secure random password if not provided
-        educator_password = secrets.token_urlsafe(12)
-        print(f"⚠️  EDUCATOR_PASSWORD not set. Generated secure password: {educator_password}")
-        print("   Please save this password securely!")
+        try:
+            import getpass
+            educator_password = getpass.getpass("EDUCATOR_PASSWORD not set. Please enter a new password for the educator user: ")
+        except Exception as e:
+            print(f"Error: {e}")
+            return
     
     # Create sample educator user
     educator_user = User(
         email=educator_email,
         password_hash=hash_password(educator_password),
-        role=UserRole.EDUCATOR,
+        full_name="Grace Teacher",
         created_at=datetime.now()
     )
     db.add(educator_user)
     
-    # Create sample curriculum standards
-    curriculum_data = [
-        {
-            "subject": "Mathematics",
-            "grade_level": "Grade 4",
-            "curriculum_standard": "CCSS.MATH.CONTENT.4.NF.A.1",
-            "description": "Explain why a fraction a/b is equivalent to a fraction (n × a)/(n × b) by using visual fraction models",
-            "country": "Nigeria"
-        },
-        {
-            "subject": "Mathematics",
-            "grade_level": "Grade 5",
-            "curriculum_standard": "CCSS.MATH.CONTENT.5.NF.A.1",
-            "description": "Add and subtract fractions with unlike denominators by replacing given fractions with equivalent fractions",
-            "country": "Nigeria"
-        },
-        {
-            "subject": "Science",
-            "grade_level": "Grade 4",
-            "curriculum_standard": "NGSS.4-PS3-1",
-            "description": "Use evidence to construct an explanation relating the speed of an object to the energy of that object",
-            "country": "Nigeria"
-        },
-        {
-            "subject": "English",
-            "grade_level": "Grade 4",
-            "curriculum_standard": "CCSS.ELA-LITERACY.RL.4.1",
-            "description": "Refer to details and examples in a text when explaining what the text says explicitly",
-            "country": "Nigeria"
-        }
-    ]
-    
-    for curriculum_item in curriculum_data:
-        curriculum = CurriculumMap(
-            subject=curriculum_item["subject"],
-            grade_level=curriculum_item["grade_level"],
-            curriculum_standard=curriculum_item["curriculum_standard"],
-            description=curriculum_item["description"],
-            country=curriculum_item["country"],
-            created_at=datetime.now()
-        )
-        db.add(curriculum)
+    # Note: Curriculum data is now managed through the curriculum structure system
+    # Curriculum standards are stored in the curriculum_structures, topics, and learning_objectives tables
     
     # Flush to get user IDs
     db.flush()
     
-    # Create educator profile
-    educator_profile = EducatorProfile(
-        user_id=educator_user.user_id,
-        full_name="Grace Okechukwu",
-        country="Nigeria",
-        region="Lagos",
-        school_name="Community Primary School",
-        subjects=["Mathematics", "Science", "English"],
-        grade_levels=["Grade 4", "Grade 5", "Grade 6"],
-        languages_spoken="English, Yoruba, Igbo"
-    )
-    db.add(educator_profile)
+    # Note: Educator profile information is now stored directly in the User model
+    # The educator user has been created with the necessary information
     
     # Commit all changes
     db.commit()
     
     print("✅ Seed data created successfully!")
     print(f"   - Created {len(tags)} tags")
-    print(f"   - Created admin user: admin@awade.org")
-    print(f"   - Created educator user: grace.teacher@school.com")
-    print(f"   - Created educator profile for Grace Okechukwu")
-    print(f"   - Created {len(curriculum_data)} curriculum standards")
+    if admin_email:
+        print(f"   - Created admin user: {admin_email}")
+    print(f"   - Created educator user: {educator_email}")
+    print("   - Curriculum data managed through curriculum structure system")
 
 def main():
     """Main initialization function."""
