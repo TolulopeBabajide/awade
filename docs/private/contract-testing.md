@@ -250,8 +250,8 @@ python -m json.tool contracts/api-contracts.json
 
 - **[API Contracts](api-contracts.md)** - Detailed API contract specifications
 - **[Testing Guide](testing.md)** - General testing guidelines
-- **[CI/CD Pipeline](../development/README.md)** - Pipeline configuration
-- **[Backend Development](../development/README.md)** - Backend development guide
+- **[CI/CD Pipeline](../public/development/README.md)** - Pipeline configuration
+- **[Backend Development](../public/development/README.md)** - Backend development guide
 
 ## 📞 Support
 

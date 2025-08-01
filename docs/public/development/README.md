@@ -486,8 +486,8 @@ docker-compose exec -T postgres psql -U awade_user awade < backup_file.sql
 ## 🤝 Contributing
 
 ### Before Contributing
-1. Read the [Design Brief](../../awade_design_brief.md)
-2. Review [Security Guidelines](../../SECURITY.md)
+1. Read the [Design Brief](../../../awade_design_brief.md)
+2. Review [Security Guidelines](../../../SECURITY.md)
 3. Check existing issues and PRs
 4. Join the development discussions
 
@@ -598,19 +598,19 @@ docker-compose build frontend --no-cache
 
 ## 📞 Getting Help
 
-- **Documentation**: Check the [docs](../README.md) directory
+- **Documentation**: Check the [docs](../../README.md) directory
 - **API Documentation**: [API Guide](../api/README.md)
 - **Issues**: Create a GitHub issue
 - **Discussions**: Use GitHub Discussions
-- **Security**: Follow [security guidelines](../../SECURITY.md)
+- **Security**: Follow [security guidelines](../../../SECURITY.md)
 
 ## 🔗 Useful Links
 
 - [API Documentation](../api/README.md)
 - [Frontend Development](frontend.md)
 - [Contributing Guidelines](contributing.md)
-- [Design Brief](../../awade_design_brief.md)
-- [Security Guidelines](../../SECURITY.md)
+- [Design Brief](../../../awade_design_brief.md)
+- [Security Guidelines](../../../SECURITY.md)
 - [Deployment Guide](../deployment/README.md)
 
 ---
