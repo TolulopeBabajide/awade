@@ -4,7 +4,7 @@ Database configuration and connection setup for Awade.
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.pool import StaticPool
+from sqlalchemy.pool import QueuePool
 import os
 from dotenv import load_dotenv
 
@@ -16,11 +16,13 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL environment variable is required")
 
-# Create SQLAlchemy engine
+# Create SQLAlchemy engine with proper pool configuration
 engine = create_engine(
     DATABASE_URL,
-    poolclass=StaticPool,
-    pool_pre_ping=True,
+    poolclass=QueuePool,
+    pool_size=10,
+    max_overflow=20,
+    pool_recycle=3600,
     echo=os.getenv("DEBUG", "False").lower() == "true"  # Only echo in debug mode
 )
 
