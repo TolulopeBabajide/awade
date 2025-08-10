@@ -99,10 +99,10 @@ awade/
 │       └── models.py    # Pydantic models
 ├── docs/                # Documentation
 │   ├── public/         # Public documentation
-│   └── private/        # Internal documentation
+│   └── private/        # Internal documentation (moved to secure location)
 ├── scripts/             # Automation scripts
 │   ├── public/         # Public scripts
-│   └── private/        # Internal scripts
+│   └── private/        # Internal scripts (moved to secure location)
 ├── docker-compose.yml   # Development environment
 └── README.md
 ```
@@ -175,10 +175,10 @@ docker-compose exec backend python init_db.py
 The flat import structure enables contract testing to work properly:
 ```bash
 # Run contract tests (will start backend automatically)
-python scripts/private/contract_testing.py --base-url http://localhost:8000 --start-server --save
+python scripts/public/contract_testing.py --base-url http://localhost:8000 --start-server --save
 
 # Run with Docker
-python scripts/private/contract_testing.py --base-url http://localhost:8000 --start-containers --save
+python scripts/public/contract_testing.py --base-url http://localhost:8000 --start-containers --save
 ```
 
 ### 3. Frontend Development
@@ -203,7 +203,7 @@ docker-compose exec postgres psql -U awade_user -d awade
 psql -U awade_user -d awade
 
 # Create test user
-python scripts/private/create_test_user.py
+python scripts/public/create_test_user.py
 ```
 
 ## 🧪 Testing
@@ -241,19 +241,19 @@ npm test -- --watch
 ```bash
 # Test the complete stack
 docker-compose up -d
-python scripts/private/contract_testing.py --start-containers --save
+python scripts/public/contract_testing.py --start-containers --save
 
 # Test curriculum mapping
-python scripts/private/test_curriculum_mapping.py
+python scripts/public/test_curriculum_mapping.py
 ```
 
 ### Documentation Testing
 ```bash
 # Check documentation coverage
-python scripts/private/doc_coverage.py --save
+python scripts/public/doc_coverage.py --save
 
 # Generate coverage dashboard
-python scripts/private/generate_coverage_dashboard.py
+python scripts/public/generate_coverage_dashboard.py
 ```
 
 ## 📝 Code Standards
@@ -279,7 +279,7 @@ flake8 apps/backend/ packages/
 mypy apps/backend/ packages/
 
 # Run all checks
-./scripts/private/lint_backend.sh
+./scripts/public/lint_backend.sh
 ```
 
 ### JavaScript/TypeScript (Frontend)
@@ -438,7 +438,7 @@ The project includes MCP (Model Context Protocol) servers for AI-assisted develo
 ### MCP Health Check
 ```bash
 # Check MCP server status
-python scripts/private/mcp_health_check.py
+python scripts/public/mcp_health_check.py
 
 # View MCP configuration
 cat mcp.json
@@ -458,7 +458,7 @@ EDUCATOR_PASSWORD=secure_password
 python apps/backend/init_db.py
 
 # 3. Create test user (optional)
-python scripts/private/create_test_user.py
+python scripts/public/create_test_user.py
 ```
 
 ### Database Migrations
@@ -537,14 +537,14 @@ cd /path/to/awade
 uvicorn apps.backend.main:app --reload
 
 # Option 3: Use the contract testing script
-python scripts/private/contract_testing.py --start-server
+python scripts/public/contract_testing.py --start-server
 ```
 
 #### Contract Testing Issues
 
 **Problem**: Contract tests fail with import errors
 ```bash
-python scripts/private/contract_testing.py --start-server  # ❌ Fails
+python scripts/public/contract_testing.py --start-server  # ❌ Fails
 ```
 
 **Solution**: 
