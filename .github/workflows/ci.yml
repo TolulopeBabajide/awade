@@ -34,8 +34,6 @@ jobs:
     - name: Check for required files
       run: |
         test -f README.md
-        test -f docs/private/api-contracts.md
-        test -f docs/private/requirements.md
         test -f docs/public/api/README.md
         test -f AI_USE_POLICY.md
         echo "✅ All required documentation files present"
@@ -240,6 +238,15 @@ jobs:
           echo "✅ No sensitive files found"
         fi
         
+    - name: Verify private docs are excluded
+      run: |
+        if git ls-files | grep -q "docs/private/"; then
+          echo "❌ Private documentation detected in repository"
+          exit 1
+        else
+          echo "✅ Private documentation properly excluded"
+        fi
+        
     - name: Check for hardcoded secrets
       run: |
         if grep -r "password\|secret\|key\|token" --include="*.py" --include="*.js" --include="*.md" . | grep -v "example\|test\|TODO"; then
@@ -279,7 +286,12 @@ jobs:
         mkdir -p dist
         cp -r apps/backend dist/
         cp -r packages dist/
-        cp -r docs dist/
+        
+        # Copy only public documentation (exclude private docs)
+        mkdir -p dist/docs
+        cp -r docs/public dist/docs/
+        cp docs/README.md dist/docs/
+        
         cp README.md dist/
         cp AI_USE_POLICY.md dist/
         cp LICENSE.md dist/

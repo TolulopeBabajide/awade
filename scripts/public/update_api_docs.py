@@ -203,11 +203,8 @@ def create_minimal_openapi_spec():
 def update_api_documentation():
     """Update API documentation files."""
     try:
-        # Read the current API contracts
-        contracts_file = Path('docs/private/api-contracts.md')
-        if not contracts_file.exists():
-            print("❌ API contracts file not found")
-            return False
+        # Note: Private API contracts are no longer accessible
+        # This function now only updates public API documentation
             
         # Update the API README with generation timestamp
         api_readme = Path('docs/public/api/README.md')
@@ -248,9 +245,7 @@ def validate_documentation():
     
     # Check if required files exist
     required_files = [
-        'docs/private/api-contracts.md',
-        'docs/public/api/README.md',
-        'docs/private/requirements.md'
+        'docs/public/api/README.md'
     ]
     
     for file_path in required_files:
