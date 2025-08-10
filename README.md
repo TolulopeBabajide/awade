@@ -19,7 +19,7 @@ Built as a modular and extensible platform using a monorepo structure.
 The complete user journey follows this flow:
 1. **Sign Up / Log In** → 2. **Dashboard** → 3. **Select Subject, Grade & Topic** → 4. **Input Local Context** → 5. **Generate Lesson Plan** → 6. **Edit Lesson Plan** → 7. **Export (PDF/DOC)** → 8. **Offline Use in Class**
 
-For detailed workflow documentation, see [docs/internal/project-workflow.md](./docs/internal/project-workflow.md).
+For detailed workflow documentation, see [docs/public/development/README.md](./docs/public/development/README.md).
 
 ### 🎯 Key Features
 
@@ -102,7 +102,7 @@ awade/
 ## 🔒 Security
 
 - **Never hard-code secrets**: Use environment variables and GitHub Secrets
-- **Security guidelines**: See [docs/internal/security-guidelines.md](./docs/internal/security-guidelines.md)
+- **Security guidelines**: See [SECURITY.md](./SECURITY.md)
 - **Environment setup**: Copy `.env.example` to `.env` and fill in your values
 
 ## 🤝 Contribution Guide

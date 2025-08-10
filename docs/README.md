@@ -33,21 +33,7 @@ These documents are safe for public consumption and help users and developers un
 These documents contain sensitive information, internal architecture details, and development specifications that should not be exposed publicly.
 
 **Private Documentation (Internal Use Only):**
-- **`authentication-authorization.md`** - Internal auth system details
-- **`requirements.md`** - Detailed project requirements and specifications
-- **`security-guidelines.md`** - Internal security protocols and guidelines
-- **`lesson-plan-architecture.md`** - Internal lesson plan system architecture
-- **`project-workflow.md`** - Internal development workflow
-- **`curriculum-mapping-system.md`** - Internal curriculum system details
-- **`erd-structure.md`** - Database entity relationship diagrams
-- **`curriculum-database-guide.md`** - Internal database guide
-- **`api-contracts.md`** - Internal API contract specifications
-- **`contract-testing.md`** - Internal testing protocols
-- **`testing.md`** - Internal testing guidelines
-- **`schema-fixes-summary.md`** - Internal schema change documentation
-- **`curriculum-mapping-acceptance-criteria.md`** - Internal acceptance criteria
-- **`documentation-coverage-summary.md`** - Internal documentation analysis
-- **`doc-coverage.md`** - Internal documentation coverage metrics
+*Note: Private documentation has been moved to a secure location and is no longer accessible in this repository.*
 
 ## 🚨 Security Notice
 
@@ -110,7 +96,7 @@ When adding new documentation:
 
 ## 🛠️ Documentation Tools
 
-- **Coverage Analysis**: Use `scripts/private/doc_coverage.py` to analyze documentation coverage
+- **Coverage Analysis**: Use `scripts/public/doc_coverage.py` to analyze documentation coverage
 - **API Documentation**: Auto-generated from OpenAPI specifications
 - **Markdown Linting**: Ensure consistent formatting
 - **Link Validation**: Check for broken links and references
