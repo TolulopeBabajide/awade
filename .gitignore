@@ -93,4 +93,5 @@ build/
 scripts/private/
 
 # Internal documentation (contains sensitive information)
-docs/internal/ 
+docs/internal/
+docs/private/ 
