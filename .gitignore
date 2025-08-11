@@ -94,4 +94,11 @@ scripts/private/
 
 # Internal documentation (contains sensitive information)
 docs/internal/
-docs/private/ 
+docs/private/
+
+# Platform Builder Development (separate from main project)
+platform-builder/
+platform-templates/
+platform-configs/
+platform-docs/
+platform/ 
