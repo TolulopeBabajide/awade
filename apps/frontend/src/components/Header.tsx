@@ -35,7 +35,7 @@ const Header: React.FC = () => {
   }
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className="bg-white shadow-sm sticky top-0 z-50 border-b border-background-200">
       <div className="container-custom">
         <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
           {/* Logo */}
@@ -55,7 +55,7 @@ const Header: React.FC = () => {
                   <div className="relative">
                     <button
                       onClick={() => setIsAboutDropdownOpen(!isAboutDropdownOpen)}
-                      className="flex items-center text-gray-700 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-md"
+                      className="flex items-center text-background-700 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-md"
                       aria-expanded={isAboutDropdownOpen}
                       aria-haspopup="true"
                       aria-label={`${item.name} menu`}
@@ -66,7 +66,7 @@ const Header: React.FC = () => {
                     
                     {isAboutDropdownOpen && (
                       <div 
-                        className="absolute top-full left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
+                        className="absolute top-full left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-background-200"
                         role="menu"
                         aria-orientation="vertical"
                         aria-labelledby="about-menu"
@@ -75,7 +75,7 @@ const Header: React.FC = () => {
                           <a
                             key={dropdownItem.name}
                             href={dropdownItem.href}
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-primary-600 transition-colors duration-200"
+                            className="block px-4 py-2 text-sm text-background-700 hover:bg-background-50 hover:text-primary-600 transition-colors duration-200"
                             role="menuitem"
                             onClick={() => setIsAboutDropdownOpen(false)}
                           >
@@ -88,7 +88,7 @@ const Header: React.FC = () => {
                 ) : (
                   <a
                     href={item.href}
-                    className="text-gray-700 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-md"
+                    className="text-background-700 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-md"
                   >
                     {item.name}
                   </a>

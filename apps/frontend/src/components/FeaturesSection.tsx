@@ -6,7 +6,7 @@ const FeaturesSection: React.FC = () => {
       title: 'AI-Powered Lesson Generation',
       description: 'Generate comprehensive 6-section lesson plans with AI that understands your curriculum and local context.',
       icon: '🤖',
-      color: 'from-blue-400 to-blue-600'
+      color: 'from-primary-400 to-primary-600'
     },
     {
       title: 'Curriculum Alignment',
@@ -18,32 +18,32 @@ const FeaturesSection: React.FC = () => {
       title: 'Local Context Integration',
       description: 'Adapt lessons to your local environment, available resources, and community needs.',
       icon: '🌍',
-      color: 'from-success-400 to-success-600'
+      color: 'from-primary-500 to-primary-700'
     },
     {
       title: 'Professional Export',
       description: 'Export lesson plans as professional PDFs with proper formatting for classroom use.',
       icon: '📄',
-      color: 'from-warning-400 to-warning-600'
+      color: 'from-highlight-400 to-highlight-600'
     },
     {
       title: 'Offline Access',
       description: 'Access your lesson plans offline in the classroom, even without internet connectivity.',
       icon: '📱',
-      color: 'from-error-400 to-error-600'
+      color: 'from-accent-500 to-accent-700'
     },
     {
       title: 'Resource Generation',
       description: 'Create additional teaching resources, activities, and assessments for your lessons.',
       icon: '🎨',
-      color: 'from-purple-400 to-purple-600'
+      color: 'from-highlight-500 to-highlight-700'
     }
   ]
 
   return (
     <section 
       id="features"
-      className="section-padding bg-white"
+      className="section-padding bg-background-50"
       aria-labelledby="features-heading"
     >
       <div className="container-custom">
@@ -51,11 +51,11 @@ const FeaturesSection: React.FC = () => {
         <div className="text-center mb-8 lg:mb-12">
           <h2 
             id="features-heading"
-            className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 lg:mb-4"
+            className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-900 mb-3 lg:mb-4"
           >
             Everything You Need for Effective Lesson Planning
           </h2>
-          <p className="text-base lg:text-lg text-gray-600 max-w-3xl mx-auto px-4">
+          <p className="text-base lg:text-lg text-background-600 max-w-3xl mx-auto px-4">
             Awade combines AI intelligence with curriculum expertise to help you create engaging, 
             culturally relevant lessons that work in your classroom.
           </p>
@@ -78,10 +78,10 @@ const FeaturesSection: React.FC = () => {
               </div>
 
               {/* Feature Content */}
-              <h3 className="text-lg lg:text-xl font-bold text-gray-900 mb-2 lg:mb-3">
+              <h3 className="text-lg lg:text-xl font-bold text-primary-900 mb-2 lg:mb-3">
                 {feature.title}
               </h3>
-              <p className="text-sm lg:text-base text-gray-600 leading-relaxed">
+              <p className="text-sm lg:text-base text-background-600 leading-relaxed">
                 {feature.description}
               </p>
             </div>
