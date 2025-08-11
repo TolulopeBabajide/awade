@@ -11,7 +11,7 @@ function isAlphanumeric(str: string) {
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { login, googleAuth } = useAuth();
   
   // Get the redirect path from location state, or default to dashboard
   const from = (location.state as any)?.from?.pathname || '/dashboard';
@@ -31,21 +31,19 @@ const LoginPage: React.FC = () => {
   // Google OAuth handler
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setError(null);
+    setLoading(true);
     try {
-      const response = await apiService.googleAuth(credentialResponse.credential);
-      if (response.error) {
-        throw new Error(response.error);
-      }
-      if (response.data) {
-        const { access_token, user } = response.data;
-        localStorage.setItem('access_token', access_token);
-        localStorage.setItem('user_data', JSON.stringify(user));
-        console.log('Authenticated user:', user);
+      const success = await googleAuth(credentialResponse.credential);
+      if (success) {
+        // Navigate to the originally requested page or dashboard
         navigate(from, { replace: true });
+      } else {
+        setError('Google login failed. Please try email/password login instead.');
       }
     } catch (err: any) {
-      console.error('Google OAuth error:', err);
       setError(err.message || 'Google login failed. Please try email/password login instead.');
+    } finally {
+      setLoading(false);
     }
   };
 

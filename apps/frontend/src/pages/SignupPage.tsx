@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
 
 function isAlphanumeric(str: string) {
@@ -9,6 +10,7 @@ function isAlphanumeric(str: string) {
 
 const SignupPage: React.FC = () => {
   const navigate = useNavigate();
+  const { signup, googleAuth } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
   const [agreed, setAgreed] = useState(false);
@@ -37,21 +39,19 @@ const SignupPage: React.FC = () => {
   // Google OAuth handler
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setError(null);
+    setLoading(true);
     try {
-      const response = await apiService.googleAuth(credentialResponse.credential);
-      
-      if (response.error) {
-        throw new Error(response.error);
-      }
-      
-      if (response.data) {
-        localStorage.setItem('access_token', response.data.access_token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-        // TODO: Redirect or update UI as needed
-        console.log('Authenticated user:', response.data.user);
+      const success = await googleAuth(credentialResponse.credential);
+      if (success) {
+        // Redirect to dashboard after successful Google OAuth
+        navigate('/dashboard');
+      } else {
+        setError('Google signup failed. Please try email/password signup instead.');
       }
     } catch (err: any) {
-      setError(err.message || 'Google login failed');
+      setError(err.message || 'Google signup failed');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -101,7 +101,7 @@ const SignupPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiService.signup({
+      const success = await signup({
         email: form.email,
         password: form.password,
         full_name: form.fullName,
@@ -114,15 +114,10 @@ const SignupPage: React.FC = () => {
         languages_spoken: null,
       });
       
-      if (response.error) {
-        throw new Error(response.error);
-      }
-      
-      if (response.data) {
-        localStorage.setItem('access_token', response.data.access_token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+      if (success) {
         setShowSuccessModal(true);
-        console.log('Signed up user:', response.data.user);
+      } else {
+        setError('Signup failed. Please try again.');
       }
     } catch (err: any) {
       setError(err.message || 'Signup failed');
