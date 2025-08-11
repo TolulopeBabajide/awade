@@ -5,7 +5,7 @@ const HeroSection: React.FC = () => {
   return (
     <section 
       id="home" 
-      className="section-padding gradient-bg"
+      className="section-padding bg-white"
       aria-labelledby="hero-heading"
     >
       <div className="container-custom">
@@ -37,13 +37,13 @@ const HeroSection: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <Link 
                 to="/signup" 
-                className="btn-accent text-base lg:text-lg px-6 lg:px-8 py-3 lg:py-4 text-center"
+                className="bg-accent-500 hover:bg-accent-600 text-white font-medium py-3 px-6 lg:px-8 rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2 text-base lg:text-lg text-center"
                 aria-label="Sign up to start planning lessons"
               >
                 Start Planning Lessons
               </Link>
               <button 
-                className="btn-secondary text-base lg:text-lg px-6 lg:px-8 py-3 lg:py-4"
+                className="bg-white hover:bg-background-50 text-primary-600 font-medium py-3 px-6 lg:px-8 rounded-lg border border-primary-600 transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 text-base lg:text-lg"
                 aria-label="Learn more about how Awade works"
               >
                 See How It Works

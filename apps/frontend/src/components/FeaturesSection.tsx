@@ -43,7 +43,7 @@ const FeaturesSection: React.FC = () => {
   return (
     <section 
       id="features"
-      className="section-padding bg-background-50"
+      className="section-padding bg-white"
       aria-labelledby="features-heading"
     >
       <div className="container-custom">
@@ -65,7 +65,7 @@ const FeaturesSection: React.FC = () => {
           {features.map((feature, index) => (
             <div 
               key={index} 
-              className="card p-5 lg:p-6 text-center animate-fade-in hover:shadow-lg transition-shadow duration-300"
+              className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-background-200 p-5 lg:p-6 text-center animate-fade-in"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               {/* Feature Icon */}
