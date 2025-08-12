@@ -320,7 +320,7 @@ const DashboardPage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-gray-50 ">
       {/* Sidebar */}
-      <aside className="w-full hidden lg:w-64 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 flex flex-row lg:flex-col pb-3 md:pb-4 lg:pb-8 px-2 md:px-4 lg:px-4 lg:min-h-screen items-center lg:items-stretch flex-shrink-0">
+      <aside className="w-full hidden mt-12 lg:w-64 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 lg:flex flex-row lg:flex-col pb-3 md:pb-4 lg:pb-8 px-2 md:px-4 lg:px-4 lg:min-h-screen items-center lg:items-stretch flex-shrink-0">
         {/* Logo */}
         <div className="hidden lg:flex items-center mb-8 lg:mb-8 w-full justify-center ">
           
@@ -328,7 +328,7 @@ const DashboardPage: React.FC = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 space-y-2 w-full hidden lg:block">
+        <nav className="flex-1 space-y-2 mt-12 w-full hidden lg:block">
           <button className="w-full text-left px-4 py-3 rounded-lg bg-accent-600 text-white font-semibold flex items-center">
             <FaHome className="w-4 h-4 mr-3" />
             Dashboard
@@ -531,8 +531,8 @@ const DashboardPage: React.FC = () => {
                 {/* Topic Input and Generate Button Row */}
                 <div className="flex flex-col lg:flex-row gap-3 md:gap-4">
                   <div className="flex-1">
-                    <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4">
-                      <label className="block text-xs md:text-sm font-semibold text-gray-700 lg:w-16 lg:flex-shrink-0">
+                    <div className="space-y-2">
+                      <label className="block text-xs md:text-sm font-semibold text-gray-700">
                         Topic
                       </label>
                       <input
@@ -546,24 +546,27 @@ const DashboardPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="w-full lg:w-auto">
-                    <button
-                      type="button"
-                      className="w-full lg:w-auto bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold px-8 lg:px-10 py-3 lg:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-primary-500 focus:ring-opacity-30 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-3 text-sm lg:text-base"
-                      onClick={handleGenerate}
-                      disabled={isGenerating}
-                    >
-                      {isGenerating ? (
-                        <>
-                          <div className="w-4 h-4 lg:w-5 lg:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>Generating...</span>
-                        </>
-                      ) : (
-                        <>
-                          <FaComments className="w-4 h-4 lg:w-5 lg:h-5" />
-                          <span>Generate Lesson Plan</span>
-                        </>
-                      )}
-                    </button>
+                    <div className="">
+                      <div className="h-6"></div> {/* Spacer to align with label */}
+                      <button
+                        type="button"
+                        className="w-full lg:w-auto bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold px-8 lg:px-10 py-3 lg:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-primary-500 focus:ring-opacity-30 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-3 text-sm lg:text-base"
+                        onClick={handleGenerate}
+                        disabled={isGenerating}
+                      >
+                        {isGenerating ? (
+                          <>
+                            <div className="w-4 h-4 lg:w-5 lg:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span>Generating...</span>
+                          </>
+                        ) : (
+                          <>
+                            <FaComments className="w-4 h-4 lg:w-5 lg:h-5" />
+                            <span>Generate Lesson Plan</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
 
