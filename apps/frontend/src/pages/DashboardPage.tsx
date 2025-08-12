@@ -318,9 +318,9 @@ const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-gray-50 ">
       {/* Sidebar */}
-      <aside className="w-full lg:w-64 flex flex-row lg:flex-col pb-4 lg:pb-8 px-4 lg:min-h-screen items-center lg:items-stretch flex-shrink-0">
+      <aside className="w-full hidden lg:w-64 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 flex flex-row lg:flex-col pb-3 md:pb-4 lg:pb-8 px-2 md:px-4 lg:px-4 lg:min-h-screen items-center lg:items-stretch flex-shrink-0">
         {/* Logo */}
         <div className="hidden lg:flex items-center mb-8 lg:mb-8 w-full justify-center ">
           
@@ -366,9 +366,9 @@ const DashboardPage: React.FC = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col p-2 md:p-4 lg:p-6">
         {/* Header */}
-        <div className="flex justify-between items-start pt-0 pb-3 md:pb-4 lg:pb-5 px-3 md:px-4 lg:px-5 gap-3 md:gap-4 flex-shrink-0">
+        <div className="flex justify-between items-start pt-0 pb-2 md:pb-4 lg:pb-5 px-2 md:px-4 lg:px-5 gap-2 md:gap-4 flex-shrink-0">
           {/* Left Side - Welcome Message */}
           <div className="flex-1">
             {/* Welcome Message */}
@@ -423,7 +423,7 @@ const DashboardPage: React.FC = () => {
         {/* Dashboard Content - Natural flow on desktop, 100% Create Lesson Plan on mobile */}
         <div className="flex flex-col flex-1 overflow-y-auto md:overflow-y-auto">
           {/* Create Lesson Plan Section - Full height on mobile, natural height on desktop */}
-          <div className="min-h-[500px] lg:min-h-0 p-3 md:p-4 pb-20 md:pb-4">
+          <div className="min-h-[500px] lg:min-h-0 p-2 md:p-4 lg:p-6 pb-20 md:pb-4">
             <div className="p-3 md:p-4 lg:p-5">
               <div className="flex items-center mb-3 md:mb-4">
                 <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900">
@@ -584,9 +584,9 @@ const DashboardPage: React.FC = () => {
           </div>
 
           {/* Lesson Resources Section - Hidden on mobile, visible on desktop */}
-          <div className="hidden md:block p-4 lg:p-4">
+          <div className="hidden md:block p-2 md:p-4 lg:p-6">
             {/* My Lesson Resources Section */}
-            <div className="p-4 lg:p-4">
+            <div className="p-2 md:p-4 lg:p-6">
                               <div className="flex justify-between items-center mb-4">
                   <div className="flex items-center">
                     
