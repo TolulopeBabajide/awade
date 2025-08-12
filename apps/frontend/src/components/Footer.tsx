@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa'
 
 const Footer: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -12,8 +13,55 @@ const Footer: React.FC = () => {
 
   return (
     <footer className="bg-primary-800 text-white" role="contentinfo">
-      <div className="container-custom py-8 lg:py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="container-custom py-6 lg:py-12 px-4 sm:px-6 lg:px-8">
+        {/* Mobile Layout - Essential Elements Only */}
+        <div className="md:hidden">
+          <div className="flex flex-col items-center space-y-6 text-center">
+            {/* Logo and Description */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-center space-x-2">
+                {/* <h3 className="text-lg text-white font-bold">
+                  <a href="#home" className="text-lg text-white font-bold" aria-label="Awade - Go to homepage">
+                    Awade
+                  </a>
+                </h3> */}
+              </div>
+              <p className="text-sm text-white leading-relaxed max-w-xs">
+                AI-powered lesson planning platform for African teachers.
+              </p>
+            </div>
+
+            {/* Essential Links */}
+            <div className="flex flex-wrap justify-center gap-6">
+              <a 
+                href="#about" 
+                className="text-sm text-white hover:text-white transition-colors duration-200"
+              >
+                About
+              </a>
+              <a 
+                href="#contact" 
+                className="text-sm text-white hover:text-white transition-colors duration-200"
+              >
+                Contact
+              </a>
+              <a 
+                href="#features" 
+                className="text-sm text-white hover:text-white transition-colors duration-200"
+              >
+                Features
+              </a>
+            </div>
+
+            {/* Copyright */}
+            <p className="text-xs text-white">
+              Awade 2025 | All rights reserved
+            </p>
+          </div>
+        </div>
+
+        {/* Desktop Layout - Full Content */}
+        <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Left Section - Logo and Description */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
@@ -22,15 +70,13 @@ const Footer: React.FC = () => {
                   Awade
                 </a>
               </h3>
-              <div className="w-6 h-6 lg:w-8 lg:h-8 bg-white rounded-full flex items-center justify-center" aria-hidden="true">
-                <span className="text-primary-800 text-sm lg:text-lg">🤖</span>
-              </div>
+              
             </div>
-            <p className="text-sm lg:text-base text-gray-300 leading-relaxed">
+            <p className="text-sm lg:text-base text-white leading-relaxed">
               AI-powered lesson planning platform designed specifically for African teachers. 
               Transform your teaching with intelligent, curriculum-aligned lesson plans.
             </p>
-            <p className="text-xs lg:text-sm text-gray-400">
+            <p className="text-xs lg:text-sm text-white">
               Awade 2025 | All rights reserved
             </p>
           </div>
@@ -39,12 +85,12 @@ const Footer: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8">
             {/* Company Links */}
             <div>
-              <h4 className="font-semibold text-base lg:text-lg mb-3 lg:mb-4">Company</h4>
+              <h4 className="font-semibold text-base lg:text-lg mb-3 lg:mb-4 text-white">Company</h4>
               <ul className="space-y-2" role="list">
                 <li>
                   <a 
                     href="#about" 
-                    className="text-sm lg:text-base text-gray-300 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800 rounded"
+                    className="text-sm lg:text-base text-white hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800 rounded"
                   >
                     About Awade
                   </a>
@@ -52,7 +98,7 @@ const Footer: React.FC = () => {
                 <li>
                   <a 
                     href="#contact" 
-                    className="text-sm lg:text-base text-gray-300 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800 rounded"
+                    className="text-sm lg:text-base text-white hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800 rounded"
                   >
                     Contact Us
                   </a>
@@ -60,40 +106,9 @@ const Footer: React.FC = () => {
                 <li>
                   <a 
                     href="#features" 
-                    className="text-sm lg:text-base text-gray-300 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800 rounded"
+                    className="text-sm lg:text-base text-white hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800 rounded"
                   >
                     Features
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Resources Links */}
-            <div>
-              <h4 className="font-semibold text-base lg:text-lg mb-3 lg:mb-4">Resources</h4>
-              <ul className="space-y-2" role="list">
-                <li>
-                  <a 
-                    href="#about" 
-                    className="text-sm lg:text-base text-gray-300 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800 rounded"
-                  >
-                    About Us
-                  </a>
-                </li>
-                <li>
-                  <a 
-                    href="#templates" 
-                    className="text-sm lg:text-base text-gray-300 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800 rounded"
-                  >
-                    Lesson Templates
-                  </a>
-                </li>
-                <li>
-                  <a 
-                    href="#dashboard" 
-                    className="text-sm lg:text-base text-gray-300 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800 rounded"
-                  >
-                    My Dashboard
                   </a>
                 </li>
               </ul>
@@ -104,42 +119,42 @@ const Footer: React.FC = () => {
           <div className="space-y-6">
             {/* Social Media */}
             <div>
-              <h4 className="font-semibold text-base lg:text-lg mb-3 lg:mb-4">Follow Us</h4>
+              <h4 className="font-semibold text-base lg:text-lg mb-3 lg:mb-4 text-white">Follow Us</h4>
               <div className="flex space-x-3 lg:space-x-4">
                 <a 
                   href="#" 
-                  className="w-8 h-8 lg:w-10 lg:h-10 bg-primary-700 rounded-full flex items-center justify-center hover:bg-primary-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800"
+                  className="w-8 h-8 lg:w-10 lg:h-10 flex items-center justify-center hover:text-accent-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800"
                   aria-label="Follow us on Facebook"
                 >
-                  <span className="text-white text-sm lg:text-base">📘</span>
+                  <FaFacebook className="w-5 h-5 lg:w-6 lg:h-6" />
                 </a>
                 <a 
                   href="#" 
-                  className="w-8 h-8 lg:w-10 lg:h-10 bg-primary-700 rounded-full flex items-center justify-center hover:bg-primary-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800"
+                  className="w-8 h-8 lg:w-10 lg:h-10 flex items-center justify-center hover:text-accent-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800"
                   aria-label="Follow us on Twitter"
                 >
-                  <span className="text-white text-sm lg:text-base">🐦</span>
+                  <FaTwitter className="w-5 h-5 lg:w-6 lg:h-6" />
                 </a>
                 <a 
                   href="#" 
-                  className="w-8 h-8 lg:w-10 lg:h-10 bg-primary-700 rounded-full flex items-center justify-center hover:bg-primary-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800"
+                  className="w-8 h-8 lg:w-10 lg:h-10 flex items-center justify-center hover:text-accent-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800"
                   aria-label="Follow us on Instagram"
                 >
-                  <span className="text-white text-sm lg:text-base">📷</span>
+                  <FaInstagram className="w-5 h-5 lg:w-6 lg:h-6" />
                 </a>
                 <a 
                   href="#" 
-                  className="w-8 h-8 lg:w-10 lg:h-10 bg-primary-700 rounded-full flex items-center justify-center hover:bg-primary-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800"
+                  className="w-8 h-8 lg:w-10 lg:h-10 flex items-center justify-center hover:text-accent-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800"
                   aria-label="Follow us on LinkedIn"
                 >
-                  <span className="text-white text-sm lg:text-base">💼</span>
+                  <FaLinkedin className="w-5 h-5 lg:w-6 lg:h-6" />
                 </a>
               </div>
             </div>
 
             {/* Newsletter */}
             <div>
-              <h4 className="font-semibold text-base lg:text-lg mb-3 lg:mb-4">Join Our Community</h4>
+              <h4 className="font-semibold text-base lg:text-lg mb-3 lg:mb-4 text-white">Join Our Community</h4>
               <form onSubmit={handleSubscribe} className="space-y-3">
                 <label htmlFor="newsletter-email" className="sr-only">
                   Email address for newsletter subscription
@@ -168,11 +183,11 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom Section */}
-        <div className="border-t border-primary-700 mt-6 lg:mt-8 pt-6 lg:pt-8 text-center">
+        {/* Bottom Section - Desktop Only */}
+        <div className="hidden md:block border-t border-primary-700 mt-6 lg:mt-8 pt-6 lg:pt-8 text-center">
           <a 
             href="#terms" 
-            className="text-xs lg:text-sm text-gray-400 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800 rounded"
+            className="text-xs lg:text-sm text-white hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-800 rounded"
           >
             Terms & Conditions
           </a>

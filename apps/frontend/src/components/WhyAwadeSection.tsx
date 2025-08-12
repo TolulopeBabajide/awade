@@ -14,15 +14,15 @@ const WhyAwadeSection: React.FC = () => {
             <div className="flex-1 h-px bg-background-300"></div>
             <h2 
               id="why-awade-heading"
-              className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-900 px-4 sm:px-8"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-900 px-4 sm:px-6 lg:px-8"
             >
-              Why Choose Awade?
+              Why Awade?
             </h2>
             <div className="flex-1 h-px bg-background-300"></div>
           </div>
 
           {/* Description */}
-          <p className="text-base lg:text-lg md:text-xl text-background-600 leading-relaxed mb-8 px-4">
+          <p className="text-base lg:text-lg md:text-xl text-background-600 leading-relaxed mb-8 px-4 sm:px-6 lg:px-8">
             Awade is an AI-powered lesson planning platform designed specifically for African educators. 
             We understand the unique challenges you face in the classroom and provide intelligent tools 
             that save time while creating culturally relevant, curriculum-aligned lessons.

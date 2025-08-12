@@ -82,7 +82,7 @@
   }
   
   .btn-accent {
-    @apply bg-accent-500 hover:bg-accent-600 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2;
+    @apply bg-accent-600 hover:bg-accent-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2;
   }
   
   .btn-highlight {
@@ -98,7 +98,9 @@
   }
   
   .hero-gradient {
-    @apply bg-gradient-to-br from-primary-600 via-primary-500 to-accent-500;
+    background: linear-gradient(to bottom, var(--color-primary-600), var(--color-primary-300), transparent);
+    padding-top: 0;
+    margin-top: 0;
   }
   
   .text-gradient {
@@ -106,7 +108,7 @@
   }
   
   .section-padding {
-    @apply py-16 px-4 sm:px-6 lg:px-8;
+    @apply py-12 lg:py-16 px-4 sm:px-6 lg:px-8;
   }
   
   .container-custom {
