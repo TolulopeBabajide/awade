@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FaEdit, FaSave, FaTimes } from 'react-icons/fa';
 import apiService from '../services/api';
 
 interface LessonResource {
@@ -267,8 +268,8 @@ const EditableSection: React.FC<EditableSectionProps> = ({
 
   return (
     <div className={`${bgColor} rounded-lg p-3 md:p-4 border ${borderColor}`}>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
-        <div className="flex items-center gap-2">
+      <div className="flex justify-between items-center mb-3 gap-2">
+        <div className="flex items-center gap-2 flex-1">
           <h3 className={`font-semibold ${textColor} text-base md:text-lg`}>{title}</h3>
           {explanation ? (
             <Tooltip content={explanation}>
@@ -284,29 +285,34 @@ const EditableSection: React.FC<EditableSectionProps> = ({
             </Tooltip>
           )}
         </div>
-        {!isEditing ? (
-          <button
-            onClick={onEdit}
-            className="w-full sm:w-auto text-sm text-primary-600 hover:text-primary-800 font-medium px-3 py-1 border border-primary-200 rounded-lg hover:bg-primary-50 transition-colors duration-200"
-          >
-            Edit
-          </button>
-        ) : (
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+        <div className="flex-shrink-0">
+          {!isEditing ? (
             <button
-              onClick={handleSave}
-              className="w-full sm:w-auto text-sm text-green-600 hover:text-green-800 font-medium px-3 py-1 border border-green-200 rounded-lg hover:bg-green-50 transition-colors duration-200"
+              onClick={onEdit}
+              className="text-sm text-primary-600 hover:text-primary-800 font-medium px-3 py-2 rounded-lg hover:bg-primary-50 transition-colors duration-200 flex items-center justify-center gap-2"
             >
-              Save
+              <FaEdit className="w-4 h-4" />
+              <span className="hidden sm:inline">Edit</span>
             </button>
-            <button
-              onClick={onCancel}
-              className="w-full sm:w-auto text-sm text-gray-600 hover:text-gray-800 font-medium px-3 py-1 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-            >
-              Cancel
-            </button>
-          </div>
-        )}
+          ) : (
+            <div className="flex gap-2">
+              <button
+                onClick={handleSave}
+                className="text-sm text-green-600 hover:text-green-800 font-medium px-3 py-2 rounded-lg hover:bg-green-50 transition-colors duration-200 flex items-center justify-center gap-2"
+              >
+                <FaSave className="w-4 h-4" />
+                <span className="hidden sm:inline">Save</span>
+              </button>
+              <button
+                onClick={onCancel}
+                className="text-sm text-gray-600 hover:text-gray-800 font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-2"
+              >
+                <FaTimes className="w-4 h-4" />
+                <span className="hidden sm:inline">Cancel</span>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
       
       {isEditing ? renderEditForm() : renderContent()}
@@ -557,98 +563,66 @@ const EditLessonResourcePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Header */}
-      {/* <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 gap-4">
-            <div>
-              <h1 className="text-xl md:text-2xl font-bold text-primary-900">Edit Lesson Resource</h1>
-              <p className="text-sm md:text-base text-gray-600">Edit each section directly to customize for your classroom</p>
-            </div>
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm transition-colors duration-200"
-              >
-                Back to Dashboard
-              </button>
-              <button
-                onClick={saveAllChanges}
-                disabled={isSaving}
-                className="w-full sm:w-auto px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 text-sm transition-colors duration-200"
-              >
-                {isSaving ? 'Saving...' : 'Save All Changes'}
-              </button>
+      {/* Sticky AI Disclaimer - Top of Screen */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-accent-50 border-b border-accent-200 px-3 py-2 shadow-sm">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-start justify-center gap-2">
+            <div className="flex items-start gap-2 flex-1 justify-center">
+              <div className="flex-shrink-0 mt-0.5">
+                <div className="w-6 h-6 bg-accent-100 rounded-full flex items-center justify-center">
+                  <svg className="h-3.5 w-3.5 text-accent-700" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex-1 text-center">
+                <h3 className="text-xs font-medium text-accent-700 mb-0.5">AI-Generated Content Disclaimer</h3>
+                <p className="text-xs text-accent-700 leading-relaxed">
+                  This content was generated by AI and may contain inaccuracies. Review and customize for your classroom needs.{' '}
+                  <button 
+                    onClick={() => navigate('/disclaimer')}
+                    className="text-accent-700 underline hover:text-accent-800 font-medium transition-colors duration-200"
+                  >
+                    Read full disclaimer
+                  </button>
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </div> */}
+      </div>
 
-        
-
-      <div className=" flex-1 p-4 md:p-6 lg:p-8">
-
-
-        {/* Back Navigation */}
-        <div className="mb-4 md:mb-6">
+      <div className="flex-1 p-4 md:p-6 lg:p-8 pt-20 md:pt-24 lg:pt-28">
+        {/* Back Navigation - Always Visible */}
+        <div className="mb-4 md:mb-6 rounded-lg p-3 md:p-4 ">
           <button 
             onClick={() => navigate('/dashboard')}
-            className="text-primary-600 text-sm mb-2 flex items-center hover:text-primary-700 transition-colors duration-200"
+            className="text-primary-600 text-sm md:text-base font-medium flex items-center hover:text-primary-700 transition-colors duration-200 w-full text-left"
           >
-            &larr; Back to Dashboard
+            <span className="mr-2 text-lg">&larr;</span>
+            Back to Dashboard
           </button>
         </div>
 
-
-        {/* Breadcrumb Navigation */}
-        <div className="flex items-center text-sm text-gray-500 mb-3 md:mb-4 gap-2">
-          <span className="font-bold text-primary-700">Dashboard</span>
-          <span>&gt;</span>
-          <span className="font-bold text-primary-700">Lesson Plans</span>
-          <span>&gt;</span>
-          <span className="font-bold text-primary-700">{lessonPlan?.subject || 'Subject'}</span>
-          <span>&gt;</span>
-          <span className="font-bold text-primary-600">Generate Lesson Note</span>
-        </div>
-
-        {error && (
-          <div className="mb-4 md:mb-6 bg-red-50 border border-red-200 rounded-lg p-3 md:p-4">
-            <p className="text-red-800 text-sm">{error}</p>
-          </div>
-        )}
-        {successMessage && (
-          <div className="mb-4 md:mb-6 bg-green-50 border border-green-200 rounded-lg p-3 md:p-4">
-            <p className="text-green-800 text-sm">{successMessage}</p>
+        {/* Sticky Feedback Messages */}
+        {(error || successMessage) && (
+          <div className="sticky top-16 md:top-20 lg:top-24 z-40 mb-4 md:mb-6">
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 md:p-4 shadow-sm">
+                <p className="text-red-800 text-sm">{error}</p>
+              </div>
+            )}
+            {successMessage && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 md:p-4 shadow-sm">
+                <p className="text-green-800 text-sm">{successMessage}</p>
+              </div>
+            )}
           </div>
         )}
 
         <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
           {/* Main Content */}
-          <div className="flex-1 bg-white rounded-xl shadow-lg p-4 md:p-6 lg:p-8 space-y-4 md:space-y-6">
-            {/* AI Disclaimer */}
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 md:p-4">
-              <div className="flex items-start">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-amber-800">AI-Generated Content Disclaimer</h3>
-                  <div className="mt-2 text-sm text-amber-700">
-                    <p>This lesson resource has been generated by AI and may contain inaccuracies. As an educator, you should:</p>
-                    <ul className="list-disc list-inside mt-2 space-y-1">
-                      <li>Review content for accuracy and appropriateness</li>
-                      <li>Customize to align with your curriculum standards</li>
-                      <li>Adapt to your students' specific needs</li>
-                      <li>Verify cultural relevance and local context</li>
-                    </ul>
-                    <p className="mt-2">Click "Edit" on any section to customize for your classroom.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
+          <div className="flex-1 sm:bg-none lg:bg-white lg:rounded-xl lg:shadow-lg p-4 md:p-6 lg:p-8 space-y-4 md:space-y-6">
             {/* Read-only Sections */}
             {structuredContent.title_header && (
               <div className="bg-primary-50 rounded-lg p-3 md:p-4 border border-primary-100">
@@ -674,18 +648,18 @@ const EditLessonResourcePage: React.FC = () => {
             )}
 
             {structuredContent.learning_objectives && (
-              <div className="bg-primary-50 rounded-lg p-3 md:p-4 border border-primary-100">
+              <div className="bg-accent-50 rounded-lg p-3 md:p-4 border border-accent-100">
                 <div className="mb-3">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-bold mb-2 md:mb-3 text-base md:text-lg text-primary-900">Learning Objectives</h3>
+                    <h3 className="font-bold mb-2 md:mb-3 text-base md:text-lg text-accent-900">Learning Objectives</h3>
                     <Tooltip content={structuredContent.explanations?.learning_objectives || "Learning objectives define what students should know, understand, and be able to do by the end of the lesson. These are aligned with curriculum standards and grade-level expectations."}>
-                      <svg className="w-4 h-4 text-primary-500 hover:text-primary-700" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-4 h-4 text-accent-500 hover:text-accent-700" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
                       </svg>
                     </Tooltip>
                   </div>
                 </div>
-                <ul className="list-disc ml-4 md:ml-6 text-primary-800 space-y-1">
+                <ul className="list-disc ml-4 md:ml-6 text-accent-800 space-y-1">
                   {structuredContent.learning_objectives.map((objective, index) => (
                     <li key={index} className="text-sm">{objective}</li>
                   ))}
@@ -702,9 +676,9 @@ const EditLessonResourcePage: React.FC = () => {
                 isEditing={editingSection === 'lesson_content'}
                 onEdit={() => setEditingSection('lesson_content')}
                 onCancel={() => setEditingSection(null)}
-                bgColor="bg-accent-50"
-                textColor="text-accent-900"
-                borderColor="border-accent-100"
+                bgColor="bg-primary-100"
+                textColor="text-primary-900"
+                borderColor="border-primary-200"
                 explanation={structuredContent.explanations?.lesson_content}
               />
             )}
@@ -717,9 +691,9 @@ const EditLessonResourcePage: React.FC = () => {
                 isEditing={editingSection === 'assessment'}
                 onEdit={() => setEditingSection('assessment')}
                 onCancel={() => setEditingSection(null)}
-                bgColor="bg-orange-50"
-                textColor="text-orange-900"
-                borderColor="border-orange-100"
+                bgColor="bg-accent-100"
+                textColor="text-accent-900"
+                borderColor="border-accent-200"
                 explanation={structuredContent.explanations?.assessment}
               />
             )}
@@ -732,9 +706,9 @@ const EditLessonResourcePage: React.FC = () => {
                 isEditing={editingSection === 'key_takeaways'}
                 onEdit={() => setEditingSection('key_takeaways')}
                 onCancel={() => setEditingSection(null)}
-                bgColor="bg-indigo-50"
-                textColor="text-indigo-900"
-                borderColor="border-indigo-100"
+                bgColor="bg-primary-75"
+                textColor="text-primary-900"
+                borderColor="border-primary-150"
                 explanation={structuredContent.explanations?.key_takeaways}
               />
             )}
@@ -747,9 +721,9 @@ const EditLessonResourcePage: React.FC = () => {
                 isEditing={editingSection === 'related_projects_or_activities'}
                 onEdit={() => setEditingSection('related_projects_or_activities')}
                 onCancel={() => setEditingSection(null)}
-                bgColor="bg-teal-50"
-                textColor="text-teal-900"
-                borderColor="border-teal-100"
+                bgColor="bg-accent-75"
+                textColor="text-accent-900"
+                borderColor="border-accent-150"
                 explanation={structuredContent.explanations?.related_projects_or_activities}
               />
             )}
@@ -762,9 +736,9 @@ const EditLessonResourcePage: React.FC = () => {
                 isEditing={editingSection === 'references'}
                 onEdit={() => setEditingSection('references')}
                 onCancel={() => setEditingSection(null)}
-                bgColor="bg-gray-50"
-                textColor="text-gray-900"
-                borderColor="border-gray-100"
+                bgColor="bg-primary-125"
+                textColor="text-primary-900"
+                borderColor="border-primary-175"
                 explanation={structuredContent.explanations?.references}
               />
             )}
@@ -792,14 +766,14 @@ const EditLessonResourcePage: React.FC = () => {
 
               <button
                 onClick={() => exportLessonResource(exportFormat)}
-                className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm transition-colors duration-200"
+                className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm transition-colors duration-200"
               >
                 Export Lesson Resource
               </button>
             </div>
 
             {/* Status */}
-            <div className="bg-white rounded-xl shadow-lg p-4 border border-gray-100">
+            <div className="bg-white hidden lg:fle rounded-xl shadow-lg p-4 border border-gray-100">
               <div className="font-bold mb-2 text-primary-900">Resource Status</div>
               <div className="text-sm text-gray-600 space-y-1">
                 <div><span className="font-semibold text-primary-700">Status:</span> <span className="text-gray-700">{lessonResource?.status || 'Draft'}</span></div>
@@ -832,20 +806,10 @@ const EditLessonResourcePage: React.FC = () => {
 
             <button
               onClick={() => exportLessonResource(exportFormat)}
-              className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+              className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm"
             >
               Export Lesson Resource
             </button>
-          </div>
-
-          {/* Status */}
-          <div className="bg-white rounded-xl shadow-lg p-4 border border-gray-100">
-            <div className="font-bold mb-2 text-primary-900">Resource Status</div>
-            <div className="text-sm text-gray-600 space-y-1">
-              <div><span className="font-semibold text-primary-700">Status:</span> <span className="text-gray-700">{lessonResource?.status || 'Draft'}</span></div>
-              <div><span className="font-semibold text-primary-700">Created:</span> <span className="text-gray-700">{lessonResource?.created_at ? new Date(lessonResource.created_at).toLocaleDateString() : 'N/A'}</span></div>
-              <div><span className="font-semibold text-primary-700">Resource ID:</span> <span className="text-gray-700">{lessonResource?.lesson_resources_id || 'N/A'}</span></div>
-            </div>
           </div>
         </div>
       </div>
