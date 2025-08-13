@@ -848,9 +848,9 @@ const EditLessonResourcePage: React.FC = () => {
 
           {/* Sidebar - Hidden on mobile, shown on desktop */}
           <div className="hidden lg:flex w-64 flex-col gap-4 lg:gap-6">
-            {/* Export Options */}
-            <div className="bg-white rounded-xl shadow-lg p-4 border border-gray-100">
-              <div className="font-bold mb-2 text-primary-900">Export Options</div>
+            {/* Export Options - Fixed on Desktop */}
+            <div className="sticky top-8 bg-white rounded-xl shadow-lg p-4 border border-gray-100">
+              <div className="font-bold mb-4 text-primary-900">Export Options</div>
               
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
