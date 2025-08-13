@@ -880,15 +880,25 @@ const EditLessonResourcePage: React.FC = () => {
         <div className="lg:hidden mt-6 space-y-4 pb-20">
           {/* Export Options */}
           <div className="bg-white rounded-xl shadow-lg p-4 border border-gray-100">
-            <div className="font-bold mb-4 text-primary-900">Export Options</div>
+            <div className="font-bold mb-2 text-primary-900">Export Options</div>
             
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Export Format
+              </label>
+              <select
+                value={exportFormat}
+                onChange={(e) => setExportFormat(e.target.value as 'pdf' | 'docx')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+              >
+                <option value="pdf">PDF Document</option>
+                <option value="docx">Word Document (DOCX)</option>
+              </select>
+            </div>
+
             <button
-              onClick={() => {
-                const choice = window.confirm('Choose export format:\n\nClick OK for PDF\nClick Cancel for DOCX');
-                const format = choice ? 'pdf' : 'docx';
-                exportLessonResource(format);
-              }}
-              className="w-full px-4 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm font-medium"
+              onClick={() => exportLessonResource(exportFormat)}
+              className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm"
             >
               Export Lesson Resource
             </button>
