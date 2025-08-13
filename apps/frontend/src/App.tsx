@@ -11,6 +11,7 @@ import LessonPlansPage from './pages/LessonPlansPage'
 import LessonPlanDetailPage from './pages/LessonPlanDetailPage'
 import EditLessonPlanPage from './pages/EditLessonPlanPage'
 import EditLessonResourcePage from './pages/EditLessonResourcePage'
+import LessonResourcesPage from './pages/LessonResourcesPage'
 import TestPage from './pages/TestPage'
 
 function App() {
@@ -48,6 +49,11 @@ function App() {
           <Route path="/lesson-plans/:lessonPlanId/resources/edit" element={
             <ProtectedRoute>
               <EditLessonResourcePage />
+            </ProtectedRoute>
+          } />
+          <Route path="/lesson-resources" element={
+            <ProtectedRoute>
+              <LessonResourcesPage />
             </ProtectedRoute>
           } />
           <Route path="/test" element={

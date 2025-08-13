@@ -3,6 +3,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
+import { FaEye, FaEyeSlash, FaArrowLeft, FaUser, FaEnvelope, FaLock, FaCheckCircle } from 'react-icons/fa';
 
 function isAlphanumeric(str: string) {
   return /^[a-zA-Z0-9]+$/.test(str);
@@ -127,24 +128,43 @@ const SignupPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-      <div className="absolute left-12 top-8 text-gray-400 text-lg">Sign Up</div>
-      <div className="flex flex-col items-center w-full">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 px-4 sm:px-6 lg:px-8">
+      {/* Back Button */}
+      <div className="absolute left-4 sm:left-8 top-6 sm:top-8">
+        <button 
+          onClick={() => navigate(-1)}
+          className="flex items-center space-x-2 text-primary-600 hover:text-primary-700 transition-colors duration-200 p-2 rounded-lg hover:bg-primary-50"
+          aria-label="Go back"
+        >
+          <FaArrowLeft className="w-4 h-4" />
+          <span className="hidden sm:inline text-sm font-medium">Back</span>
+        </button>
+      </div>
+
+      <div className="flex flex-col items-center w-full max-w-md">
         {/* Logo */}
-        <div className="mt-12 mb-4">
-          <span className="font-bold text-2xl tracking-widest">AWADE</span>
-        </div>
-        <div className="bg-white rounded-md shadow-md p-8 w-full max-w-md border border-gray-300 relative">
-          {/* Back arrow */}
-          <button className="absolute left-4 top-4 text-gray-500 hover:text-gray-700" aria-label="Back">
-            &#8592;
-          </button>
-          <h2 className="text-2xl font-semibold text-center mb-2">SIGN UP</h2>
-          <p className="text-center text-gray-500 text-sm mb-6">
-            Sign up to start your learning journey. Acquire precise knowledge tailored specifically to your development
+        <div className="mt-8 sm:mt-12 mb-6 text-center">
+          <h1 className="font-bold text-3xl sm:text-4xl text-primary-800 tracking-wide">
+            <Link to="/" aria-label="Awade - Go to homepage">
+              AWADE
+            </Link>
+          </h1>
+          <p className="text-primary-600 text-sm sm:text-base mt-2">
+            AI-Powered Lesson Planning
           </p>
+        </div>
+
+        {/* Signup Form Card */}
+        <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 w-full border border-gray-100">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Create Account</h2>
+            <p className="text-gray-600 text-sm sm:text-base">
+              Join thousands of educators transforming their teaching with AI
+            </p>
+          </div>
+
           {/* Google Sign Up */}
-          <div className="flex items-center justify-center w-full mb-4">
+          <div className="mb-6">
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={handleGoogleError}
@@ -152,128 +172,173 @@ const SignupPage: React.FC = () => {
               useOneTap
             />
           </div>
-          {error && <div className="text-red-500 text-sm text-center mb-2">{error}</div>}
-          <div className="flex items-center my-4">
-            <div className="flex-grow border-t border-gray-300" />
-            <span className="mx-2 text-gray-400 text-xs">OR</span>
-            <div className="flex-grow border-t border-gray-300" />
+
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm text-center">{error}</p>
+            </div>
+          )}
+
+          <div className="flex items-center my-6">
+            <div className="flex-grow border-t border-gray-200" />
+            <span className="mx-4 text-gray-400 text-sm font-medium">or continue with email</span>
+            <div className="flex-grow border-t border-gray-200" />
           </div>
-          <form className="space-y-4" onSubmit={handleSubmit} autoComplete="off">
+
+          <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit} autoComplete="off">
+            {/* Full Name */}
             <div>
-              <label className="block text-sm font-semibold mb-1">Full Name</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                <FaUser className="w-4 h-4 mr-2 text-primary-600" />
+                Full Name
+              </label>
               <input
                 type="text"
                 name="fullName"
                 value={form.fullName}
                 onChange={handleChange}
-                placeholder="Enter your Name"
-                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                placeholder="Enter your full name"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm sm:text-base"
                 required
               />
             </div>
+
+            {/* Email */}
             <div>
-              <label className="block text-sm font-semibold mb-1">E-mail</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                <FaEnvelope className="w-4 h-4 mr-2 text-primary-600" />
+                Email Address
+              </label>
               <input
                 type="email"
                 name="email"
                 value={form.email}
                 onChange={handleChange}
-                placeholder="Enter your mail"
-                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                placeholder="Enter your email"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm sm:text-base"
                 required
               />
             </div>
+
+            {/* Password */}
             <div className="relative">
-              <label className="block text-sm font-semibold mb-1">Password</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                <FaLock className="w-4 h-4 mr-2 text-primary-600" />
+                Password
+              </label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 name="password"
                 value={form.password}
                 onChange={handleChange}
-                placeholder="Enter your Password"
-                className="w-full border border-gray-300 rounded px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                placeholder="Create a password"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm sm:text-base"
                 required
                 minLength={8}
                 pattern="[a-zA-Z0-9]+"
               />
               <button
                 type="button"
-                className="absolute right-2 top-8 text-gray-400 hover:text-gray-600"
-                tabIndex={-1}
+                className="absolute right-3 top-10 text-gray-400 hover:text-gray-600 transition-colors duration-200"
                 onClick={() => setShowPassword((v) => !v)}
                 aria-label="Toggle password visibility"
               >
-                {showPassword ? '🙈' : '👁️'}
+                {showPassword ? <FaEyeSlash className="w-5 h-5" /> : <FaEye className="w-5 h-5" />}
               </button>
             </div>
+
+            {/* Repeat Password */}
             <div className="relative">
-              <label className="block text-sm font-semibold mb-1">Repeat Password</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                <FaLock className="w-4 h-4 mr-2 text-primary-600" />
+                Confirm Password
+              </label>
               <input
                 type={showRepeatPassword ? 'text' : 'password'}
                 name="repeatPassword"
                 value={form.repeatPassword}
                 onChange={handleChange}
-                placeholder="Enter your Password"
-                className="w-full border border-gray-300 rounded px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                placeholder="Confirm your password"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm sm:text-base"
                 required
                 minLength={8}
                 pattern="[a-zA-Z0-9]+"
               />
               <button
                 type="button"
-                className="absolute right-2 top-8 text-gray-400 hover:text-gray-600"
-                tabIndex={-1}
+                className="absolute right-3 top-10 text-gray-400 hover:text-gray-600 transition-colors duration-200"
                 onClick={() => setShowRepeatPassword((v) => !v)}
                 aria-label="Toggle repeat password visibility"
               >
-                {showRepeatPassword ? '🙈' : '👁️'}
+                {showRepeatPassword ? <FaEyeSlash className="w-5 h-5" /> : <FaEye className="w-5 h-5" />}
               </button>
             </div>
-            <div className="flex items-center">
+
+            {/* Terms Checkbox */}
+            <div className="flex items-start space-x-3">
               <input
                 id="terms"
                 type="checkbox"
                 checked={agreed}
                 onChange={() => setAgreed((v) => !v)}
-                className="mr-2"
+                className="mt-1 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
               />
-              <label htmlFor="terms" className="text-xs text-gray-600">
-                By signing up, you agree to our{' '}
-                <a href="#" className="underline text-indigo-600">Terms & Conditions</a>
+              <label htmlFor="terms" className="text-sm text-gray-600 leading-relaxed">
+                I agree to the{' '}
+                <a href="#" className="text-primary-600 hover:text-primary-700 underline font-medium">
+                  Terms & Conditions
+                </a>{' '}
+                and{' '}
+                <a href="#" className="text-primary-600 hover:text-primary-700 underline font-medium">
+                  Privacy Policy
+                </a>
               </label>
             </div>
+
+            {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-purple-200 text-gray-700 font-semibold py-2 rounded mt-2 hover:bg-purple-300 disabled:opacity-50"
+              className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               disabled={loading}
             >
-              {loading ? 'Signing Up...' : 'Sign Up'}
+              {loading ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <span>Creating Account...</span>
+                </div>
+              ) : (
+                'Create Account'
+              )}
             </button>
           </form>
-          <div className="text-center text-xs text-gray-500 mt-4">
-            Have an Account?{' '}
-            <a href="/login" className="underline text-indigo-600">Log In</a>
+
+          {/* Login Link */}
+          <div className="text-center mt-6 pt-6 border-t border-gray-100">
+            <p className="text-gray-600 text-sm">
+              Already have an account?{' '}
+              <Link to="/login" className="text-primary-600 hover:text-primary-700 font-semibold underline">
+                Sign in here
+              </Link>
+            </p>
           </div>
         </div>
       </div>
 
       {/* Success Modal */}
       {showSuccessModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-md mx-4 text-center">
-            <div className="mb-4">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-                <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                </svg>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-6 sm:p-8 max-w-md w-full mx-4 text-center">
+            <div className="mb-6">
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100">
+                <FaCheckCircle className="h-8 w-8 text-green-600" />
               </div>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Signup Successful!</h3>
-            <p className="text-sm text-gray-500 mb-4">
-              Your account has been created successfully. You will be redirected to the login page in a few seconds.
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">Account Created Successfully!</h3>
+            <p className="text-gray-600 text-sm sm:text-base mb-6">
+              Welcome to Awade! You'll be redirected to the login page in a few seconds.
             </p>
             <div className="flex justify-center">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
             </div>
           </div>
         </div>

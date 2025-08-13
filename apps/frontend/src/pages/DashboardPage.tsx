@@ -20,6 +20,7 @@ import {
   FaChevronLeft,
   FaChevronRight
 } from 'react-icons/fa';
+import Sidebar from '../components/Sidebar';
 
 const aiSuggestedTopics = ['Fractions', 'Geometry', 'Measurements', 'Algebra', 'Simultaneous Equations'];
 
@@ -318,55 +319,12 @@ const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-gray-50 ">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
-      <aside className="w-full hidden mt-12 lg:w-64 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 lg:flex flex-row lg:flex-col pb-3 md:pb-4 lg:pb-8 px-2 md:px-4 lg:px-4 lg:min-h-screen items-center lg:items-stretch flex-shrink-0">
-        {/* Logo */}
-        <div className="hidden lg:flex items-center mb-8 lg:mb-8 w-full justify-center ">
-          
-          <span className="font-bold text-3xl text-center tracking-wide text-primary-800">AWADE</span>
-        </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 space-y-2 mt-12 w-full hidden lg:block">
-          <button className="w-full text-left px-4 py-3 rounded-lg bg-accent-600 text-white font-semibold flex items-center">
-            <FaHome className="w-4 h-4 mr-3" />
-            Dashboard
-          </button>
-          <button 
-            className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 font-medium flex items-center"
-            onClick={() => navigate('/lesson-plans')}
-          >
-            <FaBookOpen className="w-4 h-4 mr-3" />
-            Lesson Plans
-          </button>
-          <button 
-            className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 font-medium flex items-center"
-            onClick={() => navigate('/lesson-resources')}
-          >
-            <FaFolder className="w-4 h-4 mr-3" />
-            Resources
-          </button>
-          
-          
-          <button className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 font-medium flex items-center">
-            <FaCog className="w-4 h-4 mr-3" />
-            Settings
-          </button>
-        </nav>
-
-        {/* Logout */}
-        <button 
-          className="mt-8 text-left px-4 py-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg hidden lg:flex items-center" 
-          onClick={logout}
-        >
-          <FaSignOutAlt className="w-4 h-4 mr-3" />
-          Log out
-        </button>
-      </aside>
+      <Sidebar currentPage="dashboard" />
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col p-2 md:p-4 lg:p-6">
+      <main className="flex-1 lg:ml-64 p-4 md:p-6 lg:p-8">
         {/* Header */}
         <div className="flex justify-between items-start pt-0 pb-2 md:pb-4 lg:pb-5 px-2 md:px-4 lg:px-5 gap-2 md:gap-4 flex-shrink-0">
           {/* Left Side - Welcome Message */}
