@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaEdit, FaSave, FaTimes } from 'react-icons/fa';
+import { FaEdit, FaSave, FaTimes, FaHome, FaBookOpen, FaFolder, FaCog } from 'react-icons/fa';
 import apiService from '../services/api';
 
 interface LessonResource {
@@ -338,11 +338,27 @@ const EditLessonResourcePage: React.FC = () => {
   // Export format
   const [exportFormat, setExportFormat] = useState<'pdf' | 'docx'>('pdf');
   
+  // Auto-save state
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [lastAutoSaveTime, setLastAutoSaveTime] = useState<Date | null>(null);
+  
+  // Debounced auto-save timer
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  
   useEffect(() => {
     if (lessonPlanId) {
       loadLessonPlanAndResource();
     }
   }, [lessonPlanId]);
+
+  // Cleanup auto-save timer on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, []);
 
   const loadLessonPlanAndResource = async () => {
     try {
@@ -421,6 +437,9 @@ const EditLessonResourcePage: React.FC = () => {
               related_projects_or_activities: parsed.explanations?.related_projects_or_activities
             });
             setStructuredContent(parsed);
+            
+            // Auto-save the generated content to database
+            await autoSaveToDatabase(parsed, response.data.lesson_resources_id);
           } catch (error) {
             setError('Failed to parse lesson resource content');
           }
@@ -433,8 +452,36 @@ const EditLessonResourcePage: React.FC = () => {
     }
   };
 
-  const handleSectionSave = (sectionKey: string, updatedContent: any) => {
-    if (!structuredContent) return;
+  const autoSaveToDatabase = async (content: StructuredLessonContent, resourceId: number) => {
+    try {
+      setIsAutoSaving(true);
+      const contentString = JSON.stringify(content, null, 2);
+      console.log('Auto-saving generated content to database:', contentString);
+      
+      const response = await apiService.updateLessonResource(
+        resourceId.toString(),
+        contentString
+      );
+
+      if (response.error) {
+        console.error('Auto-save failed:', response.error);
+        setError('Generated content saved locally but failed to save to database. Please try saving manually.');
+      } else {
+        console.log('Auto-save successful:', response.data);
+        setLastAutoSaveTime(new Date());
+        setSuccessMessage('Generated content automatically saved to database!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+      }
+    } catch (err: any) {
+      console.error('Auto-save error:', err);
+      setError('Auto-save failed. Please save manually to persist changes.');
+    } finally {
+      setIsAutoSaving(false);
+    }
+  };
+
+  const handleSectionSave = async (sectionKey: string, updatedContent: any) => {
+    if (!structuredContent || !lessonResource) return;
 
     const updatedStructuredContent = {
       ...structuredContent,
@@ -443,6 +490,39 @@ const EditLessonResourcePage: React.FC = () => {
 
     setStructuredContent(updatedStructuredContent);
     setEditingSection(null);
+
+    // Auto-save section changes to database
+    try {
+      setIsAutoSaving(true);
+      const contentString = JSON.stringify(updatedStructuredContent, null, 2);
+      console.log(`Auto-saving section "${sectionKey}" changes:`, contentString);
+      
+      const response = await apiService.updateLessonResource(
+        lessonResource.lesson_resources_id.toString(),
+        contentString
+      );
+
+      if (response.error) {
+        console.error('Section auto-save failed:', response.error);
+        setError(`Changes to "${sectionKey}" saved locally but failed to save to database. Please try saving manually.`);
+        setTimeout(() => setError(''), 5000);
+      } else {
+        console.log('Section auto-save successful:', response.data);
+        // Update lesson resource with latest data
+        setLessonResource(response.data);
+        setLastAutoSaveTime(new Date());
+        
+        // Show brief success feedback
+        setSuccessMessage(`"${sectionKey}" changes automatically saved!`);
+        setTimeout(() => setSuccessMessage(''), 2000);
+      }
+    } catch (err: any) {
+      console.error('Section auto-save error:', err);
+      setError(`Auto-save failed for "${sectionKey}". Please save manually to persist changes.`);
+      setTimeout(() => setError(''), 5000);
+    } finally {
+      setIsAutoSaving(false);
+    }
   };
 
   const saveAllChanges = async () => {
@@ -596,12 +676,28 @@ const EditLessonResourcePage: React.FC = () => {
         {/* Back Navigation - Always Visible */}
         <div className="mb-4 md:mb-6 rounded-lg p-3 md:p-4 ">
           <button 
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate(`/lesson-plans/${lessonPlanId}`)}
             className="text-primary-600 text-sm md:text-base font-medium flex items-center hover:text-primary-700 transition-colors duration-200 w-full text-left"
           >
             <span className="mr-2 text-lg">&larr;</span>
-            Back to Dashboard
+            Back to Lesson Plan
           </button>
+        </div>
+
+        {/* Auto-Save Status Indicator */}
+        <div className="mb-3 md:mb-4">
+          {isAutoSaving && (
+            <div className="flex items-center text-sm text-blue-600">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+              Auto-saving changes...
+            </div>
+          )}
+          {!isAutoSaving && lastAutoSaveTime && (
+            <div className="flex items-center text-sm text-green-600">
+              <span className="mr-2">✓</span>
+              Last saved: {lastAutoSaveTime.toLocaleTimeString()}
+            </div>
+          )}
         </div>
 
         {/* Sticky Feedback Messages */}
@@ -773,7 +869,7 @@ const EditLessonResourcePage: React.FC = () => {
             </div>
 
             {/* Status */}
-            <div className="bg-white hidden lg:fle rounded-xl shadow-lg p-4 border border-gray-100">
+            <div className="bg-white hidden lg:flex rounded-xl shadow-lg p-4 border border-gray-100">
               <div className="font-bold mb-2 text-primary-900">Resource Status</div>
               <div className="text-sm text-gray-600 space-y-1">
                 <div><span className="font-semibold text-primary-700">Status:</span> <span className="text-gray-700">{lessonResource?.status || 'Draft'}</span></div>
@@ -813,6 +909,40 @@ const EditLessonResourcePage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 z-50 shadow-lg">
+        <div className="flex justify-around items-center">
+          <button 
+            className="flex flex-col items-center py-2 px-3 text-primary-600 font-medium transition-colors duration-200"
+            onClick={() => navigate('/dashboard')}
+          >
+            <FaHome className="w-6 h-6 mb-1" />
+            <span className="text-xs">Dashboard</span>
+          </button>
+          <button 
+            className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
+            onClick={() => navigate('/lesson-plans')}
+          >
+            <FaBookOpen className="w-6 h-6 mb-1" />
+            <span className="text-xs">Plans</span>
+          </button>
+          <button 
+            className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
+            onClick={() => navigate('/lesson-resources')}
+          >
+            <FaFolder className="w-6 h-6 mb-1" />
+            <span className="text-xs">Resources</span>
+          </button>
+          <button 
+            className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
+            onClick={() => navigate('/dashboard')}
+          >
+            <FaCog className="w-6 h-6 mb-1" />
+            <span className="text-xs">Settings</span>
+          </button>
+        </div>
+      </nav>
     </div>
   );
 };
