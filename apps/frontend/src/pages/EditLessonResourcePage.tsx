@@ -873,16 +873,6 @@ const EditLessonResourcePage: React.FC = () => {
                 Export Lesson Resource
               </button>
             </div>
-
-            {/* Status */}
-            <div className="bg-white hidden lg:flex rounded-xl shadow-lg p-4 border border-gray-100">
-              <div className="font-bold mb-2 text-primary-900">Resource Status</div>
-              <div className="text-sm text-gray-600 space-y-1">
-                <div><span className="font-semibold text-primary-700">Status:</span> <span className="text-gray-700">{lessonResource?.status || 'Draft'}</span></div>
-                <div><span className="font-bold text-primary-700">Created:</span> <span className="text-gray-700">{lessonResource?.created_at ? new Date(lessonResource.created_at).toLocaleDateString() : 'N/A'}</span></div>
-                <div><span className="font-semibold text-primary-700">Resource ID:</span> <span className="text-gray-700">{lessonResource?.lesson_resources_id || 'N/A'}</span></div>
-              </div>
-            </div>
           </div>
         </div>
 
