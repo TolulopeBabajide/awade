@@ -702,7 +702,7 @@ const EditLessonResourcePage: React.FC = () => {
 
         {/* Sticky Feedback Messages */}
         {(error || successMessage) && (
-          <div className="sticky top-16 md:top-20 lg:top-24 z-40 mb-4 md:mb-6">
+          <div className="sticky top-20 md:top-24 lg:top-28 z-40 mb-4 md:mb-6">
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3 md:p-4 shadow-sm">
                 <p className="text-red-800 text-sm">{error}</p>
@@ -881,7 +881,7 @@ const EditLessonResourcePage: React.FC = () => {
         </div>
 
         {/* Mobile Export Section - Shown only on mobile */}
-        <div className="lg:hidden mt-6 space-y-4">
+        <div className="lg:hidden mt-6 space-y-4 pb-20">
           {/* Export Options */}
           <div className="bg-white rounded-xl shadow-lg p-4 border border-gray-100">
             <div className="font-bold mb-2 text-primary-900">Export Options</div>
