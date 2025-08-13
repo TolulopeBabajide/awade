@@ -31,7 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside className={`hidden w-full lg:w-64 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 lg:flex flex-row lg:flex-col pb-3 md:pb-4 lg:pb-8 px-2 md:px-4 lg:px-4 lg:min-h-screen lg:fixed lg:left-0 lg:top-0 lg:z-50 items-center lg:items-stretch flex-shrink-0 shadow-lg ${className}`}>
+    <aside className={`hidden w-full lg:w-64 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 lg:flex flex-row lg:flex-col pb-3 md:pb-4 lg:pb-8 px-2 md:px-4 lg:px-4 lg:min-h-screen lg:fixed lg:left-0 lg:top-0 lg:z-[60] items-center lg:items-stretch flex-shrink-0 shadow-lg ${className}`}>
       {/* Logo */}
       {showLogo && (
         <div className="items-center mb-8 lg:mb-8 w-full justify-center">
