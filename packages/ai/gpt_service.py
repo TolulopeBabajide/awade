@@ -33,9 +33,9 @@ try:
     load_dotenv()
     logger.info("Environment variables loaded successfully")
 except ImportError:
-    logger.warning("python-dotenv not available, environment variables may not be loaded")
+    pass
 except Exception as e:
-    logger.warning(f"Failed to load environment variables: {e}")
+    pass
 
 class AwadeGPTService:
     """
@@ -74,14 +74,13 @@ class AwadeGPTService:
                 if self.model.startswith("gpt-5"):
                     logger.info(f"GPT-5 configuration: reasoning_effort={self.reasoning_effort}, verbosity={self.verbosity}")
             except Exception as e:
-                logger.error(f"Failed to initialize OpenAI client: {str(e)}")
                 self.client = None
         else:
             self.client = None
             if not OPENAI_AVAILABLE:
-                logger.warning("OpenAI package not available. Using mock responses.")
+                pass
             elif not self.api_key:
-                logger.warning("OpenAI API key not configured. Using mock responses.")
+                pass
     
     def _make_api_call(self, prompt: str, temperature: Optional[float] = None, topic: str = "General Topic", subject: str = "Mathematics", grade: str = "Grade 4") -> str:
         """
@@ -129,22 +128,17 @@ class AwadeGPTService:
             
             # Check if response is empty or just whitespace
             if not content or not content.strip():
-                logger.warning(f"{self.model} returned empty response, using mock data")
                 return self._generate_mock_lesson_resource(topic, subject, grade)
             
             return content
             
         except openai.AuthenticationError as e:
-            logger.error(f"OpenAI authentication failed: {str(e)}")
             return self._generate_mock_lesson_resource(topic, subject, grade)
         except openai.RateLimitError as e:
-            logger.error(f"OpenAI rate limit exceeded: {str(e)}")
             return self._generate_mock_lesson_resource(topic, subject, grade)
         except openai.APIError as e:
-            logger.error(f"OpenAI API error: {str(e)}")
             return self._generate_mock_lesson_resource(topic, subject, grade)
         except Exception as e:
-            logger.error(f"Unexpected error in OpenAI API call: {str(e)}")
             return self._generate_mock_lesson_resource(topic, subject, grade)
     
     def test_openai_connection(self) -> Dict[str, Any]:
@@ -191,7 +185,6 @@ class AwadeGPTService:
             logger.info("OpenAI connection test successful")
         except Exception as e:
             status["error"] = str(e)
-            logger.error(f"OpenAI connection test failed: {str(e)}")
         
         return status
     
@@ -206,7 +199,6 @@ class AwadeGPTService:
             status = self.test_openai_connection()
             return status.get("connection_test", False) or bool(self.client)
         except Exception as e:
-            logger.error(f"Health check failed: {str(e)}")
             return False
     
     def _generate_mock_response(self, prompt: str) -> str:
@@ -350,16 +342,9 @@ class AwadeGPTService:
                 return response
             except json.JSONDecodeError as e:
                 # If not valid JSON, return as plain text
-                logger.warning(f"AI response is not valid JSON: {str(e)}")
-                logger.warning(f"Response preview: {response[:200]}...")
-                logger.warning(f"Response ends with: {response[-100:]}...")
                 return response
                 
         except Exception as e:
-            logger.error(f"Error generating lesson resource: {str(e)}")
-            logger.error(f"Exception type: {type(e).__name__}")
-            import traceback
-            logger.error(f"Traceback: {traceback.format_exc()}")
             return self._generate_mock_lesson_resource(topic, subject, grade)
     
     def generate_comprehensive_lesson_resource(
@@ -410,7 +395,6 @@ class AwadeGPTService:
                 }
             except json.JSONDecodeError:
                 # If not valid JSON, return as plain text
-                logger.warning("AI response is not valid JSON, returning as plain text")
                 return {
                     "status": "partial_success",
                     "lesson_resource": {"raw_content": lesson_resource_json},
@@ -418,7 +402,6 @@ class AwadeGPTService:
                 }
                 
         except Exception as e:
-            logger.error(f"Error generating comprehensive lesson resource: {str(e)}")
             fallback_resource = self._generate_fallback_comprehensive_resource(
                 subject, grade, topic, learning_objectives, contents
             )
@@ -523,7 +506,6 @@ class AwadeGPTService:
             Dict[str, Any]: Generated lesson resource with status and content
         """
         if not self.client or not self.model.startswith("gpt-5"):
-            logger.warning("GPT-5 Responses API not available, falling back to standard method")
             return self.generate_comprehensive_lesson_resource(
                 subject, grade, topic, learning_objectives, contents, duration, local_context
             )
@@ -577,7 +559,6 @@ Format the response as a comprehensive JSON object.
             content = response.output[0].text.value if response.output else ""
             
             if not content:
-                logger.warning("GPT-5 returned empty response, using fallback")
                 return {
                     "status": "fallback",
                     "lesson_resource": self._generate_fallback_comprehensive_resource(
@@ -597,7 +578,6 @@ Format the response as a comprehensive JSON object.
                     "reasoning_items": response.reasoning_items if hasattr(response, 'reasoning_items') else None
                 }
             except json.JSONDecodeError:
-                logger.warning("GPT-5 response is not valid JSON, returning as plain text")
                 return {
                     "status": "partial_success",
                     "lesson_resource": {"raw_content": content},
@@ -607,8 +587,6 @@ Format the response as a comprehensive JSON object.
                 }
                 
         except Exception as e:
-            logger.error(f"Error in GPT-5 Responses API call: {str(e)}")
-            logger.warning("Falling back to standard method")
             return self.generate_comprehensive_lesson_resource(
                 subject, grade, topic, learning_objectives, contents, duration, local_context
             )
