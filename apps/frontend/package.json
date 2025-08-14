@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "format": "prettier --write .",
-    "vercel-build": "vite build"
+    "vercel-build": "vite build",
+    "build:test": "vite build --mode test"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.0",
