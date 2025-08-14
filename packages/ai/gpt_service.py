@@ -27,6 +27,16 @@ from .prompts import COMPREHENSIVE_LESSON_RESOURCE_PROMPT
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Load environment variables
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+    logger.info("Environment variables loaded successfully")
+except ImportError:
+    logger.warning("python-dotenv not available, environment variables may not be loaded")
+except Exception as e:
+    logger.warning(f"Failed to load environment variables: {e}")
+
 class AwadeGPTService:
     """
     AI service for lesson plan generation and educational content creation.
@@ -51,12 +61,18 @@ class AwadeGPTService:
         self.max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "4000"))
         self.temperature = float(os.getenv("OPENAI_TEMPERATURE", "0.7"))
         
+        # GPT-5 specific configuration
+        self.reasoning_effort = os.getenv("OPENAI_REASONING_EFFORT", "medium")  # minimal, low, medium, high
+        self.verbosity = os.getenv("OPENAI_VERBOSITY", "medium")  # low, medium, high
+        
         # Initialize OpenAI client
         if OPENAI_AVAILABLE and self.api_key:
             try:
                 openai.api_key = self.api_key
                 self.client = openai.OpenAI(api_key=self.api_key)
                 logger.info(f"OpenAI client initialized successfully with model: {self.model}")
+                if self.model.startswith("gpt-5"):
+                    logger.info(f"GPT-5 configuration: reasoning_effort={self.reasoning_effort}, verbosity={self.verbosity}")
             except Exception as e:
                 logger.error(f"Failed to initialize OpenAI client: {str(e)}")
                 self.client = None
@@ -67,52 +83,69 @@ class AwadeGPTService:
             elif not self.api_key:
                 logger.warning("OpenAI API key not configured. Using mock responses.")
     
-    def _make_api_call(self, prompt: str, temperature: Optional[float] = None) -> str:
+    def _make_api_call(self, prompt: str, temperature: Optional[float] = None, topic: str = "General Topic", subject: str = "Mathematics", grade: str = "Grade 4") -> str:
         """
         Make an API call to OpenAI or return mock response.
         
         Args:
             prompt (str): The prompt to send to the AI
             temperature (Optional[float]): Creativity level (0.0 to 1.0). If not provided, uses configured default.
+            topic (str): The topic being taught (for mock responses)
+            subject (str): The subject area (for mock responses)
+            grade (str): The grade level (for mock responses)
             
         Returns:
             str: AI response or mock response
         """
         if not self.client:
             logger.info("Using mock response (OpenAI client not available)")
-            return self._generate_mock_response(prompt)
+            return self._generate_mock_response(prompt, topic, subject, grade)
         
         # Use configured temperature if not provided
         temp = temperature if temperature is not None else self.temperature
         
         try:
             logger.info(f"Making OpenAI API call with model: {self.model}, temperature: {temp}")
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[
+            
+            # Prepare API parameters
+            api_params = {
+                "model": self.model,
+                "messages": [
                     {"role": "system", "content": "You are an expert educational content creator specializing in African curriculum development. You create comprehensive, locally contextual lesson resources that are age-appropriate, culturally relevant, and practical for teachers to implement."},
                     {"role": "user", "content": prompt}
-                ],
-                temperature=temp,
-                max_tokens=self.max_tokens
-            )
+                ]
+            }
+            
+            # Add token limit parameter
+            api_params["max_tokens"] = self.max_tokens
+            
+            # Add temperature parameter
+            api_params["temperature"] = temp
+            
+            response = self.client.chat.completions.create(**api_params)
             
             content = response.choices[0].message.content
             logger.info(f"OpenAI API call successful. Response length: {len(content)} characters")
+            
+            # Check if response is empty or just whitespace
+            if not content or not content.strip():
+                logger.warning(f"{self.model} returned empty response, using mock data")
+                return self._generate_mock_lesson_resource(topic, subject, grade)
+            
             return content
             
         except openai.AuthenticationError as e:
             logger.error(f"OpenAI authentication failed: {str(e)}")
-            return self._generate_mock_response(prompt)
+            return self._generate_mock_lesson_resource(topic, subject, grade)
         except openai.RateLimitError as e:
             logger.error(f"OpenAI rate limit exceeded: {str(e)}")
-            return self._generate_mock_response(prompt)
+            return self._generate_mock_lesson_resource(topic, subject, grade)
         except openai.APIError as e:
             logger.error(f"OpenAI API error: {str(e)}")
-            return self._generate_mock_response(prompt)
+            return self._generate_mock_lesson_resource(topic, subject, grade)
         except Exception as e:
             logger.error(f"Unexpected error in OpenAI API call: {str(e)}")
-            return self._generate_mock_response(prompt)
+            return self._generate_mock_lesson_resource(topic, subject, grade)
     
     def test_openai_connection(self) -> Dict[str, Any]:
         """
@@ -131,6 +164,14 @@ class AwadeGPTService:
             "connection_test": False,
             "error": None
         }
+        
+        # Add GPT-5 specific status
+        if self.model.startswith("gpt-5"):
+            status["reasoning_effort"] = self.reasoning_effort
+            status["verbosity"] = self.verbosity
+            status["supports_gpt5_features"] = True
+        else:
+            status["supports_gpt5_features"] = False
         
         if not self.client:
             status["error"] = "OpenAI client not initialized"
@@ -179,69 +220,65 @@ class AwadeGPTService:
             str: Mock response
         """
         if "comprehensive lesson resource" in prompt.lower():
-            return self._generate_mock_lesson_resource()
+            # Extract topic, subject, and grade from the prompt if possible
+            # For now, use default values
+            return self._generate_mock_lesson_resource("General Topic", "Mathematics", "Grade 4")
         else:
-            return "Mock response: This is a placeholder response for testing purposes."
+            return f"Mock response: This is a placeholder response for {topic} in {subject} for {grade} students."
     
-    def _generate_mock_lesson_resource(self) -> str:
-        """Generate a mock comprehensive lesson resource."""
+    def _generate_mock_lesson_resource(self, topic: str = "General Topic", subject: str = "Mathematics", grade: str = "Grade 4") -> str:
+        """Generate a mock comprehensive lesson resource with enhanced local context."""
         return json.dumps({
             "title_header": {
-                "topic": "Fractions",
-                "subject": "Mathematics",
-                "grade_level": "Grade 4",
+                "topic": topic,
+                "subject": subject,
+                "grade_level": grade,
                 "country": "Nigeria",
                 "local_context": "Nigerian classroom with basic resources"
             },
             "learning_objectives": [
-                "Understand basic fraction concepts using local examples",
-                "Identify fractions in everyday objects from the community",
-                "Compare simple fractions using local materials"
+                f"Demonstrate understanding of {topic.lower()} through local examples and practical applications",
+                f"Apply {topic.lower()} concepts to solve real-world problems in the community",
+                f"Create practical solutions using {topic.lower()} knowledge relevant to local context"
             ],
             "lesson_content": {
-                "introduction": "Today we will learn about fractions using objects from our community.",
+                "introduction": f"Today we will explore {topic.lower()} through the lens of our local community, connecting abstract concepts to everyday experiences that students encounter in their daily lives.",
                 "main_concepts": [
-                    "Fractions represent parts of a whole",
-                    "Fractions can be written as numbers",
-                    "We can compare fractions using different methods"
+                    f"Core Concept 1: {topic} fundamentals explained through local market scenarios, agricultural practices, and community infrastructure",
+                    f"Core Concept 2: Practical applications of {topic.lower()} in local businesses, transportation systems, and community services",
+                    f"Core Concept 3: Advanced {topic.lower()} applications in local technology, healthcare, and environmental conservation"
                 ],
                 "examples": [
-                    "Using local fruits to demonstrate fractions",
-                    "Using classroom objects to show parts of a whole"
+                    f"Local Market Application: How {topic.lower()} concepts apply to pricing, measurements, and transactions in our community markets",
+                    f"Agricultural Connection: Using {topic.lower()} principles to understand crop yields, irrigation systems, and farm management in local farming",
+                    f"Community Infrastructure: How {topic.lower()} concepts relate to road construction, building design, and urban planning in our area"
                 ],
                 "step_by_step_instructions": [
-                    "Step 1: Introduce the concept using familiar objects",
-                    "Step 2: Demonstrate fractions with visual aids",
-                    "Step 3: Practice with hands-on activities"
+                    "Step 1: Introduce concepts using familiar local objects and scenarios that students encounter daily",
+                    "Step 2: Demonstrate practical applications through hands-on activities using local materials and resources",
+                    "Step 3: Guide students in applying concepts to solve real community problems and create local solutions"
                 ]
             },
             "assessment": [
-                "Multiple choice questions about fractions",
-                "Short answer questions with real-world examples",
-                "Practical application problems"
+                f"Critical Thinking: Analyze how {topic.lower()} concepts could solve a specific local community challenge",
+                f"Practical Application: Design a solution using {topic.lower()} principles for a real local problem",
+                f"Creative Problem-Solving: Develop an innovative approach to apply {topic.lower()} knowledge in the community"
             ],
             "key_takeaways": [
-                "Fractions represent parts of a whole",
-                "Fractions can be found in everyday objects",
-                "We can compare fractions using different methods"
+                f"Real-Life Relevance: {topic} concepts directly apply to daily activities like shopping, transportation, and community planning",
+                f"Community Impact: Understanding {topic.lower()} enables students to contribute to local development and problem-solving",
+                f"Future Applications: {topic} knowledge opens opportunities in local industries, entrepreneurship, and community leadership"
             ],
             "related_projects_or_activities": [
-                "Community fraction hunt project",
-                "Local market fraction activity",
-                "Classroom fraction display"
+                f"Community Survey Project: Students research and document how {topic.lower()} concepts are used in local businesses and services",
+                f"Local Problem-Solving Workshop: Groups identify community challenges and apply {topic.lower()} knowledge to propose solutions",
+                f"Hands-On Demonstration: Students create practical models or demonstrations using local materials to showcase {topic.lower()} concepts"
             ],
             "references": [
-                "Nigerian National Curriculum - Mathematics Grade 4",
-                "Local mathematics textbook",
-                "Community resources for hands-on learning"
-            ],
-            "explanations": {
-                "learning_objectives": "These learning objectives were chosen to align with the Nigerian National Curriculum for Grade 4 Mathematics. They focus on practical, hands-on learning using local examples that students can relate to, ensuring cultural relevance and engagement.",
-                "lesson_content": "The lesson content follows a progressive pedagogical approach starting with familiar objects to build conceptual understanding. The use of local examples and step-by-step instructions ensures accessibility for diverse learning styles and classroom environments.",
-                "assessment": "The assessment strategies include multiple formats to accommodate different learning styles. Real-world examples and practical problems ensure students can apply their knowledge in meaningful contexts beyond the classroom.",
-                "key_takeaways": "These key takeaways summarize the most essential concepts that students should retain. They focus on practical understanding rather than memorization, preparing students for future mathematical concepts.",
-                "related_projects_or_activities": "These activities provide hands-on learning opportunities that reinforce classroom concepts through real-world application. They encourage community engagement and make learning relevant to students' daily lives."
-            }
+                f"Nigerian National Curriculum - {subject} {grade} with local adaptation guidelines",
+                f"Local {subject} textbook and community resource materials",
+                f"Community experts, local businesses, and organizations that can support practical learning"
+            ]
         }, indent=2)
     
     def generate_lesson_resource(
@@ -250,6 +287,7 @@ class AwadeGPTService:
         grade: str,
         topic: str,
         objectives: List[str],
+        contents: Optional[List[str]] = None,
         duration: int = 45,
         context: Optional[str] = None
     ) -> str:
@@ -269,7 +307,8 @@ class AwadeGPTService:
         """
         try:
             logger.info(f"Generating lesson resource for {subject} {grade} - {topic}")
-            logger.info(f"Objectives: {objectives}")
+            logger.info(f"Learning Objectives: {objectives}")
+            logger.info(f"Contents: {contents}")
             logger.info(f"Context: {context}")
             
             # Format objectives as string
@@ -292,15 +331,15 @@ class AwadeGPTService:
                 "country": country,
                 "local_context": context or "Standard classroom with basic resources",
                 "learning_objectives": objectives_str,
-                "contents": "Comprehensive lesson content including introduction, main concepts, examples, and activities"
+                "contents": ", ".join(contents) if contents else "Comprehensive lesson content including introduction, main concepts, examples, and activities"
             }
             
             # Generate prompt using the template
             prompt = COMPREHENSIVE_LESSON_RESOURCE_PROMPT.format(**prompt_params)
             logger.info(f"Generated prompt for {country} context")
             
-            # Make API call
-            response = self._make_api_call(prompt)
+            # Make API call with topic, subject, and grade for proper mock responses
+            response = self._make_api_call(prompt, topic=topic, subject=subject, grade=grade)
             logger.info(f"Received response from OpenAI API (length: {len(response)} characters)")
             
             # Try to parse as JSON, fallback to plain text if needed
@@ -321,7 +360,7 @@ class AwadeGPTService:
             logger.error(f"Exception type: {type(e).__name__}")
             import traceback
             logger.error(f"Traceback: {traceback.format_exc()}")
-            return self._generate_mock_lesson_resource()
+            return self._generate_mock_lesson_resource(topic, subject, grade)
     
     def generate_comprehensive_lesson_resource(
         self,
@@ -329,6 +368,7 @@ class AwadeGPTService:
         grade: str,
         topic: str,
         learning_objectives: List[str],
+        contents: List[str],
         duration: int = 45,
         local_context: Optional[str] = None,
         curriculum_framework: str = "Nigerian National Curriculum"
@@ -355,6 +395,7 @@ class AwadeGPTService:
                 grade=grade,
                 topic=topic,
                 objectives=learning_objectives,
+                contents=contents,
                 duration=duration,
                 context=local_context
             )
@@ -379,7 +420,7 @@ class AwadeGPTService:
         except Exception as e:
             logger.error(f"Error generating comprehensive lesson resource: {str(e)}")
             fallback_resource = self._generate_fallback_comprehensive_resource(
-                subject, grade, topic, learning_objectives
+                subject, grade, topic, learning_objectives, contents
             )
             return {
                 "status": "fallback",
@@ -392,62 +433,222 @@ class AwadeGPTService:
         subject: str,
         grade: str,
         topic: str,
-        learning_objectives: List[str]
+        learning_objectives: List[str],
+        contents: List[str]
     ) -> Dict[str, Any]:
-        """Generate a fallback comprehensive lesson resource."""
+        """Generate a fallback comprehensive lesson resource with enhanced local context."""
         return {
             "title_header": {
                 "topic": topic,
                 "subject": subject,
                 "grade_level": grade,
                 "country": "Nigeria",
-                "local_context": "Standard classroom with basic resources"
+                "local_context": "Nigerian classroom with basic resources"
             },
-            "learning_objectives": learning_objectives,
+            "learning_objectives": learning_objectives or [
+                f"Demonstrate comprehensive understanding of {topic.lower()} through local examples and practical applications",
+                f"Apply {topic.lower()} concepts to solve real-world problems in the Nigerian community context",
+                f"Create innovative solutions using {topic.lower()} knowledge relevant to local development needs"
+            ],
             "lesson_content": {
-                "introduction": f"Introduction to {topic}",
-                "main_concepts": [
-                    f"Main concept 1 for {topic}",
-                    f"Main concept 2 for {topic}",
-                    f"Main concept 3 for {topic}"
+                "introduction": f"Today we will explore {topic.lower()} through the lens of our Nigerian community, connecting abstract concepts to everyday experiences that students encounter in their daily lives, from local markets to community infrastructure.",
+                "main_concepts": contents or [
+                    f"Core Concept 1: {topic} fundamentals explained through Nigerian market scenarios, agricultural practices, and community infrastructure",
+                    f"Core Concept 2: Practical applications of {topic.lower()} in local businesses, transportation systems, and community services",
+                    f"Core Concept 3: Advanced {topic.lower()} applications in local technology, healthcare, and environmental conservation"
                 ],
                 "examples": [
-                    f"Example 1 for {topic}",
-                    f"Example 2 for {topic}"
+                    f"Local Market Application: How {topic.lower()} concepts apply to pricing, measurements, and transactions in Nigerian community markets",
+                    f"Agricultural Connection: Using {topic.lower()} principles to understand crop yields, irrigation systems, and farm management in local Nigerian farming",
+                    f"Community Infrastructure: How {topic.lower()} concepts relate to road construction, building design, and urban planning in Nigerian communities"
                 ],
                 "step_by_step_instructions": [
-                    "Step 1: Introduction",
-                    "Step 2: Main content",
-                    "Step 3: Practice"
+                    "Step 1: Introduce concepts using familiar Nigerian objects and scenarios that students encounter daily",
+                    "Step 2: Demonstrate practical applications through hands-on activities using local Nigerian materials and resources",
+                    "Step 3: Guide students in applying concepts to solve real Nigerian community problems and create local solutions"
                 ]
             },
             "assessment": [
-                f"Assessment question 1 for {topic}",
-                f"Assessment question 2 for {topic}",
-                f"Assessment question 3 for {topic}"
+                f"Critical Thinking: Analyze how {topic.lower()} concepts could solve a specific Nigerian community challenge",
+                f"Practical Application: Design a solution using {topic.lower()} principles for a real local Nigerian problem",
+                f"Creative Problem-Solving: Develop an innovative approach to apply {topic.lower()} knowledge in the Nigerian community context"
             ],
             "key_takeaways": [
-                f"Key takeaway 1 about {topic}",
-                f"Key takeaway 2 about {topic}",
-                f"Key takeaway 3 about {topic}"
+                f"Real-Life Relevance: {topic} concepts directly apply to daily Nigerian activities like shopping, transportation, and community planning",
+                f"Community Impact: Understanding {topic.lower()} enables students to contribute to Nigerian local development and problem-solving",
+                f"Future Applications: {topic} knowledge opens opportunities in Nigerian local industries, entrepreneurship, and community leadership"
             ],
             "related_projects_or_activities": [
-                f"Project 1 for {topic}",
-                f"Activity 1 for {topic}",
-                f"Project 2 for {topic}"
+                f"Community Survey Project: Students research and document how {topic.lower()} concepts are used in Nigerian local businesses and services",
+                f"Local Problem-Solving Workshop: Groups identify Nigerian community challenges and apply {topic.lower()} knowledge to propose solutions",
+                f"Hands-On Demonstration: Students create practical models or demonstrations using Nigerian local materials to showcase {topic.lower()} concepts"
             ],
             "references": [
-                f"Reference 1 for {topic}",
-                f"Reference 2 for {topic}",
-                f"Reference 3 for {topic}"
-            ],
-            "explanations": {
-                "learning_objectives": f"These learning objectives for {topic} are designed to align with curriculum standards and provide clear, measurable outcomes for student learning. They focus on practical understanding and application.",
-                "lesson_content": f"The lesson content for {topic} follows a structured pedagogical approach with clear progression from introduction to practice. The content is designed to be engaging and accessible for diverse learners.",
-                "assessment": f"Assessment strategies for {topic} include multiple formats to accommodate different learning styles and provide comprehensive evaluation of student understanding and progress.",
-                "key_takeaways": f"Key takeaways for {topic} summarize the most essential concepts that students should retain. These points prepare students for future learning and real-world application.",
-                "related_projects_or_activities": f"Related projects and activities for {topic} provide hands-on learning opportunities that reinforce classroom concepts through practical application and real-world engagement."
-            }
+                f"Nigerian National Curriculum - {subject} {grade} with local adaptation guidelines",
+                f"Local Nigerian {subject} textbook and community resource materials",
+                f"Nigerian community experts, local businesses, and organizations that can support practical learning"
+            ]
         }
     
-   
+    def generate_lesson_resource_gpt5_responses_api(
+        self,
+        subject: str,
+        grade: str,
+        topic: str,
+        learning_objectives: List[str],
+        contents: List[str],
+        duration: int = 45,
+        local_context: Optional[str] = None,
+        previous_response_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Generate a lesson resource using GPT-5 with the Responses API for better performance.
+        
+        This method uses the new Responses API which supports:
+        - Chain of thought (CoT) between turns
+        - Better reasoning capabilities
+        - Improved performance and lower latency
+        
+        Args:
+            subject (str): Subject area (e.g., Mathematics, Science)
+            grade (str): Grade level (e.g., Grade 4, JSS1)
+            topic (str): Specific topic to teach
+            learning_objectives (List[str]): Learning objectives
+            contents (List[str]): Content areas to cover
+            duration (int): Lesson duration in minutes
+            local_context (Optional[str]): Local context and available resources
+            previous_response_id (Optional[str]): ID of previous response for CoT continuity
+            
+        Returns:
+            Dict[str, Any]: Generated lesson resource with status and content
+        """
+        if not self.client or not self.model.startswith("gpt-5"):
+            logger.warning("GPT-5 Responses API not available, falling back to standard method")
+            return self.generate_comprehensive_lesson_resource(
+                subject, grade, topic, learning_objectives, contents, duration, local_context
+            )
+        
+        try:
+            # Create prompt for GPT-5
+            prompt = f"""
+Create a comprehensive lesson resource for {topic} in {subject} for {grade} students in Nigeria.
+
+Learning Objectives: {', '.join(learning_objectives)}
+Content Areas: {', '.join(contents)}
+Duration: {duration} minutes
+Context: {local_context or "Standard Nigerian classroom"}
+
+Generate a structured lesson resource that includes:
+- Clear learning objectives
+- Engaging introduction
+- Main concepts with examples
+- Step-by-step instructions
+- Assessment questions
+- Key takeaways
+- Related activities
+- Cultural relevance to Nigeria
+
+Format the response as a comprehensive JSON object.
+"""
+            
+            # Prepare API parameters for Responses API
+            api_params = {
+                "model": self.model,
+                "input": prompt,
+                "reasoning": {
+                    "effort": self.reasoning_effort
+                },
+                "text": {
+                    "verbosity": self.verbosity
+                }
+            }
+            
+            # Add previous response ID for CoT continuity if available
+            if previous_response_id:
+                api_params["previous_response_id"] = previous_response_id
+                logger.info(f"Using previous response ID for CoT continuity: {previous_response_id}")
+            
+            logger.info(f"Making GPT-5 Responses API call with reasoning_effort={self.reasoning_effort}, verbosity={self.verbosity}")
+            
+            # Use the responses API for GPT-5
+            response = self.client.responses.create(**api_params)
+            
+            # Extract content from the response
+            content = response.output[0].text.value if response.output else ""
+            
+            if not content:
+                logger.warning("GPT-5 returned empty response, using fallback")
+                return {
+                    "status": "fallback",
+                    "lesson_resource": self._generate_fallback_comprehensive_resource(
+                        subject, grade, topic, learning_objectives
+                    ),
+                    "response_id": response.id
+                }
+            
+            # Try to parse as JSON
+            try:
+                lesson_resource = json.loads(content)
+                return {
+                    "status": "success",
+                    "lesson_resource": lesson_resource,
+                    "raw_response": content,
+                    "response_id": response.id,
+                    "reasoning_items": response.reasoning_items if hasattr(response, 'reasoning_items') else None
+                }
+            except json.JSONDecodeError:
+                logger.warning("GPT-5 response is not valid JSON, returning as plain text")
+                return {
+                    "status": "partial_success",
+                    "lesson_resource": {"raw_content": content},
+                    "raw_response": content,
+                    "response_id": response.id,
+                    "reasoning_items": response.reasoning_items if hasattr(response, 'reasoning_items') else None
+                }
+                
+        except Exception as e:
+            logger.error(f"Error in GPT-5 Responses API call: {str(e)}")
+            logger.warning("Falling back to standard method")
+            return self.generate_comprehensive_lesson_resource(
+                subject, grade, topic, learning_objectives, contents, duration, local_context
+            )
+    
+    def get_gpt5_capabilities(self) -> Dict[str, Any]:
+        """
+        Get information about GPT-5 capabilities and configuration.
+        
+        Returns:
+            Dict[str, Any]: GPT-5 capabilities and configuration details
+        """
+        if not self.model.startswith("gpt-5"):
+            return {"error": "Not using GPT-5 model"}
+        
+        return {
+            "model": self.model,
+            "reasoning_effort": self.reasoning_effort,
+            "verbosity": self.verbosity,
+            "supports_responses_api": True,
+            "supports_chain_of_thought": True,
+            "supports_custom_tools": True,
+            "supports_context_free_grammars": True,
+            "best_for": [
+                "Complex reasoning tasks",
+                "Code generation and refactoring",
+                "Long context processing",
+                "Tool calling and agentic tasks",
+                "Instruction following"
+            ],
+            "recommended_settings": {
+                "reasoning_effort": {
+                    "minimal": "Fastest response, good for simple tasks",
+                    "low": "Balanced speed and quality",
+                    "medium": "Default setting, good for most tasks",
+                    "high": "Highest quality, thorough reasoning"
+                },
+                "verbosity": {
+                    "low": "Concise responses, good for code generation",
+                    "medium": "Balanced detail, good for explanations",
+                    "high": "Detailed responses, good for documentation"
+                }
+            }
+        }

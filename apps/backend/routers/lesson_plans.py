@@ -367,6 +367,9 @@ async def generate_lesson_resource(
         # Get learning objectives
         objectives = [obj.objective for obj in topic.learning_objectives] if topic.learning_objectives else []
         
+        # Get curriculum contents
+        contents = [content.content_area for content in topic.topic_contents] if topic.topic_contents else []
+        
         # Get subject and grade level from curriculum structure
         curriculum_structure = db.query(CurriculumStructure).filter(
             CurriculumStructure.curriculum_structure_id == topic.curriculum_structure_id
@@ -389,12 +392,13 @@ async def generate_lesson_resource(
         # Initialize AI service
         ai_service = AwadeGPTService()
         
-        # Generate AI content
+        # Generate AI content with all parameters
         ai_content = ai_service.generate_lesson_resource(
             subject=subject.name if subject else "Mathematics",
             grade=grade_level.name if grade_level else "JSS 1",
             topic=topic.topic_title,
             objectives=objectives,
+            contents=contents,  # Pass the actual curriculum contents
             context=combined_context if combined_context else None
         )
         
