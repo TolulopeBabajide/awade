@@ -22,8 +22,6 @@ import {
 } from 'react-icons/fa';
 import Sidebar from '../components/Sidebar';
 
-const aiSuggestedTopics = ['Fractions', 'Geometry', 'Measurements', 'Algebra', 'Simultaneous Equations'];
-
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,6 +34,11 @@ const DashboardPage: React.FC = () => {
   const [selectedSubject, setSelectedSubject] = useState<string>('');
   const [gradeLevels, setGradeLevels] = useState<any[]>([]);
   const [selectedGradeLevel, setSelectedGradeLevel] = useState<string>('');
+  const [topics, setTopics] = useState<any[]>([]);
+  const [isLoadingTopics, setIsLoadingTopics] = useState(false);
+  const [suggestedTopics, setSuggestedTopics] = useState<any[]>([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [filteredTopics, setFilteredTopics] = useState<any[]>([]);
   const [form, setForm] = useState({
     topic: '',
   });
@@ -189,6 +192,10 @@ const DashboardPage: React.FC = () => {
                 setGradeLevels(gradesResponse.data.filter((g: any) => gradeLevelIds.includes(g.grade_level_id)));
                 setSelectedSubject('');
                 setSelectedGradeLevel('');
+                setTopics([]); // Reset topics when curriculum changes
+                setFilteredTopics([]); // Reset filtered topics when curriculum changes
+                setSuggestedTopics([]); // Reset suggested topics when curriculum changes
+                setIsLoadingTopics(false); // Reset loading state
               } else {
                 console.error('Error fetching subjects/grade levels:', subjectsResponse.error || gradesResponse.error);
                 setError('Failed to load subjects and grade levels');
@@ -211,8 +218,85 @@ const DashboardPage: React.FC = () => {
       setGradeLevels([]);
       setSelectedSubject('');
       setSelectedGradeLevel('');
+      setTopics([]); // Reset topics when curriculum changes
+      setFilteredTopics([]); // Reset filtered topics when curriculum changes
+      setSuggestedTopics([]); // Reset suggested topics when curriculum changes
+      setIsLoadingTopics(false); // Reset loading state
     }
   }, [selectedCurriculum]);
+
+  // Fetch topics when both subject and grade level are selected
+  useEffect(() => {
+    if (selectedSubject && selectedGradeLevel && selectedCurriculum) {
+      setIsLoadingTopics(true);
+      setError(''); // Clear previous errors
+      
+      // Find the curriculum structure that matches the selected subject and grade level
+      apiService.getCurriculumStructures(parseInt(selectedCurriculum))
+        .then(response => {
+          if (response.data) {
+            const structures = response.data;
+            const matchingStructure = structures.find((s: any) => 
+              s.subject_id === parseInt(selectedSubject) && 
+              s.grade_level_id === parseInt(selectedGradeLevel)
+            );
+            
+            if (matchingStructure) {
+              // Fetch topics for this curriculum structure
+              apiService.getTopicsByCurriculumStructure(matchingStructure.curriculum_structure_id)
+                .then(topicsResponse => {
+                  if (topicsResponse.data) {
+                    setTopics(topicsResponse.data);
+                    setFilteredTopics(topicsResponse.data); // Initialize filtered topics
+                    setSuggestedTopics(generateSuggestedTopics(topicsResponse.data)); // Set suggested topics
+                    setSelectedTopic(''); // Reset selected topic
+                    setForm({ ...form, topic: '' }); // Reset form topic
+                  } else if (topicsResponse.error) {
+                    console.error('Error fetching topics:', topicsResponse.error);
+                    setError('Failed to load topics');
+                    setTopics([]);
+                    setFilteredTopics([]); // Reset filtered topics
+                  }
+                })
+                .catch(err => {
+                  console.error('Error fetching topics:', err);
+                  setError('Failed to load topics');
+                  setTopics([]);
+                  setFilteredTopics([]); // Reset filtered topics
+                })
+                .finally(() => {
+                  setIsLoadingTopics(false);
+                });
+            } else {
+              setTopics([]);
+              setFilteredTopics([]); // Reset filtered topics
+              setError('No curriculum structure found for the selected subject and grade level');
+              setIsLoadingTopics(false);
+            }
+          } else if (response.error) {
+            console.error('Error fetching curriculum structures:', response.error);
+            setError('Failed to load curriculum structures');
+            setTopics([]);
+            setFilteredTopics([]); // Reset filtered topics
+            setIsLoadingTopics(false);
+          }
+        })
+        .catch(err => {
+          console.error('Error fetching curriculum structures:', err);
+          setError('Failed to load curriculum structures');
+          setTopics([]);
+          setFilteredTopics([]); // Reset filtered topics
+          setIsLoadingTopics(false);
+        });
+    } else {
+      setTopics([]);
+      setFilteredTopics([]); // Reset filtered topics
+      setSuggestedTopics([]); // Clear suggested topics when subject/grade level changes
+      setSelectedTopic('');
+      setForm({ ...form, topic: '' });
+      setIsLoadingTopics(false);
+    }
+  }, [selectedSubject, selectedGradeLevel, selectedCurriculum]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -238,6 +322,55 @@ const DashboardPage: React.FC = () => {
   const handleTopicSelect = (topic: string) => {
     setSelectedTopic(topic);
     setForm({ ...form, topic });
+  };
+
+  // Function to generate random suggested topics
+  const generateSuggestedTopics = (allTopics: any[], count: number = 3) => {
+    if (allTopics.length === 0) return [];
+    
+    const shuffled = [...allTopics].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, Math.min(count, allTopics.length));
+  };
+
+  // Function to filter topics based on input
+  const filterTopics = (input: string) => {
+    if (!input.trim()) {
+      setFilteredTopics(topics);
+      return;
+    }
+    
+    const filtered = topics.filter(topic => 
+      topic.topic_title.toLowerCase().includes(input.toLowerCase())
+    );
+    setFilteredTopics(filtered);
+  };
+
+  // Function to handle topic input change
+  const handleTopicInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setForm({ ...form, topic: value });
+    filterTopics(value);
+    setIsDropdownOpen(true);
+  };
+
+  // Function to handle topic selection from dropdown
+  const handleTopicSelectFromDropdown = (topicTitle: string) => {
+    setForm({ ...form, topic: topicTitle });
+    setSelectedTopic(topicTitle);
+    setIsDropdownOpen(false);
+    setFilteredTopics(topics); // Reset filtered topics
+  };
+
+  // Function to handle dropdown focus
+  const handleDropdownFocus = () => {
+    setIsDropdownOpen(true);
+    setFilteredTopics(topics);
+  };
+
+  // Function to handle dropdown blur
+  const handleDropdownBlur = () => {
+    // Delay closing to allow for clicks
+    setTimeout(() => setIsDropdownOpen(false), 200);
   };
 
   const handleGenerate = async () => {
@@ -465,42 +598,93 @@ const DashboardPage: React.FC = () => {
                 </div>
 
                 {/* Suggested Topics */}
-                <div className="space-y-1 md:space-y-2">
-                  <label className="block text-xs md:text-sm font-semibold text-gray-700">Suggested Topics</label>
-                  <div className="flex flex-wrap gap-1 md:gap-2">
-                    {aiSuggestedTopics.map(topic => (
-                      <button
-                        type="button"
-                        key={topic}
-                        className={`px-3 md:px-4 py-2 rounded-full border transition-all duration-200 text-xs md:text-sm font-medium ${
-                          selectedTopic === topic 
-                            ? 'bg-primary-600 text-white border-primary-600 shadow-lg' 
-                            : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
-                        }`}
-                        onClick={() => handleTopicSelect(topic)}
-                      >
-                        {topic}
-                      </button>
-                    ))}
-                  </div>
+                <div className="space-y-2 md:space-y-3">
+                  <label className="block text-xs md:text-sm font-semibold text-gray-700">
+                    Suggested Topics
+                    {suggestedTopics.length > 0 && (
+                      <span className="ml-2 text-xs text-gray-500 font-normal">
+                        (try these {suggestedTopics.length} topics)
+                      </span>
+                    )}
+                  </label>
+                  {suggestedTopics.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3">
+                      {suggestedTopics.map(topic => (
+                        <button
+                          type="button"
+                          key={topic.topic_id}
+                          className={`w-full px-3 md:px-4 py-2 md:py-3 rounded-lg border transition-all duration-200 text-xs md:text-sm font-medium text-center hover:shadow-md ${
+                            selectedTopic === topic.topic_title 
+                              ? 'bg-primary-600 text-white border-primary-600 shadow-lg' 
+                              : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
+                          }`}
+                          onClick={() => handleTopicSelect(topic.topic_title)}
+                        >
+                          {topic.topic_title}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-500 italic p-3 bg-gray-50 rounded-lg border border-gray-100">
+                      {selectedSubject && selectedGradeLevel 
+                        ? 'Select a topic from the list below or enter your own'
+                        : 'Select a subject and grade level to see suggested topics'
+                      }
+                    </div>
+                  )}
                 </div>
 
                 {/* Topic Input */}
                 {/* Topic Input and Generate Button Row */}
                 <div className="flex flex-col lg:flex-row gap-3 md:gap-4">
                   <div className="flex-1">
-                    <div className="space-y-2">
+                    <div className="space-y-2 md:space-y-3">
                       <label className="block text-xs md:text-sm font-semibold text-gray-700">
                         Topic
                       </label>
-                      <input
-                        type="text"
-                        name="topic"
-                        value={form.topic}
-                        onChange={handleChange}
-                        placeholder="Enter or select a topic"
-                        className="w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm bg-white hover:border-gray-400"
-                      />
+                      <div className="relative">
+                        <input
+                          type="text"
+                          name="topic"
+                          value={form.topic}
+                          onChange={handleTopicInputChange}
+                          onFocus={handleDropdownFocus}
+                          onBlur={handleDropdownBlur}
+                          placeholder="Enter or select a topic"
+                          className="w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm bg-white hover:border-gray-400 pr-8"
+                        />
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                        
+                        {/* Custom Dropdown */}
+                        {isDropdownOpen && filteredTopics.length > 0 && (
+                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                            {filteredTopics.map(topic => (
+                              <button
+                                key={topic.topic_id}
+                                type="button"
+                                className="w-full text-left px-3 md:px-4 py-2 md:py-3 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none text-sm border-b border-gray-100 last:border-b-0 transition-colors duration-150"
+                                onClick={() => handleTopicSelectFromDropdown(topic.topic_title)}
+                              >
+                                {topic.topic_title}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {/* No results message */}
+                        {isDropdownOpen && form.topic.trim() && filteredTopics.length === 0 && (
+                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg">
+                            <div className="px-3 md:px-4 py-2 md:py-3 text-sm text-gray-500 text-center">
+                              No topics found matching "{form.topic}"
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                     
                     </div>
                   </div>
                   <div className="w-full lg:w-auto">
