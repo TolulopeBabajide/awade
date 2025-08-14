@@ -91,6 +91,7 @@ build/
 
 # Private scripts (contain sensitive operations and development tools)
 scripts/private/
+scripts/public/
 
 # Internal documentation (contains sensitive information)
 docs/internal/
@@ -101,4 +102,21 @@ platform-builder/
 platform-templates/
 platform-configs/
 platform-docs/
-platform/ 
+platform/
+
+# Development and testing files
+DEVELOPMENT_SPRINT_GUIDE.md
+WORKFLOW_GUIDE.md
+TODO.md
+
+# Test data and population scripts
+*populate_*.py
+*test_*.py
+*create_*.py
+*drop_*.py
+
+# Logs and cache
+logs/
+*.log
+cache/
+.pytest_cache/ 

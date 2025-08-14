@@ -1,0 +1,40 @@
+services:
+  # Awade Backend API
+  - type: web
+    name: awade-backend
+    env: python
+    plan: free
+    buildCommand: pip install -r apps/backend/requirements.txt
+    startCommand: uvicorn apps.backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: awade-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: DEBUG
+        value: false
+      - key: ENVIRONMENT
+        value: production
+      - key: JWT_EXPIRES_MINUTES
+        value: 60
+      - key: PASSWORD_MIN_LENGTH
+        value: 8
+      - key: PASSWORD_MAX_LENGTH
+        value: 128
+      - key: ALLOWED_ORIGINS
+        value: https://awade-frontend.vercel.app,http://localhost:3000
+
+databases:
+  # PostgreSQL Database
+  - name: awade-db
+    databaseName: awade
+    user: awade_user
+    plan: free
