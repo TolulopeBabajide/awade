@@ -21,10 +21,5 @@
   ],
   "env": {
     "VITE_API_URL": "https://awade-backend.onrender.com"
-  },
-  "functions": {
-    "apps/frontend/**/*.ts": {
-      "runtime": "nodejs18.x"
-    }
   }
 }
