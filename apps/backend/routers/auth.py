@@ -370,7 +370,7 @@ def forgot_password(request: PasswordResetRequest, db: Session = Depends(get_db)
     reset_tokens[token] = user.email
     
     # TODO: Send email with reset link (e.g., https://yourdomain.com/reset-password?token=...)
-    print(f"[DEBUG] Password reset link: https://yourdomain.com/reset-password?token={token}")
+            # Password reset link generated successfully
     return {"message": "If the email exists, a reset link has been sent."}
 
 @router.post("/reset-password")

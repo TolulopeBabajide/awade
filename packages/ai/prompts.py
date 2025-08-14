@@ -9,75 +9,79 @@ Author: Tolulope Babajide
 
 # Comprehensive lesson resource prompt with JSON structure
 COMPREHENSIVE_LESSON_RESOURCE_PROMPT = """
-You are an educational AI assistant helping to generate comprehensive, locally contextual lesson resources for teachers.
+Create a comprehensive, locally contextual lesson resource for {topic} in {subject} for {grade_level} students in {country}.
 
-Create a comprehensive locally contextual lesson resource content on {topic} under {subject} for {grade_level} students in {country} (for context: {local_context}).
-The lesson resource should cover the following:
+Learning objectives: {learning_objectives}
+Content areas: {contents}
+Local context: {local_context}
 
-1. lesson objectives: {learning_objectives}
-
-2. contents should include: {contents}
-
-
-Ensure:
-- The lesson is contextualized to the local environment mentioned.
-- Explanations are age-appropriate and culturally relevant.
-- Reference real or realistic local examples (e.g., local rivers, markets, crops, etc.).
-
----
-
-
-Please create the comprehensive lesson resource in the following JSON structure:
-
+Generate a detailed JSON response with this structure:
 {{
   "title_header": {{
-    "topic": "...",
-    "subject": "...",
-    "grade_level": "...",
-    "country": "...",
-    "local_context": "..."
+    "topic": "{topic}",
+    "subject": "{subject}",
+    "grade_level": "{grade_level}",
+    "country": "{country}",
+    "local_context": "{local_context}"
   }},
   "learning_objectives": [
-    "...", 
-    "...", 
-    "..."
+    "Specific, measurable objective 1",
+    "Specific, measurable objective 2", 
+    "Specific, measurable objective 3"
   ],
   "lesson_content": {{
-    "introduction": "...",
-    "main_concepts": ["...", "..."],
-    "examples": ["...", "..."],
-    "step_by_step_instructions": ["...", "..."]
+    "introduction": "Engaging introduction that connects to students' daily lives and local environment",
+    "main_concepts": [
+      "Detailed explanation of concept 1 with local relevance",
+      "Detailed explanation of concept 2 with practical applications",
+      "Detailed explanation of concept 3 with real-world connections"
+    ],
+    "examples": [
+      "Real-life example 1: Specific local scenario or application that students can relate to",
+      "Real-life example 2: Practical demonstration using local resources or situations",
+      "Real-life example 3: Community-based example that shows the concept in action"
+    ],
+    "step_by_step_instructions": [
+      "Step 1: Clear, actionable instruction with local context",
+      "Step 2: Progressive instruction building on previous step",
+      "Step 3: Final instruction that reinforces learning"
+    ]
   }},
   "assessment": [
-    "...", "..."
+    "Critical thinking assessment: Question or activity that requires analysis and reasoning",
+    "Practical application assessment: Task that demonstrates real-world understanding",
+    "Creative assessment: Project that encourages innovative thinking and local problem-solving"
   ],
   "key_takeaways": [
-    "...", "..."
+    "Real-life application 1: How this concept applies to daily life in the local context",
+    "Real-life application 2: Practical skills gained and their community relevance",
+    "Real-life application 3: Long-term benefits and future applications in local context"
   ],
   "related_projects_or_activities": [
-    "...", "..."
+    "Hands-on project 1: Specific activity using local materials/resources that demonstrates the concept",
+    "Community project 2: Group activity that applies learning to local community needs",
+    "Practical skill activity 3: Individual or small group task that builds practical competencies"
   ],
   "references": [
-    "...", "..."
-  ],
-  "explanations": {{
-    "learning_objectives": "Explanation of why these learning objectives were chosen and how they align with the curriculum and grade level...",
-    "lesson_content": "Explanation of the pedagogical approach used in this lesson content, including why these concepts, examples, and instructions were selected...",
-    "assessment": "Explanation of the assessment strategies chosen and how they effectively measure student understanding...",
-    "key_takeaways": "Explanation of why these key takeaways are important for student retention and future learning...",
-    "related_projects_or_activities": "Explanation of how these activities enhance learning and provide practical application of concepts..."
-  }}
+    "Local curriculum reference: {subject} {grade_level} curriculum",
+    "Local resource: Available textbook or material",
+    "Community resource: Local expert, facility, or organization that can support learning"
+  ]
 }}
 
+IMPORTANT REQUIREMENTS:
+1. MAIN CONCEPTS: Provide detailed, comprehensive explanations for each curriculum content area listed in {contents}. Each concept should be thoroughly explained with local relevance.
 
-Please ensure the content is:
-- Age-appropriate for the grade level
-- Culturally relevant to African educational contexts
-- Practical and implementable with locally available resources
-- Aligned with modern pedagogical best practices
-- Engaging and interactive
-- Clear and well-structured for teachers to implement
+2. EXAMPLES: Include specific, real-life scenarios and applications that students can see, touch, or experience in their local environment. Use local landmarks, businesses, cultural practices, or daily activities.
 
-Focus on making the content accessible, practical, and relevant to the local context provided.
+3. ASSESSMENT: Create assessments that encourage critical thinking, problem-solving, and real-world application. Include questions that require analysis, evaluation, and creative thinking.
+
+4. KEY TAKEAWAYS: Focus on practical, real-life applications and relevance. Explain how the concepts apply to students' daily lives, future careers, or community development.
+
+5. PROJECTS/ACTIVITIES: Design hands-on, practical activities using local materials and resources. Include community-based projects that apply learning to real local needs.
+
+6. LOCAL CONTEXT: All content must be tailored to {local_context} and {country}. Use local examples, cultural references, available resources, and community-specific applications.
+
+Make the content engaging, practical, and immediately relevant to students' lives and local environment.
 """
 

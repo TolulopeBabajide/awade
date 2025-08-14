@@ -16,6 +16,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   signup: (userData: any) => Promise<boolean>;
+  googleAuth: (credential: string) => Promise<boolean>;
   logout: () => void;
   validateToken: () => Promise<boolean>;
 }
@@ -128,6 +129,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const googleAuth = async (credential: string): Promise<boolean> => {
+    try {
+      const response = await apiService.googleAuth(credential);
+      
+      if (response.error) {
+        console.error('Google OAuth error:', response.error);
+        return false;
+      }
+
+      if (response.data) {
+        const { access_token, user: userData } = response.data;
+        localStorage.setItem('access_token', access_token);
+        localStorage.setItem('user_data', JSON.stringify(userData));
+        setUser(userData);
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Google OAuth error:', error);
+      return false;
+    }
+  };
+
   const signup = async (userData: any): Promise<boolean> => {
     try {
       const response = await apiService.signup(userData);
@@ -158,6 +183,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isLoading,
     login,
     signup,
+    googleAuth,
     logout,
     validateToken
   };

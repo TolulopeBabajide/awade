@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "apps/frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "https://awade-backend.onrender.com/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/apps/frontend/$1"
+    }
+  ],
+  "env": {
+    "VITE_API_URL": "https://awade-backend.onrender.com"
+  },
+  "functions": {
+    "apps/frontend/**/*.ts": {
+      "runtime": "nodejs18.x"
+    }
+  }
+}

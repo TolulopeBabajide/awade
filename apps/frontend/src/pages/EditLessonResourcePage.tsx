@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FaEdit, FaSave, FaTimes, FaHome, FaBookOpen, FaFolder, FaCog } from 'react-icons/fa';
 import apiService from '../services/api';
+import Sidebar from '../components/Sidebar';
 
 interface LessonResource {
   lesson_resources_id: number;
@@ -159,9 +161,9 @@ const EditableSection: React.FC<EditableSectionProps> = ({
   const renderEditForm = () => {
     if (Array.isArray(content)) {
       return (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {editContent.map((item: string, index: number) => (
-            <div key={index} className="flex gap-2">
+            <div key={index} className="flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
                 value={item}
@@ -170,14 +172,14 @@ const EditableSection: React.FC<EditableSectionProps> = ({
                   newContent[index] = e.target.value;
                   setEditContent(newContent);
                 }}
-                className="flex-1 p-2 border border-gray-300 rounded text-sm"
+                className="flex-1 p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
               />
               <button
                 onClick={() => {
                   const newContent = editContent.filter((_: string, i: number) => i !== index);
                   setEditContent(newContent);
                 }}
-                className="px-2 py-1 text-red-600 hover:text-red-800 text-sm"
+                className="w-full sm:w-auto px-3 py-2 text-red-600 hover:text-red-800 text-sm border border-red-200 rounded-lg hover:bg-red-50 transition-colors duration-200"
               >
                 Remove
               </button>
@@ -185,7 +187,7 @@ const EditableSection: React.FC<EditableSectionProps> = ({
           ))}
           <button
             onClick={() => setEditContent([...editContent, ''])}
-            className="text-sm text-blue-600 hover:text-blue-800"
+            className="w-full sm:w-auto text-sm text-primary-600 hover:text-primary-800 px-3 py-2 border border-primary-200 rounded-lg hover:bg-primary-50 transition-colors duration-200"
           >
             + Add Item
           </button>
@@ -193,16 +195,16 @@ const EditableSection: React.FC<EditableSectionProps> = ({
       );
     } else if (typeof content === 'object' && content !== null) {
       return (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {Object.entries(content).map(([key, value]) => (
             <div key={key}>
-              <label className="block text-sm font-medium mb-1 capitalize">
+              <label className="block text-sm font-medium mb-2 capitalize text-gray-700">
                 {key.replace(/_/g, ' ')}
               </label>
               {Array.isArray(value) ? (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {editContent[key].map((item: string, index: number) => (
-                    <div key={index} className="flex gap-2">
+                    <div key={index} className="flex flex-col sm:flex-row gap-2">
                       <input
                         type="text"
                         value={item}
@@ -212,7 +214,7 @@ const EditableSection: React.FC<EditableSectionProps> = ({
                           newContent[key][index] = e.target.value;
                           setEditContent(newContent);
                         }}
-                        className="flex-1 p-2 border border-gray-300 rounded text-sm"
+                        className="flex-1 p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
                       />
                       <button
                         onClick={() => {
@@ -220,7 +222,7 @@ const EditableSection: React.FC<EditableSectionProps> = ({
                           newContent[key] = newContent[key].filter((_: string, i: number) => i !== index);
                           setEditContent(newContent);
                         }}
-                        className="px-2 py-1 text-red-600 hover:text-red-800 text-sm"
+                        className="w-full sm:w-auto px-3 py-2 text-red-600 hover:text-red-800 text-sm border border-red-200 rounded-lg hover:bg-red-50 transition-colors duration-200"
                       >
                         Remove
                       </button>
@@ -232,7 +234,7 @@ const EditableSection: React.FC<EditableSectionProps> = ({
                       newContent[key] = [...newContent[key], ''];
                       setEditContent(newContent);
                     }}
-                    className="text-sm text-blue-600 hover:text-blue-800"
+                    className="w-full sm:w-auto text-sm text-primary-600 hover:text-primary-800 px-3 py-2 border border-primary-200 rounded-lg hover:bg-primary-50 transition-colors duration-200"
                   >
                     + Add {key.replace(/_/g, ' ')}
                   </button>
@@ -245,7 +247,7 @@ const EditableSection: React.FC<EditableSectionProps> = ({
                     newContent[key] = e.target.value;
                     setEditContent(newContent);
                   }}
-                  className="w-full p-2 border border-gray-300 rounded text-sm"
+                  className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 resize-none"
                   rows={3}
                 />
               )}
@@ -258,7 +260,7 @@ const EditableSection: React.FC<EditableSectionProps> = ({
         <textarea
           value={editContent}
           onChange={(e) => setEditContent(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded text-sm"
+          className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 resize-none"
           rows={4}
         />
       );
@@ -266,10 +268,10 @@ const EditableSection: React.FC<EditableSectionProps> = ({
   };
 
   return (
-    <div className={`${bgColor} rounded-lg p-4 border ${borderColor}`}>
-      <div className="flex justify-between items-center mb-3">
-        <div className="flex items-center gap-2">
-          <h3 className={`font-semibold ${textColor}`}>{title}</h3>
+    <div className={`${bgColor} rounded-lg p-3 md:p-4 border ${borderColor}`}>
+      <div className="flex justify-between items-center mb-3 gap-2">
+        <div className="flex items-center gap-2 flex-1">
+          <h3 className={`font-semibold ${textColor} text-base md:text-lg`}>{title}</h3>
           {explanation ? (
             <Tooltip content={explanation}>
               <svg className="w-4 h-4 text-gray-500 hover:text-gray-700" fill="currentColor" viewBox="0 0 20 20">
@@ -284,29 +286,34 @@ const EditableSection: React.FC<EditableSectionProps> = ({
             </Tooltip>
           )}
         </div>
-        {!isEditing ? (
-          <button
-            onClick={onEdit}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-          >
-            Edit
-          </button>
-        ) : (
-          <div className="flex gap-2">
+        <div className="flex-shrink-0">
+          {!isEditing ? (
             <button
-              onClick={handleSave}
-              className="text-sm text-green-600 hover:text-green-800 font-medium"
+              onClick={onEdit}
+              className="text-sm text-primary-600 hover:text-primary-800 font-medium px-3 py-2 rounded-lg hover:bg-primary-50 transition-colors duration-200 flex items-center justify-center gap-2"
             >
-              Save
+              <FaEdit className="w-4 h-4" />
+              <span className="hidden sm:inline">Edit</span>
             </button>
-            <button
-              onClick={onCancel}
-              className="text-sm text-gray-600 hover:text-gray-800 font-medium"
-            >
-              Cancel
-            </button>
-          </div>
-        )}
+          ) : (
+            <div className="flex gap-2">
+              <button
+                onClick={handleSave}
+                className="text-sm text-green-600 hover:text-green-800 font-medium px-3 py-2 rounded-lg hover:bg-green-50 transition-colors duration-200 flex items-center justify-center gap-2"
+              >
+                <FaSave className="w-4 h-4" />
+                <span className="hidden sm:inline">Save</span>
+              </button>
+              <button
+                onClick={onCancel}
+                className="text-sm text-gray-600 hover:text-gray-800 font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-2"
+              >
+                <FaTimes className="w-4 h-4" />
+                <span className="hidden sm:inline">Cancel</span>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
       
       {isEditing ? renderEditForm() : renderContent()}
@@ -319,6 +326,7 @@ const EditLessonResourcePage: React.FC = () => {
   const navigate = useNavigate();
   
   const [lessonResource, setLessonResource] = useState<LessonResource | null>(null);
+  const [lessonPlan, setLessonPlan] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string>('');
@@ -331,14 +339,37 @@ const EditLessonResourcePage: React.FC = () => {
   // Export format
   const [exportFormat, setExportFormat] = useState<'pdf' | 'docx'>('pdf');
   
+  // Auto-save state
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [lastAutoSaveTime, setLastAutoSaveTime] = useState<Date | null>(null);
+  
+  // Debounced auto-save timer
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  
   useEffect(() => {
     if (lessonPlanId) {
-      loadLessonResource();
+      loadLessonPlanAndResource();
     }
   }, [lessonPlanId]);
 
-  const loadLessonResource = async () => {
+  // Cleanup auto-save timer on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, []);
+
+  const loadLessonPlanAndResource = async () => {
     try {
+      // First, fetch the lesson plan to get the subject
+      const lessonPlanResponse = await apiService.getLessonPlan(lessonPlanId!);
+      if (lessonPlanResponse.data) {
+        setLessonPlan(lessonPlanResponse.data);
+      }
+
+      // Then fetch the lesson resource
       const response = await apiService.getLessonResources(lessonPlanId!);
       
       if (response.error) {
@@ -373,7 +404,7 @@ const EditLessonResourcePage: React.FC = () => {
         await generateLessonResource();
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to load lesson resource');
+      setError(err.message || 'Failed to load lesson plan or resource');
     } finally {
       setIsLoading(false);
     }
@@ -407,6 +438,9 @@ const EditLessonResourcePage: React.FC = () => {
               related_projects_or_activities: parsed.explanations?.related_projects_or_activities
             });
             setStructuredContent(parsed);
+            
+            // Auto-save the generated content to database
+            await autoSaveToDatabase(parsed, response.data.lesson_resources_id);
           } catch (error) {
             setError('Failed to parse lesson resource content');
           }
@@ -419,8 +453,36 @@ const EditLessonResourcePage: React.FC = () => {
     }
   };
 
-  const handleSectionSave = (sectionKey: string, updatedContent: any) => {
-    if (!structuredContent) return;
+  const autoSaveToDatabase = async (content: StructuredLessonContent, resourceId: number) => {
+    try {
+      setIsAutoSaving(true);
+      const contentString = JSON.stringify(content, null, 2);
+      console.log('Auto-saving generated content to database:', contentString);
+      
+      const response = await apiService.updateLessonResource(
+        resourceId.toString(),
+        contentString
+      );
+
+      if (response.error) {
+        console.error('Auto-save failed:', response.error);
+        setError('Generated content saved locally but failed to save to database. Please try saving manually.');
+      } else {
+        console.log('Auto-save successful:', response.data);
+        setLastAutoSaveTime(new Date());
+        setSuccessMessage('Generated content automatically saved to database!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+      }
+    } catch (err: any) {
+      console.error('Auto-save error:', err);
+      setError('Auto-save failed. Please save manually to persist changes.');
+    } finally {
+      setIsAutoSaving(false);
+    }
+  };
+
+  const handleSectionSave = async (sectionKey: string, updatedContent: any) => {
+    if (!structuredContent || !lessonResource) return;
 
     const updatedStructuredContent = {
       ...structuredContent,
@@ -429,6 +491,39 @@ const EditLessonResourcePage: React.FC = () => {
 
     setStructuredContent(updatedStructuredContent);
     setEditingSection(null);
+
+    // Auto-save section changes to database
+    try {
+      setIsAutoSaving(true);
+      const contentString = JSON.stringify(updatedStructuredContent, null, 2);
+      console.log(`Auto-saving section "${sectionKey}" changes:`, contentString);
+      
+      const response = await apiService.updateLessonResource(
+        lessonResource.lesson_resources_id.toString(),
+        contentString
+      );
+
+      if (response.error) {
+        console.error('Section auto-save failed:', response.error);
+        setError(`Changes to "${sectionKey}" saved locally but failed to save to database. Please try saving manually.`);
+        setTimeout(() => setError(''), 5000);
+      } else {
+        console.log('Section auto-save successful:', response.data);
+        // Update lesson resource with latest data
+        setLessonResource(response.data);
+        setLastAutoSaveTime(new Date());
+        
+        // Show brief success feedback
+        setSuccessMessage(`"${sectionKey}" changes automatically saved!`);
+        setTimeout(() => setSuccessMessage(''), 2000);
+      }
+    } catch (err: any) {
+      console.error('Section auto-save error:', err);
+      setError(`Auto-save failed for "${sectionKey}". Please save manually to persist changes.`);
+      setTimeout(() => setError(''), 5000);
+    } finally {
+      setIsAutoSaving(false);
+    }
   };
 
   const saveAllChanges = async () => {
@@ -548,82 +643,96 @@ const EditLessonResourcePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Edit Lesson Resource</h1>
-              <p className="text-gray-600">Edit each section directly to customize for your classroom</p>
-            </div>
-            <div className="flex space-x-3">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-              >
-                Back to Dashboard
-              </button>
-              <button
-                onClick={saveAllChanges}
-                disabled={isSaving}
-                className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 disabled:opacity-50"
-              >
-                {isSaving ? 'Saving...' : 'Save All Changes'}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Sidebar */}
+      <Sidebar currentPage="edit-resource" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
-            <p className="text-red-800">{error}</p>
-          </div>
-        )}
-        {successMessage && (
-          <div className="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
-            <p className="text-green-800">{successMessage}</p>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* AI Disclaimer */}
-            <div className="bg-amber-50 border border-amber-200 rounded-md p-4">
-              <div className="flex items-start">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-amber-800">AI-Generated Content Disclaimer</h3>
-                  <div className="mt-2 text-sm text-amber-700">
-                    <p>This lesson resource has been generated by AI and may contain inaccuracies or require adjustments. As an educator, you should:</p>
-                    <ul className="list-disc list-inside mt-2 space-y-1">
-                      <li>Review all content for accuracy and appropriateness</li>
-                      <li>Edit and customize to align with your curriculum standards</li>
-                      <li>Adapt to your students' specific needs and learning levels</li>
-                      <li>Verify cultural relevance and local context</li>
-                      <li>Ensure alignment with your teaching methodology</li>
-                    </ul>
-                    <p className="mt-2">Click the "Edit" button on any section to customize the content for your classroom needs.</p>
+      <div className="flex-1 flex flex-col lg:ml-64">
+        {/* Sticky AI Disclaimer - Top of Screen */}
+        <div className="fixed top-0 left-0 right-0 z-50 bg-accent-50 border-b border-accent-200 px-3 py-2 shadow-sm">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-start justify-center gap-2">
+              <div className="flex items-start gap-2 flex-1 justify-center">
+                <div className="flex-shrink-0 mt-0.5">
+                  <div className="w-6 h-6 bg-accent-100 rounded-full flex items-center justify-center">
+                    <svg className="h-3.5 w-3.5 text-accent-700" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
                   </div>
+                </div>
+                <div className="flex-1 text-center">
+                  <h3 className="text-xs font-medium text-accent-700 mb-0.5">AI-Generated Content Disclaimer</h3>
+                  <p className="text-xs text-accent-700 leading-relaxed">
+                    This content was generated by AI and may contain inaccuracies. Review and customize for your classroom needs.{' '}
+                    <button 
+                      onClick={() => navigate('/disclaimer')}
+                      className="text-accent-700 underline hover:text-accent-800 font-medium transition-colors duration-200"
+                    >
+                      Read full disclaimer
+                    </button>
+                  </p>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
 
+        <div className="flex-1 p-4 md:p-6 lg:p-8 pt-20 md:pt-24 lg:pt-28">
+
+        {/* Back Navigation - Always Visible */}
+        <div className="mb-4 md:mb-6 rounded-lg p-3 md:p-4 ">
+          <button 
+            onClick={() => navigate(`/lesson-plans/${lessonPlanId}`)}
+            className="text-primary-600 text-sm md:text-base font-medium flex items-center hover:text-primary-700 transition-colors duration-200 w-full text-left"
+          >
+            <span className="mr-2 text-lg">&larr;</span>
+            Back to Lesson Plan
+          </button>
+        </div>
+
+        {/* Auto-Save Status Indicator */}
+        <div className="mb-3 md:mb-4">
+          {isAutoSaving && (
+            <div className="flex items-center text-sm text-blue-600">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+              Auto-saving changes...
+            </div>
+          )}
+          {!isAutoSaving && lastAutoSaveTime && (
+            <div className="flex items-center text-sm text-green-600">
+              <span className="mr-2">✓</span>
+              Last saved: {lastAutoSaveTime.toLocaleTimeString()}
+            </div>
+          )}
+        </div>
+
+        {/* Sticky Feedback Messages */}
+        {(error || successMessage) && (
+          <div className="sticky top-20 md:top-24 lg:top-28 z-40 mb-4 md:mb-6">
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 md:p-4 shadow-sm">
+                <p className="text-red-800 text-sm">{error}</p>
+              </div>
+            )}
+            {successMessage && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 md:p-4 shadow-sm">
+                <p className="text-green-800 text-sm">{successMessage}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
+          {/* Main Content */}
+          <div className="flex-1 sm:bg-none lg:bg-white lg:rounded-xl lg:shadow-lg p-4 md:p-6 lg:p-8 space-y-4 md:space-y-6">
             {/* Read-only Sections */}
             {structuredContent.title_header && (
-              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+              <div className="bg-primary-50 rounded-lg p-3 md:p-4 border border-primary-100">
                 <div className="mb-3">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-blue-900">Lesson Overview</h3>
+                    <h3 className="font-bold mb-2 md:mb-3 text-base md:text-lg text-primary-900">Lesson Overview</h3>
                     <Tooltip content="This section contains the basic information about the lesson including topic, subject, grade level, and local context. This information is automatically generated based on your lesson plan and cannot be edited.">
-                      <svg className="w-4 h-4 text-blue-500 hover:text-blue-700" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-4 h-4 text-primary-500 hover:text-primary-700" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
                       </svg>
                     </Tooltip>
@@ -632,8 +741,8 @@ const EditLessonResourcePage: React.FC = () => {
                 <div className="space-y-2">
                   {Object.entries(structuredContent.title_header).map(([key, value]) => (
                     <div key={key}>
-                      <span className="font-medium capitalize">{key.replace(/_/g, ' ')}:</span>
-                      <span className="ml-2 text-sm text-blue-700">{value as string}</span>
+                      <span className="font-semibold text-primary-700 text-sm">{key.replace(/_/g, ' ')}:</span>
+                      <span className="ml-2 text-sm text-primary-800">{value as string}</span>
                     </div>
                   ))}
                 </div>
@@ -641,20 +750,20 @@ const EditLessonResourcePage: React.FC = () => {
             )}
 
             {structuredContent.learning_objectives && (
-              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+              <div className="bg-accent-50 rounded-lg p-3 md:p-4 border border-accent-100">
                 <div className="mb-3">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-green-900">Learning Objectives</h3>
+                    <h3 className="font-bold mb-2 md:mb-3 text-base md:text-lg text-accent-900">Learning Objectives</h3>
                     <Tooltip content={structuredContent.explanations?.learning_objectives || "Learning objectives define what students should know, understand, and be able to do by the end of the lesson. These are aligned with curriculum standards and grade-level expectations."}>
-                      <svg className="w-4 h-4 text-green-500 hover:text-green-700" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-4 h-4 text-accent-500 hover:text-accent-700" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
                       </svg>
                     </Tooltip>
                   </div>
                 </div>
-                <ul className="list-disc list-inside space-y-1 text-sm">
+                <ul className="list-disc ml-4 md:ml-6 text-accent-800 space-y-1">
                   {structuredContent.learning_objectives.map((objective, index) => (
-                    <li key={index} className="text-green-800">{objective}</li>
+                    <li key={index} className="text-sm">{objective}</li>
                   ))}
                 </ul>
               </div>
@@ -669,9 +778,9 @@ const EditLessonResourcePage: React.FC = () => {
                 isEditing={editingSection === 'lesson_content'}
                 onEdit={() => setEditingSection('lesson_content')}
                 onCancel={() => setEditingSection(null)}
-                bgColor="bg-purple-50"
-                textColor="text-purple-900"
-                borderColor="border-purple-200"
+                bgColor="bg-primary-100"
+                textColor="text-primary-900"
+                borderColor="border-primary-200"
                 explanation={structuredContent.explanations?.lesson_content}
               />
             )}
@@ -684,9 +793,9 @@ const EditLessonResourcePage: React.FC = () => {
                 isEditing={editingSection === 'assessment'}
                 onEdit={() => setEditingSection('assessment')}
                 onCancel={() => setEditingSection(null)}
-                bgColor="bg-orange-50"
-                textColor="text-orange-900"
-                borderColor="border-orange-200"
+                bgColor="bg-accent-100"
+                textColor="text-accent-900"
+                borderColor="border-accent-200"
                 explanation={structuredContent.explanations?.assessment}
               />
             )}
@@ -699,9 +808,9 @@ const EditLessonResourcePage: React.FC = () => {
                 isEditing={editingSection === 'key_takeaways'}
                 onEdit={() => setEditingSection('key_takeaways')}
                 onCancel={() => setEditingSection(null)}
-                bgColor="bg-indigo-50"
-                textColor="text-indigo-900"
-                borderColor="border-indigo-200"
+                bgColor="bg-primary-75"
+                textColor="text-primary-900"
+                borderColor="border-primary-150"
                 explanation={structuredContent.explanations?.key_takeaways}
               />
             )}
@@ -714,9 +823,9 @@ const EditLessonResourcePage: React.FC = () => {
                 isEditing={editingSection === 'related_projects_or_activities'}
                 onEdit={() => setEditingSection('related_projects_or_activities')}
                 onCancel={() => setEditingSection(null)}
-                bgColor="bg-teal-50"
-                textColor="text-teal-900"
-                borderColor="border-teal-200"
+                bgColor="bg-accent-75"
+                textColor="text-accent-900"
+                borderColor="border-accent-150"
                 explanation={structuredContent.explanations?.related_projects_or_activities}
               />
             )}
@@ -729,19 +838,19 @@ const EditLessonResourcePage: React.FC = () => {
                 isEditing={editingSection === 'references'}
                 onEdit={() => setEditingSection('references')}
                 onCancel={() => setEditingSection(null)}
-                bgColor="bg-gray-50"
-                textColor="text-gray-900"
-                borderColor="border-gray-200"
+                bgColor="bg-primary-125"
+                textColor="text-primary-900"
+                borderColor="border-primary-175"
                 explanation={structuredContent.explanations?.references}
               />
             )}
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Export Options */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold mb-4">Export Options</h3>
+          {/* Sidebar - Hidden on mobile, shown on desktop */}
+          <div className="hidden lg:flex w-64 flex-col gap-4 lg:gap-6">
+            {/* Export Options - Fixed on Desktop */}
+            <div className="sticky top-8 bg-white rounded-xl shadow-lg p-4 border border-gray-100">
+              <div className="font-bold mb-4 text-primary-900">Export Options</div>
               
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -750,7 +859,7 @@ const EditLessonResourcePage: React.FC = () => {
                 <select
                   value={exportFormat}
                   onChange={(e) => setExportFormat(e.target.value as 'pdf' | 'docx')}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500"
+                  className="w-full p-2 md:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition-all duration-200"
                 >
                   <option value="pdf">PDF Document</option>
                   <option value="docx">Word Document (DOCX)</option>
@@ -759,41 +868,80 @@ const EditLessonResourcePage: React.FC = () => {
 
               <button
                 onClick={() => exportLessonResource(exportFormat)}
-                className="w-full px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+                className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm transition-colors duration-200"
               >
                 Export Lesson Resource
               </button>
             </div>
+          </div>
+        </div>
 
-            {/* Status */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold mb-4">Resource Status</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Status:</span>
-                  <span className="text-sm font-medium text-orange-600">
-                    {lessonResource?.status || 'Draft'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Created:</span>
-                  <span className="text-sm text-gray-900">
-                    {lessonResource?.created_at ? new Date(lessonResource.created_at).toLocaleDateString() : 'N/A'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Resource ID:</span>
-                  <span className="text-sm text-gray-900">
-                    {lessonResource?.lesson_resources_id || 'N/A'}
-                  </span>
-                </div>
-              </div>
+        {/* Mobile Export Section - Shown only on mobile */}
+        <div className="lg:hidden mt-6 space-y-4 pb-20">
+          {/* Export Options */}
+          <div className="bg-white rounded-xl shadow-lg p-4 border border-gray-100">
+            <div className="font-bold mb-2 text-primary-900">Export Options</div>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Export Format
+              </label>
+              <select
+                value={exportFormat}
+                onChange={(e) => setExportFormat(e.target.value as 'pdf' | 'docx')}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+              >
+                <option value="pdf">PDF Document</option>
+                <option value="docx">Word Document (DOCX)</option>
+              </select>
             </div>
+
+            <button
+              onClick={() => exportLessonResource(exportFormat)}
+              className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm"
+            >
+              Export Lesson Resource
+            </button>
           </div>
         </div>
       </div>
     </div>
-  );
+
+    {/* Mobile Bottom Navigation */}
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 z-50 shadow-lg">
+      <div className="flex justify-around items-center">
+        <button 
+          className="flex flex-col items-center py-2 px-3 text-primary-600 font-medium transition-colors duration-200"
+          onClick={() => navigate('/dashboard')}
+        >
+          <FaHome className="w-6 h-6 mb-1" />
+          <span className="text-xs">Dashboard</span>
+        </button>
+        <button 
+          className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
+          onClick={() => navigate('/lesson-plans')}
+        >
+          <FaBookOpen className="w-6 h-6 mb-1" />
+          <span className="text-xs">Plans</span>
+        </button>
+        <button 
+          className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
+          onClick={() => navigate('/lesson-resources')}
+        >
+          <FaFolder className="w-6 h-6 mb-1" />
+          <span className="text-xs">Resources</span>
+        </button>
+        <button 
+          className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
+          onClick={() => navigate('/dashboard')}
+        >
+          <FaCog className="w-6 h-6 mb-1" />
+          <span className="text-xs">Settings</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+);
 };
 
 export default EditLessonResourcePage; 

@@ -99,7 +99,7 @@ def create_lesson_plan_response(lesson_plan, request_data=None):
         print(f"Error creating lesson plan response: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail=f"Error creating lesson plan response: {str(e)}"
+            detail="An error occurred while processing your request"
         )
 
 @router.post("/generate", response_model=LessonPlanResponse)
@@ -142,7 +142,7 @@ async def generate_lesson_plan(
         raise
     except Exception as e:
         print(f"Error generating lesson plan: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error generating lesson plan: {str(e)}")
+        raise HTTPException(status_code=500, detail="An error occurred while generating the lesson plan")
 
 @router.get("/resources", response_model=List[LessonResourceResponse])
 async def get_all_lesson_resources(
@@ -175,7 +175,7 @@ async def get_all_lesson_resources(
         
     except Exception as e:
         print(f"Error getting lesson resources: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error getting lesson resources: {str(e)}")
+        raise HTTPException(status_code=500, detail="An error occurred while retrieving lesson resources")
 
 @router.get("/resources/{resource_id}", response_model=LessonResourceResponse)
 async def get_lesson_resource(
@@ -212,7 +212,7 @@ async def get_lesson_resource(
         raise
     except Exception as e:
         print(f"Error getting lesson resource: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error getting lesson resource: {str(e)}")
+        raise HTTPException(status_code=500, detail="An error occurred while retrieving the lesson resource")
 
 @router.get("/", response_model=List[LessonPlanResponse])
 async def get_lesson_plans(
@@ -244,7 +244,7 @@ async def get_lesson_plans(
         
     except Exception as e:
         print(f"Error fetching lesson plans: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error fetching lesson plans: {str(e)}")
+        raise HTTPException(status_code=500, detail="An error occurred while retrieving lesson plans")
 
 @router.get("/{lesson_id}", response_model=LessonPlanResponse)
 async def get_lesson_plan(
@@ -271,7 +271,7 @@ async def get_lesson_plan(
         raise
     except Exception as e:
         print(f"Error fetching lesson plan: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error fetching lesson plan: {str(e)}")
+        raise HTTPException(status_code=500, detail="An error occurred while retrieving the lesson plan")
 
 @router.put("/{lesson_id}", response_model=LessonPlanResponse)
 async def update_lesson_plan(
@@ -306,7 +306,7 @@ async def update_lesson_plan(
         raise
     except Exception as e:
         print(f"Error updating lesson plan: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error updating lesson plan: {str(e)}")
+        raise HTTPException(status_code=500, detail="An error occurred while updating the lesson plan")
 
 @router.delete("/{lesson_id}")
 async def delete_lesson_plan(
@@ -336,7 +336,7 @@ async def delete_lesson_plan(
         raise
     except Exception as e:
         print(f"Error deleting lesson plan: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error deleting lesson plan: {str(e)}")
+        raise HTTPException(status_code=500, detail="An error occurred while deleting the lesson plan")
 
 @router.post("/{lesson_id}/resources/generate", response_model=LessonResourceResponse)
 async def generate_lesson_resource(
@@ -367,6 +367,9 @@ async def generate_lesson_resource(
         # Get learning objectives
         objectives = [obj.objective for obj in topic.learning_objectives] if topic.learning_objectives else []
         
+        # Get curriculum contents
+        contents = [content.content_area for content in topic.topic_contents] if topic.topic_contents else []
+        
         # Get subject and grade level from curriculum structure
         curriculum_structure = db.query(CurriculumStructure).filter(
             CurriculumStructure.curriculum_structure_id == topic.curriculum_structure_id
@@ -389,12 +392,13 @@ async def generate_lesson_resource(
         # Initialize AI service
         ai_service = AwadeGPTService()
         
-        # Generate AI content
+        # Generate AI content with all parameters
         ai_content = ai_service.generate_lesson_resource(
             subject=subject.name if subject else "Mathematics",
             grade=grade_level.name if grade_level else "JSS 1",
             topic=topic.topic_title,
             objectives=objectives,
+            contents=contents,  # Pass the actual curriculum contents
             context=combined_context if combined_context else None
         )
         
@@ -429,7 +433,7 @@ async def generate_lesson_resource(
         raise
     except Exception as e:
         print(f"Error generating lesson resource: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error generating lesson resource: {str(e)}")
+        raise HTTPException(status_code=500, detail="An error occurred while generating the lesson resource")
 
 @router.get("/{lesson_id}/resources", response_model=List[LessonResourceResponse])
 async def get_lesson_resources_by_plan(
@@ -475,7 +479,7 @@ async def get_lesson_resources_by_plan(
         raise
     except Exception as e:
         print(f"Error getting lesson resources: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error getting lesson resources: {str(e)}")
+        raise HTTPException(status_code=500, detail="An error occurred while retrieving lesson resources")
 
 @router.get("/ai/health")
 async def check_ai_service_health():
@@ -492,10 +496,12 @@ async def check_ai_service_health():
             "timestamp": datetime.utcnow().isoformat()
         }
     except Exception as e:
+        # Log the full error for debugging (server-side only)
+        print(f"AI service health check error: {str(e)}")
         return {
             "status": "unhealthy",
             "service": "AwadeGPTService",
-            "error": str(e),
+            "error": "Service temporarily unavailable",
             "timestamp": datetime.utcnow().isoformat()
         }
 
@@ -543,8 +549,9 @@ async def review_lesson_resource(
     except HTTPException:
         raise
     except Exception as e:
+        # Log the full error for debugging (server-side only)
         print(f"Error reviewing lesson resource: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error reviewing lesson resource: {str(e)}")
+        raise HTTPException(status_code=500, detail="An error occurred while processing your request")
 
 @router.post("/resources/{resource_id}/export")
 async def export_lesson_resource(
@@ -594,10 +601,10 @@ async def export_lesson_resource(
                 )
         except Exception as e:
             print(f"Error generating export: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Error generating export: {str(e)}")
+            raise HTTPException(status_code=500, detail="An error occurred while generating the export")
         
     except HTTPException:
         raise
     except Exception as e:
         print(f"Error exporting lesson resource: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error exporting lesson resource: {str(e)}") 
+        raise HTTPException(status_code=500, detail="An error occurred while exporting the lesson resource") 

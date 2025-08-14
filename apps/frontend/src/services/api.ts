@@ -220,6 +220,13 @@ class ApiService {
     return this.handleResponse(response);
   }
 
+  async getTopicsByCurriculumStructure(curriculumStructureId: number): Promise<ApiResponse<any[]>> {
+    const response = await fetch(`${API_BASE_URL}/curriculum/topics?curriculum_structure_id=${curriculumStructureId}`, {
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
   // Curriculum Data
   async getCurriculums(countryId?: number): Promise<ApiResponse<any[]>> {
     const url = countryId 
@@ -248,6 +255,7 @@ class ApiService {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ credential })
     });
+    
     return this.handleResponse(response);
   }
 

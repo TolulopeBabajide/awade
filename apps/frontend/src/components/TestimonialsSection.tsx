@@ -8,23 +8,23 @@ const TestimonialsSection: React.FC = () => {
     {
       name: 'Ada Eze',
       role: 'Primary School Teacher',
-      location: 'Lagos',
+      location: 'Lagos, Nigeria',
       avatar: '👩‍🏫',
-      content: 'Awade\'s personalized courses transformed my teaching in Nigeria\'s crowded classrooms. The AI-driven recommendations perfectly matched my needs, boosting my confidence. I\'m now engaging my students like never before!'
+      content: 'Awade has revolutionized my lesson planning! I used to spend hours creating lessons, but now I generate comprehensive plans in minutes. The AI understands our Nigerian curriculum perfectly and includes local examples my students can relate to.'
     },
     {
       name: 'Kwame Mensah',
       role: 'Secondary School Teacher',
-      location: 'Accra',
+      location: 'Accra, Ghana',
       avatar: '👨‍🏫',
-      content: 'The culturally relevant content made all the difference. I can now connect with my students using examples they understand and relate to their daily lives.'
+      content: 'The curriculum alignment feature is incredible. I no longer worry about missing key learning objectives. Awade automatically ensures my lessons cover everything required by the Ghanaian education standards.'
     },
     {
       name: 'Fatima Hassan',
       role: 'Mathematics Teacher',
-      location: 'Nairobi',
+      location: 'Nairobi, Kenya',
       avatar: '👩‍🏫',
-      content: 'The AI-powered lesson planning has saved me hours of preparation time. The suggestions are always spot-on and culturally appropriate for my Kenyan students.'
+      content: 'What I love most is how Awade adapts to my local context. It suggests activities using resources available in my community and examples from Kenyan culture. My students are much more engaged now!'
     }
   ]
 
@@ -44,10 +44,13 @@ const TestimonialsSection: React.FC = () => {
           <div className="flex items-center justify-center mb-8">
             <div className="flex-1 h-px bg-gray-300"></div>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 px-8">
-              What Educators are saying
+              What Teachers Are Saying
             </h2>
             <div className="flex-1 h-px bg-gray-300"></div>
           </div>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Hear from educators across Africa who are using Awade to transform their lesson planning
+          </p>
         </div>
 
         {/* Testimonial Card */}
@@ -77,7 +80,7 @@ const TestimonialsSection: React.FC = () => {
                     {testimonials[currentTestimonial].name}
                   </h4>
                   <p className="text-gray-600">
-                    {testimonials[currentTestimonial].role} from {testimonials[currentTestimonial].location}
+                    {testimonials[currentTestimonial].role} • {testimonials[currentTestimonial].location}
                   </p>
                 </div>
               </div>
