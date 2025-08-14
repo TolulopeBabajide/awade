@@ -5,9 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
 import { FaEye, FaEyeSlash, FaArrowLeft, FaUser, FaEnvelope, FaLock, FaCheckCircle } from 'react-icons/fa';
 
-function isAlphanumeric(str: string) {
-  return /^[a-zA-Z0-9]+$/.test(str);
-}
+
 
 const SignupPage: React.FC = () => {
   const navigate = useNavigate();
@@ -79,8 +77,8 @@ const SignupPage: React.FC = () => {
       setError('Password must be at least 8 characters.');
       return false;
     }
-    if (!isAlphanumeric(form.password)) {
-      setError('Password must be alphanumeric.');
+    if (form.password.length > 128) {
+      setError('Password must be no more than 128 characters.');
       return false;
     }
     if (form.password !== form.repeatPassword) {
@@ -235,7 +233,7 @@ const SignupPage: React.FC = () => {
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm sm:text-base"
                 required
                 minLength={8}
-                pattern="[a-zA-Z0-9]+"
+                maxLength={128}
               />
               <button
                 type="button"
@@ -262,7 +260,7 @@ const SignupPage: React.FC = () => {
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm sm:text-base"
                 required
                 minLength={8}
-                pattern="[a-zA-Z0-9]+"
+                maxLength={128}
               />
               <button
                 type="button"
