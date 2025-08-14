@@ -184,7 +184,8 @@ class AwadeGPTService:
             status["test_response"] = test_response.choices[0].message.content
             logger.info("OpenAI connection test successful")
         except Exception as e:
-            status["error"] = str(e)
+            logger.error(f"OpenAI connection test failed: {str(e)}")
+            status["error"] = "Connection test failed"
         
         return status
     
@@ -405,10 +406,11 @@ class AwadeGPTService:
             fallback_resource = self._generate_fallback_comprehensive_resource(
                 subject, grade, topic, learning_objectives, contents
             )
+            logger.error(f"AI service error: {str(e)}")
             return {
                 "status": "fallback",
                 "lesson_resource": fallback_resource,
-                "error": str(e)
+                "error": "AI service temporarily unavailable"
             }
     
     def _generate_fallback_comprehensive_resource(
