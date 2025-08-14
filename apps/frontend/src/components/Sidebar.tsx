@@ -34,13 +34,13 @@ const Sidebar: React.FC<SidebarProps> = ({
     <aside className={`hidden w-full lg:w-64 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 lg:flex flex-row lg:flex-col pb-3 md:pb-4 lg:pb-8 px-2 md:px-4 lg:px-4 lg:min-h-screen lg:fixed lg:left-0 lg:top-0 lg:z-[60] items-center lg:items-stretch flex-shrink-0 shadow-lg ${className}`}>
       {/* Logo */}
       {showLogo && (
-        <div className="items-center mb-8 lg:mb-8 w-full justify-center">
+        <div className="items-center mb-8 mt-12 animate-fade-inlg:mb-8 w-full justify-center">
           <span className="font-bold text-3xl text-center tracking-wide text-primary-800">AWADE</span>
         </div>
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-2 w-full hidden lg:block">
+      <nav className="flex-1 space-y-2 mt-12 w-full hidden lg:block">
         <button 
           className={`w-full text-left px-4 py-3 rounded-lg font-medium flex items-center transition-colors duration-200 ${getActiveClass('dashboard')}`}
           onClick={() => navigate('/dashboard')}
