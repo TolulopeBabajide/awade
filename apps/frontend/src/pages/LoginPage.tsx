@@ -5,9 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
 import { FaEye, FaEyeSlash, FaArrowLeft, FaEnvelope, FaLock, FaCheckCircle, FaArrowRight } from 'react-icons/fa';
 
-function isAlphanumeric(str: string) {
-  return /^[a-zA-Z0-9]+$/.test(str);
-}
+
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -93,10 +91,6 @@ const LoginPage: React.FC = () => {
     }
     if (form.password.length < 8) {
       setError('Password must be at least 8 characters.');
-      return false;
-    }
-    if (!isAlphanumeric(form.password)) {
-      setError('Password must be alphanumeric.');
       return false;
     }
     setError(null);
