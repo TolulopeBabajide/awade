@@ -7,19 +7,19 @@ const FeaturesSection: React.FC = () => {
     {
       title: 'AI Powered Learning',
       description: "Awade's AI generates lesson plans tailored to your curriculum and local context. Get personalized lesson structures that adapt to your teaching style.",
-      image: '/src/assets/ChatGPT Image Aug 12, 2025, 12_14_16 PM.png',
+      image: '/assets/ChatGPT Image Aug 12, 2025, 12_14_16 PM.png',
       alt: 'AI robot with human hand interaction'
     },
     {
       title: 'Locally Relevant Content',
       description: 'Create lessons that reflect African classroom realities - large class sizes, limited resources, and cultural context. AI adapts content to your local environment.',
-      image: '/src/assets/ChatGPT Image Aug 12, 2025, 12_19_01 PM.png',
+      image: '/assets/ChatGPT Image Aug 12, 2025, 12_19_01 PM.png',
       alt: 'Hand writing on chalkboard'
     },
     {
       title: 'Monitor Your Growth',
       description: 'Track your lesson planning progress and teaching effectiveness. Awade provides insights on curriculum coverage and helps you improve your lesson creation skills.',
-      image: '/src/assets/ChatGPT Image Aug 12, 2025, 12_14_13 PM.png',
+      image: '/assets/ChatGPT Image Aug 12, 2025, 12_14_13 PM.png',
       alt: 'Laptop with education icons overlay'
     }
   ]

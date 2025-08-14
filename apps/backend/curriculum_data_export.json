@@ -1,0 +1,467 @@
+{
+  "export_timestamp": "2025-08-15T00:06:57.473412",
+  "export_description": "Curriculum data export excluding users and lesson data",
+  "countries": [
+    {
+      "country_name": "Nigeria",
+      "iso_code": "NG",
+      "region": "West Africa"
+    }
+  ],
+  "grade_levels": [
+    {
+      "name": "JSS 1"
+    }
+  ],
+  "subjects": [
+    {
+      "name": "Mathematics"
+    }
+  ],
+  "curricula": [
+    {
+      "curricula_title": "Nigerian Educational Research and Development Council",
+      "country_name": "Nigeria"
+    }
+  ],
+  "curriculum_structures": [
+    {
+      "curricula_title": "Nigerian Educational Research and Development Council",
+      "grade_level_name": "JSS 1",
+      "subject_name": "Mathematics"
+    }
+  ],
+  "topics": [
+    {
+      "topic_title": "Fractions",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Identify equivalent fractions of any given fraction",
+        "Apply equivalent fractions in sharing of commodities, e.g. food, money, etc",
+        "Solve problems in quantitative aptitude reasoning in equivalent fractions",
+        "Find equivalence of any given fraction",
+        "Arrange given fractions either in ascending or descending order",
+        "Convert fractions to decimals and decimals to fractions",
+        "Convert fractions to percentages and percentages to fractions"
+      ],
+      "content_areas": [
+        "Identifying Equivalent fractions",
+        "Quantitative aptitude reasoning",
+        "Equivalent fractions",
+        "Ordering of fractions",
+        "Conversion of fractions to decimals and vice versa",
+        "Conversion of fractions to percentages and vice versa"
+      ]
+    },
+    {
+      "topic_title": "Whole Numbers",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Count and write in millions and billions.",
+        "Count and write in trillions.",
+        "Apply the counting, writing, and reading of large numbers in everyday life.",
+        "Solve problems in quantitative aptitude reasoning using large numbers."
+      ],
+      "content_areas": [
+        "Millions and billions.",
+        "Trillions.",
+        "Quantitative reasoning."
+      ]
+    },
+    {
+      "topic_title": "LCM (Lowest Common Multiple)",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Identify common multiples of two or more whole numbers.",
+        "Find the LCM of whole numbers."
+      ],
+      "content_areas": [
+        "LCM of whole numbers."
+      ]
+    },
+    {
+      "topic_title": "HCF (Highest Common Factor)",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Identify common factors of whole numbers.",
+        "Find the HCF of whole numbers.",
+        "Identify the difference between LCM and HCF.",
+        "Solve problems on quantitative aptitude involving LCM and HCF of whole numbers."
+      ],
+      "content_areas": [
+        "HCF of whole numbers.",
+        "LCM and HCF of given whole numbers.",
+        "Quantitative reasoning."
+      ]
+    },
+    {
+      "topic_title": "Counting in Base 2",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Students should be able to count in groups of twos."
+      ],
+      "content_areas": [
+        "Counting in groups of twos."
+      ]
+    },
+    {
+      "topic_title": "Conversion of Base 10 Numerals to Binary Numbers",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Students should be able to convert base 10 numerals to binary numbers."
+      ],
+      "content_areas": [
+        "Converting numbers 1-10 to base 2."
+      ]
+    },
+    {
+      "topic_title": "Addition and Subtraction",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Add and subtract any given numbers correctly.",
+        "State the place value of each number in the sum or difference.",
+        "Draw and use number line to illustrate directed numbers.",
+        "Add and subtract positive and negative integers correctly on the number line.",
+        "Interpret and relate positive and negative numbers to everyday activities."
+      ],
+      "content_areas": [
+        "Addition and subtraction of numbers and place values.",
+        "Use of number line.",
+        "Addition and subtraction of positive and negative integers.",
+        "Everyday application of positive and negative integers."
+      ]
+    },
+    {
+      "topic_title": "Addition and Subtraction of Fractions",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Solve given problems on addition and subtraction of fractions.",
+        "Solve word problems involving addition and subtraction of fractions."
+      ],
+      "content_areas": [
+        "Addition and subtraction of fractions.",
+        "Word problems on addition and subtraction of fractions."
+      ]
+    },
+    {
+      "topic_title": "Multiplication and Division of Fractions",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Solve problems on multiplication of fractions.",
+        "Solve problems on division of fractions.",
+        "Solve word problems involving multiplication and division of fractions."
+      ],
+      "content_areas": [
+        "Multiplication of fractions.",
+        "Division of fractions.",
+        "Word problems involving multiplication and division of fractions."
+      ]
+    },
+    {
+      "topic_title": "Estimation",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Estimate the dimensions and distances within the school.",
+        "Estimate the capacity and mass of given objects.",
+        "Estimate other things in day-to-day activities.",
+        "Solve problems on quantitative reasoning in estimation."
+      ],
+      "content_areas": [
+        "Estimation of dimensions and distances.",
+        "Estimation of capacity and mass of objects.",
+        "Estimation of other things e.g., age, time.",
+        "Quantitative reasoning involving estimation."
+      ]
+    },
+    {
+      "topic_title": "Approximation",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Approximate answers to addition and subtraction problems to a given degree of accuracy.",
+        "Approximate answers to multiplication and division problems to a given degree of accuracy.",
+        "Round numbers to the nearest 10, 100, and 1000.",
+        "Apply approximation involving basic operations in everyday life activities.",
+        "Solve problems on quantitative reasoning in the above contents."
+      ],
+      "content_areas": [
+        "Approximating values of addition and subtraction.",
+        "Approximating results of multiplication and division.",
+        "Rounding off numbers to the nearest 10, 100, and 1000.",
+        "Application of approximation in everyday life.",
+        "Quantitative reasoning."
+      ]
+    },
+    {
+      "topic_title": "Addition of Numbers in Base 2 Numerals",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Students should be able to add two or three 3-digit binary numbers."
+      ],
+      "content_areas": [
+        "Addition of two or three 3-digit binary numbers."
+      ]
+    },
+    {
+      "topic_title": "Subtraction of Numbers in Base 2 Numerals",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Students should be able to subtract two 3-digit binary numbers."
+      ],
+      "content_areas": [
+        "Subtraction of two 3-digit binary numbers."
+      ]
+    },
+    {
+      "topic_title": "Multiplication of Numbers in Base 2 Numerals",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Students should be able to multiply two 2-digit binary numbers."
+      ],
+      "content_areas": [
+        "Multiplication of two 2-digit binary numbers."
+      ]
+    },
+    {
+      "topic_title": "Use of Symbols",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Solve problems expressed in open sentences.",
+        "Identify the relationship between addition and subtraction; multiplication and division.",
+        "Use letters to represent symbols or shapes in open sentences.",
+        "Solve open sentence problems involving two arithmetic operations.",
+        "Solve word problems involving use of symbols.",
+        "Solve quantitative aptitude problems on the use of symbols."
+      ],
+      "content_areas": [
+        "Open sentences.",
+        "Use of letters to represent symbols or shapes in open sentences.",
+        "Solving open sentences with two arithmetic operations.",
+        "Word problems involving use of symbols.",
+        "Quantitative aptitude."
+      ]
+    },
+    {
+      "topic_title": "Simplification of Algebraic Expressions",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Identify and collect like terms in a given expression.",
+        "Identify the coefficient of a given algebraic term.",
+        "Identify the positive and negative coefficients of a given algebraic term.",
+        "Perform basic arithmetic operations on expressions of similar terms.",
+        "Insert/remove brackets and simplify expressions.",
+        "Solve quantitative aptitude problems on the use of brackets."
+      ],
+      "content_areas": [
+        "Like and unlike terms in algebraic expressions.",
+        "Identification of coefficients of terms of algebraic expressions.",
+        "Basic arithmetic operations applied to algebraic expressions of similar terms.",
+        "Collection and simplification of like and unlike terms in algebraic expressions.",
+        "Use of brackets.",
+        "Quantitative reasoning."
+      ]
+    },
+    {
+      "topic_title": "Simple Equations",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Translate word sentences into mathematical equations.",
+        "Use mathematical equations to represent word sentences.",
+        "Solve simple equations and cross-check the answers."
+      ],
+      "content_areas": [
+        "Translation of word problems into equations and vice versa.",
+        "Solution of simple equations."
+      ]
+    },
+    {
+      "topic_title": "Plane Shapes",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "State similarities and differences between square, rectangle, triangle, trapezium, parallelogram, and circle.",
+        "Find the perimeter of regular polygons.",
+        "Find the area of plane shapes such as squares, rectangles, parallelograms.",
+        "Find the area of real-life plane objects."
+      ],
+      "content_areas": [
+        "Similarities and differences between square, rectangle, triangle, trapezium, parallelogram, and circle.",
+        "Perimeter of regular polygons.",
+        "Area of regular plane shapes."
+      ]
+    },
+    {
+      "topic_title": "Three Dimensional Figures",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Identify the properties of cubes and cuboids.",
+        "Identify the properties of pyramids and cones.",
+        "Identify the properties of cylinders and spheres.",
+        "Find volume of a cube and a cuboid."
+      ],
+      "content_areas": [
+        "Basic properties of cubes and cuboids.",
+        "Basic properties of pyramids and cones.",
+        "Basic properties of cylinders and spheres.",
+        "Volume of cubes and cuboids."
+      ]
+    },
+    {
+      "topic_title": "Construction",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Construct parallel and perpendicular lines.",
+        "Bisect a given line segment.",
+        "Construct angles 90 and 60 degrees."
+      ],
+      "content_areas": [
+        "Construction of parallel and perpendicular lines.",
+        "Bisection of a given line segment.",
+        "Construction of angles 90 and 60 degrees."
+      ]
+    },
+    {
+      "topic_title": "Angles",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Measure angles.",
+        "Identify vertically opposite, adjacent, alternate, and corresponding angles.",
+        "State properties of angles.",
+        "Identify angles at a point and angles on a straight line and state their properties."
+      ],
+      "content_areas": [
+        "Measurement of angles.",
+        "Identification and properties of vertically opposite, adjacent, alternate, and corresponding angles.",
+        "Identification and properties of angles at a point and angles on a straight line."
+      ]
+    },
+    {
+      "topic_title": "Need for Statistics",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "List purposes of statistics.",
+        "Recognize the usefulness of statistics for planning purposes.",
+        "Apply the occurrence of chance events/application of probabilities in everyday life.",
+        "Recognize the usefulness of statistics for prediction purposes."
+      ],
+      "content_areas": [
+        "Purposes of statistics.",
+        "Need for collecting data for planning purposes."
+      ]
+    },
+    {
+      "topic_title": "Data Collection",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Students should be able to collect data in the class."
+      ],
+      "content_areas": [
+        "Collect data in the class."
+      ]
+    },
+    {
+      "topic_title": "Data Presentation",
+      "curriculum_info": {
+        "curricula_title": "Nigerian Educational Research and Development Council",
+        "grade_level_name": "JSS 1",
+        "subject_name": "Mathematics"
+      },
+      "learning_objectives": [
+        "Students should be able to determine the median of a given set of data."
+      ],
+      "content_areas": [
+        "Median."
+      ]
+    }
+  ]
+}

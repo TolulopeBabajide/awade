@@ -50,7 +50,7 @@ const HeroSection: React.FC = () => {
               <div className="relative z-20">
                 <div className="w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[32rem] lg:h-[32rem] xl:w-[36rem] xl:h-[36rem] relative">
                   <img 
-                    src="/src/assets/ChatGPT Image Aug 12, 2025, 12_54_32 AM.png" 
+                    src="/assets/ChatGPT Image Aug 12, 2025, 12_54_32 AM.png" 
                     alt="AI-powered educator training visualization" 
                     className="w-full h-full object-contain relative z-10"
                   />
