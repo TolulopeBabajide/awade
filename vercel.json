@@ -13,13 +13,6 @@
     {
       "source": "/api/(.*)",
       "destination": "https://awade-backend-test.onrender.com/api/$1"
-    },
-    {
-      "source": "/((?!api).*)",
-      "destination": "/apps/frontend/$1"
     }
-  ],
-  "env": {
-    "VITE_API_URL": "https://awade-backend-test.onrender.com"
-  }
+  ]
 }
