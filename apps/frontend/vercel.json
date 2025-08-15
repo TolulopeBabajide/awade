@@ -3,6 +3,10 @@
     {
       "source": "/api/(.*)",
       "destination": "https://awade-backend-test.onrender.com/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
