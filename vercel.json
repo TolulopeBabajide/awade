@@ -13,10 +13,12 @@
     {
       "source": "/api/(.*)",
       "destination": "https://awade-backend-test.onrender.com/$1"
-    },
+    }
+  ],
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/apps/frontend/$1"
+      "src": "/(.*)",
+      "dest": "/apps/frontend/$1"
     }
   ],
   "env": {
