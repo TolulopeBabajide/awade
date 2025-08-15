@@ -9,14 +9,14 @@
       }
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "https://awade-backend-test.onrender.com/$1"
+      "source": "/api/(.*)",
+      "destination": "https://awade-backend-test.onrender.com/api/$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "/apps/frontend/$1"
+      "source": "/(.*)",
+      "destination": "/apps/frontend/$1"
     }
   ],
   "env": {
