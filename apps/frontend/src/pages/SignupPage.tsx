@@ -3,7 +3,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
-import { FaEye, FaEyeSlash, FaArrowLeft, FaUser, FaEnvelope, FaLock, FaCheckCircle, FaGlobe } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaArrowLeft, FaUser, FaEnvelope, FaLock, FaCheckCircle } from 'react-icons/fa';
 
 
 
@@ -19,8 +19,7 @@ const SignupPage: React.FC = () => {
     fullName: '',
     email: '',
     password: '',
-    repeatPassword: '',
-    country: 'Nigeria' // Default to Nigeria
+    repeatPassword: ''
   });
   const [loading, setLoading] = useState(false);
 
@@ -60,13 +59,13 @@ const SignupPage: React.FC = () => {
   };
 
   // Input change handler
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   // Form validation
   const validate = () => {
-    if (!form.fullName.trim() || !form.email.trim() || !form.password || !form.repeatPassword || !form.country) {
+    if (!form.fullName.trim() || !form.email.trim() || !form.password || !form.repeatPassword) {
       setError('All fields are required.');
       return false;
     }
@@ -106,7 +105,7 @@ const SignupPage: React.FC = () => {
         password: form.password,
         full_name: form.fullName,
         role: 'EDUCATOR',
-        country: form.country,
+        country: 'Nigeria',
         region: null,
         school_name: null,
         subjects: null,
@@ -219,36 +218,7 @@ const SignupPage: React.FC = () => {
               />
             </div>
 
-            {/* Country */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                <FaGlobe className="w-4 h-4 mr-2 text-primary-600" />
-                Country
-              </label>
-              <select
-                name="country"
-                value={form.country}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm sm:text-base"
-                required
-              >
-                <option value="Nigeria">Nigeria</option>
-                <option value="Ghana">Ghana</option>
-                <option value="Kenya">Kenya</option>
-                <option value="South Africa">South Africa</option>
-                <option value="Uganda">Uganda</option>
-                <option value="Tanzania">Tanzania</option>
-                <option value="Ethiopia">Ethiopia</option>
-                <option value="Rwanda">Rwanda</option>
-                <option value="Senegal">Senegal</option>
-                <option value="Morocco">Morocco</option>
-                <option value="Egypt">Egypt</option>
-                <option value="Botswana">Botswana</option>
-                <option value="Zimbabwe">Zimbabwe</option>
-                <option value="Malawi">Malawi</option>
-                <option value="Zambia">Zambia</option>
-              </select>
-            </div>
+
 
             {/* Password */}
             <div className="relative">
