@@ -12,7 +12,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "https://awade-backend.onrender.com/$1"
+      "dest": "https://awade-backend-test.onrender.com/$1"
     },
     {
       "src": "/(.*)",
@@ -20,6 +20,6 @@
     }
   ],
   "env": {
-    "VITE_API_URL": "https://awade-backend.onrender.com"
+    "VITE_API_URL": "https://awade-backend-test.onrender.com"
   }
 }
