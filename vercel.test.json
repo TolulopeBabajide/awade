@@ -15,7 +15,7 @@
       "destination": "https://awade-backend-test.onrender.com/api/$1"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!api).*)",
       "destination": "/apps/frontend/$1"
     }
   ],
