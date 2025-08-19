@@ -61,6 +61,11 @@ class UserUpdate(BaseModel):
     subjects: Optional[List[str]] = None
     grade_levels: Optional[List[str]] = None
     languages_spoken: Optional[str] = None
+    profile_image_url: Optional[str] = None
+    profile_image_data: Optional[str] = None
+    profile_image_type: Optional[str] = None
+    phone: Optional[str] = None
+    bio: Optional[str] = None
 
 class UserLogin(BaseModel):
     """Schema for user login credentials."""
@@ -80,6 +85,11 @@ class UserResponse(BaseModel):
     subjects: Optional[List[str]]
     grade_levels: Optional[List[str]]
     languages_spoken: Optional[str]
+    profile_image_url: Optional[str]
+    profile_image_data: Optional[str]
+    profile_image_type: Optional[str]
+    phone: Optional[str]
+    bio: Optional[str]
     created_at: datetime
     last_login: Optional[datetime]
     

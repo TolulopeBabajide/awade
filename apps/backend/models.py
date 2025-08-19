@@ -183,6 +183,11 @@ class User(Base):
     subjects = Column(Text, nullable=True)  # JSON string or comma-separated
     grade_levels = Column(Text, nullable=True)  # JSON string or comma-separated
     languages_spoken = Column(Text, nullable=True)  # JSON string or comma-separated
+    profile_image_url = Column(String(500), nullable=True)  # URL to profile image (for backward compatibility)
+    profile_image_data = Column(Text, nullable=True)  # Base64 encoded image data
+    profile_image_type = Column(String(50), nullable=True)  # MIME type of the image
+    phone = Column(String(20), nullable=True)  # Phone number
+    bio = Column(Text, nullable=True)  # User bio/description
     last_login = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=func.now(), nullable=False)
     

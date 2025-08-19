@@ -4,7 +4,7 @@ import { FaHome, FaBookOpen, FaFolder, FaCog, FaSignOutAlt } from 'react-icons/f
 import { useAuth } from '../contexts/AuthContext';
 
 interface SidebarProps {
-  currentPage: 'dashboard' | 'lesson-plans' | 'lesson-resources' | 'edit-resource';
+  currentPage: 'dashboard' | 'lesson-plans' | 'lesson-resources' | 'settings';
   showLogo?: boolean;
   showLogout?: boolean;
   className?: string;
@@ -66,10 +66,10 @@ const Sidebar: React.FC<SidebarProps> = ({
         </button>
         
         <button 
-          className={`w-full text-left px-4 py-3 rounded-lg font-medium flex items-center transition-colors duration-200 ${getActiveClass('edit-resource')}`}
-          onClick={() => navigate('/dashboard')}
+          className={`w-full text-left px-4 py-3 rounded-lg font-medium flex items-center transition-colors duration-200 ${getActiveClass('settings')}`}
+          onClick={() => navigate('/settings')}
         >
-          <FaCog className={`w-4 h-4 mr-3 ${getIconColor('edit-resource')}`} />
+          <FaCog className={`w-4 h-4 mr-3 ${getIconColor('settings')}`} />
           Settings
         </button>
       </nav>
