@@ -120,6 +120,45 @@ jobs:
         cd apps/frontend
         npm run build || echo "⚠️  No build script found"
 
+  # Frontend Performance Testing
+  lighthouse-test:
+    name: 🚀 Lighthouse Performance Test
+    runs-on: ubuntu-latest
+    needs: frontend-test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: apps/frontend/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd apps/frontend
+        npm ci
+        
+    - name: Build frontend
+      run: |
+        cd apps/frontend
+        npm run build
+        
+    - name: Install Lighthouse CI
+      run: |
+        cd apps/frontend
+        npm install -g @lhci/cli
+        
+    - name: Run Lighthouse tests
+      run: |
+        cd apps/frontend
+        lhci autorun --upload.target=temporary-public-storage
+      env:
+        LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
   # Documentation Coverage
   doc-coverage:
     name: 📚 Documentation Coverage
@@ -241,7 +280,7 @@ jobs:
   deploy:
     name: 🚀 Deploy
     runs-on: ubuntu-latest
-    needs: [validate, backend-test, frontend-test, contract-test, security]
+    needs: [validate, backend-test, frontend-test, lighthouse-test, contract-test, security]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     
     steps:
@@ -289,7 +328,7 @@ jobs:
   summary:
     name: 📊 Summary
     runs-on: ubuntu-latest
-    needs: [validate, backend-test, frontend-test, contract-test, security, deploy]
+    needs: [validate, backend-test, frontend-test, lighthouse-test, contract-test, security, deploy]
     if: always()
     
     steps:
@@ -318,6 +357,12 @@ jobs:
           echo "- ✅ Frontend tests" >> $GITHUB_STEP_SUMMARY
         else
           echo "- ❌ Frontend tests" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.lighthouse-test.result }}" == "success" ]; then
+          echo "- ✅ Frontend performance tests" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- ❌ Frontend performance tests" >> $GITHUB_STEP_SUMMARY
         fi
         
         if [ "${{ needs.contract-test.result }}" == "success" ]; then
