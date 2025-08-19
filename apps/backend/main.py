@@ -9,6 +9,7 @@ Key Features:
 - Provides root and health check endpoints for service status and API information.
 - Integrates with SQLAlchemy for database access and dependency injection.
 - Designed for extensibility and deployment in both development and production environments.
+- Auto-runs database migrations on startup.
 
 Usage:
 - Run this module directly or with a WSGI/ASGI server (e.g., Uvicorn) to start the API.
@@ -38,16 +39,33 @@ sys.path.extend([parent_dir, root_dir])
 # Import routers
 try:
     from apps.backend.routers import lesson_plans, curriculum, users, contexts, auth
-    from apps.backend.database import get_db
+    from apps.backend.database import get_db, engine
     from apps.backend.routers import country, grade_level, subject, curriculum_structure
+    from apps.backend.models import Base
 except ImportError:
     # Fallback for Docker container
     from apps.backend.routers import lesson_plans, curriculum, users, contexts, auth
-    from apps.backend.database import get_db
+    from apps.backend.database import get_db, engine
     from apps.backend.routers import country, grade_level, subject, curriculum_structure
+    from apps.backend.models import Base
 
 # Load environment variables
 load_dotenv()
+
+# Auto-run database migrations on startup
+def run_migrations():
+    """Run database migrations automatically on startup."""
+    try:
+        print("🔄 Running database migrations...")
+        Base.metadata.create_all(bind=engine)
+        print("✅ Database migrations completed successfully!")
+    except Exception as e:
+        print(f"❌ Database migration failed: {e}")
+        # Don't fail startup, just log the error
+        pass
+
+# Run migrations before creating the app
+run_migrations()
 
 app = FastAPI(
     title="Awade API",
