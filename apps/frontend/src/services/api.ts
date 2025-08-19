@@ -64,6 +64,40 @@ class ApiService {
     return this.handleResponse(response);
   }
 
+  // Update user profile
+  async updateProfile(profileData: any): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/users/profile`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(profileData)
+    });
+    return this.handleResponse(response);
+  }
+
+  // Upload profile image
+  async uploadProfileImage(formData: FormData): Promise<ApiResponse<any>> {
+    const token = localStorage.getItem('access_token');
+    const headers: HeadersInit = {
+      ...(token && { 'Authorization': `Bearer ${token}` })
+    };
+    
+    const response = await fetch(`${API_BASE_URL}/users/profile/upload-image`, {
+      method: 'POST',
+      headers,
+      body: formData
+    });
+    return this.handleResponse(response);
+  }
+
+  // Delete profile image
+  async deleteProfileImage(): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/users/profile/delete-image`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
   // Lesson Plans
   async generateLessonPlan(planData: any): Promise<ApiResponse<any>> {
     const response = await fetch(`${API_BASE_URL}/lesson-plans/generate`, {
