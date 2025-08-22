@@ -12,4 +12,5 @@ weasyprint>=60.0
 PyJWT>=2.0.0 
 email-validator
 requests
-Pillow>=10.0.0 
+Pillow>=10.0.0
+alembic>=1.13.0 

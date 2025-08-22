@@ -4,7 +4,6 @@ AI Prompts for Awade Lesson Planning
 This module contains prompt templates for AI-powered lesson plan generation,
 curriculum alignment, and educational content creation.
 
-Author: Tolulope Babajide
 """
 
 # Comprehensive lesson resource prompt with JSON structure

@@ -119,6 +119,18 @@ async def health_check():
     """Health check endpoint."""
     return {"status": "healthy", "timestamp": "2024-01-01T00:00:00Z"}
 
+@app.post("/migrate")
+async def run_migrations_endpoint():
+    """Temporary endpoint to run database migrations."""
+    try:
+        print("🔄 Running database migrations via HTTP endpoint...")
+        Base.metadata.create_all(bind=engine)
+        print("✅ Database migrations completed successfully!")
+        return {"status": "success", "message": "Database migrations completed successfully!"}
+    except Exception as e:
+        print(f"❌ Database migration failed: {e}")
+        return {"status": "error", "message": f"Migration failed: {str(e)}"}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000) 
