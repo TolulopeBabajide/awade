@@ -137,36 +137,6 @@ async def health_check():
     """Health check endpoint."""
     return {"status": "healthy", "timestamp": "2024-01-01T00:00:00Z"}
 
-@app.post("/migrate")
-async def run_migrations_endpoint():
-    """Temporary endpoint to run database migrations."""
-    try:
-        print("🔄 Running database migrations via HTTP endpoint...")
-        
-        # Import Alembic components
-        from alembic import command
-        from alembic.config import Config
-        import os
-        
-        # Get database URL from environment
-        database_url = os.getenv("DATABASE_URL")
-        if not database_url:
-            return {"status": "error", "message": "DATABASE_URL not configured"}
-        
-        # Set up Alembic configuration
-        current_dir = os.path.dirname(__file__)
-        alembic_cfg = Config(os.path.join(current_dir, "alembic.ini"))
-        alembic_cfg.set_main_option("sqlalchemy.url", database_url)
-        
-        # Run migrations
-        command.upgrade(alembic_cfg, "head")
-        
-        print("✅ Database migrations completed successfully!")
-        return {"status": "success", "message": "Database migrations completed successfully!"}
-    except Exception as e:
-        print(f"❌ Database migration failed: {e}")
-        return {"status": "error", "message": f"Migration failed: {str(e)}"}
-
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000) 
