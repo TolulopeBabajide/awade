@@ -1,32 +1,43 @@
-from fastapi import APIRouter, Depends, HTTPException
+"""
+Subject Router for Awade API
+
+This module provides endpoints for managing subject data, including CRUD operations
+and subject information retrieval. It delegates business logic to the SubjectService
+for clean separation of concerns.
+
+Endpoints:
+- /api/subjects: CRUD for subjects
+- /api/subjects/search: Search subjects
+- /api/subjects/curriculum/{curriculum_id}: Get subjects by curriculum
+
+Author: Tolulope Babajide
+"""
+
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
+
 from apps.backend.database import get_db
-from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator, get_optional_current_user
-from apps.backend.models import Subject, User
-from pydantic import BaseModel
+from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator
+from apps.backend.services.subject_service import SubjectService
+from apps.backend.schemas.subject import SubjectCreate, SubjectResponse, SubjectUpdate
+from apps.backend.models import User
 
 router = APIRouter(prefix="/api/subjects", tags=["subjects"])
 
-class SubjectCreate(BaseModel):
-    name: str
-
-class SubjectResponse(BaseModel):
-    subject_id: int
-    name: str
-    class Config:
-        orm_mode = True
-
 @router.get("/", response_model=List[SubjectResponse])
 def list_subjects(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
-    Retrieve a list of all subjects.
+    Retrieve a list of all subjects with pagination.
     Requires authentication.
     """
-    return db.query(Subject).all()
+    service = SubjectService(db)
+    return service.get_subjects(skip, limit)
 
 @router.post("/", response_model=SubjectResponse)
 def create_subject(
@@ -35,19 +46,11 @@ def create_subject(
     db: Session = Depends(get_db)
 ):
     """
-    Create a new subject.
+    Create a new subject record.
     Requires admin authentication.
     """
-    # Check if subject already exists
-    existing_subject = db.query(Subject).filter(Subject.name == subject.name).first()
-    if existing_subject:
-        raise HTTPException(status_code=400, detail="Subject already exists")
-    
-    db_subject = Subject(**subject.dict())
-    db.add(db_subject)
-    db.commit()
-    db.refresh(db_subject)
-    return db_subject
+    service = SubjectService(db)
+    return service.create_subject(subject)
 
 @router.get("/{subject_id}", response_model=SubjectResponse)
 def get_subject(
@@ -59,40 +62,22 @@ def get_subject(
     Get a specific subject by ID.
     Requires authentication.
     """
-    subject = db.query(Subject).filter(Subject.subject_id == subject_id).first()
-    if not subject:
-        raise HTTPException(status_code=404, detail="Subject not found")
-    return subject
+    service = SubjectService(db)
+    return service.get_subject(subject_id)
 
 @router.put("/{subject_id}", response_model=SubjectResponse)
 def update_subject(
     subject_id: int,
-    subject: SubjectCreate,
+    subject: SubjectUpdate,
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
     """
-    Update a subject.
+    Update a subject record.
     Requires admin authentication.
     """
-    db_subject = db.query(Subject).filter(Subject.subject_id == subject_id).first()
-    if not db_subject:
-        raise HTTPException(status_code=404, detail="Subject not found")
-    
-    # Check if new name conflicts with existing subject
-    existing_subject = db.query(Subject).filter(
-        Subject.name == subject.name,
-        Subject.subject_id != subject_id
-    ).first()
-    if existing_subject:
-        raise HTTPException(status_code=400, detail="Subject name already exists")
-    
-    # Update name
-    db_subject.name = subject.name
-    
-    db.commit()
-    db.refresh(db_subject)
-    return db_subject
+    service = SubjectService(db)
+    return service.update_subject(subject_id, subject)
 
 @router.delete("/{subject_id}")
 def delete_subject(
@@ -101,20 +86,38 @@ def delete_subject(
     db: Session = Depends(get_db)
 ):
     """
-    Delete a subject.
+    Delete a subject record.
     Requires admin authentication.
     """
-    db_subject = db.query(Subject).filter(Subject.subject_id == subject_id).first()
-    if not db_subject:
-        raise HTTPException(status_code=404, detail="Subject not found")
-    
-    # Check if subject is being used by curriculum structures
-    if db_subject.curriculum_structures:
-        raise HTTPException(
-            status_code=400, 
-            detail="Cannot delete subject that has associated curriculum structures"
-        )
-    
-    db.delete(db_subject)
-    db.commit()
-    return {"message": "Subject deleted successfully"} 
+    service = SubjectService(db)
+    return service.delete_subject(subject_id)
+
+@router.get("/search", response_model=List[SubjectResponse])
+def search_subjects(
+    q: str = Query(..., description="Search term"),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Search subjects by name.
+    Requires authentication.
+    """
+    service = SubjectService(db)
+    return service.search_subjects(q, skip, limit)
+
+@router.get("/curriculum/{curriculum_id}", response_model=List[SubjectResponse])
+def get_subjects_by_curriculum(
+    curriculum_id: int,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get subjects by curriculum.
+    Requires authentication.
+    """
+    service = SubjectService(db)
+    return service.get_subjects_by_curriculum(curriculum_id, skip, limit) 

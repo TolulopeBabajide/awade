@@ -8,6 +8,10 @@ Modules:
     - curriculum: Curriculum-related schemas
     - lesson_plans: Lesson plan schemas
     - users: User management schemas
+    - country: Country management schemas
+    - subject: Subject management schemas
+    - grade_level: Grade level management schemas
 """
 
-# Schemas package 
+# Schemas package
+from . import country, subject, grade_level 
