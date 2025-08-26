@@ -52,38 +52,29 @@ except ImportError:
 # Load environment variables
 load_dotenv()
 
-# Auto-run database migrations on startup
-def run_migrations():
-    """Run database migrations automatically on startup."""
+# Auto-run database fix on startup
+def run_database_fix():
+    """Run database fix script automatically on startup."""
     try:
-        print("🔄 Running database migrations...")
+        print("🔧 Running database fix script...")
         
-        # Import Alembic components
-        from alembic import command
-        from alembic.config import Config
-        import os
+        # Import and run our fix script
+        from init_db_fix import fix_database
+        success = fix_database()
         
-        # Get database URL from environment
-        database_url = os.getenv("DATABASE_URL")
-        if not database_url:
-            print("⚠️ DATABASE_URL not configured, skipping migrations")
-            return
-        
-        # Set up Alembic configuration
-        current_dir = os.path.dirname(__file__)
-        alembic_cfg = Config(os.path.join(current_dir, "alembic.ini"))
-        alembic_cfg.set_main_option("sqlalchemy.url", database_url)
-        
-        # Run migrations
-        command.upgrade(alembic_cfg, "head")
-        print("✅ Database migrations completed successfully!")
+        if success:
+            print("✅ Database fix completed successfully!")
+        else:
+            print("⚠️ Database fix had issues, but continuing startup...")
+            
     except Exception as e:
-        print(f"❌ Database migration failed: {e}")
+        print(f"❌ Database fix failed: {e}")
+        print("⚠️ Continuing startup despite database fix failure...")
         # Don't fail startup, just log the error
         pass
 
-# Run migrations before creating the app
-run_migrations()
+# Run database fix before creating the app
+run_database_fix()
 
 app = FastAPI(
     title="Awade API",
