@@ -21,6 +21,12 @@ class ApiService {
     } else {
       const errorData = await response.json().catch(() => ({}));
       
+      console.error('API Error Response:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorData
+      });
+      
       // Handle 401 Unauthorized globally
       if (response.status === 401) {
         // Clear invalid tokens
@@ -33,7 +39,20 @@ class ApiService {
         return { error: 'Session expired. Please login again.' };
       }
       
-      return { error: errorData.detail || `HTTP ${response.status}: ${response.statusText}` };
+      // Provide more detailed error messages
+      let errorMessage = errorData.detail || `HTTP ${response.status}: ${response.statusText}`;
+      
+      // Handle specific error cases
+      if (response.status === 422 && errorData.detail) {
+        // Validation errors
+        if (Array.isArray(errorData.detail)) {
+          errorMessage = errorData.detail.map((err: any) => err.msg).join(', ');
+        } else {
+          errorMessage = errorData.detail;
+        }
+      }
+      
+      return { error: errorMessage };
     }
   }
 

@@ -107,14 +107,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
+      console.log('Attempting login for email:', email);
       const response = await apiService.login(email, password);
       
       if (response.error) {
-        console.error('Login error:', response.error);
+        console.error('Login error from API:', response.error);
         return false;
       }
 
       if (response.data) {
+        console.log('Login successful, user data:', response.data.user);
         const { access_token, user: userData } = response.data;
         localStorage.setItem('access_token', access_token);
         localStorage.setItem('user_data', JSON.stringify(userData));
@@ -122,6 +124,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return true;
       }
       
+      console.error('Login failed: No data in response');
       return false;
     } catch (error) {
       console.error('Login error:', error);
@@ -155,14 +158,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signup = async (userData: any): Promise<boolean> => {
     try {
+      console.log('Attempting signup with data:', { ...userData, password: '[REDACTED]' });
       const response = await apiService.signup(userData);
       
       if (response.error) {
-        console.error('Signup error:', response.error);
+        console.error('Signup error from API:', response.error);
         return false;
       }
 
       if (response.data) {
+        console.log('Signup successful, user data:', response.data.user);
         const { access_token, user: newUser } = response.data;
         localStorage.setItem('access_token', access_token);
         localStorage.setItem('user_data', JSON.stringify(newUser));
@@ -170,6 +175,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return true;
       }
       
+      console.error('Signup failed: No data in response');
       return false;
     } catch (error) {
       console.error('Signup error:', error);

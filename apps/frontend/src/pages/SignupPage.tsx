@@ -81,6 +81,12 @@ const SignupPage: React.FC = () => {
       setError('Password must be no more than 128 characters.');
       return false;
     }
+    // Check for weak passwords
+    const weakPasswords = ['password', '123456', 'qwerty', 'admin', 'letmein'];
+    if (weakPasswords.includes(form.password.toLowerCase())) {
+      setError('Password is too common. Please choose a stronger password.');
+      return false;
+    }
     if (form.password !== form.repeatPassword) {
       setError('Passwords do not match.');
       return false;
@@ -119,6 +125,7 @@ const SignupPage: React.FC = () => {
         setError('Signup failed. Please try again.');
       }
     } catch (err: any) {
+      console.error('Signup error:', err);
       setError(err.message || 'Signup failed');
     } finally {
       setLoading(false);
@@ -237,6 +244,9 @@ const SignupPage: React.FC = () => {
                 minLength={8}
                 maxLength={128}
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Must be at least 8 characters. Avoid common passwords like "password" or "123456".
+              </p>
               <button
                 type="button"
                 className="absolute right-3 top-10 text-gray-400 hover:text-gray-600 transition-colors duration-200"
