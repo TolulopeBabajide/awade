@@ -643,9 +643,9 @@ const EditLessonResourcePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="bg-gray-50 flex min-h-screen">
       {/* Sidebar */}
-      <Sidebar currentPage="edit-resource" />
+      <Sidebar currentPage="lesson-resources" />
 
       <div className="flex-1 flex flex-col lg:ml-64">
         {/* Sticky AI Disclaimer - Top of Screen */}
@@ -677,7 +677,7 @@ const EditLessonResourcePage: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex-1 p-4 md:p-6 lg:p-8 pt-20 md:pt-24 lg:pt-28">
+        <div className="flex-1 p-4 md:p-6 lg:p-8 pt-20 md:pt-24 lg:pt-28 pb-20 lg:pb-8">
 
         {/* Back Navigation - Always Visible */}
         <div className="mb-4 md:mb-6 rounded-lg p-3 md:p-4 ">
@@ -877,7 +877,7 @@ const EditLessonResourcePage: React.FC = () => {
         </div>
 
         {/* Mobile Export Section - Shown only on mobile */}
-        <div className="lg:hidden mt-6 space-y-4 pb-20">
+        <div className="lg:hidden mt-6 space-y-4">
           {/* Export Options */}
           <div className="bg-white rounded-xl shadow-lg p-4 border border-gray-100">
             <div className="font-bold mb-2 text-primary-900">Export Options</div>

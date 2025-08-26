@@ -63,12 +63,12 @@ const LessonResourcesPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="bg-gray-50 flex min-h-screen">
       {/* Sidebar */}
       <Sidebar currentPage="lesson-resources" />
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-64 p-4 md:p-6 lg:p-8 pb-20 md:pb-6 lg:pb-8">
+      <main className="flex-1 lg:ml-64 p-4 md:p-6 lg:p-8 pb-20 lg:pb-8">
         {/* Header */}
         <div className="flex justify-between items-start pt-0 pb-2 md:pb-4 lg:pb-5 px-2 md:px-4 lg:px-5 gap-2 md:gap-4 flex-shrink-0">
           {/* Left Side - Page Title and Description */}
@@ -83,7 +83,7 @@ const LessonResourcesPage: React.FC = () => {
         </div>
 
         {/* Content */}
-        <div className="flex-1 p-2 md:p-4 lg:p-8 pb-20 md:pb-4 lg:pb-8 overflow-y-auto">
+        <div className="flex-1 p-2 md:p-4 lg:p-8 overflow-y-auto">
           {loading ? (
             <div className="flex items-center justify-center h-64">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
