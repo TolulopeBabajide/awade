@@ -305,7 +305,7 @@ const LessonPlanDetailPage: React.FC = () => {
           </button>
           <button 
             className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate('/settings')}
           >
             <FaCog className="w-6 h-6 mb-1" />
             <span className="text-xs">Settings</span>

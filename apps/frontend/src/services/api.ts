@@ -65,8 +65,12 @@ class ApiService {
   }
 
   // Update user profile
-  async updateProfile(profileData: any): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/users/profile`, {
+  async updateProfile(profileData: any, userId?: number): Promise<ApiResponse<any>> {
+    if (!userId) {
+      return { error: 'User ID is required for profile updates.' };
+    }
+    
+    const response = await fetch(`${API_BASE_URL}/users/${userId}/profile`, {
       method: 'PUT',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(profileData)
