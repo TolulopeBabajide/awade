@@ -155,7 +155,7 @@ jobs:
     - name: Create Lighthouse config
       run: |
         cd apps/frontend
-        cat > .lighthouserc.js << 'EOF'
+        cat > .lighthouserc.cjs << 'EOF'
         module.exports = {
           ci: {
             collect: {
