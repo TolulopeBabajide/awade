@@ -59,7 +59,7 @@ def run_database_fix():
         print("🔧 Running database fix script...")
         
         # Import and run our fix script
-        from init_db_fix import fix_database
+        from apps.backend.init_db_fix import fix_database
         success = fix_database()
         
         if success:
