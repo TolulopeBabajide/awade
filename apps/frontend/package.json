@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "AI-powered educator support platform frontend",
   "private": true,
-  "type": "module",
+
   "scripts": {
     "dev": "vite",
     "build": "vite build",
