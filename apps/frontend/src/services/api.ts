@@ -1,4 +1,4 @@
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'https://awade-backend-test.onrender.com/api';
 
 interface ApiResponse<T> {
   data?: T;
