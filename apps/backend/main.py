@@ -19,6 +19,7 @@ Author: Tolulope Babajide
 """
 from fastapi import FastAPI, HTTPException, Depends, Body, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Optional
@@ -63,9 +64,17 @@ if ALLOWED_ORIGINS:
 else:
     origins = ["http://localhost:3000", "http://localhost:5173"]
 
+# Add test environment specific origins
+if ENVIRONMENT == 'test':
+    origins.extend([
+        "https://awade-test.vercel.app",
+        "https://awade-test.vercel.app/*"
+    ])
+
 print(f"🚀 Starting Awade Backend in {ENVIRONMENT} mode")
 print(f"🔧 Debug mode: {DEBUG}")
 print(f"🌐 Allowed origins: {origins}")
+print(f"🧪 Test environment: {ENVIRONMENT == 'test'}")
 
 # Auto-run database fix on startup
 def run_database_fix():
@@ -104,10 +113,32 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_credentials=False,  # Changed from True for security
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # Restrict methods
+    allow_headers=["Content-Type", "Authorization"],  # Restrict headers
+    expose_headers=["Content-Length", "Content-Type"],  # Only expose necessary headers
+    max_age=3600,  # Cache preflight for 1 hour
 )
+
+# TrustedHostMiddleware to prevent HTTP Host header attacks
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=origins,
+)
+
+# Add security headers middleware
+@app.middleware("http")
+async def add_security_headers(request, call_next):
+    response = await call_next(request)
+    
+    # Security headers
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    
+    return response
 
 # Create uploads directory if it doesn't exist
 uploads_dir = Path("uploads")
@@ -142,7 +173,7 @@ async def root():
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
-    return {"status": "healthy", "timestamp": "2024-01-01T00:00:00Z"}
+    return {"status": "healthy"}
 
 if __name__ == "__main__":
     import uvicorn

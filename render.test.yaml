@@ -17,15 +17,15 @@ services:
           name: awade-test-db
           property: connectionString
       - key: SECRET_KEY
-        value: test-secret-key-awade-2024-testing
+        generateValue: true  # Generate secure random key
       - key: JWT_SECRET_KEY
-        value: test-jwt-secret-key-awade-2024-testing
+        generateValue: true  # Generate secure random key
       - key: OPENAI_API_KEY
         sync: false
       - key: DEBUG
-        value: true
+        value: false  # Disable debug mode for security
       - key: ENVIRONMENT
-        value: testing
+        value: test
       - key: JWT_EXPIRES_MINUTES
         value: 60
       - key: PASSWORD_MIN_LENGTH

@@ -1,23 +1,49 @@
 {
-  "rewrites": [
+  "version": 2,
+  "functions": {
+    "api/[...path].js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
+      "src": "/api/(.*)",
+      "dest": "/api/[...path]"
     },
     {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "headers": [
+    {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        }
+      ]
     }
   ],
   "env": {
     "NODE_ENV": "production",
     "VITE_ENVIRONMENT": "test"
-  },
-  "build": {
-    "env": {
-      "VITE_API_BASE_URL": "/api",
-      "VITE_BACKEND_URL": "https://awade-backend-test.onrender.com",
-      "VITE_ENVIRONMENT": "test"
-    }
   }
 }

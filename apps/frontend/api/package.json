@@ -1,0 +1,10 @@
+{
+  "name": "awade-api",
+  "version": "1.0.0",
+  "description": "API proxy for Awade frontend",
+  "main": "[...path].js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {}
+}
