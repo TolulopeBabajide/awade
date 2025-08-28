@@ -61,9 +61,6 @@ class UserUpdate(BaseModel):
     subjects: Optional[List[str]] = None
     grade_levels: Optional[List[str]] = None
     languages_spoken: Optional[str] = None
-    profile_image_url: Optional[str] = None
-    profile_image_data: Optional[str] = None
-    profile_image_type: Optional[str] = None
     phone: Optional[str] = None
     bio: Optional[str] = None
 
@@ -79,15 +76,12 @@ class UserResponse(BaseModel):
     email: str
     full_name: str
     role: UserRole
-    country: str
+    country: Optional[str] = None
     region: Optional[str] = None
     school_name: Optional[str] = None
     subjects: Optional[List[str]] = None
     grade_levels: Optional[List[str]] = None
     languages_spoken: Optional[str] = None
-    profile_image_url: Optional[str] = None
-    profile_image_data: Optional[str] = None
-    profile_image_type: Optional[str] = None
     phone: Optional[str] = None
     bio: Optional[str] = None
     created_at: datetime
@@ -101,11 +95,11 @@ class UserProfileResponse(BaseModel):
     """Simplified user profile for public display"""
     user_id: int
     full_name: str
-    country: str
-    region: Optional[str]
-    school_name: Optional[str]
-    subjects: Optional[List[str]]
-    grade_levels: Optional[List[str]]
+    country: Optional[str] = None
+    region: Optional[str] = None
+    school_name: Optional[str] = None
+    subjects: Optional[List[str]] = None
+    grade_levels: Optional[List[str]] = None
     
     class Config:
         """Pydantic configuration for attribute access."""
