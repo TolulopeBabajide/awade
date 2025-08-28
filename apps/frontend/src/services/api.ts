@@ -1,17 +1,34 @@
 // API Service with environment-aware configuration
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
+// Robust test environment detection - multiple fallback methods
+const isTestEnvironment = 
+  import.meta.env.VITE_ENVIRONMENT === 'test' || 
+  window.location.hostname === 'awade-test.vercel.app' ||
+  window.location.hostname.includes('test') ||
+  window.location.hostname.includes('vercel.app');
+
+// Force test backend URL for test environment
+const finalApiBaseUrl = isTestEnvironment 
+  ? 'https://awade-backend-test.onrender.com/api'
+  : API_BASE_URL;
+
 // Log environment information for debugging
-console.log('🌐 API Base URL:', API_BASE_URL);
+console.log('🌐 API Base URL:', finalApiBaseUrl);
 console.log('🔧 Environment:', import.meta.env.MODE);
 console.log('🚀 Backend URL:', import.meta.env.VITE_BACKEND_URL);
 console.log('🏷️ Environment Type:', import.meta.env.VITE_ENVIRONMENT);
+console.log('🧪 Is Test Environment:', isTestEnvironment);
+console.log('📍 Current Hostname:', window.location.hostname);
+console.log('🔗 Final API URL:', finalApiBaseUrl);
 
-// Add fallback for test environment
-if (import.meta.env.VITE_ENVIRONMENT === 'test' && !API_BASE_URL.includes('awade-backend-test.onrender.com')) {
-  console.warn('⚠️ Test environment detected but API URL is not pointing to test backend');
-  console.warn('🔧 Expected: https://awade-backend-test.onrender.com/api');
-  console.warn('🔧 Actual:', API_BASE_URL);
+// Always warn if we're in test environment but not using test backend
+if (isTestEnvironment && !finalApiBaseUrl.includes('awade-backend-test.onrender.com')) {
+  console.error('❌ CRITICAL: Test environment detected but not using test backend!');
+  console.error('🔧 Expected: https://awade-backend-test.onrender.com/api');
+  console.error('🔧 Actual:', finalApiBaseUrl);
+} else if (isTestEnvironment) {
+  console.log('✅ Test environment confirmed - using test backend');
 }
 
 interface ApiResponse<T> {
@@ -72,26 +89,48 @@ class ApiService {
 
   // Authentication
   async login(email: string, password: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    console.log('🔐 Login attempt for email:', email);
+    console.log('🔗 Login URL:', `${finalApiBaseUrl}/auth/login`);
+    console.log('🧪 Is Test Environment:', isTestEnvironment);
+    
+    const response = await fetch(`${finalApiBaseUrl}/auth/login`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Origin': window.location.origin
+      },
       body: JSON.stringify({ email, password })
     });
+    
+    console.log('📡 Login response status:', response.status);
+    console.log('📡 Login response headers:', Object.fromEntries(response.headers.entries()));
+    
     return this.handleResponse(response);
   }
 
   async signup(userData: any): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+    console.log('🚀 Signup attempt with data:', { ...userData, password: '[REDACTED]' });
+    console.log('🔗 Signup URL:', `${finalApiBaseUrl}/auth/signup`);
+    console.log('🧪 Is Test Environment:', isTestEnvironment);
+    
+    const response = await fetch(`${finalApiBaseUrl}/auth/signup`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Origin': window.location.origin
+      },
       body: JSON.stringify(userData)
     });
+    
+    console.log('📡 Signup response status:', response.status);
+    console.log('📡 Signup response headers:', Object.fromEntries(response.headers.entries()));
+    
     return this.handleResponse(response);
   }
 
   // Get current user profile
   async getCurrentUser(): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/auth/me`, {
+    const response = await fetch(`${finalApiBaseUrl}/auth/me`, {
       headers: this.getAuthHeaders()
     });
     return this.handleResponse(response);
@@ -103,7 +142,7 @@ class ApiService {
       return { error: 'User ID is required for profile updates.' };
     }
     
-    const response = await fetch(`${API_BASE_URL}/users/${userId}/profile`, {
+    const response = await fetch(`${finalApiBaseUrl}/users/${userId}/profile`, {
       method: 'PUT',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(profileData)
@@ -118,7 +157,7 @@ class ApiService {
       ...(token && { 'Authorization': `Bearer ${token}` })
     };
     
-    const response = await fetch(`${API_BASE_URL}/users/profile/upload-image`, {
+    const response = await fetch(`${finalApiBaseUrl}/users/profile/upload-image`, {
       method: 'POST',
       headers,
       body: formData
@@ -128,7 +167,7 @@ class ApiService {
 
   // Delete profile image
   async deleteProfileImage(): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/users/profile/delete-image`, {
+    const response = await fetch(`${finalApiBaseUrl}/users/profile/delete-image`, {
       method: 'DELETE',
       headers: this.getAuthHeaders()
     });
@@ -137,7 +176,7 @@ class ApiService {
 
   // Lesson Plans
   async generateLessonPlan(planData: any): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/lesson-plans/generate`, {
+    const response = await fetch(`${finalApiBaseUrl}/lesson-plans/generate`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(planData)
@@ -146,14 +185,14 @@ class ApiService {
   }
 
   async getLessonPlans(): Promise<ApiResponse<any[]>> {
-    const response = await fetch(`${API_BASE_URL}/lesson-plans/`, {
+    const response = await fetch(`${finalApiBaseUrl}/lesson-plans/`, {
       headers: this.getAuthHeaders()
     });
     return this.handleResponse(response);
   }
 
   async getLessonPlan(id: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/lesson-plans/${id}`, {
+    const response = await fetch(`${finalApiBaseUrl}/lesson-plans/${id}`, {
       headers: this.getAuthHeaders()
     });
     return this.handleResponse(response);
@@ -161,7 +200,7 @@ class ApiService {
 
   // Lesson Resources
   async generateLessonResource(lessonPlanId: string, contextInput: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/lesson-plans/${lessonPlanId}/resources/generate`, {
+    const response = await fetch(`${finalApiBaseUrl}/lesson-plans/${lessonPlanId}/resources/generate`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify({
@@ -174,7 +213,7 @@ class ApiService {
 
   // Context Management
   async submitContext(lessonPlanId: string, contextText: string, contextType?: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/contexts/lesson-plan/${lessonPlanId}/submit`, {
+    const response = await fetch(`${finalApiBaseUrl}/contexts/lesson-plan/${lessonPlanId}/submit`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify({
@@ -186,14 +225,14 @@ class ApiService {
   }
 
   async getContexts(lessonPlanId: string): Promise<ApiResponse<any[]>> {
-    const response = await fetch(`${API_BASE_URL}/contexts/lesson-plan/${lessonPlanId}`, {
+    const response = await fetch(`${finalApiBaseUrl}/contexts/lesson-plan/${lessonPlanId}`, {
       headers: this.getAuthHeaders()
     });
     return this.handleResponse(response);
   }
 
   async updateContext(contextId: string, contextText: string, contextType?: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/contexts/${contextId}`, {
+    const response = await fetch(`${finalApiBaseUrl}/contexts/${contextId}`, {
       method: 'PUT',
       headers: this.getAuthHeaders(),
       body: JSON.stringify({
@@ -205,7 +244,7 @@ class ApiService {
   }
 
   async deleteContext(contextId: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/contexts/${contextId}`, {
+    const response = await fetch(`${finalApiBaseUrl}/contexts/${contextId}`, {
       method: 'DELETE',
       headers: this.getAuthHeaders()
     });
@@ -213,28 +252,28 @@ class ApiService {
   }
 
   async getLessonResources(lessonPlanId: string): Promise<ApiResponse<any[]>> {
-    const response = await fetch(`${API_BASE_URL}/lesson-plans/${lessonPlanId}/resources`, {
+    const response = await fetch(`${finalApiBaseUrl}/lesson-plans/${lessonPlanId}/resources`, {
       headers: this.getAuthHeaders()
     });
     return this.handleResponse(response);
   }
 
   async getAllLessonResources(): Promise<ApiResponse<any[]>> {
-    const response = await fetch(`${API_BASE_URL}/lesson-plans/resources`, {
+    const response = await fetch(`${finalApiBaseUrl}/lesson-plans/resources`, {
       headers: this.getAuthHeaders()
     });
     return this.handleResponse(response);
   }
 
   async getLessonResource(resourceId: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/lesson-plans/resources/${resourceId}`, {
+    const response = await fetch(`${finalApiBaseUrl}/lesson-plans/resources/${resourceId}`, {
       headers: this.getAuthHeaders()
     });
     return this.handleResponse(response);
   }
 
   async updateLessonResource(resourceId: string, userEditedContent: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/lesson-plans/resources/${resourceId}/review`, {
+    const response = await fetch(`${finalApiBaseUrl}/lesson-plans/resources/${resourceId}/review`, {
       method: 'PUT',
       headers: this.getAuthHeaders(),
       body: JSON.stringify({
@@ -245,7 +284,7 @@ class ApiService {
   }
 
   async exportLessonResource(resourceId: string, format: 'pdf' | 'docx'): Promise<ApiResponse<Blob>> {
-    const response = await fetch(`${API_BASE_URL}/lesson-plans/resources/${resourceId}/export`, {
+    const response = await fetch(`${finalApiBaseUrl}/lesson-plans/resources/${resourceId}/export`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify({
@@ -264,35 +303,35 @@ class ApiService {
 
   // Curriculum Data
   async getCountries(): Promise<ApiResponse<any[]>> {
-    const response = await fetch(`${API_BASE_URL}/countries/`, {
+    const response = await fetch(`${finalApiBaseUrl}/countries/`, {
       headers: this.getAuthHeaders()
     });
     return this.handleResponse(response);
   }
 
   async getSubjects(): Promise<ApiResponse<any[]>> {
-    const response = await fetch(`${API_BASE_URL}/subjects/`, {
+    const response = await fetch(`${finalApiBaseUrl}/subjects/`, {
       headers: this.getAuthHeaders()
     });
     return this.handleResponse(response);
   }
 
   async getGradeLevels(): Promise<ApiResponse<any[]>> {
-    const response = await fetch(`${API_BASE_URL}/grade-levels/`, {
+    const response = await fetch(`${finalApiBaseUrl}/grade-levels/`, {
       headers: this.getAuthHeaders()
     });
     return this.handleResponse(response);
   }
 
   async getTopics(): Promise<ApiResponse<any[]>> {
-    const response = await fetch(`${API_BASE_URL}/curriculum/topics`, {
+    const response = await fetch(`${finalApiBaseUrl}/curriculum/topics`, {
       headers: this.getAuthHeaders()
     });
     return this.handleResponse(response);
   }
 
   async getTopicsByCurriculumStructure(curriculumStructureId: number): Promise<ApiResponse<any[]>> {
-    const response = await fetch(`${API_BASE_URL}/curriculum/topics?curriculum_structure_id=${curriculumStructureId}`, {
+    const response = await fetch(`${finalApiBaseUrl}/curriculum/topics?curriculum_structure_id=${curriculumStructureId}`, {
       headers: this.getAuthHeaders()
     });
     return this.handleResponse(response);
@@ -301,8 +340,8 @@ class ApiService {
   // Curriculum Data
   async getCurriculums(countryId?: number): Promise<ApiResponse<any[]>> {
     const url = countryId 
-      ? `${API_BASE_URL}/curriculum/?country_id=${countryId}`
-      : `${API_BASE_URL}/curriculum/`;
+      ? `${finalApiBaseUrl}/curriculum/?country_id=${countryId}`
+      : `${finalApiBaseUrl}/curriculum/`;
     const response = await fetch(url, {
       headers: this.getAuthHeaders()
     });
@@ -311,8 +350,8 @@ class ApiService {
 
   async getCurriculumStructures(curriculaId?: number): Promise<ApiResponse<any[]>> {
     const url = curriculaId 
-      ? `${API_BASE_URL}/curriculum-structures/?curricula_id=${curriculaId}`
-      : `${API_BASE_URL}/curriculum-structures/`;
+      ? `${finalApiBaseUrl}/curriculum-structures/?curricula_id=${curriculaId}`
+      : `${finalApiBaseUrl}/curriculum-structures/`;
     const response = await fetch(url, {
       headers: this.getAuthHeaders()
     });
@@ -321,7 +360,7 @@ class ApiService {
 
   // Google OAuth
   async googleAuth(credential: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/auth/google`, {
+    const response = await fetch(`${finalApiBaseUrl}/auth/google`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ credential })
@@ -332,7 +371,7 @@ class ApiService {
 
   // Password Reset
   async forgotPassword(email: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+    const response = await fetch(`${finalApiBaseUrl}/auth/forgot-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
@@ -341,7 +380,7 @@ class ApiService {
   }
 
   async resetPassword(token: string, newPassword: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+    const response = await fetch(`${finalApiBaseUrl}/auth/reset-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token, new_password: newPassword })
@@ -351,7 +390,7 @@ class ApiService {
 
   // AI Health Check
   async checkAiHealth(): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/lesson-plans/ai/health`, {
+    const response = await fetch(`${finalApiBaseUrl}/lesson-plans/ai/health`, {
       headers: this.getAuthHeaders()
     });
     return this.handleResponse(response);

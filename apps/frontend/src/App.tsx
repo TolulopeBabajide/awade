@@ -14,6 +14,7 @@ import EditLessonResourcePage from './pages/EditLessonResourcePage'
 import LessonResourcesPage from './pages/LessonResourcesPage'
 import SettingsPage from './pages/SettingsPage'
 import TestPage from './pages/TestPage'
+import EnvironmentDebug from './components/EnvironmentDebug'
 
 function App() {
   return (
@@ -69,6 +70,9 @@ function App() {
           } />
           {/* Add more routes as needed */}
         </Routes>
+        
+        {/* Environment Debug Component - Remove after fixing */}
+        <EnvironmentDebug />
       </div>
     </AuthProvider>
   )
