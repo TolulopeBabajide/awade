@@ -52,6 +52,21 @@ except ImportError:
 # Load environment variables
 load_dotenv()
 
+# Get environment configuration
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'development')
+DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
+ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', 'http://localhost:3000,http://localhost:5173')
+
+# Parse allowed origins
+if ALLOWED_ORIGINS:
+    origins = [origin.strip() for origin in ALLOWED_ORIGINS.split(',')]
+else:
+    origins = ["http://localhost:3000", "http://localhost:5173"]
+
+print(f"🚀 Starting Awade Backend in {ENVIRONMENT} mode")
+print(f"🔧 Debug mode: {DEBUG}")
+print(f"🌐 Allowed origins: {origins}")
+
 # Auto-run database fix on startup
 def run_database_fix():
     """Run database fix script automatically on startup."""
@@ -80,14 +95,15 @@ app = FastAPI(
     title="Awade API",
     description="AI-powered educator support platform for African teachers",
     version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc"
+    docs_url="/docs" if DEBUG else None,
+    redoc_url="/redoc" if DEBUG else None,
+    debug=DEBUG
 )
 
-# CORS middleware
+# CORS middleware with environment-specific configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

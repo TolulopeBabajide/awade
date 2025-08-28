@@ -4,7 +4,10 @@ services:
     name: awade-backend-test
     env: python
     plan: free
-    buildCommand: pip install -r apps/backend/requirements.txt
+    buildCommand: |
+      pip install -r apps/backend/requirements.txt
+      cd apps/backend
+      python init_db_fix.py
     startCommand: uvicorn apps.backend.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
@@ -14,9 +17,9 @@ services:
           name: awade-test-db
           property: connectionString
       - key: SECRET_KEY
-        generateValue: true
+        value: test-secret-key-awade-2024-testing
       - key: JWT_SECRET_KEY
-        generateValue: true
+        value: test-jwt-secret-key-awade-2024-testing
       - key: OPENAI_API_KEY
         sync: false
       - key: DEBUG
@@ -31,6 +34,10 @@ services:
         value: 128
       - key: ALLOWED_ORIGINS
         value: https://awade-test.vercel.app,http://localhost:3000
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 8000
 
 databases:
   # PostgreSQL Test Database

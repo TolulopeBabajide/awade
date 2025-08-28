@@ -1,4 +1,18 @@
-const API_BASE_URL = '/api';
+// API Service with environment-aware configuration
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+
+// Log environment information for debugging
+console.log('🌐 API Base URL:', API_BASE_URL);
+console.log('🔧 Environment:', import.meta.env.MODE);
+console.log('🚀 Backend URL:', import.meta.env.VITE_BACKEND_URL);
+console.log('🏷️ Environment Type:', import.meta.env.VITE_ENVIRONMENT);
+
+// Add fallback for test environment
+if (import.meta.env.VITE_ENVIRONMENT === 'test' && !API_BASE_URL.includes('awade-backend-test.onrender.com')) {
+  console.warn('⚠️ Test environment detected but API URL is not pointing to test backend');
+  console.warn('🔧 Expected: https://awade-backend-test.onrender.com/api');
+  console.warn('🔧 Actual:', API_BASE_URL);
+}
 
 interface ApiResponse<T> {
   data?: T;
