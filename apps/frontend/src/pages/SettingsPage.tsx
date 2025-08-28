@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
 import Sidebar from '../components/Sidebar';
+import MobileNavigation from '../components/MobileNavigation';
 // import Footer from '../components/Footer';
 import { 
   FaUser, 
   FaShieldAlt, 
-  FaGlobe, 
   FaTrash, 
   FaEdit, 
   FaTimes,
@@ -327,7 +327,7 @@ const SettingsPage: React.FC = () => {
                       activeTab === 'language' ? 'text-accent-600 bg-accent-50' : 'text-gray-700'
                     }`}
                   >
-                    <FaGlobe className="w-4 h-4 mr-2" />
+                    <FaCog className="w-4 h-4 mr-2" />
                     Language
                   </button>
                   <div className="border-t border-gray-100 my-1"></div>
@@ -745,38 +745,7 @@ const SettingsPage: React.FC = () => {
         </div>
 
         {/* Mobile Bottom Navigation */}
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 z-50 shadow-lg">
-          <div className="flex justify-around items-center">
-            <button 
-              className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
-              onClick={() => navigate('/dashboard')}
-            >
-              <FaUser className="w-6 h-6 mb-1" />
-              <span className="text-xs">Dashboard</span>
-            </button>
-            <button 
-              className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
-              onClick={() => navigate('/lesson-plans')}
-            >
-              <FaShieldAlt className="w-6 h-6 mb-1" />
-              <span className="text-xs">Plans</span>
-            </button>
-            <button 
-              className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
-              onClick={() => navigate('/lesson-resources')}
-            >
-              <FaGlobe className="w-6 h-6 mb-1" />
-              <span className="text-xs">Resources</span>
-            </button>
-            <button 
-              className="flex flex-col items-center py-2 px-3 text-primary-600 font-medium transition-colors duration-200"
-              onClick={() => navigate('/settings')}
-            >
-              <FaCog className="w-6 h-6 mb-1" />
-              <span className="text-xs">Settings</span>
-            </button>
-          </div>
-        </nav>
+        <MobileNavigation />
       </main>
 
       {/* Footer */}

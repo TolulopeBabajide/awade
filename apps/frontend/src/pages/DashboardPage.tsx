@@ -21,6 +21,7 @@ import {
   FaChevronRight
 } from 'react-icons/fa';
 import Sidebar from '../components/Sidebar';
+import MobileNavigation from '../components/MobileNavigation';
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -889,38 +890,7 @@ const DashboardPage: React.FC = () => {
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 z-50 shadow-lg">
-        <div className="flex justify-around items-center">
-          <button 
-            className="flex flex-col items-center py-2 px-3 text-primary-600 font-medium transition-colors duration-200"
-            onClick={() => navigate('/dashboard')}
-          >
-            <FaHome className="w-6 h-6 mb-1" />
-            <span className="text-xs font-medium">Dashboard</span>
-          </button>
-          <button 
-            className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
-            onClick={() => navigate('/lesson-plans')}
-          >
-            <FaBookOpen className="w-6 h-6 mb-1" />
-            <span className="text-xs font-medium">Plans</span>
-          </button>
-          <button 
-            className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
-            onClick={() => navigate('/lesson-resources')}
-          >
-            <FaFolder className="w-6 h-6 mb-1" />
-            <span className="text-xs font-medium">Resources</span>
-          </button>
-          <button 
-            className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
-            onClick={() => navigate('/settings')}
-          >
-            <FaCog className="w-6 h-6 mb-1" />
-            <span className="text-xs font-medium">Settings</span>
-          </button>
-        </div>
-      </nav>
+      <MobileNavigation />
     </div>
   );
 };
