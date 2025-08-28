@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://awade-backend-test.onrender.com/api';
+const API_BASE_URL = '/api';
 
 interface ApiResponse<T> {
   data?: T;
@@ -74,30 +74,6 @@ class ApiService {
       method: 'PUT',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(profileData)
-    });
-    return this.handleResponse(response);
-  }
-
-  // Upload profile image
-  async uploadProfileImage(formData: FormData): Promise<ApiResponse<any>> {
-    const token = localStorage.getItem('access_token');
-    const headers: HeadersInit = {
-      ...(token && { 'Authorization': `Bearer ${token}` })
-    };
-    
-    const response = await fetch(`${API_BASE_URL}/users/profile/upload-image`, {
-      method: 'POST',
-      headers,
-      body: formData
-    });
-    return this.handleResponse(response);
-  }
-
-  // Delete profile image
-  async deleteProfileImage(): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/users/profile/delete-image`, {
-      method: 'DELETE',
-      headers: this.getAuthHeaders()
     });
     return this.handleResponse(response);
   }
