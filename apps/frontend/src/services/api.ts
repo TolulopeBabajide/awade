@@ -8,9 +8,9 @@ const isTestEnvironment =
   window.location.hostname.includes('test') ||
   window.location.hostname.includes('vercel.app');
 
-// Force test backend URL for test environment
+// Use Vercel's API proxy for test environment to avoid CORS issues
 const finalApiBaseUrl = isTestEnvironment 
-  ? 'https://awade-backend-test.onrender.com/api'
+  ? '/api'  // This will use Vercel's API proxy to backend
   : API_BASE_URL;
 
 // Log environment information for debugging
@@ -23,12 +23,12 @@ console.log('📍 Current Hostname:', window.location.hostname);
 console.log('🔗 Final API URL:', finalApiBaseUrl);
 
 // Always warn if we're in test environment but not using test backend
-if (isTestEnvironment && !finalApiBaseUrl.includes('awade-backend-test.onrender.com')) {
-  console.error('❌ CRITICAL: Test environment detected but not using test backend!');
-  console.error('🔧 Expected: https://awade-backend-test.onrender.com/api');
+if (isTestEnvironment && finalApiBaseUrl !== '/api') {
+  console.error('❌ CRITICAL: Test environment should use Vercel API proxy!');
+  console.error('🔧 Expected: /api (Vercel proxy)');
   console.error('🔧 Actual:', finalApiBaseUrl);
 } else if (isTestEnvironment) {
-  console.log('✅ Test environment confirmed - using test backend');
+  console.log('✅ Test environment confirmed - using Vercel API proxy');
 }
 
 interface ApiResponse<T> {
