@@ -332,9 +332,6 @@ class UserService:
                 subjects=subjects_list,
                 grade_levels=grade_levels_list,
                 languages_spoken=user.languages_spoken,
-                profile_image_url=user.profile_image_url,
-                profile_image_data=user.profile_image_data,
-                profile_image_type=user.profile_image_type,
                 phone=user.phone,
                 bio=user.bio,
                 created_at=user.created_at,
@@ -375,22 +372,12 @@ class UserService:
             
             return UserProfileResponse(
                 user_id=user.user_id,
-                email=user.email,
                 full_name=user.full_name,
-                role=user.role.value,
                 country=user.country,
                 region=user.region,
                 school_name=user.school_name,
                 subjects=subjects_list,
-                grade_levels=grade_levels_list,
-                languages_spoken=user.languages_spoken,
-                profile_image_url=user.profile_image_url,
-                profile_image_data=user.profile_image_data,
-                profile_image_type=user.profile_image_type,
-                phone=user.phone,
-                bio=user.bio,
-                created_at=user.created_at,
-                last_login=user.last_login
+                grade_levels=grade_levels_list
             )
         except Exception as e:
             raise HTTPException(
