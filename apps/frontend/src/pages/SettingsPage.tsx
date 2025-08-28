@@ -34,7 +34,6 @@ interface UserProfile {
   subjects?: string[];
   grade_levels?: string[];
   languages_spoken?: string;
-  profile_image_url?: string;
   phone?: string;
   bio?: string;
   created_at: string;
