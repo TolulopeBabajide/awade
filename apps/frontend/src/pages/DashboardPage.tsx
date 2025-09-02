@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import apiService from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-state ng correctlyimport { 
+import { 
   FaBookOpen, 
   FaComments, 
   FaSignOutAlt, 
@@ -16,7 +16,6 @@ import MobileNavigation from '../components/MobileNavigation';
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { user, logout } = useAuth();
   const [countries, setCountries] = useState<any[]>([]);
   const [selectedCountry, setSelectedCountry] = useState<string>('');
@@ -290,10 +289,7 @@ const DashboardPage: React.FC = () => {
     }
   }, [selectedSubject, selectedGradeLevel, selectedCurriculum]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
-  };
+
 
   const handleCurriculumChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedCurriculum(e.target.value);
@@ -435,15 +431,7 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  const canScrollLeft = () => {
-    return carouselRef ? carouselRef.scrollLeft > 0 : false;
-  };
 
-  const canScrollRight = () => {
-    if (!carouselRef) return false;
-    const maxScroll = carouselRef.scrollWidth - carouselRef.clientWidth;
-    return carouselRef.scrollLeft < maxScroll;
-  };
 
   return (
     <div className="bg-gray-50 flex min-h-screen">

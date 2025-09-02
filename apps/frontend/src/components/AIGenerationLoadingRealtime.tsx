@@ -313,7 +313,7 @@ const AIGenerationLoadingRealtime: React.FC<AIGenerationLoadingRealtimeProps> = 
 
         {/* Steps */}
         <div className="space-y-3">
-          {steps.map((step, index) => (
+          {steps.map((step) => (
             <div key={step.id} className="flex items-start space-x-3">
               {getStepIcon(step)}
               <div className="flex-1 min-w-0">
