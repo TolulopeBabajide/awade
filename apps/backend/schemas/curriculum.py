@@ -50,10 +50,9 @@ class LearningObjectiveUpdate(BaseModel):
     objective: str = Field(..., description="Learning objective text")
 
 class LearningObjectiveResponse(BaseModel):
-    id: int
+    learning_objective_id: int
     topic_id: int
     objective: str
-    created_at: datetime
 
     class Config:
         """Pydantic configuration for attribute access."""
@@ -71,10 +70,9 @@ class ContentUpdate(BaseModel):
 
 class ContentResponse(BaseModel):
     """Schema for content response data."""
-    id: int
+    topic_contents_id: int
     topic_id: int
     content_area: str
-    created_at: datetime
 
     class Config:
         """Pydantic configuration for attribute access."""
