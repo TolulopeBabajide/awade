@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+
 import Sidebar from '../components/Sidebar';
 import MobileNavigation from '../components/MobileNavigation';
+import AIGenerationLoading from '../components/AIGenerationLoading';
 import { 
   FaBookOpen, 
   FaPlus, 
@@ -307,6 +308,23 @@ const LessonPlanDetailPage: React.FC = () => {
 
       {/* Mobile Bottom Navigation */}
       <MobileNavigation />
+
+      {/* AI Generation Loading Modal */}
+      <AIGenerationLoading
+        isVisible={isGeneratingLessonResource}
+        onComplete={() => setIsGeneratingLessonResource(false)}
+        onError={(error) => {
+          setContextFeedback({
+            type: 'error',
+            message: error
+          });
+          setIsGeneratingLessonResource(false);
+        }}
+        generationType="lesson-resource"
+        topic={lessonPlan?.topic}
+        subject={lessonPlan?.subject}
+        gradeLevel={lessonPlan?.grade_level}
+      />
     </div>
   );
 };

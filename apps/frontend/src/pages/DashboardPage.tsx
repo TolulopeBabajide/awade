@@ -2,21 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import apiService from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { 
-  FaHome, 
+state ng correctlyimport { 
   FaBookOpen, 
-  FaFolder, 
   FaComments, 
-  FaHeadset, 
-  FaCog, 
   FaSignOutAlt, 
-  FaSearch, 
   FaUser, 
-  FaPlus,
-  FaEye,
   FaFileAlt,
-  FaGraduationCap,
-  FaGlobe,
   FaChevronLeft,
   FaChevronRight
 } from 'react-icons/fa';
@@ -420,6 +411,8 @@ const DashboardPage: React.FC = () => {
       setIsGenerating(false);
     }
   };
+
+
 
   // Carousel navigation functions
   const scrollCarousel = (direction: 'left' | 'right') => {
