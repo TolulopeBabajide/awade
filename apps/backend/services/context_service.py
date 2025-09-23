@@ -10,10 +10,26 @@ Author: Tolulope Babajide
 
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, UTC
 from fastapi import HTTPException, status
 
+import sys
+import os
+
+# Add parent directories to Python path for imports
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.dirname(current_dir)
+root_dir = os.path.dirname(parent_dir)
+sys.path.extend([parent_dir, root_dir])
 from apps.backend.models import Context, LessonPlan
+import sys
+import os
+
+# Add parent directories to Python path for imports
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.dirname(current_dir)
+root_dir = os.path.dirname(parent_dir)
+sys.path.extend([parent_dir, root_dir])
 from apps.backend.schemas.contexts import (
     ContextCreate, 
     ContextUpdate, 
@@ -63,8 +79,8 @@ class ContextService:
                 lesson_plan_id=context_data.lesson_plan_id,
                 context_text=context_data.context_text,
                 context_type=context_data.context_type,
-                created_at=datetime.utcnow(),
-                updated_at=datetime.utcnow()
+                created_at=datetime.now(UTC),
+                updated_at=datetime.now(UTC)
             )
             
             self.db.add(context)
@@ -181,7 +197,7 @@ class ContextService:
                 setattr(context, field, value)
             
             # Update timestamp
-            context.updated_at = datetime.utcnow()
+            context.updated_at = datetime.now(UTC)
             
             self.db.commit()
             self.db.refresh(context)

@@ -28,6 +28,10 @@ For detailed workflow documentation, see [docs/public/development/README.md](./d
 - **Curriculum Mapping**: Country-specific curriculum standards integration
 - **PDF Export**: Professional lesson plan export with WeasyPrint
 - **Offline Support**: Works without internet connectivity
+- **Advanced Caching**: High-performance LRU/LFU caching with thread safety
+- **Query Optimization**: Intelligent database query optimization and performance monitoring
+- **Full-Text Search**: TF-IDF based search with relevance scoring
+- **Security Hardened**: Comprehensive input validation, SQL injection prevention, and rate limiting
 
 ## 🛠️ Setup Guide
 
@@ -103,6 +107,11 @@ awade/
 
 - **Never hard-code secrets**: Use environment variables and GitHub Secrets
 - **Security guidelines**: See [SECURITY.md](./SECURITY.md)
+- **Data Structure Security**: All caching and data structures are thread-safe with comprehensive input validation
+- **SQL Injection Prevention**: Advanced query validation and sanitization
+- **Rate Limiting**: Built-in protection against abuse and DoS attacks
+- **Memory Protection**: Bounded memory usage with configurable limits
+- **Input Sanitization**: All user inputs are validated and sanitized before processing
 - **Environment setup**: Copy `.env.example` to `.env` and fill in your values
 
 ## 🤝 Contribution Guide

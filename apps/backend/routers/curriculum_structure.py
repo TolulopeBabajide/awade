@@ -4,7 +4,7 @@ from typing import List, Optional
 from apps.backend.database import get_db
 from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator, get_optional_current_user
 from apps.backend.models import CurriculumStructure, Curriculum, GradeLevel, Subject, User
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 router = APIRouter(prefix="/api/curriculum-structures", tags=["curriculum-structures"])
 
@@ -20,9 +20,7 @@ class CurriculumStructureResponse(BaseModel):
     curricula_id: int
     grade_level_id: int
     subject_id: int
-    class Config:
-        """Pydantic configuration for ORM mode."""
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 @router.get("/", response_model=List[CurriculumStructureResponse])
 def list_curriculum_structures(

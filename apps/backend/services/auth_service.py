@@ -10,13 +10,21 @@ Author: Tolulope Babajide
 
 from sqlalchemy.orm import Session
 from typing import Optional, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 import jwt
 import bcrypt
 import secrets
 import json
 import requests
+import sys
+import os
 from fastapi import HTTPException, status
+
+# Add parent directories to Python path for imports
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.dirname(current_dir)
+root_dir = os.path.dirname(parent_dir)
+sys.path.extend([parent_dir, root_dir])
 
 from apps.backend.models import User, UserRole
 from apps.backend.schemas.users import AuthResponse, UserResponse, UserCreate, UserLogin, PasswordResetRequest, PasswordReset
@@ -49,6 +57,31 @@ class AuthService:
         import os
         return int(os.getenv("PASSWORD_MIN_LENGTH", "8"))
     
+    def _hash_password(self, password: str) -> str:
+        """
+        Hash a password using bcrypt.
+        
+        Args:
+            password (str): Plain text password
+            
+        Returns:
+            str: Hashed password
+        """
+        salt = bcrypt.gensalt()
+        return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+    
+    def _verify_password(self, password: str, hashed_password: str) -> bool:
+        """
+        Verify a password against its hash.
+        
+        Args:
+            password (str): Plain text password
+            hashed_password (str): Hashed password
+            
+        Returns:
+            bool: True if password matches hash
+        """
+        return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
     def verify_google_token(self, id_token: str) -> Dict[str, Any]:
         """
         Verify Google OAuth ID token.
@@ -115,13 +148,13 @@ class AuthService:
                     full_name=full_name or email,
                     role=UserRole.EDUCATOR,
                     country="",
-                    created_at=datetime.utcnow()
+                    created_at=datetime.now(UTC)
                 )
                 self.db.add(user)
                 self.db.commit()
                 self.db.refresh(user)
             else:
-                user.last_login = datetime.utcnow()
+                user.last_login = datetime.now(UTC)
                 self.db.commit()
                 self.db.refresh(user)
             
@@ -132,7 +165,7 @@ class AuthService:
             payload = {
                 "sub": str(user.user_id),
                 "email": user.email,
-                "exp": datetime.utcnow() + timedelta(minutes=JWT_EXPIRES_MINUTES)
+                "exp": datetime.now(UTC) + timedelta(minutes=JWT_EXPIRES_MINUTES)
             }
             token = jwt.encode(payload, JWT_SECRET_KEY, algorithm=get_jwt_algorithm())
             
@@ -214,7 +247,7 @@ class AuthService:
                 subjects=json.dumps(user_data.subjects) if user_data.subjects else None,
                 grade_levels=json.dumps(user_data.grade_levels) if user_data.grade_levels else None,
                 languages_spoken=user_data.languages_spoken,
-                created_at=datetime.utcnow()
+                created_at=datetime.now(UTC)
             )
             self.db.add(user)
             self.db.commit()
@@ -224,7 +257,7 @@ class AuthService:
             payload = {
                 "sub": str(user.user_id),
                 "email": user.email,
-                "exp": datetime.utcnow() + timedelta(minutes=JWT_EXPIRES_MINUTES)
+                "exp": datetime.now(UTC) + timedelta(minutes=JWT_EXPIRES_MINUTES)
             }
             token = jwt.encode(payload, JWT_SECRET_KEY, algorithm=get_jwt_algorithm())
             
@@ -304,7 +337,7 @@ class AuthService:
                 )
             
             # Update last login
-            user.last_login = datetime.utcnow()
+            user.last_login = datetime.now(UTC)
             self.db.commit()
             self.db.refresh(user)
             
@@ -312,7 +345,7 @@ class AuthService:
             payload = {
                 "sub": str(user.user_id),
                 "email": user.email,
-                "exp": datetime.utcnow() + timedelta(minutes=JWT_EXPIRES_MINUTES)
+                "exp": datetime.now(UTC) + timedelta(minutes=JWT_EXPIRES_MINUTES)
             }
             token = jwt.encode(payload, JWT_SECRET_KEY, algorithm=get_jwt_algorithm())
             

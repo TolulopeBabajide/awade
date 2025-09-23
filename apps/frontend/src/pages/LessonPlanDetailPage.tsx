@@ -3,32 +3,8 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import Sidebar from '../components/Sidebar';
 import MobileNavigation from '../components/MobileNavigation';
-import AIGenerationLoading from '../components/AIGenerationLoading';
-import { 
-  FaBookOpen, 
-  FaPlus, 
-  FaSearch, 
-  FaFilter, 
-  FaEye, 
-  FaEdit, 
-  FaTrash, 
-  FaDownload, 
-  FaShare, 
-  FaStar, 
-  FaClock, 
-  FaUser, 
-  FaCalendar, 
-  FaHome,
-  FaFolder,
-  FaCog,
-  FaArrowLeft,
-  FaLightbulb,
-  FaGraduationCap,
-  FaGlobe,
-  FaFileAlt,
-  FaCheck,
-  FaTimes
-} from 'react-icons/fa';
+import AIGenerationLoadingActual from '../components/AIGenerationLoadingActual';
+
 import apiService from '../services/api';
 
 interface LessonPlanData {
@@ -56,6 +32,7 @@ const LessonPlanDetailPage: React.FC = () => {
   const [context, setContext] = useState('');
   const [isGeneratingLessonResource, setIsGeneratingLessonResource] = useState(false);
   const [contextFeedback, setContextFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [currentGenerationStep, setCurrentGenerationStep] = useState<string>('');
 
   useEffect(() => {
     const fetchLessonPlan = async () => {
@@ -99,10 +76,12 @@ const LessonPlanDetailPage: React.FC = () => {
 
     setIsGeneratingLessonResource(true);
     setContextFeedback(null);
+    setCurrentGenerationStep('validate-lesson-plan');
     
     try {
-      // If context is provided, submit it to database first
+      // Step 1: Submit context if provided
       if (context.trim()) {
+        setCurrentGenerationStep('submit-context');
         const contextResponse = await apiService.submitContext(
           lessonPlan.lesson_id.toString(),
           context
@@ -113,7 +92,12 @@ const LessonPlanDetailPage: React.FC = () => {
         }
       }
 
-      // Generate lesson resource using GPT service
+      // Step 2: Fetch curriculum data (simulated)
+      setCurrentGenerationStep('fetch-curriculum-data');
+      await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause to show step
+
+      // Step 3: Generate lesson resource using GPT service
+      setCurrentGenerationStep('ai-generation');
       const response = await apiService.generateLessonResource(
         lessonPlan.lesson_id.toString(),
         context || 'Generate a comprehensive lesson resource for this lesson plan'
@@ -122,6 +106,14 @@ const LessonPlanDetailPage: React.FC = () => {
       if (response.error) {
         throw new Error(response.error);
       }
+
+      // Step 4: Save resource (simulated)
+      setCurrentGenerationStep('save-resource');
+      await new Promise(resolve => setTimeout(resolve, 300)); // Brief pause to show step
+
+      // Step 5: Complete
+      setCurrentGenerationStep('complete');
+      await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause before redirect
 
       // Show success feedback
       setContextFeedback({
@@ -142,6 +134,7 @@ const LessonPlanDetailPage: React.FC = () => {
       });
     } finally {
       setIsGeneratingLessonResource(false);
+      setCurrentGenerationStep('');
     }
   };
 
@@ -310,7 +303,7 @@ const LessonPlanDetailPage: React.FC = () => {
       <MobileNavigation />
 
       {/* AI Generation Loading Modal */}
-      <AIGenerationLoading
+      <AIGenerationLoadingActual
         isVisible={isGeneratingLessonResource}
         onComplete={() => setIsGeneratingLessonResource(false)}
         onError={(error) => {
@@ -324,6 +317,8 @@ const LessonPlanDetailPage: React.FC = () => {
         topic={lessonPlan?.topic}
         subject={lessonPlan?.subject}
         gradeLevel={lessonPlan?.grade_level}
+        currentStep={currentGenerationStep}
+        hasContext={!!context.trim()}
       />
     </div>
   );

@@ -2,7 +2,7 @@
 Pydantic schemas for lesson plan API endpoints.
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
 from datetime import datetime
 from enum import Enum
@@ -55,9 +55,7 @@ class LessonPlanResponse(BaseModel):
     curriculum_learning_objectives: Optional[List[str]] = None
     curriculum_contents: Optional[List[str]] = None
     
-    class Config:
-        """Pydantic configuration for attribute access."""
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # LessonResource schemas
 class LessonResourceCreate(BaseModel):
@@ -83,6 +81,4 @@ class LessonResourceResponse(BaseModel):
     status: str
     created_at: datetime
 
-    class Config:
-        """Pydantic configuration for attribute access."""
-        from_attributes = True 
+    model_config = ConfigDict(from_attributes=True) 

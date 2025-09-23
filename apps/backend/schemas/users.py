@@ -2,7 +2,7 @@
 Pydantic schemas for user management API endpoints.
 """
 
-from pydantic import BaseModel, Field, EmailStr, validator
+from pydantic import BaseModel, Field, EmailStr, field_validator, ConfigDict
 from typing import List, Optional
 from datetime import datetime
 from enum import Enum
@@ -35,7 +35,8 @@ class UserCreate(BaseModel):
     grade_levels: Optional[List[str]] = Field(None, description="List of grade levels taught")
     languages_spoken: Optional[str] = Field(None, description="Comma-separated list of languages spoken")
 
-    @validator('password')
+    @field_validator('password')
+    @classmethod
     def validate_password(cls, v):
         min_length = get_password_min_length()
         max_length = get_password_max_length()
@@ -87,9 +88,7 @@ class UserResponse(BaseModel):
     created_at: datetime
     last_login: Optional[datetime] = None
     
-    class Config:
-        """Pydantic configuration for attribute access."""
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class UserProfileResponse(BaseModel):
     """Simplified user profile for public display"""
@@ -101,9 +100,7 @@ class UserProfileResponse(BaseModel):
     subjects: Optional[List[str]] = None
     grade_levels: Optional[List[str]] = None
     
-    class Config:
-        """Pydantic configuration for attribute access."""
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class AuthResponse(BaseModel):
     """Schema for authentication response."""
@@ -120,7 +117,8 @@ class PasswordReset(BaseModel):
     token: str = Field(..., description="Password reset token")
     new_password: str = Field(..., description="New password")
 
-    @validator('new_password')
+    @field_validator('new_password')
+    @classmethod
     def validate_new_password(cls, v):
         min_length = get_password_min_length()
         max_length = get_password_max_length()

@@ -7,7 +7,7 @@ It includes schemas for creating, updating, and responding with grade level info
 Author: Tolulope Babajide
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 
 class GradeLevelBase(BaseModel):
@@ -26,11 +26,12 @@ class GradeLevelResponse(GradeLevelBase):
     """Schema for grade level response."""
     grade_level_id: int = Field(..., description="Unique identifier for the grade level")
     
-    class Config:
-        from_attributes = True
-        json_schema_extra = {
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
             "example": {
                 "grade_level_id": 1,
                 "name": "Grade 5"
             }
         }
+    )

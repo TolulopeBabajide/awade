@@ -7,7 +7,7 @@ It includes schemas for creating, updating, and responding with country informat
 Author: Tolulope Babajide
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 from datetime import datetime
 
@@ -31,9 +31,9 @@ class CountryResponse(CountryBase):
     """Schema for country response."""
     country_id: int = Field(..., description="Unique identifier for the country")
     
-    class Config:
-        from_attributes = True
-        json_schema_extra = {
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
             "example": {
                 "country_id": 1,
                 "country_name": "Nigeria",
@@ -41,3 +41,4 @@ class CountryResponse(CountryBase):
                 "region": "West Africa"
             }
         }
+    )

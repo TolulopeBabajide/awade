@@ -11,13 +11,29 @@ Author: Tolulope Babajide
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
 from typing import List, Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, UTC
 from fastapi import HTTPException, status
 
+import sys
+import os
+
+# Add parent directories to Python path for imports
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.dirname(current_dir)
+root_dir = os.path.dirname(parent_dir)
+sys.path.extend([parent_dir, root_dir])
 from apps.backend.models import (
     LessonPlan, User, Topic, CurriculumStructure, Curriculum, Country, 
     GradeLevel, Subject, LessonResource, LessonStatus, UserRole, Context
 )
+import sys
+import os
+
+# Add parent directories to Python path for imports
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.dirname(current_dir)
+root_dir = os.path.dirname(parent_dir)
+sys.path.extend([parent_dir, root_dir])
 from apps.backend.schemas.lesson_plans import (
     LessonPlanCreate, LessonPlanResponse, LessonPlanUpdate,
     LessonResourceCreate, LessonResourceUpdate, LessonResourceResponse
@@ -124,7 +140,7 @@ class LessonPlanService:
             lesson_plan = LessonPlan(
                 topic_id=topic.topic_id,
                 user_id=current_user.user_id,
-                created_at=datetime.utcnow()
+                created_at=datetime.now(UTC)
             )
             self.db.add(lesson_plan)
             self.db.commit()
@@ -371,7 +387,7 @@ class LessonPlanService:
                 ai_generated_content=ai_content,
                 export_format=data.export_format,
                 status='draft',
-                created_at=datetime.utcnow()
+                created_at=datetime.now(UTC)
             )
             
             self.db.add(lesson_resource)

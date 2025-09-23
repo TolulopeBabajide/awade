@@ -2,7 +2,7 @@
 Pydantic schemas for curriculum mapping API endpoints.
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 from enum import Enum
@@ -21,9 +21,7 @@ class CurriculumCreate(CurriculumBase):
 class CurriculumResponse(CurriculumBase):
     """Schema for curriculum response data."""
     curricula_id: int
-    class Config:
-        """Pydantic configuration for ORM mode."""
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class TopicBase(BaseModel):
     """Base schema for topic data."""
@@ -37,9 +35,7 @@ class TopicCreate(TopicBase):
 class TopicResponse(TopicBase):
     """Schema for topic response data."""
     topic_id: int
-    class Config:
-        """Pydantic configuration for ORM mode."""
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 # Learning Objective schemas
 class LearningObjectiveCreate(BaseModel):
@@ -54,9 +50,7 @@ class LearningObjectiveResponse(BaseModel):
     topic_id: int
     objective: str
 
-    class Config:
-        """Pydantic configuration for attribute access."""
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # Content schemas
 class ContentCreate(BaseModel):
@@ -74,9 +68,7 @@ class ContentResponse(BaseModel):
     topic_id: int
     content_area: str
 
-    class Config:
-        """Pydantic configuration for attribute access."""
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # Teacher Activity schemas
 # class TeacherActivityCreate(BaseModel):
@@ -156,15 +148,11 @@ class TopicDetailResponse(TopicResponse):
     # teaching_materials: List[TeachingMaterialResponse]
     # evaluation_guides: List[EvaluationGuideResponse]
 
-    class Config:
-        """Pydantic configuration for attribute access."""
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # Curriculum Detail Response
 class CurriculumDetailResponse(CurriculumResponse):
     """Schema for detailed curriculum response with topics."""
     topics: List[TopicResponse]
 
-    class Config:
-        """Pydantic configuration for attribute access."""
-        from_attributes = True 
+    model_config = ConfigDict(from_attributes=True) 

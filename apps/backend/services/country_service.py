@@ -12,7 +12,23 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from fastapi import HTTPException
 
+import sys
+import os
+
+# Add parent directories to Python path for imports
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.dirname(current_dir)
+root_dir = os.path.dirname(parent_dir)
+sys.path.extend([parent_dir, root_dir])
 from apps.backend.models import Country
+import sys
+import os
+
+# Add parent directories to Python path for imports
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.dirname(current_dir)
+root_dir = os.path.dirname(parent_dir)
+sys.path.extend([parent_dir, root_dir])
 from apps.backend.schemas.country import CountryCreate, CountryResponse, CountryUpdate
 
 class CountryService:

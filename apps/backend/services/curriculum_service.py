@@ -9,7 +9,7 @@ Author: Tolulope Babajide
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
 from typing import List, Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, UTC
 
 from apps.backend.models import (
     Curriculum, Topic, CurriculumStructure, Country, GradeLevel, Subject, LearningObjective, TopicContent
@@ -98,7 +98,7 @@ class CurriculumService:
         for field, value in update_data.items():
             setattr(curriculum, field, value)
         
-        curriculum.updated_at = datetime.utcnow()
+        curriculum.updated_at = datetime.now(UTC)
         self.db.commit()
         self.db.refresh(curriculum)
         return curriculum
@@ -189,7 +189,7 @@ class CurriculumService:
         for field, value in update_data.items():
             setattr(topic, field, value)
         
-        topic.updated_at = datetime.utcnow()
+        topic.updated_at = datetime.now(UTC)
         self.db.commit()
         self.db.refresh(topic)
         return topic
