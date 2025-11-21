@@ -1,16 +1,16 @@
 # Awade
 
-**Awade** is an AI-powered educator support platform built to empower African teachers with curriculum-aligned lesson planning, localized training, and reflective teaching tools. It emphasizes ethical AI integration, offline usability, and professional development that respects local context.
+**Awade** is an AI-powered educator support platform that helps African teachers generate curriculum-aligned lesson plans with local context. It emphasizes ethical AI integration and practical classroom readiness.
 
 ## 🌍 Project Overview
 
-Awade bridges the professional development gap by:
+Awade currently supports:
 
-- **Generating structured 6-section lesson plans** with AI-powered curriculum alignment
+- **Generating structured lesson plans** with AI-powered curriculum alignment
 - **Integrating local context** for culturally relevant, practical teaching resources
-- **Providing curriculum-aligned micro-training modules**
-- **Enabling offline access and local language support**
-- **Prioritizing teacher agency and explainable AI interactions**
+- **Managing curriculum data** (countries → curricula → subjects/grades → topics)
+- **Generating lesson resources** attached to lesson plans
+- **Exporting lesson resources** to PDF/DOCX
 
 Built as a modular and extensible platform using a monorepo structure.
 
@@ -21,17 +21,25 @@ The complete user journey follows this flow:
 
 For detailed workflow documentation, see [docs/public/development/README.md](./docs/public/development/README.md).
 
-### 🎯 Key Features
+### 🎯 Key Features (Implemented)
 
-- **Structured Lesson Plans**: AI generates 6-section plans (Learning Objectives, Local Context, Core Content, Activities, Quiz, Related Projects)
-- **Local Context Integration**: Adapts lessons to local environment, available resources, and community needs
-- **Curriculum Mapping**: Country-specific curriculum standards integration
-- **PDF Export**: Professional lesson plan export with WeasyPrint
-- **Offline Support**: Works without internet connectivity
-- **Advanced Caching**: High-performance LRU/LFU caching with thread safety
-- **Query Optimization**: Intelligent database query optimization and performance monitoring
-- **Full-Text Search**: TF-IDF based search with relevance scoring
-- **Security Hardened**: Comprehensive input validation, SQL injection prevention, and rate limiting
+- **Structured Lesson Plans**: AI-assisted generation using GPT with local context
+- **Local Context Integration**: Store and reuse context per lesson plan
+- **Curriculum Mapping**: Country, curricula, subject, grade-level, topic structure
+- **Lesson Resources**: AI-generated JSON content persisted per plan
+- **PDF/DOCX Export**: WeasyPrint-based export service
+- **Performance**: LRU/LFU caching and query optimization utilities
+- **Security**: Input validation, SQL injection prevention, and rate limiting
+
+### 🧭 Roadmap (Planned, not yet implemented)
+
+- Training modules and progress tracking
+- Gamification (achievements, streaks, leaderboards)
+- Student-facing learning experience
+- Offline-first experience and sync
+- Multi-language UI switching
+- Analytics dashboard and usage insights
+- Full-text search and indexing
 
 ## 🛠️ Setup Guide
 
@@ -39,7 +47,6 @@ For detailed workflow documentation, see [docs/public/development/README.md](./d
 - Python 3.10+
 - Node.js (for frontend)
 - PostgreSQL
-- Cursor (recommended for dev)
 
 ### Installation Steps
 
@@ -87,7 +94,7 @@ Go to Settings → Secrets and variables → Actions to configure these.
 ```
 awade/
 ├── apps/
-│   ├── frontend/        # Mobile-friendly UI (HTML/Pug/React)
+│   ├── frontend/        # React + TypeScript frontend
 │   └── backend/         # FastAPI backend
 ├── packages/
 │   ├── ai/              # Prompt templates, GPT logic, rules

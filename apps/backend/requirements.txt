@@ -1,3 +1,4 @@
+# Core FastAPI dependencies - Updated for security
 fastapi>=0.109.0
 uvicorn[standard]>=0.27.0
 pydantic>=2.6.0
@@ -5,15 +6,22 @@ sqlalchemy>=2.0.25
 psycopg2-binary>=2.9.9
 python-dotenv>=1.0.0
 openai>=1.12.0
-python-multipart>=0.0.6
-jinja2>=3.1.2
+
+# Security fixes for vulnerable packages
+python-multipart>=0.0.18  # Fix CVE-2024-53981, PVE-2024-99762
+jinja2>=3.1.6  # Fix CVE-2025-27516, CVE-2024-34064, CVE-2024-56326, CVE-2024-56201, CVE-2024-22195
 bcrypt>=4.0.0
 weasyprint>=60.0 
 PyJWT>=2.0.0 
 email-validator
-requests
+requests>=2.32.4  # Fix CVE-2024-47081
+urllib3>=2.5.0  # Fix CVE-2025-50181, CVE-2025-50182
 Pillow>=10.0.0
 alembic>=1.13.0
+
+# Additional security dependencies
+cryptography>=44.0.1  # Fix CVE-2024-12797
+setuptools>=78.1.1  # Fix CVE-2025-47273, CVE-2024-6345
 
 # Testing dependencies
 pytest>=7.4.0
