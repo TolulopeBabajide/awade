@@ -77,7 +77,7 @@ const LessonPlanDetailPage: React.FC = () => {
     setIsGeneratingLessonResource(true);
     setContextFeedback(null);
     setCurrentGenerationStep('validate-lesson-plan');
-    
+
     try {
       // Step 1: Submit context if provided
       if (context.trim()) {
@@ -121,7 +121,7 @@ const LessonPlanDetailPage: React.FC = () => {
         message: 'Lesson resource generated successfully! You can now view and edit the generated content.'
       });
       setContext('');
-      
+
       // Clear feedback after 5 seconds
       setTimeout(() => setContextFeedback(null), 5000);
 
@@ -154,7 +154,7 @@ const LessonPlanDetailPage: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error || 'Lesson plan not found'}</p>
-          <button 
+          <button
             onClick={() => navigate('/dashboard')}
             className="bg-orange-400 text-white px-4 py-2 rounded hover:bg-orange-500"
           >
@@ -174,7 +174,7 @@ const LessonPlanDetailPage: React.FC = () => {
       <main className="flex-1 lg:ml-64 p-4 md:p-6 lg:p-8 pb-20 lg:pb-8">
         {/* Back Navigation */}
         <div className="mb-4 md:mb-6">
-          <button 
+          <button
             onClick={() => navigate('/dashboard')}
             className="text-primary-600 text-sm mb-2 flex items-center hover:text-primary-700 transition-colors duration-200"
           >
@@ -244,21 +244,19 @@ const LessonPlanDetailPage: React.FC = () => {
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
                 rows={3}
               />
-              
+
               {/* Loading State and Feedback */}
-            
-              
+
+
               {/* Success/Error Feedback */}
               {contextFeedback && (
-                <div className={`mt-3 p-3 rounded-lg border ${
-                  contextFeedback.type === 'success' 
-                    ? 'bg-green-50 border-green-200' 
-                    : 'bg-red-50 border-red-200'
-                }`}>
+                <div className={`mt-3 p-3 rounded-lg border ${contextFeedback.type === 'success'
+                  ? 'bg-green-50 border-green-200'
+                  : 'bg-red-50 border-red-200'
+                  }`}>
                   <div className="flex items-center space-x-2">
-                    <span className={`text-sm font-medium ${
-                      contextFeedback.type === 'success' ? 'text-green-800' : 'text-red-800'
-                    }`}>
+                    <span className={`text-sm font-medium ${contextFeedback.type === 'success' ? 'text-green-800' : 'text-red-800'
+                      }`}>
                       {contextFeedback.type === 'success' ? '✅' : '❌'} {contextFeedback.message}
                     </span>
                   </div>
@@ -268,7 +266,7 @@ const LessonPlanDetailPage: React.FC = () => {
 
             {/* Action Buttons */}
             <div className="flex gap-4 mt-6 md:mt-8">
-              <button 
+              <button
                 onClick={handleGenerateLessonResource}
                 disabled={isGeneratingLessonResource}
                 className="bg-primary-600 w-full text-center text-white font-semibold px-4 md:px-6 py-2 md:py-3 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base transition-colors duration-200"
@@ -278,8 +276,8 @@ const LessonPlanDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right panel: Additional Info - Hidden on mobile */}
-          <div className="hidden lg:flex w-64 flex-col gap-4 lg:gap-6">
+          {/* Right panel: Additional Info - Visible on all devices, stacked on mobile */}
+          <div className="flex w-full lg:w-64 flex-col gap-4 lg:gap-6 order-last lg:order-none">
             <div className="bg-white rounded-xl shadow-lg p-4 border border-gray-100">
               <div className="font-bold mb-2 text-primary-900">Lesson Info</div>
               <div className="text-sm text-gray-600 space-y-1">

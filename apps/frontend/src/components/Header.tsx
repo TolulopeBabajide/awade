@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronDownIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -19,14 +19,14 @@ const Header: React.FC = () => {
   }
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50 border-b border-background-200">
+    <header className="bg-transparent absolute top-0 w-full z-50">
       <div className="container-custom">
         <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <h1 className="text-xl sm:text-2xl font-bold text-primary-800">
+            <h1 className="text-xl sm:text-2xl font-bold text-primary-900">
               <a href="#home" aria-label="Awade - Go to homepage">
-                Awade
+                AWADE
               </a>
             </h1>
           </div>
@@ -37,7 +37,10 @@ const Header: React.FC = () => {
               <a
                 key={item.name}
                 href={item.href}
-                className="text-background-700 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-md"
+                className={`${item.name === 'Home'
+                  ? 'text-white font-bold'
+                  : 'text-primary-900 hover:text-primary-700'
+                  } px-3 py-2 text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-md`}
               >
                 {item.name}
               </a>
@@ -46,7 +49,7 @@ const Header: React.FC = () => {
 
           {/* CTA Button */}
           <div className="hidden md:block ml-8 lg:ml-12">
-            <Link 
+            <Link
               to="/signup"
               className="btn-accent focus:outline-none focus:ring-2 focus:ring-accent-600 focus:ring-offset-2"
               aria-label="Get started with Awade"
@@ -87,7 +90,7 @@ const Header: React.FC = () => {
                 </a>
               ))}
               <div className="pt-4">
-                <Link 
+                <Link
                   to="/signup"
                   className="btn-accent w-full focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2"
                   onClick={closeMenu}

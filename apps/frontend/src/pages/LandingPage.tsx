@@ -7,10 +7,11 @@ import Footer from '../components/Footer'
 const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white">
-      <Header />
+      
       <main>
-        <HeroSection />
-        <FeaturesSection />
+          <Header />
+          <HeroSection />
+          <FeaturesSection />
       </main>
       <Footer />
     </div>

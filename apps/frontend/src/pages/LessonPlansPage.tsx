@@ -4,24 +4,12 @@ import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
 import Sidebar from '../components/Sidebar';
 import MobileNavigation from '../components/MobileNavigation';
-import { 
-  FaBookOpen, 
-  FaPlus, 
-  FaSearch, 
-  FaFilter, 
-  FaEye, 
-  FaEdit, 
-  FaTrash, 
-  FaDownload, 
-  FaShare, 
-  FaStar, 
-  FaClock, 
-  FaUser, 
-  FaCalendar, 
+import {
+  FaBookOpen,
+  FaPlus,
   FaHome,
   FaFolder,
   FaCog,
-  FaHeadset,
   FaSignOutAlt
 } from 'react-icons/fa';
 
@@ -42,7 +30,7 @@ interface LessonPlan {
 
 const LessonPlansPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [lessonPlans, setLessonPlans] = useState<LessonPlan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,9 +55,9 @@ const LessonPlansPage: React.FC = () => {
     try {
       setLoading(true);
       setError('');
-      
+
       const response = await apiService.getLessonPlans();
-      
+
       if (response.error) {
         throw new Error(response.error);
       }
@@ -88,8 +76,8 @@ const LessonPlansPage: React.FC = () => {
   };
 
   const handleLessonPlanClick = (lessonPlan: LessonPlan) => {
-    navigate(`/lesson-plans/${lessonPlan.lesson_id}`, { 
-      state: { lessonPlanData: lessonPlan } 
+    navigate(`/lesson-plans/${lessonPlan.lesson_id}`, {
+      state: { lessonPlanData: lessonPlan }
     });
   };
 
@@ -112,7 +100,7 @@ const LessonPlansPage: React.FC = () => {
       'Physical Education': '⚽',
       'Health': '🏥'
     };
-    
+
     return subjectIcons[subject] || '📚';
   };
 
@@ -144,7 +132,7 @@ const LessonPlansPage: React.FC = () => {
 
           {/* Navigation */}
           <nav className="flex-1 space-y-2 w-full hidden lg:block">
-            <button 
+            <button
               className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 font-medium flex items-center"
               onClick={() => navigate('/dashboard')}
             >
@@ -155,7 +143,7 @@ const LessonPlansPage: React.FC = () => {
               <FaBookOpen className="w-4 h-4 mr-3" />
               Lesson Plans
             </button>
-            <button 
+            <button
               className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 font-medium flex items-center"
               onClick={() => navigate('/lesson-resources')}
             >
@@ -169,8 +157,8 @@ const LessonPlansPage: React.FC = () => {
           </nav>
 
           {/* Logout */}
-          <button 
-            className="mt-8 text-left px-4 py-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg hidden lg:flex items-center" 
+          <button
+            className="mt-8 text-left px-4 py-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg hidden lg:flex items-center"
             onClick={logout}
           >
             <FaSignOutAlt className="w-4 h-4 mr-3" />
@@ -189,14 +177,16 @@ const LessonPlansPage: React.FC = () => {
                 <p className="text-sm md:text-base lg:text-lg text-gray-600">View and manage all your created lesson plans.</p>
               </div>
             </div>
-          
+
             {/* Right Side - User Profile and Create Button */}
-            <div className="lg:flex hidden items-center space-x-2 md:space-x-3 flex-shrink-0">
-              <button 
-                className="bg-accent-600 hover:bg-accent-700 text-white font-semibold px-4 md:px-6 py-2 md:py-3 rounded-lg flex items-center gap-2 transition-colors duration-200"
+            <div className="flex items-center space-x-2 md:space-x-3 flex-shrink-0">
+              <button
+                className="bg-accent-600 hover:bg-accent-700 text-white font-semibold px-3 md:px-6 py-2 md:py-3 rounded-lg flex items-center gap-2 transition-colors duration-200 text-sm md:text-base"
                 onClick={() => navigate('/dashboard')}
               >
-                <span className=" sm:inline">Create Lesson Plan</span>
+                <FaPlus className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="hidden sm:inline">Create Lesson Plan</span>
+                <span className="sm:hidden">Create</span>
               </button>
             </div>
           </div>
@@ -234,14 +224,16 @@ const LessonPlansPage: React.FC = () => {
               <p className="text-sm md:text-base lg:text-lg text-gray-600">View and manage all your created lesson plans.</p>
             </div>
           </div>
-        
+
           {/* Right Side - User Profile and Create Button */}
-          <div className="lg:flex hidden items-center space-x-2 md:space-x-3 flex-shrink-0">
-            <button 
-              className="bg-accent-600 hover:bg-accent-700 text-white font-semibold px-4 md:px-6 py-2 md:py-3 rounded-lg flex items-center gap-2 transition-colors duration-200"
+          <div className="flex items-center space-x-2 md:space-x-3 flex-shrink-0">
+            <button
+              className="bg-accent-600 hover:bg-accent-700 text-white font-semibold px-3 md:px-6 py-2 md:py-3 rounded-lg flex items-center gap-2 transition-colors duration-200 text-sm md:text-base"
               onClick={() => navigate('/dashboard')}
             >
-              <span className=" sm:inline">Create Lesson Plan</span>
+              <FaPlus className="w-3 h-3 md:w-4 md:h-4" />
+              <span className="hidden sm:inline">Create Lesson Plan</span>
+              <span className="sm:hidden">Create</span>
             </button>
           </div>
         </div>
@@ -253,7 +245,7 @@ const LessonPlansPage: React.FC = () => {
             <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
               <div className="flex items-center justify-between">
                 <p className="text-red-800 text-sm">{error}</p>
-                <button 
+                <button
                   onClick={fetchLessonPlans}
                   className="text-red-600 hover:text-red-800 text-sm font-medium"
                 >
@@ -282,10 +274,10 @@ const LessonPlansPage: React.FC = () => {
 
           {/* Lesson Plans Grid */}
           {lessonPlans.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mt-2 md:mt-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mt-4">
               {lessonPlans.map((plan) => (
-                <div 
-                  key={plan.lesson_id} 
+                <div
+                  key={plan.lesson_id}
                   className="bg-white rounded-xl shadow-md hover:shadow-lg p-3 md:p-4 flex flex-col cursor-pointer transition-all duration-300 border border-gray-100 hover:border-primary-200 group"
                   onClick={() => handleLessonPlanClick(plan)}
                 >
@@ -293,22 +285,22 @@ const LessonPlansPage: React.FC = () => {
                   <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-primary-100 to-primary-200 rounded-xl flex items-center justify-center mb-2 md:mb-3 text-lg md:text-xl group-hover:scale-110 transition-transform duration-300 mx-auto">
                     {getSubjectIcon(plan.subject)}
                   </div>
-                  
+
                   {/* Subject */}
                   <div className="text-xs md:text-sm font-semibold text-primary-600 mb-1 text-center">
                     {plan.subject}
                   </div>
-                  
+
                   {/* Topic */}
                   <div className="font-bold text-primary-900 mb-2 text-center line-clamp-2 text-xs md:text-sm leading-tight">
                     {plan.title || plan.topic}
                   </div>
-                  
+
                   {/* Grade Level */}
                   <div className="text-xs text-primary-700 mb-1 text-center">
                     {plan.grade_level}
                   </div>
-                  
+
                   {/* Duration */}
                   <div className="text-xs text-gray-500 mb-1 text-center">
                     {formatDuration(plan.duration_minutes)}
