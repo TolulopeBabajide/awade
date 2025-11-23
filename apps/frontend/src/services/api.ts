@@ -1,3 +1,5 @@
+import { sanitizeInput } from '../utils/sanitizer';
+
 const API_BASE_URL = '/api';
 
 interface ApiResponse<T> {
@@ -20,19 +22,19 @@ class ApiService {
       return { data };
     } else {
       const errorData = await response.json().catch(() => ({}));
-      
+
       // Handle 401 Unauthorized globally
       if (response.status === 401) {
         // Clear invalid tokens
         localStorage.removeItem('access_token');
         localStorage.removeItem('user_data');
-        
+
         // Redirect to login page
         window.location.href = '/login';
-        
+
         return { error: 'Session expired. Please login again.' };
       }
-      
+
       return { error: errorData.detail || `HTTP ${response.status}: ${response.statusText}` };
     }
   }
@@ -69,7 +71,7 @@ class ApiService {
     if (!userId) {
       return { error: 'User ID is required for profile updates.' };
     }
-    
+
     const response = await fetch(`${API_BASE_URL}/users/${userId}/profile`, {
       method: 'PUT',
       headers: this.getAuthHeaders(),
@@ -109,7 +111,7 @@ class ApiService {
       headers: this.getAuthHeaders(),
       body: JSON.stringify({
         lesson_plan_id: parseInt(lessonPlanId),
-        context_input: contextInput
+        context_input: sanitizeInput(contextInput)
       })
     });
     return this.handleResponse(response);
@@ -121,7 +123,7 @@ class ApiService {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify({
-        context_text: contextText,
+        context_text: sanitizeInput(contextText),
         context_type: contextType
       })
     });
@@ -140,7 +142,7 @@ class ApiService {
       method: 'PUT',
       headers: this.getAuthHeaders(),
       body: JSON.stringify({
-        context_text: contextText,
+        context_text: sanitizeInput(contextText),
         context_type: contextType
       })
     });
@@ -195,7 +197,7 @@ class ApiService {
         format: format
       })
     });
-    
+
     if (response.ok) {
       const blob = await response.blob();
       return { data: blob };
@@ -243,7 +245,7 @@ class ApiService {
 
   // Curriculum Data
   async getCurriculums(countryId?: number): Promise<ApiResponse<any[]>> {
-    const url = countryId 
+    const url = countryId
       ? `${API_BASE_URL}/curriculum/?country_id=${countryId}`
       : `${API_BASE_URL}/curriculum/`;
     const response = await fetch(url, {
@@ -253,7 +255,7 @@ class ApiService {
   }
 
   async getCurriculumStructures(curriculaId?: number): Promise<ApiResponse<any[]>> {
-    const url = curriculaId 
+    const url = curriculaId
       ? `${API_BASE_URL}/curriculum-structures/?curricula_id=${curriculaId}`
       : `${API_BASE_URL}/curriculum-structures/`;
     const response = await fetch(url, {
@@ -269,7 +271,7 @@ class ApiService {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ credential })
     });
-    
+
     return this.handleResponse(response);
   }
 

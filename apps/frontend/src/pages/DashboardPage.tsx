@@ -13,6 +13,7 @@ import {
 } from 'react-icons/fa';
 import Sidebar from '../components/Sidebar';
 import MobileNavigation from '../components/MobileNavigation';
+import { sanitizeInput } from '../utils/sanitizer';
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -347,9 +348,14 @@ const DashboardPage: React.FC = () => {
   };
 
   const handleGenerate = async () => {
-    // Validate required fields
-    if (!selectedSubject || !selectedGradeLevel || !form.topic.trim()) {
-      setError('Please select subject, grade level, and enter a topic.');
+    // Validate inputs
+    if (!selectedCountry || !selectedCurriculum || !selectedSubject || !selectedGradeLevel) {
+      setError('Please select all required fields');
+      return;
+    }
+
+    if (!form.topic.trim()) {
+      setError('Please enter or select a topic');
       return;
     }
 
@@ -366,10 +372,13 @@ const DashboardPage: React.FC = () => {
         throw new Error('Invalid subject or grade level selection. Please try again.');
       }
 
+      // Sanitize the topic input
+      const sanitizedTopic = sanitizeInput(form.topic);
+
       const requestBody = {
         subject: subjectName,
         grade_level: gradeLevelName,
-        topic: form.topic.trim(),
+        topic: sanitizedTopic,
         user_id: user?.user_id,
       };
 

@@ -6,6 +6,7 @@ import MobileNavigation from '../components/MobileNavigation';
 import AIGenerationLoadingActual from '../components/AIGenerationLoadingActual';
 
 import apiService from '../services/api';
+import { sanitizeInput } from '../utils/sanitizer';
 
 interface LessonPlanData {
   lesson_id: number;
@@ -71,6 +72,8 @@ const LessonPlanDetailPage: React.FC = () => {
     fetchLessonPlan();
   }, [id, location.state]);
 
+  // ... existing code ...
+
   const handleGenerateLessonResource = async () => {
     if (!lessonPlan) return;
 
@@ -79,12 +82,15 @@ const LessonPlanDetailPage: React.FC = () => {
     setCurrentGenerationStep('validate-lesson-plan');
 
     try {
+      // Sanitize context input
+      const sanitizedContext = sanitizeInput(context);
+
       // Step 1: Submit context if provided
-      if (context.trim()) {
+      if (sanitizedContext) {
         setCurrentGenerationStep('submit-context');
         const contextResponse = await apiService.submitContext(
           lessonPlan.lesson_id.toString(),
-          context
+          sanitizedContext
         );
 
         if (contextResponse.error) {
@@ -100,7 +106,7 @@ const LessonPlanDetailPage: React.FC = () => {
       setCurrentGenerationStep('ai-generation');
       const response = await apiService.generateLessonResource(
         lessonPlan.lesson_id.toString(),
-        context || 'Generate a comprehensive lesson resource for this lesson plan'
+        sanitizedContext || 'Generate a comprehensive lesson resource for this lesson plan'
       );
 
       if (response.error) {
