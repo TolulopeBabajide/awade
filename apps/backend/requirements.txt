@@ -27,4 +27,5 @@ setuptools>=78.1.1  # Fix CVE-2025-47273, CVE-2024-6345
 pytest>=7.4.0
 pytest-asyncio>=0.21.0
 pytest-cov>=4.1.0
-httpx>=0.24.0 
+httpx>=0.24.0
+slowapi>=0.1.9 

@@ -9,8 +9,7 @@ Author: Tolulope Babajide
 """
 
 from sqlalchemy.orm import Session
-from typing import Optional, Dict, Any
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta, timezone
 import jwt
 import bcrypt
 import secrets
@@ -19,6 +18,7 @@ import requests
 import sys
 import os
 from fastapi import HTTPException, status
+from typing import Tuple, Dict, Any, Optional
 
 # Add parent directories to Python path for imports
 current_dir = os.path.dirname(__file__)
@@ -70,6 +70,26 @@ class AuthService:
         salt = bcrypt.gensalt()
         return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
     
+    def create_access_token(self, data: dict) -> str:
+        """
+        Create a new access token (JWT).
+        """
+        to_encode = data.copy()
+        expire = datetime.now(timezone.utc) + timedelta(minutes=self.get_jwt_expires_minutes())
+        to_encode.update({"exp": expire, "type": "access"})
+        return jwt.encode(to_encode, get_jwt_secret_key(), algorithm=get_jwt_algorithm())
+
+    def create_refresh_token(self, data: dict) -> str:
+        """
+        Create a new refresh token (JWT).
+        Longer expiration (e.g. 7 days).
+        """
+        to_encode = data.copy()
+        # Refresh token valid for 7 days
+        expire = datetime.now(timezone.utc) + timedelta(days=7)
+        to_encode.update({"exp": expire, "type": "refresh"})
+        return jwt.encode(to_encode, get_jwt_secret_key(), algorithm=get_jwt_algorithm())
+    
     def _verify_password(self, password: str, hashed_password: str) -> bool:
         """
         Verify a password against its hash.
@@ -116,7 +136,7 @@ class AuthService:
         
         return google_data
     
-    def authenticate_google_user(self, id_token: str) -> AuthResponse:
+    def authenticate_google_user(self, id_token: str) -> Tuple[AuthResponse, str]:
         """
         Authenticate user with Google OAuth.
         
@@ -124,7 +144,7 @@ class AuthService:
             id_token (str): Google ID token
             
         Returns:
-            AuthResponse: Authentication response with JWT token and user data
+            Tuple[AuthResponse, str]: Authentication response and refresh token
             
         Raises:
             HTTPException: If authentication fails
@@ -148,26 +168,23 @@ class AuthService:
                     full_name=full_name or email,
                     role=UserRole.EDUCATOR,
                     country="",
-                    created_at=datetime.now(UTC)
+                    created_at=datetime.now(timezone.utc)
                 )
                 self.db.add(user)
                 self.db.commit()
                 self.db.refresh(user)
             else:
-                user.last_login = datetime.now(UTC)
+                user.last_login = datetime.now(timezone.utc)
                 self.db.commit()
                 self.db.refresh(user)
             
-            # Generate JWT token
-            JWT_SECRET_KEY = get_jwt_secret_key()
-            JWT_EXPIRES_MINUTES = self.get_jwt_expires_minutes()
-            
-            payload = {
+            # Generate JWT tokens
+            token_payload = {
                 "sub": str(user.user_id),
-                "email": user.email,
-                "exp": datetime.now(UTC) + timedelta(minutes=JWT_EXPIRES_MINUTES)
+                "email": user.email
             }
-            token = jwt.encode(payload, JWT_SECRET_KEY, algorithm=get_jwt_algorithm())
+            token = self.create_access_token(token_payload)
+            refresh_token = self.create_refresh_token(token_payload)
             
             # Parse JSON strings back to lists for response
             subjects_list = json.loads(user.subjects) if user.subjects else None
@@ -192,7 +209,7 @@ class AuthService:
                 access_token=token,
                 token_type="bearer",
                 user=user_response
-            )
+            ), refresh_token
             
         except HTTPException:
             raise
@@ -202,7 +219,7 @@ class AuthService:
                 detail=f"An error occurred during Google authentication: {str(e)}"
             )
     
-    def register_user(self, user_data: UserCreate) -> AuthResponse:
+    def register_user(self, user_data: UserCreate) -> Tuple[AuthResponse, str]:
         """
         Register a new user with email and password.
         
@@ -210,7 +227,7 @@ class AuthService:
             user_data (UserCreate): User registration data
             
         Returns:
-            AuthResponse: Authentication response with JWT token and user data
+            Tuple[AuthResponse, str]: Authentication response and refresh token
             
         Raises:
             HTTPException: If registration fails
@@ -247,19 +264,19 @@ class AuthService:
                 subjects=json.dumps(user_data.subjects) if user_data.subjects else None,
                 grade_levels=json.dumps(user_data.grade_levels) if user_data.grade_levels else None,
                 languages_spoken=user_data.languages_spoken,
-                created_at=datetime.now(UTC)
+                created_at=datetime.now(timezone.utc)
             )
             self.db.add(user)
             self.db.commit()
             self.db.refresh(user)
             
-            # Generate JWT token
-            payload = {
+            # Generate JWT tokens
+            token_payload = {
                 "sub": str(user.user_id),
-                "email": user.email,
-                "exp": datetime.now(UTC) + timedelta(minutes=JWT_EXPIRES_MINUTES)
+                "email": user.email
             }
-            token = jwt.encode(payload, JWT_SECRET_KEY, algorithm=get_jwt_algorithm())
+            token = self.create_access_token(token_payload)
+            refresh_token = self.create_refresh_token(token_payload)
             
             # Parse JSON strings back to lists for response
             subjects_list = json.loads(user.subjects) if user.subjects else None
@@ -284,7 +301,7 @@ class AuthService:
                 access_token=token,
                 token_type="bearer",
                 user=user_response
-            )
+            ), refresh_token
             
         except HTTPException:
             raise
@@ -294,7 +311,62 @@ class AuthService:
                 detail=f"An error occurred during user registration: {str(e)}"
             )
     
-    def authenticate_user(self, user_data: UserLogin) -> AuthResponse:
+    
+    def refresh_access_token(self, refresh_token: str) -> AuthResponse:
+        """
+        Refresh access token using a valid refresh token.
+        
+        Args:
+            refresh_token (str): The refresh token
+            
+        Returns:
+            AuthResponse: New access token and user data
+        """
+        try:
+            # Verify token
+            payload = jwt.decode(refresh_token, get_jwt_secret_key(), algorithms=[get_jwt_algorithm()])
+            
+            if payload.get("type") != "refresh":
+                raise HTTPException(status_code=401, detail="Invalid token type")
+                
+            user_id = payload.get("sub")
+            if not user_id:
+                raise HTTPException(status_code=401, detail="Invalid token payload")
+                
+            # Get user
+            user = self.db.query(User).filter(User.user_id == int(user_id)).first()
+            if not user:
+                raise HTTPException(status_code=401, detail="User not found")
+                
+            # Generate new access token
+            token_payload = {
+                "sub": str(user.user_id),
+                "email": user.email
+            }
+            new_access_token = self.create_access_token(token_payload)
+            
+            # Retrieve user profile for response
+            user_response = self.get_current_user_profile(user)
+            
+            return AuthResponse(
+                access_token=new_access_token,
+                token_type="bearer",
+                user=user_response
+            )
+            
+        except jwt.ExpiredSignatureError:
+            raise HTTPException(status_code=401, detail="Refresh token expired")
+        except jwt.InvalidTokenError:
+            raise HTTPException(status_code=401, detail="Invalid refresh token")
+        except Exception as e:
+            if isinstance(e, HTTPException):
+                raise e
+            raise HTTPException(
+                status_code=500,
+                detail=f"An error occurred during token refresh: {str(e)}"
+            )
+
+    def authenticate_user(self, user_data: UserLogin) -> Tuple[AuthResponse, str]:
         """
         Authenticate user with email and password.
         
@@ -302,7 +374,7 @@ class AuthService:
             user_data (UserLogin): User login credentials
             
         Returns:
-            AuthResponse: Authentication response with JWT token and user data
+            Tuple[AuthResponse, str]: Authentication response and refresh token
             
         Raises:
             HTTPException: If authentication fails
@@ -337,17 +409,17 @@ class AuthService:
                 )
             
             # Update last login
-            user.last_login = datetime.now(UTC)
+            user.last_login = datetime.now(timezone.utc)
             self.db.commit()
             self.db.refresh(user)
             
-            # Generate JWT token
-            payload = {
+            # Generate JWT tokens
+            token_payload = {
                 "sub": str(user.user_id),
-                "email": user.email,
-                "exp": datetime.now(UTC) + timedelta(minutes=JWT_EXPIRES_MINUTES)
+                "email": user.email
             }
-            token = jwt.encode(payload, JWT_SECRET_KEY, algorithm=get_jwt_algorithm())
+            token = self.create_access_token(token_payload)
+            refresh_token = self.create_refresh_token(token_payload)
             
             # Parse JSON strings back to lists for response
             try:
@@ -379,7 +451,7 @@ class AuthService:
                 access_token=token,
                 token_type="bearer",
                 user=user_response
-            )
+            ), refresh_token
             
         except HTTPException:
             raise

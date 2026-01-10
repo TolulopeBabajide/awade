@@ -14,14 +14,21 @@ from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
 from unittest.mock import Mock, patch
 
-# Add the parent directory to the path
+# Add the parent directory and project root to the path
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+backend_dir = os.path.dirname(current_dir)
+apps_dir = os.path.dirname(backend_dir)
+root_dir = os.path.dirname(apps_dir)
 
-from main import app
-from database import get_db
-from models import Base, User, Country, Curriculum, Subject, GradeLevel, CurriculumStructure, Topic, LessonPlan
-from services.data_structures import DataStructureManager, CacheStrategy
+sys.path.insert(0, backend_dir)
+sys.path.insert(0, root_dir)
+
+from apps.backend.main import app
+from apps.backend.database import get_db
+from apps.backend.models import Base, User, Country, Curriculum, Subject, GradeLevel, CurriculumStructure, Topic, LessonPlan
+from apps.backend.services.data_structures import DataStructureManager, CacheStrategy
 
 
 @pytest.fixture(scope="session")

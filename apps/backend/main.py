@@ -73,6 +73,14 @@ def run_database_fix():
         # Don't fail startup, just log the error
         pass
 
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from apps.backend.middleware import SecurityHeadersMiddleware
+from apps.backend.limiter import limiter
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+
+# ... existing code ...
+
 # Run database fix before creating the app
 run_database_fix()
 
@@ -84,10 +92,36 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
+# Register Rate Limiter
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Security Headers Middleware
+app.add_middleware(SecurityHeadersMiddleware)
+
+# Trusted Host Middleware
+# In production, set ALLOWED_HOSTS to your domain(s)
+# allowed_hosts = os.getenv("ALLOWED_HOSTS", "*").split(",")
+# app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
+
 # CORS middleware
+# In production, set ALLOWED_ORIGINS to your frontend domain(s)
+# For development, we default to common local ports if env var is generic
+env_allowed_origins = os.getenv("ALLOWED_ORIGINS", "*")
+if env_allowed_origins == "*":
+    # If wildcard is set, we must specify origins to allow credentials
+    allowed_origins = [
+        "http://localhost:5173", # Vite default
+        "http://localhost:3001", # React default
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:3001"
+    ]
+else:
+    allowed_origins = env_allowed_origins.split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

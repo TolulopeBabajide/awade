@@ -17,7 +17,7 @@ Endpoints:
 
 Author: Tolulope Babajide
 """
-from fastapi import APIRouter, HTTPException, Depends, Request, status
+from fastapi import APIRouter, HTTPException, Depends, Request, Response, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from apps.backend.database import get_db
@@ -25,6 +25,14 @@ from apps.backend.schemas.users import AuthResponse, UserResponse, UserCreate, U
 from apps.backend.models import User
 from apps.backend.dependencies import get_current_user
 from apps.backend.services.auth_service import AuthService
+from apps.backend.limiter import limiter
+
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+import os
+
+# Determine if running in production
+IS_PRODUCTION = os.getenv("ENVIRONMENT") == "production"
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -42,6 +50,7 @@ class TokenRefreshRequest(BaseModel):
 
 @router.post("/google", response_model=AuthResponse)
 def google_auth(
+    response: Response,
     payload: GoogleAuthRequest,
     db: Session = Depends(get_db)
 ):
@@ -49,24 +58,75 @@ def google_auth(
     Authenticate user with Google OAuth credential (ID token).
     """
     service = AuthService(db)
-    return service.authenticate_google_user(payload.credential)
+    auth_response, refresh_token = service.authenticate_google_user(payload.credential)
+    
+    # Set refresh token as HttpOnly cookie
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=IS_PRODUCTION,
+        samesite="lax",
+        max_age=7 * 24 * 60 * 60 # 7 days
+    )
+    
+    return auth_response
+
+# ... existing code ...
 
 @router.post("/signup", response_model=AuthResponse)
+# @limiter.limit("5/minute")
 def signup(
+    request: Request,
+    response: Response,
     user_data: UserCreate,
     db: Session = Depends(get_db)
 ):
     """
     Register a new user with email and password.
+    Rate limit: 5 requests per minute.
     """
     service = AuthService(db)
-    return service.register_user(user_data)
+    auth_response, refresh_token = service.register_user(user_data)
+    
+    # Set refresh token as HttpOnly cookie
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=IS_PRODUCTION,
+        samesite="lax",
+        max_age=7 * 24 * 60 * 60 # 7 days
+    )
+    
+    return auth_response
 
 @router.post("/login", response_model=AuthResponse)
-def login(user_data: UserLogin, db: Session = Depends(get_db)):
-    """Authenticate user with email and password."""
+# @limiter.limit("10/minute")
+def login(
+    request: Request,
+    response: Response,
+    user_data: UserLogin, 
+    db: Session = Depends(get_db)
+):
+    """
+    Authenticate user with email and password.
+    Rate limit: 10 requests per minute.
+    """
     service = AuthService(db)
-    return service.authenticate_user(user_data)
+    auth_response, refresh_token = service.authenticate_user(user_data)
+    
+    # Set refresh token as HttpOnly cookie
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=IS_PRODUCTION,
+        samesite="lax",
+        max_age=7 * 24 * 60 * 60 # 7 days
+    )
+    
+    return auth_response
 
 @router.get("/me", response_model=UserResponse)
 def get_current_user_profile(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -75,20 +135,26 @@ def get_current_user_profile(current_user: User = Depends(get_current_user), db:
     return service.get_current_user_profile(current_user)
 
 @router.post("/refresh", response_model=AuthResponse)
-def refresh_token(request: TokenRefreshRequest, db: Session = Depends(get_db)):
+def refresh_token(request: Request, db: Session = Depends(get_db)):
     """
-    Refresh JWT token using refresh token.
-    Note: This is a placeholder implementation.
+    Refresh JWT token using refresh token from HttpOnly cookie.
     """
-    # TODO: Implement refresh token logic
-    raise HTTPException(status_code=501, detail="Token refresh not yet implemented")
+    refresh_token = request.cookies.get("refresh_token")
+    if not refresh_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="Refresh token missing"
+        )
+        
+    service = AuthService(db)
+    return service.refresh_access_token(refresh_token)
 
 @router.post("/logout")
-def logout():
+def logout(response: Response):
     """
-    Logout endpoint (client-side token removal).
-    Note: JWT tokens are stateless, so this is mainly for client-side cleanup.
+    Logout endpoint (client-side token removal and cookie clearing).
     """
+    response.delete_cookie("refresh_token")
     return {"message": "Logged out successfully"}
 
 @router.post("/forgot-password")
