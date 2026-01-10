@@ -2,215 +2,215 @@ name: Awade CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 permissions:
-  contents: read          # Read repository contents
-  pull-requests: write    # Comment on PRs (for summary job)
-  issues: write          # Create/update issues
-  actions: read          # Read workflow runs
+  contents: read # Read repository contents
+  pull-requests: write # Comment on PRs (for summary job)
+  issues: write # Create/update issues
+  actions: read # Read workflow runs
   security-events: write # Security scanning
-  deployments: write     # Deploy to environments
+  deployments: write # Deploy to environments
 
 jobs:
   # Documentation and Validation
   validate:
     name: 📚 Validate Documentation
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-        
-    - name: Install dependencies
-      run: |
-        pip install fastapi uvicorn pydantic pydantic-settings
-        
-    - name: Check for required files
-      run: |
-        test -f README.md
-        test -f docs/public/api/README.md
-        test -f AI_USE_POLICY.md
-        echo "✅ All required documentation files present"
-        
-    - name: Check for required files
-      run: |
-        test -f README.md
-        test -f docs/public/api/README.md
-        test -f AI_USE_POLICY.md
-        echo "✅ All required documentation files present"
-        
-    - name: Validate MCP configuration
-      run: |
-        test -f .cursor/mcp.json
-        python -m json.tool .cursor/mcp.json
-        echo "✅ MCP configuration is valid"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install fastapi uvicorn pydantic pydantic-settings
+
+      - name: Check for required files
+        run: |
+          test -f README.md
+          test -f docs/public/api/README.md
+          test -f AI_USE_POLICY.md
+          echo "✅ All required documentation files present"
+
+      - name: Check for required files
+        run: |
+          test -f README.md
+          test -f docs/public/api/README.md
+          test -f AI_USE_POLICY.md
+          echo "✅ All required documentation files present"
+
+      - name: Validate MCP configuration
+        run: |
+          test -f .cursor/mcp.json
+          python -m json.tool .cursor/mcp.json
+          echo "✅ MCP configuration is valid"
 
   # Backend Testing
   backend-test:
     name: 🔧 Backend Tests
     runs-on: ubuntu-latest
     needs: validate
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-        
-    - name: Install backend dependencies
-      run: |
-        cd apps/backend
-        pip install -r requirements.txt
-        
-    - name: Run backend tests
-      run: |
-        cd apps/backend
-        python -m pytest tests/ -v || echo "⚠️  No tests found yet"
-        
-    - name: Check API documentation
-      run: |
-        test -f apps/backend/app/openapi.json || echo "⚠️  No API spec generated yet"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install backend dependencies
+        run: |
+          cd apps/backend
+          pip install -r requirements.txt
+
+      - name: Run backend tests
+        run: |
+          cd apps/backend
+          python -m pytest tests/ -v || echo "⚠️  No tests found yet"
+
+      - name: Check API documentation
+        run: |
+          test -f apps/backend/app/openapi.json || echo "⚠️  No API spec generated yet"
 
   # Frontend Testing (if exists)
   frontend-test:
     name: 🎨 Frontend Tests
     runs-on: ubuntu-latest
     needs: validate
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Ensure package-lock.json exists
-      run: |
-        if [ ! -f apps/frontend/package-lock.json ]; then
-          echo "❌ apps/frontend/package-lock.json is missing. Please run 'npm install' in apps/frontend and commit the lockfile." && exit 1
-        fi
-      
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: apps/frontend/package-lock.json
-        
-    - name: Install frontend dependencies
-      run: |
-        cd apps/frontend
-        npm ci || echo "⚠️  No package.json found"
-        
-    - name: Run frontend tests
-      run: |
-        cd apps/frontend
-        npm test || echo "⚠️  No tests configured yet"
-        
-    - name: Build frontend
-      run: |
-        cd apps/frontend
-        npm run build || echo "⚠️  No build script found"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Ensure package-lock.json exists
+        run: |
+          if [ ! -f apps/frontend/package-lock.json ]; then
+            echo "❌ apps/frontend/package-lock.json is missing. Please run 'npm install' in apps/frontend and commit the lockfile." && exit 1
+          fi
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: apps/frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: |
+          cd apps/frontend
+          npm ci
+
+      - name: Run frontend tests
+        run: |
+          cd apps/frontend
+          npm test
+
+      - name: Build frontend
+        run: |
+          cd apps/frontend
+          npm run build
 
   # Frontend Performance Testing
   lighthouse-test:
     name: 🚀 Lighthouse Performance Test
     runs-on: ubuntu-latest
     needs: frontend-test
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: apps/frontend/package-lock.json
-        
-    - name: Install dependencies
-      run: |
-        cd apps/frontend
-        npm ci
-        
-    - name: Build frontend
-      run: |
-        cd apps/frontend
-        npm run build
-        
-    - name: Install Lighthouse CI
-      run: |
-        cd apps/frontend
-        npm install -g @lhci/cli
-        
-    - name: Create Lighthouse config
-      run: |
-        cd apps/frontend
-        cat > .lighthouserc.js << 'EOF'
-        module.exports = {
-          ci: {
-            collect: {
-              url: ['http://localhost:4173'],
-              startServerCommand: 'npm run preview',
-              startServerReadyPattern: 'Local:',
-              startServerReadyTimeout: 30000,
-              numberOfRuns: 1,
-            },
-            assert: {
-              assertions: {
-                'categories:performance': ['warn', {minScore: 0.5}],
-                'categories:accessibility': ['warn', {minScore: 0.7}],
-                'categories:best-practices': ['warn', {minScore: 0.7}],
-                'categories:seo': ['warn', {minScore: 0.7}],
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: apps/frontend/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd apps/frontend
+          npm ci
+
+      - name: Build frontend
+        run: |
+          cd apps/frontend
+          npm run build
+
+      - name: Install Lighthouse CI
+        run: |
+          cd apps/frontend
+          npm install -g @lhci/cli
+
+      - name: Create Lighthouse config
+        run: |
+          cd apps/frontend
+          cat > .lighthouserc.js << 'EOF'
+          module.exports = {
+            ci: {
+              collect: {
+                url: ['http://localhost:4173'],
+                startServerCommand: 'npm run preview',
+                startServerReadyPattern: 'Local:',
+                startServerReadyTimeout: 30000,
+                numberOfRuns: 1,
+              },
+              assert: {
+                assertions: {
+                  'categories:performance': ['warn', {minScore: 0.5}],
+                  'categories:accessibility': ['warn', {minScore: 0.7}],
+                  'categories:best-practices': ['warn', {minScore: 0.7}],
+                  'categories:seo': ['warn', {minScore: 0.7}],
+                },
+              },
+              upload: {
+                target: 'temporary-public-storage',
               },
             },
-            upload: {
-              target: 'temporary-public-storage',
-            },
-          },
-        };
-        EOF
-        
-    - name: Run Lighthouse tests
-      run: |
-        cd apps/frontend
-        lhci autorun --upload.target=temporary-public-storage
-      env:
-        LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          };
+          EOF
+
+      - name: Run Lighthouse tests
+        run: |
+          cd apps/frontend
+          lhci autorun --upload.target=temporary-public-storage
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
 
   # Documentation Coverage
   doc-coverage:
     name: 📚 Documentation Coverage
     runs-on: ubuntu-latest
     needs: validate
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-        
-    - name: Check documentation files
-      run: |
-        echo "✅ Documentation validation completed"
-        echo "📚 Required files present and valid"
-        
-    - name: Documentation validation complete
-      run: |
-        echo "✅ Documentation validation completed successfully"
-        echo "📚 All required files are present and valid"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Check documentation files
+        run: |
+          echo "✅ Documentation validation completed"
+          echo "📚 Required files present and valid"
+
+      - name: Documentation validation complete
+        run: |
+          echo "✅ Documentation validation completed successfully"
+          echo "📚 All required files are present and valid"
 
   # Contract Testing
   contract-test:
@@ -232,187 +232,204 @@ jobs:
           --health-timeout=5s
           --health-retries=5
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-    - name: Install backend dependencies
-      run: |
-        cd apps/backend
-        pip install -r requirements.txt
-        
-    - name: Check OpenAPI spec
-      run: |
-        test -s apps/backend/app/openapi.json
-        python -m json.tool apps/backend/app/openapi.json
-        
-    - name: Run basic API validation
-      env:
-        DATABASE_URL: postgresql://awade_user:awade_password@localhost:5432/awade
-        SECRET_KEY: ${{ secrets.SECRET_KEY }}
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        DEBUG: "True"
-        ENVIRONMENT: "testing"
-      run: |
-        echo "✅ API validation completed"
-        echo "📡 OpenAPI spec is valid"
-    - name: API validation complete
-      run: |
-        echo "✅ API validation completed successfully"
-        echo "📡 OpenAPI specification is valid"
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install backend dependencies
+        run: |
+          cd apps/backend
+          pip install -r requirements.txt
+
+      - name: Check OpenAPI spec
+        run: |
+          test -s apps/backend/app/openapi.json
+          python -m json.tool apps/backend/app/openapi.json
+
+      - name: Run basic API validation
+        env:
+          DATABASE_URL: postgresql://awade_user:awade_password@localhost:5432/awade
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DEBUG: "True"
+          ENVIRONMENT: "testing"
+        run: |
+          echo "✅ API validation completed"
+          echo "📡 OpenAPI spec is valid"
+      - name: API validation complete
+        run: |
+          echo "✅ API validation completed successfully"
+          echo "📡 OpenAPI specification is valid"
 
   # Security and Quality Checks
   security:
     name: 🔒 Security & Quality
     runs-on: ubuntu-latest
     needs: validate
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Check for sensitive files
-      run: |
-        if git ls-files | grep -E '\.(env|key|pem|p12)$'; then
-          echo "❌ Sensitive files detected in repository"
-          exit 1
-        else
-          echo "✅ No sensitive files found"
-        fi
-        
-    - name: Verify private docs are excluded
-      run: |
-        if git ls-files | grep -q "docs/private/"; then
-          echo "❌ Private documentation detected in repository"
-          exit 1
-        else
-          echo "✅ Private documentation properly excluded"
-        fi
-        
-    - name: Check for hardcoded secrets
-      run: |
-        if grep -r "password\|secret\|key\|token" --include="*.py" --include="*.js" --include="*.md" . | grep -v "example\|test\|TODO"; then
-          echo "⚠️  Potential hardcoded secrets found - review manually"
-        else
-          echo "✅ No obvious hardcoded secrets found"
-        fi
-        
-    - name: Validate environment template
-      run: |
-        test -f .env.example
-        echo "✅ Environment template present"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for sensitive files
+        run: |
+          if git ls-files | grep -E '\.(env|key|pem|p12)$'; then
+            echo "❌ Sensitive files detected in repository"
+            exit 1
+          else
+            echo "✅ No sensitive files found"
+          fi
+
+      - name: Verify private docs are excluded
+        run: |
+          if git ls-files | grep -q "docs/private/"; then
+            echo "❌ Private documentation detected in repository"
+            exit 1
+          else
+            echo "✅ Private documentation properly excluded"
+          fi
+
+      - name: Check for hardcoded secrets
+        run: |
+          if grep -r "password\|secret\|key\|token" --include="*.py" --include="*.js" --include="*.md" . | grep -v "example\|test\|TODO"; then
+            echo "⚠️  Potential hardcoded secrets found - review manually"
+          else
+            echo "✅ No obvious hardcoded secrets found"
+          fi
+
+      - name: Validate environment template
+        run: |
+          test -f .env.example
+          echo "✅ Environment template present"
 
   # Deployment (on main branch only)
   deploy:
     name: 🚀 Deploy
     runs-on: ubuntu-latest
-    needs: [validate, backend-test, frontend-test, lighthouse-test, contract-test, security]
+    needs:
+      [
+        validate,
+        backend-test,
+        frontend-test,
+        lighthouse-test,
+        contract-test,
+        security,
+      ]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-        
-    - name: Generate deployment artifacts
-      run: |
-        # Create deployment package
-        mkdir -p dist
-        cp -r apps/backend dist/
-        cp -r packages dist/
-        
-        # Copy only public documentation (exclude private docs)
-        mkdir -p dist/docs
-        cp -r docs/public dist/docs/
-        cp docs/README.md dist/docs/
-        
-        cp README.md dist/
-        cp AI_USE_POLICY.md dist/
-        cp LICENSE.md dist/
-        cp .env.example dist/
-        
-        echo "✅ Deployment artifacts created"
-        
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: awade-deployment
-        path: dist/
-        retention-days: 30
-        
-    - name: Notify deployment
-      run: |
-        echo "🚀 Awade deployment ready!"
-        echo "📦 Artifacts uploaded to GitHub Actions"
-        echo "📊 Health report: logs/mcp_health.json"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Generate deployment artifacts
+        run: |
+          # Create deployment package
+          mkdir -p dist
+          cp -r apps/backend dist/
+          cp -r packages dist/
+
+          # Copy only public documentation (exclude private docs)
+          mkdir -p dist/docs
+          cp -r docs/public dist/docs/
+          cp docs/README.md dist/docs/
+
+          cp README.md dist/
+          cp AI_USE_POLICY.md dist/
+          cp LICENSE.md dist/
+          cp .env.example dist/
+
+          echo "✅ Deployment artifacts created"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: awade-deployment
+          path: dist/
+          retention-days: 30
+
+      - name: Notify deployment
+        run: |
+          echo "🚀 Awade deployment ready!"
+          echo "📦 Artifacts uploaded to GitHub Actions"
+          echo "📊 Health report: logs/mcp_health.json"
 
   # Summary and Notifications
   summary:
     name: 📊 Summary
     runs-on: ubuntu-latest
-    needs: [validate, backend-test, frontend-test, lighthouse-test, contract-test, security, deploy]
+    needs:
+      [
+        validate,
+        backend-test,
+        frontend-test,
+        lighthouse-test,
+        contract-test,
+        security,
+        deploy,
+      ]
     if: always()
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Generate summary
-      run: |
-        echo "## 🎉 Awade CI/CD Pipeline Summary" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### ✅ Completed Jobs:" >> $GITHUB_STEP_SUMMARY
-        
-        if [ "${{ needs.validate.result }}" == "success" ]; then
-          echo "- ✅ Documentation validation" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "- ❌ Documentation validation" >> $GITHUB_STEP_SUMMARY
-        fi
-        
-        if [ "${{ needs.backend-test.result }}" == "success" ]; then
-          echo "- ✅ Backend tests" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "- ❌ Backend tests" >> $GITHUB_STEP_SUMMARY
-        fi
-        
-        if [ "${{ needs.frontend-test.result }}" == "success" ]; then
-          echo "- ✅ Frontend tests" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "- ❌ Frontend tests" >> $GITHUB_STEP_SUMMARY
-        fi
-        
-        if [ "${{ needs.lighthouse-test.result }}" == "success" ]; then
-          echo "- ✅ Frontend performance tests" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "- ❌ Frontend performance tests" >> $GITHUB_STEP_SUMMARY
-        fi
-        
-        if [ "${{ needs.contract-test.result }}" == "success" ]; then
-          echo "- ✅ Contract tests" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "- ❌ Contract tests" >> $GITHUB_STEP_SUMMARY
-        fi
-        
-        if [ "${{ needs.security.result }}" == "success" ]; then
-          echo "- ✅ Security checks" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "- ❌ Security checks" >> $GITHUB_STEP_SUMMARY
-        fi
-        
-        if [ "${{ needs.deploy.result }}" == "success" ]; then
-          echo "- ✅ Deployment ready" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "- ❌ Deployment failed" >> $GITHUB_STEP_SUMMARY
-        fi
-        
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### 📋 Next Steps:" >> $GITHUB_STEP_SUMMARY
-        echo "1. Review any warnings or failures" >> $GITHUB_STEP_SUMMARY
-        echo "2. Check deployment artifacts if available" >> $GITHUB_STEP_SUMMARY
-        echo "3. Update documentation if needed" >> $GITHUB_STEP_SUMMARY 
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate summary
+        run: |
+          echo "## 🎉 Awade CI/CD Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Completed Jobs:" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.validate.result }}" == "success" ]; then
+            echo "- ✅ Documentation validation" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ Documentation validation" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.backend-test.result }}" == "success" ]; then
+            echo "- ✅ Backend tests" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ Backend tests" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.frontend-test.result }}" == "success" ]; then
+            echo "- ✅ Frontend tests" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ Frontend tests" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.lighthouse-test.result }}" == "success" ]; then
+            echo "- ✅ Frontend performance tests" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ Frontend performance tests" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.contract-test.result }}" == "success" ]; then
+            echo "- ✅ Contract tests" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ Contract tests" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.security.result }}" == "success" ]; then
+            echo "- ✅ Security checks" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ Security checks" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.deploy.result }}" == "success" ]; then
+            echo "- ✅ Deployment ready" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ Deployment failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Next Steps:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Review any warnings or failures" >> $GITHUB_STEP_SUMMARY
+          echo "2. Check deployment artifacts if available" >> $GITHUB_STEP_SUMMARY
+          echo "3. Update documentation if needed" >> $GITHUB_STEP_SUMMARY
