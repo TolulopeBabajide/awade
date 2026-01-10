@@ -10,6 +10,7 @@ Author: Tolulope Babajide
 import os
 import json
 import logging
+import re
 from typing import List, Dict, Any, Optional
 
 # Import OpenAI if available, otherwise use mock
@@ -137,6 +138,51 @@ class AwadeGPTService:
         except Exception as e:
             logger.error(f"Unexpected error in OpenAI API call: {e}")
             return self._generate_mock_lesson_resource(topic, subject, grade)
+            
+    def _sanitize_input(self, text: str) -> str:
+        """
+        Sanitize input to remove potentially sensitive information.
+        """
+        if not text:
+            return text
+            
+        # Remove potential API keys (simple heuristic)
+        text = re.sub(r'(sk-[a-zA-Z0-9]{32,})', '[REDACTED_KEY]', text)
+        
+        # Remove potential email addresses
+        text = re.sub(r'[\w\.-]+@[\w\.-]+\.\w+', '[REDACTED_EMAIL]', text)
+        
+        # Remove potential phone numbers (simple international format)
+        text = re.sub(r'\+?\d{10,15}', '[REDACTED_PHONE]', text)
+        
+        return text
+
+    def _validate_output(self, content: str) -> bool:
+        """
+        Validate the AI output for safety and structure.
+        """
+        try:
+            data = json.loads(content)
+            
+            # Check for minimum required fields
+            required_fields = ["title_header", "learning_objectives", "lesson_content"]
+            for field in required_fields:
+                if field not in data:
+                    logger.warning(f"AI output missing required field: {field}")
+                    return False
+            
+            # Simple check for harmful patterns in text (placeholder)
+            # In production, use a dedicated safety API or model
+            harmful_patterns = [r"badword1", r"badword2"] # Example
+            str_content = str(data).lower()
+            for pattern in harmful_patterns:
+                if re.search(pattern, str_content):
+                    logger.warning("Harmful pattern detected in AI output")
+                    return False
+                    
+            return True
+        except json.JSONDecodeError:
+            return False
     
     def check_health(self) -> bool:
         """
@@ -278,11 +324,20 @@ class AwadeGPTService:
             
             # Generate prompt using the template
             prompt = COMPREHENSIVE_LESSON_RESOURCE_PROMPT.format(**prompt_params)
-            logger.info(f"Generated prompt for {country} context")
+            
+            # Sanitize input
+            prompt = self._sanitize_input(prompt)
+            logger.info(f"Generated sanitized prompt for {country} context")
             
             # Make API call with topic, subject, and grade for proper mock responses
             response = self._make_api_call(prompt, topic=topic, subject=subject, grade=grade)
-            logger.info(f"Received response from OpenAI API (length: {len(response)} characters)")
+            
+            # Validate output safety and structure
+            if not self._validate_output(response):
+                logger.warning("AI output failed validation. Falling back to mock/safe response.")
+                return self._generate_mock_lesson_resource(topic, subject, grade)
+                
+            logger.info(f"Received validated response from OpenAI API (length: {len(response)} characters)")
             
             # Try to parse as JSON, fallback to plain text if needed
             try:

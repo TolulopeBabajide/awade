@@ -41,6 +41,12 @@ JWT_SECRET_KEY=your_jwt_secret_key_here
 - Never reuse passwords across services
 - Consider using a password manager
 
+### Audit Logging
+We implement structured JSON audit logging for security-critical events:
+- **Scope**: All API access (excluding health/metrics), Login/Logout events, Sensitive data access.
+- **Format**: JSON logs containing timestamp, user_id, action, resource, ip_address, status.
+- **Monitoring**: Logs are output to stdout/stderr and should be aggregated by a log management solution (e.g., ELK Stack, Splunk, Datadog).
+
 ### API Key Security
 - Store API keys in environment variables
 - Rotate keys regularly
@@ -87,13 +93,15 @@ POSTGRES_PASSWORD=$(openssl rand -base64 32)
 - [ ] Backups encrypted and secure
 - [ ] API rate limiting configured
 - [ ] CORS properly configured
+- [ ] Audit logs aggregated and monitored
+- [ ] Metrics collection enabled and alerting configured
 
 ## 🔍 Security Monitoring
 
 ### Log Monitoring
 - Monitor application logs for suspicious activity
-- Set up alerts for failed login attempts
-- Track API usage patterns
+- Set up alerts for failed login attempts (Audit Logs)
+- Track API usage patterns via `/metrics` endpoint
 - Monitor database access
 
 ### Vulnerability Scanning
@@ -151,4 +159,4 @@ For security issues or questions:
 - [OWASP Security Guidelines](https://owasp.org/)
 - [Docker Security Best Practices](https://docs.docker.com/engine/security/)
 - [PostgreSQL Security](https://www.postgresql.org/docs/current/security.html)
-- [FastAPI Security](https://fastapi.tiangolo.com/tutorial/security/) 
+- [FastAPI Security](https://fastapi.tiangolo.com/tutorial/security/)

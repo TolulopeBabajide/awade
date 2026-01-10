@@ -34,3 +34,4 @@ slowapi>=0.1.9
 # Async Worker
 arq>=0.25.0
 redis>=5.0.0
+prometheus-fastapi-instrumentator>=6.1.0

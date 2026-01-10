@@ -798,7 +798,7 @@ const DashboardPage: React.FC = () => {
                             <div
                               key={resource.lesson_resources_id}
                               className="bg-white rounded-xl shadow-md hover:shadow-lg p-3 md:p-4 flex flex-col cursor-pointer transition-all duration-300 border border-gray-100 hover:border-primary-200 flex-shrink-0 w-56 md:w-64 min-w-0 group snap-start"
-                              onClick={() => navigate(`/ lesson - plans / ${resource.lesson_plan_id} /resources/edit`)}
+                              onClick={() => navigate(`/lesson-plans/${resource.lesson_plan_id}/resources/edit`)}
                             >
                               {/* Subject Icon - Centered */}
                               <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-primary-100 to-primary-200 rounded-xl flex items-center justify-center mb-2 md:mb-3 text-lg md:text-xl group-hover:scale-110 transition-transform duration-300 mx-auto">

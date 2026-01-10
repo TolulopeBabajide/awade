@@ -81,13 +81,15 @@ class AuthService:
 
     def create_refresh_token(self, data: dict) -> str:
         """
-        Create a new refresh token (JWT).
+        Create a new refresh token (JWT) with a unique identifier (JTI).
         Longer expiration (e.g. 7 days).
         """
         to_encode = data.copy()
         # Refresh token valid for 7 days
         expire = datetime.now(timezone.utc) + timedelta(days=7)
-        to_encode.update({"exp": expire, "type": "refresh"})
+        # Add JTI to ensure uniqueness and for revocation tracking
+        jti = secrets.token_urlsafe(16)
+        to_encode.update({"exp": expire, "type": "refresh", "jti": jti})
         return jwt.encode(to_encode, get_jwt_secret_key(), algorithm=get_jwt_algorithm())
     
     def _verify_password(self, password: str, hashed_password: str) -> bool:
@@ -312,15 +314,16 @@ class AuthService:
             )
     
     
-    def refresh_access_token(self, refresh_token: str) -> AuthResponse:
+    async def refresh_access_token(self, refresh_token: str, redis_pool: Optional[Any] = None) -> Tuple[AuthResponse, str]:
         """
-        Refresh access token using a valid refresh token.
+        Refresh access token using a valid refresh token and rotate the refresh token.
         
         Args:
             refresh_token (str): The refresh token
+            redis_pool (Optional[Any]): Redis pool for blacklist check
             
         Returns:
-            AuthResponse: New access token and user data
+            Tuple[AuthResponse, str]: New access token and user data, plus new refresh token
         """
         try:
             # Verify token
@@ -329,6 +332,10 @@ class AuthService:
             if payload.get("type") != "refresh":
                 raise HTTPException(status_code=401, detail="Invalid token type")
                 
+            # Check blacklist
+            if await self.is_refresh_token_blacklisted(refresh_token, redis_pool):
+                raise HTTPException(status_code=401, detail="Token has been revoked")
+
             user_id = payload.get("sub")
             if not user_id:
                 raise HTTPException(status_code=401, detail="Invalid token payload")
@@ -338,12 +345,13 @@ class AuthService:
             if not user:
                 raise HTTPException(status_code=401, detail="User not found")
                 
-            # Generate new access token
+            # Generate new tokens
             token_payload = {
                 "sub": str(user.user_id),
                 "email": user.email
             }
             new_access_token = self.create_access_token(token_payload)
+            new_refresh_token = self.create_refresh_token(token_payload)
             
             # Retrieve user profile for response
             user_response = self.get_current_user_profile(user)
@@ -352,7 +360,7 @@ class AuthService:
                 access_token=new_access_token,
                 token_type="bearer",
                 user=user_response
-            )
+            ), new_refresh_token
             
         except jwt.ExpiredSignatureError:
             raise HTTPException(status_code=401, detail="Refresh token expired")
@@ -575,3 +583,46 @@ class AuthService:
                 status_code=500,
                 detail=f"An error occurred while resetting password: {str(e)}"
             )
+    async def blacklist_refresh_token(self, refresh_token: str, redis_pool: Any):
+        """
+        Blacklist a refresh token in Redis until it expires using its JTI.
+        """
+        try:
+            # Decode to get expiration and jti
+            payload = jwt.decode(refresh_token, get_jwt_secret_key(), algorithms=[get_jwt_algorithm()])
+            jti = payload.get("jti")
+            exp = payload.get("exp")
+            if not jti or not exp:
+                return
+            
+            # Calculate TTL
+            ttl = int(exp - datetime.now(timezone.utc).timestamp())
+            if ttl <= 0:
+                return
+            
+            # Store in Redis with TTL
+            key = f"blacklist:{jti}"
+            await redis_pool.setex(key, ttl, "true")
+            
+        except Exception as e:
+            # Log error but don't fail logout
+            print(f"Error blacklisting token: {e}")
+
+    async def is_refresh_token_blacklisted(self, refresh_token: str, redis_pool: Any) -> bool:
+        """
+        Check if a refresh token's JTI is blacklisted in Redis.
+        """
+        if not redis_pool:
+            return False
+            
+        try:
+            # Decode to get jti
+            payload = jwt.decode(refresh_token, get_jwt_secret_key(), algorithms=[get_jwt_algorithm()])
+            jti = payload.get("jti")
+            if not jti:
+                return False
+                
+            key = f"blacklist:{jti}"
+            return await redis_pool.exists(key)
+        except Exception:
+            return False

@@ -14,7 +14,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-awade_user} -d ${POSTGRES_DB:-awade}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-awade_user} -d ${POSTGRES_DB:-awade}" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -36,6 +36,7 @@ services:
       - PASSWORD_MIN_LENGTH=${PASSWORD_MIN_LENGTH:-8}
       - PASSWORD_MAX_LENGTH=${PASSWORD_MAX_LENGTH:-128}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - REDIS_HOST=redis
     ports:
       - "8000:8000"
     depends_on:
@@ -45,6 +46,32 @@ services:
       - ./apps/backend:/app/apps/backend
       - ./packages:/app/packages
     command: uvicorn apps.backend.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Async Worker
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: awade-worker
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-awade_user}:${POSTGRES_PASSWORD:-awade_password}@postgres:5432/${POSTGRES_DB:-awade}
+      - DEBUG=${DEBUG:-True}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - SECRET_KEY=${SECRET_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - REDIS_HOST=redis
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      backend:
+        condition: service_started
+    volumes:
+      - ./apps/backend:/app/apps/backend
+      - ./packages:/app/packages
+    command: arq apps.backend.worker.WorkerSettings
 
   # Frontend Development
   frontend:
@@ -104,4 +131,4 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  pgadmin_data: 
+  pgadmin_data:

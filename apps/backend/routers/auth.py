@@ -75,7 +75,7 @@ def google_auth(
 # ... existing code ...
 
 @router.post("/signup", response_model=AuthResponse)
-# @limiter.limit("5/minute")
+@limiter.limit("5/minute")
 def signup(
     request: Request,
     response: Response,
@@ -102,7 +102,7 @@ def signup(
     return auth_response
 
 @router.post("/login", response_model=AuthResponse)
-# @limiter.limit("10/minute")
+@limiter.limit("10/minute")
 def login(
     request: Request,
     response: Response,
@@ -135,9 +135,9 @@ def get_current_user_profile(current_user: User = Depends(get_current_user), db:
     return service.get_current_user_profile(current_user)
 
 @router.post("/refresh", response_model=AuthResponse)
-def refresh_token(request: Request, db: Session = Depends(get_db)):
+async def refresh_token(request: Request, response: Response, db: Session = Depends(get_db)):
     """
-    Refresh JWT token using refresh token from HttpOnly cookie.
+    Refresh JWT token using refresh token from HttpOnly cookie and rotate the token.
     """
     refresh_token = request.cookies.get("refresh_token")
     if not refresh_token:
@@ -147,13 +147,33 @@ def refresh_token(request: Request, db: Session = Depends(get_db)):
         )
         
     service = AuthService(db)
-    return service.refresh_access_token(refresh_token)
+    redis_pool = getattr(request.app.state, "redis", None)
+    auth_response, new_refresh_token = await service.refresh_access_token(refresh_token, redis_pool)
+    
+    # Set new (rotated) refresh token as HttpOnly cookie
+    response.set_cookie(
+        key="refresh_token",
+        value=new_refresh_token,
+        httponly=True,
+        secure=IS_PRODUCTION,
+        samesite="lax",
+        max_age=7 * 24 * 60 * 60 # 7 days
+    )
+    
+    return auth_response
 
 @router.post("/logout")
-def logout(response: Response):
+async def logout(request: Request, response: Response, db: Session = Depends(get_db)):
     """
-    Logout endpoint (client-side token removal and cookie clearing).
+    Logout endpoint (client-side token removal and server-side blacklisting).
     """
+    refresh_token = request.cookies.get("refresh_token")
+    if refresh_token:
+        service = AuthService(db)
+        redis_pool = getattr(request.app.state, "redis", None)
+        if redis_pool:
+            await service.blacklist_refresh_token(refresh_token, redis_pool)
+            
     response.delete_cookie("refresh_token")
     return {"message": "Logged out successfully"}
 

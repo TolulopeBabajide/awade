@@ -527,6 +527,9 @@ class LessonPlanService:
         """
         try:
             lesson_resource = self.db.query(LessonResource).filter(LessonResource.lesson_resources_id == resource_id).first()
+            if lesson_resource:
+                print(f"DEBUG: Resource {resource_id} found in DB with status: {lesson_resource.status}")
+                
             if not lesson_resource:
                 raise HTTPException(status_code=404, detail="Lesson resource not found")
             

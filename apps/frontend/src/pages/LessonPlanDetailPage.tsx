@@ -102,20 +102,48 @@ const LessonPlanDetailPage: React.FC = () => {
       setCurrentGenerationStep('fetch-curriculum-data');
       await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause to show step
 
-      // Step 3: Generate lesson resource using GPT service
+      // Step 3: Generate lesson resource (starts async process)
       setCurrentGenerationStep('ai-generation');
       const response = await apiService.generateLessonResource(
         lessonPlan.lesson_id.toString(),
         sanitizedContext || 'Generate a comprehensive lesson resource for this lesson plan'
       );
 
-      if (response.error) {
-        throw new Error(response.error);
+      if (response.error || !response.data) {
+        throw new Error(response.error || 'Failed to initiate resource generation');
       }
 
-      // Step 4: Save resource (simulated)
-      setCurrentGenerationStep('save-resource');
-      await new Promise(resolve => setTimeout(resolve, 300)); // Brief pause to show step
+      let resource = response.data;
+      const resourceId = resource.lesson_resources_id;
+
+      // Step 4: Poll for completion if status is processing
+      if (resource.status === 'processing') {
+        setCurrentGenerationStep('ai-generation'); // Keep showing generation step
+
+        let attempts = 0;
+        const maxAttempts = 60; // 2 minutes timeout (2s * 60)
+
+        while (resource.status === 'processing' && attempts < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s
+          attempts++;
+
+          const pollResponse = await apiService.getLessonResource(resourceId.toString());
+          if (pollResponse.error || !pollResponse.data) {
+            console.warn("Polling failed temporarily", pollResponse.error);
+            continue; // Retry polling
+          }
+
+          resource = pollResponse.data;
+        }
+
+        if (resource.status === 'processing') {
+          throw new Error('Generation timed out. Please check back later.');
+        }
+
+        if (resource.status === 'failed') {
+          throw new Error('AI generation failed. Please try again.');
+        }
+      }
 
       // Step 5: Complete
       setCurrentGenerationStep('complete');

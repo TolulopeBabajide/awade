@@ -18,7 +18,7 @@ RUN apt-get update \
         libgirepository1.0-dev \
         libcairo2-dev \
         libpango1.0-dev \
-        libgdk-pixbuf2.0-dev \
+        libgdk-pixbuf-2.0-dev \
         libffi-dev \
         shared-mime-info \
     && rm -rf /var/lib/apt/lists/*

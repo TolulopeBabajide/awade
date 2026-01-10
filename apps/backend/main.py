@@ -113,12 +113,23 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Prometheus Metrics
+try:
+    from prometheus_fastapi_instrumentator import Instrumentator
+    Instrumentator().instrument(app).expose(app)
+except ImportError:
+    print("⚠️ Prometheus Instrumentator not found, skipping metrics exposure.")
+
 # Register Rate Limiter
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Security Headers Middleware
 app.add_middleware(SecurityHeadersMiddleware)
+
+# Audit Logging Middleware
+from apps.backend.middleware import AuditMiddleware
+app.add_middleware(AuditMiddleware)
 
 # Trusted Host Middleware
 # In production, set ALLOWED_HOSTS to your domain(s)

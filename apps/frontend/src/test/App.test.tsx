@@ -27,12 +27,14 @@ const AppWithRouter = () => (
 describe('App', () => {
   it('renders without crashing', () => {
     render(<AppWithRouter />)
-    expect(screen.getByText(/Awade/i)).toBeInTheDocument()
+    const elements = screen.getAllByText(/Awade/i)
+    expect(elements.length).toBeGreaterThan(0)
+    expect(elements[0]).toBeInTheDocument()
   })
 
   it('renders landing page by default', () => {
     render(<AppWithRouter />)
     // The landing page should be rendered when not authenticated
-    expect(screen.getByText(/Welcome to Awade/i)).toBeInTheDocument()
+    expect(screen.getByText(/Transform Your Teaching with Awade/i)).toBeInTheDocument()
   })
 })

@@ -23,6 +23,7 @@ from datetime import datetime
 from apps.backend.database import get_db
 from apps.backend.models import User, LessonResource, UserRole
 from apps.backend.dependencies import get_current_user, require_educator, require_admin_or_educator, get_optional_current_user
+from apps.backend.limiter import limiter
 from apps.backend.services.lesson_plan_service import LessonPlanService
 from apps.backend.schemas.lesson_plans import (
     LessonPlanCreate,
@@ -36,6 +37,7 @@ from apps.backend.schemas.lesson_plans import (
 router = APIRouter(prefix="/api/lesson-plans", tags=["lesson-plans"])
 
 @router.post("/generate", response_model=LessonPlanResponse)
+@limiter.limit("5/minute")
 async def generate_lesson_plan(
     request: LessonPlanCreate,
     current_user: User = Depends(require_educator),
@@ -63,6 +65,7 @@ async def get_all_lesson_resources(
 @router.get("/resources/{resource_id}", response_model=LessonResourceResponse)
 async def get_lesson_resource(
     resource_id: int,
+    response: Response,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -70,6 +73,10 @@ async def get_lesson_resource(
     Get a specific lesson resource.
     Requires authentication.
     """
+    # Prevent caching of polling results
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    
     service = LessonPlanService(db)
     return service.get_lesson_resource(resource_id, current_user)
 
@@ -143,6 +150,7 @@ async def get_lesson_plan_resources(
     return service.get_lesson_plan_resources(lesson_id, current_user)
 
 @router.post("/{lesson_id}/resources/generate", response_model=LessonResourceResponse)
+@limiter.limit("3/minute")
 async def generate_lesson_resource(
     lesson_id: int,
     data: LessonResourceCreate,
