@@ -15,7 +15,7 @@ Endpoints:
 Author: Tolulope Babajide
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Response, Query
+from fastapi import APIRouter, Depends, HTTPException, Response, Query, Request
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
@@ -146,6 +146,7 @@ async def get_lesson_plan_resources(
 async def generate_lesson_resource(
     lesson_id: int,
     data: LessonResourceCreate,
+    request: Request,
     current_user: User = Depends(require_educator),
     db: Session = Depends(get_db)
 ):
@@ -153,8 +154,9 @@ async def generate_lesson_resource(
     Generate AI-powered lesson resources for a specific lesson plan.
     Requires educator authentication.
     """
-    service = LessonPlanService(db)
-    return service.generate_lesson_resource(lesson_id, data, current_user)
+    redis_pool = getattr(request.app.state, "redis", None)
+    service = LessonPlanService(db, redis_pool)
+    return await service.generate_lesson_resource(lesson_id, data, current_user)
 
 @router.post("/resources/{resource_id}/export")
 async def export_lesson_resource(

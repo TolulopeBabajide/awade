@@ -73,6 +73,26 @@ def run_database_fix():
         # Don't fail startup, just log the error
         pass
 
+from contextlib import asynccontextmanager
+from apps.backend.redis_client import create_redis_pool
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Create Redis pool
+    try:
+        app.state.redis = await create_redis_pool()
+        print("✅ Redis pool created")
+    except Exception as e:
+        print(f"⚠️ Failed to create Redis pool: {e}")
+        app.state.redis = None
+
+    yield
+    
+    # Shutdown: Close Redis pool
+    if getattr(app.state, "redis", None):
+        await app.state.redis.close()
+        print("🛑 Redis pool closed")
+
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from apps.backend.middleware import SecurityHeadersMiddleware
 from apps.backend.limiter import limiter
@@ -89,7 +109,8 @@ app = FastAPI(
     description="AI-powered educator support platform for African teachers",
     version="1.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan
 )
 
 # Register Rate Limiter
