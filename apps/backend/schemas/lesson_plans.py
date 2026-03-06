@@ -2,7 +2,7 @@
 Pydantic schemas for lesson plan API endpoints.
 """
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, Json
 from typing import List, Optional
 from datetime import datetime
 from enum import Enum

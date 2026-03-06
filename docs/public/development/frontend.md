@@ -14,7 +14,7 @@ The Awade frontend is designed to provide an intuitive, responsive, and accessib
 - **Framework**: React with TypeScript
 - **Styling**: Tailwind CSS with custom components
 - **State Management**: React Context + useReducer
-- **Routing**: React Router for navigation
+- **Routing**: React Router for navigation (inc. ProtectedRoute and AdminRoute)
 - **Build Tool**: Vite for fast development
 
 ### Progressive Enhancement
@@ -61,12 +61,14 @@ App
 ├── Layout
 │   ├── Header
 │   ├── Navigation
+│   ├── AdminLayout
 │   └── Footer
 ├── Pages
 │   ├── Dashboard
 │   ├── LessonPlanner
 │   ├── Profile
-│   └── Settings
+│   ├── Settings
+│   └── Admin
 └── Shared Components
     ├── Button
     ├── Form

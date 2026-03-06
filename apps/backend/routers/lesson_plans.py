@@ -39,7 +39,8 @@ router = APIRouter(prefix="/api/lesson-plans", tags=["lesson-plans"])
 @router.post("/generate", response_model=LessonPlanResponse)
 @limiter.limit("5/minute")
 async def generate_lesson_plan(
-    request: LessonPlanCreate,
+    request: Request,
+    data: LessonPlanCreate,
     current_user: User = Depends(require_educator),
     db: Session = Depends(get_db)
 ):
@@ -48,7 +49,7 @@ async def generate_lesson_plan(
     Requires educator authentication.
     """
     service = LessonPlanService(db)
-    return service.generate_lesson_plan(request, current_user)
+    return service.generate_lesson_plan(data, current_user)
 
 @router.get("/resources", response_model=List[LessonResourceResponse])
 async def get_all_lesson_resources(

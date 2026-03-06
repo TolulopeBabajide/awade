@@ -8,38 +8,31 @@ to lesson plans, separating concerns from the router layer.
 Author: Tolulope Babajide
 """
 
+import sys
+import os
+
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
 from typing import List, Optional, Dict, Any
 from datetime import datetime, UTC
 from fastapi import HTTPException, status
-
-import sys
-import os
+from arq import ArqRedis
 
 # Add parent directories to Python path for imports
 current_dir = os.path.dirname(__file__)
 parent_dir = os.path.dirname(current_dir)
 root_dir = os.path.dirname(parent_dir)
 sys.path.extend([parent_dir, root_dir])
+
 from apps.backend.models import (
     LessonPlan, User, Topic, CurriculumStructure, Curriculum, Country, 
     GradeLevel, Subject, LessonResource, LessonStatus, UserRole, Context
 )
-import sys
-import os
-
-# Add parent directories to Python path for imports
-current_dir = os.path.dirname(__file__)
-parent_dir = os.path.dirname(current_dir)
-root_dir = os.path.dirname(parent_dir)
-sys.path.extend([parent_dir, root_dir])
 from apps.backend.schemas.lesson_plans import (
     LessonPlanCreate, LessonPlanResponse, LessonPlanUpdate,
     LessonResourceCreate, LessonResourceUpdate, LessonResourceResponse
 )
 from packages.ai.gpt_service import AwadeGPTService
-from arq import ArqRedis
 
 class LessonPlanService:
     """Service class for lesson plan operations."""
@@ -82,12 +75,18 @@ class LessonPlanService:
             else:
                 # For existing lesson plans from database
                 if not lesson_plan.topic:
-                    raise ValueError("Lesson plan has no associated topic")
-                    
-                title = f"{lesson_plan.topic.curriculum_structure.subject.name}: {lesson_plan.topic.topic_title}" if lesson_plan.topic else "Untitled Lesson"
-                subject = lesson_plan.topic.curriculum_structure.subject.name if lesson_plan.topic else "Unknown"
-                grade_level = lesson_plan.topic.curriculum_structure.grade_level.name if lesson_plan.topic else "Unknown"
-                topic = lesson_plan.topic.topic_title if lesson_plan.topic else None
+                    # Retrieve topic if lazy loaded but None (shouldn't happen if foreign key enforced)
+                    # But for response creation we handle gracefully
+                    title = "Untitled Lesson"
+                    subject = "Unknown"
+                    grade_level = "Unknown"
+                    topic = None
+                else:
+                    title = f"{lesson_plan.topic.curriculum_structure.subject.name}: {lesson_plan.topic.topic_title}"
+                    subject = lesson_plan.topic.curriculum_structure.subject.name
+                    grade_level = lesson_plan.topic.curriculum_structure.grade_level.name
+                    topic = lesson_plan.topic.topic_title
+                
                 author_id = lesson_plan.user_id  # Use actual user_id from lesson plan
                 duration_minutes = 45  # Default duration
             
@@ -101,11 +100,13 @@ class LessonPlanService:
                 duration_minutes=duration_minutes,
                 created_at=lesson_plan.created_at,
                 updated_at=lesson_plan.created_at,  # Using created_at as updated_at
-                status=LessonStatus.DRAFT,
+                status=LessonStatus.DRAFT.value, # Pass string value to match schema
                 curriculum_learning_objectives=curriculum_learning_objectives,
                 curriculum_contents=curriculum_contents
             )
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             raise HTTPException(
                 status_code=500,
                 detail=f"Error creating lesson plan response: {str(e)}"
@@ -154,6 +155,8 @@ class LessonPlanService:
         except HTTPException:
             raise
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             raise HTTPException(
                 status_code=500, 
                 detail=f"An error occurred while generating the lesson plan: {str(e)}"

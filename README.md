@@ -43,51 +43,7 @@ For detailed workflow documentation, see [docs/public/development/README.md](./d
 
 ## 🛠️ Setup Guide
 
-### Requirements
-- Python 3.10+
-- Node.js (for frontend)
-- PostgreSQL
-
-### Installation Steps
-
-1. **Clone the repo**
-   ```bash
-   git clone https://github.com/your-username/awade.git
-   cd awade
-   ```
-
-2. **Install backend dependencies**
-   ```bash
-   cd apps/backend
-   pip install -r requirements.txt
-   ```
-
-3. **Install frontend (optional HTML or React setup)**
-   ```bash
-   cd apps/frontend
-   npm install
-   npm run dev
-   ```
-
-4. **Create .env file**
-   ```bash
-   cp .env.example .env
-   ```
-   Fill in your keys and DB URL.
-
-5. **Run backend**
-   ```bash
-   uvicorn main:app --reload
-   ```
-
-### CI/CD Setup
-
-For GitHub Actions to work properly, set up the following secrets in your repository:
-- `DATABASE_URL`: Database connection string
-- `SECRET_KEY`: Application secret key  
-- `OPENAI_API_KEY`: OpenAI API key
-
-Go to Settings → Secrets and variables → Actions to configure these.
+Please refer to the detailed [Development Setup Guide](./docs/public/development/README.md) for full instructions on setting up Docker, Python, Node, and environment variables.
 
 ## 🏗 Architecture
 

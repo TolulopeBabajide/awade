@@ -24,14 +24,18 @@ class CurriculumStructureResponse(BaseModel):
 
 @router.get("/", response_model=List[CurriculumStructureResponse])
 def list_curriculum_structures(
+    curricula_id: Optional[int] = None,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
-    Retrieve a list of all curriculum structures.
+    Retrieve a list of curriculum structures, optionally filtered by curricula_id.
     Requires authentication.
     """
-    return db.query(CurriculumStructure).all()
+    query = db.query(CurriculumStructure)
+    if curricula_id:
+        query = query.filter(CurriculumStructure.curricula_id == curricula_id)
+    return query.all()
 
 @router.post("/", response_model=CurriculumStructureResponse)
 def create_curriculum_structure(
@@ -151,13 +155,7 @@ def delete_curriculum_structure(
     if not db_structure:
         raise HTTPException(status_code=404, detail="Curriculum structure not found")
     
-    # Check if structure is being used by topics
-    if db_structure.topics:
-        raise HTTPException(
-            status_code=400, 
-            detail="Cannot delete curriculum structure that has associated topics"
-        )
-    
+
     db.delete(db_structure)
     db.commit()
     return {"message": "Curriculum structure deleted successfully"} 

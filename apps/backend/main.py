@@ -37,17 +37,12 @@ root_dir = os.path.dirname(parent_dir)
 sys.path.extend([parent_dir, root_dir])
 
 # Import routers
-try:
-    from apps.backend.routers import lesson_plans, curriculum, users, contexts, auth
-    from apps.backend.database import get_db, engine
-    from apps.backend.routers import country, grade_level, subject, curriculum_structure
-    from apps.backend.models import Base
-except ImportError:
-    # Fallback for Docker container
-    from apps.backend.routers import lesson_plans, curriculum, users, contexts, auth
-    from apps.backend.database import get_db, engine
-    from apps.backend.routers import country, grade_level, subject, curriculum_structure
-    from apps.backend.models import Base
+from apps.backend.routers import (
+    lesson_plans, curriculum, users, contexts, auth,
+    country, grade_level, subject, curriculum_structure, admin
+)
+from apps.backend.database import get_db, engine
+from apps.backend.models import Base
 
 # Load environment variables
 load_dotenv()
@@ -145,8 +140,10 @@ if env_allowed_origins == "*":
     allowed_origins = [
         "http://localhost:5173", # Vite default
         "http://localhost:3001", # React default
+        "http://localhost:3000", # Vite (custom)
         "http://127.0.0.1:5173",
-        "http://127.0.0.1:3001"
+        "http://127.0.0.1:3001",
+        "http://127.0.0.1:3000"
     ]
 else:
     allowed_origins = env_allowed_origins.split(",")
@@ -176,6 +173,7 @@ app.include_router(grade_level.router)
 app.include_router(subject.router)
 app.include_router(curriculum_structure.router)
 app.include_router(contexts.router)
+app.include_router(admin.router)
 
 # Basic health and info endpoints
 @app.get("/")

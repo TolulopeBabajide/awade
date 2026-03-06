@@ -1,4 +1,3 @@
-import React from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -14,6 +13,15 @@ import EditLessonResourcePage from './pages/EditLessonResourcePage'
 import LessonResourcesPage from './pages/LessonResourcesPage'
 import SettingsPage from './pages/SettingsPage'
 import TestPage from './pages/TestPage'
+import AdminRoute from './components/AdminRoute'
+import AdminLayout from './components/AdminLayout'
+import AdminDashboard from './pages/admin/Dashboard'
+import UserList from './pages/admin/UserList'
+import AuditLogs from './pages/admin/AuditLogs'
+import ModerationList from './pages/admin/ModerationList'
+import CurriculumManager from './pages/admin/CurriculumManager'
+import TemplateManager from './pages/admin/TemplateManager'
+import AdminSettings from './pages/admin/Settings'
 
 function App() {
   return (
@@ -25,7 +33,7 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
-          
+
           {/* Protected routes */}
           <Route path="/dashboard" element={
             <ProtectedRoute>
@@ -67,6 +75,22 @@ function App() {
               <TestPage />
             </ProtectedRoute>
           } />
+
+          {/* Admin routes */}
+          <Route path="/admin" element={
+            <AdminRoute>
+              <AdminLayout />
+            </AdminRoute>
+          }>
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<UserList />} />
+            <Route path="resources" element={<ModerationList />} />
+            <Route path="moderation" element={<ModerationList />} />
+            <Route path="curriculum" element={<CurriculumManager />} />
+            <Route path="templates" element={<TemplateManager />} />
+            <Route path="logs" element={<AuditLogs />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Route>
           {/* Add more routes as needed */}
         </Routes>
       </div>

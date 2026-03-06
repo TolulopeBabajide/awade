@@ -8,7 +8,7 @@ Welcome to the Awade development environment! This guide will help you set up an
 
 ### Required Software
 - **Python 3.10+** - Backend development
-- **Node.js 18+** - Frontend development
+- **Node.js 20+** - Frontend development
 - **PostgreSQL 13+** - Database
 - **Git** - Version control
 - **Docker & Docker Compose** - Containerization (recommended)

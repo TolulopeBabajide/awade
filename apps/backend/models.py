@@ -20,6 +20,7 @@ class UserRole(enum.Enum):
     """Enumeration of user roles in the Awade platform."""
     EDUCATOR = "EDUCATOR"
     ADMIN = "ADMIN"
+    SUPER_ADMIN = "SUPER_ADMIN"
 
 class LessonStatus(enum.Enum):
     """Enumeration of lesson plan statuses."""
@@ -189,6 +190,7 @@ class User(Base):
     phone = Column(String(20), nullable=True)  # Phone number
     bio = Column(Text, nullable=True)  # User bio/description
     last_login = Column(DateTime, nullable=True)
+    is_suspended = Column(Integer, default=0, nullable=False) # 0 = active, 1 = suspended
     created_at = Column(DateTime, default=func.now(), nullable=False)
     
     # Relationships
@@ -254,5 +256,49 @@ class Tag(Base):
     # Relationships
     lesson_plans = relationship("LessonPlan", secondary=lesson_tags, back_populates="tags")
 
+# Admin and Moderation Tables
+class AdminAuditLog(Base):
+    """Audit logs for administrative actions."""
+    __tablename__ = 'admin_audit_logs'
+    
+    log_id = Column(Integer, primary_key=True, autoincrement=True)
+    actor_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
+    action = Column(String(100), nullable=False)  # e.g., 'suspend_user', 'change_role', 'delete_resource'
+    target_type = Column(String(50), nullable=False)  # e.g., 'user', 'lesson_resource', 'curriculum'
+    target_id = Column(Integer, nullable=True)
+    metadata_json = Column(Text, nullable=True)  # Detailed info about the change (JSON string)
+    ip_address = Column(String(45), nullable=True)
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    
+    # Relationships
+    actor = relationship("User")
+
+class ResourceModeration(Base):
+    """Moderation status and notes for lesson resources."""
+    __tablename__ = 'resource_moderation'
+    
+    moderation_id = Column(Integer, primary_key=True, autoincrement=True)
+    lesson_resource_id = Column(Integer, ForeignKey('lesson_resources.lesson_resources_id', ondelete='CASCADE'), unique=True, nullable=False)
+    status = Column(String(20), default='pending', nullable=False)  # pending, safe, flagged, removed
+    notes = Column(Text, nullable=True)
+    reviewed_by = Column(Integer, ForeignKey('users.user_id'), nullable=True)
+    reviewed_at = Column(DateTime, nullable=True)
+    
+    # Relationships
+    lesson_resource = relationship("LessonResource", backref="moderation")
+    reviewer = relationship("User")
+
+class LessonTemplate(Base):
+    """Templates for AI-generated lesson plans."""
+    __tablename__ = 'lesson_templates'
+    
+    template_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(100), nullable=False)
+    version = Column(String(20), nullable=False)
+    schema_json = Column(Text, nullable=False)  # JSON schema for the template structure
+    is_active = Column(Integer, default=1, nullable=False)  # Using Integer as pseudo-boolean for consistency
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
+
 # Add tags relationship to LessonPlan
-LessonPlan.tags = relationship("Tag", secondary=lesson_tags, back_populates="lesson_plans") 
+LessonPlan.tags = relationship("Tag", secondary=lesson_tags, back_populates="lesson_plans")

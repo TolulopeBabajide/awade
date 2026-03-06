@@ -2,7 +2,7 @@
 GPT Service for Awade Lesson Planning
 
 This module provides AI-powered services for lesson plan generation,
-curriculum alignment, and educational content creation using OpenAI's GPT models.
+curriculum alignment, and educational content creation using LLM providers.
 
 Author: Tolulope Babajide
 """
@@ -13,19 +13,15 @@ import logging
 import re
 from typing import List, Dict, Any, Optional
 
-# Import OpenAI if available, otherwise use mock
-try:
-    import openai
-    OPENAI_AVAILABLE = True
-except ImportError:
-    OPENAI_AVAILABLE = False
-    logger.warning("OpenAI package not available. Using mock responses.")
-
-from .prompts import COMPREHENSIVE_LESSON_RESOURCE_PROMPT
-
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+from .prompts import COMPREHENSIVE_LESSON_RESOURCE_PROMPT
+from .providers.base import LLMProvider
+from .providers.openai_provider import OpenAIProvider
+from .providers.gemini_provider import GeminiProvider
+from .cache import ContentCache
 
 # Load environment variables
 try:
@@ -45,98 +41,118 @@ class AwadeGPTService:
     - Generating comprehensive lesson resources from lesson plans
     - Curriculum-aligned content generation
     - Local context integration
+    
+    It delegates actual generation to the configured LLMProvider (OpenAI, Gemini)
+    and handles caching via ContentCache.
     """
     
-    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, provider_type: Optional[str] = None):
         """
         Initialize the GPT service.
         
         Args:
-            api_key (Optional[str]): OpenAI API key. If not provided, will try to get from environment.
-            model (Optional[str]): OpenAI model to use. If not provided, will use environment variable.
+            api_key (Optional[str]): API key for the provider.
+            provider_type (Optional[str]): 'openai', 'gemini', or 'mock'.
         """
-        # Get configuration from environment variables
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
-        self.model = model or os.getenv("OPENAI_MODEL", "gpt-4")
-        self.max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "4000"))
-        self.temperature = float(os.getenv("OPENAI_TEMPERATURE", "0.7"))
+        self.provider_type = provider_type or os.getenv("AI_PROVIDER", "openai").lower()
+        self.provider: Optional[LLMProvider] = None
+        self.max_tokens = int(os.getenv("AI_MAX_TOKENS", "8192"))
+        self.temperature = float(os.getenv("AI_TEMPERATURE", "0.7"))
         
-        # Initialize OpenAI client
-        if OPENAI_AVAILABLE and self.api_key:
-            try:
-                openai.api_key = self.api_key
-                self.client = openai.OpenAI(api_key=self.api_key)
-                logger.info(f"OpenAI client initialized successfully with model: {self.model}")
-            except Exception as e:
-                self.client = None
-        else:
-            self.client = None
-            if not OPENAI_AVAILABLE:
-                pass
-            elif not self.api_key:
-                pass
+        # Initialize Provider
+        self._init_provider(api_key)
+        
+        # Initialize Cache
+        self.cache = ContentCache() # Will use env vars for connection
     
-    def _make_api_call(self, prompt: str, temperature: Optional[float] = None, topic: str = "General Topic", subject: str = "Mathematics", grade: str = "Grade 4") -> str:
+    def _init_provider(self, api_key: Optional[str]):
+        """Initialize the specific provider backend."""
+        try:
+            if self.provider_type == "openai":
+                self.provider = OpenAIProvider(api_key=api_key)
+            elif self.provider_type == "gemini":
+                self.provider = GeminiProvider(api_key=api_key)
+            elif self.provider_type == "mock":
+                logger.info("Using explicit Mock provider configuration")
+                self.provider = None
+            else:
+                logger.warning(f"Unknown provider '{self.provider_type}', falling back to Mock")
+                self.provider = None
+                
+            if self.provider:
+                logger.info(f"AI Provider initialized: {self.provider_type}")
+        except Exception as e:
+            logger.error(f"Failed to initialize provider {self.provider_type}: {e}")
+            self.provider = None
+    
+    def _make_api_call(
+        self, 
+        prompt: str, 
+        temperature: Optional[float] = None, 
+        model_tier: str = "standard",
+        topic: str = "General Topic", 
+        subject: str = "Mathematics", 
+        grade: str = "Grade 4",
+        prompt_metadata: Optional[Dict[str, Any]] = None,
+        response_format: str = "text"
+    ) -> str:
         """
-        Make an API call to OpenAI or return mock response.
-        
-        Args:
-            prompt (str): The prompt to send to the AI
-            temperature (Optional[float]): Creativity level (0.0 to 1.0). If not provided, uses configured default.
-            topic (str): The topic being taught (for mock responses)
-            subject (str): The subject area (for mock responses)
-            grade (str): The grade level (for mock responses)
-            
-        Returns:
-            str: AI response or mock response
+        Make an API call to the configured provider or return mock response.
+        Handles caching automatically.
         """
-        if not self.client:
-            logger.info("Using mock response (OpenAI client not available)")
+        # 1. Check if we should use Mock
+        if not self.provider:
+            logger.info("Using mock response (Provider not available)")
             return self._generate_mock_response(prompt, topic, subject, grade)
         
-        # Use configured temperature if not provided
         temp = temperature if temperature is not None else self.temperature
         
+        # 2. Check Cache
+        if prompt_metadata:
+            # Add tier to metadata to ensure distinct cache keys for different tiers
+            cache_metadata = prompt_metadata.copy()
+            cache_metadata["model_tier"] = model_tier
+            
+            cached_content = self.cache.get(
+                provider=self.provider_type,
+                model=model_tier, # We use abstract model name in key
+                prompt_data=cache_metadata
+            )
+            if cached_content:
+                return cached_content
+        
+        # 3. Call Provider
         try:
-            logger.info(f"Making OpenAI API call with model: {self.model}, temperature: {temp}")
+            system_instruction = "You are an expert educational content creator specializing in African curriculum development. You create comprehensive, locally contextual lesson resources that are age-appropriate, culturally relevant, and practical for teachers to implement."
             
-            # Prepare API parameters
-            api_params = {
-                "model": self.model,
-                "messages": [
-                    {"role": "system", "content": "You are an expert educational content creator specializing in African curriculum development. You create comprehensive, locally contextual lesson resources that are age-appropriate, culturally relevant, and practical for teachers to implement."},
-                    {"role": "user", "content": prompt}
-                ]
-            }
+            logger.info(f"Generating content using {self.provider_type} (Tier: {model_tier})")
+            content = self.provider.generate_content(
+                prompt=prompt,
+                system_instruction=system_instruction,
+                model_tier=model_tier,
+                temperature=temp,
+                max_tokens=self.max_tokens,
+                response_format=response_format
+            )
             
-            # Add token limit parameter
-            api_params["max_tokens"] = self.max_tokens
-            
-            # Add temperature parameter
-            api_params["temperature"] = temp
-            
-            response = self.client.chat.completions.create(**api_params)
-            
-            content = response.choices[0].message.content
-            logger.info(f"OpenAI API call successful. Response length: {len(content)} characters")
-            
-            # Check if response is empty or just whitespace
+            # Check if response is empty
             if not content or not content.strip():
                 return self._generate_mock_lesson_resource(topic, subject, grade)
             
+            # 4. Save to Cache
+            if prompt_metadata:
+                self.cache.set(
+                    provider=self.provider_type,
+                    model=model_tier,
+                    prompt_data=cache_metadata,
+                    content=content
+                )
+                
             return content
             
-        except openai.AuthenticationError as e:
-            logger.warning(f"OpenAI authentication failed: {e}")
-            return self._generate_mock_lesson_resource(topic, subject, grade)
-        except openai.RateLimitError as e:
-            logger.warning(f"OpenAI rate limit exceeded: {e}")
-            return self._generate_mock_lesson_resource(topic, subject, grade)
-        except openai.APIError as e:
-            logger.warning(f"OpenAI API error: {e}")
-            return self._generate_mock_lesson_resource(topic, subject, grade)
         except Exception as e:
-            logger.error(f"Unexpected error in OpenAI API call: {e}")
+            logger.error(f"Error in AI generation: {e}")
+            # Fallback to mock on critical failure
             return self._generate_mock_lesson_resource(topic, subject, grade)
             
     def _sanitize_input(self, text: str) -> str:
@@ -157,63 +173,80 @@ class AwadeGPTService:
         
         return text
 
-    def _validate_output(self, content: str) -> bool:
+    def validate_output(self, content: str) -> tuple[bool, Optional[str]]:
         """
         Validate the AI output for safety and structure.
+        Returns (is_valid, reason)
         """
         try:
-            data = json.loads(content)
+            # Clean and repair first (this should be redundant if called from generate_lesson_resource, 
+            # but creates safety for internal calls)
+            clean_content = self._clean_and_repair(content)
+            
+            data = json.loads(clean_content)
             
             # Check for minimum required fields
             required_fields = ["title_header", "learning_objectives", "lesson_content"]
             for field in required_fields:
                 if field not in data:
-                    logger.warning(f"AI output missing required field: {field}")
-                    return False
+                    return False, f"Missing required field: {field}"
             
-            # Simple check for harmful patterns in text (placeholder)
-            # In production, use a dedicated safety API or model
-            harmful_patterns = [r"badword1", r"badword2"] # Example
-            str_content = str(data).lower()
-            for pattern in harmful_patterns:
-                if re.search(pattern, str_content):
-                    logger.warning("Harmful pattern detected in AI output")
-                    return False
-                    
-            return True
-        except json.JSONDecodeError:
-            return False
+            return True, None
+        except json.JSONDecodeError as e:
+            # Provide first 50 chars of content for debugging
+            logger.error(f"JSON Decode Error: {e}. Content preview: {content[:50]}...")
+            return False, "Invalid JSON format"
+
+    def _repair_json(self, json_str: str) -> str:
+        """
+        Attempt to repair common JSON syntax errors from LLMs.
+        - Removes trailing commas in objects and arrays
+        """
+        if not json_str: return json_str
+        
+        # Remove trailing commas in objects: { "a": 1, } -> { "a": 1 }
+        json_str = re.sub(r',\s*}', '}', json_str)
+        # Remove trailing commas in arrays: [ 1, 2, ] -> [ 1, 2 ]
+        json_str = re.sub(r',\s*\]', ']', json_str)
+        
+        return json_str
     
     def check_health(self) -> bool:
         """
         Check if the AI service is healthy and ready to use.
-        
-        Returns:
-            bool: True if service is healthy, False otherwise
         """
-        try:
-            return bool(self.client)
-        except Exception as e:
-            return False
+        if self.provider:
+            return self.provider.health_check()
+        return False
     
     def _generate_mock_response(self, prompt: str, topic: str = "General Topic", subject: str = "Mathematics", grade: str = "Grade 4") -> str:
-        """
-        Generate a mock response for testing purposes.
-        
-        Args:
-            prompt (str): The original prompt
-            topic (str): The topic being taught
-            subject (str): The subject area
-            grade (str): The grade level
-            
-        Returns:
-            str: Mock response
-        """
+        """Generate a mock response for testing purposes."""
         if "comprehensive lesson resource" in prompt.lower():
             return self._generate_mock_lesson_resource(topic, subject, grade)
         else:
             return f"Mock response: This is a placeholder response for {topic} in {subject} for {grade} students."
     
+    def _clean_and_repair(self, content: str) -> str:
+        """
+        Clean markdown formatting and repair common JSON syntax errors.
+        """
+        if not content: return ""
+        
+        # 1. Strip markdown
+        clean_content = content.replace("```json", "").replace("```", "").strip()
+        
+        # 2. Extract JSON payload if surrounded by text
+        if "{" in clean_content:
+            import re
+            match = re.search(r'(\{.*\})', clean_content, re.DOTALL)
+            if match:
+                clean_content = match.group(1)
+                
+        # 3. Repair JSON syntax (trailing commas)
+        clean_content = self._repair_json(clean_content)
+        
+        return clean_content
+
     def _generate_mock_lesson_resource(self, topic: str = "General Topic", subject: str = "Mathematics", grade: str = "Grade 4") -> str:
         """Generate a mock comprehensive lesson resource with enhanced local context."""
         return json.dumps({
@@ -277,41 +310,32 @@ class AwadeGPTService:
         objectives: List[str],
         contents: Optional[List[str]] = None,
         duration: int = 45,
-        context: Optional[str] = None
-    ) -> str:
+        context: Optional[str] = None,
+        template_schema: Optional[str] = None,
+        model_tier: str = "standard"
+    ) -> tuple[str, bool]:
         """
         Generate a comprehensive lesson resource using the prompt template.
-        
-        Args:
-            subject (str): Subject area (e.g., Mathematics, Science)
-            grade (str): Grade level (e.g., Grade 4, JSS1)
-            topic (str): Specific topic to teach
-            objectives (List[str]): Learning objectives from curriculum
-            duration (int): Lesson duration in minutes
-            context (Optional[str]): Local context and available resources
-            
-        Returns:
-            str: Generated lesson resource content in JSON format
         """
         try:
-            logger.info(f"Generating lesson resource for {subject} {grade} - {topic}")
-            logger.info(f"Learning Objectives: {objectives}")
-            logger.info(f"Contents: {contents}")
-            logger.info(f"Context: {context}")
+            logger.info(f"Generating lesson resource for {subject} {grade} - {topic} (Tier: {model_tier})")
             
             # Format objectives as string
             objectives_str = ", ".join(objectives) if objectives else "To be determined"
             
             # Get country from context or use default
             country = "Nigeria"  # Default country
-            if context and "nigeria" in context.lower():
-                country = "Nigeria"
-            elif context and "ghana" in context.lower():
-                country = "Ghana"
-            elif context and "kenya" in context.lower():
-                country = "Kenya"
+            if context:
+                context_lower = context.lower()
+                if "nigeria" in context_lower: country = "Nigeria"
+                elif "ghana" in context_lower: country = "Ghana"
+                elif "kenya" in context_lower: country = "Kenya"
             
-            # Prepare prompt parameters according to the template
+            # Prepare prompt parameters
+            contents_val = ", ".join(contents) if contents else "Comprehensive lesson content including introduction, main concepts, examples, and activities"
+            if template_schema:
+                contents_val = f"{contents_val}\n\nSTRICT TEMPLATE STRUCTURE RULES:\n{template_schema}"
+                
             prompt_params = {
                 "topic": topic,
                 "subject": subject,
@@ -319,36 +343,49 @@ class AwadeGPTService:
                 "country": country,
                 "local_context": context or "Standard classroom with basic resources",
                 "learning_objectives": objectives_str,
-                "contents": ", ".join(contents) if contents else "Comprehensive lesson content including introduction, main concepts, examples, and activities"
+                "contents": contents_val
             }
             
-            # Generate prompt using the template
+            # Generate prompt
             prompt = COMPREHENSIVE_LESSON_RESOURCE_PROMPT.format(**prompt_params)
-            
-            # Sanitize input
             prompt = self._sanitize_input(prompt)
-            logger.info(f"Generated sanitized prompt for {country} context")
             
-            # Make API call with topic, subject, and grade for proper mock responses
-            response = self._make_api_call(prompt, topic=topic, subject=subject, grade=grade)
+            # Construct metadata for caching
+            # We use the prompt_params as the unique identifier for the request logic
+            # This satisfies "Include Context Input in cache hash" since context is in prompt_params["local_context"]
+            prompt_metadata = {
+                "topic": topic,
+                "subject": subject,
+                "grade_level": grade,
+                "objectives": objectives,
+                "context": context,
+                "template_schema": template_schema
+            }
             
-            # Validate output safety and structure
-            if not self._validate_output(response):
-                logger.warning("AI output failed validation. Falling back to mock/safe response.")
-                return self._generate_mock_lesson_resource(topic, subject, grade)
+            # Make API call
+            response = self._make_api_call(
+                prompt=prompt, 
+                topic=topic, 
+                subject=subject, 
+                grade=grade,
+                model_tier=model_tier,
+                prompt_metadata=prompt_metadata,
+                response_format="json"  # Enforce JSON mode
+            )
+            
+            # Clean and repair the response before validation
+            # This ensures we store valid JSON even if the Provider returned markdown or trailing commas
+            cleaned_response = self._clean_and_repair(response)
+            
+            # Validate output (using the cleaned version)
+            is_valid, reason = self.validate_output(cleaned_response)
+            if not is_valid:
+                logger.warning(f"AI output failed validation: {reason}. Flagging for review.")
+                # We return the cleaned version even if invalid, as it's better than raw markdown
+                return cleaned_response, False
                 
-            logger.info(f"Received validated response from OpenAI API (length: {len(response)} characters)")
-            
-            # Try to parse as JSON, fallback to plain text if needed
-            try:
-                # Check if response is valid JSON
-                parsed_json = json.loads(response)
-                logger.info("Successfully parsed AI response as JSON")
-                return response
-            except json.JSONDecodeError as e:
-                # If not valid JSON, return as plain text
-                return response
+            return cleaned_response, True
                 
         except Exception as e:
             logger.error(f"Error generating lesson resource: {e}")
-            return self._generate_mock_lesson_resource(topic, subject, grade)
+            return self._generate_mock_lesson_resource(topic, subject, grade), True

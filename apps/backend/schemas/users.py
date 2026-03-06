@@ -12,6 +12,7 @@ class UserRole(str, Enum):
     """Enumeration of user roles in the system."""
     EDUCATOR = "EDUCATOR"
     ADMIN = "ADMIN"
+    SUPER_ADMIN = "SUPER_ADMIN"
 
 def get_password_min_length() -> int:
     """Get minimum password length from environment variables."""
@@ -85,6 +86,7 @@ class UserResponse(BaseModel):
     languages_spoken: Optional[str] = None
     phone: Optional[str] = None
     bio: Optional[str] = None
+    profile_image_url: Optional[str] = None
     created_at: datetime
     last_login: Optional[datetime] = None
     

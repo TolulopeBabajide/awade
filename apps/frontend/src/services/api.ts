@@ -123,6 +123,40 @@ class ApiService {
     return this.handleResponse(response, () => this.getCurrentUser());
   }
 
+  // Admin / Templates
+  async listTemplates(): Promise<ApiResponse<any[]>> {
+    const response = await fetch(`${API_BASE_URL}/admin/templates`, {
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async createTemplate(templateData: any): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/admin/templates`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(templateData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateTemplate(templateId: number, templateData: any): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/admin/templates/${templateId}`, {
+      method: 'PATCH',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(templateData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteTemplate(templateId: number): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/admin/templates/${templateId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
   // Update user profile
   async updateProfile(profileData: any, userId?: number): Promise<ApiResponse<any>> {
     if (!userId) {
@@ -345,6 +379,58 @@ class ApiService {
     return this.handleResponse(response, () => this.getCountries());
   }
 
+  async createCountry(countryData: any): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/countries/`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(countryData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateCountry(countryId: number, countryData: any): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/countries/${countryId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(countryData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteCountry(countryId: number): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/countries/${countryId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async createCurriculum(curriculumData: any): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/curriculum/`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(curriculumData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateCurriculum(curriculaId: number, curriculumData: any): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/curriculum/${curriculaId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(curriculumData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteCurriculum(curriculaId: number): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/curriculum/${curriculaId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
   async getSubjects(): Promise<ApiResponse<any[]>> {
     const fetchFn = async () => {
       const response = await fetch(`${API_BASE_URL}/subjects/`, {
@@ -356,6 +442,44 @@ class ApiService {
     return this.handleResponse(response, () => this.getSubjects());
   }
 
+  // ... existing getSubjects code ...
+
+  // Topics
+  async createTopic(topicData: any): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/curriculum/topics`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(topicData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateTopic(topicId: number, topicData: any): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/curriculum/topics/${topicId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(topicData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteTopic(topicId: number): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/curriculum/topics/${topicId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async createSubject(subjectData: any): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/subjects/`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(subjectData)
+    });
+    return this.handleResponse(response);
+  }
+
   async getGradeLevels(): Promise<ApiResponse<any[]>> {
     const fetchFn = async () => {
       const response = await fetch(`${API_BASE_URL}/grade-levels/`, {
@@ -365,6 +489,15 @@ class ApiService {
     }
     const response = await fetchFn();
     return this.handleResponse(response, () => this.getGradeLevels());
+  }
+
+  async createGradeLevel(gradeLevelData: any): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/grade-levels/`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(gradeLevelData)
+    });
+    return this.handleResponse(response);
   }
 
   async getTopics(): Promise<ApiResponse<any[]>> {
@@ -389,7 +522,6 @@ class ApiService {
     return this.handleResponse(response, () => this.getTopicsByCurriculumStructure(curriculumStructureId));
   }
 
-  // Curriculum Data
   async getCurriculums(countryId?: number): Promise<ApiResponse<any[]>> {
     const fetchFn = async () => {
       const url = countryId
@@ -416,6 +548,101 @@ class ApiService {
     }
     const response = await fetchFn();
     return this.handleResponse(response, () => this.getCurriculumStructures(curriculaId));
+  }
+
+  async createCurriculumStructure(structureData: any): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/curriculum-structures/`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(structureData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateCurriculumStructure(structureId: number, structureData: any): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/curriculum-structures/${structureId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(structureData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteCurriculumStructure(structureId: number): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/curriculum-structures/${structureId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+
+  // Learning Objectives
+  async getLearningObjectives(topicId: number): Promise<ApiResponse<any[]>> {
+    const response = await fetch(`${API_BASE_URL}/curriculum/topics/${topicId}/learning-objectives`, {
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async createLearningObjective(objectiveData: any): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/curriculum/learning-objectives`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(objectiveData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateLearningObjective(objectiveId: number, objective: string): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/curriculum/learning-objectives/${objectiveId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ objective })
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteLearningObjective(objectiveId: number): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/curriculum/learning-objectives/${objectiveId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  // Topic Content
+  async getTopicContents(topicId: number): Promise<ApiResponse<any[]>> {
+    const response = await fetch(`${API_BASE_URL}/curriculum/topics/${topicId}/contents`, {
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async createTopicContent(contentData: any): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/curriculum/contents`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(contentData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateTopicContent(contentId: number, content_area: string): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/curriculum/contents/${contentId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ content_area })
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteTopicContent(contentId: number): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/curriculum/contents/${contentId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
   }
 
   // Google OAuth

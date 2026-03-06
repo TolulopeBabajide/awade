@@ -35,3 +35,7 @@ slowapi>=0.1.9
 arq>=0.25.0
 redis>=5.0.0
 prometheus-fastapi-instrumentator>=6.1.0
+
+# AI Providers
+google-generativeai>=0.3.0
+httplib2==0.22.0

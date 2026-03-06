@@ -88,9 +88,14 @@ async def generate_lesson_resource_task(ctx, resource_id: int):
         # AwadeGPTService uses OpenAI client which is synchronous by default unless using AsyncOpenAI
         # For simplicity in this sprint, we assume it's acceptable or wrap in loop
         
+        # Fetch active template
+        from apps.backend.models import LessonTemplate
+        active_template = db.query(LessonTemplate).filter(LessonTemplate.is_active == 1).first()
+        template_schema = active_template.schema_json if active_template else None
+
         # Using run_in_executor to not block the event loop if the service is sync
         loop = asyncio.get_event_loop()
-        ai_content = await loop.run_in_executor(
+        ai_content, is_safe = await loop.run_in_executor(
             None, 
             lambda: ai_service.generate_lesson_resource(
                 subject=subject.name if subject else "Mathematics",
@@ -98,13 +103,25 @@ async def generate_lesson_resource_task(ctx, resource_id: int):
                 topic=topic.topic_title,
                 objectives=objectives,
                 contents=contents,
-                context=combined_context
+                context=combined_context,
+                template_schema=template_schema
             )
         )
         
         # Update resource
         resource.ai_generated_content = ai_content
         resource.status = "generated"
+        
+        # If not safe, create a moderation entry
+        from apps.backend.models import ResourceModeration
+        if not is_safe:
+            moderation = ResourceModeration(
+                lesson_resource_id=resource_id,
+                status='flagged',
+                notes="Automatically flagged by AI safety filter due to potential structural or content issues."
+            )
+            db.add(moderation)
+            
         db.commit()
         print(f"Successfully generated content for resource {resource_id}")
         

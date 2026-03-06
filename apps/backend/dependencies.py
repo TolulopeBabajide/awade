@@ -162,9 +162,10 @@ def require_roles(required_roles: list[UserRole]):
     return check_roles
 
 # Convenience dependencies for common role requirements
-require_admin = require_role(UserRole.ADMIN)
+require_super_admin = require_role(UserRole.SUPER_ADMIN)
+require_admin = require_roles([UserRole.ADMIN, UserRole.SUPER_ADMIN])
 require_educator = require_role(UserRole.EDUCATOR)
-require_admin_or_educator = require_roles([UserRole.ADMIN, UserRole.EDUCATOR])
+require_admin_or_educator = require_roles([UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.EDUCATOR])
 
 async def get_optional_current_user(
     request: Request,

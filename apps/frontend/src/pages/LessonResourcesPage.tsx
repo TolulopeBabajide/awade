@@ -3,20 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Sidebar from '../components/Sidebar';
 import MobileNavigation from '../components/MobileNavigation';
-import { 
-  FaBookOpen, 
-  FaPlus, 
-  FaSearch, 
-  FaFilter, 
-  FaEye, 
-  FaEdit, 
-  FaTrash, 
-  FaDownload, 
-  FaShare, 
-  FaStar, 
-  FaClock, 
-  FaUser, 
-  FaCalendar, 
+import {
+  FaBookOpen,
+  FaPlus,
+  FaSearch,
+  FaFilter,
+  FaEye,
+  FaEdit,
+  FaTrash,
+  FaDownload,
+  FaShare,
+  FaStar,
+  FaClock,
+  FaUser,
+  FaCalendar,
   FaHome,
   FaFolder,
   FaCog
@@ -96,8 +96,8 @@ const LessonResourcesPage: React.FC = () => {
               <p className="text-sm md:text-base lg:text-lg text-gray-600">Manage and view all your AI-generated lesson resources.</p>
             </div>
           </div>
-          
-          
+
+
         </div>
 
         {/* Content */}
@@ -121,7 +121,7 @@ const LessonResourcesPage: React.FC = () => {
               </div>
               <h3 className="text-xl font-semibold text-gray-700 mb-3">No Lesson Resources Yet</h3>
               <p className="text-gray-500 mb-4">Create lesson plans to generate AI-powered resources</p>
-              <button 
+              <button
                 onClick={() => navigate('/dashboard')}
                 className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105"
               >
@@ -137,27 +137,33 @@ const LessonResourcesPage: React.FC = () => {
                   let subject = 'Subject';
                   let topic = 'Topic';
                   let gradeLevel = 'Grade';
-                  
+
                   try {
                     if (resource.ai_generated_content) {
-                      const parsedContent = JSON.parse(resource.ai_generated_content);
-                      if (parsedContent.title_header?.subject) {
+                      let parsedContent;
+                      if (typeof resource.ai_generated_content === 'string') {
+                        parsedContent = JSON.parse(resource.ai_generated_content);
+                      } else {
+                        parsedContent = resource.ai_generated_content;
+                      }
+
+                      if (parsedContent?.title_header?.subject) {
                         subject = parsedContent.title_header.subject;
                       }
-                      if (parsedContent.title_header?.topic) {
+                      if (parsedContent?.title_header?.topic) {
                         topic = parsedContent.title_header.topic;
                       }
-                      if (parsedContent.title_header?.grade_level) {
+                      if (parsedContent?.title_header?.grade_level) {
                         gradeLevel = parsedContent.title_header.grade_level;
                       }
                     }
                   } catch (e) {
-                    // If parsing fails, use default values
+                    console.error('Error parsing content for resource', resource.lesson_resources_id, e);
                   }
-                  
+
                   return (
-                    <div 
-                      key={resource.lesson_resources_id} 
+                    <div
+                      key={resource.lesson_resources_id}
                       className="bg-white rounded-xl shadow-md hover:shadow-lg p-3 md:p-4 flex flex-col cursor-pointer transition-all duration-300 border border-gray-100 hover:border-primary-200 group"
                       onClick={() => handleResourceClick(resource)}
                     >
@@ -165,17 +171,17 @@ const LessonResourcesPage: React.FC = () => {
                       <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-primary-100 to-primary-200 rounded-xl flex items-center justify-center mb-2 md:mb-3 text-lg md:text-xl group-hover:scale-110 transition-transform duration-300 mx-auto">
                         <FaBookOpen className="w-5 h-5 md:w-6 md:h-6 text-primary-600" />
                       </div>
-                      
+
                       {/* Subject */}
                       <div className="text-xs md:text-sm font-semibold text-primary-600 mb-1 text-center">
                         {subject}
                       </div>
-                      
+
                       {/* Topic */}
                       <div className="font-bold text-primary-900 mb-2 text-center line-clamp-2 text-xs md:text-sm leading-tight">
                         {topic}
                       </div>
-                      
+
                       {/* Grade Level */}
                       <div className="text-xs text-primary-700 mb-1 text-center">
                         {gradeLevel}
@@ -184,7 +190,7 @@ const LessonResourcesPage: React.FC = () => {
                   );
                 })}
               </div>
-              
+
               {/* Resource Count */}
               <div className="text-center mt-8">
                 <p className="text-sm text-gray-500">
