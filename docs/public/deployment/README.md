@@ -347,7 +347,11 @@ server {
 
 ---
 
-*This deployment guide covers the current production-ready setup. For development deployment, see the [Development Guide](../development/README.md).*
+*This deployment guide covers the current production-ready setup.
+- [Docker Deployment](#docker-deployment) - General container setup
+- [Vercel & Render Guide](./render-vercel-guide.md) - Deploying to Render (Backend) and Vercel (Frontend)
+- [Railway Guide](./railway.md) - Deploying the full stack to Railway
+For development deployment, see the [Development Guide](../development/README.md).*
 
 *Last updated: January 2024*
-*Maintainer: Awade Development Team* 
+*Maintainer: Awade Development Team*
