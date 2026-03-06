@@ -64,7 +64,7 @@ awade/
 
 - 🧠 Code: [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html)
 - 📘 Content: [CC-BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)
-- ❌ AI model training or dataset usage is prohibited. See [AI_USE_POLICY.md](./AI_USE_POLICY.md)
+- ❌ AI model training or dataset usage is prohibited. See [ai-use-policy.md](./docs/public/external/ai-use-policy.md)
 
 ## 🔒 Security
 

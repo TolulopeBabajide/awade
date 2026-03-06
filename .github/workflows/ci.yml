@@ -37,14 +37,7 @@ jobs:
         run: |
           test -f README.md
           test -f docs/public/api/README.md
-          test -f AI_USE_POLICY.md
-          echo "✅ All required documentation files present"
-
-      - name: Check for required files
-        run: |
-          test -f README.md
-          test -f docs/public/api/README.md
-          test -f AI_USE_POLICY.md
+          test -f docs/public/external/ai-use-policy.md
           echo "✅ All required documentation files present"
 
       - name: Validate MCP configuration
@@ -341,7 +334,7 @@ jobs:
           cp docs/README.md dist/docs/
 
           cp README.md dist/
-          cp AI_USE_POLICY.md dist/
+          cp docs/public/external/ai-use-policy.md dist/
           cp LICENSE.md dist/
           cp .env.example dist/
 
