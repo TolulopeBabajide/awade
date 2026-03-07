@@ -1,6 +1,6 @@
 import { sanitizeInput } from '../utils/sanitizer';
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = ((import.meta as any).env.VITE_API_URL || '') + '/api';
 
 interface ApiResponse<T> {
   data?: T;
