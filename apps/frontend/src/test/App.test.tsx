@@ -32,9 +32,17 @@ describe('App', () => {
     expect(elements[0]).toBeInTheDocument()
   })
 
-  it('renders landing page by default', () => {
+  it('renders parent landing page by default', () => {
     render(<AppWithRouter />)
-    // The landing page should be rendered when not authenticated
-    expect(screen.getByText(/Transform Your Teaching with Awade/i)).toBeInTheDocument()
+    // Post-pivot: landing page shows parent-focused hero headline
+    expect(screen.getByRole('heading', { name: /Understand what your child is learning/i })).toBeInTheDocument()
+  })
+
+  it('renders parent landing page CTA', () => {
+    render(<AppWithRouter />)
+    // Primary CTA uses aria-label "Sign up as a parent" (visible text: "Get Started Free")
+    const ctaLink = screen.getByRole('link', { name: /Sign up as a parent/i })
+    expect(ctaLink).toBeInTheDocument()
+    expect(ctaLink).toHaveAttribute('href', '/signup')
   })
 })
