@@ -138,7 +138,7 @@ class AuthService:
         
         return google_data
     
-    def authenticate_google_user(self, id_token: str) -> Tuple[AuthResponse, str]:
+    def authenticate_google_user(self, id_token: str, requested_role: str = "PARENT") -> Tuple[AuthResponse, str]:
         """
         Authenticate user with Google OAuth.
         
@@ -164,11 +164,17 @@ class AuthService:
             # Lookup or create user in DB
             user = self.db.query(User).filter(User.email == email).first()
             if not user:
+                # Map the requested role string to the enum; default to PARENT
+                try:
+                    new_role = UserRole(requested_role)
+                except (ValueError, KeyError):
+                    new_role = UserRole.PARENT
+
                 user = User(
                     email=email,
                     password_hash="google-oauth",  # Not used for Google users
                     full_name=full_name or email,
-                    role=UserRole.EDUCATOR,
+                    role=new_role,
                     country="",
                     created_at=datetime.now(timezone.utc)
                 )

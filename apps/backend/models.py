@@ -19,6 +19,7 @@ Base = declarative_base()
 class UserRole(enum.Enum):
     """Enumeration of user roles in the Awade platform."""
     EDUCATOR = "EDUCATOR"
+    PARENT = "PARENT"
     ADMIN = "ADMIN"
     SUPER_ADMIN = "SUPER_ADMIN"
 
@@ -196,6 +197,57 @@ class User(Base):
     # Relationships
     lesson_resources = relationship("LessonResource", back_populates="user")
     lesson_plans = relationship("LessonPlan", back_populates="user", cascade="all, delete-orphan")
+    children = relationship("ChildProfile", back_populates="parent", cascade="all, delete-orphan")
+
+class ChildProfile(Base):
+    """Child profiles managed by parent users."""
+    __tablename__ = 'child_profiles'
+
+    child_id = Column(Integer, primary_key=True, autoincrement=True)
+    parent_id = Column(Integer, ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
+    name = Column(String(100), nullable=False)
+    age = Column(Integer, nullable=True)
+    school_name = Column(String(200), nullable=True)
+    country_id = Column(Integer, ForeignKey('countries.country_id'), nullable=True)
+    curricula_id = Column(Integer, ForeignKey('curricula.curricula_id'), nullable=True)
+    grade_level_id = Column(Integer, ForeignKey('grade_levels.grade_level_id'), nullable=True)
+    subjects = Column(Text, nullable=True)  # JSON array of subject IDs the child needs help with
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
+
+    # Relationships
+    parent = relationship("User", back_populates="children")
+    country = relationship("Country")
+    curriculum = relationship("Curriculum")
+    grade_level = relationship("GradeLevel")
+    parent_guides = relationship("ParentGuide", back_populates="child", cascade="all, delete-orphan")
+
+    __table_args__ = (
+        Index('idx_child_parent', 'parent_id'),
+    )
+
+
+class ParentGuide(Base):
+    """AI-generated 'How to Help' guides for parent users."""
+    __tablename__ = 'parent_guides'
+
+    guide_id = Column(Integer, primary_key=True, autoincrement=True)
+    child_id = Column(Integer, ForeignKey('child_profiles.child_id', ondelete='CASCADE'), nullable=False)
+    topic_id = Column(Integer, ForeignKey('topics.topic_id', ondelete='CASCADE'), nullable=False)
+    ai_generated_content = Column(Text, nullable=True)
+    user_edited_content = Column(Text, nullable=True)
+    is_bookmarked = Column(Integer, default=0, nullable=False)  # 0 = not bookmarked, 1 = bookmarked
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
+
+    # Relationships
+    child = relationship("ChildProfile", back_populates="parent_guides")
+    topic = relationship("Topic")
+
+    __table_args__ = (
+        Index('idx_guide_child_topic', 'child_id', 'topic_id'),
+    )
+
 
 class LessonPlan(Base):
     """Lesson plans created by educators."""

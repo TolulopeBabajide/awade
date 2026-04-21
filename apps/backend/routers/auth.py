@@ -41,6 +41,7 @@ class GoogleAuthRequest(BaseModel):
     Request schema for Google OAuth authentication.
     """
     credential: str
+    role: str = "PARENT"  # Default to PARENT for new Google sign-ups
 
 class TokenRefreshRequest(BaseModel):
     """
@@ -58,7 +59,7 @@ def google_auth(
     Authenticate user with Google OAuth credential (ID token).
     """
     service = AuthService(db)
-    auth_response, refresh_token = service.authenticate_google_user(payload.credential)
+    auth_response, refresh_token = service.authenticate_google_user(payload.credential, requested_role=payload.role)
     
     # Set refresh token as HttpOnly cookie
     response.set_cookie(

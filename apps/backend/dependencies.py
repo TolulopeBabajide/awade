@@ -165,7 +165,9 @@ def require_roles(required_roles: list[UserRole]):
 require_super_admin = require_role(UserRole.SUPER_ADMIN)
 require_admin = require_roles([UserRole.ADMIN, UserRole.SUPER_ADMIN])
 require_educator = require_role(UserRole.EDUCATOR)
+require_parent = require_roles([UserRole.PARENT, UserRole.ADMIN, UserRole.SUPER_ADMIN])
 require_admin_or_educator = require_roles([UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.EDUCATOR])
+require_any_role = require_roles([UserRole.EDUCATOR, UserRole.PARENT, UserRole.ADMIN, UserRole.SUPER_ADMIN])
 
 async def get_optional_current_user(
     request: Request,

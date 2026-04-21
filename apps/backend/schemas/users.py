@@ -11,6 +11,7 @@ import os
 class UserRole(str, Enum):
     """Enumeration of user roles in the system."""
     EDUCATOR = "EDUCATOR"
+    PARENT = "PARENT"
     ADMIN = "ADMIN"
     SUPER_ADMIN = "SUPER_ADMIN"
 

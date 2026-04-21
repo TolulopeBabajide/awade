@@ -39,7 +39,8 @@ sys.path.extend([parent_dir, root_dir])
 # Import routers
 from apps.backend.routers import (
     lesson_plans, curriculum, users, contexts, auth,
-    country, grade_level, subject, curriculum_structure, admin
+    country, grade_level, subject, curriculum_structure, admin,
+    children
 )
 from apps.backend.database import get_db, engine
 from apps.backend.models import Base
@@ -174,6 +175,7 @@ app.include_router(subject.router)
 app.include_router(curriculum_structure.router)
 app.include_router(contexts.router)
 app.include_router(admin.router)
+app.include_router(children.router)
 
 # Basic health and info endpoints
 @app.get("/")
