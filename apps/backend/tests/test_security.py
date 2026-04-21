@@ -105,6 +105,41 @@ async def test_rate_limiting():
     pass
 
 
+class TestGenerateGuideRateLimit:
+    """
+    H-07 — Parent guide generation endpoint must be rate-limited.
+
+    The POST /api/children/{child_id}/guides/generate endpoint calls OpenAI on
+    every cache miss. Without a rate limit any authenticated user can trigger
+    unlimited API calls, creating a cost-abuse vector.
+
+    These tests verify the structural requirements for slowapi rate limiting:
+    - The route accepts a `request: Request` parameter (required by slowapi).
+    - The route is registered in the application and returns 403 when
+      unauthenticated (not 404 — confirming the route exists and the
+      decorator stack is intact).
+    """
+
+    def test_generate_guide_route_is_registered(self, client):
+        """Unauthenticated POST returns 403, not 404 — route exists in the app."""
+        response = client.post("/api/children/1/guides/generate?topic_id=1")
+        assert response.status_code == 403, (
+            f"Expected 403 (auth required), got {response.status_code}. "
+            "If 404, the route may have been removed or the rate-limit decorator broke routing."
+        )
+
+    def test_generate_guide_has_request_parameter(self):
+        """generate_guide must accept `request: Request` — required by slowapi."""
+        import inspect
+        from apps.backend.routers.children import generate_guide
+
+        sig = inspect.signature(generate_guide)
+        assert "request" in sig.parameters, (
+            "generate_guide is missing the `request: Request` parameter. "
+            "slowapi @limiter.limit requires it to extract the client IP."
+        )
+
+
 class TestGoogleOAuthRoleWhitelist:
     """
     C-03 — Privilege escalation via Google OAuth.

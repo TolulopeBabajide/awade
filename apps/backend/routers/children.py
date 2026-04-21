@@ -18,13 +18,14 @@ Endpoints:
 Author: Tolulope Babajide
 """
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.orm import Session
 from typing import Optional
 
 from apps.backend.database import get_db
 from apps.backend.models import User
 from apps.backend.dependencies import get_current_active_user
+from apps.backend.limiter import limiter
 from apps.backend.schemas.children import (
     ChildProfileCreate,
     ChildProfileUpdate,
@@ -127,7 +128,9 @@ def list_child_guides(
 
 
 @router.post("/children/{child_id}/guides/generate", response_model=ParentGuideResponse, status_code=201)
+@limiter.limit("5/minute")
 def generate_guide(
+    request: Request,
     child_id: int,
     topic_id: int = Query(..., description="Topic ID to generate a guide for"),
     current_user: User = Depends(get_current_active_user),
@@ -136,6 +139,7 @@ def generate_guide(
     """
     Generate (or retrieve existing) a 'How to Help' guide for a child and topic.
     If a guide already exists for this child+topic, returns the existing one.
+    Rate-limited to 5 requests/minute per IP to prevent OpenAI cost abuse.
     """
     service = ChildrenService(db)
     return service.generate_guide(current_user, child_id, topic_id)
