@@ -164,9 +164,12 @@ class AuthService:
             # Lookup or create user in DB
             user = self.db.query(User).filter(User.email == email).first()
             if not user:
-                # Map the requested role string to the enum; default to PARENT
+                # Whitelist only PARENT and EDUCATOR — coerce anything else (including
+                # ADMIN / SUPER_ADMIN) to PARENT so clients cannot self-elevate via OAuth.
+                _ALLOWED_GOOGLE_ROLES = {UserRole.PARENT, UserRole.EDUCATOR}
                 try:
-                    new_role = UserRole(requested_role)
+                    candidate = UserRole(requested_role)
+                    new_role = candidate if candidate in _ALLOWED_GOOGLE_ROLES else UserRole.PARENT
                 except (ValueError, KeyError):
                     new_role = UserRole.PARENT
 
