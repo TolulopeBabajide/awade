@@ -58,6 +58,39 @@ def test_input_sanitization():
     clean_messy = sanitize_input(messy_input)
     assert clean_messy == "Hello World"
 
+class TestGetJwtSecretKey:
+    """AWD-C-02: JWT secret key must not fall back to 'dev-secret' in production."""
+
+    def test_returns_env_var_when_set(self, monkeypatch):
+        """When JWT_SECRET_KEY is set it is returned regardless of environment."""
+        from apps.backend.dependencies import get_jwt_secret_key
+        monkeypatch.setenv("JWT_SECRET_KEY", "super-strong-secret")
+        monkeypatch.setenv("ENVIRONMENT", "production")
+        assert get_jwt_secret_key() == "super-strong-secret"
+
+    def test_returns_dev_secret_in_development(self, monkeypatch):
+        """Missing key is tolerated in development — falls back to 'dev-secret'."""
+        from apps.backend.dependencies import get_jwt_secret_key
+        monkeypatch.delenv("JWT_SECRET_KEY", raising=False)
+        monkeypatch.setenv("ENVIRONMENT", "development")
+        assert get_jwt_secret_key() == "dev-secret"
+
+    def test_returns_dev_secret_in_testing(self, monkeypatch):
+        """Missing key is tolerated in testing — falls back to 'dev-secret'."""
+        from apps.backend.dependencies import get_jwt_secret_key
+        monkeypatch.delenv("JWT_SECRET_KEY", raising=False)
+        monkeypatch.setenv("ENVIRONMENT", "testing")
+        assert get_jwt_secret_key() == "dev-secret"
+
+    def test_raises_in_production_without_key(self, monkeypatch):
+        """Missing JWT_SECRET_KEY in production must raise RuntimeError at call time."""
+        from apps.backend.dependencies import get_jwt_secret_key
+        monkeypatch.delenv("JWT_SECRET_KEY", raising=False)
+        monkeypatch.setenv("ENVIRONMENT", "production")
+        with pytest.raises(RuntimeError, match="JWT_SECRET_KEY"):
+            get_jwt_secret_key()
+
+
 @pytest.mark.asyncio
 async def test_rate_limiting():
     """
@@ -66,7 +99,7 @@ async def test_rate_limiting():
     """
     # We'll simulate multiple requests to the login endpoint
     # The limit is 10/minute
-    
+
     # Note: TestClient might not trigger rate limits correctly without specific setup
     # because it shares the same "remote address" (client.host)
-    pass 
+    pass

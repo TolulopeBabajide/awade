@@ -71,9 +71,14 @@ def run_database_fix():
 
 from contextlib import asynccontextmanager
 from apps.backend.redis_client import create_redis_pool
+from apps.backend.dependencies import get_jwt_secret_key
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Validate required secrets before accepting traffic.
+    # get_jwt_secret_key() raises RuntimeError in production when unset.
+    get_jwt_secret_key()
+
     # Startup: Create Redis pool
     try:
         app.state.redis = await create_redis_pool()

@@ -20,8 +20,22 @@ from apps.backend.models import User, UserRole
 security = HTTPBearer()
 
 def get_jwt_secret_key() -> str:
-    """Get JWT secret key from environment variables."""
-    return os.getenv("JWT_SECRET_KEY", "dev-secret")
+    """Get JWT secret key from environment variables.
+
+    Raises:
+        RuntimeError: If ENVIRONMENT is 'production' and JWT_SECRET_KEY is not set.
+    """
+    secret = os.getenv("JWT_SECRET_KEY")
+    if not secret:
+        environment = os.getenv("ENVIRONMENT", "development")
+        if environment == "production":
+            raise RuntimeError(
+                "JWT_SECRET_KEY environment variable is required in production. "
+                "Set a strong random secret before starting the server."
+            )
+        # Development / testing fallback — never safe for production.
+        secret = "dev-secret"
+    return secret
 
 def get_jwt_algorithm() -> str:
     """
