@@ -17,7 +17,7 @@ from typing import List, Dict, Any, Optional
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-from .prompts import COMPREHENSIVE_LESSON_RESOURCE_PROMPT
+from .prompts import COMPREHENSIVE_LESSON_RESOURCE_PROMPT, PARENT_HELPER_PROMPT
 from .providers.base import LLMProvider
 from .providers.openai_provider import OpenAIProvider
 from .providers.gemini_provider import GeminiProvider
@@ -389,3 +389,154 @@ class AwadeGPTService:
         except Exception as e:
             logger.error(f"Error generating lesson resource: {e}")
             return self._generate_mock_lesson_resource(topic, subject, grade), True
+
+    # ─── Parent Guide Generation ──────────────────────────────────────
+
+    def generate_parent_guide(
+        self,
+        subject: str,
+        grade: str,
+        topic: str,
+        country: str,
+        curriculum: str,
+        objectives: List[str],
+        contents: Optional[List[str]] = None,
+        model_tier: str = "standard",
+    ) -> tuple[str, bool]:
+        """
+        Generate a 'How to Help' guide for a parent using the PARENT_HELPER_PROMPT.
+
+        Returns:
+            tuple[str, bool]: (JSON string of the guide, whether validation passed)
+        """
+        try:
+            logger.info(f"Generating parent guide for {subject} {grade} - {topic} ({country})")
+
+            objectives_str = ", ".join(objectives) if objectives else "To be determined"
+            contents_str = (
+                ", ".join(contents) if contents
+                else "General topic content"
+            )
+
+            prompt_params = {
+                "topic": topic,
+                "subject": subject,
+                "grade_level": grade,
+                "country": country,
+                "curriculum": curriculum,
+                "learning_objectives": objectives_str,
+                "contents": contents_str,
+            }
+
+            prompt = PARENT_HELPER_PROMPT.format(**prompt_params)
+            prompt = self._sanitize_input(prompt)
+
+            prompt_metadata = {
+                "type": "parent_guide",
+                "topic": topic,
+                "subject": subject,
+                "grade_level": grade,
+                "country": country,
+                "curriculum": curriculum,
+                "objectives": objectives,
+            }
+
+            response = self._make_api_call(
+                prompt=prompt,
+                topic=topic,
+                subject=subject,
+                grade=grade,
+                model_tier=model_tier,
+                prompt_metadata=prompt_metadata,
+                response_format="json",
+            )
+
+            cleaned = self._clean_and_repair(response)
+
+            # Light validation — check for key fields
+            is_valid, reason = self._validate_parent_guide(cleaned)
+            if not is_valid:
+                logger.warning(f"Parent guide validation failed: {reason}")
+                return cleaned, False
+
+            return cleaned, True
+
+        except Exception as e:
+            logger.error(f"Error generating parent guide: {e}")
+            return self._generate_mock_parent_guide(topic, subject, grade, country, curriculum), True
+
+    def _validate_parent_guide(self, content: str) -> tuple[bool, Optional[str]]:
+        """Validate that the parent guide JSON has the required top-level keys."""
+        try:
+            data = json.loads(content)
+            required = ["topic_header", "simple_explanation", "home_activity", "conversation_starters", "common_mistakes"]
+            for field in required:
+                if field not in data:
+                    return False, f"Missing required field: {field}"
+            return True, None
+        except json.JSONDecodeError:
+            return False, "Invalid JSON format"
+
+    def _generate_mock_parent_guide(
+        self,
+        topic: str = "General Topic",
+        subject: str = "Mathematics",
+        grade: str = "Grade 4",
+        country: str = "Nigeria",
+        curriculum: str = "Nigerian Curriculum",
+    ) -> str:
+        """Generate a mock parent guide for testing / fallback."""
+        return json.dumps({
+            "topic_header": {
+                "topic": topic,
+                "subject": subject,
+                "grade_level": grade,
+                "country": country,
+                "curriculum": curriculum,
+            },
+            "simple_explanation": {
+                "what_it_is": f"{topic} is a foundational concept in {subject} that helps children understand how things work in the world around them. Think of it as the building blocks your child will use for more advanced ideas later on. At this level, the focus is on understanding the basics through practical, everyday examples.",
+                "why_it_matters": f"Understanding {topic.lower()} helps your child solve problems they encounter every day — from shopping at the market to understanding how things are built in your community.",
+            },
+            "home_activity": {
+                "title": f"Kitchen Table {subject} Challenge",
+                "description": f"A fun 20-minute activity where you and your child explore {topic.lower()} using things you already have at home.",
+                "materials_needed": [
+                    "A notebook or scrap paper",
+                    "A pen or pencil",
+                    "Household items (cups, spoons, coins)",
+                ],
+                "steps": [
+                    f"Step 1: Start by asking your child what they already know about {topic.lower()}. Listen without correcting — you want to understand where they are.",
+                    "Step 2: Together, look around the kitchen or living room for examples that connect to the topic. Talk about what you find.",
+                    "Step 3: Create a simple challenge — ask your child to explain the concept to you as if you've never heard of it before. This is where real understanding shows.",
+                ],
+                "what_to_look_for": "Your child can explain the basic idea in their own words, even if the language isn't perfect. They can point to a real example in your home.",
+            },
+            "conversation_starters": [
+                f"What did your teacher say about {topic.lower()} today? Was there anything that surprised you?",
+                f"If you had to explain {topic.lower()} to your younger cousin, what would you say?",
+                f"Can you think of a time you've seen {topic.lower()} in real life — maybe at the market or on the way to school?",
+            ],
+            "common_mistakes": [
+                {
+                    "mistake": f"Confusing {topic.lower()} with a related but different concept",
+                    "why_it_happens": "At this age, children are still building mental categories. It's completely normal to mix up similar ideas.",
+                    "how_to_help": "Instead of saying 'that's wrong,' try asking 'what's the difference between X and Y?' and let them work it out. If they get stuck, give a concrete example from home.",
+                },
+                {
+                    "mistake": "Memorising steps without understanding why they work",
+                    "why_it_happens": "School often rewards getting the right answer, so children learn to follow steps without asking why.",
+                    "how_to_help": "Ask 'why does that step come next?' or 'what would happen if we skipped it?' — this builds real understanding, not just memorisation.",
+                },
+            ],
+            "curriculum_context": {
+                "what_came_before": f"Before this topic, your child learned foundational concepts that set the stage for {topic.lower()}. If they're struggling, it might help to quickly revisit those basics.",
+                "what_comes_next": f"After {topic.lower()}, the curriculum moves to more advanced applications. A strong understanding now means less struggle later.",
+                "how_long_in_school": "About 1-2 weeks of class time",
+            },
+            "encouragement_tips": [
+                f"Try saying: 'I can see you're really thinking hard about this — that's exactly what good learners do.' Effort-based praise builds resilience.",
+                "If your child is frustrated, take a break. Say: 'Let's come back to this after dinner — sometimes our brains need time to process.' This teaches them that struggle is normal, not a sign of failure.",
+            ],
+        }, indent=2)
