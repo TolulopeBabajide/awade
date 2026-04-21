@@ -409,11 +409,12 @@ class AuthService:
                     headers={"WWW-Authenticate": "Bearer"},
                 )
             
-            # Check if user is Google OAuth user
+            # Check if user is Google OAuth user — use generic message to prevent
+            # account enumeration (revealing that an email is registered via OAuth)
             if user.password_hash == "google-oauth":
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Please use Google OAuth to login with this account",
+                    detail="Invalid email or password",
                     headers={"WWW-Authenticate": "Bearer"},
                 )
             
