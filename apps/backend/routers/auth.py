@@ -50,13 +50,16 @@ class TokenRefreshRequest(BaseModel):
     refresh_token: str
 
 @router.post("/google", response_model=AuthResponse)
+@limiter.limit("10/minute")
 def google_auth(
+    request: Request,
     response: Response,
     payload: GoogleAuthRequest,
     db: Session = Depends(get_db)
 ):
     """
     Authenticate user with Google OAuth credential (ID token).
+    Rate limit: 10 requests per minute.
     """
     service = AuthService(db)
     auth_response, refresh_token = service.authenticate_google_user(payload.credential, requested_role=payload.role)
@@ -136,9 +139,11 @@ def get_current_user_profile(current_user: User = Depends(get_current_user), db:
     return service.get_current_user_profile(current_user)
 
 @router.post("/refresh", response_model=AuthResponse)
+@limiter.limit("20/minute")
 async def refresh_token(request: Request, response: Response, db: Session = Depends(get_db)):
     """
     Refresh JWT token using refresh token from HttpOnly cookie and rotate the token.
+    Rate limit: 20 requests per minute.
     """
     refresh_token = request.cookies.get("refresh_token")
     if not refresh_token:
@@ -179,17 +184,29 @@ async def logout(request: Request, response: Response, db: Session = Depends(get
     return {"message": "Logged out successfully"}
 
 @router.post("/forgot-password")
-def forgot_password(request: PasswordResetRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def forgot_password(
+    request: Request,
+    payload: PasswordResetRequest,
+    db: Session = Depends(get_db)
+):
     """
     Request password reset for a user.
+    Rate limit: 5 requests per minute (prevents email-bombing and user enumeration).
     """
     service = AuthService(db)
-    return service.request_password_reset(request.email)
+    return service.request_password_reset(payload.email)
 
 @router.post("/reset-password")
-def reset_password(request: PasswordReset, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def reset_password(
+    request: Request,
+    payload: PasswordReset,
+    db: Session = Depends(get_db)
+):
     """
     Reset user password using reset token.
+    Rate limit: 5 requests per minute (prevents token brute-force).
     """
     service = AuthService(db)
-    return service.reset_password(request.token, request.new_password) 
+    return service.reset_password(payload.token, payload.new_password) 

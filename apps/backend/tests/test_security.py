@@ -224,3 +224,62 @@ class TestGoogleOAuthRoleWhitelist:
 
         test_db.refresh(existing_user)
         assert existing_user.role == UserRole.ADMIN, "Existing user role must not be overwritten"
+
+
+class TestAuthEndpointRateLimitStructure:
+    """
+    H-13 — Auth endpoints must be rate-limited.
+
+    `/auth/google`, `/auth/refresh`, `/auth/forgot-password`, and `/auth/reset-password`
+    were previously unprotected, enabling email-bombing, user enumeration, and cheap DoS.
+
+    These structural tests verify:
+    - Each newly rate-limited endpoint accepts a `request: Request` parameter
+      (required by slowapi to extract the client IP).
+    - Each endpoint is registered in the app (returns auth-required status, not 404).
+    """
+
+    @pytest.mark.parametrize("func_name,module_path", [
+        ("google_auth", "apps.backend.routers.auth"),
+        ("refresh_token", "apps.backend.routers.auth"),
+        ("forgot_password", "apps.backend.routers.auth"),
+        ("reset_password", "apps.backend.routers.auth"),
+    ])
+    def test_rate_limited_endpoint_has_request_parameter(self, func_name, module_path):
+        """Each rate-limited endpoint must accept `request: Request` for slowapi."""
+        import inspect
+        import importlib
+        module = importlib.import_module(module_path)
+        func = getattr(module, func_name)
+        sig = inspect.signature(func)
+        assert "request" in sig.parameters, (
+            f"{func_name} is missing the `request: Request` parameter required by slowapi."
+        )
+
+    def test_google_auth_route_is_registered(self, client):
+        """POST /api/auth/google returns 422 (validation), not 404 — route exists."""
+        response = client.post("/api/auth/google", json={})
+        assert response.status_code != 404, (
+            "POST /api/auth/google returned 404 — route missing or decorator broke routing."
+        )
+
+    def test_forgot_password_route_is_registered(self, client):
+        """POST /api/auth/forgot-password returns 422 (validation), not 404 — route exists."""
+        response = client.post("/api/auth/forgot-password", json={})
+        assert response.status_code != 404, (
+            "POST /api/auth/forgot-password returned 404 — route missing or decorator broke routing."
+        )
+
+    def test_reset_password_route_is_registered(self, client):
+        """POST /api/auth/reset-password returns 422 (validation), not 404 — route exists."""
+        response = client.post("/api/auth/reset-password", json={})
+        assert response.status_code != 404, (
+            "POST /api/auth/reset-password returned 404 — route missing or decorator broke routing."
+        )
+
+    def test_refresh_route_is_registered(self, client):
+        """POST /api/auth/refresh returns 401 (no cookie), not 404 — route exists."""
+        response = client.post("/api/auth/refresh")
+        assert response.status_code != 404, (
+            "POST /api/auth/refresh returned 404 — route missing or decorator broke routing."
+        )
