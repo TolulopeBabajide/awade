@@ -1,24 +1,30 @@
 # Awade System Architecture
 
+## Visual Overview
+
+![Awade System Architecture Mockup](/Users/tolulopebabajide/.gemini/antigravity/brain/a72c1f83-3602-44c4-91bb-503e90fc2a47/awade_architecture_diagram_1773230035374.png)
+
 ## System Context
 
-Awade is an AI-powered educator support platform designed to help African teachers generate curriculum-aligned lesson plans. The system integrates with OpenAI for content generation and provides a structured way to manage curriculum data (countries, subjects, grades, topics).
+Awade is an AI-powered educator support platform designed to help African teachers generate curriculum-aligned lesson plans. The system integrates with both OpenAI and Google Gemini for content generation and provides a structured way to manage curriculum data.
 
 ```mermaid
 graph TB
-    User[Educator] -->|HTTPS/REST| FE[Frontend (React/Vite)]
-    FE -->|HTTPS/JSON| API[Backend API (FastAPI)]
+    subgraph "Client Layer"
+        User[Educator] -->|HTTPS/REST| FE[Frontend (React/Vite)]
+    end
     
-    subgraph "Backend Services"
+    subgraph "Backend Layer (Railway)"
+        FE -->|API Calls| API[Backend API (FastAPI)]
         API -->|CRUD| DB[(PostgreSQL)]
         API -->|Task Queue| Redis[(Redis)]
         Redis -->|Consume| Worker[Arq Worker]
-        Worker -->|Generate| AI[OpenAI / LLM Service]
-        Worker -->|Update| DB
     end
     
-    subgraph "External Services"
-        AI --> OpenAI
+    subgraph "AI Core Layer"
+        Worker -->|Request| AICore[packages/ai]
+        AICore -->|OpenAI| OAI[OpenAI Service]
+        AICore -->|Gemini| GEM[Gemini Service]
     end
 ```
 

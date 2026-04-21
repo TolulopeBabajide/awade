@@ -120,4 +120,11 @@ TODO.md
 logs/
 *.log
 cache/
-.pytest_cache/ 
+.pytest_cache/
+
+# Agentic framework — keep local, do not commit
+# (installed 2026-04-20 from agentic-team-template, adapted for Awade)
+CLAUDE.md
+project-config.md
+.claude/
+docs/agentic/
