@@ -270,6 +270,39 @@ class ContextService:
                 detail=f"An error occurred while retrieving contexts: {str(e)}"
             )
     
+
+    def get_contexts_for_user(self, user_id: int, skip: int = 0, limit: int = 100) -> List[ContextResponse]:
+        """
+        Get contexts belonging to a specific user's lesson plans, with pagination.
+
+        Args:
+            user_id (int): Owner user ID
+            skip (int): Number of records to skip
+            limit (int): Maximum number of records to return
+
+        Returns:
+            List[ContextResponse]: List of context responses
+
+        Raises:
+            HTTPException: If retrieval fails
+        """
+        try:
+            contexts = (
+                self.db.query(Context)
+                .join(LessonPlan, Context.lesson_plan_id == LessonPlan.lesson_plan_id)
+                .filter(LessonPlan.user_id == user_id)
+                .offset(skip)
+                .limit(limit)
+                .all()
+            )
+            return [self._create_context_response(context) for context in contexts]
+
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail="An error occurred while retrieving contexts"
+            )
+
     def _create_context_response(self, context: Context) -> ContextResponse:
         """
         Create a context response from a Context model.
