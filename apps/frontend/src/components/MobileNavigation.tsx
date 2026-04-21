@@ -1,11 +1,13 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { 
-  FaHome, 
-  FaBookOpen, 
-  FaFolder, 
-  FaCog 
+import {
+  FaHome,
+  FaBookOpen,
+  FaFolder,
+  FaCog,
+  FaBookmark,
 } from 'react-icons/fa';
+import { useAuth } from '../contexts/AuthContext';
 
 interface MobileNavigationProps {
   currentPage?: string;
@@ -21,39 +23,27 @@ interface NavItem {
 const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentPage }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // Determine current page if not provided
+  const { user } = useAuth();
+
+  const isParent = user?.role === 'PARENT';
   const activePage = currentPage || location.pathname.split('/')[1] || 'dashboard';
-  
-  const navItems: NavItem[] = [
-    {
-      id: 'dashboard',
-      label: 'Dashboard',
-      icon: FaHome,
-      path: '/dashboard'
-    },
-    {
-      id: 'lesson-plans',
-      label: 'Plans',
-      icon: FaBookOpen,
-      path: '/lesson-plans'
-    },
-    {
-      id: 'lesson-resources',
-      label: 'Resources',
-      icon: FaFolder,
-      path: '/lesson-resources'
-    },
-    {
-      id: 'settings',
-      label: 'Settings',
-      icon: FaCog,
-      path: '/settings'
-    }
+
+  const parentNavItems: NavItem[] = [
+    { id: 'dashboard', label: 'Home', icon: FaHome, path: '/dashboard' },
+    { id: 'saved-guides', label: 'Guides', icon: FaBookmark, path: '/saved-guides' },
+    { id: 'settings', label: 'Settings', icon: FaCog, path: '/settings' },
   ];
 
+  const educatorNavItems: NavItem[] = [
+    { id: 'dashboard', label: 'Dashboard', icon: FaHome, path: '/dashboard' },
+    { id: 'lesson-plans', label: 'Plans', icon: FaBookOpen, path: '/lesson-plans' },
+    { id: 'lesson-resources', label: 'Resources', icon: FaFolder, path: '/lesson-resources' },
+    { id: 'settings', label: 'Settings', icon: FaCog, path: '/settings' },
+  ];
+
+  const navItems = isParent ? parentNavItems : educatorNavItems;
+
   const handleNavigation = (path: string) => {
-    // Only navigate if we're not already on that page
     if (location.pathname !== path) {
       navigate(path);
     }
@@ -65,13 +55,13 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentPage }) => {
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activePage === item.id;
-          
+
           return (
-            <button 
+            <button
               key={item.id}
               className={`flex flex-col items-center py-2 px-3 font-medium transition-colors duration-200 ${
-                isActive 
-                  ? 'text-primary-600' 
+                isActive
+                  ? 'text-primary-600'
                   : 'text-gray-500 hover:text-primary-600'
               }`}
               onClick={() => handleNavigation(item.path)}

@@ -645,12 +645,121 @@ class ApiService {
     return this.handleResponse(response);
   }
 
+  // ── Children / Parent endpoints ────────────────────────────────────
+
+  async getChildren(): Promise<ApiResponse<any>> {
+    const fetchFn = async () => {
+      const response = await fetch(`${API_BASE_URL}/children`, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getChildren());
+  }
+
+  async getChild(childId: number): Promise<ApiResponse<any>> {
+    const fetchFn = async () => {
+      const response = await fetch(`${API_BASE_URL}/children/${childId}`, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getChild(childId));
+  }
+
+  async createChild(childData: any): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/children`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(childData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateChild(childId: number, childData: any): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/children/${childId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(childData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteChild(childId: number): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/children/${childId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async getChildTopics(childId: number, subjectId?: number): Promise<ApiResponse<any>> {
+    const fetchFn = async () => {
+      const url = subjectId
+        ? `${API_BASE_URL}/children/${childId}/topics?subject_id=${subjectId}`
+        : `${API_BASE_URL}/children/${childId}/topics`;
+      const response = await fetch(url, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getChildTopics(childId, subjectId));
+  }
+
+  async getChildGuides(childId: number, bookmarked?: boolean): Promise<ApiResponse<any>> {
+    const fetchFn = async () => {
+      const url = bookmarked
+        ? `${API_BASE_URL}/children/${childId}/guides?bookmarked=true`
+        : `${API_BASE_URL}/children/${childId}/guides`;
+      const response = await fetch(url, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getChildGuides(childId, bookmarked));
+  }
+
+  async generateGuide(childId: number, topicId: number): Promise<ApiResponse<any>> {
+    const fetchFn = async () => {
+      const response = await fetch(`${API_BASE_URL}/children/${childId}/guides/generate?topic_id=${topicId}`, {
+        method: 'POST',
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.generateGuide(childId, topicId));
+  }
+
+  async getGuide(guideId: number): Promise<ApiResponse<any>> {
+    const fetchFn = async () => {
+      const response = await fetch(`${API_BASE_URL}/guides/${guideId}`, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getGuide(guideId));
+  }
+
+  async toggleGuideBookmark(guideId: number): Promise<ApiResponse<any>> {
+    const response = await fetch(`${API_BASE_URL}/guides/${guideId}/bookmark`, {
+      method: 'POST',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
   // Google OAuth
-  async googleAuth(credential: string): Promise<ApiResponse<any>> {
+  async googleAuth(credential: string, role?: string): Promise<ApiResponse<any>> {
     const response = await fetch(`${API_BASE_URL}/auth/google`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ credential })
+      body: JSON.stringify({ credential, role: role || 'PARENT' })
     });
 
     return this.handleResponse(response);

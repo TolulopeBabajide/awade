@@ -16,7 +16,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   signup: (userData: any) => Promise<boolean>;
-  googleAuth: (credential: string) => Promise<boolean>;
+  googleAuth: (credential: string, role?: string) => Promise<boolean>;
   logout: () => void;
   validateToken: () => Promise<boolean>;
 }
@@ -129,9 +129,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const googleAuth = async (credential: string): Promise<boolean> => {
+  const googleAuth = async (credential: string, role?: string): Promise<boolean> => {
     try {
-      const response = await apiService.googleAuth(credential);
+      const response = await apiService.googleAuth(credential, role);
       
       if (response.error) {
         console.error('Google OAuth error:', response.error);

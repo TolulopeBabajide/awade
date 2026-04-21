@@ -5,7 +5,7 @@ import LandingPage from './pages/LandingPage'
 import SignupPage from './pages/SignupPage'
 import LoginPage from './pages/LoginPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
-import DashboardPage from './pages/DashboardPage'
+import RoleDashboard from './components/RoleDashboard'
 import LessonPlansPage from './pages/LessonPlansPage'
 import LessonPlanDetailPage from './pages/LessonPlanDetailPage'
 import EditLessonPlanPage from './pages/EditLessonPlanPage'
@@ -13,6 +13,8 @@ import EditLessonResourcePage from './pages/EditLessonResourcePage'
 import LessonResourcesPage from './pages/LessonResourcesPage'
 import SettingsPage from './pages/SettingsPage'
 import TestPage from './pages/TestPage'
+import GuideViewPage from './pages/GuideViewPage'
+import SavedGuidesPage from './pages/SavedGuidesPage'
 import AdminRoute from './components/AdminRoute'
 import AdminLayout from './components/AdminLayout'
 import AdminDashboard from './pages/admin/Dashboard'
@@ -34,12 +36,26 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-          {/* Protected routes */}
+          {/* Protected routes — role-aware dashboard */}
           <Route path="/dashboard" element={
             <ProtectedRoute>
-              <DashboardPage />
+              <RoleDashboard />
             </ProtectedRoute>
           } />
+
+          {/* Parent routes */}
+          <Route path="/guides/generate" element={
+            <ProtectedRoute>
+              <GuideViewPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/saved-guides" element={
+            <ProtectedRoute>
+              <SavedGuidesPage />
+            </ProtectedRoute>
+          } />
+
+          {/* Educator routes (kept for EDUCATOR role) */}
           <Route path="/lesson-plans" element={
             <ProtectedRoute>
               <LessonPlansPage />
@@ -91,11 +107,10 @@ function App() {
             <Route path="logs" element={<AuditLogs />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
-          {/* Add more routes as needed */}
         </Routes>
       </div>
     </AuthProvider>
   )
 }
 
-export default App 
+export default App
