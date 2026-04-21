@@ -20,7 +20,6 @@ interface GenerationStep {
 const AIGenerationLoadingSimple: React.FC<AIGenerationLoadingSimpleProps> = ({
   isVisible,
   onComplete,
-  onError,
   generationType,
   topic,
   subject,

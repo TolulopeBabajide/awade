@@ -129,13 +129,6 @@ const AIGenerationLoadingReal: React.FC<AIGenerationLoadingRealProps> = ({
     }
   }, [onStepUpdate, onComplete, onError, steps]);
 
-  const formatTime = (seconds: number) => {
-    if (seconds < 60) return `${seconds}s`;
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}m ${remainingSeconds}s`;
-  };
-
   const getStepIcon = (step: GenerationStep) => {
     switch (step.status) {
       case 'completed':

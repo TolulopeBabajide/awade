@@ -40,7 +40,7 @@ class WebSocketService {
     }
 
     this.isConnecting = true;
-    const wsUrl = process.env.NODE_ENV === 'production' 
+    const wsUrl = import.meta.env.MODE === 'production' 
       ? 'wss://your-production-domain.com/ws' 
       : 'ws://localhost:8000/ws';
 

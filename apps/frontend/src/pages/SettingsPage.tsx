@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+
 import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
 import Sidebar from '../components/Sidebar';
@@ -12,14 +12,6 @@ import {
   FaEdit, 
   FaTimes,
   FaCheck,
-  FaSignOutAlt,
-  FaBell,
-  FaHeadset,
-  FaPhone,
-  FaEnvelope,
-  FaMapMarkerAlt,
-  FaUserEdit,
-  FaKey,
   FaCog
 } from 'react-icons/fa';
 
@@ -43,8 +35,7 @@ interface UserProfile {
 
 
 const SettingsPage: React.FC = () => {
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'language'>('profile');
   const [editingField, setEditingField] = useState<string | null>(null);
   const [profileData, setProfileData] = useState<UserProfile | null>(null);

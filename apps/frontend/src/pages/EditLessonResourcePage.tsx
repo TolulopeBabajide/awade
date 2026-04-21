@@ -4,31 +4,9 @@ import apiService from '../services/api';
 import Sidebar from '../components/Sidebar';
 import MobileNavigation from '../components/MobileNavigation';
 import {
-  FaBookOpen,
-  FaPlus,
-  FaSearch,
-  FaFilter,
-  FaEye,
   FaEdit,
-  FaTrash,
-  FaDownload,
-  FaShare,
-  FaStar,
-  FaClock,
-  FaUser,
-  FaCalendar,
-  FaHome,
-  FaFolder,
-  FaCog,
-  FaArrowLeft,
-  FaLightbulb,
-  FaGraduationCap,
-  FaGlobe,
-  FaFileAlt,
-  FaCheck,
   FaTimes,
   FaSave,
-  FaUndo
 } from 'react-icons/fa';
 
 interface LessonResource {
@@ -353,9 +331,8 @@ const EditLessonResourcePage: React.FC = () => {
   const navigate = useNavigate();
 
   const [lessonResource, setLessonResource] = useState<LessonResource | null>(null);
-  const [lessonPlan, setLessonPlan] = useState<any>(null);
+  const [, setLessonPlan] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
@@ -409,7 +386,7 @@ const EditLessonResourcePage: React.FC = () => {
         setLessonResource(resource);
 
         // Parse structured content - prioritize user_edited_content over ai_generated_content
-        let contentToParse = resource.user_edited_content || resource.ai_generated_content;
+        const contentToParse = resource.user_edited_content || resource.ai_generated_content;
         if (contentToParse) {
           try {
             let parsed;
@@ -451,7 +428,7 @@ const EditLessonResourcePage: React.FC = () => {
         setLessonResource(response.data);
 
         // Parse structured content - prioritize user_edited_content over ai_generated_content
-        let contentToParse = response.data.user_edited_content || response.data.ai_generated_content;
+        const contentToParse = response.data.user_edited_content || response.data.ai_generated_content;
         if (contentToParse) {
           try {
             let parsed;
@@ -555,57 +532,6 @@ const EditLessonResourcePage: React.FC = () => {
       setTimeout(() => setError(''), 5000);
     } finally {
       setIsAutoSaving(false);
-    }
-  };
-
-  const saveAllChanges = async () => {
-    if (!lessonResource || !structuredContent) {
-      setError('No lesson resource available to save');
-      return;
-    }
-
-    setIsSaving(true);
-    setError('');
-
-    try {
-      // Convert structured content back to JSON string for storage
-      const updatedContent = JSON.stringify(structuredContent, null, 2);
-
-      console.log('Saving updated content:', updatedContent);
-
-      const response = await apiService.updateLessonResource(
-        lessonResource.lesson_resources_id.toString(),
-        updatedContent
-      );
-
-      if (response.error) {
-        setError(response.error);
-        return;
-      }
-
-      if (response.data) {
-        // Update the lesson resource with the response data
-        setLessonResource(response.data);
-
-        // Update the AI generated content in the resource to reflect our changes
-        const updatedResource = {
-          ...response.data,
-          ai_generated_content: updatedContent
-        };
-        setLessonResource(updatedResource);
-
-        setSuccessMessage('Lesson resource saved successfully! All changes have been persisted to the database.');
-        setTimeout(() => setSuccessMessage(''), 5000);
-
-        console.log('Successfully saved lesson resource:', response.data);
-      } else {
-        setError('No data received from save request');
-      }
-    } catch (err: any) {
-      console.error('Error saving lesson resource:', err);
-      setError(err.message || 'Failed to save lesson resource');
-    } finally {
-      setIsSaving(false);
     }
   };
 

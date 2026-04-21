@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import apiService from '../../services/api'
 
 // Mock fetch
-global.fetch = vi.fn()
+globalThis.fetch = vi.fn()
 
 describe('API Service', () => {
   beforeEach(() => {
@@ -27,11 +27,11 @@ describe('API Service', () => {
         url: '/api/auth/login',
         json: vi.fn().mockResolvedValue({ access_token: 'test_token' })
       }
-        ; (global.fetch as any).mockResolvedValue(mockResponse)
+        ; (globalThis.fetch as any).mockResolvedValue(mockResponse)
 
       const result = await apiService.login('test@example.com', 'password')
 
-      expect(global.fetch).toHaveBeenCalledWith('/api/auth/login', {
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: 'test@example.com', password: 'password' })
@@ -47,7 +47,7 @@ describe('API Service', () => {
         statusText: 'Unauthorized',
         json: vi.fn().mockResolvedValue({ detail: 'Invalid credentials' })
       }
-        ; (global.fetch as any).mockResolvedValue(mockResponse)
+        ; (globalThis.fetch as any).mockResolvedValue(mockResponse)
 
       const result = await apiService.login('test@example.com', 'wrong_password')
 
@@ -62,7 +62,7 @@ describe('API Service', () => {
         url: '/api/auth/signup',
         json: vi.fn().mockResolvedValue({ access_token: 'test_token' })
       }
-        ; (global.fetch as any).mockResolvedValue(mockResponse)
+        ; (globalThis.fetch as any).mockResolvedValue(mockResponse)
 
       const userData = {
         full_name: 'Test User',
@@ -72,7 +72,7 @@ describe('API Service', () => {
 
       const result = await apiService.signup(userData)
 
-      expect(global.fetch).toHaveBeenCalledWith('/api/auth/signup', {
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData)
@@ -88,11 +88,11 @@ describe('API Service', () => {
         url: '/api/auth/me',
         json: vi.fn().mockResolvedValue({ user_id: 1, email: 'test@example.com' })
       }
-        ; (global.fetch as any).mockResolvedValue(mockResponse)
+        ; (globalThis.fetch as any).mockResolvedValue(mockResponse)
 
       const result = await apiService.getCurrentUser()
 
-      expect(global.fetch).toHaveBeenCalledWith('/api/auth/me', {
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/me', {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer test_token'
@@ -108,7 +108,7 @@ describe('API Service', () => {
         url: '/api/auth/me',
         json: vi.fn().mockResolvedValue({ detail: 'Unauthorized' })
       }
-        ; (global.fetch as any).mockResolvedValue(mockResponse)
+        ; (globalThis.fetch as any).mockResolvedValue(mockResponse)
 
       // Mock window.location.href
       delete (window as any).location
@@ -128,12 +128,12 @@ describe('API Service', () => {
         url: '/api/users/1/profile',
         json: vi.fn().mockResolvedValue({ success: true })
       }
-        ; (global.fetch as any).mockResolvedValue(mockResponse)
+        ; (globalThis.fetch as any).mockResolvedValue(mockResponse)
 
       const profileData = { full_name: 'Updated Name' }
       const result = await apiService.updateProfile(profileData, 1)
 
-      expect(global.fetch).toHaveBeenCalledWith('/api/users/1/profile', {
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/users/1/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

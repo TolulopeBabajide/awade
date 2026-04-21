@@ -21,7 +21,6 @@ interface GenerationStep {
 const AIGenerationLoading: React.FC<AIGenerationLoadingProps> = ({
   isVisible,
   onComplete,
-  onError,
   generationType,
   topic,
   subject,
@@ -251,7 +250,7 @@ const AIGenerationLoading: React.FC<AIGenerationLoadingProps> = ({
 
         {/* Steps */}
         <div className="space-y-3">
-          {steps.map((step, index) => (
+          {steps.map((step) => (
             <div key={step.id} className="flex items-start space-x-3">
               {getStepIcon(step.status)}
               <div className="flex-1 min-w-0">

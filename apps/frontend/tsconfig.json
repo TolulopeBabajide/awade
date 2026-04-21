@@ -20,6 +20,9 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
 
+    /* Type roots: vite client env + vitest globals */
+    "types": ["vite/client", "vitest/globals"],
+
     /* Path mapping */
     "baseUrl": ".",
     "paths": {
@@ -28,4 +31,4 @@
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
-} 
+}

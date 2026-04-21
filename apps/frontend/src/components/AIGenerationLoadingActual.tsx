@@ -22,7 +22,6 @@ interface GenerationStep {
 const AIGenerationLoadingActual: React.FC<AIGenerationLoadingActualProps> = ({
   isVisible,
   onComplete,
-  onError,
   generationType,
   topic,
   subject,

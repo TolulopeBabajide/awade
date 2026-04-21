@@ -28,7 +28,7 @@ Object.defineProperty(window, 'localStorage', {
 })
 
 // Mock fetch
-global.fetch = vi.fn()
+globalThis.fetch = vi.fn()
 
 // Mock console methods to reduce noise in tests
 const originalError = console.error

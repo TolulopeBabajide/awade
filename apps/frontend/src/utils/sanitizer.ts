@@ -33,6 +33,7 @@ export const sanitizeInput = (input: string): string => {
 
     // 3. Strip control characters (except common ones like newline if needed, but we normalized above)
     // Remove non-printable ASCII characters
+    // eslint-disable-next-line no-control-regex
     sanitized = sanitized.replace(/[\x00-\x1F\x7F]/g, '');
 
     // 4. Basic HTML escaping (if input is rendered directly, though React handles this mostly)
