@@ -12,7 +12,7 @@ import tempfile
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
-from unittest.mock import AsyncMock, MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 # Add the parent directory and project root to the path
 import sys
@@ -33,15 +33,8 @@ from apps.backend.services.data_structures import DataStructureManager, CacheStr
 
 @pytest.fixture(scope="session")
 def test_db_url():
-    """Create a test database URL using a writable temp file."""
-    fd, path = tempfile.mkstemp(suffix=".db")
-    os.close(fd)
-    url = f"sqlite:///{path}"
-    yield url
-    try:
-        os.unlink(path)
-    except OSError:
-        pass
+    """Create a test database URL."""
+    return "sqlite:///./test_awade.db"
 
 
 @pytest.fixture(scope="session")
@@ -220,25 +213,11 @@ def mock_google_oauth():
         yield mock_get
 
 
-@pytest.fixture(scope="session", autouse=True)
-def mock_redis_pool():
-    """Patch arq's create_pool so the FastAPI lifespan never attempts a real
-    Redis connection during tests. Without this, each TestClient startup waits
-    ~50 s (5 arq retries × ~10 s) before gracefully setting redis=None."""
-    mock_pool = MagicMock()
-    mock_pool.close = AsyncMock()
-    with patch(
-        "apps.backend.redis_client.create_pool",
-        new=AsyncMock(return_value=mock_pool),
-    ):
-        yield mock_pool
-
-
 @pytest.fixture(autouse=True)
 def setup_test_env():
     """Set up test environment variables."""
     os.environ.update({
-        "DATABASE_URL": "sqlite+pysqlite:///:memory:",
+        "DATABASE_URL": "sqlite:///./test_awade.db",
         "SECRET_KEY": "test_secret_key",
         "JWT_SECRET_KEY": "test_jwt_secret",
         "OPENAI_API_KEY": "test_openai_key",
@@ -246,27 +225,6 @@ def setup_test_env():
         "DEBUG": "True",
         "ENVIRONMENT": "testing"
     })
-
-
-@pytest.fixture(autouse=True)
-def rate_limiter_reset():
-    """Reset in-memory rate limiter storage before each test.
-
-    Without this, earlier test files exhaust the rate limiter for endpoints
-    like /api/auth/login; subsequent tests receive 429 instead of the
-    expected 200/401/500.  See AWD-H-29.
-
-    Uses hasattr guards so the fixture is a no-op when slowapi is not
-    installed (e.g. lightweight unit-test environments).
-    """
-    from apps.backend.limiter import limiter
-    storage = getattr(limiter, "_storage", None)
-    if storage is not None and hasattr(storage, "reset"):
-        storage.reset()
-    yield
-    # Reset again after the test so state never bleeds into the next one
-    if storage is not None and hasattr(storage, "reset"):
-        storage.reset()
 
 
 # Test markers
