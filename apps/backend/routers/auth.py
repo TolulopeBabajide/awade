@@ -29,7 +29,10 @@ from apps.backend.limiter import limiter
 
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
+import logging
 import os
+
+logger = logging.getLogger(__name__)
 
 # Determine if running in production
 IS_PRODUCTION = os.getenv("ENVIRONMENT") == "production"
@@ -61,9 +64,15 @@ def google_auth(
     Authenticate user with Google OAuth credential (ID token).
     Rate limit: 10 requests per minute.
     """
-    service = AuthService(db)
-    auth_response, refresh_token = service.authenticate_google_user(payload.credential, requested_role=payload.role)
-    
+    try:
+        service = AuthService(db)
+        auth_response, refresh_token = service.authenticate_google_user(payload.credential, requested_role=payload.role)
+    except HTTPException:
+        raise
+    except Exception:
+        logger.error("Unexpected error in google_auth endpoint", exc_info=True)
+        raise HTTPException(status_code=500, detail="An error occurred during Google authentication")
+
     # Set refresh token as HttpOnly cookie
     response.set_cookie(
         key="refresh_token",
@@ -73,7 +82,7 @@ def google_auth(
         samesite="lax",
         max_age=7 * 24 * 60 * 60 # 7 days
     )
-    
+
     return auth_response
 
 # ... existing code ...
@@ -90,9 +99,15 @@ def signup(
     Register a new user with email and password.
     Rate limit: 5 requests per minute.
     """
-    service = AuthService(db)
-    auth_response, refresh_token = service.register_user(user_data)
-    
+    try:
+        service = AuthService(db)
+        auth_response, refresh_token = service.register_user(user_data)
+    except HTTPException:
+        raise
+    except Exception:
+        logger.error("Unexpected error in signup endpoint", exc_info=True)
+        raise HTTPException(status_code=500, detail="An error occurred during registration")
+
     # Set refresh token as HttpOnly cookie
     response.set_cookie(
         key="refresh_token",
@@ -102,7 +117,7 @@ def signup(
         samesite="lax",
         max_age=7 * 24 * 60 * 60 # 7 days
     )
-    
+
     return auth_response
 
 @router.post("/login", response_model=AuthResponse)
@@ -117,9 +132,15 @@ def login(
     Authenticate user with email and password.
     Rate limit: 10 requests per minute.
     """
-    service = AuthService(db)
-    auth_response, refresh_token = service.authenticate_user(user_data)
-    
+    try:
+        service = AuthService(db)
+        auth_response, refresh_token = service.authenticate_user(user_data)
+    except HTTPException:
+        raise
+    except Exception:
+        logger.error("Unexpected error in login endpoint", exc_info=True)
+        raise HTTPException(status_code=500, detail="An error occurred during authentication")
+
     # Set refresh token as HttpOnly cookie
     response.set_cookie(
         key="refresh_token",
@@ -129,7 +150,7 @@ def login(
         samesite="lax",
         max_age=7 * 24 * 60 * 60 # 7 days
     )
-    
+
     return auth_response
 
 @router.get("/me", response_model=UserResponse)

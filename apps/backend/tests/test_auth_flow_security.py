@@ -217,7 +217,7 @@ class TestExceptionDetailSanitization:
             side_effect=boom,
         ):
             response = client.post("/api/auth/google", json={
-                "id_token": "dummy-token",
+                "credential": "dummy-token",
             })
 
         assert response.status_code == 500
