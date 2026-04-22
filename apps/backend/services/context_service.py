@@ -10,8 +10,11 @@ Author: Tolulope Babajide
 
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from datetime import datetime, UTC
+from datetime import datetime, timezone
+import logging
 from fastapi import HTTPException, status
+
+logger = logging.getLogger(__name__)
 
 import sys
 import os
@@ -79,8 +82,8 @@ class ContextService:
                 lesson_plan_id=context_data.lesson_plan_id,
                 context_text=context_data.context_text,
                 context_type=context_data.context_type,
-                created_at=datetime.now(UTC),
-                updated_at=datetime.now(UTC)
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc)
             )
             
             self.db.add(context)
@@ -92,9 +95,10 @@ class ContextService:
         except HTTPException:
             raise
         except Exception as e:
+            logger.error("Unexpected error while creating context: %s", e, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while creating the context: {str(e)}"
+                detail="An error occurred while creating the context"
             )
     
     def get_contexts_by_lesson_plan(self, lesson_plan_id: int) -> ContextListResponse:
@@ -133,11 +137,12 @@ class ContextService:
         except HTTPException:
             raise
         except Exception as e:
+            logger.error("Unexpected error while retrieving contexts by lesson plan: %s", e, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while retrieving contexts: {str(e)}"
+                detail="An error occurred while retrieving contexts"
             )
-    
+
     def get_context(self, context_id: int) -> ContextResponse:
         """
         Get a specific context by ID.
@@ -164,9 +169,10 @@ class ContextService:
         except HTTPException:
             raise
         except Exception as e:
+            logger.error("Unexpected error while retrieving context %s: %s", context_id, e, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while retrieving the context: {str(e)}"
+                detail="An error occurred while retrieving the context"
             )
     
     def update_context(self, context_id: int, context_data: ContextUpdate) -> ContextResponse:
@@ -197,7 +203,7 @@ class ContextService:
                 setattr(context, field, value)
             
             # Update timestamp
-            context.updated_at = datetime.now(UTC)
+            context.updated_at = datetime.now(timezone.utc)
             
             self.db.commit()
             self.db.refresh(context)
@@ -207,9 +213,10 @@ class ContextService:
         except HTTPException:
             raise
         except Exception as e:
+            logger.error("Unexpected error while updating context %s: %s", context_id, e, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while updating the context: {str(e)}"
+                detail="An error occurred while updating the context"
             )
     
     def delete_context(self, context_id: int) -> dict:
@@ -241,9 +248,10 @@ class ContextService:
         except HTTPException:
             raise
         except Exception as e:
+            logger.error("Unexpected error while deleting context %s: %s", context_id, e, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while deleting the context: {str(e)}"
+                detail="An error occurred while deleting the context"
             )
     
     def get_all_contexts(self, skip: int = 0, limit: int = 100) -> List[ContextResponse]:
@@ -265,11 +273,12 @@ class ContextService:
             return [self._create_context_response(context) for context in contexts]
             
         except Exception as e:
+            logger.error("Unexpected error while retrieving all contexts: %s", e, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while retrieving contexts: {str(e)}"
+                detail="An error occurred while retrieving contexts"
             )
-    
+
 
     def get_contexts_for_user(self, user_id: int, skip: int = 0, limit: int = 100) -> List[ContextResponse]:
         """
@@ -323,7 +332,8 @@ class ContextService:
                 updated_at=context.updated_at
             )
         except Exception as e:
+            logger.error("Unexpected error building context response: %s", e, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"Error creating context response: {str(e)}"
+                detail="An error occurred while building the context response"
             )

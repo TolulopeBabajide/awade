@@ -14,7 +14,7 @@ import os
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
 from typing import List, Optional, Dict, Any
-from datetime import datetime, UTC
+from datetime import datetime, timezone
 from fastapi import HTTPException, status
 from arq import ArqRedis
 
@@ -144,7 +144,7 @@ class LessonPlanService:
             lesson_plan = LessonPlan(
                 topic_id=topic.topic_id,
                 user_id=current_user.user_id,
-                created_at=datetime.now(UTC)
+                created_at=datetime.now(timezone.utc)
             )
             self.db.add(lesson_plan)
             self.db.commit()
@@ -380,7 +380,7 @@ class LessonPlanService:
                 ai_generated_content=None, # Content will be generated async
                 export_format=data.export_format,
                 status='processing',
-                created_at=datetime.now(UTC)
+                created_at=datetime.now(timezone.utc)
             )
             
             self.db.add(lesson_resource)

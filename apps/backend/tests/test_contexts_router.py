@@ -49,9 +49,9 @@ def _make_context(context_id: int, lesson_plan_id: int) -> Context:
     ctx.lesson_plan_id = lesson_plan_id
     ctx.context_text = "some context"
     ctx.context_type = "general"
-    from datetime import datetime, UTC
-    ctx.created_at = datetime.now(UTC)
-    ctx.updated_at = datetime.now(UTC)
+    from datetime import datetime, timezone
+    ctx.created_at = datetime.now(timezone.utc)
+    ctx.updated_at = datetime.now(timezone.utc)
     return ctx
 
 
