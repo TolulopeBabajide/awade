@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaHome, FaBookOpen, FaFolder, FaCog, FaSignOutAlt, FaBookmark } from 'react-icons/fa';
+import { FaHome, FaBookOpen, FaFolder, FaCog, FaSignOutAlt, FaBookmark, FaUsers } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
 
 interface SidebarProps {
@@ -31,6 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   // Different nav items based on role
   const parentNavItems: NavItem[] = [
     { id: 'dashboard', label: 'Home', icon: FaHome, path: '/dashboard' },
+    { id: 'children', label: 'My Children', icon: FaUsers, path: '/children' },
     { id: 'saved-guides', label: 'Saved Guides', icon: FaBookmark, path: '/saved-guides' },
     { id: 'settings', label: 'Settings', icon: FaCog, path: '/settings' },
   ];

@@ -15,6 +15,7 @@ import SettingsPage from './pages/SettingsPage'
 import TestPage from './pages/TestPage'
 import GuideViewPage from './pages/GuideViewPage'
 import SavedGuidesPage from './pages/SavedGuidesPage'
+import ChildrenPage from './pages/ChildrenPage'
 import AdminRoute from './components/AdminRoute'
 import AdminLayout from './components/AdminLayout'
 import AdminDashboard from './pages/admin/Dashboard'
@@ -44,6 +45,11 @@ function App() {
           } />
 
           {/* Parent routes */}
+          <Route path="/children" element={
+            <ProtectedRoute>
+              <ChildrenPage />
+            </ProtectedRoute>
+          } />
           <Route path="/guides/generate" element={
             <ProtectedRoute>
               <GuideViewPage />
