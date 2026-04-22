@@ -8,16 +8,12 @@ separating concerns from the router layer.
 Author: Tolulope Babajide
 """
 
-import logging
-
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from fastapi import HTTPException
 
 import sys
 import os
-
-logger = logging.getLogger(__name__)
 
 # Add parent directories to Python path for imports
 current_dir = os.path.dirname(__file__)
@@ -65,11 +61,10 @@ class SubjectService:
             subjects = self.db.query(Subject).offset(skip).limit(limit).all()
             return [self._create_subject_response(subject) for subject in subjects]
             
-        except Exception:
-            logger.error("Failed to retrieve subjects", exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An error occurred while retrieving subjects"
+                detail=f"An error occurred while retrieving subjects: {str(e)}"
             )
     
     def get_subject(self, subject_id: int) -> SubjectResponse:
@@ -94,11 +89,10 @@ class SubjectService:
             
         except HTTPException:
             raise
-        except Exception:
-            logger.error("Failed to retrieve subject %s", subject_id, exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An error occurred while retrieving the subject"
+                detail=f"An error occurred while retrieving the subject: {str(e)}"
             )
     
     def create_subject(self, subject_data: SubjectCreate) -> SubjectResponse:
@@ -132,11 +126,10 @@ class SubjectService:
             
         except HTTPException:
             raise
-        except Exception:
-            logger.error("Failed to create subject", exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An error occurred while creating the subject"
+                detail=f"An error occurred while creating the subject: {str(e)}"
             )
     
     def update_subject(self, subject_id: int, subject_data: SubjectUpdate) -> SubjectResponse:
@@ -179,11 +172,10 @@ class SubjectService:
             
         except HTTPException:
             raise
-        except Exception:
-            logger.error("Failed to update subject %s", subject_id, exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An error occurred while updating the subject"
+                detail=f"An error occurred while updating the subject: {str(e)}"
             )
     
     def delete_subject(self, subject_id: int) -> dict:
@@ -214,11 +206,10 @@ class SubjectService:
             
         except HTTPException:
             raise
-        except Exception:
-            logger.error("Failed to delete subject %s", subject_id, exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An error occurred while deleting the subject"
+                detail=f"An error occurred while deleting the subject: {str(e)}"
             )
     
     def search_subjects(self, search_term: str, skip: int = 0, limit: int = 100) -> List[SubjectResponse]:
@@ -243,11 +234,10 @@ class SubjectService:
             
             return [self._create_subject_response(subject) for subject in subjects]
             
-        except Exception:
-            logger.error("Failed to search subjects for term '%s'", search_term, exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An error occurred while searching subjects"
+                detail=f"An error occurred while searching subjects: {str(e)}"
             )
     
     def get_subjects_by_curriculum(self, curriculum_id: int, skip: int = 0, limit: int = 100) -> List[SubjectResponse]:
@@ -274,11 +264,10 @@ class SubjectService:
             
             return [self._create_subject_response(subject) for subject in subjects]
             
-        except Exception:
-            logger.error("Failed to retrieve subjects for curriculum %s", curriculum_id, exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An error occurred while retrieving subjects by curriculum"
+                detail=f"An error occurred while retrieving subjects by curriculum: {str(e)}"
             )
     
     def _create_subject_response(self, subject: Subject) -> SubjectResponse:
@@ -296,9 +285,8 @@ class SubjectService:
                 subject_id=subject.subject_id,
                 name=subject.name
             )
-        except Exception:
-            logger.error("Failed to create subject response", exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An internal error occurred while processing the subject data"
+                detail=f"Error creating subject response: {str(e)}"
             )

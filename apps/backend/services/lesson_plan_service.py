@@ -10,9 +10,6 @@ Author: Tolulope Babajide
 
 import sys
 import os
-import logging
-
-logger = logging.getLogger(__name__)
 
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
@@ -108,10 +105,11 @@ class LessonPlanService:
                 curriculum_contents=curriculum_contents
             )
         except Exception as e:
-            logger.error("Unexpected error in create_lesson_plan_response", exc_info=True)
+            import traceback
+            traceback.print_exc()
             raise HTTPException(
                 status_code=500,
-                detail="Error creating lesson plan response"
+                detail=f"Error creating lesson plan response: {str(e)}"
             )
     
     def generate_lesson_plan(self, request: LessonPlanCreate, current_user: User) -> LessonPlanResponse:
@@ -157,10 +155,11 @@ class LessonPlanService:
         except HTTPException:
             raise
         except Exception as e:
-            logger.error("Unexpected error in generate_lesson_plan", exc_info=True)
+            import traceback
+            traceback.print_exc()
             raise HTTPException(
                 status_code=500, 
-                detail="An error occurred while generating the lesson plan"
+                detail=f"An error occurred while generating the lesson plan: {str(e)}"
             )
     
     def get_lesson_plans(
@@ -202,11 +201,10 @@ class LessonPlanService:
             
             return [self.create_lesson_plan_response(lesson_plan) for lesson_plan in lesson_plans]
             
-        except Exception:
-            logger.error("Failed to retrieve lesson plans", exc_info=True)
+        except Exception as e:
             raise HTTPException(
-                status_code=500,
-                detail="An error occurred while retrieving lesson plans"
+                status_code=500, 
+                detail=f"An error occurred while retrieving lesson plans: {str(e)}"
             )
     
     def get_lesson_plan(self, lesson_id: int, current_user: User) -> LessonPlanResponse:
@@ -236,11 +234,10 @@ class LessonPlanService:
             
         except HTTPException:
             raise
-        except Exception:
-            logger.error("Failed to retrieve lesson plan %s", lesson_id, exc_info=True)
+        except Exception as e:
             raise HTTPException(
-                status_code=500,
-                detail="An error occurred while retrieving the lesson plan"
+                status_code=500, 
+                detail=f"An error occurred while retrieving the lesson plan: {str(e)}"
             )
     
     def update_lesson_plan(self, lesson_id: int, request: LessonPlanUpdate, current_user: User) -> LessonPlanResponse:
@@ -278,11 +275,10 @@ class LessonPlanService:
             
         except HTTPException:
             raise
-        except Exception:
-            logger.error("Failed to update lesson plan %s", lesson_id, exc_info=True)
+        except Exception as e:
             raise HTTPException(
-                status_code=500,
-                detail="An error occurred while updating the lesson plan"
+                status_code=500, 
+                detail=f"An error occurred while updating the lesson plan: {str(e)}"
             )
     
     def delete_lesson_plan(self, lesson_id: int, current_user: User) -> Dict[str, str]:
@@ -315,11 +311,10 @@ class LessonPlanService:
             
         except HTTPException:
             raise
-        except Exception:
-            logger.error("Failed to delete lesson plan %s", lesson_id, exc_info=True)
+        except Exception as e:
             raise HTTPException(
-                status_code=500,
-                detail="An error occurred while deleting the lesson plan"
+                status_code=500, 
+                detail=f"An error occurred while deleting the lesson plan: {str(e)}"
             )
     
     async def generate_lesson_resource(self, lesson_id: int, data: LessonResourceCreate, current_user: User) -> LessonResourceResponse:
@@ -398,7 +393,8 @@ class LessonPlanService:
                     await self.redis.enqueue_job('generate_lesson_resource_task', resource_id=lesson_resource.lesson_resources_id)
                 except Exception as e:
                     # Log error but don't fail request, user can retry or checking status will show processing/stuck
-                    logger.error("Failed to enqueue job", exc_info=True)
+                    # In production, use proper logging
+                    print(f"Failed to enqueue job: {e}")
                     # Optionally set status to failed or keep as processing to retry
             else:
                 # Fallback to sync generation if no redis (e.g. during testing without worker mock)
@@ -421,11 +417,10 @@ class LessonPlanService:
             
         except HTTPException:
             raise
-        except Exception:
-            logger.error("Failed to initiate lesson resource generation for lesson %s", lesson_id, exc_info=True)
+        except Exception as e:
             raise HTTPException(
-                status_code=500,
-                detail="An error occurred while initiating lesson resource generation"
+                status_code=500, 
+                detail=f"An error occurred while initiating lesson resource generation: {str(e)}"
             )
     
     def get_all_lesson_resources(self, current_user: User) -> List[LessonResourceResponse]:
@@ -461,11 +456,10 @@ class LessonPlanService:
                 for resource in lesson_resources
             ]
             
-        except Exception:
-            logger.error("Failed to retrieve lesson resources for user", exc_info=True)
+        except Exception as e:
             raise HTTPException(
-                status_code=500,
-                detail="An error occurred while retrieving lesson resources"
+                status_code=500, 
+                detail=f"An error occurred while retrieving lesson resources: {str(e)}"
             )
     
     def get_lesson_plan_resources(self, lesson_id: int, current_user: User) -> List[LessonResourceResponse]:
@@ -514,11 +508,10 @@ class LessonPlanService:
             
         except HTTPException:
             raise
-        except Exception:
-            logger.error("Failed to retrieve resources for lesson plan %s", lesson_id, exc_info=True)
+        except Exception as e:
             raise HTTPException(
-                status_code=500,
-                detail="An error occurred while retrieving lesson plan resources"
+                status_code=500, 
+                detail=f"An error occurred while retrieving lesson plan resources: {str(e)}"
             )
 
     def get_lesson_resource(self, resource_id: int, current_user: User) -> LessonResourceResponse:
@@ -537,6 +530,9 @@ class LessonPlanService:
         """
         try:
             lesson_resource = self.db.query(LessonResource).filter(LessonResource.lesson_resources_id == resource_id).first()
+            if lesson_resource:
+                print(f"DEBUG: Resource {resource_id} found in DB with status: {lesson_resource.status}")
+                
             if not lesson_resource:
                 raise HTTPException(status_code=404, detail="Lesson resource not found")
             
@@ -558,9 +554,8 @@ class LessonPlanService:
             
         except HTTPException:
             raise
-        except Exception:
-            logger.error("Failed to retrieve lesson resource %s", resource_id, exc_info=True)
+        except Exception as e:
             raise HTTPException(
-                status_code=500,
-                detail="An error occurred while retrieving the lesson resource"
+                status_code=500, 
+                detail=f"An error occurred while retrieving the lesson resource: {str(e)}"
             )

@@ -8,16 +8,12 @@ separating concerns from the router layer.
 Author: Tolulope Babajide
 """
 
-import logging
-
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from fastapi import HTTPException
 
 import sys
 import os
-
-logger = logging.getLogger(__name__)
 
 # Add parent directories to Python path for imports
 current_dir = os.path.dirname(__file__)
@@ -65,11 +61,10 @@ class GradeLevelService:
             grade_levels = self.db.query(GradeLevel).offset(skip).limit(limit).all()
             return [self._create_grade_level_response(grade_level) for grade_level in grade_levels]
             
-        except Exception:
-            logger.error("Failed to retrieve grade levels", exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An error occurred while retrieving grade levels"
+                detail=f"An error occurred while retrieving grade levels: {str(e)}"
             )
     
     def get_grade_level(self, grade_level_id: int) -> GradeLevelResponse:
@@ -96,11 +91,10 @@ class GradeLevelService:
             
         except HTTPException:
             raise
-        except Exception:
-            logger.error("Failed to retrieve grade level %s", grade_level_id, exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An error occurred while retrieving the grade level"
+                detail=f"An error occurred while retrieving the grade level: {str(e)}"
             )
     
     def create_grade_level(self, grade_level_data: GradeLevelCreate) -> GradeLevelResponse:
@@ -134,11 +128,10 @@ class GradeLevelService:
             
         except HTTPException:
             raise
-        except Exception:
-            logger.error("Failed to create grade level", exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An error occurred while creating the grade level"
+                detail=f"An error occurred while creating the grade level: {str(e)}"
             )
     
     def update_grade_level(self, grade_level_id: int, grade_level_data: GradeLevelUpdate) -> GradeLevelResponse:
@@ -183,11 +176,10 @@ class GradeLevelService:
             
         except HTTPException:
             raise
-        except Exception:
-            logger.error("Failed to update grade level %s", grade_level_id, exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An error occurred while updating the grade level"
+                detail=f"An error occurred while updating the grade level: {str(e)}"
             )
     
     def delete_grade_level(self, grade_level_id: int) -> dict:
@@ -220,11 +212,10 @@ class GradeLevelService:
             
         except HTTPException:
             raise
-        except Exception:
-            logger.error("Failed to delete grade level %s", grade_level_id, exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An error occurred while deleting the grade level"
+                detail=f"An error occurred while deleting the grade level: {str(e)}"
             )
     
     def search_grade_levels(self, search_term: str, skip: int = 0, limit: int = 100) -> List[GradeLevelResponse]:
@@ -249,11 +240,10 @@ class GradeLevelService:
             
             return [self._create_grade_level_response(grade_level) for grade_level in grade_levels]
             
-        except Exception:
-            logger.error("Failed to search grade levels for term '%s'", search_term, exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An error occurred while searching grade levels"
+                detail=f"An error occurred while searching grade levels: {str(e)}"
             )
     
     def get_grade_levels_by_curriculum(self, curriculum_id: int, skip: int = 0, limit: int = 100) -> List[GradeLevelResponse]:
@@ -280,11 +270,10 @@ class GradeLevelService:
             
             return [self._create_grade_level_response(grade_level) for grade_level in grade_levels]
             
-        except Exception:
-            logger.error("Failed to retrieve grade levels for curriculum %s", curriculum_id, exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An error occurred while retrieving grade levels by curriculum"
+                detail=f"An error occurred while retrieving grade levels by curriculum: {str(e)}"
             )
     
     def get_grade_levels_by_subject(self, subject_id: int, skip: int = 0, limit: int = 100) -> List[GradeLevelResponse]:
@@ -311,11 +300,10 @@ class GradeLevelService:
             
             return [self._create_grade_level_response(grade_level) for grade_level in grade_levels]
             
-        except Exception:
-            logger.error("Failed to retrieve grade levels for subject %s", subject_id, exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An error occurred while retrieving grade levels by subject"
+                detail=f"An error occurred while retrieving grade levels by subject: {str(e)}"
             )
     
     def _create_grade_level_response(self, grade_level: GradeLevel) -> GradeLevelResponse:
@@ -333,9 +321,8 @@ class GradeLevelService:
                 grade_level_id=grade_level.grade_level_id,
                 name=grade_level.name
             )
-        except Exception:
-            logger.error("Failed to create grade level response", exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An internal error occurred while processing the grade level data"
+                detail=f"Error creating grade level response: {str(e)}"
             )
