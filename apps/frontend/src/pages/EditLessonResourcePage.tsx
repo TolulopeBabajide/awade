@@ -396,11 +396,8 @@ const EditLessonResourcePage: React.FC = () => {
               parsed = contentToParse;
             }
 
-            console.log('Parsed structured content:', parsed);
-            // ... logs ...
             setStructuredContent(parsed);
           } catch (error) {
-            console.error('Parse error:', error);
             setError('Failed to parse lesson resource content');
           }
         }
@@ -437,15 +434,6 @@ const EditLessonResourcePage: React.FC = () => {
             } else {
               parsed = contentToParse;
             }
-            console.log('Generated structured content:', parsed);
-            console.log('Explanations available:', parsed.explanations);
-            console.log('Explanations structure:', {
-              learning_objectives: parsed.explanations?.learning_objectives,
-              lesson_content: parsed.explanations?.lesson_content,
-              assessment: parsed.explanations?.assessment,
-              key_takeaways: parsed.explanations?.key_takeaways,
-              related_projects_or_activities: parsed.explanations?.related_projects_or_activities
-            });
             setStructuredContent(parsed);
 
             // Auto-save the generated content to database
@@ -466,7 +454,6 @@ const EditLessonResourcePage: React.FC = () => {
     try {
       setIsAutoSaving(true);
       const contentString = JSON.stringify(content, null, 2);
-      console.log('Auto-saving generated content to database:', contentString);
 
       const response = await apiService.updateLessonResource(
         resourceId.toString(),
@@ -474,16 +461,13 @@ const EditLessonResourcePage: React.FC = () => {
       );
 
       if (response.error) {
-        console.error('Auto-save failed:', response.error);
         setError('Generated content saved locally but failed to save to database. Please try saving manually.');
       } else {
-        console.log('Auto-save successful:', response.data);
         setLastAutoSaveTime(new Date());
         setSuccessMessage('Generated content automatically saved to database!');
         setTimeout(() => setSuccessMessage(''), 3000);
       }
     } catch (err: any) {
-      console.error('Auto-save error:', err);
       setError('Auto-save failed. Please save manually to persist changes.');
     } finally {
       setIsAutoSaving(false);
@@ -505,7 +489,6 @@ const EditLessonResourcePage: React.FC = () => {
     try {
       setIsAutoSaving(true);
       const contentString = JSON.stringify(updatedStructuredContent, null, 2);
-      console.log(`Auto-saving section "${sectionKey}" changes:`, contentString);
 
       const response = await apiService.updateLessonResource(
         lessonResource.lesson_resources_id.toString(),
@@ -513,11 +496,9 @@ const EditLessonResourcePage: React.FC = () => {
       );
 
       if (response.error) {
-        console.error('Section auto-save failed:', response.error);
         setError(`Changes to "${sectionKey}" saved locally but failed to save to database. Please try saving manually.`);
         setTimeout(() => setError(''), 5000);
       } else {
-        console.log('Section auto-save successful:', response.data);
         // Update lesson resource with latest data
         setLessonResource(response.data);
         setLastAutoSaveTime(new Date());
@@ -527,7 +508,6 @@ const EditLessonResourcePage: React.FC = () => {
         setTimeout(() => setSuccessMessage(''), 2000);
       }
     } catch (err: any) {
-      console.error('Section auto-save error:', err);
       setError(`Auto-save failed for "${sectionKey}". Please save manually to persist changes.`);
       setTimeout(() => setError(''), 5000);
     } finally {

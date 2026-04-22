@@ -101,7 +101,7 @@ const SettingsPage: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Error loading user profile:', error);
+      // Profile load failed silently; UI shows empty state
     }
   };
 
@@ -204,14 +204,12 @@ const SettingsPage: React.FC = () => {
     try {
       // Update email if changed
       if (loginForm.email !== profileData?.email) {
-        // TODO: Implement email update API call
-        console.log('Email update not implemented yet');
+        // TODO: Implement email update API call (AWD-M-18)
       }
-      
+
       // Update password if provided
       if (loginForm.newPassword) {
-        // TODO: Implement password update API call
-        console.log('Password update not implemented yet');
+        // TODO: Implement password update API call (AWD-M-18)
       }
       
       setIsEditingLogin(false);
@@ -226,7 +224,6 @@ const SettingsPage: React.FC = () => {
       // Show success message
       alert('Login details updated successfully!');
     } catch (error) {
-      console.error('Error updating login details:', error);
       setLoginErrors({ general: 'Failed to update login details. Please try again.' });
     }
   };
