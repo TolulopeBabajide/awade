@@ -5,9 +5,12 @@ Modified to store images in database as base64 data.
 
 import base64
 import io
+import logging
 from typing import Tuple
 from fastapi import UploadFile, HTTPException
 from PIL import Image
+
+logger = logging.getLogger(__name__)
 
 class FileUploadService:
     """Service for handling file uploads with validation and processing."""
@@ -59,10 +62,11 @@ class FileUploadService:
         # Read file content
         try:
             content = await file.read()
-        except Exception as e:
+        except Exception:
+            logger.error("Failed to read uploaded file", exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"Failed to read uploaded file: {str(e)}"
+                detail="Failed to read the uploaded file"
             )
         
         # Validate and process image
@@ -90,10 +94,11 @@ class FileUploadService:
             
             return base64_data, file.content_type, file_extension
             
-        except Exception as e:
+        except Exception:
+            logger.error("Failed to process uploaded image", exc_info=True)
             raise HTTPException(
                 status_code=400,
-                detail=f"Invalid image file: {str(e)}"
+                detail="Invalid or unprocessable image file"
             )
     
     async def save_profile_image(
@@ -131,8 +136,8 @@ class FileUploadService:
             # when the user profile is updated
             return True
             
-        except Exception as e:
-            print(f"Error processing profile image deletion: {str(e)}")
+        except Exception:
+            logger.error("Error processing profile image deletion", exc_info=True)
             return False
     
     def get_profile_image_data_url(self, base64_data: str, mime_type: str) -> str:

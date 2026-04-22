@@ -8,12 +8,16 @@ separating concerns from the router layer.
 Author: Tolulope Babajide
 """
 
+import logging
+
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from fastapi import HTTPException
 
 import sys
 import os
+
+logger = logging.getLogger(__name__)
 
 # Add parent directories to Python path for imports
 current_dir = os.path.dirname(__file__)
@@ -61,10 +65,11 @@ class CountryService:
             countries = self.db.query(Country).offset(skip).limit(limit).all()
             return [self._create_country_response(country) for country in countries]
             
-        except Exception as e:
+        except Exception:
+            logger.error("Failed to retrieve countries", exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while retrieving countries: {str(e)}"
+                detail="An error occurred while retrieving countries"
             )
     
     def get_country(self, country_id: int) -> CountryResponse:
@@ -89,10 +94,11 @@ class CountryService:
             
         except HTTPException:
             raise
-        except Exception as e:
+        except Exception:
+            logger.error("Failed to retrieve country %s", country_id, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while retrieving the country: {str(e)}"
+                detail="An error occurred while retrieving the country"
             )
     
     def create_country(self, country_data: CountryCreate) -> CountryResponse:
@@ -126,10 +132,11 @@ class CountryService:
             
         except HTTPException:
             raise
-        except Exception as e:
+        except Exception:
+            logger.error("Failed to create country", exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while creating the country: {str(e)}"
+                detail="An error occurred while creating the country"
             )
     
     def update_country(self, country_id: int, country_data: CountryUpdate) -> CountryResponse:
@@ -172,10 +179,11 @@ class CountryService:
             
         except HTTPException:
             raise
-        except Exception as e:
+        except Exception:
+            logger.error("Failed to update country %s", country_id, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while updating the country: {str(e)}"
+                detail="An error occurred while updating the country"
             )
     
     def delete_country(self, country_id: int) -> dict:
@@ -206,10 +214,11 @@ class CountryService:
             
         except HTTPException:
             raise
-        except Exception as e:
+        except Exception:
+            logger.error("Failed to delete country %s", country_id, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while deleting the country: {str(e)}"
+                detail="An error occurred while deleting the country"
             )
     
     def search_countries(self, search_term: str, skip: int = 0, limit: int = 100) -> List[CountryResponse]:
@@ -240,10 +249,11 @@ class CountryService:
             
             return [self._create_country_response(country) for country in countries]
             
-        except Exception as e:
+        except Exception:
+            logger.error("Failed to search countries for term '%s'", search_term, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while searching countries: {str(e)}"
+                detail="An error occurred while searching countries"
             )
     
     def get_countries_by_region(self, region: str, skip: int = 0, limit: int = 100) -> List[CountryResponse]:
@@ -268,10 +278,11 @@ class CountryService:
             
             return [self._create_country_response(country) for country in countries]
             
-        except Exception as e:
+        except Exception:
+            logger.error("Failed to retrieve countries for region '%s'", region, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while retrieving countries by region: {str(e)}"
+                detail="An error occurred while retrieving countries by region"
             )
     
     def _create_country_response(self, country: Country) -> CountryResponse:
@@ -291,8 +302,9 @@ class CountryService:
                 iso_code=country.iso_code,
                 region=country.region
             )
-        except Exception as e:
+        except Exception:
+            logger.error("Failed to create country response", exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"Error creating country response: {str(e)}"
+                detail="An internal error occurred while processing the country data"
             )
