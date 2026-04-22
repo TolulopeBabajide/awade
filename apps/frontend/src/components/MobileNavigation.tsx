@@ -6,6 +6,7 @@ import {
   FaFolder,
   FaCog,
   FaBookmark,
+  FaUsers,
 } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -30,6 +31,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentPage }) => {
 
   const parentNavItems: NavItem[] = [
     { id: 'dashboard', label: 'Home', icon: FaHome, path: '/dashboard' },
+    { id: 'children', label: 'Children', icon: FaUsers, path: '/children' },
     { id: 'saved-guides', label: 'Guides', icon: FaBookmark, path: '/saved-guides' },
     { id: 'settings', label: 'Settings', icon: FaCog, path: '/settings' },
   ];
