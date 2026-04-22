@@ -33,8 +33,8 @@ class TestGeminiProvider:
 
     def test_get_model_name(self):
         provider = GeminiProvider(api_key="test")
-        assert provider._get_model_name("basic") == "gemini-1.5-flash"
-        assert provider._get_model_name("standard") == "gemini-1.5-pro"
+        assert provider._get_model_name("basic") == "gemini-flash-latest"
+        assert provider._get_model_name("standard") == "gemini-flash-latest"
 
 class TestContentCache:
     @patch("packages.ai.cache.redis.Redis")
