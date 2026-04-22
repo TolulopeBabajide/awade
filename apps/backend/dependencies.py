@@ -123,16 +123,22 @@ async def get_current_active_user(
     current_user: User = Depends(get_current_user)
 ) -> User:
     """
-    Get current active user (additional checks can be added here).
-    
+    Get current active user.
+
     Args:
         current_user: Current authenticated user
-        
+
     Returns:
         User: Current active user
+
+    Raises:
+        HTTPException: If the user account has been suspended
     """
-    # Add any additional checks for user status here
-    # For example, check if user is banned, suspended, etc.
+    if current_user.is_suspended:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account suspended",
+        )
     return current_user
 
 def require_role(required_role: UserRole):
