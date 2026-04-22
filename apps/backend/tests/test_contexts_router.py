@@ -21,7 +21,7 @@ from apps.backend.dependencies import require_admin_or_educator
 # ---------------------------------------------------------------------------
 
 def _make_educator(user_id: int = 1, email: str = "edu@example.com") -> User:
-    u = User.__new__(User)
+    u = User()
     u.user_id = user_id
     u.email = email
     u.role = UserRole.EDUCATOR
@@ -29,7 +29,7 @@ def _make_educator(user_id: int = 1, email: str = "edu@example.com") -> User:
 
 
 def _make_admin(user_id: int = 99) -> User:
-    u = User.__new__(User)
+    u = User()
     u.user_id = user_id
     u.email = "admin@example.com"
     u.role = UserRole.ADMIN
@@ -37,14 +37,14 @@ def _make_admin(user_id: int = 99) -> User:
 
 
 def _make_lesson_plan(lesson_plan_id: int, owner_id: int) -> LessonPlan:
-    lp = LessonPlan.__new__(LessonPlan)
+    lp = LessonPlan()
     lp.lesson_plan_id = lesson_plan_id
     lp.user_id = owner_id
     return lp
 
 
 def _make_context(context_id: int, lesson_plan_id: int) -> Context:
-    ctx = Context.__new__(Context)
+    ctx = Context()
     ctx.context_id = context_id
     ctx.lesson_plan_id = lesson_plan_id
     ctx.context_text = "some context"

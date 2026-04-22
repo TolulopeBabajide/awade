@@ -86,11 +86,10 @@ class UserService:
             
             return [self._create_user_response(user) for user in users]
             
-        except Exception:
-            logger.error("Failed to retrieve users", exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An error occurred while retrieving users"
+                detail=f"An error occurred while retrieving users: {str(e)}"
             )
     
     def get_user(self, user_id: int, current_user: User) -> UserResponse:
@@ -181,11 +180,10 @@ class UserService:
             
         except HTTPException:
             raise
-        except Exception:
-            logger.error("Failed to update user %s", user_id, exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An error occurred while updating the user"
+                detail=f"An error occurred while updating the user: {str(e)}"
             )
     
     def delete_user(self, user_id: int, current_user: User) -> Dict[str, str]:
@@ -228,11 +226,10 @@ class UserService:
             
         except HTTPException:
             raise
-        except Exception:
-            logger.error("Failed to delete user %s", user_id, exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An error occurred while deleting the user"
+                detail=f"An error occurred while deleting the user: {str(e)}"
             )
     
     def get_user_profile(self, user_id: int, current_user: User) -> UserProfileResponse:
@@ -265,11 +262,10 @@ class UserService:
             
         except HTTPException:
             raise
-        except Exception:
-            logger.error("Failed to retrieve user profile %s", user_id, exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An error occurred while retrieving the user profile"
+                detail=f"An error occurred while retrieving the user profile: {str(e)}"
             )
     
     def update_user_profile(self, user_id: int, profile_data: UserUpdate, current_user: User) -> UserProfileResponse:
@@ -318,11 +314,10 @@ class UserService:
             
         except HTTPException:
             raise
-        except Exception:
-            logger.error("Failed to update user profile %s", user_id, exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An error occurred while updating the user profile"
+                detail=f"An error occurred while updating the user profile: {str(e)}"
             )
     
     def _create_user_response(self, user: User) -> UserResponse:
@@ -368,11 +363,10 @@ class UserService:
                 created_at=user.created_at,
                 last_login=user.last_login
             )
-        except Exception:
-            logger.error("Failed to create user response", exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An internal error occurred while processing the user data"
+                detail=f"Error creating user response: {str(e)}"
             )
     
     def _create_user_profile_response(self, user: User) -> UserProfileResponse:
@@ -411,9 +405,8 @@ class UserService:
                 subjects=subjects_list,
                 grade_levels=grade_levels_list
             )
-        except Exception:
-            logger.error("Failed to create user profile response", exc_info=True)
+        except Exception as e:
             raise HTTPException(
                 status_code=500,
-                detail="An internal error occurred while processing the user profile data"
+                detail=f"Error creating user profile response: {str(e)}"
             )
