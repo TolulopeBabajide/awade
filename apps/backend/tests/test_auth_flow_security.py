@@ -1,6 +1,8 @@
 
 import pytest
 import bcrypt
+import jwt as pyjwt
+from datetime import datetime, timedelta, timezone
 from fastapi.testclient import TestClient
 
 def test_login_sets_httponly_cookie(client, sample_user, test_db):
@@ -147,4 +149,138 @@ class TestAccountEnumerationProtection:
         # Must be IDENTICAL to the message returned for unknown emails
         assert response.json()["detail"] == "Invalid email or password", (
             "Google OAuth account must not reveal its existence via a distinct error message"
+        )
+
+
+# ---------------------------------------------------------------------------
+# H-08: str(e) must not leak in HTTPException detail fields
+# ---------------------------------------------------------------------------
+
+class TestExceptionDetailSanitization:
+    """Verify that unexpected internal errors never expose str(e) in HTTP responses."""
+
+    def test_login_db_error_does_not_leak_exception(self, client):
+        """A DB failure during login must return a generic 500, not the exception string."""
+        from unittest.mock import patch, MagicMock
+
+        # Simulate a DB query raising an unexpected exception
+        boom = RuntimeError("INTERNAL: connection pool exhausted — secret detail")
+        with patch(
+            "apps.backend.services.auth_service.AuthService.authenticate_user",
+            side_effect=boom,
+        ):
+            response = client.post("/api/auth/login", json={
+                "email": "test@example.com",
+                "password": "password123",
+            })
+
+        assert response.status_code == 500
+        body = response.json()
+        # The raw exception message must NOT appear in the response detail
+        assert "secret detail" not in body.get("detail", ""), (
+            "Exception string leaked into HTTPException detail — H-08"
+        )
+        assert "connection pool" not in body.get("detail", ""), (
+            "Exception string leaked into HTTPException detail — H-08"
+        )
+
+    def test_registration_db_error_does_not_leak_exception(self, client):
+        """A DB failure during registration must return a generic 500, not the exception string."""
+        from unittest.mock import patch
+
+        boom = RuntimeError("INTERNAL: unique constraint violated on secret_column")
+        with patch(
+            "apps.backend.services.auth_service.AuthService.register_user",
+            side_effect=boom,
+        ):
+            response = client.post("/api/auth/signup", json={
+                "email": "new@example.com",
+                "password": "password123",
+                "full_name": "New User",
+                "role": "PARENT",
+                "country": "NG",
+            })
+
+        assert response.status_code == 500
+        body = response.json()
+        assert "secret_column" not in body.get("detail", ""), (
+            "Exception string leaked into HTTPException detail — H-08"
+        )
+
+    def test_google_auth_error_does_not_leak_exception(self, client):
+        """A failure in Google auth must return a generic 500, not the exception string."""
+        from unittest.mock import patch
+
+        boom = RuntimeError("INTERNAL: oauth key file path /etc/secrets/key.pem missing")
+        with patch(
+            "apps.backend.services.auth_service.AuthService.authenticate_google_user",
+            side_effect=boom,
+        ):
+            response = client.post("/api/auth/google", json={
+                "id_token": "dummy-token",
+            })
+
+        assert response.status_code == 500
+        body = response.json()
+        assert "/etc/secrets" not in body.get("detail", ""), (
+            "Exception string leaked into HTTPException detail — H-08"
+        )
+
+
+# ---------------------------------------------------------------------------
+# H-24: Suspended users must be blocked by get_current_active_user
+# ---------------------------------------------------------------------------
+
+class TestSuspendedUserAuthBypass:
+    """Verify that a suspended user cannot access protected endpoints."""
+
+    def _make_token(self, user_id: int) -> str:
+        """Mint a valid JWT for the given user_id using the test secret."""
+        payload = {
+            "sub": str(user_id),
+            "exp": datetime.now(timezone.utc) + timedelta(minutes=30),
+        }
+        return pyjwt.encode(payload, "test_jwt_secret", algorithm="HS256")
+
+    def test_active_user_can_access_protected_endpoint(self, client, sample_user):
+        """Baseline: a non-suspended user with a valid token gets through."""
+        token = self._make_token(sample_user.user_id)
+        response = client.get(
+            "/api/users/me",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        # 200 means the dependency chain passed; any other 4xx would indicate
+        # the endpoint itself requires something extra — we only care it isn't 403.
+        assert response.status_code != 403, (
+            "Active user should not receive 403 from get_current_active_user"
+        )
+
+    def test_suspended_user_receives_403(self, client, sample_user, test_db):
+        """A user with is_suspended=1 must receive 403 on every protected endpoint."""
+        sample_user.is_suspended = 1
+        test_db.commit()
+
+        token = self._make_token(sample_user.user_id)
+        response = client.get(
+            "/api/users/me",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert response.status_code == 403
+        assert response.json()["detail"] == "Account suspended"
+
+    def test_suspended_user_unblocked_after_unsuspend(self, client, sample_user, test_db):
+        """After clearing is_suspended the user can authenticate again."""
+        # Suspend then re-activate
+        sample_user.is_suspended = 1
+        test_db.commit()
+        sample_user.is_suspended = 0
+        test_db.commit()
+
+        token = self._make_token(sample_user.user_id)
+        response = client.get(
+            "/api/users/me",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert response.status_code != 403, (
+            "Re-activated user must not receive 403 from get_current_active_user"
         )
