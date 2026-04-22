@@ -13,7 +13,7 @@ python-multipart>=0.0.18  # Fix CVE-2024-53981, PVE-2024-99762
 jinja2>=3.1.6  # Fix CVE-2025-27516, CVE-2024-34064, CVE-2024-56326, CVE-2024-56201, CVE-2024-22195
 bcrypt>=4.0.0
 weasyprint>=60.0 
-PyJWT>=2.0.0 
+PyJWT==2.12.1  # Pin exact version — large CVE surface between 2.3.0 and 2.12.1 (AWD-H-23)
 email-validator
 requests>=2.32.4  # Fix CVE-2024-47081
 urllib3>=2.5.0  # Fix CVE-2025-50181, CVE-2025-50182
