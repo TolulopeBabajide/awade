@@ -23,8 +23,12 @@ parent_dir = os.path.dirname(current_dir)
 root_dir = os.path.dirname(parent_dir)
 sys.path.extend([parent_dir, root_dir])
 
+import logging
+
 from apps.backend.models import User, UserRole
 from apps.backend.schemas.users import UserUpdate, UserResponse, UserProfileResponse
+
+logger = logging.getLogger(__name__)
 
 class UserService:
     """Service class for user operations."""
@@ -88,32 +92,46 @@ class UserService:
                 detail=f"An error occurred while retrieving users: {str(e)}"
             )
     
-    def get_user(self, user_id: int) -> UserResponse:
+    def get_user(self, user_id: int, current_user: User) -> UserResponse:
         """
         Get a specific user by ID.
-        
+
+        Users may only retrieve their own record. ADMIN and SUPER_ADMIN may
+        retrieve any record.
+
         Args:
             user_id (int): User ID
-            
+            current_user (User): The authenticated caller
+
         Returns:
             UserResponse: User response
-            
+
         Raises:
-            HTTPException: If user not found
+            HTTPException: 403 if caller lacks ownership/admin role, 404 if not found
         """
         try:
+            if (
+                current_user.user_id != user_id
+                and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN)
+            ):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You can only view your own profile",
+                )
+
             user = self.db.query(User).filter(User.user_id == user_id).first()
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
-            
+
             return self._create_user_response(user)
-            
+
         except HTTPException:
             raise
         except Exception as e:
+            logger.error("Failed to retrieve user %s", user_id, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while retrieving the user: {str(e)}"
+                detail="An error occurred while retrieving the user",
             )
     
     def update_user(self, user_id: int, user_data: UserUpdate, current_user: User) -> UserResponse:
