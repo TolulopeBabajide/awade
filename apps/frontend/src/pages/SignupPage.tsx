@@ -52,8 +52,8 @@ const SignupPage: React.FC = () => {
       } else {
         setError('Google signup failed. Please try email/password signup instead.');
       }
-    } catch (err: any) {
-      setError(err.message || 'Google signup failed');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Google signup failed');
     } finally {
       setLoading(false);
     }
@@ -127,8 +127,8 @@ const SignupPage: React.FC = () => {
       } else {
         setError('Signup failed. Please try again.');
       }
-    } catch (err: any) {
-      setError(err.message || 'Signup failed');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Signup failed');
     } finally {
       setLoading(false);
     }
