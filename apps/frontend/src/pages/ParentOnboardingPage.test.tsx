@@ -153,6 +153,28 @@ describe('ParentOnboardingPage', () => {
         expect(screen.getByText('Server error')).toBeInTheDocument()
       })
     })
+
+    it('shows error message when reference data fetch throws', async () => {
+      mockApiService.getCountries.mockRejectedValue(new Error('Network error'))
+      renderPage()
+      await waitFor(() => {
+        expect(screen.getByText(/Failed to load options\. Please refresh\./i)).toBeInTheDocument()
+      })
+    })
+
+    it('shows error message when curriculum fetch throws after country selection', async () => {
+      mockApiService.getCurriculums.mockRejectedValue(new Error('Network error'))
+      const user = userEvent.setup()
+      renderPage()
+      // Wait for the reference data (incl. countries) to populate the select
+      await waitFor(() => screen.getByText('Nigeria'))
+      // Country is the first combobox on the page
+      const selects = screen.getAllByRole('combobox')
+      await user.selectOptions(selects[0], '1')
+      await waitFor(() => {
+        expect(screen.getByText(/Failed to load options\. Please refresh\./i)).toBeInTheDocument()
+      })
+    })
   })
 
   describe('skip link', () => {

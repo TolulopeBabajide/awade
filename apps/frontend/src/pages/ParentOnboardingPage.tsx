@@ -47,14 +47,18 @@ const ParentOnboardingPage: React.FC = () => {
   // Load reference data (countries, grades, subjects) on mount
   useEffect(() => {
     const loadRefData = async () => {
-      const [countriesRes, gradesRes, subjectsRes] = await Promise.all([
-        apiService.getCountries(),
-        apiService.getGradeLevels(),
-        apiService.getSubjects(),
-      ])
-      if (countriesRes.data) setCountries(countriesRes.data)
-      if (gradesRes.data) setGradeLevels(gradesRes.data)
-      if (subjectsRes.data) setSubjectOptions(subjectsRes.data)
+      try {
+        const [countriesRes, gradesRes, subjectsRes] = await Promise.all([
+          apiService.getCountries(),
+          apiService.getGradeLevels(),
+          apiService.getSubjects(),
+        ])
+        if (countriesRes.data) setCountries(countriesRes.data)
+        if (gradesRes.data) setGradeLevels(gradesRes.data)
+        if (subjectsRes.data) setSubjectOptions(subjectsRes.data)
+      } catch {
+        setError('Failed to load options. Please refresh.')
+      }
     }
     loadRefData()
   }, [])
@@ -67,8 +71,12 @@ const ParentOnboardingPage: React.FC = () => {
       return
     }
     const loadCurriculums = async () => {
-      const res = await apiService.getCurriculums(form.country_id!)
-      if (res.data) setCurriculums(res.data)
+      try {
+        const res = await apiService.getCurriculums(form.country_id!)
+        if (res.data) setCurriculums(res.data)
+      } catch {
+        setError('Failed to load options. Please refresh.')
+      }
     }
     loadCurriculums()
   }, [form.country_id])
