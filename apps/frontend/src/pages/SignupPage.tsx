@@ -28,12 +28,13 @@ const SignupPage: React.FC = () => {
     if (showSuccessModal) {
       const timer = setTimeout(() => {
         setShowSuccessModal(false);
-        navigate('/dashboard');
+        // PARENT users go through onboarding to add their first child
+        navigate(selectedRole === 'PARENT' ? '/onboarding' : '/dashboard');
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [showSuccessModal, navigate]);
+  }, [showSuccessModal, navigate, selectedRole]);
 
   // Google OAuth handler
   const handleGoogleSuccess = async (credentialResponse: any) => {
@@ -46,7 +47,8 @@ const SignupPage: React.FC = () => {
     try {
       const success = await googleAuth(credentialResponse.credential, selectedRole);
       if (success) {
-        navigate('/dashboard');
+        // PARENT users go through onboarding to add their first child
+        navigate(selectedRole === 'PARENT' ? '/onboarding' : '/dashboard');
       } else {
         setError('Google signup failed. Please try email/password signup instead.');
       }

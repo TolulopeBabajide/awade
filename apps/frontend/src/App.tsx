@@ -18,6 +18,7 @@ import SavedGuidesPage from './pages/SavedGuidesPage'
 import ChildrenPage from './pages/ChildrenPage'
 import AdminRoute from './components/AdminRoute'
 import ParentRoute from './components/ParentRoute'
+import ParentOnboardingPage from './pages/ParentOnboardingPage'
 import AdminLayout from './components/AdminLayout'
 import AdminDashboard from './pages/admin/Dashboard'
 import UserList from './pages/admin/UserList'
@@ -46,6 +47,11 @@ function App() {
           } />
 
           {/* Parent routes — PARENT role only */}
+          <Route path="/onboarding" element={
+            <ParentRoute>
+              <ParentOnboardingPage />
+            </ParentRoute>
+          } />
           <Route path="/children" element={
             <ParentRoute>
               <ChildrenPage />
