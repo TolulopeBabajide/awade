@@ -10,7 +10,7 @@ const AuditLogs: React.FC = () => {
             try {
                 const response = await fetch(`${(import.meta as any).env.VITE_API_URL}/api/admin/audit-logs`, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                        /* access_token cookie sent automatically */
                     }
                 });
                 const data = await response.json();

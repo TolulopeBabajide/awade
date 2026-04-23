@@ -16,8 +16,10 @@ from datetime import datetime
 from apps.backend.database import get_db
 from apps.backend.models import User, UserRole
 
-# Security scheme for JWT tokens
-security = HTTPBearer()
+# Security scheme for JWT tokens — auto_error=False so the dependency does not
+# immediately reject requests that carry the token in an HttpOnly cookie instead
+# of an Authorization header.
+security = HTTPBearer(auto_error=False)
 
 def get_jwt_secret_key() -> str:
     """Get JWT secret key from environment variables.
@@ -82,25 +84,43 @@ def verify_jwt_token(token: str) -> dict:
         )
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    request: Request,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: Session = Depends(get_db)
 ) -> User:
     """
     Get current authenticated user from JWT token.
-    
+
+    Accepts the token via:
+    1. ``Authorization: Bearer <token>`` header (API clients, Swagger UI)
+    2. ``access_token`` HttpOnly cookie (browser-based clients)
+
     Args:
-        credentials: HTTP authorization credentials containing the JWT token
+        request: Incoming FastAPI request (used to read cookies)
+        credentials: Optional HTTP authorization credentials
         db: Database session
-        
+
     Returns:
         User: Current authenticated user
-        
+
     Raises:
-        HTTPException: If user is not found or token is invalid
+        HTTPException: If no token is present, or the token is invalid/expired
     """
-    token = credentials.credentials
+    token: Optional[str] = None
+    if credentials:
+        token = credentials.credentials
+    else:
+        token = request.cookies.get("access_token")
+
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     payload = verify_jwt_token(token)
-    
+
     user_id = payload.get("sub")
     if user_id is None:
         raise HTTPException(
@@ -108,7 +128,7 @@ async def get_current_user(
             detail="Invalid token payload",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     user = db.query(User).filter(User.user_id == int(user_id)).first()
     if user is None:
         raise HTTPException(
@@ -116,7 +136,7 @@ async def get_current_user(
             detail="User not found",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     return user
 
 async def get_current_active_user(

@@ -111,6 +111,16 @@ class AuthResponse(BaseModel):
     token_type: str = "bearer"
     user: UserResponse
 
+class CookieAuthResponse(BaseModel):
+    """Schema for cookie-based authentication response.
+
+    The access token is delivered via HttpOnly Set-Cookie header; only the
+    user payload is included in the response body so the frontend never needs
+    to touch or store the raw JWT.
+    """
+    token_type: str = "bearer"
+    user: UserResponse
+
 class PasswordResetRequest(BaseModel):
     """Schema for password reset request."""
     email: EmailStr = Field(..., description="Email address for password reset")

@@ -21,7 +21,7 @@ from fastapi import APIRouter, HTTPException, Depends, Request, Response, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from apps.backend.database import get_db
-from apps.backend.schemas.users import AuthResponse, UserResponse, UserCreate, UserLogin, PasswordResetRequest, PasswordReset
+from apps.backend.schemas.users import AuthResponse, CookieAuthResponse, UserResponse, UserCreate, UserLogin, PasswordResetRequest, PasswordReset
 from apps.backend.models import User
 from apps.backend.dependencies import get_current_user
 from apps.backend.services.auth_service import AuthService
@@ -39,6 +39,35 @@ IS_PRODUCTION = os.getenv("ENVIRONMENT") == "production"
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
+# ---------------------------------------------------------------------------
+# Cookie helper
+# ---------------------------------------------------------------------------
+
+ACCESS_TOKEN_MAX_AGE = 30 * 60  # 30 minutes
+REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60  # 7 days
+
+def _set_auth_cookies(response: Response, access_token: str, refresh_token: str) -> None:
+    """Set both auth cookies (access + refresh) as HttpOnly on a response."""
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=IS_PRODUCTION,
+        samesite="lax",
+        max_age=ACCESS_TOKEN_MAX_AGE,
+        path="/",
+    )
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=IS_PRODUCTION,
+        samesite="lax",
+        max_age=REFRESH_TOKEN_MAX_AGE,
+        path="/",
+    )
+
+
 class GoogleAuthRequest(BaseModel):
     """
     Request schema for Google OAuth authentication.
@@ -52,7 +81,7 @@ class TokenRefreshRequest(BaseModel):
     """
     refresh_token: str
 
-@router.post("/google", response_model=AuthResponse)
+@router.post("/google", response_model=CookieAuthResponse)
 @limiter.limit("10/minute")
 def google_auth(
     request: Request,
@@ -62,6 +91,8 @@ def google_auth(
 ):
     """
     Authenticate user with Google OAuth credential (ID token).
+    The access token is delivered as an HttpOnly cookie; only user data is
+    returned in the response body.
     Rate limit: 10 requests per minute.
     """
     try:
@@ -73,21 +104,10 @@ def google_auth(
         logger.error("Unexpected error in google_auth endpoint", exc_info=True)
         raise HTTPException(status_code=500, detail="An error occurred during Google authentication")
 
-    # Set refresh token as HttpOnly cookie
-    response.set_cookie(
-        key="refresh_token",
-        value=refresh_token,
-        httponly=True,
-        secure=IS_PRODUCTION,
-        samesite="lax",
-        max_age=7 * 24 * 60 * 60 # 7 days
-    )
+    _set_auth_cookies(response, auth_response.access_token, refresh_token)
+    return CookieAuthResponse(user=auth_response.user)
 
-    return auth_response
-
-# ... existing code ...
-
-@router.post("/signup", response_model=AuthResponse)
+@router.post("/signup", response_model=CookieAuthResponse)
 @limiter.limit("5/minute")
 def signup(
     request: Request,
@@ -97,6 +117,8 @@ def signup(
 ):
     """
     Register a new user with email and password.
+    The access token is delivered as an HttpOnly cookie; only user data is
+    returned in the response body.
     Rate limit: 5 requests per minute.
     """
     try:
@@ -108,28 +130,21 @@ def signup(
         logger.error("Unexpected error in signup endpoint", exc_info=True)
         raise HTTPException(status_code=500, detail="An error occurred during registration")
 
-    # Set refresh token as HttpOnly cookie
-    response.set_cookie(
-        key="refresh_token",
-        value=refresh_token,
-        httponly=True,
-        secure=IS_PRODUCTION,
-        samesite="lax",
-        max_age=7 * 24 * 60 * 60 # 7 days
-    )
+    _set_auth_cookies(response, auth_response.access_token, refresh_token)
+    return CookieAuthResponse(user=auth_response.user)
 
-    return auth_response
-
-@router.post("/login", response_model=AuthResponse)
+@router.post("/login", response_model=CookieAuthResponse)
 @limiter.limit("10/minute")
 def login(
     request: Request,
     response: Response,
-    user_data: UserLogin, 
+    user_data: UserLogin,
     db: Session = Depends(get_db)
 ):
     """
     Authenticate user with email and password.
+    The access token is delivered as an HttpOnly cookie; only user data is
+    returned in the response body.
     Rate limit: 10 requests per minute.
     """
     try:
@@ -141,17 +156,8 @@ def login(
         logger.error("Unexpected error in login endpoint", exc_info=True)
         raise HTTPException(status_code=500, detail="An error occurred during authentication")
 
-    # Set refresh token as HttpOnly cookie
-    response.set_cookie(
-        key="refresh_token",
-        value=refresh_token,
-        httponly=True,
-        secure=IS_PRODUCTION,
-        samesite="lax",
-        max_age=7 * 24 * 60 * 60 # 7 days
-    )
-
-    return auth_response
+    _set_auth_cookies(response, auth_response.access_token, refresh_token)
+    return CookieAuthResponse(user=auth_response.user)
 
 @router.get("/me", response_model=UserResponse)
 def get_current_user_profile(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -159,35 +165,28 @@ def get_current_user_profile(current_user: User = Depends(get_current_user), db:
     service = AuthService(db)
     return service.get_current_user_profile(current_user)
 
-@router.post("/refresh", response_model=AuthResponse)
+@router.post("/refresh", response_model=CookieAuthResponse)
 @limiter.limit("20/minute")
 async def refresh_token(request: Request, response: Response, db: Session = Depends(get_db)):
     """
-    Refresh JWT token using refresh token from HttpOnly cookie and rotate the token.
+    Refresh JWT token using the refresh_token HttpOnly cookie and rotate both tokens.
+    The new access token is issued as an HttpOnly cookie; only user data is returned in the
+    response body.
     Rate limit: 20 requests per minute.
     """
-    refresh_token = request.cookies.get("refresh_token")
-    if not refresh_token:
+    stored_refresh_token = request.cookies.get("refresh_token")
+    if not stored_refresh_token:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, 
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Refresh token missing"
         )
-        
+
     service = AuthService(db)
     redis_pool = getattr(request.app.state, "redis", None)
-    auth_response, new_refresh_token = await service.refresh_access_token(refresh_token, redis_pool)
-    
-    # Set new (rotated) refresh token as HttpOnly cookie
-    response.set_cookie(
-        key="refresh_token",
-        value=new_refresh_token,
-        httponly=True,
-        secure=IS_PRODUCTION,
-        samesite="lax",
-        max_age=7 * 24 * 60 * 60 # 7 days
-    )
-    
-    return auth_response
+    auth_response, new_refresh_token = await service.refresh_access_token(stored_refresh_token, redis_pool)
+
+    _set_auth_cookies(response, auth_response.access_token, new_refresh_token)
+    return CookieAuthResponse(user=auth_response.user)
 
 @router.post("/logout")
 async def logout(request: Request, response: Response, db: Session = Depends(get_db)):
@@ -201,7 +200,8 @@ async def logout(request: Request, response: Response, db: Session = Depends(get
         if redis_pool:
             await service.blacklist_refresh_token(refresh_token, redis_pool)
             
-    response.delete_cookie("refresh_token")
+    response.delete_cookie("access_token", path="/")
+    response.delete_cookie("refresh_token", path="/")
     return {"message": "Logged out successfully"}
 
 @router.post("/forgot-password")
