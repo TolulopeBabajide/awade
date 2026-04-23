@@ -48,6 +48,55 @@ from apps.backend.models import Base
 # Load environment variables
 load_dotenv()
 
+# ---------------------------------------------------------------------------
+# Sentry error monitoring (AWD-H-01)
+# Initialised early, before the app is created, so all exceptions are captured.
+# Only active when SENTRY_DSN is set and ENVIRONMENT is not "testing".
+# ---------------------------------------------------------------------------
+import logging as _logging
+
+_sentry_logger = _logging.getLogger(__name__)
+
+def _init_sentry() -> None:
+    sentry_dsn = os.getenv("SENTRY_DSN", "")
+    environment = os.getenv("ENVIRONMENT", "development")
+    if not sentry_dsn:
+        _sentry_logger.info("Sentry DSN not set — error monitoring disabled")
+        return
+    if environment == "testing":
+        _sentry_logger.info("Sentry disabled in testing environment")
+        return
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.fastapi import FastApiIntegration
+        from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+        from sentry_sdk.integrations.logging import LoggingIntegration
+
+        sentry_sdk.init(
+            dsn=sentry_dsn,
+            environment=environment,
+            integrations=[
+                FastApiIntegration(),
+                SqlalchemyIntegration(),
+                LoggingIntegration(
+                    level=_logging.INFO,       # breadcrumbs from INFO+
+                    event_level=_logging.ERROR, # send Sentry events for ERROR+
+                ),
+            ],
+            # Capture 10 % of transactions for performance monitoring;
+            # set to 1.0 in production if budget allows.
+            traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.1")),
+            # Never forward raw request bodies — COPPA / GDPR safety.
+            send_default_pii=False,
+        )
+        _sentry_logger.info("Sentry initialised (env=%s)", environment)
+    except ImportError:
+        _sentry_logger.warning("sentry-sdk not installed — error monitoring disabled")
+    except Exception as exc:
+        _sentry_logger.warning("Sentry initialisation failed: %s", exc)
+
+_init_sentry()
+
 # Auto-run database fix on startup
 def run_database_fix():
     """Run database fix script automatically on startup."""
