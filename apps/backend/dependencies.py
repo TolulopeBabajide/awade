@@ -216,27 +216,35 @@ async def get_optional_current_user(
     """
     Get current user if authenticated, otherwise return None.
     Useful for endpoints that work both with and without authentication.
-    
+
+    Accepts the token via:
+    1. ``Authorization: Bearer <token>`` header (API clients, Swagger UI)
+    2. ``access_token`` HttpOnly cookie (browser-based clients)
+
     Args:
         request: FastAPI request object
         db: Database session
-        
+
     Returns:
         Optional[User]: Current user if authenticated, None otherwise
     """
     try:
+        token: Optional[str] = None
         auth_header = request.headers.get("Authorization")
-        if not auth_header or not auth_header.startswith("Bearer "):
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+        else:
+            token = request.cookies.get("access_token")
+
+        if not token:
             return None
-        
-        token = auth_header.split(" ")[1]
+
         payload = verify_jwt_token(token)
-        
+
         user_id = payload.get("sub")
         if user_id is None:
             return None
-        
-        user = db.query(User).filter(User.user_id == int(user_id)).first()
-        return user
+
+        return db.query(User).filter(User.user_id == int(user_id)).first()
     except Exception:
-        return None 
+        return None
