@@ -13,7 +13,7 @@ const ModerationList: React.FC = () => {
         try {
             const response = await fetch(`${(import.meta as any).env.VITE_API_URL}/api/admin/resources`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    /* access_token cookie sent automatically */
                 }
             });
             const data = await response.json();
@@ -31,7 +31,7 @@ const ModerationList: React.FC = () => {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    /* access_token cookie sent automatically */
                 },
                 body: JSON.stringify({ status, notes: `Action taken by Admin at ${new Date().toLocaleString()}` })
             });

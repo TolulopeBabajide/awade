@@ -15,12 +15,9 @@ const AdminDashboard: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const headers = {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                };
-                const [metricsRes, logsRes] = await Promise.all([
-                    fetch(`${(import.meta as any).env.VITE_API_URL}/admin/metrics`, { headers }),
-                    fetch(`${(import.meta as any).env.VITE_API_URL}/admin/audit-logs?limit=5`, { headers })
+const [metricsRes, logsRes] = await Promise.all([
+                    fetch(`${(import.meta as any).env.VITE_API_URL}/admin/metrics`, { credentials: 'include' }),
+                    fetch(`${(import.meta as any).env.VITE_API_URL}/admin/audit-logs?limit=5`, { credentials: 'include' })
                 ]);
 
                 const metricsData = await metricsRes.json();

@@ -1397,7 +1397,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthResponse"
+                  "$ref": "#/components/schemas/CookieAuthResponse"
                 }
               }
             }
@@ -1439,7 +1439,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthResponse"
+                  "$ref": "#/components/schemas/CookieAuthResponse"
                 }
               }
             }
@@ -1481,7 +1481,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthResponse"
+                  "$ref": "#/components/schemas/CookieAuthResponse"
                 }
               }
             }
@@ -4507,6 +4507,24 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "CookieAuthResponse": {
+        "title": "CookieAuthResponse",
+        "description": "Cookie-based authentication response. The access token is delivered via HttpOnly Set-Cookie header; only the user payload is included in the response body.",
+        "type": "object",
+        "properties": {
+          "token_type": {
+            "title": "Token Type",
+            "default": "bearer",
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          }
+        },
+        "required": [
+          "user"
+        ]
       }
     },
     "securitySchemes": {
