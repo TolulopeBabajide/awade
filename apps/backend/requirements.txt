@@ -31,6 +31,9 @@ pytest-cov>=4.1.0
 httpx>=0.24.0
 slowapi>=0.1.9 
 
+# Observability
+sentry-sdk[fastapi]==2.58.0  # Error monitoring (AWD-H-01)
+
 # Async Worker
 arq>=0.25.0
 redis>=5.0.0
