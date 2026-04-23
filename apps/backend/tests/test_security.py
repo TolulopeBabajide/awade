@@ -121,10 +121,10 @@ class TestGenerateGuideRateLimit:
     """
 
     def test_generate_guide_route_is_registered(self, client):
-        """Unauthenticated POST returns 403, not 404 — route exists in the app."""
+        """Unauthenticated POST returns 401, not 404 — route exists in the app."""
         response = client.post("/api/children/1/guides/generate?topic_id=1")
-        assert response.status_code == 403, (
-            f"Expected 403 (auth required), got {response.status_code}. "
+        assert response.status_code == 401, (
+            f"Expected 401 (auth required), got {response.status_code}. "
             "If 404, the route may have been removed or the rate-limit decorator broke routing."
         )
 
@@ -283,3 +283,159 @@ class TestAuthEndpointRateLimitStructure:
         assert response.status_code != 404, (
             "POST /api/auth/refresh returned 404 — route missing or decorator broke routing."
         )
+
+
+class TestGetOptionalCurrentUserCookieFallback:
+    """AWD-H-34: get_optional_current_user must fall back to the access_token
+    HttpOnly cookie when no Authorization header is present.
+
+    Before this fix the function returned None for any request without an
+    Authorization header, silently treating cookie-authenticated browser
+    clients as anonymous.
+    """
+
+    def _make_token(self, user_id: int) -> str:
+        """Mint a valid JWT for the given user_id using the test secret."""
+        import jwt as pyjwt
+        import os
+        secret = os.getenv("JWT_SECRET_KEY", "test_jwt_secret")
+        return pyjwt.encode({"sub": str(user_id)}, secret, algorithm="HS256")
+
+    def test_returns_user_from_authorization_header(self, test_db):
+        """Bearer token in Authorization header still resolves the user."""
+        from apps.backend.dependencies import get_optional_current_user
+        from apps.backend.models import User, UserRole
+        from sqlalchemy.orm import Session
+        from fastapi import Request
+        from unittest.mock import MagicMock
+        import asyncio
+
+        user = User(
+            full_name="Header User",
+            email="header@example.com",
+            password_hash="x",
+            role=UserRole.EDUCATOR,
+            country="NG",
+            region="Lagos",
+        )
+        test_db.add(user)
+        test_db.commit()
+        test_db.refresh(user)
+
+        token = self._make_token(user.user_id)
+
+        mock_request = MagicMock(spec=Request)
+        mock_request.headers = {"Authorization": f"Bearer {token}"}
+        mock_request.cookies = {}
+
+        result = asyncio.get_event_loop().run_until_complete(
+            get_optional_current_user(request=mock_request, db=test_db)
+        )
+        assert result is not None
+        assert result.user_id == user.user_id
+
+    def test_returns_user_from_cookie(self, test_db):
+        """Cookie-only request (no Authorization header) resolves the user."""
+        from apps.backend.dependencies import get_optional_current_user
+        from apps.backend.models import User, UserRole
+        from fastapi import Request
+        from unittest.mock import MagicMock
+        import asyncio
+
+        user = User(
+            full_name="Cookie User",
+            email="cookie@example.com",
+            password_hash="x",
+            role=UserRole.PARENT,
+            country="NG",
+            region="Abuja",
+        )
+        test_db.add(user)
+        test_db.commit()
+        test_db.refresh(user)
+
+        token = self._make_token(user.user_id)
+
+        mock_request = MagicMock(spec=Request)
+        mock_request.headers = {}
+        mock_request.cookies = {"access_token": token}
+
+        result = asyncio.get_event_loop().run_until_complete(
+            get_optional_current_user(request=mock_request, db=test_db)
+        )
+        assert result is not None
+        assert result.user_id == user.user_id
+
+    def test_returns_none_for_unauthenticated_request(self, test_db):
+        """No header and no cookie → returns None (not an exception)."""
+        from apps.backend.dependencies import get_optional_current_user
+        from fastapi import Request
+        from unittest.mock import MagicMock
+        import asyncio
+
+        mock_request = MagicMock(spec=Request)
+        mock_request.headers = {}
+        mock_request.cookies = {}
+
+        result = asyncio.get_event_loop().run_until_complete(
+            get_optional_current_user(request=mock_request, db=test_db)
+        )
+        assert result is None
+
+    def test_returns_none_for_invalid_cookie_token(self, test_db):
+        """A malformed or expired cookie token returns None without raising."""
+        from apps.backend.dependencies import get_optional_current_user
+        from fastapi import Request
+        from unittest.mock import MagicMock
+        import asyncio
+
+        mock_request = MagicMock(spec=Request)
+        mock_request.headers = {}
+        mock_request.cookies = {"access_token": "not.a.valid.jwt"}
+
+        result = asyncio.get_event_loop().run_until_complete(
+            get_optional_current_user(request=mock_request, db=test_db)
+        )
+        assert result is None
+
+    def test_header_takes_precedence_over_cookie(self, test_db):
+        """When both Authorization header and cookie are present, header wins."""
+        from apps.backend.dependencies import get_optional_current_user
+        from apps.backend.models import User, UserRole
+        from fastapi import Request
+        from unittest.mock import MagicMock
+        import asyncio
+
+        user_a = User(
+            full_name="User A",
+            email="usera@example.com",
+            password_hash="x",
+            role=UserRole.EDUCATOR,
+            country="NG",
+            region="Lagos",
+        )
+        user_b = User(
+            full_name="User B",
+            email="userb@example.com",
+            password_hash="x",
+            role=UserRole.PARENT,
+            country="NG",
+            region="Lagos",
+        )
+        test_db.add_all([user_a, user_b])
+        test_db.commit()
+        test_db.refresh(user_a)
+        test_db.refresh(user_b)
+
+        token_a = self._make_token(user_a.user_id)
+        token_b = self._make_token(user_b.user_id)
+
+        mock_request = MagicMock(spec=Request)
+        mock_request.headers = {"Authorization": f"Bearer {token_a}"}
+        mock_request.cookies = {"access_token": token_b}
+
+        result = asyncio.get_event_loop().run_until_complete(
+            get_optional_current_user(request=mock_request, db=test_db)
+        )
+        assert result is not None
+        assert result.user_id == user_a.user_id, "Authorization header should take precedence over cookie"
