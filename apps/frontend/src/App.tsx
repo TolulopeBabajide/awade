@@ -17,6 +17,7 @@ import GuideViewPage from './pages/GuideViewPage'
 import SavedGuidesPage from './pages/SavedGuidesPage'
 import ChildrenPage from './pages/ChildrenPage'
 import AdminRoute from './components/AdminRoute'
+import ParentRoute from './components/ParentRoute'
 import AdminLayout from './components/AdminLayout'
 import AdminDashboard from './pages/admin/Dashboard'
 import UserList from './pages/admin/UserList'
@@ -44,21 +45,21 @@ function App() {
             </ProtectedRoute>
           } />
 
-          {/* Parent routes */}
+          {/* Parent routes — PARENT role only */}
           <Route path="/children" element={
-            <ProtectedRoute>
+            <ParentRoute>
               <ChildrenPage />
-            </ProtectedRoute>
+            </ParentRoute>
           } />
           <Route path="/guides/generate" element={
-            <ProtectedRoute>
+            <ParentRoute>
               <GuideViewPage />
-            </ProtectedRoute>
+            </ParentRoute>
           } />
           <Route path="/saved-guides" element={
-            <ProtectedRoute>
+            <ParentRoute>
               <SavedGuidesPage />
-            </ProtectedRoute>
+            </ParentRoute>
           } />
 
           {/* Educator routes (kept for EDUCATOR role) */}
