@@ -154,12 +154,21 @@ from slowapi.errors import RateLimitExceeded
 # Run database fix before creating the app
 run_database_fix()
 
+# ---------------------------------------------------------------------------
+# AWD-M-10: Hide API documentation in production.
+# docs_url and redoc_url are set to None when ENVIRONMENT=production so that
+# the Swagger UI and ReDoc pages are not publicly accessible on the live server.
+# ---------------------------------------------------------------------------
+_APP_ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+_docs_url = None if _APP_ENVIRONMENT == "production" else "/docs"
+_redoc_url = None if _APP_ENVIRONMENT == "production" else "/redoc"
+
 app = FastAPI(
     title="Awade API",
     description="AI-powered educator support platform for African teachers",
     version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
+    docs_url=_docs_url,
+    redoc_url=_redoc_url,
     lifespan=lifespan
 )
 
