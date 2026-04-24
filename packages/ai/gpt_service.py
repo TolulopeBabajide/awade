@@ -20,6 +20,30 @@ logger = logging.getLogger(__name__)
 from .prompts import COMPREHENSIVE_LESSON_RESOURCE_PROMPT, PARENT_HELPER_PROMPT
 
 # ---------------------------------------------------------------------------
+# Input-sanitisation constants — applied to user-supplied text BEFORE it is
+# inserted into a prompt template (AWD-M-12)
+# ---------------------------------------------------------------------------
+
+# Maximum characters accepted from a user-supplied context field.
+# Longer inputs are truncated to prevent token-stuffing / prompt DoS.
+_MAX_USER_CONTEXT_CHARS: int = 2000
+
+# Regex patterns that indicate an instruction-injection attempt in user input.
+# Any match causes the offending phrase to be scrubbed and logged.
+_INPUT_INJECTION_PATTERNS: list[str] = [
+    r"ignore\s+(all\s+)?(?:previous\s+)?instructions",
+    r"disregard\s+(all\s+)?instructions",
+    r"override\s+(your\s+)?(?:instructions|training)",
+    r"you\s+are\s+now\s+(?:a\s+)?(?:different|new|another)",
+    r"act\s+as\s+(?:a\s+)?(?:different|new|another|unrestricted|uncensored)",
+    r"\bsystem\s+prompt\b",
+    r"\bjailbreak\b",
+    r"bypass\s+(?:safety|security|filters)",
+    r"new\s+(?:role|persona|mode|behaviour|behavior)\s*:",
+    r"<\s*/?(?:system|assistant|user)\s*>",   # fake role tags
+]
+
+# ---------------------------------------------------------------------------
 # Content-safety patterns — applied to raw AI output in validate_output()
 # ---------------------------------------------------------------------------
 
@@ -201,7 +225,49 @@ class AwadeGPTService:
         
         # Remove potential phone numbers (simple international format)
         text = re.sub(r'\+?\d{10,15}', '[REDACTED_PHONE]', text)
-        
+
+        return text
+
+    def _sanitize_user_context(self, text: str) -> str:
+        """
+        Sanitise educator-supplied context before inserting it into a prompt template.
+
+        Applies three layers of defence (AWD-M-12):
+        1. Truncate to _MAX_USER_CONTEXT_CHARS to prevent token-stuffing / DoS.
+        2. Strip PII (API keys, email addresses, phone numbers).
+        3. Detect and scrub instruction-injection patterns.
+
+        Returns the sanitised string; never raises — any error falls back to
+        an empty string so generation can continue safely.
+        """
+        if not text:
+            return text
+
+        try:
+            # 1. Truncate
+            if len(text) > _MAX_USER_CONTEXT_CHARS:
+                logger.warning(
+                    "User context truncated from %d to %d chars (AWD-M-12)",
+                    len(text),
+                    _MAX_USER_CONTEXT_CHARS,
+                )
+                text = text[:_MAX_USER_CONTEXT_CHARS] + " [truncated]"
+
+            # 2. Strip PII (reuse existing sanitiser)
+            text = self._sanitize_input(text)
+
+            # 3. Detect and scrub injection patterns
+            for pattern in _INPUT_INJECTION_PATTERNS:
+                if re.search(pattern, text, re.IGNORECASE):
+                    logger.warning(
+                        "Prompt injection pattern detected in user context, scrubbing (AWD-M-12)"
+                    )
+                    text = re.sub(pattern, "[removed]", text, flags=re.IGNORECASE)
+
+        except Exception:
+            logger.error("Unexpected error in _sanitize_user_context; returning empty context", exc_info=True)
+            return ""
+
         return text
 
     def _check_content_safety(self, text: str) -> tuple[bool, Optional[str]]:
@@ -396,25 +462,30 @@ class AwadeGPTService:
             # Format objectives as string
             objectives_str = ", ".join(objectives) if objectives else "To be determined"
             
+            # Sanitise user-supplied context before it enters the prompt (AWD-M-12).
+            # _sanitize_user_context enforces a length cap, strips PII, and removes
+            # instruction-injection patterns.
+            safe_context = self._sanitize_user_context(context) if context else None
+
             # Get country from context or use default
             country = "Nigeria"  # Default country
-            if context:
-                context_lower = context.lower()
+            if safe_context:
+                context_lower = safe_context.lower()
                 if "nigeria" in context_lower: country = "Nigeria"
                 elif "ghana" in context_lower: country = "Ghana"
                 elif "kenya" in context_lower: country = "Kenya"
-            
+
             # Prepare prompt parameters
             contents_val = ", ".join(contents) if contents else "Comprehensive lesson content including introduction, main concepts, examples, and activities"
             if template_schema:
                 contents_val = f"{contents_val}\n\nSTRICT TEMPLATE STRUCTURE RULES:\n{template_schema}"
-                
+
             prompt_params = {
                 "topic": topic,
                 "subject": subject,
                 "grade_level": grade,
                 "country": country,
-                "local_context": context or "Standard classroom with basic resources",
+                "local_context": safe_context or "Standard classroom with basic resources",
                 "learning_objectives": objectives_str,
                 "contents": contents_val
             }
