@@ -13,7 +13,12 @@ const SavedGuidesPage: React.FC = () => {
   const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(false)
 
   // Fetch children
-  const { data: childrenData } = useQuery({
+  const {
+    data: childrenData,
+    isLoading: loadingChildren,
+    isError: childrenFetchFailed,
+    refetch: refetchChildren,
+  } = useQuery({
     queryKey: ['children'],
     queryFn: async () => {
       const res = await apiService.getChildren()
@@ -32,7 +37,12 @@ const SavedGuidesPage: React.FC = () => {
   }, [children])
 
   // Fetch guides for selected child
-  const { data: guidesData, isLoading } = useQuery({
+  const {
+    data: guidesData,
+    isLoading,
+    isError: guidesFetchFailed,
+    refetch: refetchGuides,
+  } = useQuery({
     queryKey: ['childGuides', selectedChildId, showBookmarkedOnly],
     queryFn: async () => {
       if (!selectedChildId) return { guides: [], total: 0 }
@@ -74,6 +84,22 @@ const SavedGuidesPage: React.FC = () => {
 
         <div className="px-4 sm:px-6 lg:px-8 py-6">
           {/* Child selector */}
+          {loadingChildren ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
+            </div>
+          ) : childrenFetchFailed ? (
+            <div className="text-center py-12">
+              <p className="text-red-500 font-medium mb-3">Failed to load profiles. Please check your connection.</p>
+              <button
+                onClick={() => refetchChildren()}
+                className="text-primary-600 hover:text-primary-700 font-medium text-sm"
+              >
+                Try again
+              </button>
+            </div>
+          ) : (
+            <>
           {children.length > 1 && (
             <div className="flex gap-2 overflow-x-auto pb-4 mb-6 scrollbar-hide">
               {children.map(child => (
@@ -96,6 +122,16 @@ const SavedGuidesPage: React.FC = () => {
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
+            </div>
+          ) : guidesFetchFailed ? (
+            <div className="text-center py-12">
+              <p className="text-red-500 font-medium mb-3">Failed to load guides. Please check your connection.</p>
+              <button
+                onClick={() => refetchGuides()}
+                className="text-primary-600 hover:text-primary-700 font-medium text-sm"
+              >
+                Try again
+              </button>
             </div>
           ) : guides.length === 0 ? (
             <div className="text-center py-16">
@@ -139,6 +175,8 @@ const SavedGuidesPage: React.FC = () => {
                 </button>
               ))}
             </div>
+          )}
+            </>
           )}
         </div>
       </main>
