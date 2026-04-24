@@ -369,7 +369,8 @@ class TestGenerateGuideIdempotency:
             if model is ChildProfile:
                 q.options.return_value.filter.return_value.first.return_value = child
             elif model is ParentGuide:
-                q.options.return_value.filter.return_value.filter.return_value.first.return_value = existing
+                # Service uses a single .filter(child_id=..., topic_id=...) call
+                q.options.return_value.filter.return_value.first.return_value = existing
             return q
 
         mock_db.query.side_effect = query_side
@@ -438,7 +439,8 @@ class TestGenerateGuideAIValidation:
             if model is ParentGuide:
                 inner = MagicMock()
                 inner.first.return_value = None
-                q.options.return_value.filter.return_value.filter.return_value = inner
+                # Service uses a single .filter(child_id=..., topic_id=...) call
+                q.options.return_value.filter.return_value = inner
             elif model is Topic:
                 q.options.return_value.filter.return_value.first.return_value = mock_topic
             else:
@@ -507,8 +509,9 @@ class TestGenerateGuideAIValidation:
 
         def patched_query_side(model):
             call_count[0] += 1
-            # After 3 calls (child-check, guide-existence, topic), return reload query
-            if call_count[0] > 3 and model is ParentGuide:
+            # _get_child_or_404 is mocked so 3 DB calls occur:
+            #   #1 ParentGuide existence, #2 Topic fetch, #3 ParentGuide reload
+            if call_count[0] >= 3 and model is ParentGuide:
                 return reload_q
             return original_side(model)
 
@@ -553,3 +556,125 @@ class TestDeleteChild:
         mock_db.delete.assert_called_once_with(child_obj)
         mock_db.commit.assert_called_once()
         assert result["message"] == "Child profile deleted successfully"
+
+
+# ---------------------------------------------------------------------------
+# get_child_topics — AWD-M-13 N+1 fix
+# ---------------------------------------------------------------------------
+
+class TestGetChildTopics:
+    """
+    get_child_topics must:
+    - return [] when child has no curricula_id or grade_level_id
+    - return topic dicts with subject_name and subject_id resolved
+    - filter by subject_id when provided
+    - raise 403 for EDUCATOR role
+    """
+
+    def _make_topic(self, topic_id: int, title: str, subject_name: str, subject_id: int) -> MagicMock:
+        subj = MagicMock()
+        subj.name = subject_name
+        subj.subject_id = subject_id
+
+        cs = MagicMock()
+        cs.subject = subj
+        cs.subject_id = subject_id
+
+        t = MagicMock()
+        t.topic_id = topic_id
+        t.topic_title = title
+        t.curriculum_structure = cs
+        return t
+
+    def _db_with_topics(self, child_obj: ChildProfile, topics: list) -> MagicMock:
+        mock_db = MagicMock()
+
+        def query_side(model):
+            q = MagicMock()
+            if model is ChildProfile:
+                q.options.return_value.filter.return_value.first.return_value = child_obj
+            elif model is Topic:
+                # Simulate .join().options().filter().all() chain
+                chain = MagicMock()
+                chain.all.return_value = topics
+                q.join.return_value.options.return_value.filter.return_value = chain
+                q.join.return_value.options.return_value.filter.return_value.filter.return_value = chain
+            return q
+
+        mock_db.query.side_effect = query_side
+        return mock_db
+
+    def test_returns_empty_list_when_no_curricula_id(self):
+        parent = _parent(user_id=1)
+        child_obj = _child(child_id=1, parent_id=1)
+        child_obj.curricula_id = None  # not set
+
+        mock_db = MagicMock()
+        q = MagicMock()
+        q.options.return_value.filter.return_value.first.return_value = child_obj
+        mock_db.query.return_value = q
+        svc = ChildrenService(db=mock_db)
+        svc._get_child_or_404 = MagicMock(return_value=child_obj)
+
+        result = svc.get_child_topics(parent, child_id=1)
+        assert result == []
+
+    def test_returns_empty_list_when_no_grade_level_id(self):
+        parent = _parent(user_id=1)
+        child_obj = _child(child_id=1, parent_id=1)
+        child_obj.grade_level_id = None  # not set
+
+        svc = ChildrenService(db=MagicMock())
+        svc._get_child_or_404 = MagicMock(return_value=child_obj)
+        svc._verify_parent = MagicMock()
+
+        result = svc.get_child_topics(parent, child_id=1)
+        assert result == []
+
+    def test_returns_topic_list_with_subject_info(self):
+        parent = _parent(user_id=1)
+        child_obj = _child(child_id=1, parent_id=1)
+
+        topic1 = self._make_topic(101, "Fractions", "Mathematics", 5)
+        topic2 = self._make_topic(102, "Photosynthesis", "Biology", 7)
+
+        mock_db = self._db_with_topics(child_obj, [topic1, topic2])
+        svc = ChildrenService(db=mock_db)
+        svc._get_child_or_404 = MagicMock(return_value=child_obj)
+        svc._verify_parent = MagicMock()
+
+        result = svc.get_child_topics(parent, child_id=1)
+
+        assert len(result) == 2
+        assert result[0]["topic_id"] == 101
+        assert result[0]["topic_title"] == "Fractions"
+        assert result[0]["subject_name"] == "Mathematics"
+        assert result[0]["subject_id"] == 5
+        assert result[1]["topic_id"] == 102
+        assert result[1]["subject_name"] == "Biology"
+
+    def test_none_curriculum_structure_gives_none_subject(self):
+        """Topics with null curriculum_structure must not crash — return None fields."""
+        parent = _parent(user_id=1)
+        child_obj = _child(child_id=1, parent_id=1)
+
+        t = MagicMock()
+        t.topic_id = 200
+        t.topic_title = "Unknown Topic"
+        t.curriculum_structure = None
+
+        mock_db = self._db_with_topics(child_obj, [t])
+        svc = ChildrenService(db=mock_db)
+        svc._get_child_or_404 = MagicMock(return_value=child_obj)
+        svc._verify_parent = MagicMock()
+
+        result = svc.get_child_topics(parent, child_id=1)
+        assert len(result) == 1
+        assert result[0]["subject_name"] is None
+        assert result[0]["subject_id"] is None
+
+    def test_educator_raises_403(self):
+        svc = ChildrenService(db=MagicMock())
+        with pytest.raises(HTTPException) as exc_info:
+            svc.get_child_topics(_educator(), child_id=1)
+        assert exc_info.value.status_code == 403
