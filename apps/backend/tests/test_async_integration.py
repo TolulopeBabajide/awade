@@ -28,19 +28,28 @@ async def test_worker_task_execution(mock_db_session):
     mock_resource.lesson_plan.topic.learning_objectives = []
     mock_resource.lesson_plan.topic.topic_contents = []
     
-    # Setup mock returns
+    # Setup mock returns.
+    # The worker makes 5 .first() calls in order:
+    #   1. LessonResource  2. CurriculumStructure  3. Subject  4. GradeLevel  5. LessonTemplate
+    # All five must be present; a short list raises StopIteration, which is caught by the
+    # worker's except-block, preventing the AI call from ever being reached.
+    mock_lesson_template = MagicMock(name="LessonTemplate")
+    mock_lesson_template.schema_json = None
     mock_db_session.query.return_value.filter.return_value.first.side_effect = [
-        mock_resource, # First query: resource
-        MagicMock(name="CurriculumStructure"), # Second query: structure
-        MagicMock(name="Subject"), # Third query: subject
-        MagicMock(name="GradeLevel") # Fourth query: grade
+        mock_resource,                           # 1st query: LessonResource
+        MagicMock(name="CurriculumStructure"),   # 2nd query: CurriculumStructure
+        MagicMock(name="Subject"),               # 3rd query: Subject
+        MagicMock(name="GradeLevel"),            # 4th query: GradeLevel
+        mock_lesson_template,                    # 5th query: LessonTemplate
     ]
     mock_db_session.query.return_value.filter.return_value.all.return_value = [] # Contexts
-    
-    # Mock AI Service
+
+    # Mock AI Service.
+    # generate_lesson_resource returns tuple[str, bool]; the worker unpacks it as
+    # `ai_content, is_safe = ...` so return_value must be a 2-tuple, not a bare string.
     with patch("apps.backend.worker.AwadeGPTService") as MockAI:
         mock_ai_instance = MockAI.return_value
-        mock_ai_instance.generate_lesson_resource.return_value = "Generated Content"
+        mock_ai_instance.generate_lesson_resource.return_value = ("Generated Content", True)
         
         ctx = {'db_session_maker': lambda: mock_db_session}
         
