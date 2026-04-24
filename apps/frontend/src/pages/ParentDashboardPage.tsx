@@ -21,7 +21,12 @@ const ParentDashboardPage: React.FC = () => {
   const [deletingChildId, setDeletingChildId] = useState<number | null>(null)
 
   // Fetch children
-  const { data: childrenData, isLoading: loadingChildren } = useQuery({
+  const {
+    data: childrenData,
+    isLoading: loadingChildren,
+    isError: childrenFetchFailed,
+    refetch: refetchChildren,
+  } = useQuery({
     queryKey: ['children'],
     queryFn: async () => {
       const res = await apiService.getChildren()
@@ -40,7 +45,12 @@ const ParentDashboardPage: React.FC = () => {
   }, [children])
 
   // Fetch topics for selected child
-  const { data: topics, isLoading: loadingTopics } = useQuery({
+  const {
+    data: topics,
+    isLoading: loadingTopics,
+    isError: topicsFetchFailed,
+    refetch: refetchTopics,
+  } = useQuery({
     queryKey: ['childTopics', selectedChild?.child_id, selectedSubjectId],
     queryFn: async () => {
       if (!selectedChild) return []
@@ -136,6 +146,18 @@ const ParentDashboardPage: React.FC = () => {
           <div className="flex-1 flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600" />
           </div>
+        ) : childrenFetchFailed ? (
+          <div className="flex-1 flex items-center justify-center py-20">
+            <div className="text-center max-w-sm px-4">
+              <p className="text-red-500 font-medium mb-3">Failed to load your children's profiles.</p>
+              <button
+                onClick={() => refetchChildren()}
+                className="text-primary-600 hover:text-primary-700 font-medium text-sm"
+              >
+                Try again
+              </button>
+            </div>
+          </div>
         ) : children.length === 0 ? (
           <EmptyState />
         ) : (
@@ -202,6 +224,16 @@ const ParentDashboardPage: React.FC = () => {
                 ) : loadingTopics ? (
                   <div className="flex items-center justify-center py-12">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
+                  </div>
+                ) : topicsFetchFailed ? (
+                  <div className="bg-white rounded-2xl p-8 text-center border border-gray-200">
+                    <p className="text-red-500 font-medium mb-3">Failed to load topics. Please check your connection.</p>
+                    <button
+                      onClick={() => refetchTopics()}
+                      className="text-primary-600 hover:text-primary-700 font-medium text-sm"
+                    >
+                      Try again
+                    </button>
                   </div>
                 ) : Object.keys(topicsBySubject).length === 0 ? (
                   <div className="bg-white rounded-2xl p-8 text-center border border-gray-200">
