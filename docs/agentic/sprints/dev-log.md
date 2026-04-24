@@ -382,3 +382,4 @@ After removing it, the next hourly run will:
 2026-04-24T20:22:00Z | AWD-M-12 | Prompt injection: fence user context with XML delimiters + scrub injection patterns | 322e9e5 | ✅ Done | CI:pending (push blocked — no credentials in sandbox; Tolu: run `git push origin develop`)
 2026-04-24T21:00:00Z | AWD-M-39 | Migrate GeminiProvider from deprecated google-generativeai to google-genai | 20e88d4 / merge 922698d | ✅ Done | CI: pending push
 2026-04-24T22:45:00Z | AWD-M-40 | npm audit fix — patch postcss XSS GHSA-qx2v-qp2m-jg93 | e7a1d51 / merge 13ffad3 | ✅ Done | CI: pending push
+2026-04-25T23:12:00Z | M-38 | Fix _sanitize_user_context type annotation to Optional[str] | 4b52109 | ✅ Done | CI:pending (no GitHub credentials in sandbox — Tolu to push)

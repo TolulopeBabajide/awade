@@ -177,3 +177,8 @@
 **Completed**: 2026-04-24
 **Commit**: e7a1d51
 **Change**: Ran `npm audit fix` in `apps/frontend` — updated `postcss` from 8.5.6 to 8.5.10 to close GHSA-qx2v-qp2m-jg93 (XSS via unescaped `</style>` in CSS stringify output). Also updated transitive rollup and esbuild lockfile entries. 63 frontend tests pass, lint clean, build clean post-fix.
+
+## AWD-M-38 — Fix `_sanitize_user_context` type annotation to `Optional[str]`
+**Completed**: 2026-04-25
+**Commit**: 4b52109 (merge 3b930b3)
+**Change**: Updated `_sanitize_user_context` signature in `packages/ai/gpt_service.py` from `(text: str) -> str` to `(text: Optional[str]) -> Optional[str]`. `Optional` was already imported. The method body correctly handles `None` via `if not text: return text`, and the production caller guards with `if context else None`. Type annotation now matches documented and tested behaviour. TypeScript check clean, lint clean.
