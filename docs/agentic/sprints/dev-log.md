@@ -377,3 +377,5 @@ After removing it, the next hourly run will:
 2026-04-24T14:17:00Z | AWD-M-02 | SEO: meta tags + OG image on landing page | 577921c | ✅ Done | CI:pending (push requires Tolu credentials)
 2026-04-24T15:12:00Z | AWD-M-37 | Convert og-image SVG to PNG for Open Graph / social sharing compatibility | d791752 (feat) / 7ac1c42 (merge) | ✅ Done | CI:pending (push requires Tolu credentials)
 2026-04-24T16:20:00Z | AWD-H-36 | Restore batch subject FK query + AI guide validation | b25e3a0 / merge 67d23ce | ✅ Done | CI:pending (push requires Tolu credentials)
+2026-04-24T18:15:00Z | AWD-H-37 | Fix TestUnauthenticated assertion from 403 to 401 | af523cd / merge a513468 | ✅ Done | CI:pending (push requires Tolu credentials)
+2026-04-24T17:00:00Z | AWD-H-38 | TestGenerateGuideIdempotency and TestGenerateGuideMalformedAI mock DB mismatch | f7bb28f / merge f61736b | ✅ Done | CI:pending (push blocked — no credentials in sandbox)

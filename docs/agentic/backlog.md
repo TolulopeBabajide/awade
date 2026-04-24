@@ -156,6 +156,84 @@ If Tolu also wants to commit the other 16 working-tree modifications, review and
 
 ~~**AWD-H-36 — AWD-M-14 regression: staged working tree reverts batch subject FK query back to per-subject loops, removing 3 test cases**~~ ✅ 2026-04-24
 
+---
+
+~~**AWD-H-37 — `TestUnauthenticated` asserts 403 but auth layer returns 401 (pre-existing since AWD-H-25)**~~ ✅ 2026-04-24
+
+**Problem**: 10 tests in `TestUnauthenticated` in `apps/backend/tests/test_children_router.py` assert `resp.status_code == 403` for requests made with no auth token. The actual response is `401 Unauthorized`. The test's docstring claims "FastAPI's `HTTPBearer(auto_error=True)` raises HTTP 403" — but AWD-H-25 changed the scheme to `HTTPBearer(auto_error=False)` (see `apps/backend/dependencies.py` line 22), after which `get_current_user` manually raises `HTTP_401_UNAUTHORIZED` (lines 114–118). The test was never updated to match. These 10 tests have been failing on every CI run since AWD-H-25 shipped.
+
+**Acceptance criteria**:
+- [ ] Change the assertion in `TestUnauthenticated.test_returns_403` (line ~150) from `resp.status_code == 403` to `resp.status_code == 401`
+- [ ] Rename the test method and class docstring to reflect 401 (e.g. `test_returns_401`, class docstring updated)
+- [ ] `cd apps/backend && python -m pytest tests/test_children_router.py::TestUnauthenticated -v` — 10/10 pass
+- [ ] `cd apps/backend && python -m pytest tests/ -v` — 0 failures (net of other pre-existing issues)
+
+**Fix (exact steps)**:
+In `apps/backend/tests/test_children_router.py` around line 148–151:
+```python
+# Before:
+assert resp.status_code == 403, (
+    f"{method} {path} returned {resp.status_code}, expected 403 (no auth)"
+)
+# After:
+assert resp.status_code == 401, (
+    f"{method} {path} returned {resp.status_code}, expected 401 (no auth)"
+)
+```
+Also update the class name and docstring to say 401 instead of 403.
+
+**Files**: `apps/backend/tests/test_children_router.py` (lines ~139–155)
+**Effort**: S (minutes — test assertion change only, no prod code)
+**Audience**: internal / CI
+**Filed**: 2026-04-24 QA Agent (automated)
+
+---
+
+~~**AWD-H-38 — `TestGenerateGuideIdempotency` and `TestGenerateGuideMalformedAI` mock DB mismatch causes 3 test failures**~~ ✅ 2026-04-24
+
+**Problem**: 3 tests introduced in `991c287` fail because their mock DB setup expects TWO chained `.filter()` calls on the `ParentGuide` query — i.e. `.options().filter().filter().first()` — but the service (`generate_guide`, line ~347) uses a single `.filter(ParentGuide.child_id == child_id, ParentGuide.topic_id == topic_id)` call, producing the chain `.options().filter().first()`. As a result:
+
+1. `test_existing_guide_returned_no_ai_call` — mock returns a default `MagicMock()` (not `existing_guide`) for the existence check; it is truthy so `_guide_to_response(MagicMock)` is called, Pydantic rejects the fields, unhandled exception → 500 (expected 200).
+2. `test_malformed_ai_json_returns_502` — same issue: mock `MagicMock` is truthy so service short-circuits to `_guide_to_response()` before reaching the AI call or the `model_validate_json` validation block → 500 (expected 502).
+3. `test_missing_required_ai_fields_returns_502` — same root cause → 500 (expected 502).
+
+The two `TestGenerateGuideMalformedAI` tests were specifically written to verify the AWD-H-36 (502 validation) feature, but the mock bug prevents the new code from ever being exercised.
+
+**Acceptance criteria**:
+- [ ] In `TestGenerateGuideIdempotency` (line ~412), update the `ParentGuide` mock branch: `q.options.return_value.filter.return_value.first.return_value = existing_guide` (remove the extra `.filter.return_value` layer)
+- [ ] In `TestGenerateGuideMalformedAI._build_db_no_existing_guide` (line ~467), update the `ParentGuide` mock branch: `q.options.return_value.filter.return_value.first.return_value = None` (remove the extra `.filter.return_value` layer)
+- [ ] `cd apps/backend && python -m pytest tests/test_children_router.py::TestGenerateGuideIdempotency tests/test_children_router.py::TestGenerateGuideMalformedAI -v` — all 3 pass
+- [ ] `cd apps/backend && python -m pytest tests/ -v` — net failures reduced by 3
+
+**Fix (exact steps)**:
+
+In `TestGenerateGuideIdempotency.test_existing_guide_returned_no_ai_call` (around line 432):
+```python
+# Before:
+q.options.return_value.filter.return_value.filter.return_value.first.return_value = existing_guide
+q.filter.return_value.filter.return_value.first.return_value = existing_guide
+# After:
+q.options.return_value.filter.return_value.first.return_value = existing_guide
+q.filter.return_value.first.return_value = existing_guide
+```
+
+In `TestGenerateGuideMalformedAI._build_db_no_existing_guide` (around line 488):
+```python
+# Before:
+inner = MagicMock()
+inner.first.return_value = None
+q.options.return_value.filter.return_value.filter.return_value = inner
+q.filter.return_value.filter.return_value.first.return_value = None
+# After:
+q.options.return_value.filter.return_value.first.return_value = None
+q.filter.return_value.first.return_value = None
+```
+
+**Files**: `apps/backend/tests/test_children_router.py` (lines ~412–560)
+**Effort**: S (minutes — mock wiring fix only, no prod code)
+**Audience**: internal / CI
+**Filed**: 2026-04-24 QA Agent (automated)
+
 **Problem**: The `develop` HEAD (commit `99981fc`) correctly contains the AWD-M-14 batch IN query for subject FK validation in `create_child` and `update_child`. However, the current **staged index** (i.e. `git diff --cached`) reverses this — replacing the single `Subject.subject_id.in_(ids)` query with the original per-subject loop in both methods. The staged changes to `test_children_service.py` also remove the three tests that specifically exercised the batch query: `test_partial_invalid_subjects_raises_400_for_first_bad_id`, `test_all_valid_subjects_does_not_raise`, and the `_db_subjects_not_found` mock helper. If the next commit is made with these files in their current staged state, AWD-M-14 will silently regress.
 
 **Root cause**: The staged `children_service.py` changes appear to be from an earlier working tree snapshot that pre-dates AWD-M-14, mixed in alongside new AI-validation additions (the `ParentGuideAIContent.model_validate_json(ai_content)` block in `generate_guide()` that references the new `ParentGuideAIContent` and `ValidationError` imports). The AI validation additions are correct and should be preserved — only the subject FK loop reversion is wrong.

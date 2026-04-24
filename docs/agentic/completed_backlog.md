@@ -152,3 +152,13 @@
 **Completed**: 2026-04-24
 **Commit**: b25e3a0 / merge 67d23ce
 **Change**: The working tree had regressed `children_service.py` to use per-subject DB loops instead of the single `Subject.subject_id.in_(ids)` batch query shipped in AWD-M-14. Also removed were `_db_subjects_not_found`, `test_partial_invalid_subjects_raises_400_for_first_bad_id`, `test_all_valid_subjects_does_not_raise`, `test_subject_validation_uses_single_batch_query`, and `TestUpdateChildSubjectValidation` from the test suite. Both regressions are now restored. Additionally, the AI guide schema validation block (`ParentGuideAIContent.model_validate_json`) from AWD-H-06 and the `ValidationError` / `ParentGuideAIContent` imports are now correctly committed as part of `children_service.py`. Import ordering cleaned up (stdlib → third-party → local). 37 children service tests pass.
+
+## AWD-H-37 — Fix: TestUnauthenticated assertion updated from 403 to 401
+**Completed**: 2026-04-24
+**Commit**: af523cd / merge a513468
+**Change**: Since AWD-H-25 changed `HTTPBearer(auto_error=True)` to `auto_error=False`, unauthenticated requests now receive `401` (raised manually by `get_current_user`) rather than FastAPI's default `403`. The 10 tests in `TestUnauthenticated` still asserted `403`, causing them to fail on every CI run since H-25 shipped. Fixed by updating the assertion to `401`, renaming `test_returns_403` → `test_returns_401`, and updating the class docstring to reflect the current auth behaviour.
+
+## AWD-H-38 — Fix: TestGenerateGuideIdempotency and TestGenerateGuideMalformedAI mock DB mismatch
+**Completed**: 2026-04-24
+**Commit**: f7bb28f / merge f61736b
+**Change**: 3 tests in `test_children_router.py` were failing with 500 instead of 200/502 because their mock DB setups wired two chained `.filter().filter()` calls, but `ChildrenService.generate_guide()` uses a single `.filter(cond1, cond2)` call. Removed the extra `.filter.return_value` layer in `TestGenerateGuideIdempotency.test_existing_guide_returned_no_ai_call` (~line 439) and `TestGenerateGuideMalformedAI._build_db_no_existing_guide` (~line 492-495). No production code changed — mock wiring fix only.
