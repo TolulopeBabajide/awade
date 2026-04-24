@@ -436,8 +436,9 @@ class TestGenerateGuideIdempotency:
                 q.filter.return_value.first.return_value = child
             elif model is ParentGuide:
                 # Return existing guide — service should short-circuit
-                q.options.return_value.filter.return_value.filter.return_value.first.return_value = existing_guide
-                q.filter.return_value.filter.return_value.first.return_value = existing_guide
+                # Service uses a single .filter(cond1, cond2) call, not two chained filters
+                q.options.return_value.filter.return_value.first.return_value = existing_guide
+                q.filter.return_value.first.return_value = existing_guide
             else:
                 q.options.return_value.filter.return_value.first.return_value = None
             return q
@@ -489,10 +490,9 @@ class TestGenerateGuideMalformedAI:
                 q.filter.return_value.first.return_value = child
             elif model is ParentGuide:
                 # First call: existence check → None; subsequent calls: n/a
-                inner = MagicMock()
-                inner.first.return_value = None
-                q.options.return_value.filter.return_value.filter.return_value = inner
-                q.filter.return_value.filter.return_value.first.return_value = None
+                # Service uses a single .filter(cond1, cond2) call, not two chained filters
+                q.options.return_value.filter.return_value.first.return_value = None
+                q.filter.return_value.first.return_value = None
             else:
                 # Topic query
                 q.options.return_value.filter.return_value.first.return_value = mock_topic
