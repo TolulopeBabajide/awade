@@ -137,18 +137,19 @@ CHILDREN_ENDPOINTS = [
 
 
 class TestUnauthenticated:
-    """Every children endpoint must return 403 when no token is provided.
+    """Every children endpoint must return 401 when no token is provided.
 
-    FastAPI's HTTPBearer(auto_error=True) raises HTTP 403 (not 401) when the
-    Authorization header is absent.  The dependency chain is:
-    HTTPBearer → get_current_user → get_current_active_user → route handler.
+    AWD-H-25 changed HTTPBearer to auto_error=False; get_current_user now
+    manually raises HTTP 401 when no token is present (header or cookie absent).
+    The dependency chain is:
+    HTTPBearer(auto_error=False) → get_current_user → raises 401.
     """
 
     @pytest.mark.parametrize("method,path,body", CHILDREN_ENDPOINTS)
-    def test_returns_403(self, client, method, path, body):
+    def test_returns_401(self, client, method, path, body):
         resp = client.request(method, path, json=body)
-        assert resp.status_code == 403, (
-            f"{method} {path} returned {resp.status_code}, expected 403 (no auth)"
+        assert resp.status_code == 401, (
+            f"{method} {path} returned {resp.status_code}, expected 401 (no auth)"
         )
 
 
