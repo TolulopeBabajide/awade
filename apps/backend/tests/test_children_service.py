@@ -255,7 +255,7 @@ class TestCreateChildFKValidation:
     """create_child raises 400 when FK IDs don't exist in the DB."""
 
     def _db_fk_fails(self, model_to_fail):
-        """DB where query for model_to_fail returns None (FK invalid)."""
+        """DB where query for model_to_fail (a class) returns None (FK invalid)."""
         mock_db = MagicMock()
 
         def query_side(model):
@@ -265,6 +265,29 @@ class TestCreateChildFKValidation:
             else:
                 q.filter.return_value.first.return_value = MagicMock()
             return q
+
+        mock_db.query.side_effect = query_side
+        return mock_db
+
+    def _db_subjects_not_found(self, valid_ids=None):
+        """DB mock for subject batch validation.
+
+        Single-FK queries (Country/Curriculum/GradeLevel) use a class argument
+        and .filter().first(); the subject batch query uses Subject.subject_id
+        (an InstrumentedAttribute) and .filter().all().
+        """
+        valid_ids = valid_ids or []
+        mock_db = MagicMock()
+
+        single_q = MagicMock()
+        single_q.filter.return_value.first.return_value = MagicMock()
+
+        batch_q = MagicMock()
+        batch_q.filter.return_value.all.return_value = [(sid,) for sid in valid_ids]
+
+        def query_side(model_arg):
+            import inspect
+            return single_q if inspect.isclass(model_arg) else batch_q
 
         mock_db.query.side_effect = query_side
         return mock_db
@@ -303,7 +326,8 @@ class TestCreateChildFKValidation:
         assert "grade_level_id" in exc_info.value.detail
 
     def test_invalid_subject_id_raises_400(self):
-        mock_db = self._db_fk_fails(Subject)
+        """All subjects absent from DB → 400 with the invalid id in detail."""
+        mock_db = self._db_subjects_not_found(valid_ids=[])
         svc = ChildrenService(db=mock_db)
         with pytest.raises(HTTPException) as exc_info:
             svc.create_child(
@@ -312,6 +336,55 @@ class TestCreateChildFKValidation:
             )
         assert exc_info.value.status_code == 400
         assert "subject_id" in exc_info.value.detail
+        assert "42" in exc_info.value.detail
+
+    def test_partial_invalid_subjects_raises_400_for_first_bad_id(self):
+        """DB has subject 10 but not 99 — error reports 99."""
+        mock_db = self._db_subjects_not_found(valid_ids=[10])
+        svc = ChildrenService(db=mock_db)
+        with pytest.raises(HTTPException) as exc_info:
+            svc.create_child(
+                _parent(),
+                ChildProfileCreate(name="Alice", subjects=[10, 99]),
+            )
+        assert exc_info.value.status_code == 400
+        assert "99" in exc_info.value.detail
+
+    def test_all_valid_subjects_does_not_raise(self):
+        """All subject IDs found in DB — no exception raised, commit called."""
+        mock_db = self._db_subjects_not_found(valid_ids=[5, 6])
+        # After FK checks, create_child calls db.add/commit/refresh then _get_child_or_404.
+        # We need _get_child_or_404 to work, so patch it.
+        svc = ChildrenService(db=mock_db)
+        child_obj = _child(child_id=1, parent_id=1)
+        svc._get_child_or_404 = MagicMock(return_value=child_obj)
+        # Should not raise
+        result = svc.create_child(
+            _parent(user_id=1),
+            ChildProfileCreate(name="Bob", subjects=[5, 6]),
+        )
+        assert result.name == "Child 1"
+
+    def test_subject_validation_uses_single_batch_query(self):
+        """Subjects list with N items must trigger exactly one DB query, not N."""
+        mock_db = self._db_subjects_not_found(valid_ids=[1, 2, 3])
+        svc = ChildrenService(db=mock_db)
+        child_obj = _child(child_id=1, parent_id=1)
+        svc._get_child_or_404 = MagicMock(return_value=child_obj)
+
+        svc.create_child(
+            _parent(user_id=1),
+            ChildProfileCreate(name="Alice", subjects=[1, 2, 3]),
+        )
+        # batch_q is the non-class query mock; filter().all() should be called once
+        import inspect
+        batch_calls = [
+            call_args for call_args in mock_db.query.call_args_list
+            if not inspect.isclass(call_args.args[0])
+        ]
+        assert len(batch_calls) == 1, (
+            f"Expected 1 batch subject query, got {len(batch_calls)}"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -678,3 +751,73 @@ class TestGetChildTopics:
         with pytest.raises(HTTPException) as exc_info:
             svc.get_child_topics(_educator(), child_id=1)
         assert exc_info.value.status_code == 403
+
+
+# ---------------------------------------------------------------------------
+# update_child subject FK batch validation — AWD-M-14
+# ---------------------------------------------------------------------------
+
+class TestUpdateChildSubjectValidation:
+    """update_child uses a batch query for subject FK validation."""
+
+    def _db_for_update(self, child_obj, valid_subject_ids=None):
+        """DB mock supporting _get_child_or_404 and subject batch validation."""
+        valid_subject_ids = valid_subject_ids or []
+        mock_db = MagicMock()
+
+        single_q = MagicMock()
+        single_q.options.return_value.filter.return_value.first.return_value = child_obj
+
+        batch_q = MagicMock()
+        batch_q.filter.return_value.all.return_value = [
+            (sid,) for sid in valid_subject_ids
+        ]
+
+        def query_side(model_arg):
+            import inspect
+            return single_q if inspect.isclass(model_arg) else batch_q
+
+        mock_db.query.side_effect = query_side
+        mock_db.commit = MagicMock()
+        mock_db.refresh = MagicMock()
+        return mock_db
+
+    def test_update_invalid_subject_raises_400(self):
+        parent = _parent(user_id=1)
+        child_obj = _child(child_id=5, parent_id=1)
+        mock_db = self._db_for_update(child_obj, valid_subject_ids=[])
+        svc = ChildrenService(db=mock_db)
+
+        with pytest.raises(HTTPException) as exc_info:
+            svc.update_child(parent, child_id=5, data=ChildProfileUpdate(subjects=[77]))
+        assert exc_info.value.status_code == 400
+        assert "77" in exc_info.value.detail
+
+    def test_update_valid_subjects_commits(self):
+        parent = _parent(user_id=1)
+        child_obj = _child(child_id=5, parent_id=1)
+        mock_db = self._db_for_update(child_obj, valid_subject_ids=[3, 4])
+        svc = ChildrenService(db=mock_db)
+        # Patch final reload to avoid secondary DB interaction
+        svc._get_child_or_404 = MagicMock(return_value=child_obj)
+
+        svc.update_child(parent, child_id=5, data=ChildProfileUpdate(subjects=[3, 4]))
+        mock_db.commit.assert_called_once()
+
+    def test_update_subject_uses_single_batch_query(self):
+        parent = _parent(user_id=1)
+        child_obj = _child(child_id=5, parent_id=1)
+        mock_db = self._db_for_update(child_obj, valid_subject_ids=[3, 4, 5])
+        svc = ChildrenService(db=mock_db)
+        svc._get_child_or_404 = MagicMock(return_value=child_obj)
+
+        svc.update_child(parent, child_id=5, data=ChildProfileUpdate(subjects=[3, 4, 5]))
+
+        import inspect
+        batch_calls = [
+            c for c in mock_db.query.call_args_list
+            if not inspect.isclass(c.args[0])
+        ]
+        assert len(batch_calls) == 1, (
+            f"Expected 1 batch subject query for update, got {len(batch_calls)}"
+        )

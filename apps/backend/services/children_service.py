@@ -112,10 +112,15 @@ class ChildrenService:
                 raise HTTPException(status_code=400, detail="Invalid grade_level_id")
 
         if data.subjects:
-            for sid in data.subjects:
-                subj = self.db.query(Subject).filter(Subject.subject_id == sid).first()
-                if not subj:
-                    raise HTTPException(status_code=400, detail=f"Invalid subject_id: {sid}")
+            found = (
+                self.db.query(Subject.subject_id)
+                .filter(Subject.subject_id.in_(data.subjects))
+                .all()
+            )
+            found_ids = {row[0] for row in found}
+            invalid = [sid for sid in data.subjects if sid not in found_ids]
+            if invalid:
+                raise HTTPException(status_code=400, detail=f"Invalid subject_id: {invalid[0]}")
 
         child = ChildProfile(
             parent_id=user.user_id,
@@ -183,9 +188,15 @@ class ChildrenService:
                 raise HTTPException(status_code=400, detail="Invalid grade_level_id")
 
         if 'subjects' in update_data and update_data['subjects'] is not None:
-            for sid in update_data['subjects']:
-                if not self.db.query(Subject).filter(Subject.subject_id == sid).first():
-                    raise HTTPException(status_code=400, detail=f"Invalid subject_id: {sid}")
+            found = (
+                self.db.query(Subject.subject_id)
+                .filter(Subject.subject_id.in_(update_data['subjects']))
+                .all()
+            )
+            found_ids = {row[0] for row in found}
+            invalid = [sid for sid in update_data['subjects'] if sid not in found_ids]
+            if invalid:
+                raise HTTPException(status_code=400, detail=f"Invalid subject_id: {invalid[0]}")
             update_data['subjects'] = json.dumps(update_data['subjects'])
 
         for field, value in update_data.items():
