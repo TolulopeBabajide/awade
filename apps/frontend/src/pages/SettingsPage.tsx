@@ -201,31 +201,25 @@ const SettingsPage: React.FC = () => {
       return;
     }
 
-    try {
-      // Update email if changed
-      if (loginForm.email !== profileData?.email) {
-        // TODO: Implement email update API call (AWD-M-18)
-      }
+    const emailChanged = loginForm.email !== profileData?.email;
+    const passwordProvided = !!loginForm.newPassword;
 
-      // Update password if provided
-      if (loginForm.newPassword) {
-        // TODO: Implement password update API call (AWD-M-18)
-      }
-      
-      setIsEditingLogin(false);
-      setLoginForm({
-        email: '',
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
+    if (emailChanged || passwordProvided) {
+      setLoginErrors({
+        general: 'Email and password updates are not yet available. Please contact support if you need to change these details.'
       });
-      setLoginErrors({});
-      
-      // Show success message
-      alert('Login details updated successfully!');
-    } catch (error) {
-      setLoginErrors({ general: 'Failed to update login details. Please try again.' });
+      return;
     }
+
+    // Nothing to update — close the edit form
+    setIsEditingLogin(false);
+    setLoginForm({
+      email: '',
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+    setLoginErrors({});
   };
 
 
