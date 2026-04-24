@@ -223,6 +223,9 @@ class ChildrenService:
         query = (
             self.db.query(Topic)
             .join(CurriculumStructure)
+            .options(
+                joinedload(Topic.curriculum_structure).joinedload(CurriculumStructure.subject)
+            )
             .filter(
                 CurriculumStructure.curricula_id == child.curricula_id,
                 CurriculumStructure.grade_level_id == child.grade_level_id,
