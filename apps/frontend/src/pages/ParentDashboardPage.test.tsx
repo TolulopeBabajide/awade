@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
@@ -224,6 +224,78 @@ describe('ParentDashboardPage', () => {
       await waitFor(() => {
         expect(screen.getByText('Test Child 01')).toBeTruthy()
         expect(screen.getByText('Test Topic')).toBeTruthy()
+      })
+    })
+  })
+
+  describe('child selector card HTML structure (AWD-M-36)', () => {
+    it('child selector card is a div[role=group], not a <button>, to avoid invalid nested-button HTML', async () => {
+      mockApiService.getChildren.mockResolvedValue({
+        error: undefined,
+        data: { children: [makeChild()], total: 1 },
+      })
+      mockApiService.getChildTopics.mockResolvedValue({ error: undefined, data: [] })
+
+      renderWithProviders(<ParentDashboardPage />)
+
+      await waitFor(() => {
+        expect(screen.getByText('Test Child 01')).toBeTruthy()
+      })
+
+      const card = screen.getByRole('group', { name: 'Test Child 01' })
+      expect(card.tagName.toLowerCase()).toBe('div')
+    })
+
+    it('edit and delete buttons inside the card are not nested inside a <button>', async () => {
+      mockApiService.getChildren.mockResolvedValue({
+        error: undefined,
+        data: { children: [makeChild()], total: 1 },
+      })
+      mockApiService.getChildTopics.mockResolvedValue({ error: undefined, data: [] })
+
+      renderWithProviders(<ParentDashboardPage />)
+
+      await waitFor(() => {
+        expect(screen.getByTitle('Edit')).toBeTruthy()
+      })
+
+      const editBtn = screen.getByTitle('Edit')
+      // Nearest button ancestor must not itself be inside another button
+      let el: HTMLElement | null = editBtn.parentElement
+      let foundButton = false
+      while (el) {
+        if (el.tagName.toLowerCase() === 'button') {
+          foundButton = true
+        }
+        // Once we leave the card container, stop
+        if (el.getAttribute('role') === 'group') break
+        el = el.parentElement
+      }
+      expect(foundButton).toBe(false)
+    })
+
+    it('pressing Enter on the card selects the child', async () => {
+      mockApiService.getChildren.mockResolvedValue({
+        error: undefined,
+        data: {
+          children: [makeChild({ child_id: 1, name: 'Child A' }), makeChild({ child_id: 2, name: 'Child B' })],
+          total: 2,
+        },
+      })
+      mockApiService.getChildTopics.mockResolvedValue({ error: undefined, data: [] })
+
+      renderWithProviders(<ParentDashboardPage />)
+
+      await waitFor(() => {
+        expect(screen.getByRole('group', { name: 'Child B' })).toBeTruthy()
+      })
+
+      const cardB = screen.getByRole('group', { name: 'Child B' })
+      fireEvent.keyDown(cardB, { key: 'Enter' })
+
+      // After pressing Enter on Child B, the heading should update to "Child B's Learning"
+      await waitFor(() => {
+        expect(screen.getByText("Child B's Learning")).toBeTruthy()
       })
     })
   })
