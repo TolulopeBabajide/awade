@@ -165,10 +165,20 @@ const ParentDashboardPage: React.FC = () => {
             {/* Child selector cards */}
             <div className="flex gap-3 overflow-x-auto pb-4 mb-6 scrollbar-hide">
               {children.map(child => (
-                <button
+                <div
                   key={child.child_id}
+                  role="group"
+                  aria-label={child.name}
+                  tabIndex={0}
                   onClick={() => { setSelectedChild(child); setSelectedSubjectId(null) }}
-                  className={`flex-shrink-0 px-5 py-3 rounded-xl border-2 transition-all text-left min-w-[160px] ${
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      setSelectedChild(child)
+                      setSelectedSubjectId(null)
+                    }
+                  }}
+                  className={`flex-shrink-0 px-5 py-3 rounded-xl border-2 transition-all text-left min-w-[160px] cursor-pointer ${
                     selectedChild?.child_id === child.child_id
                       ? 'border-primary-600 bg-primary-50 shadow-sm'
                       : 'border-gray-200 bg-white hover:border-primary-300'
@@ -200,7 +210,7 @@ const ParentDashboardPage: React.FC = () => {
                       <FaTrash className="w-3 h-3" />
                     </button>
                   </div>
-                </button>
+                </div>
               ))}
             </div>
 
