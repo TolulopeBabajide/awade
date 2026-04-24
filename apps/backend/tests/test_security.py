@@ -53,6 +53,39 @@ def test_cors_headers():
     # But we check if the middleware is active
     assert response.status_code == 200
 
+
+def test_cors_allowed_methods_and_headers():
+    """AWD-M-36: CORS middleware must not use wildcard allow_methods / allow_headers.
+
+    Verify the CORS middleware is configured with an explicit method list and header
+    list rather than '*', so that cross-origin requests are not over-permissioned.
+    """
+    from apps.backend.main import app as _app
+    from starlette.middleware.cors import CORSMiddleware as StarletteCORSMiddleware
+
+    cors_middleware = None
+    for middleware in _app.user_middleware:
+        if middleware.cls is StarletteCORSMiddleware:
+            cors_middleware = middleware
+            break
+
+    assert cors_middleware is not None, "CORSMiddleware not found in app middleware stack"
+
+    allowed_methods = cors_middleware.kwargs.get("allow_methods", [])
+    allowed_headers = cors_middleware.kwargs.get("allow_headers", [])
+
+    # Must not use wildcard
+    assert "*" not in allowed_methods, "allow_methods must not contain wildcard '*'"
+    assert "*" not in allowed_headers, "allow_headers must not contain wildcard '*'"
+
+    # Must include the methods the frontend actually uses
+    for method in ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]:
+        assert method in allowed_methods, f"allow_methods is missing '{method}'"
+
+    # Must include the headers the frontend actually sends
+    for header in ["Authorization", "Content-Type"]:
+        assert header in allowed_headers, f"allow_headers is missing '{header}'"
+
 def test_input_sanitization():
     """Test the input sanitization utility."""
     # Test 1: Basic HTML stripping/escaping
