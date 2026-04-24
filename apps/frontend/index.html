@@ -4,13 +4,72 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Awade - AI-powered educator support platform for African teachers" />
-    <meta name="keywords" content="education, AI, Africa, teachers, lesson planning, curriculum" />
-    <meta name="author" content="Awade Team" />
-    <title>Awade - AI-Powered Educator Support Platform</title>
+
+    <!-- Primary SEO -->
+    <title>Awade — Help Your Child Learn at Home | AI Guides for African Parents</title>
+    <meta name="description" content="Awade gives African parents simple, curriculum-matched guides so they can help with homework — even if they haven't studied the topic in years. Free to start." />
+    <meta name="keywords" content="African education, homework help, parent guides, curriculum, AI learning, Nigeria, Ghana, Kenya, South Africa, child education, lesson plans" />
+    <meta name="author" content="Awade" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://awade.app/" />
+
+    <!-- Open Graph (parent version — primary audience) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Awade" />
+    <meta property="og:url" content="https://awade.app/" />
+    <meta property="og:title" content="Awade — Help Your Child Learn at Home" />
+    <meta property="og:description" content="Get step-by-step guides matched to your child's exact curriculum. Support their homework confidently, every day." />
+    <meta property="og:image" content="https://awade.app/og-image.svg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Awade — Helping every African child learn" />
+    <meta property="og:locale" content="en_NG" />
+    <meta property="og:locale:alternate" content="en_GH" />
+    <meta property="og:locale:alternate" content="en_KE" />
+    <meta property="og:locale:alternate" content="en_ZA" />
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@awadeapp" />
+    <meta name="twitter:title" content="Awade — Help Your Child Learn at Home" />
+    <meta name="twitter:description" content="AI-powered guides matched to your child's curriculum. Support homework confidently — for African parents." />
+    <meta name="twitter:image" content="https://awade.app/og-image.svg" />
+    <meta name="twitter:image:alt" content="Awade — Helping every African child learn" />
+
+    <!-- Educator alternate OG (used when sharing educator-specific links e.g. /signup?role=EDUCATOR) -->
+    <!-- Note: dynamic OG per role requires SSR or a meta-tag service; static tags target parent (primary pivot audience) -->
+
+    <!-- Schema.org structured data — WebApplication -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Awade",
+      "url": "https://awade.app",
+      "description": "Awade is an AI-powered learning platform for African education. It gives parents step-by-step guides to help their child at home, and teachers curriculum-aligned lesson plans.",
+      "applicationCategory": "EducationApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "description": "Free tier available"
+      },
+      "audience": {
+        "@type": "EducationalAudience",
+        "educationalRole": ["parent", "teacher"]
+      },
+      "areaServed": [
+        { "@type": "Country", "name": "Nigeria" },
+        { "@type": "Country", "name": "Ghana" },
+        { "@type": "Country", "name": "Kenya" },
+        { "@type": "Country", "name": "South Africa" }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
-</html> 
+</html>
