@@ -18,6 +18,37 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 from .prompts import COMPREHENSIVE_LESSON_RESOURCE_PROMPT, PARENT_HELPER_PROMPT
+
+# ---------------------------------------------------------------------------
+# Content-safety patterns — applied to raw AI output in validate_output()
+# ---------------------------------------------------------------------------
+
+# PII that should never leak from prompts into persisted output
+_OUTPUT_PII_PATTERNS: list[tuple[str, str]] = [
+    (r"[\w\.\-]+@[\w\.\-]+\.\w+", "email address"),
+    (r"(?<!\d)\+?\d{10,15}(?!\d)", "phone number"),
+    (r"sk-[a-zA-Z0-9]{32,}", "API key"),
+]
+
+# Phrases that indicate the model was jailbroken / injection succeeded
+_OUTPUT_INJECTION_PATTERNS: list[str] = [
+    r"ignore\s+(all\s+)?previous\s+instructions",
+    r"\bsystem\s+prompt\b",
+    r"\bjailbreak\b",
+    r"disregard\s+(all\s+)?instructions",
+    r"bypass\s+(safety|security|filters)",
+    r"override\s+(your\s+)?(instructions|training)",
+    r"you\s+are\s+now\s+(?:a\s+)?(?:different|new|another)",
+]
+
+# Terms clearly inappropriate in child-facing educational content
+_HARMFUL_CONTENT_PATTERNS: list[str] = [
+    r"\bporn(?:ography)?\b",
+    r"\bxxx\b",
+    r"\bnudity\b",
+    r"\bkill\s+yourself\b",
+    r"\bself[- ]harm\b",
+]
 from .providers.base import LLMProvider
 from .providers.openai_provider import OpenAIProvider
 from .providers.gemini_provider import GeminiProvider
@@ -173,24 +204,66 @@ class AwadeGPTService:
         
         return text
 
+    def _check_content_safety(self, text: str) -> tuple[bool, Optional[str]]:
+        """
+        Run content-safety checks on a raw AI output string.
+
+        Checks (in order):
+        1. PII leakage — email, phone number, API key
+        2. Prompt-injection markers — phrases indicating the model was manipulated
+        3. Harmful content — terms inappropriate for child-facing education
+
+        Returns (is_safe, reason).  reason is None when safe.
+        """
+        # 1. PII
+        for pattern, label in _OUTPUT_PII_PATTERNS:
+            if re.search(pattern, text, re.IGNORECASE):
+                logger.warning("Content safety: PII detected in AI output (%s)", label)
+                return False, f"Output contains {label}"
+
+        # 2. Injection markers
+        for pattern in _OUTPUT_INJECTION_PATTERNS:
+            if re.search(pattern, text, re.IGNORECASE):
+                logger.warning("Content safety: injection marker detected in AI output")
+                return False, "Output contains prompt-injection marker"
+
+        # 3. Harmful content
+        for pattern in _HARMFUL_CONTENT_PATTERNS:
+            if re.search(pattern, text, re.IGNORECASE):
+                logger.warning("Content safety: harmful content detected in AI output")
+                return False, "Output contains harmful content"
+
+        return True, None
+
     def validate_output(self, content: str) -> tuple[bool, Optional[str]]:
         """
         Validate the AI output for safety and structure.
-        Returns (is_valid, reason)
+
+        Runs in two passes:
+        1. Content-safety pass on the raw string (PII, injection markers, harmful words)
+        2. Structural validation — JSON parse + required-field check
+
+        Returns (is_valid, reason).  reason is None when valid.
         """
         try:
-            # Clean and repair first (this should be redundant if called from generate_lesson_resource, 
-            # but creates safety for internal calls)
+            # 1. Content-safety pass (raw string — before JSON parsing)
+            is_safe, safety_reason = self._check_content_safety(content)
+            if not is_safe:
+                return False, safety_reason
+
+            # 2. Structural validation
+            # Clean and repair first (redundant when called from generate_lesson_resource,
+            # but provides a safety net for internal callers)
             clean_content = self._clean_and_repair(content)
-            
+
             data = json.loads(clean_content)
-            
+
             # Check for minimum required fields
             required_fields = ["title_header", "learning_objectives", "lesson_content"]
             for field in required_fields:
                 if field not in data:
                     return False, f"Missing required field: {field}"
-            
+
             return True, None
         except json.JSONDecodeError as e:
             # Provide first 50 chars of content for debugging
