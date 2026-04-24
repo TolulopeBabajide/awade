@@ -1,0 +1,56 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Awade — Helping every African child learn">
+  <!-- Background -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1e3a5f"/>
+      <stop offset="100%" stop-color="#2d6a4f"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#f97316"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background rect -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Decorative circle top-right -->
+  <circle cx="1050" cy="80" r="180" fill="white" fill-opacity="0.04"/>
+  <circle cx="1100" cy="580" r="120" fill="white" fill-opacity="0.04"/>
+
+  <!-- Left accent bar -->
+  <rect x="80" y="160" width="6" height="180" rx="3" fill="url(#accent)"/>
+
+  <!-- Logo / Brand name -->
+  <text x="110" y="220" font-family="'Helvetica Neue', Arial, sans-serif" font-size="72" font-weight="800" fill="white" letter-spacing="-1">Awade</text>
+
+  <!-- Tagline -->
+  <text x="110" y="285" font-family="'Helvetica Neue', Arial, sans-serif" font-size="32" font-weight="400" fill="white" fill-opacity="0.85">Helping every African child learn.</text>
+
+  <!-- Description -->
+  <text x="110" y="350" font-family="'Helvetica Neue', Arial, sans-serif" font-size="26" font-weight="400" fill="white" fill-opacity="0.70">Simple guides that help parents support</text>
+  <text x="110" y="388" font-family="'Helvetica Neue', Arial, sans-serif" font-size="26" font-weight="400" fill="white" fill-opacity="0.70">their child's homework — matched to their curriculum.</text>
+
+  <!-- CTA pill -->
+  <rect x="110" y="440" width="260" height="56" rx="28" fill="url(#accent)"/>
+  <text x="240" y="476" font-family="'Helvetica Neue', Arial, sans-serif" font-size="22" font-weight="700" fill="white" text-anchor="middle">Get started free</text>
+
+  <!-- Bottom URL -->
+  <text x="110" y="580" font-family="'Helvetica Neue', Arial, sans-serif" font-size="20" fill="white" fill-opacity="0.50">awade.app</text>
+
+  <!-- Decorative book icon area (right side) -->
+  <g transform="translate(820, 180)" opacity="0.18">
+    <!-- Simple open book shape -->
+    <path d="M0 200 Q100 160 200 200 Q100 240 0 200Z" fill="white"/>
+    <path d="M200 200 Q300 160 400 200 Q300 240 200 200Z" fill="white"/>
+    <rect x="195" y="40" width="10" height="165" rx="5" fill="white"/>
+    <!-- Pages left -->
+    <line x1="0" y1="200" x2="200" y2="40" stroke="white" stroke-width="4"/>
+    <line x1="40" y1="215" x2="200" y2="65" stroke="white" stroke-width="2.5"/>
+    <line x1="80" y1="225" x2="200" y2="90" stroke="white" stroke-width="2"/>
+    <!-- Pages right -->
+    <line x1="400" y1="200" x2="200" y2="40" stroke="white" stroke-width="4"/>
+    <line x1="360" y1="215" x2="200" y2="65" stroke="white" stroke-width="2.5"/>
+    <line x1="320" y1="225" x2="200" y2="90" stroke="white" stroke-width="2"/>
+  </g>
+</svg>
