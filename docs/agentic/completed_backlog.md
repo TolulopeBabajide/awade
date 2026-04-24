@@ -172,3 +172,8 @@
 **Completed**: 2026-04-24
 **Commit**: 20e88d4
 **Change**: Migrated `packages/ai/providers/gemini_provider.py` from the deprecated `google-generativeai` SDK to the new `google-genai` SDK. Import changed from `import google.generativeai as genai` to `from google import genai` + `from google.genai import types as genai_types`. Client init replaced `genai.configure()` with `self.client = genai.Client(api_key=...)`. Content generation rewritten to use `self.client.models.generate_content(model=..., contents=..., config=types.GenerateContentConfig(...))`. Safety settings migrated from a dict keyed on `HarmCategory` to a list of `types.SafetySetting` objects. `apps/backend/requirements.txt` updated from `google-generativeai==0.7.2` to `google-genai==1.14.0`. Test assertion in `test_ai_providers.py` updated from `mock_genai.configure` to `mock_genai.Client`. All 19 tests pass.
+
+## AWD-M-40 — npm audit fix: patch postcss XSS (GHSA-qx2v-qp2m-jg93)
+**Completed**: 2026-04-24
+**Commit**: e7a1d51
+**Change**: Ran `npm audit fix` in `apps/frontend` — updated `postcss` from 8.5.6 to 8.5.10 to close GHSA-qx2v-qp2m-jg93 (XSS via unescaped `</style>` in CSS stringify output). Also updated transitive rollup and esbuild lockfile entries. 63 frontend tests pass, lint clean, build clean post-fix.
