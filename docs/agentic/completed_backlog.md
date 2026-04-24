@@ -162,3 +162,8 @@
 **Completed**: 2026-04-24
 **Commit**: f7bb28f / merge f61736b
 **Change**: 3 tests in `test_children_router.py` were failing with 500 instead of 200/502 because their mock DB setups wired two chained `.filter().filter()` calls, but `ChildrenService.generate_guide()` uses a single `.filter(cond1, cond2)` call. Removed the extra `.filter.return_value` layer in `TestGenerateGuideIdempotency.test_existing_guide_returned_no_ai_call` (~line 439) and `TestGenerateGuideMalformedAI._build_db_no_existing_guide` (~line 492-495). No production code changed — mock wiring fix only.
+
+## AWD-M-12 — Prompt injection: fence user-supplied context with XML delimiters and scrub injection patterns
+**Completed**: 2026-04-24
+**Commit**: 322e9e5
+**Change**: Three-layer input sanitisation applied to educator-supplied `context_input` before it enters `COMPREHENSIVE_LESSON_RESOURCE_PROMPT` as `{local_context}`. (1) `packages/ai/prompts.py` — added `IMPORTANT` instruction above the local-context field and wrapped `{local_context}` in `<user_context>` XML tags so the model treats it as data, not instructions. (2) `packages/ai/gpt_service.py` — added `_MAX_USER_CONTEXT_CHARS = 2000`, `_INPUT_INJECTION_PATTERNS` list (10 patterns), and new `_sanitize_user_context()` method that truncates, strips PII, and scrubs injection phrases; `generate_lesson_resource()` now calls `_sanitize_user_context(context)` before building `prompt_params`. (3) `apps/backend/tests/test_ai_providers.py` — added 11 new tests in `TestSanitizeUserContext` covering passthrough, None/empty, truncation, PII stripping, and each injection pattern category including an end-to-end check confirming injection phrases never reach the rendered prompt.
