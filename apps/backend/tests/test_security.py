@@ -19,12 +19,25 @@ def test_security_headers():
     """Test that security headers are present in responses."""
     response = client.get("/")
     assert response.status_code == 200
-    
+
     headers = response.headers
     assert headers["X-Content-Type-Options"] == "nosniff"
     assert headers["X-Frame-Options"] == "DENY"
     assert headers["X-XSS-Protection"] == "1; mode=block"
     assert headers["Strict-Transport-Security"] == "max-age=31536000; includeSubDomains"
+    assert "Content-Security-Policy" in headers
+
+
+def test_csp_header_directives():
+    """Test that the CSP header contains the expected key directives (AWD-M-11)."""
+    response = client.get("/")
+    assert response.status_code == 200
+
+    csp = response.headers.get("Content-Security-Policy", "")
+    assert "default-src 'self'" in csp
+    assert "frame-ancestors 'none'" in csp
+    assert "form-action 'self'" in csp
+    assert "base-uri 'self'" in csp
 
 def test_cors_headers():
     """Test CORS configuration."""
