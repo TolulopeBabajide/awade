@@ -766,6 +766,37 @@ class ApiService {
     return this.handleResponse(response);
   }
 
+  /**
+   * Export a parent guide as a PDF blob for offline printing.
+   * Returns { blob, filename } on success, or { error } on failure.
+   */
+  async exportGuidePdf(
+    guideId: number,
+  ): Promise<{ blob: Blob; filename: string } | { error: string }> {
+    try {
+      const response = await this.apiFetch(
+        `${API_BASE_URL}/guides/${guideId}/export`,
+        { method: 'GET' },
+      )
+      if (!response.ok) {
+        let detail = `HTTP ${response.status}`
+        try {
+          const body = await response.json()
+          detail = body.detail || detail
+        } catch { /* empty */ }
+        return { error: detail }
+      }
+      const blob = await response.blob()
+      // Extract filename from Content-Disposition or fall back to default
+      const disposition = response.headers.get('Content-Disposition') ?? ''
+      const match = disposition.match(/filename="?([^";\n]+)"?/)
+      const filename = match?.[1] ?? `guide_${guideId}.pdf`
+      return { blob, filename }
+    } catch (err: unknown) {
+      return { error: err instanceof Error ? err.message : 'Export failed' }
+    }
+  }
+
   /** Explicit logout — clears HttpOnly cookies server-side. */
   async logoutUser(): Promise<ApiResponse<any>> {
     const response = await this.apiFetch(`${API_BASE_URL}/auth/logout`, {

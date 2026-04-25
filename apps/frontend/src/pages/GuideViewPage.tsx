@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
@@ -12,6 +12,7 @@ import {
   FaHeart,
   FaHome,
   FaWhatsapp,
+  FaDownload,
 } from 'react-icons/fa'
 import apiService from '../services/api'
 import Sidebar from '../components/Sidebar'
@@ -68,6 +69,30 @@ const GuideViewPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['childGuides'] })
     },
   })
+
+  // PDF download state
+  const [isDownloading, setIsDownloading] = useState(false)
+
+  const handleDownloadPdf = async () => {
+    if (!guide || isDownloading) return
+    setIsDownloading(true)
+    try {
+      const result = await apiService.exportGuidePdf(guide.guide_id)
+      if ('error' in result) {
+        // Non-blocking — show a brief alert rather than a full error page
+        alert(`Could not download PDF: ${result.error}`)
+        return
+      }
+      const url = URL.createObjectURL(result.blob)
+      const anchor = document.createElement('a')
+      anchor.href = url
+      anchor.download = result.filename
+      anchor.click()
+      URL.revokeObjectURL(url)
+    } finally {
+      setIsDownloading(false)
+    }
+  }
 
   // ── Loading state ─────────────────────────────────────────────────
   if (isLoading) {
@@ -151,6 +176,19 @@ const GuideViewPage: React.FC = () => {
               Back
             </button>
             <div className="flex items-center gap-1">
+              <button
+                onClick={handleDownloadPdf}
+                disabled={isDownloading}
+                className="text-gray-400 hover:text-primary-600 transition-colors p-2 disabled:opacity-50"
+                title="Download as PDF"
+                aria-label="Download this guide as a PDF"
+              >
+                {isDownloading ? (
+                  <span className="inline-block w-5 h-5 animate-spin rounded-full border-2 border-gray-300 border-t-primary-600" />
+                ) : (
+                  <FaDownload className="w-5 h-5" />
+                )}
+              </button>
               <button
                 onClick={handleWhatsAppShare}
                 className="text-gray-400 hover:text-green-600 transition-colors p-2"

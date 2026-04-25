@@ -14,11 +14,16 @@ Endpoints:
 - GET    /api/children/{child_id}/guides  — List guides for a child
 - GET    /api/guides/{guide_id}           — Get a single guide
 - POST   /api/guides/{guide_id}/bookmark  — Toggle guide bookmark
+- GET    /api/guides/{guide_id}/export    — Export guide as PDF
 
 Author: Tolulope Babajide
 """
 
-from fastapi import APIRouter, Depends, Query, Request
+import json
+import logging
+import re
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from sqlalchemy.orm import Session
 from typing import Optional
 
@@ -26,6 +31,8 @@ from apps.backend.database import get_db
 from apps.backend.models import User
 from apps.backend.dependencies import get_current_active_user
 from apps.backend.limiter import limiter
+
+logger = logging.getLogger(__name__)
 from apps.backend.schemas.children import (
     ChildProfileCreate,
     ChildProfileUpdate,
@@ -165,3 +172,69 @@ def toggle_bookmark(
     """Toggle the bookmark status of a guide."""
     service = ChildrenService(db)
     return service.toggle_bookmark(current_user, guide_id)
+
+
+@router.get("/guides/{guide_id}/export")
+def export_guide_pdf(
+    guide_id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Export a parent guide as a downloadable PDF for offline printing.
+
+    Returns a PDF binary with Content-Disposition: attachment.
+    Requires the guide to belong to the current parent (404 otherwise).
+    """
+    from apps.backend.services.pdf_service import PDFService
+
+    service = ChildrenService(db)
+    # Raises 404 if guide not found or not owned by this parent
+    guide = service.get_guide(current_user, guide_id)
+
+    if not guide.ai_generated_content:
+        raise HTTPException(
+            status_code=422,
+            detail="This guide has no content to export.",
+        )
+
+    try:
+        content = json.loads(guide.ai_generated_content)
+    except (json.JSONDecodeError, ValueError):
+        raise HTTPException(
+            status_code=422,
+            detail="Guide content is malformed and cannot be exported.",
+        )
+
+    meta = {
+        "guide_id": guide.guide_id,
+        "topic_title": guide.topic_title,
+        "subject_name": guide.subject_name,
+    }
+
+    pdf_svc = PDFService()
+    try:
+        pdf_bytes = pdf_svc.generate_guide_pdf(content, meta)
+    except RuntimeError:
+        raise HTTPException(
+            status_code=503,
+            detail="PDF generation is not available. Please try again later.",
+        )
+    except Exception:
+        logger.error("Unexpected error exporting guide %s", guide_id, exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while exporting the guide.",
+        )
+
+    # Build a safe filename from the topic title
+    raw_title = guide.topic_title or f"guide_{guide_id}"
+    safe_title = re.sub(r"[^\w\s-]", "", raw_title).strip()
+    safe_title = re.sub(r"\s+", "_", safe_title)[:60]
+    filename = f"{safe_title}.pdf" if safe_title else f"guide_{guide_id}.pdf"
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
