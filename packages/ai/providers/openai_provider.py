@@ -18,14 +18,20 @@ class OpenAIProvider(LLMProvider):
     Uses 'gpt-4o' for standard tier and 'gpt-4o-mini' for basic tier.
     """
     
+    # Default request timeout in seconds — prevents workers from hanging indefinitely
+    # under network degradation (OWASP LLM10 / Model DoS mitigation).
+    # Override via OPENAI_TIMEOUT_SECONDS env var.
+    DEFAULT_TIMEOUT = 60.0
+
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
         self.client = None
-        
+        self.timeout = float(os.getenv("OPENAI_TIMEOUT_SECONDS", str(self.DEFAULT_TIMEOUT)))
+
         if OPENAI_AVAILABLE and self.api_key:
             try:
-                self.client = openai.OpenAI(api_key=self.api_key)
-                logger.info("OpenAIProvider initialized")
+                self.client = openai.OpenAI(api_key=self.api_key, timeout=self.timeout)
+                logger.info("OpenAIProvider initialized (timeout=%.1fs)", self.timeout)
             except Exception as e:
                 logger.error(f"Failed to initialize OpenAI client: {e}")
     

@@ -15,6 +15,8 @@ Endpoints:
 Author: Tolulope Babajide
 """
 
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, Response, Query, Request
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -33,6 +35,8 @@ from apps.backend.schemas.lesson_plans import (
     LessonResourceUpdate,
     LessonResourceResponse
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/lesson-plans", tags=["lesson-plans"])
 
@@ -216,10 +220,15 @@ async def export_lesson_resource(
         else:
             raise HTTPException(status_code=400, detail="Unsupported export format. Use 'pdf' or 'docx'")
             
-    except Exception as e:
+    except HTTPException:
+        raise
+    except Exception:
+        logger.error(
+            "Unexpected error exporting lesson resource %s", resource_id, exc_info=True
+        )
         raise HTTPException(
-            status_code=500, 
-            detail=f"An error occurred while exporting the resource: {str(e)}"
+            status_code=500,
+            detail="An error occurred while exporting the resource."
         )
 
 # Additional endpoints can be added here as needed 

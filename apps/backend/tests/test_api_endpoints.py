@@ -74,21 +74,21 @@ class TestUserEndpoints:
     def test_get_current_user_unauthorized(self, client):
         """Test get current user without authentication."""
         response = client.get("/api/auth/me")
-        # The endpoint returns 403 Forbidden when no auth header is provided
-        assert response.status_code == 403
+        # The endpoint returns 401 Unauthorized when no auth header is provided
+        assert response.status_code == 401
     
     def test_get_current_user_authorized(self, client, sample_user):
         """Test get current user with authentication."""
         # For now, let's test that the endpoint exists and returns 403 without auth
         # The actual authentication testing would require proper JWT token generation
         response = client.get("/api/auth/me")
-        # Without proper JWT token, this should return 403
-        assert response.status_code == 403
+        # Without proper JWT token, this should return 401
+        assert response.status_code == 401
     
     def test_update_profile_unauthorized(self, client):
         """Test update profile without authentication."""
         response = client.put("/api/users/profile", json={})
-        assert response.status_code == 403
+        assert response.status_code == 401
     
     def test_update_profile_authorized(self, client, sample_user):
         """Test update profile with authentication."""
@@ -98,8 +98,8 @@ class TestUserEndpoints:
             "full_name": "Updated Name",
             "bio": "Updated bio"
         })
-        # Without proper JWT token, this should return 403
-        assert response.status_code == 403
+        # Without proper JWT token, this should return 401
+        assert response.status_code == 401
 
 
 class TestLessonPlanEndpoints:
@@ -108,62 +108,62 @@ class TestLessonPlanEndpoints:
     def test_get_lesson_plans_unauthorized(self, client):
         """Test get lesson plans without authentication."""
         response = client.get("/api/lesson-plans/")
-        assert response.status_code == 403
+        assert response.status_code == 401
     
     def test_get_lesson_plans_authorized(self, client, sample_user):
         """Test get lesson plans with authentication."""
         # For now, let's test that the endpoint exists and returns 403 without auth
         response = client.get("/api/lesson-plans/")
-        # Without proper JWT token, this should return 403
-        assert response.status_code == 403
+        # Without proper JWT token, this should return 401
+        assert response.status_code == 401
     
     def test_generate_lesson_plan_unauthorized(self, client):
         """Test generate lesson plan without authentication."""
         response = client.post("/api/lesson-plans/generate", json={})
-        assert response.status_code == 403
+        assert response.status_code == 401
     
     def test_generate_lesson_plan_authorized(self, client, sample_user):
         """Test generate lesson plan with authentication."""
-        # For now, test that endpoint exists and returns 403 without auth
+        # For now, test that endpoint exists and returns 401 without auth
         response = client.post("/api/lesson-plans/generate", json={
             "subject": "Mathematics",
             "grade_level": "Grade 5",
             "topic": "Basic Algebra",
             "user_id": 1
         })
-        assert response.status_code == 403
+        assert response.status_code == 401
     
     def test_get_lesson_plan_by_id(self, client, sample_user, sample_lesson_plan):
         """Test get lesson plan by ID."""
-        # For now, test that endpoint exists and returns 403 without auth
+        # For now, test that endpoint exists and returns 401 without auth
         response = client.get(f"/api/lesson-plans/{sample_lesson_plan.lesson_plan_id}")
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 class TestContextEndpoints:
     """Test context management endpoints."""
     
     def test_create_context(self, client, sample_lesson_plan):
-        """Test create context endpoint."""
+        """Test create context endpoint — unauthenticated request is rejected."""
         response = client.post("/api/contexts/", json={
             "lesson_plan_id": sample_lesson_plan.lesson_plan_id,
             "context_text": "Test context",
             "context_type": "cultural"
         })
-        # The endpoint may return 500 due to service issues
-        assert response.status_code in [201, 500]
-    
+        # Contexts endpoint requires auth; unauthenticated caller gets 401
+        assert response.status_code == 401
+
     def test_get_contexts_by_lesson_plan(self, client, sample_lesson_plan):
-        """Test get contexts by lesson plan."""
+        """Test get contexts by lesson plan — unauthenticated request is rejected."""
         response = client.get(f"/api/contexts/lesson-plan/{sample_lesson_plan.lesson_plan_id}")
-        # The endpoint may return 500 due to service issues
-        assert response.status_code in [200, 500]
+        # Contexts endpoint requires auth; unauthenticated caller gets 401
+        assert response.status_code == 401
     
     def test_get_all_contexts(self, client):
-        """Test get all contexts."""
+        """Test get all contexts — unauthenticated request is rejected."""
         response = client.get("/api/contexts/")
-        # The endpoint may return 500 due to service issues
-        assert response.status_code in [200, 500]
+        # Contexts endpoint requires auth; unauthenticated caller gets 401
+        assert response.status_code == 401
 
 
 class TestCurriculumEndpoints:
@@ -172,24 +172,24 @@ class TestCurriculumEndpoints:
     def test_get_curriculums_unauthorized(self, client):
         """Test get curriculums without authentication."""
         response = client.get("/api/curriculum/")
-        assert response.status_code == 403
+        assert response.status_code == 401
     
     def test_get_curriculums_authorized(self, client, sample_user):
         """Test get curriculums with authentication."""
-        # For now, test that endpoint exists and returns 403 without auth
+        # For now, test that endpoint exists and returns 401 without auth
         response = client.get("/api/curriculum/")
-        assert response.status_code == 403
+        assert response.status_code == 401
     
     def test_get_topics_unauthorized(self, client):
         """Test get topics without authentication."""
         response = client.get("/api/curriculum/topics")
-        assert response.status_code == 403
+        assert response.status_code == 401
     
     def test_get_topics_authorized(self, client, sample_user):
         """Test get topics with authentication."""
-        # For now, test that endpoint exists and returns 403 without auth
+        # For now, test that endpoint exists and returns 401 without auth
         response = client.get("/api/curriculum/topics")
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 class TestCountryEndpoints:
@@ -198,12 +198,12 @@ class TestCountryEndpoints:
     def test_get_countries(self, client):
         """Test get countries endpoint."""
         response = client.get("/api/countries/")
-        assert response.status_code == 403
+        assert response.status_code == 401
     
     def test_search_countries(self, client):
         """Test search countries endpoint."""
         response = client.get("/api/countries/search?q=test")
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 class TestSubjectEndpoints:
@@ -212,12 +212,12 @@ class TestSubjectEndpoints:
     def test_get_subjects(self, client):
         """Test get subjects endpoint."""
         response = client.get("/api/subjects/")
-        assert response.status_code == 403
+        assert response.status_code == 401
     
     def test_search_subjects(self, client):
         """Test search subjects endpoint."""
         response = client.get("/api/subjects/search?q=math")
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 class TestGradeLevelEndpoints:
@@ -226,12 +226,12 @@ class TestGradeLevelEndpoints:
     def test_get_grade_levels(self, client):
         """Test get grade levels endpoint."""
         response = client.get("/api/grade-levels/")
-        assert response.status_code == 403
+        assert response.status_code == 401
     
     def test_search_grade_levels(self, client):
         """Test search grade levels endpoint."""
         response = client.get("/api/grade-levels/search?q=grade")
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 class TestErrorHandling:
@@ -240,7 +240,7 @@ class TestErrorHandling:
     def test_404_error(self, client):
         """Test 404 error handling."""
         response = client.get("/api/lesson-plans/99999")
-        assert response.status_code == 403
+        assert response.status_code == 401
     
     def test_422_validation_error(self, client):
         """Test 422 validation error handling."""
@@ -252,9 +252,9 @@ class TestErrorHandling:
     
     def test_500_internal_error(self, client):
         """Test 500 internal error handling."""
-        # For now, test that endpoint exists and returns 403 without auth
+        # For now, test that endpoint exists and returns 401 without auth
         response = client.get("/api/lesson-plans/")
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 class TestCORS:
@@ -276,7 +276,7 @@ class TestAPIResponseFormat:
     def test_error_response_format(self, client):
         """Test error response format."""
         response = client.get("/api/lesson-plans/99999")
-        assert response.status_code == 403
+        assert response.status_code == 401
         
         error_data = response.json()
         assert "detail" in error_data

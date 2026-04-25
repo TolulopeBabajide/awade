@@ -14,17 +14,20 @@ from fastapi import HTTPException, status
 import json
 import logging
 
+from pydantic import ValidationError
+
 from apps.backend.models import (
     ChildProfile, ParentGuide, User, UserRole,
     Country, Curriculum, GradeLevel, Subject, Topic,
     CurriculumStructure
 )
-
-logger = logging.getLogger(__name__)
 from apps.backend.schemas.children import (
     ChildProfileCreate, ChildProfileUpdate, ChildProfileResponse,
-    ChildProfileListResponse, ParentGuideResponse, ParentGuideListResponse
+    ChildProfileListResponse, ParentGuideResponse, ParentGuideListResponse,
+    ParentGuideAIContent
 )
+
+logger = logging.getLogger(__name__)
 
 
 class ChildrenService:
@@ -394,7 +397,21 @@ class ChildrenService:
         )
 
         if not is_valid:
-            logger.warning(f"Parent guide for topic {topic_id} generated but failed validation")
+            logger.warning(f"Parent guide for topic {topic_id} failed light validation: AI key check")
+
+        # Validate JSON shape against Pydantic schema before persisting (H-06)
+        try:
+            ParentGuideAIContent.model_validate_json(ai_content)
+        except (ValidationError, ValueError) as exc:
+            logger.error(
+                "Parent guide schema validation failed for topic %s: %s",
+                topic_id,
+                exc,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail="AI service returned content that did not match the expected structure. Please try again.",
+            )
 
         # Persist the guide
         guide = ParentGuide(

@@ -96,17 +96,22 @@ class TestUserService:
     def test_get_user_by_id(self, test_db, sample_user):
         """Test get user by ID."""
         service = UserService(test_db)
-        
-        user = service.get_user(sample_user.user_id)
+
+        # Pass owner as current_user — owner may read their own record
+        user = service.get_user(sample_user.user_id, current_user=sample_user)
         assert user is not None
         assert user.email == "test@example.com"
-    
+
     def test_get_user_not_found(self, test_db):
         """Test get user when not found."""
         service = UserService(test_db)
-        
+
+        # Use caller.user_id == requested id — ownership check short-circuits,
+        # service proceeds to DB lookup and raises 404 for the missing record
+        caller = Mock()
+        caller.user_id = 99999
         with pytest.raises(HTTPException) as exc_info:
-            service.get_user(99999)
+            service.get_user(99999, current_user=caller)
         assert exc_info.value.status_code == 404
 
 

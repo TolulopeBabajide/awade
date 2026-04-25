@@ -14,11 +14,14 @@ import jwt
 import bcrypt
 import secrets
 import json
+import logging
 import requests
 import sys
 import os
 from fastapi import HTTPException, status
 from typing import Tuple, Dict, Any, Optional
+
+logger = logging.getLogger(__name__)
 
 # Add parent directories to Python path for imports
 current_dir = os.path.dirname(__file__)
@@ -225,9 +228,10 @@ class AuthService:
         except HTTPException:
             raise
         except Exception as e:
+            logger.error("Unexpected error during Google authentication: %s", e, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred during Google authentication: {str(e)}"
+                detail="An error occurred during Google authentication"
             )
     
     def register_user(self, user_data: UserCreate) -> Tuple[AuthResponse, str]:
@@ -317,9 +321,10 @@ class AuthService:
         except HTTPException:
             raise
         except Exception as e:
+            logger.error("Unexpected error during user registration: %s", e, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred during user registration: {str(e)}"
+                detail="An error occurred during user registration"
             )
     
     
@@ -378,9 +383,10 @@ class AuthService:
         except Exception as e:
             if isinstance(e, HTTPException):
                 raise e
+            logger.error("Unexpected error during token refresh: %s", e, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred during token refresh: {str(e)}"
+                detail="An error occurred during token refresh"
             )
 
     def authenticate_user(self, user_data: UserLogin) -> Tuple[AuthResponse, str]:
@@ -474,9 +480,10 @@ class AuthService:
         except HTTPException:
             raise
         except Exception as e:
+            logger.error("Unexpected error during authentication: %s", e, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred during authentication: {str(e)}"
+                detail="An error occurred during authentication"
             )
     
     def get_current_user_profile(self, current_user: User) -> UserResponse:
@@ -517,9 +524,10 @@ class AuthService:
             )
             
         except Exception as e:
+            logger.error("Unexpected error while retrieving user profile: %s", e, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while retrieving user profile: {str(e)}"
+                detail="An error occurred while retrieving user profile"
             )
     
     def request_password_reset(self, email: str) -> Dict[str, str]:
@@ -552,9 +560,10 @@ class AuthService:
             return {"message": "If the email exists, a password reset link has been sent"}
             
         except Exception as e:
+            logger.error("Unexpected error while requesting password reset: %s", e, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while requesting password reset: {str(e)}"
+                detail="An error occurred while requesting password reset"
             )
     
     def reset_password(self, token: str, new_password: str) -> Dict[str, str]:
@@ -589,9 +598,10 @@ class AuthService:
         except HTTPException:
             raise
         except Exception as e:
+            logger.error("Unexpected error while resetting password: %s", e, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while resetting password: {str(e)}"
+                detail="An error occurred while resetting password"
             )
     async def blacklist_refresh_token(self, refresh_token: str, redis_pool: Any):
         """
@@ -616,7 +626,7 @@ class AuthService:
             
         except Exception as e:
             # Log error but don't fail logout
-            print(f"Error blacklisting token: {e}")
+            logger.error("Error blacklisting token: %s", e, exc_info=True)
 
     async def is_refresh_token_blacklisted(self, refresh_token: str, redis_pool: Any) -> bool:
         """

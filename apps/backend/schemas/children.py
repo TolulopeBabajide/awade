@@ -92,3 +92,63 @@ class ParentGuideListResponse(BaseModel):
     """Schema for listing parent guides."""
     guides: List[ParentGuideResponse]
     total: int
+
+
+# ── AI output schemas ─────────────────────────────────────────────────────────
+# These Pydantic models validate the JSON structure returned by the AI service
+# before it is persisted. Validation happens in ChildrenService.generate_guide().
+
+class ParentGuideTopicHeader(BaseModel):
+    """Header metadata echoed back by the AI in the guide."""
+    topic: str
+    subject: str
+    grade_level: str
+    country: str
+    curriculum: str
+
+
+class ParentGuideSimpleExplanation(BaseModel):
+    """Plain-language explanation of the topic for the parent."""
+    what_it_is: str
+    why_it_matters: str
+
+
+class ParentGuideHomeActivity(BaseModel):
+    """Hands-on activity the parent and child do together at home."""
+    title: str
+    description: str
+    materials_needed: List[str]
+    steps: List[str]
+    what_to_look_for: str
+
+
+class ParentGuideCommonMistake(BaseModel):
+    """One common misconception children have on this topic."""
+    mistake: str
+    why_it_happens: str
+    how_to_help: str
+
+
+class ParentGuideCurriculumContext(BaseModel):
+    """Optional curriculum context (prerequisites, what comes next)."""
+    what_came_before: Optional[str] = None
+    what_comes_next: Optional[str] = None
+    how_long_in_school: Optional[str] = None
+
+
+class ParentGuideAIContent(BaseModel):
+    """
+    Full Pydantic schema for AI-generated parent guide content.
+
+    Used to validate the JSON returned by AwadeGPTService.generate_parent_guide()
+    before the content is written to the database. If validation fails the
+    children service raises HTTP 502 so the client can retry rather than
+    persisting malformed data.
+    """
+    topic_header: ParentGuideTopicHeader
+    simple_explanation: ParentGuideSimpleExplanation
+    home_activity: ParentGuideHomeActivity
+    conversation_starters: List[str]
+    common_mistakes: List[ParentGuideCommonMistake]
+    curriculum_context: Optional[ParentGuideCurriculumContext] = None
+    encouragement_tips: Optional[List[str]] = None

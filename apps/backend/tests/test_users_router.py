@@ -170,9 +170,9 @@ class TestGetUserOwnership:
         assert response.json()["user_id"] == educator_user.user_id
 
     def test_unauthenticated_request_rejected(self, client, educator_user):
-        """Request without auth header must be rejected (403 from bearer security)."""
+        """Request without auth header must be rejected (401 Unauthorized)."""
         response = client.get(f"/api/users/{educator_user.user_id}")
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_admin_gets_404_for_nonexistent_user(self, client, admin_user):
         """Admin requesting a non-existent user_id receives 404, not 403."""
