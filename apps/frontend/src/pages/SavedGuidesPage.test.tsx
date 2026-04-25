@@ -117,7 +117,7 @@ describe('SavedGuidesPage', () => {
 
   describe('children error state', () => {
     it('shows error message and retry button when children fetch fails', async () => {
-      mockApiService.getChildren.mockResolvedValue({ error: 'Network error', data: undefined })
+      mockApiService.getChildren.mockResolvedValue({ error: 'Network error', data: null })
 
       renderWithProviders(<SavedGuidesPage />)
 
@@ -128,7 +128,7 @@ describe('SavedGuidesPage', () => {
     })
 
     it('does not render child selector when children fetch errors', async () => {
-      mockApiService.getChildren.mockResolvedValue({ error: 'Network error', data: undefined })
+      mockApiService.getChildren.mockResolvedValue({ error: 'Network error', data: null })
 
       renderWithProviders(<SavedGuidesPage />)
 
@@ -145,7 +145,7 @@ describe('SavedGuidesPage', () => {
         error: undefined,
         data: { children: [makeChild()], total: 1 },
       })
-      mockApiService.getChildGuides.mockResolvedValue({ error: 'Server error', data: undefined })
+      mockApiService.getChildGuides.mockResolvedValue({ error: 'Server error', data: null })
 
       renderWithProviders(<SavedGuidesPage />)
 
@@ -160,7 +160,7 @@ describe('SavedGuidesPage', () => {
         error: undefined,
         data: { children: [makeChild()], total: 1 },
       })
-      mockApiService.getChildGuides.mockResolvedValue({ error: 'Server error', data: undefined })
+      mockApiService.getChildGuides.mockResolvedValue({ error: 'Server error', data: null })
 
       renderWithProviders(<SavedGuidesPage />)
 

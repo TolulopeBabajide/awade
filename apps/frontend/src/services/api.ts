@@ -1,13 +1,4 @@
 import { sanitizeInput } from '../utils/sanitizer';
-import type {
-  ChildProfile,
-  ChildProfileCreate,
-  ChildProfileUpdate,
-  ChildProfileListResponse,
-  ChildTopic,
-  ParentGuide,
-  ParentGuideListResponse,
-} from '../types/children';
 
 const API_BASE_URL = ((import.meta as any).env.VITE_API_URL || '') + '/api';
 
@@ -659,7 +650,7 @@ class ApiService {
 
   // ── Children / Parent endpoints ────────────────────────────────────
 
-  async getChildren(): Promise<ApiResponse<ChildProfileListResponse>> {
+  async getChildren(): Promise<ApiResponse<any>> {
     const fetchFn = async () => {
       const response = await this.apiFetch(`${API_BASE_URL}/children`, {
         headers: this.getAuthHeaders()
@@ -670,7 +661,7 @@ class ApiService {
     return this.handleResponse(response, () => this.getChildren());
   }
 
-  async getChild(childId: number): Promise<ApiResponse<ChildProfile>> {
+  async getChild(childId: number): Promise<ApiResponse<any>> {
     const fetchFn = async () => {
       const response = await this.apiFetch(`${API_BASE_URL}/children/${childId}`, {
         headers: this.getAuthHeaders()
@@ -681,7 +672,7 @@ class ApiService {
     return this.handleResponse(response, () => this.getChild(childId));
   }
 
-  async createChild(childData: ChildProfileCreate): Promise<ApiResponse<ChildProfile>> {
+  async createChild(childData: any): Promise<ApiResponse<any>> {
     const response = await this.apiFetch(`${API_BASE_URL}/children`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
@@ -690,7 +681,7 @@ class ApiService {
     return this.handleResponse(response);
   }
 
-  async updateChild(childId: number, childData: ChildProfileUpdate): Promise<ApiResponse<ChildProfile>> {
+  async updateChild(childId: number, childData: any): Promise<ApiResponse<any>> {
     const response = await this.apiFetch(`${API_BASE_URL}/children/${childId}`, {
       method: 'PUT',
       headers: this.getAuthHeaders(),
@@ -699,7 +690,7 @@ class ApiService {
     return this.handleResponse(response);
   }
 
-  async deleteChild(childId: number): Promise<ApiResponse<null>> {
+  async deleteChild(childId: number): Promise<ApiResponse<any>> {
     const response = await this.apiFetch(`${API_BASE_URL}/children/${childId}`, {
       method: 'DELETE',
       headers: this.getAuthHeaders()
@@ -707,7 +698,7 @@ class ApiService {
     return this.handleResponse(response);
   }
 
-  async getChildTopics(childId: number, subjectId?: number): Promise<ApiResponse<ChildTopic[]>> {
+  async getChildTopics(childId: number, subjectId?: number): Promise<ApiResponse<any>> {
     const fetchFn = async () => {
       const url = subjectId
         ? `${API_BASE_URL}/children/${childId}/topics?subject_id=${subjectId}`
@@ -721,7 +712,7 @@ class ApiService {
     return this.handleResponse(response, () => this.getChildTopics(childId, subjectId));
   }
 
-  async getChildGuides(childId: number, bookmarked?: boolean): Promise<ApiResponse<ParentGuideListResponse>> {
+  async getChildGuides(childId: number, bookmarked?: boolean): Promise<ApiResponse<any>> {
     const fetchFn = async () => {
       const url = bookmarked
         ? `${API_BASE_URL}/children/${childId}/guides?bookmarked=true`
@@ -735,7 +726,7 @@ class ApiService {
     return this.handleResponse(response, () => this.getChildGuides(childId, bookmarked));
   }
 
-  async generateGuide(childId: number, topicId: number): Promise<ApiResponse<ParentGuide>> {
+  async generateGuide(childId: number, topicId: number): Promise<ApiResponse<any>> {
     const fetchFn = async () => {
       const response = await this.apiFetch(`${API_BASE_URL}/children/${childId}/guides/generate?topic_id=${topicId}`, {
         method: 'POST',
@@ -747,7 +738,7 @@ class ApiService {
     return this.handleResponse(response, () => this.generateGuide(childId, topicId));
   }
 
-  async getGuide(guideId: number): Promise<ApiResponse<ParentGuide>> {
+  async getGuide(guideId: number): Promise<ApiResponse<any>> {
     const fetchFn = async () => {
       const response = await this.apiFetch(`${API_BASE_URL}/guides/${guideId}`, {
         headers: this.getAuthHeaders()
@@ -758,7 +749,7 @@ class ApiService {
     return this.handleResponse(response, () => this.getGuide(guideId));
   }
 
-  async toggleGuideBookmark(guideId: number): Promise<ApiResponse<ParentGuide>> {
+  async toggleGuideBookmark(guideId: number): Promise<ApiResponse<any>> {
     const response = await this.apiFetch(`${API_BASE_URL}/guides/${guideId}/bookmark`, {
       method: 'POST',
       headers: this.getAuthHeaders()
