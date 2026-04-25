@@ -1,4 +1,3 @@
-import React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -113,7 +112,7 @@ describe('GuideViewPage', () => {
 
   it('shows fallback error when AI content is malformed JSON', async () => {
     const brokenGuide = { ...MOCK_GUIDE, ai_generated_content: 'not-valid-json' }
-    mockGetGuide.mockResolvedValue({ data: brokenGuide, error: null })
+    mockGetGuide.mockResolvedValue({ data: brokenGuide, error: undefined })
     renderPage()
     await waitFor(() => {
       expect(screen.getByText('Could not load guide')).toBeInTheDocument()
@@ -122,7 +121,7 @@ describe('GuideViewPage', () => {
 
   // ── Success state ───────────────────────────────────────────────────────
   it('renders guide topic title and subject in success state', async () => {
-    mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: null })
+    mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
     renderPage()
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: /Fractions/i })).toBeInTheDocument()
@@ -131,19 +130,21 @@ describe('GuideViewPage', () => {
   })
 
   it('renders guide via generateGuide when child+topic params are supplied (no guide ID)', async () => {
-    mockGenerateGuide.mockResolvedValue({ data: MOCK_GUIDE, error: null })
+    mockGenerateGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
     renderPage('/guides?child=1&topic=10')
     await waitFor(() => {
       expect(mockGenerateGuide).toHaveBeenCalledWith(1, 10)
     })
-    expect(
-      screen.getByRole('heading', { name: /Fractions/i }),
-    ).toBeInTheDocument()
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: /Fractions/i }),
+      ).toBeInTheDocument()
+    })
   })
 
   // ── WhatsApp share (AWD-M-05) ───────────────────────────────────────────
   it('renders the WhatsApp share button', async () => {
-    mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: null })
+    mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
     renderPage()
     await waitFor(() => {
       expect(screen.getByLabelText('Share this guide on WhatsApp')).toBeInTheDocument()
@@ -152,7 +153,7 @@ describe('GuideViewPage', () => {
 
   it('opens the correct WhatsApp share URL when the button is clicked', async () => {
     const openSpy = vi.spyOn(window, 'open').mockReturnValue(null)
-    mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: null })
+    mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
     renderPage()
 
     const shareBtn = await screen.findByLabelText('Share this guide on WhatsApp')
