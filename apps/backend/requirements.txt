@@ -6,7 +6,7 @@ pydantic==2.6.4
 sqlalchemy==2.0.29
 psycopg2-binary==2.9.9
 python-dotenv==1.0.0
-openai==1.12.0  # Pinned to 1.x — openai 2.x has breaking API changes (AWD-M-08)
+openai==1.109.1  # Upgraded from 1.12.0 — latest 1.x, stays below 2.x (breaking API changes); security patches (AWD-M-39)
 
 # Security fixes for vulnerable packages
 python-multipart==0.0.18  # Fix CVE-2024-53981, PVE-2024-99762
