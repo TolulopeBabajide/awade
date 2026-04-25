@@ -154,7 +154,7 @@ describe('ChildrenPage — loading state', () => {
 
 describe('ChildrenPage — error state', () => {
   it('shows error message when the query fails', async () => {
-    mockApiService.getChildren.mockResolvedValue({ error: 'Network error', data: null })
+    mockApiService.getChildren.mockResolvedValue({ error: 'Network error', data: undefined })
     renderWithProviders(<ChildrenPage />)
 
     await waitFor(() =>
@@ -163,7 +163,7 @@ describe('ChildrenPage — error state', () => {
   })
 
   it('renders a "Try again" button in the error state', async () => {
-    mockApiService.getChildren.mockResolvedValue({ error: 'Timeout', data: null })
+    mockApiService.getChildren.mockResolvedValue({ error: 'Timeout', data: undefined })
     renderWithProviders(<ChildrenPage />)
 
     await waitFor(() =>
@@ -173,8 +173,8 @@ describe('ChildrenPage — error state', () => {
 
   it('"Try again" refetches the data', async () => {
     mockApiService.getChildren
-      .mockResolvedValueOnce({ error: 'Server error', data: null })
-      .mockResolvedValueOnce({ data: { children: [] }, error: undefined })
+      .mockResolvedValueOnce({ error: 'Server error', data: undefined })
+      .mockResolvedValueOnce({ data: { children: [], total: 0 }, error: undefined })
 
     renderWithProviders(<ChildrenPage />)
 
@@ -195,7 +195,7 @@ describe('ChildrenPage — error state', () => {
 
 describe('ChildrenPage — empty state', () => {
   beforeEach(() => {
-    mockApiService.getChildren.mockResolvedValue({ data: { children: [] }, error: undefined })
+    mockApiService.getChildren.mockResolvedValue({ data: { children: [], total: 0 }, error: undefined })
   })
 
   it('renders the empty state heading', async () => {
@@ -238,7 +238,7 @@ describe('ChildrenPage — children grid', () => {
 
   beforeEach(() => {
     mockApiService.getChildren.mockResolvedValue({
-      data: { children: [child1, child2] },
+      data: { children: [child1, child2], total: 2 },
       error: undefined,
     })
   })
@@ -282,7 +282,7 @@ describe('ChildrenPage — children grid', () => {
   it('shows "Curriculum not set" nudge for profiles missing curriculum/grade', async () => {
     const incomplete = makeChild({ child_id: 3, name: 'Test Child 03', curricula_id: null, grade_level_id: null })
     mockApiService.getChildren.mockResolvedValue({
-      data: { children: [incomplete] },
+      data: { children: [incomplete], total: 1 },
       error: undefined,
     })
     renderWithProviders(<ChildrenPage />)
@@ -311,13 +311,13 @@ describe('ChildrenPage — delete flow', () => {
 
   beforeEach(() => {
     mockApiService.getChildren.mockResolvedValue({
-      data: { children: [child] },
+      data: { children: [child], total: 1 },
       error: undefined,
     })
   })
 
   it('calls deleteChild after user confirms', async () => {
-    mockApiService.deleteChild.mockResolvedValue({ error: undefined, data: {} })
+    mockApiService.deleteChild.mockResolvedValue({ error: undefined, data: null })
     renderWithProviders(<ChildrenPage />)
 
     await waitFor(() => expect(screen.getByText('Test Child Delete')).toBeInTheDocument())
