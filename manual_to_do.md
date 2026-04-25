@@ -2,7 +2,7 @@
 
 > Things the agent cannot do autonomously (no GitHub credentials, no secrets access, requires your judgment).
 > Agent updates this file whenever a task needs Tolu's hands. Check it before and after each dev session.
-> Last updated: 2026-04-25 (Dev Agent — AWD-M-42 commit f0dddf4 added)
+> Last updated: 2026-04-25 (Dev Agent — AWD-M-44 commits 2f79fed + 27a45f0 added)
 
 ---
 
@@ -62,6 +62,10 @@ This single push covers all commits — they are already merged to `develop` in 
 | `f97e86b` | M-21 | Docs: update backlog and dev-log for AWD-M-21 |
 | `c423fa9` | M-21 | Chore: update manual_to_do push list |
 | `f0dddf4` | M-42 | Fix: replace bare print() with logger.warning in pdf_service.py |
+| `3bfbbc6` | M-42 | Docs: update backlog, dev-log and manual_to_do for AWD-M-42 |
+| `fb9e718` | M-35 | Security: remove unsafe-inline from CSP script-src |
+| `2f79fed` | M-44 | Test: mark hollow test_rate_limiting as @pytest.mark.skip with backlog reason |
+| `27a45f0` | M-44 | Merge fix/testing/AWD-M-44-fix-hollow-rate-limit-test into develop |
 
 ---
 
