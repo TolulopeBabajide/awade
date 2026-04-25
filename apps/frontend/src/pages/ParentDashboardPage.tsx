@@ -56,7 +56,7 @@ const ParentDashboardPage: React.FC = () => {
       if (!selectedChild) return []
       const res = await apiService.getChildTopics(selectedChild.child_id, selectedSubjectId ?? undefined)
       if (res.error) throw new Error(res.error)
-      return res.data as ChildTopic[]
+      return res.data ?? []
     },
     enabled: !!selectedChild,
   })
