@@ -2,7 +2,7 @@
 
 > Things the agent cannot do autonomously (no GitHub credentials, no secrets access, requires your judgment).
 > Agent updates this file whenever a task needs Tolu's hands. Check it before and after each dev session.
-> Last updated: 2026-04-25 (Dev Agent — AWD-M-21 commits c83bee8 + f97e86b added)
+> Last updated: 2026-04-25 (Dev Agent — AWD-M-42 commit f0dddf4 added)
 
 ---
 
@@ -60,6 +60,8 @@ This single push covers all commits — they are already merged to `develop` in 
 | `fc55014` | M-41 | Merge fix/testing/AWD-M-04-shore-up-service-coverage into develop |
 | `c83bee8` | M-21 | Parents: PDF export for "How to Help" guides (download button + backend endpoint) |
 | `f97e86b` | M-21 | Docs: update backlog and dev-log for AWD-M-21 |
+| `c423fa9` | M-21 | Chore: update manual_to_do push list |
+| `f0dddf4` | M-42 | Fix: replace bare print() with logger.warning in pdf_service.py |
 
 ---
 

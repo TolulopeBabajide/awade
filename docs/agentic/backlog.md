@@ -1,6 +1,6 @@
 # Awade — Backlog
 
-> Last updated: 2026-04-25 (Lead Dev Agent — AWD-M-21 shipped)
+> Last updated: 2026-04-25 (Lead Dev Agent — AWD-M-42 shipped)
 > Last groomed: 2026-04-25 (weekend-ops / Ops Agent) — see notes below. Removed stale items, updated priorities for post-security-sprint phase. Parent pivot code is feature-complete; focus shifts to launch prep + compliance.
 > Source of truth for active work. Completed items move to [`completed_backlog.md`](completed_backlog.md).
 > Issue prefix: `AWD` — e.g., reference as `AWD-H-03` in commits.
@@ -276,6 +276,7 @@ Or: accept the full working-tree version of `children_service.py` (which has bot
 
 | # | Area | Issue | File(s) | Effort |
 |---|------|-------|---------|--------|
+~~| M-42 | Code Hygiene | `pdf_service.py:19` — bare `print()` at module level (import-time). When WeasyPrint is not installed the line `print("Warning: WeasyPrint not available. PDF generation will be disabled.")` fires on every import, writing directly to stdout in production. Violates CLAUDE.md hygiene rule and code-quality checklist. Fix: (1) add `logger = logging.getLogger(__name__)` near the top of the file (or reuse the existing import if one is added later); (2) replace the `print(...)` with `logger.warning("WeasyPrint not available — PDF generation will be disabled.")`. Discovered during spot-check of AWD-M-21 (2026-04-25 QA Agent). | `apps/backend/services/pdf_service.py` (line 19) | S |~~ ✅ 2026-04-25
 ~~| M-26 | Testing | No pytest coverage for `_init_sentry()` in `apps/backend/main.py` (added in AWD-H-01, commit 364762f). Three branches are untested: (a) `SENTRY_DSN` blank → returns early; (b) `ENVIRONMENT=testing` → returns early; (c) `ImportError` → logs warning and returns. Risk is low — all branches are safe no-ops — but testing standards require at least a smoke test. Fix: add `tests/test_sentry_init.py` (or a section in `test_api_endpoints.py`) with three parametrised cases, monkeypatching `os.getenv` and `sentry_sdk.init`. Filed: 2026-04-23 QA. | `apps/backend/main.py` (`_init_sentry`), `apps/backend/tests/` | S |~~ ✅ 2026-04-23
 ~~| M-25 | Testing | `ParentOnboardingPage.test.tsx`: all 9 tests emit `Warning: An update to ParentOnboardingPage inside a test was not wrapped in act(...)`. Tests pass, but the warnings are a flakiness risk in CI and indicate async state settling outside the test boundary. Fix: use `waitFor` or `findBy*` queries (from `@testing-library/react`) in place of immediate `getBy*` assertions where state updates follow user events or query resolution. | `apps/frontend/src/pages/ParentOnboardingPage.test.tsx` | S |~~ ✅ 2026-04-24
 ~~| M-24 | Code Quality | `SignupPage.tsx` lines 55 and 130: `catch (err: any)` — `any` in catch blocks violates the code quality checklist ("Error types in catch blocks are narrowed, not `catch (e: any)`"). Fix: change to `catch (err: unknown)` and narrow with `err instanceof Error ? err.message : 'Unexpected error'` before accessing `.message`. | `apps/frontend/src/pages/SignupPage.tsx` (lines 55, 130) | S |~~ ✅ 2026-04-23

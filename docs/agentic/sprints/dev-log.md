@@ -398,3 +398,4 @@ After removing it, the next hourly run will:
 | 2026-04-25T13:20:00Z | AWD-M-04 | Shore up backend test coverage: children_service guide methods + lesson_plan_service | 3340c8d | ✅ Done | CI:pending |
 2026-04-25T14:10:00Z | AWD-M-41 | Restore typed API interfaces stripped in AWD-M-04 test commit | e3627b9 → merge fc55014 | ✅ Done | CI:pending
 2026-04-25T15:18:00Z | AWD-M-21 | Guide PDF export: GET /api/guides/{id}/export + download button in GuideViewPage | c83bee8 | ✅ Done | CI:pending (push blocked — Tolu must `git push origin develop`)
+2026-04-25T17:10:00Z | M-42 | Replace bare print() with logger.warning in pdf_service.py | f0dddf4 | ✅ Done | CI:pending (push blocked in sandbox)

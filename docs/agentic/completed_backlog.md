@@ -290,3 +290,12 @@
 - `apps/backend/tests/test_children_router.py`: Added `TestExportGuidePdf` class with 6 tests: 401 unauthenticated, 404 guide not found, 422 no content, 422 malformed content, 503 WeasyPrint unavailable, 200 happy path (PDFService mocked).
 **Validation**: tsc 0 errors · eslint 0 errors · vitest 72/72 passing · openapi.json ✅ (valid JSON; full regen needed locally — spec predates parent pivot)
 **Note**: Push to origin/develop blocked — Tolu must run `git push origin develop` to trigger CI.
+
+---
+
+## AWD-M-42 — Replace bare `print()` with `logger.warning()` in `pdf_service.py`
+**Completed**: 2026-04-25
+**Commit**: f0dddf4
+**Fix**: Added `import logging` and `logger = logging.getLogger(__name__)` to `apps/backend/services/pdf_service.py`; replaced the bare `print("Warning: WeasyPrint not available. PDF generation will be disabled.")` in the `except ImportError` block with `logger.warning("WeasyPrint not available — PDF generation will be disabled.")`. Eliminates stdout pollution on every module import and aligns with CLAUDE.md code hygiene rules.
+**Validation**: tsc 0 errors · eslint 0 errors · vitest 72/72 passing · openapi.json ✅ · mcp.json ✅
+**Note**: Push to origin/develop blocked in sandbox — Tolu must run `git push origin develop` to trigger CI.
