@@ -2,7 +2,7 @@
 
 > Things the agent cannot do autonomously (no GitHub credentials, no secrets access, requires your judgment).
 > Agent updates this file whenever a task needs Tolu's hands. Check it before and after each dev session.
-> Last updated: 2026-04-25 (Dev Agent — AWD-M-41 merge fc55014 added)
+> Last updated: 2026-04-25 (Dev Agent — AWD-M-21 commits c83bee8 + f97e86b added)
 
 ---
 
@@ -58,6 +58,8 @@ This single push covers all commits — they are already merged to `develop` in 
 | `91b2740` | M-15 | Merge fix/frontend/AWD-M-15-api-types into develop |
 | `e3627b9` | M-41 | Fix: restore typed API interfaces stripped in AWD-M-04 test commit |
 | `fc55014` | M-41 | Merge fix/testing/AWD-M-04-shore-up-service-coverage into develop |
+| `c83bee8` | M-21 | Parents: PDF export for "How to Help" guides (download button + backend endpoint) |
+| `f97e86b` | M-21 | Docs: update backlog and dev-log for AWD-M-21 |
 
 ---
 
