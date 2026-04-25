@@ -212,3 +212,17 @@
 **Completed**: 2026-04-25
 **Commits**: a762c11 (recovery) / f4ebdb3 (pending changes)
 **Change**: Detected that commit `af7f7b5` (chore: add QA entry for AWD-M-12, dated 2026-04-24) had accidentally deleted 266 of 267 tracked files from the git tree while leaving them on disk. `git ls-tree HEAD` showed only 8 files; `git ls-tree b606c38` showed 266 files. All subsequent commits (M-39, M-40, M-38) built on the corrupted tree. Recovery: (1) ran `git read-tree b606c38` to restore the full 266-file index; (2) re-staged M-38/M-39/M-40 working-tree changes explicitly; (3) committed recovery (`a762c11`, 267 files); (4) staged remaining pending on-disk changes not in b606c38 (AWD-H-39 .env.example, AWD-M-05 GuideViewPage + tests, AWD-M-03 package.json + setup-hooks.sh, new test files) and committed (`f4ebdb3`, 272 files). Working tree is now clean. **Tolu must `git push origin develop`** to restore origin/develop (currently 7 files) to the full 272-file codebase and unblock CI.
+
+## AWD-H-41 — Fix GuideViewPage.test.tsx TypeScript errors and failing test
+**Completed**: 2026-04-25
+**Commit**: f9605aa (fix), b5bc031 (merge into develop)
+**Change**: Removed unused `import React from 'react'` (TS6133); changed 5× `error: null` to `error: undefined` in mock return values (TS2322 — `ApiResponse.error` is `string | undefined`, not `string | null`); wrapped the heading assertion in the `generateGuide` path test inside its own `await waitFor(...)` block so React Query state has settled before the assertion runs. All 72 frontend tests pass; TypeScript and lint clean. **Tolu must `git push origin develop`** to trigger CI.
+
+## AWD-M-39 — Upgrade openai dependency to 1.109.1 + use safe_context in cache metadata
+**Completed**: 2026-04-25
+**Commits**: 3b2c067 (fix), 015b8f1 (merge into develop)
+**Changes**:
+- `apps/backend/requirements.txt`: upgraded `openai==1.12.0` → `openai==1.109.1` (latest 1.x; stays below 2.x which has breaking API changes). Closes the ~97-minor-version gap and picks up all security patches in the 1.x series.
+- `packages/ai/gpt_service.py` line 505: changed `"context": context` → `"context": safe_context` in `prompt_metadata` dict. The sanitised value (length-capped, PII-stripped, injection-scrubbed) is now what gets stored in the Redis cache metadata — defence-in-depth, consistent with how it's already used in the actual prompt.
+- All validation green: TypeScript 0 errors, lint 0 warnings, 72/72 frontend tests pass, openapi.json and mcp.json valid. Backend tests skipped in sandbox (broken macOS venv on Linux — pre-existing issue).
+**Note**: Push to origin/develop blocked by missing GitHub credentials in sandbox — Tolu must run `git push origin develop` locally to trigger CI.
