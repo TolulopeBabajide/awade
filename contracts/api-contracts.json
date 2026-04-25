@@ -1,0 +1,908 @@
+{
+  "version": "2.0.0",
+  "description": "API Contracts for Awade Platform - Updated to reflect current implementation",
+  "contracts": {
+    "lesson_plans": {
+      "generate_lesson_plan": {
+        "endpoint": "/api/lesson-plans/generate",
+        "method": "POST",
+        "request_schema": {
+          "type": "object",
+          "required": ["subject", "grade_level", "topic", "user_id"],
+          "properties": {
+            "subject": {
+              "type": "string",
+              "description": "Subject area (e.g., Mathematics, Science)"
+            },
+            "grade_level": {
+              "type": "string",
+              "description": "Grade level (e.g., JSS 1, Grade 4)"
+            },
+            "topic": {
+              "type": "string",
+              "description": "Specific topic within the subject (e.g., Fractions, Photosynthesis)"
+            },
+            "user_id": {
+              "type": "integer",
+              "description": "User ID of the lesson plan author"
+            }
+          }
+        },
+        "response_schema": {
+          "type": "object",
+          "required": ["lesson_id", "title", "subject", "grade_level", "author_id", "created_at", "updated_at", "status"],
+          "properties": {
+            "lesson_id": {
+              "type": "integer"
+            },
+            "title": {
+              "type": "string"
+            },
+            "subject": {
+              "type": "string"
+            },
+            "grade_level": {
+              "type": "string"
+            },
+            "topic": {
+              "type": "string"
+            },
+            "author_id": {
+              "type": "integer"
+            },
+            "duration_minutes": {
+              "type": "integer"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "status": {
+              "type": "string",
+              "enum": ["draft", "edited", "reviewed", "exported", "archived"]
+            },
+            "curriculum_learning_objectives": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "curriculum_contents": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      },
+      "get_lesson_plans": {
+        "endpoint": "/api/lesson-plans",
+        "method": "GET",
+        "request_schema": {
+          "type": "object",
+          "properties": {
+            "skip": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 100
+            },
+            "subject": {
+              "type": "string"
+            },
+            "grade_level": {
+              "type": "string"
+            }
+          }
+        },
+        "response_schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "lesson_id": {
+                "type": "integer"
+              },
+              "title": {
+                "type": "string"
+              },
+              "subject": {
+                "type": "string"
+              },
+              "grade_level": {
+                "type": "string"
+              },
+              "topic": {
+                "type": "string"
+              },
+              "author_id": {
+                "type": "integer"
+              },
+              "duration_minutes": {
+                "type": "integer"
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "status": {
+                "type": "string"
+              },
+              "curriculum_learning_objectives": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "curriculum_contents": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      },
+      "get_lesson_plan": {
+        "endpoint": "/api/lesson-plans/{lesson_id}",
+        "method": "GET",
+        "request_schema": {},
+        "response_schema": {
+          "type": "object",
+          "properties": {
+            "lesson_id": {
+              "type": "integer"
+            },
+            "title": {
+              "type": "string"
+            },
+            "subject": {
+              "type": "string"
+            },
+            "grade_level": {
+              "type": "string"
+            },
+            "topic": {
+              "type": "string"
+            },
+            "author_id": {
+              "type": "integer"
+            },
+            "duration_minutes": {
+              "type": "integer"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "status": {
+              "type": "string"
+            },
+            "curriculum_learning_objectives": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "curriculum_contents": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      },
+      "update_lesson_plan": {
+        "endpoint": "/api/lesson-plans/{lesson_id}",
+        "method": "PUT",
+        "request_schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "subject": {
+              "type": "string"
+            },
+            "grade_level": {
+              "type": "string"
+            },
+            "topic": {
+              "type": "string"
+            },
+            "duration_minutes": {
+              "type": "integer"
+            },
+            "status": {
+              "type": "string",
+              "enum": ["draft", "edited", "reviewed", "exported", "archived"]
+            },
+            "learning_objectives": {
+              "type": "string"
+            },
+            "topic_content": {
+              "type": "string"
+            }
+          }
+        },
+        "response_schema": {
+          "type": "object",
+          "properties": {
+            "lesson_id": {
+              "type": "integer"
+            },
+            "title": {
+              "type": "string"
+            },
+            "subject": {
+              "type": "string"
+            },
+            "grade_level": {
+              "type": "string"
+            },
+            "topic": {
+              "type": "string"
+            },
+            "author_id": {
+              "type": "integer"
+            },
+            "duration_minutes": {
+              "type": "integer"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "status": {
+              "type": "string"
+            },
+            "curriculum_learning_objectives": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "curriculum_contents": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      },
+      "delete_lesson_plan": {
+        "endpoint": "/api/lesson-plans/{lesson_id}",
+        "method": "DELETE",
+        "request_schema": {},
+        "response_schema": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          }
+        },
+        "expected_status": 200
+      },
+      "generate_lesson_resource": {
+        "endpoint": "/api/lesson-plans/{lesson_id}/resources/generate",
+        "method": "POST",
+        "request_schema": {
+          "type": "object",
+          "required": ["lesson_plan_id", "user_id"],
+          "properties": {
+            "lesson_plan_id": {
+              "type": "integer"
+            },
+            "user_id": {
+              "type": "integer"
+            },
+            "context_input": {
+              "type": "string"
+            }
+          }
+        },
+        "response_schema": {
+          "type": "object",
+          "properties": {
+            "lesson_resources_id": {
+              "type": "integer"
+            },
+            "lesson_plan_id": {
+              "type": "integer"
+            },
+            "user_id": {
+              "type": "integer"
+            },
+            "context_input": {
+              "type": "string"
+            },
+            "ai_generated_content": {
+              "type": "string"
+            },
+            "user_edited_content": {
+              "type": "string"
+            },
+            "export_format": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "expected_status": 200
+      },
+      "review_lesson_resource": {
+        "endpoint": "/api/lesson-plans/resources/{resource_id}/review",
+        "method": "PUT",
+        "request_schema": {
+          "type": "object",
+          "required": ["user_edited_content"],
+          "properties": {
+            "user_edited_content": {
+              "type": "string"
+            }
+          }
+        },
+        "response_schema": {
+          "type": "object",
+          "properties": {
+            "lesson_resources_id": {
+              "type": "integer"
+            },
+            "lesson_plan_id": {
+              "type": "integer"
+            },
+            "user_id": {
+              "type": "integer"
+            },
+            "context_input": {
+              "type": "string"
+            },
+            "ai_generated_content": {
+              "type": "string"
+            },
+            "user_edited_content": {
+              "type": "string"
+            },
+            "export_format": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "expected_status": 200
+      }
+    },
+    "curriculum": {
+      "get_curriculums": {
+        "endpoint": "/api/curriculum",
+        "method": "GET",
+        "request_schema": {
+          "type": "object",
+          "properties": {
+            "skip": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 100
+            },
+            "country_id": {
+              "type": "integer"
+            }
+          }
+        },
+        "response_schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "curriculum_id": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "country_id": {
+                "type": "integer"
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      },
+      "get_curriculum": {
+        "endpoint": "/api/curriculum/{curriculum_id}",
+        "method": "GET",
+        "request_schema": {},
+        "response_schema": {
+          "type": "object",
+          "properties": {
+            "curriculum_id": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "country_id": {
+              "type": "integer"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "expected_status": 200
+      },
+      "get_topics": {
+        "endpoint": "/api/curriculum/topics",
+        "method": "GET",
+        "request_schema": {
+          "type": "object",
+          "properties": {
+            "skip": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 100
+            },
+            "curriculum_structure_id": {
+              "type": "integer"
+            }
+          }
+        },
+        "response_schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "topic_id": {
+                "type": "integer"
+              },
+              "topic_title": {
+                "type": "string"
+              },
+              "curriculum_structure_id": {
+                "type": "integer"
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      },
+      "get_topic": {
+        "endpoint": "/api/curriculum/topics/{topic_id}",
+        "method": "GET",
+        "request_schema": {},
+        "response_schema": {
+          "type": "object",
+          "properties": {
+            "topic_id": {
+              "type": "integer"
+            },
+            "topic_title": {
+              "type": "string"
+            },
+            "curriculum_structure_id": {
+              "type": "integer"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "expected_status": 200
+      },
+      "get_learning_objectives": {
+        "endpoint": "/api/curriculum/topics/{topic_id}/learning-objectives",
+        "method": "GET",
+        "request_schema": {},
+        "response_schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "objective_id": {
+                "type": "integer"
+              },
+              "objective": {
+                "type": "string"
+              },
+              "topic_id": {
+                "type": "integer"
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      },
+      "get_contents": {
+        "endpoint": "/api/curriculum/topics/{topic_id}/contents",
+        "method": "GET",
+        "request_schema": {},
+        "response_schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "content_id": {
+                "type": "integer"
+              },
+              "content_area": {
+                "type": "string"
+              },
+              "topic_id": {
+                "type": "integer"
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      }
+    },
+    "auth": {
+      "google_auth": {
+        "endpoint": "/api/auth/google",
+        "method": "POST",
+        "request_schema": {
+          "type": "object",
+          "required": ["credential"],
+          "properties": {
+            "credential": {
+              "type": "string",
+              "description": "Google OAuth ID token"
+            }
+          }
+        },
+        "response_schema": {
+          "type": "object",
+          "properties": {
+            "access_token": {
+              "type": "string"
+            },
+            "token_type": {
+              "type": "string"
+            },
+            "user": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "integer"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "full_name": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                },
+                "country": {
+                  "type": "string"
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      },
+      "signup": {
+        "endpoint": "/api/auth/signup",
+        "method": "POST",
+        "request_schema": {
+          "type": "object",
+          "required": ["email", "password", "full_name"],
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email"
+            },
+            "password": {
+              "type": "string",
+              "minLength": 8
+            },
+            "full_name": {
+              "type": "string"
+            },
+            "country": {
+              "type": "string"
+            }
+          }
+        },
+        "response_schema": {
+          "type": "object",
+          "properties": {
+            "access_token": {
+              "type": "string"
+            },
+            "token_type": {
+              "type": "string"
+            },
+            "user": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "integer"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "full_name": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                },
+                "country": {
+                  "type": "string"
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      },
+      "forgot_password": {
+        "endpoint": "/api/auth/forgot-password",
+        "method": "POST",
+        "request_schema": {
+          "type": "object",
+          "required": ["email"],
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email"
+            }
+          }
+        },
+        "response_schema": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          }
+        },
+        "expected_status": 200
+      },
+      "reset_password": {
+        "endpoint": "/api/auth/reset-password",
+        "method": "POST",
+        "request_schema": {
+          "type": "object",
+          "required": ["token", "new_password"],
+          "properties": {
+            "token": {
+              "type": "string"
+            },
+            "new_password": {
+              "type": "string",
+              "minLength": 8
+            }
+          }
+        },
+        "response_schema": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          }
+        },
+        "expected_status": 200
+      }
+    },
+    "countries": {
+      "get_countries": {
+        "endpoint": "/api/countries",
+        "method": "GET",
+        "request_schema": {},
+        "response_schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "country_id": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              },
+              "code": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      }
+    },
+    "subjects": {
+      "get_subjects": {
+        "endpoint": "/api/subjects",
+        "method": "GET",
+        "request_schema": {},
+        "response_schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_id": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      }
+    },
+    "grade_levels": {
+      "get_grade_levels": {
+        "endpoint": "/api/grade-levels",
+        "method": "GET",
+        "request_schema": {},
+        "response_schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "grade_level_id": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      }
+    },
+    "curriculum_structure": {
+      "get_curriculum_structures": {
+        "endpoint": "/api/curriculum-structure",
+        "method": "GET",
+        "request_schema": {
+          "type": "object",
+          "properties": {
+            "subject_id": {
+              "type": "integer"
+            },
+            "grade_level_id": {
+              "type": "integer"
+            },
+            "curriculum_id": {
+              "type": "integer"
+            }
+          }
+        },
+        "response_schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "curriculum_structure_id": {
+                "type": "integer"
+              },
+              "subject_id": {
+                "type": "integer"
+              },
+              "grade_level_id": {
+                "type": "integer"
+              },
+              "curriculum_id": {
+                "type": "integer"
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        },
+        "expected_status": 200
+      }
+    }
+  },
+  "test_configuration": {
+    "base_url": "http://localhost:8000",
+    "timeout": 30,
+    "retry_attempts": 3,
+    "parallel_tests": false,
+    "generate_samples": true,
+    "validate_responses": true,
+    "save_reports": true
+  },
+  "metadata": {
+    "last_updated": "2024-07-27T12:30:00Z",
+    "version": "2.0.0",
+    "maintainer": "Awade Development Team",
+    "description": "Updated API contract definitions for the Awade platform reflecting current implementation"
+  }
+} 

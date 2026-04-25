@@ -1,0 +1,179 @@
+{
+  "version": "1.0.0",
+  "description": "Documentation Coverage Configuration for Awade",
+  "coverage_thresholds": {
+    "overall_minimum": 70.0,
+    "target_coverage": 80.0,
+    "excellent_coverage": 90.0,
+    "by_category": {
+      "file": 80.0,
+      "function": 75.0,
+      "class": 80.0,
+      "api_endpoint": 90.0,
+      "documentation": 85.0,
+      "configuration": 70.0
+    }
+  },
+  "priority_weights": {
+    "high": 3,
+    "medium": 2,
+    "low": 1
+  },
+  "file_patterns": {
+    "include": [
+      "*.py",
+      "*.md",
+      "*.json",
+      "*.yml",
+      "*.yaml",
+      "*.txt",
+      "*.rst"
+    ],
+    "exclude": [
+      "__pycache__",
+      ".git",
+      "node_modules",
+      "logs",
+      "dist",
+      "build",
+      "*.pyc",
+      ".DS_Store",
+      ".env"
+    ]
+  },
+  "documentation_rules": {
+    "python_files": {
+      "require_file_docstring": true,
+      "require_function_docstrings": true,
+      "require_class_docstrings": true,
+      "min_docstring_length": 20,
+      "require_examples": false,
+      "require_type_hints": true
+    },
+    "markdown_files": {
+      "min_word_count": 100,
+      "require_toc": true,
+      "require_examples": true,
+      "require_code_samples": false,
+      "placeholder_keywords": [
+        "under development",
+        "coming soon",
+        "to be implemented",
+        "placeholder"
+      ]
+    },
+    "api_endpoints": {
+      "require_documentation": true,
+      "require_examples": true,
+      "require_error_responses": true,
+      "require_schema_validation": true
+    },
+    "configuration_files": {
+      "require_comments": true,
+      "require_readme_reference": true,
+      "require_example_values": false
+    }
+  },
+  "quality_metrics": {
+    "word_count_thresholds": {
+      "minimal": 50,
+      "adequate": 200,
+      "comprehensive": 500
+    },
+    "example_coverage": {
+      "target_percentage": 60.0,
+      "high_priority_only": false
+    },
+    "code_sample_coverage": {
+      "target_percentage": 40.0,
+      "required_for_api": true
+    }
+  },
+  "reporting": {
+    "output_formats": ["json", "html", "markdown"],
+    "include_details": true,
+    "include_recommendations": true,
+    "include_trends": true,
+    "save_reports": true,
+    "report_retention_days": 30
+  },
+  "categories": {
+    "file": {
+      "description": "Python source files",
+      "priority": "high",
+      "coverage_target": 80.0
+    },
+    "function": {
+      "description": "Python functions and methods",
+      "priority": "medium",
+      "coverage_target": 75.0
+    },
+    "class": {
+      "description": "Python classes",
+      "priority": "medium",
+      "coverage_target": 80.0
+    },
+    "api_endpoint": {
+      "description": "API endpoints",
+      "priority": "high",
+      "coverage_target": 90.0
+    },
+    "documentation": {
+      "description": "Markdown documentation files",
+      "priority": "high",
+      "coverage_target": 85.0
+    },
+    "configuration": {
+      "description": "Configuration files",
+      "priority": "medium",
+      "coverage_target": 70.0
+    }
+  },
+  "recommendation_rules": {
+    "high_priority_missing": {
+      "threshold": 5,
+      "action": "block_commit",
+      "message": "High priority items missing documentation"
+    },
+    "low_coverage": {
+      "threshold": 70.0,
+      "action": "warn",
+      "message": "Documentation coverage below target"
+    },
+    "placeholder_content": {
+      "threshold": 10,
+      "action": "warn",
+      "message": "Multiple placeholder documentation items found"
+    },
+    "missing_examples": {
+      "threshold": 20,
+      "action": "suggest",
+      "message": "Consider adding examples to documented items"
+    }
+  },
+  "integration": {
+    "pre_commit": {
+      "enabled": true,
+      "fail_on_low_coverage": false,
+      "min_coverage_threshold": 60.0
+    },
+    "ci_cd": {
+      "enabled": true,
+      "fail_on_low_coverage": true,
+      "min_coverage_threshold": 70.0,
+      "generate_report": true
+    },
+    "monitoring": {
+      "enabled": true,
+      "track_trends": true,
+      "alert_on_decline": true,
+      "weekly_reports": true
+    }
+  },
+  "metadata": {
+    "last_updated": "2024-01-01T00:00:00Z",
+    "version": "1.0.0",
+    "maintainer": "Awade Development Team",
+    "description": "Configuration for documentation coverage tracking"
+  }
+} 

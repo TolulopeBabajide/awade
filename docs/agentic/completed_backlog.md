@@ -182,3 +182,28 @@
 **Completed**: 2026-04-25
 **Commit**: 4b52109 (merge 3b930b3)
 **Change**: Updated `_sanitize_user_context` signature in `packages/ai/gpt_service.py` from `(text: str) -> str` to `(text: Optional[str]) -> Optional[str]`. `Optional` was already imported. The method body correctly handles `None` via `if not text: return text`, and the production caller guards with `if context else None`. Type annotation now matches documented and tested behaviour. TypeScript check clean, lint clean.
+
+## AWD-H-39 — GeminiProvider: add explicit request timeout (OWASP LLM10 / Model DoS mitigation)
+**Completed**: 2026-04-25
+**Commit**: pending — code on disk, bash sandbox out of disk space; Tolu must commit and push
+**Change**: Added `DEFAULT_TIMEOUT = 60.0` class variable and `GEMINI_TIMEOUT_SECONDS` env-var override to `GeminiProvider`, mirroring the pattern from `OpenAIProvider` (AWD-H-09). `genai.Client()` now receives `http_options=genai_types.HttpOptions(timeout=self.timeout)` — prevents a hung Gemini call from blocking a FastAPI worker indefinitely. `genai_types` was already imported from the M-39 migration. Updated `test_initialization` in `TestGeminiProvider` (was asserting bare `assert_called_with(api_key=...)` — now checks `http_options` is present). Added `test_initialization_custom_timeout` (GEMINI_TIMEOUT_SECONDS env override). Added `GEMINI_TIMEOUT_SECONDS=60` to `.env.example`. No API changes; no Alembic migration needed.
+**Files changed**: `packages/ai/providers/gemini_provider.py`, `apps/backend/tests/test_ai_providers.py`, `.env.example`
+**Action required**: From the repo root on your Mac:
+  ```
+  git add packages/ai/providers/gemini_provider.py apps/backend/tests/test_ai_providers.py .env.example
+  git commit -m "fix(ai): AWD-H-39 add 60s timeout to GeminiProvider via HttpOptions"
+  git push origin develop
+  ```
+
+## AWD-M-05 — Share-to-WhatsApp button on parent guides
+**Completed**: 2026-04-25
+**Commit**: pending — code on disk, bash sandbox out of disk space; Tolu must commit and push
+**Change**: Added `FaWhatsapp` import and `handleWhatsAppShare()` function to `apps/frontend/src/pages/GuideViewPage.tsx`. The function composes a parent-friendly WhatsApp deep-link including: topic title, subject, grade level, a truncated explanation (≤180 chars), home activity title, and "awade.app" attribution. Uses `window.open('https://wa.me/?text=<encoded>', '_blank', 'noopener,noreferrer')`. Button added to the top bar to the left of the existing bookmark button, with `aria-label="Share this guide on WhatsApp"` for accessibility. Created `apps/frontend/src/pages/GuideViewPage.test.tsx` with 8 tests: loading state, error state, malformed-JSON error state, success render (title + explanation), generate-guide path (child+topic params), WhatsApp button presence, WhatsApp URL shape (correct prefix, topic/subject/grade/activity/branding in decoded text, `_blank` target, `noopener,noreferrer` features), and no-call-when-loading guard. No API changes; no Alembic migration needed.
+**Files changed**: `apps/frontend/src/pages/GuideViewPage.tsx`, `apps/frontend/src/pages/GuideViewPage.test.tsx` (new)
+**Action required**: From the repo root on your Mac:
+  ```
+  cd apps/frontend && npm run test:run  # verify all tests pass
+  git add apps/frontend/src/pages/GuideViewPage.tsx apps/frontend/src/pages/GuideViewPage.test.tsx
+  git commit -m "feat(parents): AWD-M-05 add WhatsApp share button to guide view"
+  git push origin develop
+  ```

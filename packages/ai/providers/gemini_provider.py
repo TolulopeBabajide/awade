@@ -1,4 +1,5 @@
 import os
+import re
 import logging
 from typing import Optional
 from .base import LLMProvider
@@ -17,18 +18,27 @@ except ImportError:
 class GeminiProvider(LLMProvider):
     """
     Google Gemini implementation of LLMProvider.
-    Uses 'gemini-1.5-pro' for standard tier and 'gemini-1.5-flash' for basic tier.
+    Uses 'gemini-flash-latest' for both basic and standard tiers by default.
     """
-    
+
+    # Default request timeout in seconds — prevents FastAPI workers from hanging
+    # indefinitely under network degradation (OWASP LLM10 / Model DoS mitigation).
+    # Override via GEMINI_TIMEOUT_SECONDS env var.
+    DEFAULT_TIMEOUT = 60.0
+
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or os.getenv("GEMINI_API_KEY")
         self.is_configured = False
-        
+        self.timeout = float(os.getenv("GEMINI_TIMEOUT_SECONDS", str(self.DEFAULT_TIMEOUT)))
+
         if GEMINI_AVAILABLE and self.api_key:
             try:
-                self.client = genai.Client(api_key=self.api_key)
+                self.client = genai.Client(
+                    api_key=self.api_key,
+                    http_options=genai_types.HttpOptions(timeout=self.timeout),
+                )
                 self.is_configured = True
-                logger.info("GeminiProvider initialized")
+                logger.info("GeminiProvider initialized (timeout=%.1fs)", self.timeout)
             except Exception as e:
                 logger.error(f"Failed to initialize Gemini client: {e}")
     
@@ -95,7 +105,6 @@ class GeminiProvider(LLMProvider):
                 # Clean up potential markdown formatting (```json ... ```)
                 cleaned_text = text.strip()
                 if cleaned_text.startswith("```"):
-                    import re
                     # Remove opening backticks and optional language identifier
                     # Matches ``` followed by optional whitespace, optional language, and optional whitespace/newline
                     cleaned_text = re.sub(r"^```\s*[a-zA-Z]*\s*", "", cleaned_text)

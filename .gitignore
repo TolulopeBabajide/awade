@@ -1,0 +1,133 @@
+# GRC / audit reports (sensitive — keep local)
+awade_grc_audit.docx
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.staging
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Cache
+cache/
+.cache/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker
+.dockerignore
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+
+# Build outputs
+dist/
+build/
+*.tgz
+*.tar.gz
+
+# Temporary files
+*.tmp
+*.temp
+
+# Private scripts (contain sensitive operations and development tools)
+scripts/private/
+scripts/public/
+
+# Internal documentation (contains sensitive information)
+docs/internal/
+docs/private/
+
+# Platform Builder Development (separate from main project)
+platform-builder/
+platform-templates/
+platform-configs/
+platform-docs/
+platform/
+
+# Development and testing files
+DEVELOPMENT_SPRINT_GUIDE.md
+WORKFLOW_GUIDE.md
+TODO.md
+
+
+
+# Test data and population scripts
+*populate_*.py
+*create_*.py
+*drop_*.py
+
+# Logs and cache
+logs/
+*.log
+cache/
+.pytest_cache/
+
+# Agentic framework — keep local, do not commit
+# (installed 2026-04-20 from agentic-team-template, adapted for Awade)
+CLAUDE.md
+project-config.md
+.claude/
+docs/agentic/

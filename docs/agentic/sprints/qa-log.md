@@ -4,6 +4,272 @@
 
 ---
 
+## QA — 2026-04-25T~hourly — Sandbox still down; file-based spot-check of pending AWD-H-40 (lesson_plans export)
+
+**Result**: ⚠️ BLOCKED (sandbox) + ✅ Spot-check PASS
+
+**Step 0**: `git log` unavailable — bash sandbox fails with `useradd: No space left on device` (8th+ consecutive cycle). Cannot confirm new commits in last 40 minutes. Proceeding to file-based spot-check of the latest pending fix (AWD-H-40, applied by previous dev cycle).
+
+| Check | Result |
+|-------|--------|
+| TypeScript (`tsc --noEmit`) | ❌ BLOCKED — bash sandbox unavailable |
+| Lint (`npm run lint`) | ❌ BLOCKED — bash sandbox unavailable |
+| Frontend tests (`npm run test:run`) | ❌ BLOCKED — bash sandbox unavailable |
+| Backend tests (`pytest`) | ❌ BLOCKED — bash sandbox unavailable |
+| OpenAPI valid | ✅ No API surface changes in H-40 — no recheck needed |
+| Spot-check (file tools) | ✅ Clean — see below |
+| CI on develop | ❓ Unknown — gh CLI unavailable; pending commits not yet pushed |
+
+**Spot-check — `apps/backend/routers/lesson_plans.py` (AWD-H-40)**:
+- `import logging` at module top (line 18) ✅
+- `logger = logging.getLogger(__name__)` declared at module scope (line 39) ✅
+- `except HTTPException: raise` handler preserves HTTP exceptions correctly ✅
+- `except Exception:` block calls `logger.error("Unexpected error exporting lesson resource %s", resource_id, exc_info=True)` — no `str(e)` in message ✅
+- `HTTPException(status_code=500, detail="An error occurred while exporting the resource.")` — static detail, no internal info disclosed ✅
+- No hardcoded secrets, no `console.log`/`print()`, no `@ts-ignore`, no TODO/FIXME ✅
+- Auth guards unchanged (`require_educator`, `require_admin_or_educator`) ✅
+
+**Spot-check — `apps/backend/tests/test_lesson_plans_router.py` (AWD-H-40)**:
+- File exists at `apps/backend/tests/test_lesson_plans_router.py` ✅
+- `_make_user()` and `_make_resource()` use `User()` / `LessonResource()` constructors (not `__new__`) — avoids SQLAlchemy `_sa_instance_state=None` bug (fixed in AWD-H-27) ✅
+- `teardown_method` clears `app.dependency_overrides` ✅
+- 7 test cases present: `test_resource_not_found_returns_404`, `test_cross_user_export_returns_403`, `test_admin_can_export_any_resource`, `test_unsupported_format_returns_400`, `test_unexpected_error_returns_static_detail` (H-40 core assertion — asserts `secret_message not in detail`), `test_pdf_export_happy_path`, `test_docx_export_happy_path` ✅
+- Core assertion uses `RuntimeError("WeasyPrint internal traceback: /etc/secrets/db.cred")` as `side_effect` — verifies the exact leakage vector is blocked ✅
+
+**Pending commits on disk (not yet in git)**:
+- AWD-H-40: `fix(lesson-plans): AWD-H-40 replace str(e) with static detail in export endpoint`
+- AWD-M-05: `feat(parents): AWD-M-05 add WhatsApp share button to guide view`
+- AWD-H-39: `fix(ai): AWD-H-39 add 60s timeout to GeminiProvider via HttpOptions`
+- AWD-L-12: `style(ai): AWD-L-12 move import re to module top in GeminiProvider`
+
+**Issues filed this cycle**: None — spot-check clean; no new issues observed.
+
+**Verdict**: ⚠️ Needs human — all four pending fixes are code-clean. Tolu must: (1) clear sandbox disk, (2) commit and push all four pending fixes, (3) run CI mirror locally before each push.
+
+---
+
+## QA — 2026-04-25T~hourly — Sandbox still down; file-based spot-check of pending AWD-M-05 (WhatsApp share)
+
+**Result**: ⚠️ BLOCKED (sandbox) + ✅ Spot-check PASS
+
+**Step 0**: `git log` unavailable — bash sandbox fails with `useradd: No space left on device` (7th+ consecutive cycle). Cannot confirm new commits in last 40 minutes. Proceeding to file-based spot-check of the latest pending fix (AWD-M-05, applied by previous dev cycle).
+
+| Check | Result |
+|-------|--------|
+| TypeScript (`tsc --noEmit`) | ❌ BLOCKED — bash sandbox unavailable |
+| Lint (`npm run lint`) | ❌ BLOCKED — bash sandbox unavailable |
+| Frontend tests (`npm run test:run`) | ❌ BLOCKED — bash sandbox unavailable |
+| Backend tests (`pytest`) | ❌ BLOCKED — bash sandbox unavailable |
+| OpenAPI valid | ✅ No API changes in pending commits — no recheck needed |
+| Spot-check | ✅ Clean — see below |
+| CI on develop | ❓ Unknown — gh CLI unavailable; pending commits not yet pushed |
+
+**Spot-check — `apps/frontend/src/pages/GuideViewPage.tsx` (AWD-M-05)**:
+- `FaWhatsapp` imported from `react-icons/fa` at module top ✅
+- `handleWhatsAppShare()` builds wa.me deep-link: topic + subject + grade_level header, truncated explanation (≤180 chars), home activity title, Awade branding footer ✅
+- `window.open(..., '_blank', 'noopener,noreferrer')` — correct security flags ✅
+- Share button has `aria-label="Share this guide on WhatsApp"` ✅
+- No hardcoded secrets, no `console.log`, no `@ts-ignore`, no TODO/FIXME ✅
+- No changes to auth guards or protected routes ✅
+
+**Spot-check — `apps/frontend/src/pages/GuideViewPage.test.tsx` (AWD-M-05)**:
+- File exists alongside `GuideViewPage.tsx` ✅
+- Mocks `apiService.getGuide`, `apiService.generateGuide`, `apiService.toggleGuideBookmark` via `vi.mock` ✅
+- Layout components (Sidebar, MobileNavigation) shimmed out ✅
+- 8 test cases expected (loading/error/success states, WhatsApp URL shape, `window.open` call signature, disabled query) — structure confirmed present ✅
+
+**Pending commits on disk (not yet in git)**:
+- AWD-M-05: `feat(parents): AWD-M-05 add WhatsApp share button to guide view`
+- AWD-H-39: `fix(ai): AWD-H-39 add 60s timeout to GeminiProvider via HttpOptions`
+- AWD-L-12: `style(ai): AWD-L-12 move import re to module top in GeminiProvider`
+
+**Issues filed this cycle**: None — spot-check clean; no new issues observed.
+
+**Verdict**: ⚠️ Needs human — code changes are clean. Tolu must: (1) clear sandbox disk, (2) commit and push M-05 + H-39 + L-12, (3) run CI mirror locally before push.
+
+---
+
+## QA — 2026-04-25T~hourly — Sandbox still down; file-based spot-check of pending H-39 + L-12
+
+**Result**: ⚠️ BLOCKED (sandbox) + ✅ Spot-check PASS
+
+**Step 0**: `git log` unavailable — bash sandbox fails with `useradd: No space left on device` (5th+ consecutive cycle). Cannot confirm new commits in last 40 minutes. Proceeding to file-based spot-check of the two pending (uncommitted) fixes.
+
+| Check | Result |
+|-------|--------|
+| TypeScript (`tsc --noEmit`) | ❌ BLOCKED — bash sandbox unavailable |
+| Lint (`npm run lint`) | ❌ BLOCKED — bash sandbox unavailable |
+| Frontend tests (`npm run test:run`) | ❌ BLOCKED — bash sandbox unavailable |
+| Backend tests (`pytest`) | ❌ BLOCKED — bash sandbox unavailable |
+| OpenAPI valid | ✅ No API changes in pending commits — no recheck needed |
+| Spot-check (file tools) | ✅ Clean — see below |
+| CI on develop | ❓ Unknown — gh CLI unavailable; pending commits not yet pushed |
+
+**Spot-check — `packages/ai/providers/gemini_provider.py` (H-39 + L-12)**:
+- `import re` at module top (line 2) ✅ — L-12 hygiene fix correctly applied
+- `DEFAULT_TIMEOUT = 60.0` class constant present ✅
+- `self.timeout = float(os.getenv("GEMINI_TIMEOUT_SECONDS", str(self.DEFAULT_TIMEOUT)))` ✅ — env override works
+- `http_options=genai_types.HttpOptions(timeout=self.timeout)` passed to `genai.Client(...)` at init ✅ — timeout applied at client level
+- `logger.info("GeminiProvider initialized (timeout=%.1fs)", ...)` ✅ — observability present
+- No hardcoded secrets, no `print()`, no `console.log`, no TODO/FIXME ✅
+
+**Spot-check — `apps/backend/tests/test_ai_providers.py`**:
+- `test_initialization` for GeminiProvider asserts `http_options` is not None ✅
+- `test_initialization_custom_timeout` tests `GEMINI_TIMEOUT_SECONDS` env var override (45s), verifies `provider.timeout == 45.0` and `http_opts.timeout == 45.0` ✅
+
+**Spot-check — `.env.example`**:
+- `GEMINI_TIMEOUT_SECONDS=60` present ✅
+
+**Commits pending push** (on disk, not yet in git):
+- H-39: `fix(ai): AWD-H-39 add 60s timeout to GeminiProvider via HttpOptions`
+- L-12: `style(ai): AWD-L-12 move import re to module top in GeminiProvider`
+
+**Issues**: None new. Sandbox disk-full blocker persists (see AWD-C-05 for git corruption context — same root cause).
+
+**Verdict**: ⚠️ Needs human — code changes are clean; Tolu must: (1) clear sandbox disk, (2) commit and push H-39 + L-12, (3) run CI mirror locally before push.
+
+---
+
+## QA — 2026-04-25T05:30Z — Infrastructure failure: sandbox disk full
+
+**Result**: ❌ BLOCKED — bash sandbox unavailable; all CI mirror checks skipped
+
+| Check | Result |
+|-------|--------|
+| TypeScript | ⚠️ SKIPPED — sandbox unavailable |
+| Lint | ⚠️ SKIPPED — sandbox unavailable |
+| Frontend tests | ⚠️ SKIPPED — sandbox unavailable |
+| Backend tests | ⚠️ SKIPPED — sandbox unavailable |
+| OpenAPI valid | ⚠️ SKIPPED — sandbox unavailable |
+| Spot-check | ⚠️ SKIPPED — sandbox unavailable |
+| CI on develop | ⚠️ Unknown — gh CLI unavailable |
+
+**Root cause**: Linux sandbox fails to start with `useradd: /etc/passwd.*: No space left on device` — volume is full. This is the 4th+ consecutive cycle with this failure (00:00Z, 00:30Z, 05:00Z, 05:30Z).
+
+**Commits checked**: Unable to run `git log` — cannot determine if new commits exist.
+
+**Issues**: Persistent infrastructure blocker prevents all automated validation. No new backlog items filed (cannot observe code changes).
+
+**Verdict**: ⏭ Skip (sandbox unrecoverable this cycle) — **Needs human intervention**
+
+---
+
+## QA — 2026-04-25T05:00Z — No new commits / sandbox still down
+
+**Result**: ⏭ SKIPPED — no new commits on develop since last cycle
+
+**Step 0 check**: `refs/heads/develop` = `7cb442c` (unchanged from prior QA run at 00:30Z). No commits in the last 40 minutes. Stopping per task instructions.
+
+**Infrastructure note**: Bash sandbox has failed with "No space left on device" for 3+ consecutive cycles (Dev abort at 00:00Z, QA at 00:30Z, QA at 05:00Z). Until Tolu clears the sandbox disk, ALL automated CI mirror checks remain blocked: TypeScript, lint, frontend tests, backend tests. Only file-based spot-checks and direct JSON validation are possible.
+
+**Pending actions for Tolu**:
+1. Clear sandbox disk (or wait for scheduled cleanup) so automated checks can resume
+2. Run CI mirror locally for the three commits covered in the 00:30Z QA run: `cd apps/frontend && npx tsc --noEmit && npm run lint && npm run test:run` + `cd apps/backend && python -m pytest tests/ -v`
+3. Repair `refs/heads/develop` git corruption (AWD-C-05) and push H-39 fix to origin
+
+**Verdict**: ⏭ Skip (no new code to validate)
+
+---
+
+## QA — 2026-04-25T00:30Z — AWD-M-39 Gemini migration · AWD-M-40 postcss patch · AWD-M-38 Optional type fix
+
+**Result**: ⚠️ BLOCKED — bash sandbox out of disk space; automated checks unavailable; spot-check clean with one new finding (H-39 filed)
+
+**Context**: This run covers three unvalidated commits from 2026-04-24T21:39Z–23:17Z UTC that were not QA'd in the preceding cycle (the QA run that would have covered them was also blocked by sandbox disk space). The "40 minutes ago" Step 0 window technically excludes all three commits from the vantage point of this run; however, the QA log has no entry validating them, so this run provides the catch-up validation.
+
+**Commits**:
+- `20e88d4` — `fix(ai): AWD-M-39 migrate GeminiProvider from deprecated google-generativeai to google-genai`
+- `e7a1d51` — `fix(deps): AWD-M-40 npm audit fix — patch postcss XSS (GHSA-qx2v-qp2m-jg93)`
+- `4b52109` — `fix(ai): AWD-M-38 correct _sanitize_user_context type to Optional[str]`
+- `3b930b3`, `f8db6f1` — backlog/dev-log update commits
+
+**Files changed (code)**:
+- `packages/ai/providers/gemini_provider.py` (M-39)
+- `apps/frontend/package-lock.json` (M-40)
+- `packages/ai/gpt_service.py` line 231 (M-38)
+
+| Check | Result |
+|-------|--------|
+| TypeScript (`tsc --noEmit`) | ❌ BLOCKED — bash sandbox "No space left on device" |
+| Lint (`npm run lint`) | ❌ BLOCKED — bash sandbox unavailable |
+| Frontend tests (`npm run test:run`) | ❌ BLOCKED — bash sandbox unavailable |
+| Backend tests (`pytest`) | ❌ BLOCKED — bash sandbox unavailable |
+| OpenAPI valid | ✅ `apps/backend/app/openapi.json` exists and opens as valid JSON (read directly — no API changes in these commits) |
+| Spot-check | ✅ Clean — see findings below |
+| CI on develop | ❓ unknown — `gh` CLI unavailable; `refs/heads/develop` = `7cb442c` (see git note below) |
+
+**Spot-check findings**:
+
+*M-39 — Gemini SDK migration*
+- `from google import genai` and `from google.genai import types as genai_types` correctly replaces deprecated `google-generativeai` imports ✅
+- `genai.Client(api_key=...)` initialisation uses the new SDK API ✅
+- `client.models.generate_content(model=..., contents=..., config=...)` matches new SDK call signature ✅
+- `google-genai==1.14.0` pinned in `requirements.txt` ✅
+- Safety settings configured via `genai_types.SafetySetting` ✅
+- `ImportError` guard retained; logs warning if package missing ✅
+- **⚠️ New finding — AWD-H-39 filed**: `generate_content()` has no explicit request timeout on the `client.models.generate_content(...)` call. H-09 added a timeout to `OpenAIProvider`; the Gemini provider was not updated to match. A hung Gemini request can block a worker indefinitely (OWASP LLM10 — Model DoS).
+- L-12 already in backlog (stale docstring + inline `import re`) — no new item needed ✅
+
+*M-40 — postcss XSS patch*
+- `node_modules/postcss` resolved to version `8.5.10` in `package-lock.json` ✅ (GHSA-qx2v-qp2m-jg93 patched at 8.4.31; 8.5.10 is well past the fix) ✅
+- No application code changes; pure dependency lock update ✅
+
+*M-38 — Optional[str] type annotation*
+- `def _sanitize_user_context(self, text: Optional[str]) -> Optional[str]` at line 231 — correctly updated ✅
+- `Optional` already imported at module top ✅
+- Production caller guard (`if context else None`) unchanged ✅
+
+*General*
+- No hardcoded secrets or API keys ✅
+- No `console.log` / `print()` / debug statements in any changed file ✅
+- No `@ts-ignore` or suppression directives ✅
+- No TODO/FIXME comments ✅
+- No changes to protected routes or auth guards ✅
+
+**Git ref note**: `refs/heads/develop` (loose) = `7cb442c` — this SHA does not appear in `logs/refs/heads/develop` (ends at `f8db6f1`). `packed-refs` still has `af7f7b5c` as the packed develop ref. C-05 (git repo corruption) is still open in the backlog and this discrepancy suggests the ref file was re-corrupted or partially updated after the C-05 recovery attempt. Tolu must verify and repair.
+
+**Infrastructure note**: Bash sandbox continues to fail with "No space left on device" — same blocker as the 2026-04-25T00:00Z dev cycle abort. ALL automated CI mirror checks are blocked until disk is cleared. Tolu must clear the sandbox disk before the next automated run can validate anything.
+
+**Issues filed**: AWD-H-39 (Gemini timeout)
+
+**Verdict**: ⚠️ Needs human — spot-check clean for all three commits; H-39 filed for missing Gemini timeout. Run CI mirror locally (`cd apps/frontend && npx tsc --noEmit && npm run lint && npm run test:run` + `cd apps/backend && python -m pytest tests/ -v`) before merging to main. Git corruption (C-05) still needs Tolu to repair refs/heads/develop locally.
+
+---
+
+## QA — 2026-04-24T20:37:04Z — AWD-M-12 prompt injection fence + input sanitisation
+
+**Result**: ✅ PASS (backend tests skipped — see note)
+**Commits**: `322e9e5` (feat: AWD-M-12 fence user context) · `b606c38` (chore: mark done) · `af7f7b5` (chore: qa)
+**Files changed (code)**: `packages/ai/gpt_service.py`, `packages/ai/prompts.py`, `apps/backend/tests/test_ai_providers.py`
+
+| Check | Result |
+|-------|--------|
+| TypeScript (`tsc --noEmit`) | ✅ 0 errors |
+| Lint (`npm run lint`) | ✅ 0 errors, 0 warnings |
+| Frontend tests (`npm run test:run`) | ✅ 63 passing, 0 failing |
+| Backend tests (`pytest`) | ⚠️ SKIPPED — venv/bin/python is a broken symlink to python3.13 (unavailable in sandbox). Run locally: `cd apps/backend && python -m pytest tests/test_ai_providers.py -v` |
+| OpenAPI valid | ✅ `apps/backend/app/openapi.json` parses cleanly |
+| Spot-check | ✅ Clean — see findings below |
+| CI on develop | ❓ unknown — `gh` CLI not available in sandbox |
+
+**Spot-check findings**:
+- `_sanitize_user_context()` added with 3-layer defence: truncation at 2000 chars, PII stripping (reuses `_sanitize_input`), regex scrub of 10 injection patterns ✅
+- Caller `generate_lesson_resource` correctly applies `_sanitize_user_context(context)` before building `prompt_params` ✅
+- `COMPREHENSIVE_LESSON_RESOURCE_PROMPT` now wraps `{local_context}` in `<user_context>` XML tags with an IMPORTANT: instruction telling the model to treat the field as data only ✅
+- 11 new tests in `TestSanitizeUserContext` covering: clean passthrough, None/empty input, truncation, PII redaction (email, API key), injection scrubbing (ignore/jailbreak/fake role tags/disregard), and end-to-end `generate_lesson_resource` injection test ✅
+- `generate_parent_guide` does NOT use `_sanitize_user_context` — verified intentional: all parent guide params (topic, subject, grade, country, curriculum, objectives) come from the curriculum DB, not free-form user input. No injection surface there ✅
+- No hardcoded secrets or API keys ✅
+- No `console.log` / `print()` / debug statements ✅
+- No `@ts-ignore` or suppression directives ✅
+- No TODO/FIXME comments ✅
+
+**Minor issue found (AWD-M-38 filed)**:
+- `_sanitize_user_context` is typed `(text: str) -> str` but the test `test_returns_empty_for_none` documents it accepts `None` and returns `None`. In production the caller guards with `if context else None` so `None` is never passed, but the type annotation is wrong. Should be `Optional[str] -> Optional[str]`. Low priority.
+
+**Verdict**: ✅ Ship — all verifiable checks pass. Tolu must run `python -m pytest apps/backend/tests/test_ai_providers.py -v` locally to confirm the 11 new `TestSanitizeUserContext` tests pass before pushing to production.
+
+---
+
 ## QA — 2026-04-24T18:35:47Z — AWD-H-37 unauthenticated 401 assertion fix
 
 **Result**: ✅ PASS (backend tests skipped — see note)
@@ -1423,3 +1689,47 @@ Issues:
 - No API surface changed — openapi.json regeneration not required.
 
 Verdict: Ship (conditional) — all verifiable checks pass. Tolu must run `cd apps/backend && ../venv/bin/python -m pytest tests/test_ai_providers.py -v` locally to confirm the 11 new tests pass, then `git push origin develop`.
+
+---
+
+## QA — 2026-04-25T23:42Z
+Result: ⚠️ PARTIAL PASS (bash sandbox unavailable — file-based spot-check only)
+Commits covered: AWD-M-38 (`4b52109`, merge `3b930b3`), AWD-M-39 (`20e88d4`, merge `922698d`), AWD-M-40 (`e7a1d51`, merge `13ffad3`) + backlog/dev-log housekeeping commits
+Files (combined across all 3 issues): `packages/ai/gpt_service.py`, `packages/ai/providers/gemini_provider.py`, `apps/frontend/package-lock.json`, `docs/agentic/backlog.md`, `docs/agentic/completed_backlog.md`, `docs/agentic/sprints/dev-log.md`
+
+> ⚠️ Infrastructure note (recurring): Bash sandbox is fully unavailable — `useradd: /etc/passwd.*: No space left on device` on every bash call. This prevents running TypeScript check, ESLint, vitest, pytest, or JSON validators. Checks below are marked ⚠️ env where they could not be executed. Last confirmed test state (QA 2026-04-24T20:22Z): TS ✅ 0 errors · lint ✅ 0 errors · 63 vitest passing · openapi.json ✅ · mcp.json ✅.
+
+> ⚠️ Coverage gap note: AWD-M-39 and AWD-M-40 (2026-04-24T21:00Z and 22:45Z) had no prior QA log entries — their automated QA runs apparently also hit the bash unavailability window. This entry covers them retroactively.
+
+| Check | Result | Notes |
+|-------|--------|-------|
+| TypeScript | ⚠️ env | Bash unavailable. Last confirmed: ✅ 0 errors (2026-04-24T20:22Z). M-38/M-39/M-40 are Python + package-lock only — no TypeScript files touched. Low regression risk. |
+| Lint | ⚠️ env | Bash unavailable. Last confirmed: ✅ 0 errors (2026-04-24T20:22Z). No frontend `.ts/.tsx` files changed. |
+| Frontend tests | ⚠️ env | Bash unavailable. Last confirmed: ✅ 63 passing (2026-04-24T20:22Z). No frontend source files changed in these 3 commits. |
+| Backend tests | ⚠️ env | Bash unavailable (recurring venv + disk issue). Python changes are type-annotation-only (M-38) and Gemini SDK migration (M-39). Cannot execute pytest. |
+| OpenAPI valid | ⚠️ env | Bash unavailable. No API surface changed in M-38/M-39/M-40. Last confirmed: ✅ valid. |
+| Spot-check | ⚠️ See notes | Minor issue in M-39 — see below. All others clean. |
+| CI on develop | ⚠️ Unknown | gh CLI not available in sandbox. Push to origin/develop still pending (HTTPS credentials unavailable). |
+
+**AWD-M-38 spot-check (type annotation fix):**
+- `packages/ai/gpt_service.py` line 231: `def _sanitize_user_context(self, text: Optional[str]) -> Optional[str]` — correct. `Optional` already imported at line 14. Logic `if not text: return text` correctly returns `None` for `None` input. ✅
+- `TestSanitizeUserContext.test_returns_empty_for_none` in `test_ai_providers.py` already documented + tests this path. ✅
+- No hardcoded secrets, no debug prints, no `@ts-ignore`, no TODO/FIXME. ✅
+
+**AWD-M-39 spot-check (Gemini SDK migration):**
+- Import gated: `try: from google import genai ... except ImportError: GEMINI_AVAILABLE = False` — graceful degradation. ✅
+- `genai.Client`, `genai_types.GenerateContentConfig`, `genai_types.SafetySetting` — all correct new API usage. ✅
+- Safety settings for harassment/hate/explicit/dangerous preserved from prior version. ✅
+- No hardcoded secrets, no bare `print()`. ✅
+- **⚠️ Minor — stale class docstring**: Line 20 still reads `"Uses 'gemini-1.5-pro' for standard tier and 'gemini-1.5-flash' for basic tier"` but the code at lines 38-40 returns `gemini-flash-latest` for both tiers. Misleads future maintainers. → filed AWD-L-12.
+- **⚠️ Minor — `import re` inside method body**: Line 98 does `import re` inside `generate_content()` to clean markdown fencing. Per Python convention and code quality standards, module-level imports go at the top. Not a functional issue but worth tidying. → noted in AWD-L-12.
+
+**AWD-M-40 spot-check (postcss audit fix):**
+- `apps/frontend/package.json`: `postcss ^8.4.24` range unchanged (the fix is in `package-lock.json` bumping the transitive dep). No secrets, no console.log. ✅
+- `GHSA-qx2v-qp2m-jg93` is a ReDoS in postcss — patched by version bump. ✅
+
+Issues:
+- **AWD-L-12** (auto-filed): `GeminiProvider` docstring stale (says `gemini-1.5-pro`/`gemini-1.5-flash`, code returns `gemini-flash-latest`); `import re` done inline in `generate_content()` rather than at module top. `packages/ai/providers/gemini_provider.py` lines 20-21 and 98. Fix: update docstring + move `import re` to module top. Effort: S. Filed: 2026-04-25 QA Agent.
+- Bash sandbox at 100% disk (recurring). Backend tests cannot be verified. Tolu must run `cd apps/backend && ../venv/bin/python -m pytest tests/ -v` locally.
+
+Verdict: Ship (conditional) — all spot-checks clean except minor L-12 (stale docstring + import placement, not functional). TypeScript, lint, and frontend tests are expected unchanged (no TS/frontend files touched). Backend test result deferred to local run. Tolu must `git push origin develop` when tests are verified locally.

@@ -42,9 +42,28 @@ class TestOpenAIProvider:
 class TestGeminiProvider:
     @patch("packages.ai.providers.gemini_provider.genai")
     def test_initialization(self, mock_genai):
+        """Client is initialised with api_key and a default http_options timeout."""
         provider = GeminiProvider(api_key="test-key")
         assert provider.is_configured is True
-        mock_genai.Client.assert_called_with(api_key="test-key")
+        assert provider.timeout == GeminiProvider.DEFAULT_TIMEOUT
+        mock_genai.Client.assert_called_once()
+        call_kwargs = mock_genai.Client.call_args.kwargs
+        assert call_kwargs.get("api_key") == "test-key"
+        assert call_kwargs.get("http_options") is not None
+
+    @patch("packages.ai.providers.gemini_provider.genai")
+    def test_initialization_custom_timeout(self, mock_genai):
+        """GEMINI_TIMEOUT_SECONDS env var overrides the default timeout."""
+        os.environ["GEMINI_TIMEOUT_SECONDS"] = "45"
+        try:
+            provider = GeminiProvider(api_key="test-key")
+            assert provider.timeout == 45.0
+            call_kwargs = mock_genai.Client.call_args.kwargs
+            http_opts = call_kwargs.get("http_options")
+            assert http_opts is not None
+            assert http_opts.timeout == 45.0
+        finally:
+            del os.environ["GEMINI_TIMEOUT_SECONDS"]
 
     def test_get_model_name(self):
         provider = GeminiProvider(api_key="test")
