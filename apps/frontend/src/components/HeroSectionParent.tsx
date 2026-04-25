@@ -73,11 +73,17 @@ const HeroSectionParent: React.FC = () => {
           <div className={`hidden md:block relative order-1 lg:order-2 ${isVisible ? 'animate-fade-in' : 'opacity-0'}`} style={{ animationDelay: '0.8s' }}>
             <div className="relative w-full flex items-center justify-center">
               <div className="w-80 lg:w-[28rem] xl:w-[32rem]">
-                <img
-                  src="/assets/ChatGPT Image Aug 12, 2025, 12_54_32 AM.png"
-                  alt="Parent and child learning together"
-                  className="w-full h-full object-contain"
-                />
+                <picture>
+                  <source srcSet="/assets/hero.webp" type="image/webp" />
+                  <img
+                    src="/assets/hero.png"
+                    alt="Parent and child learning together"
+                    className="w-full object-contain"
+                    width={1024}
+                    height={1536}
+                    fetchPriority="high"
+                  />
+                </picture>
               </div>
             </div>
           </div>
