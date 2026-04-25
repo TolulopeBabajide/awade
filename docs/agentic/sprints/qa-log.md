@@ -1733,3 +1733,125 @@ Issues:
 - Bash sandbox at 100% disk (recurring). Backend tests cannot be verified. Tolu must run `cd apps/backend && ../venv/bin/python -m pytest tests/ -v` locally.
 
 Verdict: Ship (conditional) — all spot-checks clean except minor L-12 (stale docstring + import placement, not functional). TypeScript, lint, and frontend tests are expected unchanged (no TS/frontend files touched). Backend test result deferred to local run. Tolu must `git push origin develop` when tests are verified locally.
+
+---
+
+## QA — 2026-04-25T07:38:45Z
+
+**Result**: ❌ FAIL
+**Commits**: a762c11, f4ebdb3, d9e5d53 | **Files**: docs/agentic/completed_backlog.md, docs/agentic/sprints/dev-log.md
+
+| Check | Result |
+|---|---|
+| TypeScript | ❌ 6 errors in `apps/frontend/src/pages/GuideViewPage.test.tsx` |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ❌ 1 failed / 71 passed (72 total) — `GuideViewPage.test.tsx > renders guide via generateGuide...` |
+| Backend tests | ⚠️ Could not run — venv is macOS binary (broken in Linux sandbox); disk space exhausted in sandbox |
+| OpenAPI valid | ✅ |
+| Spot-check (changed files) | ✅ Doc files only; no secrets, no console.log, no ts-ignore, no hardcoded values |
+| CI on develop | ⚠️ unknown — gh CLI not available; Tolu has not pushed to origin yet (origin/develop still at pre-recovery state) |
+
+**Issues**:
+1. **TS errors (6)** — `GuideViewPage.test.tsx`: `React` imported but never read (TS6133); 5× `null` not assignable to `string | undefined` (TS2322 on lines 116, 125, 134, 146, 155) — introduced by commit f4ebdb3 (AWD-M-05 WhatsApp share).
+2. **Frontend test failure (1)** — `GuideViewPage.test.tsx > renders guide via generateGuide when child+topic params are supplied (no guide ID)`: expects heading `/Fractions/i` but component renders empty `<main>` — mock not resolving async state correctly.
+3. **Backend tests skipped** — sandbox venv is macOS Python 3.13 binary, unrunnable on Linux. Disk space exhausted prevents pip install fallback. Structural issue persisting across multiple QA cycles.
+4. **Origin/develop not pushed** — Tolu must `git push origin develop` before CI runs.
+
+**Verdict**: Needs fix — AWD-H-41 filed (see below). Do not promote to main until TS errors and test failure resolved.
+
+---
+
+## QA — 2026-04-25T09:36:04Z
+
+**Result**: ✅ PASS
+**Commits**: b5bc031 (merge), f9605aa (fix GuideViewPage tests) | **Files**: `apps/frontend/src/pages/GuideViewPage.test.tsx`
+
+| Check | Result |
+|---|---|
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 72 passing, 0 failing (7 test files) |
+| Backend tests | ⚠️ skipped — venv `python3.13` is a broken symlink in sandbox (macOS binary, not runnable on Linux); backend files unchanged in this commit so risk is low |
+| OpenAPI valid | ✅ |
+| Spot-check | ✅ No secrets, no console.log, no @ts-ignore, no TODO/FIXME, no missing role checks, no hardcoded keys |
+| CI on develop | unknown — gh CLI not available |
+
+**Issues**: None. AWD-H-41 (`GuideViewPage.test.tsx` TS errors + failing test) was the target of this cycle and is confirmed resolved — all 9 GuideViewPage tests pass cleanly.
+
+**Verdict**: Ship ✅ — ready for Tolu to push `develop` to trigger CI.
+
+---
+
+## QA — 2026-04-25T10:37:22Z
+
+**Result**: ❌ FAIL
+
+**Commits**: `547a4ac` `015b8f1` `3b2c067` | **Files changed**: `apps/backend/requirements.txt`, `packages/ai/gpt_service.py`, `docs/agentic/backlog.md`, `docs/agentic/completed_backlog.md`, `docs/agentic/sprints/dev-log.md`
+
+| Check | Result |
+|---|---|
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 72 passing, 0 failing (7 test files) |
+| Backend tests | ⚠️ skipped — venv is broken symlink to Python 3.13 (not in sandbox); sandbox disk full prevents fallback pip install |
+| OpenAPI valid | ✅ |
+| Spot-check | ❌ CRITICAL security regression (see below) |
+| CI on develop | unknown — gh CLI not available |
+
+**Issues**:
+
+🔴 **CRITICAL — AWD-C-07: Chore commit `547a4ac` accidentally reverted two security fixes from the immediately prior commit `3b2c067`.**
+
+The commit `547a4ac` (chore: mark AWD-M-39 done and update dev-log) was supposed to update only documentation files, but it unexpectedly included changes to two application files that **reversed** the security work from `3b2c067`:
+
+1. **`packages/ai/gpt_service.py` line ~505**: changed `"context": safe_context` back to `"context": context` — raw, unsanitised user input is now stored in cache metadata on the committed HEAD. The `_sanitize_user_context()` guard (which enforces a length cap, strips PII, and scrubs injection patterns) is bypassed for the cache key. This is the exact regression AWD-M-39 was filed to fix.
+
+2. **`apps/backend/requirements.txt`**: downgraded `openai==1.109.1` back to `openai==1.12.0` on the committed HEAD, undoing the security patch upgrade from `3b2c067`.
+
+**Current state of working tree**: Both files in the working tree have the correct values (`safe_context` and `openai==1.109.1`) as uncommitted changes — the fixes are on disk but NOT committed. The committed HEAD on `develop` contains the security regression.
+
+**Verdict**: ❌ STOP — Security regression committed to `develop`. Do not push or promote to `main` until resolved. Fix: amend or revert `547a4ac` to restore `safe_context` and `openai==1.109.1`, then commit the corrected versions.
+
+---
+## QA — 2026-04-25T11:35:00Z
+Result: ✅ PASS
+Commits: fe8d69d, 6880ce3 | Files: apps/backend/requirements.txt, packages/ai/gpt_service.py, docs/agentic/backlog.md, docs/agentic/completed_backlog.md, docs/agentic/sprints/dev-log.md
+| TypeScript        | ✅ 0 errors |
+| Lint              | ✅ 0 errors, 0 warnings |
+| Frontend tests    | ✅ 72 passing, 0 failing (7 test files) |
+| Backend tests     | ⚠️ Skipped — venv symlinks point to python3.13, sandbox has python3.10 (pre-existing environment issue, not introduced by these commits) |
+| OpenAPI valid     | ✅ |
+| Spot-check        | ✅ No hardcoded secrets, no print()/console.log, no @ts-ignore, no TODO/FIXME. safe_context correctly restored in gpt_service.py. openai pinned to 1.109.1 in requirements.txt. |
+| CI on develop     | unknown (gh CLI not available in sandbox) |
+Issues: Backend tests unskippable in sandbox due to pre-existing broken venv symlinks (python3.13 → python3.10 mismatch). All other checks clean.
+Verdict: Ship (pending Tolu's `git push origin develop` and CI green run)
+
+---
+## QA — 2026-04-25T12:35:00Z
+Result: ✅ PASS
+Commits: 91b2740, 663b50a | Files: apps/frontend/src/pages/ChildrenPage.test.tsx, apps/frontend/src/pages/GuideViewPage.tsx, apps/frontend/src/pages/ParentDashboardPage.test.tsx, apps/frontend/src/pages/ParentDashboardPage.tsx, apps/frontend/src/pages/SavedGuidesPage.test.tsx, apps/frontend/src/services/api.ts, apps/frontend/src/types/children.ts
+| TypeScript        | ✅ 0 errors |
+| Lint              | ✅ 0 errors, 0 warnings |
+| Frontend tests    | ✅ 72 passing, 0 failing (7 test files) |
+| Backend tests     | ⚠️ Skipped — pre-existing sandbox issue: venv is a broken symlink to python3.13, sandbox only has python3.10 and no disk space to install pytest |
+| OpenAPI valid     | ✅ |
+| Spot-check        | ✅ No secrets, no @ts-ignore added, no TODO/FIXME added, no dangerouslySetInnerHTML. One pre-existing console.error("Refresh failed", e) at api.ts:72 — not introduced by this commit. Change is purely additive type-safety work: 8 children/guides API methods upgraded from `any` to proper typed interfaces (ChildProfile, ChildProfileCreate, ChildProfileUpdate, ChildProfileListResponse, ChildTopic, ParentGuide, ParentGuideListResponse). Three missing interfaces (ChildProfileUpdate, ChildProfileListResponse, ParentGuideListResponse) added to children.ts. Page imports updated accordingly. |
+| CI on develop     | unknown (gh CLI not available in sandbox) |
+Issues: None. Backend tests remain unskippable in sandbox (pre-existing environment mismatch — not introduced by this commit).
+Verdict: Ship (pending Tolu's `git push origin develop` and CI green run)
+
+---
+## QA — 2026-04-25T13:39:37Z
+Result: ❌ FAIL — Needs fix
+Commits: 7fe0c3b | Files: apps/backend/tests/test_children_service.py, apps/backend/tests/test_lesson_plan_service.py, apps/frontend/src/pages/ChildrenPage.test.tsx, apps/frontend/src/pages/GuideViewPage.tsx, apps/frontend/src/pages/ParentDashboardPage.test.tsx, apps/frontend/src/pages/ParentDashboardPage.tsx, apps/frontend/src/pages/SavedGuidesPage.test.tsx, apps/frontend/src/services/api.ts, apps/frontend/src/types/children.ts
+| TypeScript        | ✅ 0 errors (run on working tree — see issue below) |
+| Lint              | ✅ 0 errors, 0 warnings |
+| Frontend tests    | ✅ 72 passing, 0 failing (7 test files) |
+| Backend tests     | ⚠️ Skipped — pre-existing sandbox issue: venv is a broken symlink to python3.13, sandbox only has python3.10 and no disk space to install pytest |
+| OpenAPI valid     | ✅ |
+| Spot-check        | ❌ Type regression found — see AWD-M-41 below |
+| CI on develop     | unknown (gh CLI not available in sandbox) |
+Issues:
+- **Type regression in committed HEAD**: Commit `7fe0c3b` (test(backend): AWD-M-04) accidentally stripped the typed import block from `api.ts` and deleted 3 interfaces from `children.ts` (`ChildProfileUpdate`, `ChildProfileListResponse`, `ParentGuideListResponse`), reverting the AWD-M-15 type safety work shipped one commit earlier. Six API methods in `api.ts` now return `ApiResponse<any>` in the committed HEAD — a direct violation of the code quality rule "No `any` types added without a `// TODO(AWD-...)` justification". The fix IS in the working tree (uncommitted) but was never staged into the test commit. Working tree also has additional null-guard improvements to `GuideViewPage.tsx` (two `if (!res.data)` guards) and a safe-default fix in `ParentDashboardPage.tsx` (`res.data ?? []` replacing the unsafe `as ChildTopic[]` cast). TypeScript and lint passed only because they ran on the working tree (with the fix), not on the committed HEAD.
+- Auto-filed: AWD-M-41 (see backlog)
+Verdict: Needs fix — commit the working tree changes before pushing develop

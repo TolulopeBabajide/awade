@@ -394,3 +394,6 @@ After removing it, the next hourly run will:
 2026-04-25T09:11:00Z | AWD-H-41 | Fix GuideViewPage.test.tsx TS errors and failing test | f9605aa / merge b5bc031 | ✅ Done | CI:pending (Tolu must `git push origin develop`)
 
 2026-04-25T11:09:59Z | AWD-C-07 | Restore safe_context and openai==1.109.1 reverted by 547a4ac | 6880ce3 | ✅ Done | CI:pending (push blocked — no GH creds in sandbox)
+2026-04-25T12:20:00Z | AWD-M-15 | TypeScript types for children & guides API methods | 663b50a (merge: 91b2740) | ✅ Done | CI:pending (push blocked — Tolu must run `git push origin develop`)
+| 2026-04-25T13:20:00Z | AWD-M-04 | Shore up backend test coverage: children_service guide methods + lesson_plan_service | 3340c8d | ✅ Done | CI:pending |
+2026-04-25T14:10:00Z | AWD-M-41 | Restore typed API interfaces stripped in AWD-M-04 test commit | e3627b9 → merge fc55014 | ✅ Done | CI:pending

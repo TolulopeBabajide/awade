@@ -2,7 +2,7 @@
 
 > Things the agent cannot do autonomously (no GitHub credentials, no secrets access, requires your judgment).
 > Agent updates this file whenever a task needs Tolu's hands. Check it before and after each dev session.
-> Last updated: 2026-04-24 (Dev Agent — AWD-H-37 merge a513468 added)
+> Last updated: 2026-04-25 (Dev Agent — AWD-M-41 merge fc55014 added)
 
 ---
 
@@ -54,6 +54,10 @@ This single push covers all commits — they are already merged to `develop` in 
 | `67d23ce` | H-36 | Merge fix/children/AWD-H-36-restore-batch-subject-fk-query into develop |
 | `af523cd` | H-37 | Test: fix TestUnauthenticated assertion from 403 to 401 |
 | `a513468` | H-37 | Merge fix/children/AWD-H-37-unauthenticated-401-assertion into develop |
+| `663b50a` | M-15 | Frontend: TypeScript types for children & guides API methods |
+| `91b2740` | M-15 | Merge fix/frontend/AWD-M-15-api-types into develop |
+| `e3627b9` | M-41 | Fix: restore typed API interfaces stripped in AWD-M-04 test commit |
+| `fc55014` | M-41 | Merge fix/testing/AWD-M-04-shore-up-service-coverage into develop |
 
 ---
 
