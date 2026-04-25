@@ -402,3 +402,4 @@ After removing it, the next hourly run will:
 2026-04-25T18:14:00Z | AWD-M-35 | Remove unsafe-inline from CSP script-src | fb9e718 | ✅ Done | CI:pending (push required)
 | 2026-04-25T19:14Z | AWD-M-44 | Hollow test_rate_limiting — add @pytest.mark.skip with backlog reason | 2f79fed | ✅ Done | CI:pending (push needed)
 2026-04-25T20:15:00Z | AWD-M-43 | Remove style-src unsafe-inline from CSP | 490b05a (merge: b63adbf) | ✅ Done | CI:pending
+2026-04-25T21:20:00Z | AWD-M-06 | Landing page Lighthouse performance: image optimisation + code splitting | ebf6289 | ✅ Done | CI:pending (push needed)

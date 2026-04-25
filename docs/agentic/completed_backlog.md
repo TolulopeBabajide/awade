@@ -327,3 +327,18 @@
 **Fix**: Removed `'unsafe-inline'` from `style-src` in `SecurityHeadersMiddleware`. React inline `style={{ }}` props are applied via JS DOM API (governed by `script-src`) so no nonce is needed. Added `https://fonts.googleapis.com` to `style-src` and a new `font-src 'self' https://fonts.gstatic.com` directive to keep Google Fonts working. Added two new backend tests: `test_csp_style_src_no_unsafe_inline` and `test_csp_font_src_google_fonts`.
 **Validation**: tsc 0 errors ✅ · lint 0 errors ✅ · frontend tests 72/72 ✅ · openapi.json ✅ · mcp.json ✅
 **Note**: Push to origin/develop blocked in sandbox (HTTPS auth) — Tolu must run `git push origin develop` to trigger CI.
+
+---
+
+**AWD-M-06 — Landing page Lighthouse performance: image optimisation + code splitting**
+**Completed**: 2026-04-25
+**Commit**: 3c0e2be (merge: ebf6289)
+**Fix**: 
+- Converted all 4 landing-page PNGs to WebP (Pillow, quality 80): hero 2.5 MB→182 KB (93%), feature-1 1.2 MB→26 KB (98%), feature-2 2.0 MB→117 KB (94%), feature-3 1.7 MB→57 KB (97%). Total image payload: 7.4 MB → 382 KB.
+- Renamed assets to clean filenames (`hero`, `feature-1/2/3`).
+- Wrapped all hero `<img>` elements in `<picture><source type="image/webp">` for WebP-first delivery with PNG fallback.
+- Added `fetchPriority="high"` + explicit `width`/`height` to hero images (improves LCP and prevents CLS).
+- Added `loading="lazy"` + explicit dimensions to feature images (below fold).
+- Updated `vite.config.ts` with `manualChunks` to split `react-router-dom` and `@tanstack/react-query` into separate vendor bundles, reducing main JS chunk parse time.
+**Validation**: tsc 0 errors ✅ · lint 0 errors ✅ · frontend tests 72/72 ✅ · build (temp dir) ✅ · openapi.json ✅ · mcp.json ✅
+**Note**: Push to origin/develop blocked in sandbox (HTTPS auth) — Tolu must run `git push origin develop` to trigger CI.

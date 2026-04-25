@@ -2,7 +2,7 @@
 
 > Things the agent cannot do autonomously (no GitHub credentials, no secrets access, requires your judgment).
 > Agent updates this file whenever a task needs Tolu's hands. Check it before and after each dev session.
-> Last updated: 2026-04-25 (Dev Agent — AWD-M-43 commits 490b05a + b63adbf added)
+> Last updated: 2026-04-25 (Dev Agent — AWD-M-06 commits 3c0e2be + ebf6289 added)
 
 ---
 
@@ -69,6 +69,8 @@ This single push covers all commits — they are already merged to `develop` in 
 | `4b12ac8` | M-44 | Docs: update manual_to_do push list |
 | `490b05a` | M-43 | Security: remove unsafe-inline from style-src, add font-src |
 | `b63adbf` | M-43 | Merge fix/security/AWD-M-43-remove-style-src-unsafe-inline into develop |
+| `3c0e2be` | M-06 | Perf: optimise landing page images (WebP, picture, fetchPriority) + Vite code splitting |
+| `ebf6289` | M-06 | Merge fix/performance/AWD-M-06-lighthouse-image-optimisation into develop |
 
 ---
 

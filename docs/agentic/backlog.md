@@ -1,6 +1,6 @@
 # Awade — Backlog
 
-> Last updated: 2026-04-25 (Lead Dev Agent — AWD-M-43 shipped)
+> Last updated: 2026-04-25 (Lead Dev Agent — AWD-M-06 shipped)
 > Last groomed: 2026-04-25 (weekend-ops / Ops Agent) — see notes below. Removed stale items, updated priorities for post-security-sprint phase. Parent pivot code is feature-complete; focus shifts to launch prep + compliance.
 > Source of truth for active work. Completed items move to [`completed_backlog.md`](completed_backlog.md).
 > Issue prefix: `AWD` — e.g., reference as `AWD-H-03` in commits.
@@ -287,7 +287,7 @@ Or: accept the full working-tree version of `children_service.py` (which has bot
 ~~| M-03 | DX | Pre-commit hooks for lint + type check (husky + lint-staged) | `.husky/`, `apps/frontend/package.json` | S |~~ ✅ 2026-04-25
 ~~| M-04 | Testing | Backend coverage below 70% threshold in some modules — shore up children_service + lesson_plan_service | `apps/backend/tests/` | M |~~ ✅ 2026-04-25
 ~~| M-05 | Parents | Share-to-WhatsApp button on parent guides (high-engagement channel in target markets) | `apps/frontend/src/pages/GuideViewPage.tsx` | S |~~ ✅ 2026-04-25
-| M-06 | Performance | Landing page Lighthouse performance score warning — audit and fix heaviest assets | `apps/frontend/src/pages/LandingPage.tsx`, `apps/frontend/src/assets/` | M |
+~~| M-06 | Performance | Landing page Lighthouse performance score warning — audit and fix heaviest assets | `apps/frontend/src/pages/LandingPage.tsx`, `apps/frontend/src/assets/` | M |~~ ✅ 2026-04-25
 | M-07 | Content | "How it works" section for parents needs real screenshots, not placeholders | `apps/frontend/src/pages/LandingPage.tsx` (HowItWorksSection) | S |
 ~~| M-08 | Security / Deps | Backend `requirements.txt` uses `>=` minimums — pin exact versions for reproducible builds | `apps/backend/requirements.txt` | S |~~ ✅ 2026-04-24
 ~~| M-09 | Security | Catalog GET endpoints (country / subject / curriculum / grade_level) currently have no auth guard. **Decision (2026-04-23): require authentication.** Add `Depends(get_current_active_user)` to all list/detail endpoints in `apps/backend/routers/country.py`, `curriculum.py`, `curriculum_structure.py`, `grade_level.py`, `subject.py`. Note: the signup form fetches countries/curricula before the user is logged in — either (a) fetch after login during onboarding, or (b) keep a single unauthenticated `/api/catalog/countries` stub for the signup dropdown only. Agent should implement option (a) since onboarding already runs post-login. | `apps/backend/routers/country.py`, `curriculum.py`, `curriculum_structure.py`, `grade_level.py`, `subject.py` | S |~~ ✅ 2026-04-24 (already implemented — all catalog GET endpoints confirmed using `Depends(get_current_user)`; tests in test_api_endpoints.py assert 401 for unauthenticated requests)
