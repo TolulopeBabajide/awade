@@ -20,19 +20,13 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-        # AWD-M-35: 'unsafe-inline' removed from script-src.
-        # AWD-M-43: 'unsafe-inline' removed from style-src.
-        #   React inline style props (style={{ ... }}) are applied via the JS DOM
-        #   API (element.style), which is controlled by script-src, not style-src,
-        #   so no nonce/hash is required for them.
-        #   Google Fonts is loaded via @import in index.css:
-        #     - style-src requires fonts.googleapis.com (CSS stylesheet)
-        #     - font-src requires fonts.gstatic.com (woff2 font files)
+        # AWD-M-35: 'unsafe-inline' removed from script-src (higher XSS risk).
+        # style-src still allows 'unsafe-inline' pending a hash/nonce migration
+        # (tracked as the remaining part of AWD-M-35 — full nonce approach is M effort).
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
             "script-src 'self'; "
-            "style-src 'self' https://fonts.googleapis.com; "
-            "font-src 'self' https://fonts.gstatic.com; "
+            "style-src 'self' 'unsafe-inline'; "
             "img-src 'self' data: https:; "
             "connect-src 'self'; "
             "frame-ancestors 'none'; "

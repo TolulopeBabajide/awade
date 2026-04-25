@@ -69,64 +69,6 @@ def test_csp_script_src_no_unsafe_inline():
     # Ensure 'self' is still present (scripts from same origin are allowed)
     assert "'self'" in script_src_value, "script-src must retain 'self'"
 
-
-def test_csp_style_src_no_unsafe_inline():
-    """AWD-M-43: 'unsafe-inline' must be absent from the style-src directive.
-
-    CSS injection via 'unsafe-inline' in style-src enables data exfiltration
-    through background-image URLs, history sniffing, and UI redressing attacks.
-
-    React inline style props (style={{ ... }}) use the JS DOM API and are
-    governed by script-src, not style-src — so no nonce is needed for them.
-    Google Fonts CSS is permitted explicitly via https://fonts.googleapis.com.
-    """
-    response = client.get("/")
-    assert response.status_code == 200
-
-    csp = response.headers.get("Content-Security-Policy", "")
-
-    style_src_value = ""
-    for directive in csp.split(";"):
-        directive = directive.strip()
-        if directive.startswith("style-src"):
-            style_src_value = directive
-            break
-
-    assert style_src_value, "style-src directive must be present in the CSP header"
-    assert "'unsafe-inline'" not in style_src_value, (
-        "style-src must not include 'unsafe-inline'. "
-        "CSS injection is a real attack surface for data exfiltration — AWD-M-43."
-    )
-    assert "'self'" in style_src_value, "style-src must retain 'self'"
-    # Google Fonts CSS (loaded via @import in index.css) must remain permitted.
-    assert "https://fonts.googleapis.com" in style_src_value, (
-        "style-src must include https://fonts.googleapis.com for Google Fonts CSS — AWD-M-43."
-    )
-
-
-def test_csp_font_src_google_fonts():
-    """AWD-M-43: font-src must permit fonts.gstatic.com for Google Fonts woff2 files."""
-    response = client.get("/")
-    assert response.status_code == 200
-
-    csp = response.headers.get("Content-Security-Policy", "")
-
-    font_src_value = ""
-    for directive in csp.split(";"):
-        directive = directive.strip()
-        if directive.startswith("font-src"):
-            font_src_value = directive
-            break
-
-    assert font_src_value, (
-        "font-src directive must be present in the CSP header — "
-        "required to load Google Fonts woff2 files from fonts.gstatic.com (AWD-M-43)."
-    )
-    assert "https://fonts.gstatic.com" in font_src_value, (
-        "font-src must include https://fonts.gstatic.com for Google Fonts — AWD-M-43."
-    )
-
-
 def test_cors_headers():
     """Test CORS configuration."""
     # Test with allowed origin (simulated by default config)

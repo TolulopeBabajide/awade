@@ -2,7 +2,7 @@
 
 > Things the agent cannot do autonomously (no GitHub credentials, no secrets access, requires your judgment).
 > Agent updates this file whenever a task needs Tolu's hands. Check it before and after each dev session.
-> Last updated: 2026-04-25 (Dev Agent — AWD-M-44 commits 2f79fed + 27a45f0 added)
+> Last updated: 2026-04-25 (Dev Agent — AWD-M-43 commits 490b05a + b63adbf added)
 
 ---
 
@@ -66,6 +66,9 @@ This single push covers all commits — they are already merged to `develop` in 
 | `fb9e718` | M-35 | Security: remove unsafe-inline from CSP script-src |
 | `2f79fed` | M-44 | Test: mark hollow test_rate_limiting as @pytest.mark.skip with backlog reason |
 | `27a45f0` | M-44 | Merge fix/testing/AWD-M-44-fix-hollow-rate-limit-test into develop |
+| `4b12ac8` | M-44 | Docs: update manual_to_do push list |
+| `490b05a` | M-43 | Security: remove unsafe-inline from style-src, add font-src |
+| `b63adbf` | M-43 | Merge fix/security/AWD-M-43-remove-style-src-unsafe-inline into develop |
 
 ---
 

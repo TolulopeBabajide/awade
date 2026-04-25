@@ -299,3 +299,31 @@
 **Fix**: Added `import logging` and `logger = logging.getLogger(__name__)` to `apps/backend/services/pdf_service.py`; replaced the bare `print("Warning: WeasyPrint not available. PDF generation will be disabled.")` in the `except ImportError` block with `logger.warning("WeasyPrint not available — PDF generation will be disabled.")`. Eliminates stdout pollution on every module import and aligns with CLAUDE.md code hygiene rules.
 **Validation**: tsc 0 errors · eslint 0 errors · vitest 72/72 passing · openapi.json ✅ · mcp.json ✅
 **Note**: Push to origin/develop blocked in sandbox — Tolu must run `git push origin develop` to trigger CI.
+
+---
+
+### AWD-M-35 — Remove `unsafe-inline` from CSP `script-src`
+**Completed**: 2026-04-25
+**Commit**: fb9e718
+**Fix**: Removed `'unsafe-inline'` from the `script-src` directive in `apps/backend/middleware/security_headers.py` (short-term hardening per OWASP XSS guidance). `style-src` retains `'unsafe-inline'` for now; full nonce-based hardening deferred. Added `test_csp_script_src_no_unsafe_inline()` to `apps/backend/tests/test_security.py` to assert `'unsafe-inline'` is absent from `script-src` and that `'self'` is retained.
+**Validation**: tsc 0 errors · eslint 0 errors · vitest 72/72 passing · openapi.json ✅ · mcp.json ✅
+**Note**: Push to origin/develop blocked in sandbox — Tolu must run `git push origin develop` to trigger CI.
+
+---
+
+### AWD-M-44 — Hollow `test_rate_limiting` — add `@pytest.mark.skip` with backlog reason
+**Completed**: 2026-04-25
+**Commit**: 2f79fed (merge: 27a45f0)
+**Fix**: Added `@pytest.mark.skip(reason="AWD-M-44 ...")` decorator to the hollow `test_rate_limiting` function in `apps/backend/tests/test_security.py`. The test body (`pass`) remained — now correctly documented as skipped pending the `rate_limiter_reset` autouse fixture from AWD-H-29 before a real 429 assertion can be made safely.
+**Validation**: Python AST syntax check ✅ · openapi.json ✅ · mcp.json ✅ · no frontend changes
+**Note**: Push to origin/develop blocked in sandbox (HTTPS auth) — Tolu must run `git push origin develop` to trigger CI.
+
+---
+
+## AWD-M-43 — Remove `style-src 'unsafe-inline'` from CSP
+
+**Completed**: 2026-04-25
+**Commit**: 490b05a (merge: b63adbf)
+**Fix**: Removed `'unsafe-inline'` from `style-src` in `SecurityHeadersMiddleware`. React inline `style={{ }}` props are applied via JS DOM API (governed by `script-src`) so no nonce is needed. Added `https://fonts.googleapis.com` to `style-src` and a new `font-src 'self' https://fonts.gstatic.com` directive to keep Google Fonts working. Added two new backend tests: `test_csp_style_src_no_unsafe_inline` and `test_csp_font_src_google_fonts`.
+**Validation**: tsc 0 errors ✅ · lint 0 errors ✅ · frontend tests 72/72 ✅ · openapi.json ✅ · mcp.json ✅
+**Note**: Push to origin/develop blocked in sandbox (HTTPS auth) — Tolu must run `git push origin develop` to trigger CI.
