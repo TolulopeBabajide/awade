@@ -276,3 +276,17 @@
 - Test files (`ChildrenPage.test.tsx`, `ParentDashboardPage.test.tsx`, `SavedGuidesPage.test.tsx`): updated mock shapes to match typed API (`data: null` → `data: undefined`, added `total` field to list responses).
 **Validation**: tsc 0 errors · eslint 0 errors · vitest 72/72 passing · openapi.json ✅ · mcp.json ✅
 **Note**: Push to origin/develop blocked by missing GitHub credentials in sandbox — Tolu must run `git push origin develop` locally to trigger CI.
+
+---
+
+## AWD-M-21 — Guide PDF export for parents
+**Completed**: 2026-04-25 | **Commit**: c83bee8
+**Description**: Parents can now download any "How to Help" guide as a print-ready PDF directly from GuideViewPage.
+**Changes**:
+- `apps/backend/services/pdf_service.py`: Added `generate_guide_pdf(content, meta)` method with A4-formatted HTML/CSS template; static `_h()` HTML-escape helper; `_get_guide_css_styles()` for guide-specific CSS. WeasyPrint used for rendering (already in requirements).
+- `apps/backend/routers/children.py`: Added `GET /api/guides/{guide_id}/export` endpoint — auth-gated, ownership-checked via ChildrenService, returns `application/pdf` with safe `Content-Disposition` filename derived from topic title. Raises 422 (no/malformed content), 503 (WeasyPrint unavailable), 500 (unexpected). Added `import json, logging, re` and `Response` to imports.
+- `apps/frontend/src/services/api.ts`: Added `exportGuidePdf(guideId)` method returning `{ blob, filename }` or `{ error }` — handles binary response directly without going through `handleResponse`.
+- `apps/frontend/src/pages/GuideViewPage.tsx`: Added `FaDownload` icon, `isDownloading` state, `handleDownloadPdf()` handler (creates object URL, triggers anchor click, revokes URL). Download button placed first in the top-bar action group with spinner while in-flight.
+- `apps/backend/tests/test_children_router.py`: Added `TestExportGuidePdf` class with 6 tests: 401 unauthenticated, 404 guide not found, 422 no content, 422 malformed content, 503 WeasyPrint unavailable, 200 happy path (PDFService mocked).
+**Validation**: tsc 0 errors · eslint 0 errors · vitest 72/72 passing · openapi.json ✅ (valid JSON; full regen needed locally — spec predates parent pivot)
+**Note**: Push to origin/develop blocked — Tolu must run `git push origin develop` to trigger CI.
