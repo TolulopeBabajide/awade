@@ -342,3 +342,9 @@
 - Updated `vite.config.ts` with `manualChunks` to split `react-router-dom` and `@tanstack/react-query` into separate vendor bundles, reducing main JS chunk parse time.
 **Validation**: tsc 0 errors ✅ · lint 0 errors ✅ · frontend tests 72/72 ✅ · build (temp dir) ✅ · openapi.json ✅ · mcp.json ✅
 **Note**: Push to origin/develop blocked in sandbox (HTTPS auth) — Tolu must run `git push origin develop` to trigger CI.
+
+## AWD-M-45 — fetchPriority React prop warning (bumped react to ^18.3.0)
+- **Completed**: 2026-04-26
+- **Commit**: 27f9f01 (fix(frontend): AWD-M-45 bump react/react-dom to ^18.3.0 for fetchPriority support)
+- **Merge**: c863a67
+- **Fix**: Bumped react/react-dom from ^18.2.0 to ^18.3.0 and @types/react/@types/react-dom from ^18.2.0 to ^18.3.0 in apps/frontend/package.json. React 18.3.0 added official camelCase fetchPriority prop support, eliminating the test-suite warning. Lock file already pinned 18.3.1 so no npm install was required. 72/72 frontend tests pass, 0 TS errors, 0 lint errors.

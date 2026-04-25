@@ -113,3 +113,7 @@ Change it to reflect Sentry is now wired (`sentry-sdk[fastapi]==2.58.0` + `@sent
 | 2026-04-23 | AWD-C-05 git repo corruption resolved (develop ref restored to valid commit) |
 | 2026-04-23 | H-25 decision made: httpOnly cookies (backlog updated, ready to implement) |
 | 2026-04-23 | M-09 decision made: catalog endpoints require auth (backlog updated, ready to implement) |
+
+## Pending pushes
+
+- [ ] Push develop to GitHub to trigger CI for AWD-M-45 (react ^18.3.0 bump, commit 27f9f01 / merge c863a67)
