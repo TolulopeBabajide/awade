@@ -502,7 +502,7 @@ class AwadeGPTService:
                 "subject": subject,
                 "grade_level": grade,
                 "objectives": objectives,
-                "context": context,
+                "context": safe_context,  # Use sanitised value, not raw user input (AWD-M-39)
                 "template_schema": template_schema
             }
             
