@@ -167,17 +167,23 @@ class TestGetJwtSecretKey:
             get_jwt_secret_key()
 
 
+@pytest.mark.skip(
+    reason="AWD-M-44 TestClient shares slowapi limiter state across test files — "
+           "needs rate_limiter_reset autouse fixture (approach from AWD-H-29) before "
+           "a meaningful 429 assertion can be made without flake risk."
+)
 @pytest.mark.asyncio
 async def test_rate_limiting():
     """
     Test rate limiting on auth endpoints.
-    Note: This requires the slowapi limiter to be active and configured.
-    """
-    # We'll simulate multiple requests to the login endpoint
-    # The limit is 10/minute
 
-    # Note: TestClient might not trigger rate limits correctly without specific setup
-    # because it shares the same "remote address" (client.host)
+    Skipped: the module-level TestClient shares the in-process slowapi limiter
+    with every other test file.  Earlier tests can exhaust the 10/minute login
+    bucket, causing this test to receive 429 when it expects 200, or vice-versa.
+    A proper implementation requires the `rate_limiter_reset` autouse fixture
+    described in AWD-H-29 — add it to conftest.py, then replace the body below
+    with real 429-assertion logic.
+    """
     pass
 
 
