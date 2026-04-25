@@ -5,18 +5,21 @@ This service handles the generation of professional PDF documents
 for lesson resources, including both AI-generated and user-edited content.
 """
 
+import logging
 import os
 import tempfile
 from datetime import datetime
 from typing import Optional, Dict, Any
 from pathlib import Path
 
+logger = logging.getLogger(__name__)
+
 try:
     from weasyprint import HTML, CSS
     WEASYPRINT_AVAILABLE = True
 except ImportError:
     WEASYPRINT_AVAILABLE = False
-    print("Warning: WeasyPrint not available. PDF generation will be disabled.")
+    logger.warning("WeasyPrint not available — PDF generation will be disabled.")
 
 from sqlalchemy.orm import Session
 from ..models import LessonResource, LessonPlan, Topic, CurriculumStructure, Subject, GradeLevel, Curriculum
