@@ -39,6 +39,36 @@ def test_csp_header_directives():
     assert "form-action 'self'" in csp
     assert "base-uri 'self'" in csp
 
+
+def test_csp_script_src_no_unsafe_inline():
+    """AWD-M-35: 'unsafe-inline' must be absent from the script-src directive.
+
+    Inline scripts are the primary XSS attack surface. The policy must restrict
+    script execution to same-origin resources only ('self'), with no unsafe-inline
+    escape hatch.
+    """
+    response = client.get("/")
+    assert response.status_code == 200
+
+    csp = response.headers.get("Content-Security-Policy", "")
+
+    # Locate the script-src directive value
+    # Format: "...; script-src 'self' ...; ..."
+    script_src_value = ""
+    for directive in csp.split(";"):
+        directive = directive.strip()
+        if directive.startswith("script-src"):
+            script_src_value = directive
+            break
+
+    assert script_src_value, "script-src directive must be present in the CSP header"
+    assert "'unsafe-inline'" not in script_src_value, (
+        "script-src must not include 'unsafe-inline'. "
+        "Inline scripts are the primary XSS attack surface — AWD-M-35."
+    )
+    # Ensure 'self' is still present (scripts from same origin are allowed)
+    assert "'self'" in script_src_value, "script-src must retain 'self'"
+
 def test_cors_headers():
     """Test CORS configuration."""
     # Test with allowed origin (simulated by default config)
