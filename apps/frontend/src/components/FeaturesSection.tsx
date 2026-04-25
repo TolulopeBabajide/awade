@@ -12,19 +12,22 @@ const FeaturesSection: React.FC = () => {
     {
       title: 'AI Powered Learning',
       description: "Awade's AI generates lesson plans tailored to your curriculum and local context. Get personalized lesson structures that adapt to your teaching style.",
-      image: '/assets/ChatGPT Image Aug 12, 2025, 12_14_16 PM.png',
+      image: '/assets/feature-1.png',
+      imageWebp: '/assets/feature-1.webp',
       alt: 'AI robot with human hand interaction'
     },
     {
       title: 'Locally Relevant Content',
       description: 'Create lessons that reflect African classroom realities - large class sizes, limited resources, and cultural context. AI adapts content to your local environment.',
-      image: '/assets/ChatGPT Image Aug 12, 2025, 12_19_01 PM.png',
+      image: '/assets/feature-2.png',
+      imageWebp: '/assets/feature-2.webp',
       alt: 'Hand writing on chalkboard'
     },
     {
       title: 'Monitor Your Growth',
       description: 'Track your lesson planning progress and teaching effectiveness. Awade provides insights on curriculum coverage and helps you improve your lesson creation skills.',
-      image: '/assets/ChatGPT Image Aug 12, 2025, 12_14_13 PM.png',
+      image: '/assets/feature-3.png',
+      imageWebp: '/assets/feature-3.webp',
       alt: 'Laptop with education icons overlay'
     }
   ]
@@ -77,11 +80,17 @@ const FeaturesSection: React.FC = () => {
                       {/* Feature Image */}
                       <div className="mb-4">
                         <div className="w-full h-40 rounded-lg overflow-hidden mb-3">
-                          <img
-                            src={feature.image}
-                            alt={feature.alt}
-                            className="w-full h-full object-cover"
-                          />
+                          <picture>
+                            <source srcSet={feature.imageWebp} type="image/webp" />
+                            <img
+                              src={feature.image}
+                              alt={feature.alt}
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                              width={1024}
+                              height={1024}
+                            />
+                          </picture>
                         </div>
                       </div>
 
@@ -149,11 +158,17 @@ const FeaturesSection: React.FC = () => {
               {/* Feature Image */}
               <div className="mb-4 lg:mb-8">
                 <div className="w-full h-40 lg:h-56 rounded-lg overflow-hidden mb-3 lg:mb-4 transform transition-transform duration-500 hover:scale-105">
-                  <img
-                    src={feature.image}
-                    alt={feature.alt}
-                    className="w-full h-full object-cover"
-                  />
+                  <picture>
+                    <source srcSet={feature.imageWebp} type="image/webp" />
+                    <img
+                      src={feature.image}
+                      alt={feature.alt}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      width={1024}
+                      height={1024}
+                    />
+                  </picture>
                 </div>
               </div>
 
