@@ -1,6 +1,6 @@
 # Awade — Backlog
 
-> Last updated: 2026-04-25 (Lead Dev Agent — AWD-M-39 shipped)
+> Last updated: 2026-04-25 (Lead Dev Agent — AWD-C-07 shipped)
 > Last groomed: 2026-04-25 (weekend-ops / Ops Agent) — see notes below. Removed stale items, updated priorities for post-security-sprint phase. Parent pivot code is feature-complete; focus shifts to launch prep + compliance.
 > Source of truth for active work. Completed items move to [`completed_backlog.md`](completed_backlog.md).
 > Issue prefix: `AWD` — e.g., reference as `AWD-H-03` in commits.
@@ -17,6 +17,10 @@
 ---
 
 ## 🔴 Critical
+
+~~**AWD-C-07 — Chore commit `547a4ac` silently reverted two security fixes from AWD-M-39**~~ ✅ 2026-04-25
+
+---
 
 ~~**AWD-C-05 — git repo corruption: `refs/heads/develop` points to missing commit object**~~
 **Problem**: `refs/heads/develop` contains SHA `187bd80b8614c9f84ff3a69f0cddb39a2e31e24b`, which does not exist in `.git/objects/`. All git operations on the develop branch fail (`git log`, `git status`, `git commit`, `git push`). Development and CI pushes are fully blocked.

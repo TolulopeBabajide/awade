@@ -226,3 +226,13 @@
 - `packages/ai/gpt_service.py` line 505: changed `"context": context` → `"context": safe_context` in `prompt_metadata` dict. The sanitised value (length-capped, PII-stripped, injection-scrubbed) is now what gets stored in the Redis cache metadata — defence-in-depth, consistent with how it's already used in the actual prompt.
 - All validation green: TypeScript 0 errors, lint 0 warnings, 72/72 frontend tests pass, openapi.json and mcp.json valid. Backend tests skipped in sandbox (broken macOS venv on Linux — pre-existing issue).
 **Note**: Push to origin/develop blocked by missing GitHub credentials in sandbox — Tolu must run `git push origin develop` locally to trigger CI.
+
+---
+
+**AWD-C-07 — Chore commit `547a4ac` silently reverted two security fixes from AWD-M-39**
+**Completed**: 2026-04-25
+**Commit**: `6880ce3` fix(security): AWD-C-07 restore safe_context and openai 1.109.1 reverted by 547a4ac
+**Changes**:
+- `packages/ai/gpt_service.py` line 505: restored `"context": safe_context` (had been accidentally reverted to `"context": context` by chore commit `547a4ac`). The sanitised value is now committed on develop.
+- `apps/backend/requirements.txt`: restored `openai==1.109.1` (had been accidentally downgraded back to `openai==1.12.0` by `547a4ac`).
+**Note**: Push to origin/develop blocked by missing GitHub credentials in sandbox — Tolu must run `git push origin develop` locally to trigger CI. Both files were already correct on disk as uncommitted changes; this commit simply memorialised them.
