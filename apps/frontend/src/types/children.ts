@@ -27,11 +27,31 @@ export interface ChildProfileCreate {
   subjects?: number[] | null;
 }
 
+export interface ChildProfileUpdate {
+  name?: string;
+  age?: number | null;
+  school_name?: string | null;
+  country_id?: number | null;
+  curricula_id?: number | null;
+  grade_level_id?: number | null;
+  subjects?: number[] | null;
+}
+
+export interface ChildProfileListResponse {
+  children: ChildProfile[];
+  total: number;
+}
+
 export interface ChildTopic {
   topic_id: number;
   topic_title: string;
   subject_name: string | null;
   subject_id: number | null;
+}
+
+export interface ParentGuideListResponse {
+  guides: ParentGuide[];
+  total: number;
 }
 
 export interface ParentGuide {
