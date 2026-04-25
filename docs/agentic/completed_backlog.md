@@ -207,3 +207,8 @@
   git commit -m "feat(parents): AWD-M-05 add WhatsApp share button to guide view"
   git push origin develop
   ```
+
+## AWD-C-06 — CRITICAL git repo corruption: af7f7b5 mass-deleted 266 tracked files from git tree
+**Completed**: 2026-04-25
+**Commits**: a762c11 (recovery) / f4ebdb3 (pending changes)
+**Change**: Detected that commit `af7f7b5` (chore: add QA entry for AWD-M-12, dated 2026-04-24) had accidentally deleted 266 of 267 tracked files from the git tree while leaving them on disk. `git ls-tree HEAD` showed only 8 files; `git ls-tree b606c38` showed 266 files. All subsequent commits (M-39, M-40, M-38) built on the corrupted tree. Recovery: (1) ran `git read-tree b606c38` to restore the full 266-file index; (2) re-staged M-38/M-39/M-40 working-tree changes explicitly; (3) committed recovery (`a762c11`, 267 files); (4) staged remaining pending on-disk changes not in b606c38 (AWD-H-39 .env.example, AWD-M-05 GuideViewPage + tests, AWD-M-03 package.json + setup-hooks.sh, new test files) and committed (`f4ebdb3`, 272 files). Working tree is now clean. **Tolu must `git push origin develop`** to restore origin/develop (currently 7 files) to the full 272-file codebase and unblock CI.
