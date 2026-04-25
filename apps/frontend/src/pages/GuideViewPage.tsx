@@ -38,11 +38,13 @@ const GuideViewPage: React.FC = () => {
       if (guideIdParam) {
         const res = await apiService.getGuide(Number(guideIdParam))
         if (res.error) throw new Error(res.error)
+        if (!res.data) throw new Error('No guide data returned')
         return res.data
       }
       // Generate new guide
       const res = await apiService.generateGuide(childId, topicId)
       if (res.error) throw new Error(res.error)
+      if (!res.data) throw new Error('No guide data returned')
       return res.data
     },
     enabled: !!(childId && topicId) || !!guideIdParam,
