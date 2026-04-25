@@ -821,3 +821,264 @@ class TestUpdateChildSubjectValidation:
         assert len(batch_calls) == 1, (
             f"Expected 1 batch subject query for update, got {len(batch_calls)}"
         )
+
+
+# ---------------------------------------------------------------------------
+# AWD-M-04 — Guide management: list_guides, get_guide, toggle_bookmark
+# ---------------------------------------------------------------------------
+
+def _db_child_found(parent_user_id: int, child_obj) -> MagicMock:
+    """DB mock that returns child_obj for _get_child_or_404 (ownership verified)."""
+    db = MagicMock()
+    q = MagicMock()
+    q.options.return_value.filter.return_value.first.return_value = child_obj
+    q.filter.return_value.first.return_value = child_obj
+    db.query.return_value = q
+    return db
+
+
+def _db_child_not_found() -> MagicMock:
+    """DB mock that returns None for all queries (child not found)."""
+    db = MagicMock()
+    q = MagicMock()
+    q.options.return_value.filter.return_value.first.return_value = None
+    q.filter.return_value.first.return_value = None
+    db.query.return_value = q
+    return db
+
+
+class TestListGuides:
+    """ChildrenService.list_guides — role gate, ownership, filters."""
+
+    def test_educator_raises_403(self):
+        svc = ChildrenService(db=MagicMock())
+        with pytest.raises(HTTPException) as exc_info:
+            svc.list_guides(_educator(), child_id=1)
+        assert exc_info.value.status_code == 403
+
+    def test_wrong_parent_raises_404(self):
+        """Child not owned by this parent → 404 via _get_child_or_404."""
+        db = _db_child_not_found()
+        svc = ChildrenService(db=db)
+        with pytest.raises(HTTPException) as exc_info:
+            svc.list_guides(_parent(user_id=99), child_id=1)
+        assert exc_info.value.status_code == 404
+
+    def test_returns_all_guides_for_child(self):
+        parent = _parent(user_id=1)
+        child_obj = _child(child_id=5, parent_id=1)
+        guide1 = _guide(guide_id=10, child_id=5, topic_id=1)
+        guide2 = _guide(guide_id=11, child_id=5, topic_id=2)
+
+        db = MagicMock()
+        call_count = [0]
+
+        def query_side(model_arg):
+            q = MagicMock()
+            call_count[0] += 1
+            if call_count[0] == 1:
+                # _get_child_or_404
+                q.options.return_value.filter.return_value.first.return_value = child_obj
+                q.filter.return_value.first.return_value = child_obj
+            else:
+                # list_guides main query
+                q.options.return_value.filter.return_value.filter.return_value.order_by.return_value.all.return_value = [guide1, guide2]
+                q.options.return_value.filter.return_value.order_by.return_value.all.return_value = [guide1, guide2]
+            return q
+
+        db.query.side_effect = query_side
+        svc = ChildrenService(db=db)
+        result = svc.list_guides(parent, child_id=5)
+        assert result.total == 2
+        assert len(result.guides) == 2
+
+    def test_bookmarked_only_filter_applied(self):
+        """bookmarked_only=True adds an extra filter; service should not crash."""
+        parent = _parent(user_id=1)
+        child_obj = _child(child_id=5, parent_id=1)
+
+        db = MagicMock()
+        call_count = [0]
+
+        def query_side(model_arg):
+            q = MagicMock()
+            call_count[0] += 1
+            if call_count[0] == 1:
+                q.options.return_value.filter.return_value.first.return_value = child_obj
+                q.filter.return_value.first.return_value = child_obj
+            else:
+                # Double-filter chain for bookmarked_only
+                q.options.return_value.filter.return_value.filter.return_value.order_by.return_value.all.return_value = []
+            return q
+
+        db.query.side_effect = query_side
+        svc = ChildrenService(db=db)
+        result = svc.list_guides(parent, child_id=5, bookmarked_only=True)
+        assert result.total == 0
+
+    def test_returns_empty_when_no_guides(self):
+        parent = _parent(user_id=1)
+        child_obj = _child(child_id=5, parent_id=1)
+
+        db = MagicMock()
+        call_count = [0]
+
+        def query_side(model_arg):
+            q = MagicMock()
+            call_count[0] += 1
+            if call_count[0] == 1:
+                q.options.return_value.filter.return_value.first.return_value = child_obj
+                q.filter.return_value.first.return_value = child_obj
+            else:
+                q.options.return_value.filter.return_value.order_by.return_value.all.return_value = []
+            return q
+
+        db.query.side_effect = query_side
+        svc = ChildrenService(db=db)
+        result = svc.list_guides(parent, child_id=5)
+        assert result.total == 0
+        assert result.guides == []
+
+
+class TestGetGuide:
+    """ChildrenService.get_guide — role gate, ownership, 404, 200."""
+
+    def test_educator_raises_403(self):
+        svc = ChildrenService(db=MagicMock())
+        with pytest.raises(HTTPException) as exc_info:
+            svc.get_guide(_educator(), guide_id=1)
+        assert exc_info.value.status_code == 403
+
+    def test_guide_not_found_raises_404(self):
+        db = MagicMock()
+        q = MagicMock()
+        q.options.return_value.join.return_value.filter.return_value.first.return_value = None
+        db.query.return_value = q
+        svc = ChildrenService(db=db)
+        with pytest.raises(HTTPException) as exc_info:
+            svc.get_guide(_parent(user_id=1), guide_id=999)
+        assert exc_info.value.status_code == 404
+
+    def test_guide_belonging_to_other_parent_returns_404(self):
+        """The join on ChildProfile ensures cross-parent access → None → 404."""
+        db = MagicMock()
+        q = MagicMock()
+        # Simulate DB join returning nothing for wrong parent
+        q.options.return_value.join.return_value.filter.return_value.first.return_value = None
+        db.query.return_value = q
+        svc = ChildrenService(db=db)
+        with pytest.raises(HTTPException) as exc_info:
+            svc.get_guide(_parent(user_id=99), guide_id=10)
+        assert exc_info.value.status_code == 404
+
+    def test_returns_guide_response_for_owner(self):
+        parent = _parent(user_id=1)
+        guide_obj = _guide(guide_id=10, child_id=5, topic_id=1)
+        guide_obj.ai_generated_content = '{"topic": "Fractions"}'
+        guide_obj.updated_at = guide_obj.created_at
+
+        db = MagicMock()
+        q = MagicMock()
+        q.options.return_value.join.return_value.filter.return_value.first.return_value = guide_obj
+        db.query.return_value = q
+        svc = ChildrenService(db=db)
+        result = svc.get_guide(parent, guide_id=10)
+        assert result.guide_id == 10
+        assert result.child_id == 5
+        assert result.topic_id == 1
+        assert result.topic_title == "Fractions"
+
+    def test_is_bookmarked_coerced_to_bool(self):
+        """is_bookmarked Integer column → bool in response."""
+        parent = _parent(user_id=1)
+        guide_obj = _guide(guide_id=10, child_id=5)
+        guide_obj.is_bookmarked = 1
+        guide_obj.updated_at = guide_obj.created_at
+
+        db = MagicMock()
+        q = MagicMock()
+        q.options.return_value.join.return_value.filter.return_value.first.return_value = guide_obj
+        db.query.return_value = q
+        svc = ChildrenService(db=db)
+        result = svc.get_guide(parent, guide_id=10)
+        assert result.is_bookmarked is True
+        assert isinstance(result.is_bookmarked, bool)
+
+
+class TestToggleBookmark:
+    """ChildrenService.toggle_bookmark — role gate, 404, toggle logic."""
+
+    def _db_with_guide(self, guide_obj) -> MagicMock:
+        db = MagicMock()
+        q = MagicMock()
+        q.options.return_value.join.return_value.filter.return_value.first.return_value = guide_obj
+        db.query.return_value = q
+        db.commit = MagicMock()
+        db.refresh = MagicMock()
+        return db
+
+    def _db_no_guide(self) -> MagicMock:
+        db = MagicMock()
+        q = MagicMock()
+        q.options.return_value.join.return_value.filter.return_value.first.return_value = None
+        db.query.return_value = q
+        return db
+
+    def test_educator_raises_403(self):
+        svc = ChildrenService(db=MagicMock())
+        with pytest.raises(HTTPException) as exc_info:
+            svc.toggle_bookmark(_educator(), guide_id=1)
+        assert exc_info.value.status_code == 403
+
+    def test_guide_not_found_raises_404(self):
+        svc = ChildrenService(db=self._db_no_guide())
+        with pytest.raises(HTTPException) as exc_info:
+            svc.toggle_bookmark(_parent(user_id=1), guide_id=99)
+        assert exc_info.value.status_code == 404
+
+    def test_toggle_unbookmarked_to_bookmarked(self):
+        parent = _parent(user_id=1)
+        guide_obj = _guide(guide_id=10, child_id=5)
+        guide_obj.is_bookmarked = 0
+        guide_obj.updated_at = guide_obj.created_at
+
+        db = self._db_with_guide(guide_obj)
+
+        def refresh_side_effect(obj):
+            # refresh doesn't change anything; guide_obj was mutated in place
+            pass
+
+        db.refresh.side_effect = refresh_side_effect
+        svc = ChildrenService(db=db)
+        result = svc.toggle_bookmark(parent, guide_id=10)
+
+        assert guide_obj.is_bookmarked == 1, "Expected is_bookmarked to be set to 1"
+        db.commit.assert_called_once()
+        assert result.is_bookmarked is True
+
+    def test_toggle_bookmarked_to_unbookmarked(self):
+        parent = _parent(user_id=1)
+        guide_obj = _guide(guide_id=11, child_id=5)
+        guide_obj.is_bookmarked = 1
+        guide_obj.updated_at = guide_obj.created_at
+
+        db = self._db_with_guide(guide_obj)
+        db.refresh.side_effect = lambda obj: None
+        svc = ChildrenService(db=db)
+        result = svc.toggle_bookmark(parent, guide_id=11)
+
+        assert guide_obj.is_bookmarked == 0, "Expected is_bookmarked to be set to 0"
+        db.commit.assert_called_once()
+        assert result.is_bookmarked is False
+
+    def test_commit_called_on_toggle(self):
+        parent = _parent(user_id=1)
+        guide_obj = _guide(guide_id=10, child_id=5)
+        guide_obj.is_bookmarked = 0
+        guide_obj.updated_at = guide_obj.created_at
+
+        db = self._db_with_guide(guide_obj)
+        db.refresh.side_effect = lambda obj: None
+        svc = ChildrenService(db=db)
+        svc.toggle_bookmark(parent, guide_id=10)
+        db.commit.assert_called_once()
