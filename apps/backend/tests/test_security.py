@@ -174,6 +174,28 @@ def test_cors_allowed_methods_and_headers():
     for header in ["Authorization", "Content-Type"]:
         assert header in allowed_headers, f"allow_headers is missing '{header}'"
 
+def test_trusted_host_middleware_registered():
+    """AWD-L-04: TrustedHostMiddleware must be present in the middleware stack."""
+    from apps.backend.main import app as _app
+    from fastapi.middleware.trustedhost import TrustedHostMiddleware
+
+    middleware_classes = [m.cls for m in _app.user_middleware]
+    assert TrustedHostMiddleware in middleware_classes, (
+        "TrustedHostMiddleware not found in app middleware stack — AWD-L-04."
+    )
+
+
+def test_trusted_host_allows_requests_with_default_config():
+    """AWD-L-04: Default config (ALLOWED_HOSTS=*) must allow any Host header."""
+    # Module-level TestClient uses the default dev config (ALLOWED_HOSTS not set → "*").
+    # A request with an arbitrary Host header must still reach the route handler.
+    response = client.get("/", headers={"Host": "example.com"})
+    assert response.status_code == 200, (
+        f"TrustedHostMiddleware with ALLOWED_HOSTS='*' returned {response.status_code} "
+        "for Host: example.com — wildcard config must allow any host."
+    )
+
+
 def test_input_sanitization():
     """Test the input sanitization utility."""
     # Test 1: Basic HTML stripping/escaping
