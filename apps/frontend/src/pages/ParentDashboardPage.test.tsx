@@ -60,7 +60,7 @@ function makeQueryClient() {
 
 function renderWithProviders(ui: React.ReactElement) {
   return render(
-    <MemoryRouter initialEntries={['/dashboard']}>
+    <MemoryRouter initialEntries={['/dashboard']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <QueryClientProvider client={makeQueryClient()}>
         {ui}
       </QueryClientProvider>

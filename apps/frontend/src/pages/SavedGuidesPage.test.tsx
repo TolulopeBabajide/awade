@@ -48,7 +48,7 @@ function makeQueryClient() {
 
 function renderWithProviders(ui: React.ReactElement) {
   return render(
-    <MemoryRouter initialEntries={['/saved-guides']}>
+    <MemoryRouter initialEntries={['/saved-guides']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <QueryClientProvider client={makeQueryClient()}>
         {ui}
       </QueryClientProvider>

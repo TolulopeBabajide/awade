@@ -80,7 +80,7 @@ function renderPage(url = '/guides?guide=42') {
   })
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={[url]}>
+      <MemoryRouter initialEntries={[url]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <GuideViewPage />
       </MemoryRouter>
     </QueryClientProvider>,
