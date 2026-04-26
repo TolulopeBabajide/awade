@@ -31,27 +31,27 @@ async def startup(ctx):
     """
     Worker startup hook.
     """
-    print("Worker starting up...")
+    logger.info("Worker starting up...")
     ctx['db_session_maker'] = SessionLocal
 
 async def shutdown(ctx):
     """
     Worker shutdown hook.
     """
-    print("Worker shutting down...")
+    logger.info("Worker shutting down...")
 
 async def generate_lesson_resource_task(ctx, resource_id: int):
     """
     Task to generate lesson resource content using AI.
     """
-    print(f"Processing lesson resource generation for ID: {resource_id}")
+    logger.info("Processing lesson resource generation for ID: %s", resource_id)
     
     db = ctx['db_session_maker']()
     try:
         # Fetch resource
         resource = db.query(LessonResource).filter(LessonResource.lesson_resources_id == resource_id).first()
         if not resource:
-            print(f"Resource {resource_id} not found")
+            logger.warning("Resource %s not found", resource_id)
             return
 
         # Fetch dependency data (Topic, Subject, Grade)
@@ -61,7 +61,7 @@ async def generate_lesson_resource_task(ctx, resource_id: int):
         topic = lesson_plan.topic
         
         if not topic:
-             print(f"Topic not found for resource {resource_id}")
+             logger.warning("Topic not found for resource %s", resource_id)
              resource.status = "failed"
              db.commit()
              return
@@ -150,10 +150,10 @@ async def generate_lesson_resource_task(ctx, resource_id: int):
             db.add(moderation)
 
         db.commit()
-        print(f"Successfully generated content for resource {resource_id}")
+        logger.info("Successfully generated content for resource %s", resource_id)
         
     except Exception as e:
-        print(f"Error generating resource {resource_id}: {str(e)}")
+        logger.error("Error generating resource %s", resource_id, exc_info=True)
         resource.status = "failed"
         db.commit()
     finally:
