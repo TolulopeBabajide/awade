@@ -14,9 +14,21 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime
 from fastapi import HTTPException, status
 import json
+import sys
+import os
+
+# Add parent directories to Python path for imports
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.dirname(current_dir)
+root_dir = os.path.dirname(parent_dir)
+sys.path.extend([parent_dir, root_dir])
+
+import logging
 
 from apps.backend.models import User, UserRole
 from apps.backend.schemas.users import UserUpdate, UserResponse, UserProfileResponse
+
+logger = logging.getLogger(__name__)
 
 class UserService:
     """Service class for user operations."""
@@ -74,38 +86,53 @@ class UserService:
             
             return [self._create_user_response(user) for user in users]
             
-        except Exception as e:
+        except Exception:
+            logger.error("Failed to retrieve users", exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while retrieving users: {str(e)}"
+                detail="An error occurred while retrieving users"
             )
     
-    def get_user(self, user_id: int) -> UserResponse:
+    def get_user(self, user_id: int, current_user: User) -> UserResponse:
         """
         Get a specific user by ID.
-        
+
+        Users may only retrieve their own record. ADMIN and SUPER_ADMIN may
+        retrieve any record.
+
         Args:
             user_id (int): User ID
-            
+            current_user (User): The authenticated caller
+
         Returns:
             UserResponse: User response
-            
+
         Raises:
-            HTTPException: If user not found
+            HTTPException: 403 if caller lacks ownership/admin role, 404 if not found
         """
         try:
+            if (
+                current_user.user_id != user_id
+                and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN)
+            ):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You can only view your own profile",
+                )
+
             user = self.db.query(User).filter(User.user_id == user_id).first()
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
-            
+
             return self._create_user_response(user)
-            
+
         except HTTPException:
             raise
         except Exception as e:
+            logger.error("Failed to retrieve user %s", user_id, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while retrieving the user: {str(e)}"
+                detail="An error occurred while retrieving the user",
             )
     
     def update_user(self, user_id: int, user_data: UserUpdate, current_user: User) -> UserResponse:
@@ -154,10 +181,11 @@ class UserService:
             
         except HTTPException:
             raise
-        except Exception as e:
+        except Exception:
+            logger.error("Failed to update user %s", user_id, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while updating the user: {str(e)}"
+                detail="An error occurred while updating the user"
             )
     
     def delete_user(self, user_id: int, current_user: User) -> Dict[str, str]:
@@ -200,10 +228,11 @@ class UserService:
             
         except HTTPException:
             raise
-        except Exception as e:
+        except Exception:
+            logger.error("Failed to delete user %s", user_id, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while deleting the user: {str(e)}"
+                detail="An error occurred while deleting the user"
             )
     
     def get_user_profile(self, user_id: int, current_user: User) -> UserProfileResponse:
@@ -236,10 +265,11 @@ class UserService:
             
         except HTTPException:
             raise
-        except Exception as e:
+        except Exception:
+            logger.error("Failed to retrieve user profile %s", user_id, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while retrieving the user profile: {str(e)}"
+                detail="An error occurred while retrieving the user profile"
             )
     
     def update_user_profile(self, user_id: int, profile_data: UserUpdate, current_user: User) -> UserProfileResponse:
@@ -288,10 +318,11 @@ class UserService:
             
         except HTTPException:
             raise
-        except Exception as e:
+        except Exception:
+            logger.error("Failed to update user profile %s", user_id, exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"An error occurred while updating the user profile: {str(e)}"
+                detail="An error occurred while updating the user profile"
             )
     
     def _create_user_response(self, user: User) -> UserResponse:
@@ -337,10 +368,11 @@ class UserService:
                 created_at=user.created_at,
                 last_login=user.last_login
             )
-        except Exception as e:
+        except Exception:
+            logger.error("Failed to create user response", exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"Error creating user response: {str(e)}"
+                detail="An internal error occurred while processing the user data"
             )
     
     def _create_user_profile_response(self, user: User) -> UserProfileResponse:
@@ -379,8 +411,9 @@ class UserService:
                 subjects=subjects_list,
                 grade_levels=grade_levels_list
             )
-        except Exception as e:
+        except Exception:
+            logger.error("Failed to create user profile response", exc_info=True)
             raise HTTPException(
                 status_code=500,
-                detail=f"Error creating user profile response: {str(e)}"
+                detail="An internal error occurred while processing the user profile data"
             )

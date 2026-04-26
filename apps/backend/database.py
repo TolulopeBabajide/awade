@@ -16,6 +16,10 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL environment variable is required")
 
+def get_db_url() -> str:
+    """Get the configured database URL."""
+    return DATABASE_URL
+
 # Create SQLAlchemy engine with proper pool configuration
 engine = create_engine(
     DATABASE_URL,

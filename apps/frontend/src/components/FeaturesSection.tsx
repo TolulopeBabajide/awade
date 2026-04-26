@@ -1,25 +1,33 @@
 import React, { useState } from 'react'
+import { useIntersectionObserver } from '../hooks/useIntersectionObserver'
 
 const FeaturesSection: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const { ref, isVisible } = useIntersectionObserver({
+    threshold: 0.1,
+    freezeOnceVisible: true,
+  })
 
   const features = [
     {
       title: 'AI Powered Learning',
       description: "Awade's AI generates lesson plans tailored to your curriculum and local context. Get personalized lesson structures that adapt to your teaching style.",
-      image: '/assets/ChatGPT Image Aug 12, 2025, 12_14_16 PM.png',
+      image: '/assets/feature-1.png',
+      imageWebp: '/assets/feature-1.webp',
       alt: 'AI robot with human hand interaction'
     },
     {
       title: 'Locally Relevant Content',
       description: 'Create lessons that reflect African classroom realities - large class sizes, limited resources, and cultural context. AI adapts content to your local environment.',
-      image: '/assets/ChatGPT Image Aug 12, 2025, 12_19_01 PM.png',
+      image: '/assets/feature-2.png',
+      imageWebp: '/assets/feature-2.webp',
       alt: 'Hand writing on chalkboard'
     },
     {
       title: 'Monitor Your Growth',
       description: 'Track your lesson planning progress and teaching effectiveness. Awade provides insights on curriculum coverage and helps you improve your lesson creation skills.',
-      image: '/assets/ChatGPT Image Aug 12, 2025, 12_14_13 PM.png',
+      image: '/assets/feature-3.png',
+      imageWebp: '/assets/feature-3.webp',
       alt: 'Laptop with education icons overlay'
     }
   ]
@@ -33,17 +41,18 @@ const FeaturesSection: React.FC = () => {
   }
 
   return (
-    <section 
+    <section
       id="features"
       className="section-padding bg-white px-4 sm:px-6 lg:px-8"
       aria-labelledby="features-heading"
+      ref={ref}
     >
       <div className="container-custom">
         {/* Section Header */}
-        <div className="text-center mb-6 lg:mb-12">
-        <div className="flex items-center justify-center mb-6 lg:mb-8">
+        <div className={`text-center mb-6 lg:mb-12 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className="flex items-center justify-center mb-6 lg:mb-8">
             <div className="flex-1 h-px bg-background-300"></div>
-            <h2 
+            <h2
               id="why-awade-heading"
               className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-900 px-4 sm:px-6 lg:px-8"
             >
@@ -52,16 +61,16 @@ const FeaturesSection: React.FC = () => {
             <div className="flex-1 h-px bg-background-300"></div>
           </div>
           <p className="text-sm sm:text-base md:text-lg text-background-600 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            Awade is an AI-powered lesson planning platform designed specifically for African educators. 
+            Awade is an AI-powered lesson planning platform designed specifically for African educators.
             We understand the unique challenges you face in the classroom and provide intelligent tools that save time while creating culturally relevant, curriculum-aligned lessons.
           </p>
         </div>
 
         {/* Mobile Carousel */}
-        <div className="md:hidden">
+        <div className={`md:hidden transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <div className="relative max-w-sm mx-auto">
             <div className="overflow-hidden rounded-xl">
-              <div 
+              <div
                 className="flex transition-transform duration-300 ease-in-out"
                 style={{ transform: `translateX(-${currentSlide * 100}%)` }}
               >
@@ -71,11 +80,17 @@ const FeaturesSection: React.FC = () => {
                       {/* Feature Image */}
                       <div className="mb-4">
                         <div className="w-full h-40 rounded-lg overflow-hidden mb-3">
-                          <img 
-                            src={feature.image}
-                            alt={feature.alt}
-                            className="w-full h-full object-cover"
-                          />
+                          <picture>
+                            <source srcSet={feature.imageWebp} type="image/webp" />
+                            <img
+                              src={feature.image}
+                              alt={feature.alt}
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                              width={1024}
+                              height={1024}
+                            />
+                          </picture>
                         </div>
                       </div>
 
@@ -103,16 +118,15 @@ const FeaturesSection: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              
+
               {/* Dots Indicator */}
               <div className="flex space-x-1">
                 {features.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentSlide(index)}
-                    className={`w-2 h-2 rounded-full transition-colors ${
-                      index === currentSlide ? 'bg-primary-600' : 'bg-primary-200'
-                    }`}
+                    className={`w-2 h-2 rounded-full transition-colors ${index === currentSlide ? 'bg-primary-600' : 'bg-primary-200'
+                      }`}
                     aria-label={`Go to slide ${index + 1}`}
                   />
                 ))}
@@ -134,21 +148,27 @@ const FeaturesSection: React.FC = () => {
         {/* Desktop Grid Layout */}
         <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-8 max-w-6xl mx-auto">
           {features.map((feature, index) => (
-            <div 
-              key={index} 
-              className={`bg-white rounded-xl p-4 lg:p-8 text-center animate-fade-in ${
-                index === 1 ? 'md:translate-y-8' : index === 2 ? 'md:translate-y-16' : ''
-              }`}
-              style={{ animationDelay: `${index * 0.1}s` }}
+            <div
+              key={index}
+              className={`bg-white rounded-xl p-4 lg:p-8 text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+                } ${index === 1 ? 'md:translate-y-8' : index === 2 ? 'md:translate-y-16' : ''
+                }`}
+              style={{ transitionDelay: `${index * 200}ms` }}
             >
               {/* Feature Image */}
               <div className="mb-4 lg:mb-8">
-                <div className="w-full h-40 lg:h-56 rounded-lg overflow-hidden mb-3 lg:mb-4">
-                  <img 
-                    src={feature.image}
-                    alt={feature.alt}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="w-full h-40 lg:h-56 rounded-lg overflow-hidden mb-3 lg:mb-4 transform transition-transform duration-500 hover:scale-105">
+                  <picture>
+                    <source srcSet={feature.imageWebp} type="image/webp" />
+                    <img
+                      src={feature.image}
+                      alt={feature.alt}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      width={1024}
+                      height={1024}
+                    />
+                  </picture>
                 </div>
               </div>
 

@@ -16,8 +16,8 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   signup: (userData: any) => Promise<boolean>;
-  googleAuth: (credential: string) => Promise<boolean>;
-  logout: () => void;
+  googleAuth: (credential: string, role?: string) => Promise<boolean>;
+  logout: () => Promise<void>;
   validateToken: () => Promise<boolean>;
 }
 
@@ -40,19 +40,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Validate token with backend
+  /**
+   * Verify session by calling /api/auth/me.
+   * The access_token is an HttpOnly cookie — no localStorage check needed.
+   */
   const validateToken = async (): Promise<boolean> => {
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      return false;
-    }
-
     try {
       const response = await apiService.getCurrentUser();
-      
+
       if (response.error) {
-        // Token is invalid or expired
-        logout();
         return false;
       }
 
@@ -60,45 +56,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(response.data);
         return true;
       }
-      
+
       return false;
-    } catch (error) {
-      console.error('Token validation error:', error);
-      logout();
+    } catch {
       return false;
     }
   };
 
-  // Enhanced logout function
-  const logout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user_data');
+  /**
+   * Clear server-side cookies and local state, then redirect to login.
+   * The api.ts logout() helper fires the server call; here we just update UI state.
+   */
+  const logout = async (): Promise<void> => {
+    await apiService.logoutUser().catch(() => undefined);
     setUser(null);
-    // Redirect to login page
     navigate('/login');
   };
 
   useEffect(() => {
+    // On mount, silently probe the backend to restore session from cookie.
     const initializeAuth = async () => {
-      const token = localStorage.getItem('access_token');
-      const userData = localStorage.getItem('user_data');
-      
-      if (token && userData) {
-        try {
-          // Validate token with backend
-          const isValid = await validateToken();
-          if (!isValid) {
-            // Token is invalid, clear storage
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('user_data');
-          }
-        } catch (error) {
-          console.error('Error validating token:', error);
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('user_data');
-        }
-      }
-      
+      await validateToken();
       setIsLoading(false);
     };
 
@@ -108,47 +86,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const response = await apiService.login(email, password);
-      
+
       if (response.error) {
-        console.error('Login error:', response.error);
         return false;
       }
 
       if (response.data) {
-        const { access_token, user: userData } = response.data;
-        localStorage.setItem('access_token', access_token);
-        localStorage.setItem('user_data', JSON.stringify(userData));
-        setUser(userData);
+        // Backend sets the access_token cookie; we only need the user payload.
+        setUser(response.data.user);
         return true;
       }
-      
+
       return false;
-    } catch (error) {
-      console.error('Login error:', error);
+    } catch {
       return false;
     }
   };
 
-  const googleAuth = async (credential: string): Promise<boolean> => {
+  const googleAuth = async (credential: string, role?: string): Promise<boolean> => {
     try {
-      const response = await apiService.googleAuth(credential);
-      
+      const response = await apiService.googleAuth(credential, role);
+
       if (response.error) {
-        console.error('Google OAuth error:', response.error);
         return false;
       }
 
       if (response.data) {
-        const { access_token, user: userData } = response.data;
-        localStorage.setItem('access_token', access_token);
-        localStorage.setItem('user_data', JSON.stringify(userData));
-        setUser(userData);
+        setUser(response.data.user);
         return true;
       }
-      
+
       return false;
-    } catch (error) {
-      console.error('Google OAuth error:', error);
+    } catch {
       return false;
     }
   };
@@ -156,23 +125,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signup = async (userData: any): Promise<boolean> => {
     try {
       const response = await apiService.signup(userData);
-      
+
       if (response.error) {
-        console.error('Signup error:', response.error);
         return false;
       }
 
       if (response.data) {
-        const { access_token, user: newUser } = response.data;
-        localStorage.setItem('access_token', access_token);
-        localStorage.setItem('user_data', JSON.stringify(newUser));
-        setUser(newUser);
+        setUser(response.data.user);
         return true;
       }
-      
+
       return false;
-    } catch (error) {
-      console.error('Signup error:', error);
+    } catch {
       return false;
     }
   };
@@ -185,7 +149,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signup,
     googleAuth,
     logout,
-    validateToken
+    validateToken,
   };
 
   return (
@@ -193,4 +157,4 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
-}; 
+};

@@ -1,8 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaEdit, FaSave, FaTimes, FaHome, FaBookOpen, FaFolder, FaCog } from 'react-icons/fa';
 import apiService from '../services/api';
 import Sidebar from '../components/Sidebar';
+import MobileNavigation from '../components/MobileNavigation';
+import {
+  FaEdit,
+  FaTimes,
+  FaSave,
+} from 'react-icons/fa';
 
 interface LessonResource {
   lesson_resources_id: number;
@@ -61,7 +66,7 @@ const getFallbackExplanation = (title: string): string => {
     'Related Projects & Activities': 'These activities provide hands-on learning opportunities and practical applications of the lesson concepts. They help reinforce learning through active engagement.',
     'References': 'This section lists relevant resources, materials, and references that support the lesson content and provide additional context for teachers and students.'
   };
-  
+
   return explanations[title] || `This section contains AI-generated content for ${title} that can be customized for your classroom needs.`;
 };
 
@@ -315,7 +320,7 @@ const EditableSection: React.FC<EditableSectionProps> = ({
           )}
         </div>
       </div>
-      
+
       {isEditing ? renderEditForm() : renderContent()}
     </div>
   );
@@ -324,28 +329,27 @@ const EditableSection: React.FC<EditableSectionProps> = ({
 const EditLessonResourcePage: React.FC = () => {
   const { lessonPlanId } = useParams<{ lessonPlanId: string }>();
   const navigate = useNavigate();
-  
+
   const [lessonResource, setLessonResource] = useState<LessonResource | null>(null);
-  const [lessonPlan, setLessonPlan] = useState<any>(null);
+  const [, setLessonPlan] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
-  
+
   // Structured content state
   const [structuredContent, setStructuredContent] = useState<StructuredLessonContent | null>(null);
   const [editingSection, setEditingSection] = useState<string | null>(null);
-  
+
   // Export format
   const [exportFormat, setExportFormat] = useState<'pdf' | 'docx'>('pdf');
-  
+
   // Auto-save state
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [lastAutoSaveTime, setLastAutoSaveTime] = useState<Date | null>(null);
-  
+
   // Debounced auto-save timer
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  
+
   useEffect(() => {
     if (lessonPlanId) {
       loadLessonPlanAndResource();
@@ -371,7 +375,7 @@ const EditLessonResourcePage: React.FC = () => {
 
       // Then fetch the lesson resource
       const response = await apiService.getLessonResources(lessonPlanId!);
-      
+
       if (response.error) {
         setError(response.error);
         return;
@@ -380,21 +384,18 @@ const EditLessonResourcePage: React.FC = () => {
       if (response.data && response.data.length > 0) {
         const resource = response.data[0];
         setLessonResource(resource);
-        
+
         // Parse structured content - prioritize user_edited_content over ai_generated_content
-        let contentToParse = resource.user_edited_content || resource.ai_generated_content;
+        const contentToParse = resource.user_edited_content || resource.ai_generated_content;
         if (contentToParse) {
           try {
-            const parsed = JSON.parse(contentToParse);
-            console.log('Parsed structured content:', parsed);
-            console.log('Explanations available:', parsed.explanations);
-            console.log('Explanations structure:', {
-              learning_objectives: parsed.explanations?.learning_objectives,
-              lesson_content: parsed.explanations?.lesson_content,
-              assessment: parsed.explanations?.assessment,
-              key_takeaways: parsed.explanations?.key_takeaways,
-              related_projects_or_activities: parsed.explanations?.related_projects_or_activities
-            });
+            let parsed;
+            if (typeof contentToParse === 'string') {
+              parsed = JSON.parse(contentToParse);
+            } else {
+              parsed = contentToParse;
+            }
+
             setStructuredContent(parsed);
           } catch (error) {
             setError('Failed to parse lesson resource content');
@@ -414,7 +415,7 @@ const EditLessonResourcePage: React.FC = () => {
     try {
       setError('');
       const response = await apiService.generateLessonResource(lessonPlanId!, '');
-      
+
       if (response.error) {
         setError(response.error);
         return;
@@ -422,23 +423,19 @@ const EditLessonResourcePage: React.FC = () => {
 
       if (response.data) {
         setLessonResource(response.data);
-        
+
         // Parse structured content - prioritize user_edited_content over ai_generated_content
-        let contentToParse = response.data.user_edited_content || response.data.ai_generated_content;
+        const contentToParse = response.data.user_edited_content || response.data.ai_generated_content;
         if (contentToParse) {
           try {
-            const parsed = JSON.parse(contentToParse);
-            console.log('Generated structured content:', parsed);
-            console.log('Explanations available:', parsed.explanations);
-            console.log('Explanations structure:', {
-              learning_objectives: parsed.explanations?.learning_objectives,
-              lesson_content: parsed.explanations?.lesson_content,
-              assessment: parsed.explanations?.assessment,
-              key_takeaways: parsed.explanations?.key_takeaways,
-              related_projects_or_activities: parsed.explanations?.related_projects_or_activities
-            });
+            let parsed;
+            if (typeof contentToParse === 'string') {
+              parsed = JSON.parse(contentToParse);
+            } else {
+              parsed = contentToParse;
+            }
             setStructuredContent(parsed);
-            
+
             // Auto-save the generated content to database
             await autoSaveToDatabase(parsed, response.data.lesson_resources_id);
           } catch (error) {
@@ -457,24 +454,20 @@ const EditLessonResourcePage: React.FC = () => {
     try {
       setIsAutoSaving(true);
       const contentString = JSON.stringify(content, null, 2);
-      console.log('Auto-saving generated content to database:', contentString);
-      
+
       const response = await apiService.updateLessonResource(
         resourceId.toString(),
         contentString
       );
 
       if (response.error) {
-        console.error('Auto-save failed:', response.error);
         setError('Generated content saved locally but failed to save to database. Please try saving manually.');
       } else {
-        console.log('Auto-save successful:', response.data);
         setLastAutoSaveTime(new Date());
         setSuccessMessage('Generated content automatically saved to database!');
         setTimeout(() => setSuccessMessage(''), 3000);
       }
     } catch (err: any) {
-      console.error('Auto-save error:', err);
       setError('Auto-save failed. Please save manually to persist changes.');
     } finally {
       setIsAutoSaving(false);
@@ -496,84 +489,29 @@ const EditLessonResourcePage: React.FC = () => {
     try {
       setIsAutoSaving(true);
       const contentString = JSON.stringify(updatedStructuredContent, null, 2);
-      console.log(`Auto-saving section "${sectionKey}" changes:`, contentString);
-      
+
       const response = await apiService.updateLessonResource(
         lessonResource.lesson_resources_id.toString(),
         contentString
       );
 
       if (response.error) {
-        console.error('Section auto-save failed:', response.error);
         setError(`Changes to "${sectionKey}" saved locally but failed to save to database. Please try saving manually.`);
         setTimeout(() => setError(''), 5000);
       } else {
-        console.log('Section auto-save successful:', response.data);
         // Update lesson resource with latest data
         setLessonResource(response.data);
         setLastAutoSaveTime(new Date());
-        
+
         // Show brief success feedback
         setSuccessMessage(`"${sectionKey}" changes automatically saved!`);
         setTimeout(() => setSuccessMessage(''), 2000);
       }
     } catch (err: any) {
-      console.error('Section auto-save error:', err);
       setError(`Auto-save failed for "${sectionKey}". Please save manually to persist changes.`);
       setTimeout(() => setError(''), 5000);
     } finally {
       setIsAutoSaving(false);
-    }
-  };
-
-  const saveAllChanges = async () => {
-    if (!lessonResource || !structuredContent) {
-      setError('No lesson resource available to save');
-      return;
-    }
-
-    setIsSaving(true);
-    setError('');
-
-    try {
-      // Convert structured content back to JSON string for storage
-      const updatedContent = JSON.stringify(structuredContent, null, 2);
-      
-      console.log('Saving updated content:', updatedContent);
-      
-      const response = await apiService.updateLessonResource(
-        lessonResource.lesson_resources_id.toString(),
-        updatedContent
-      );
-
-      if (response.error) {
-        setError(response.error);
-        return;
-      }
-
-      if (response.data) {
-        // Update the lesson resource with the response data
-        setLessonResource(response.data);
-        
-        // Update the AI generated content in the resource to reflect our changes
-        const updatedResource = {
-          ...response.data,
-          ai_generated_content: updatedContent
-        };
-        setLessonResource(updatedResource);
-        
-        setSuccessMessage('Lesson resource saved successfully! All changes have been persisted to the database.');
-        setTimeout(() => setSuccessMessage(''), 5000);
-        
-        console.log('Successfully saved lesson resource:', response.data);
-      } else {
-        setError('No data received from save request');
-      }
-    } catch (err: any) {
-      console.error('Error saving lesson resource:', err);
-      setError(err.message || 'Failed to save lesson resource');
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -604,7 +542,7 @@ const EditLessonResourcePage: React.FC = () => {
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-        
+
         setSuccessMessage(`Lesson resource exported successfully as ${format.toUpperCase()}!`);
         setTimeout(() => setSuccessMessage(''), 3000);
       } else {
@@ -664,7 +602,7 @@ const EditLessonResourcePage: React.FC = () => {
                   <h3 className="text-xs font-medium text-accent-700 mb-0.5">AI-Generated Content Disclaimer</h3>
                   <p className="text-xs text-accent-700 leading-relaxed">
                     This content was generated by AI and may contain inaccuracies. Review and customize for your classroom needs.{' '}
-                    <button 
+                    <button
                       onClick={() => navigate('/disclaimer')}
                       className="text-accent-700 underline hover:text-accent-800 font-medium transition-colors duration-200"
                     >
@@ -679,179 +617,209 @@ const EditLessonResourcePage: React.FC = () => {
 
         <div className="flex-1 p-4 md:p-6 lg:p-8 pt-20 md:pt-24 lg:pt-28 pb-20 lg:pb-8">
 
-        {/* Back Navigation - Always Visible */}
-        <div className="mb-4 md:mb-6 rounded-lg p-3 md:p-4 ">
-          <button 
-            onClick={() => navigate(`/lesson-plans/${lessonPlanId}`)}
-            className="text-primary-600 text-sm md:text-base font-medium flex items-center hover:text-primary-700 transition-colors duration-200 w-full text-left"
-          >
-            <span className="mr-2 text-lg">&larr;</span>
-            Back to Lesson Plan
-          </button>
-        </div>
+          {/* Back Navigation - Always Visible */}
+          <div className="mb-4 md:mb-6 rounded-lg p-3 md:p-4 ">
+            <button
+              onClick={() => navigate(`/lesson-plans/${lessonPlanId}`)}
+              className="text-primary-600 text-sm md:text-base font-medium flex items-center hover:text-primary-700 transition-colors duration-200 w-full text-left"
+            >
+              <span className="mr-2 text-lg">&larr;</span>
+              Back to Lesson Plan
+            </button>
+          </div>
 
-        {/* Auto-Save Status Indicator */}
-        <div className="mb-3 md:mb-4">
-          {isAutoSaving && (
-            <div className="flex items-center text-sm text-blue-600">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-              Auto-saving changes...
-            </div>
-          )}
-          {!isAutoSaving && lastAutoSaveTime && (
-            <div className="flex items-center text-sm text-green-600">
-              <span className="mr-2">✓</span>
-              Last saved: {lastAutoSaveTime.toLocaleTimeString()}
-            </div>
-          )}
-        </div>
-
-        {/* Sticky Feedback Messages */}
-        {(error || successMessage) && (
-          <div className="sticky top-20 md:top-24 lg:top-28 z-40 mb-4 md:mb-6">
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3 md:p-4 shadow-sm">
-                <p className="text-red-800 text-sm">{error}</p>
+          {/* Auto-Save Status Indicator */}
+          <div className="mb-3 md:mb-4">
+            {isAutoSaving && (
+              <div className="flex items-center text-sm text-blue-600">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                Auto-saving changes...
               </div>
             )}
-            {successMessage && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3 md:p-4 shadow-sm">
-                <p className="text-green-800 text-sm">{successMessage}</p>
+            {!isAutoSaving && lastAutoSaveTime && (
+              <div className="flex items-center text-sm text-green-600">
+                <span className="mr-2">✓</span>
+                Last saved: {lastAutoSaveTime.toLocaleTimeString()}
               </div>
             )}
           </div>
-        )}
 
-        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
-          {/* Main Content */}
-          <div className="flex-1 sm:bg-none lg:bg-white lg:rounded-xl lg:shadow-lg p-4 md:p-6 lg:p-8 space-y-4 md:space-y-6">
-            {/* Read-only Sections */}
-            {structuredContent.title_header && (
-              <div className="bg-primary-50 rounded-lg p-3 md:p-4 border border-primary-100">
-                <div className="mb-3">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold mb-2 md:mb-3 text-base md:text-lg text-primary-900">Lesson Overview</h3>
-                    <Tooltip content="This section contains the basic information about the lesson including topic, subject, grade level, and local context. This information is automatically generated based on your lesson plan and cannot be edited.">
-                      <svg className="w-4 h-4 text-primary-500 hover:text-primary-700" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-                      </svg>
-                    </Tooltip>
-                  </div>
+          {/* Sticky Feedback Messages */}
+          {(error || successMessage) && (
+            <div className="sticky top-20 md:top-24 lg:top-28 z-40 mb-4 md:mb-6">
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 md:p-4 shadow-sm">
+                  <p className="text-red-800 text-sm">{error}</p>
                 </div>
-                <div className="space-y-2">
-                  {Object.entries(structuredContent.title_header).map(([key, value]) => (
-                    <div key={key}>
-                      <span className="font-semibold text-primary-700 text-sm">{key.replace(/_/g, ' ')}:</span>
-                      <span className="ml-2 text-sm text-primary-800">{value as string}</span>
+              )}
+              {successMessage && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3 md:p-4 shadow-sm">
+                  <p className="text-green-800 text-sm">{successMessage}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
+            {/* Main Content */}
+            <div className="flex-1 sm:bg-none lg:bg-white lg:rounded-xl lg:shadow-lg p-4 md:p-6 lg:p-8 space-y-4 md:space-y-6">
+              {/* Read-only Sections */}
+              {structuredContent.title_header && (
+                <div className="bg-primary-50 rounded-lg p-3 md:p-4 border border-primary-100">
+                  <div className="mb-3">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold mb-2 md:mb-3 text-base md:text-lg text-primary-900">Lesson Overview</h3>
+                      <Tooltip content="This section contains the basic information about the lesson including topic, subject, grade level, and local context. This information is automatically generated based on your lesson plan and cannot be edited.">
+                        <svg className="w-4 h-4 text-primary-500 hover:text-primary-700" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                        </svg>
+                      </Tooltip>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {structuredContent.learning_objectives && (
-              <div className="bg-accent-50 rounded-lg p-3 md:p-4 border border-accent-100">
-                <div className="mb-3">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold mb-2 md:mb-3 text-base md:text-lg text-accent-900">Learning Objectives</h3>
-                    <Tooltip content={structuredContent.explanations?.learning_objectives || "Learning objectives define what students should know, understand, and be able to do by the end of the lesson. These are aligned with curriculum standards and grade-level expectations."}>
-                      <svg className="w-4 h-4 text-accent-500 hover:text-accent-700" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-                      </svg>
-                    </Tooltip>
+                  </div>
+                  <div className="space-y-2">
+                    {Object.entries(structuredContent.title_header).map(([key, value]) => (
+                      <div key={key}>
+                        <span className="font-semibold text-primary-700 text-sm">{key.replace(/_/g, ' ')}:</span>
+                        <span className="ml-2 text-sm text-primary-800">{value as string}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <ul className="list-disc ml-4 md:ml-6 text-accent-800 space-y-1">
-                  {structuredContent.learning_objectives.map((objective, index) => (
-                    <li key={index} className="text-sm">{objective}</li>
-                  ))}
-                </ul>
+              )}
+
+              {structuredContent.learning_objectives && (
+                <div className="bg-accent-50 rounded-lg p-3 md:p-4 border border-accent-100">
+                  <div className="mb-3">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold mb-2 md:mb-3 text-base md:text-lg text-accent-900">Learning Objectives</h3>
+                      <Tooltip content={structuredContent.explanations?.learning_objectives || "Learning objectives define what students should know, understand, and be able to do by the end of the lesson. These are aligned with curriculum standards and grade-level expectations."}>
+                        <svg className="w-4 h-4 text-accent-500 hover:text-accent-700" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                        </svg>
+                      </Tooltip>
+                    </div>
+                  </div>
+                  <ul className="list-disc ml-4 md:ml-6 text-accent-800 space-y-1">
+                    {structuredContent.learning_objectives.map((objective, index) => (
+                      <li key={index} className="text-sm">{objective}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Editable Sections */}
+              {structuredContent.lesson_content && (
+                <EditableSection
+                  title="Lesson Content"
+                  content={structuredContent.lesson_content}
+                  onSave={(updatedContent) => handleSectionSave('lesson_content', updatedContent)}
+                  isEditing={editingSection === 'lesson_content'}
+                  onEdit={() => setEditingSection('lesson_content')}
+                  onCancel={() => setEditingSection(null)}
+                  bgColor="bg-primary-100"
+                  textColor="text-primary-900"
+                  borderColor="border-primary-200"
+                  explanation={structuredContent.explanations?.lesson_content}
+                />
+              )}
+
+              {structuredContent.assessment && (
+                <EditableSection
+                  title="Assessment"
+                  content={structuredContent.assessment}
+                  onSave={(updatedContent) => handleSectionSave('assessment', updatedContent)}
+                  isEditing={editingSection === 'assessment'}
+                  onEdit={() => setEditingSection('assessment')}
+                  onCancel={() => setEditingSection(null)}
+                  bgColor="bg-accent-100"
+                  textColor="text-accent-900"
+                  borderColor="border-accent-200"
+                  explanation={structuredContent.explanations?.assessment}
+                />
+              )}
+
+              {structuredContent.key_takeaways && (
+                <EditableSection
+                  title="Key Takeaways"
+                  content={structuredContent.key_takeaways}
+                  onSave={(updatedContent) => handleSectionSave('key_takeaways', updatedContent)}
+                  isEditing={editingSection === 'key_takeaways'}
+                  onEdit={() => setEditingSection('key_takeaways')}
+                  onCancel={() => setEditingSection(null)}
+                  bgColor="bg-primary-75"
+                  textColor="text-primary-900"
+                  borderColor="border-primary-150"
+                  explanation={structuredContent.explanations?.key_takeaways}
+                />
+              )}
+
+              {structuredContent.related_projects_or_activities && (
+                <EditableSection
+                  title="Related Projects & Activities"
+                  content={structuredContent.related_projects_or_activities}
+                  onSave={(updatedContent) => handleSectionSave('related_projects_or_activities', updatedContent)}
+                  isEditing={editingSection === 'related_projects_or_activities'}
+                  onEdit={() => setEditingSection('related_projects_or_activities')}
+                  onCancel={() => setEditingSection(null)}
+                  bgColor="bg-accent-75"
+                  textColor="text-accent-900"
+                  borderColor="border-accent-150"
+                  explanation={structuredContent.explanations?.related_projects_or_activities}
+                />
+              )}
+
+              {structuredContent.references && (
+                <EditableSection
+                  title="References"
+                  content={structuredContent.references}
+                  onSave={(updatedContent) => handleSectionSave('references', updatedContent)}
+                  isEditing={editingSection === 'references'}
+                  onEdit={() => setEditingSection('references')}
+                  onCancel={() => setEditingSection(null)}
+                  bgColor="bg-primary-125"
+                  textColor="text-primary-900"
+                  borderColor="border-primary-175"
+                  explanation={structuredContent.explanations?.references}
+                />
+              )}
+            </div>
+
+            {/* Sidebar - Hidden on mobile, shown on desktop */}
+            <div className="hidden lg:flex w-64 flex-col gap-4 lg:gap-6">
+              {/* Export Options - Fixed on Desktop */}
+              <div className="sticky top-8 bg-white rounded-xl shadow-lg p-4 border border-gray-100">
+                <div className="font-bold mb-4 text-primary-900">Export Options</div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Export Format
+                  </label>
+                  <select
+                    value={exportFormat}
+                    onChange={(e) => setExportFormat(e.target.value as 'pdf' | 'docx')}
+                    className="w-full p-2 md:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition-all duration-200"
+                  >
+                    <option value="pdf">PDF Document</option>
+                    <option value="docx">Word Document (DOCX)</option>
+                  </select>
+                </div>
+
+                <button
+                  onClick={() => exportLessonResource(exportFormat)}
+                  className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm transition-colors duration-200"
+                >
+                  Export Lesson Resource
+                </button>
               </div>
-            )}
-
-            {/* Editable Sections */}
-            {structuredContent.lesson_content && (
-              <EditableSection
-                title="Lesson Content"
-                content={structuredContent.lesson_content}
-                onSave={(updatedContent) => handleSectionSave('lesson_content', updatedContent)}
-                isEditing={editingSection === 'lesson_content'}
-                onEdit={() => setEditingSection('lesson_content')}
-                onCancel={() => setEditingSection(null)}
-                bgColor="bg-primary-100"
-                textColor="text-primary-900"
-                borderColor="border-primary-200"
-                explanation={structuredContent.explanations?.lesson_content}
-              />
-            )}
-
-            {structuredContent.assessment && (
-              <EditableSection
-                title="Assessment"
-                content={structuredContent.assessment}
-                onSave={(updatedContent) => handleSectionSave('assessment', updatedContent)}
-                isEditing={editingSection === 'assessment'}
-                onEdit={() => setEditingSection('assessment')}
-                onCancel={() => setEditingSection(null)}
-                bgColor="bg-accent-100"
-                textColor="text-accent-900"
-                borderColor="border-accent-200"
-                explanation={structuredContent.explanations?.assessment}
-              />
-            )}
-
-            {structuredContent.key_takeaways && (
-              <EditableSection
-                title="Key Takeaways"
-                content={structuredContent.key_takeaways}
-                onSave={(updatedContent) => handleSectionSave('key_takeaways', updatedContent)}
-                isEditing={editingSection === 'key_takeaways'}
-                onEdit={() => setEditingSection('key_takeaways')}
-                onCancel={() => setEditingSection(null)}
-                bgColor="bg-primary-75"
-                textColor="text-primary-900"
-                borderColor="border-primary-150"
-                explanation={structuredContent.explanations?.key_takeaways}
-              />
-            )}
-
-            {structuredContent.related_projects_or_activities && (
-              <EditableSection
-                title="Related Projects & Activities"
-                content={structuredContent.related_projects_or_activities}
-                onSave={(updatedContent) => handleSectionSave('related_projects_or_activities', updatedContent)}
-                isEditing={editingSection === 'related_projects_or_activities'}
-                onEdit={() => setEditingSection('related_projects_or_activities')}
-                onCancel={() => setEditingSection(null)}
-                bgColor="bg-accent-75"
-                textColor="text-accent-900"
-                borderColor="border-accent-150"
-                explanation={structuredContent.explanations?.related_projects_or_activities}
-              />
-            )}
-
-            {structuredContent.references && (
-              <EditableSection
-                title="References"
-                content={structuredContent.references}
-                onSave={(updatedContent) => handleSectionSave('references', updatedContent)}
-                isEditing={editingSection === 'references'}
-                onEdit={() => setEditingSection('references')}
-                onCancel={() => setEditingSection(null)}
-                bgColor="bg-primary-125"
-                textColor="text-primary-900"
-                borderColor="border-primary-175"
-                explanation={structuredContent.explanations?.references}
-              />
-            )}
+            </div>
           </div>
 
-          {/* Sidebar - Hidden on mobile, shown on desktop */}
-          <div className="hidden lg:flex w-64 flex-col gap-4 lg:gap-6">
-            {/* Export Options - Fixed on Desktop */}
-            <div className="sticky top-8 bg-white rounded-xl shadow-lg p-4 border border-gray-100">
-              <div className="font-bold mb-4 text-primary-900">Export Options</div>
-              
+          {/* Mobile Export Section - Shown only on mobile */}
+          <div className="lg:hidden mt-6 space-y-4">
+            {/* Export Options */}
+            <div className="bg-white rounded-xl shadow-lg p-4 border border-gray-100">
+              <div className="font-bold mb-2 text-primary-900">Export Options</div>
+
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Export Format
@@ -859,7 +827,7 @@ const EditLessonResourcePage: React.FC = () => {
                 <select
                   value={exportFormat}
                   onChange={(e) => setExportFormat(e.target.value as 'pdf' | 'docx')}
-                  className="w-full p-2 md:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition-all duration-200"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
                 >
                   <option value="pdf">PDF Document</option>
                   <option value="docx">Word Document (DOCX)</option>
@@ -868,80 +836,19 @@ const EditLessonResourcePage: React.FC = () => {
 
               <button
                 onClick={() => exportLessonResource(exportFormat)}
-                className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm transition-colors duration-200"
+                className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm"
               >
                 Export Lesson Resource
               </button>
             </div>
           </div>
         </div>
-
-        {/* Mobile Export Section - Shown only on mobile */}
-        <div className="lg:hidden mt-6 space-y-4">
-          {/* Export Options */}
-          <div className="bg-white rounded-xl shadow-lg p-4 border border-gray-100">
-            <div className="font-bold mb-2 text-primary-900">Export Options</div>
-            
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Export Format
-              </label>
-              <select
-                value={exportFormat}
-                onChange={(e) => setExportFormat(e.target.value as 'pdf' | 'docx')}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
-              >
-                <option value="pdf">PDF Document</option>
-                <option value="docx">Word Document (DOCX)</option>
-              </select>
-            </div>
-
-            <button
-              onClick={() => exportLessonResource(exportFormat)}
-              className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm"
-            >
-              Export Lesson Resource
-            </button>
-          </div>
-        </div>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <MobileNavigation />
     </div>
-
-    {/* Mobile Bottom Navigation */}
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 z-50 shadow-lg">
-      <div className="flex justify-around items-center">
-        <button 
-          className="flex flex-col items-center py-2 px-3 text-primary-600 font-medium transition-colors duration-200"
-          onClick={() => navigate('/dashboard')}
-        >
-          <FaHome className="w-6 h-6 mb-1" />
-          <span className="text-xs">Dashboard</span>
-        </button>
-        <button 
-          className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
-          onClick={() => navigate('/lesson-plans')}
-        >
-          <FaBookOpen className="w-6 h-6 mb-1" />
-          <span className="text-xs">Plans</span>
-        </button>
-        <button 
-          className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
-          onClick={() => navigate('/lesson-resources')}
-        >
-          <FaFolder className="w-6 h-6 mb-1" />
-          <span className="text-xs">Resources</span>
-        </button>
-                  <button 
-            className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
-            onClick={() => navigate('/settings')}
-          >
-            <FaCog className="w-6 h-6 mb-1" />
-            <span className="text-xs">Settings</span>
-          </button>
-      </div>
-    </nav>
-  </div>
-);
+  );
 };
 
 export default EditLessonResourcePage; 

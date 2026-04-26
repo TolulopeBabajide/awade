@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import apiService from '../services/api';
-import { FaEye, FaEyeSlash, FaArrowLeft, FaUser, FaEnvelope, FaLock, FaCheckCircle } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaArrowLeft, FaUser, FaEnvelope, FaLock, FaCheckCircle, FaGraduationCap, FaChild } from 'react-icons/fa';
 
-
+type AccountRole = 'PARENT' | 'EDUCATOR';
 
 const SignupPage: React.FC = () => {
   const navigate = useNavigate();
   const { signup, googleAuth } = useAuth();
+  const [selectedRole, setSelectedRole] = useState<AccountRole | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
   const [agreed, setAgreed] = useState(false);
@@ -28,27 +28,32 @@ const SignupPage: React.FC = () => {
     if (showSuccessModal) {
       const timer = setTimeout(() => {
         setShowSuccessModal(false);
-        navigate('/login');
-      }, 3000); // Redirect after 3 seconds
-      
+        // PARENT users go through onboarding to add their first child
+        navigate(selectedRole === 'PARENT' ? '/onboarding' : '/dashboard');
+      }, 2000);
+
       return () => clearTimeout(timer);
     }
-  }, [showSuccessModal, navigate]);
+  }, [showSuccessModal, navigate, selectedRole]);
 
   // Google OAuth handler
   const handleGoogleSuccess = async (credentialResponse: any) => {
+    if (!selectedRole) {
+      setError('Please select whether you are a parent or educator first.');
+      return;
+    }
     setError(null);
     setLoading(true);
     try {
-      const success = await googleAuth(credentialResponse.credential);
+      const success = await googleAuth(credentialResponse.credential, selectedRole);
       if (success) {
-        // Redirect to dashboard after successful Google OAuth
-        navigate('/dashboard');
+        // PARENT users go through onboarding to add their first child
+        navigate(selectedRole === 'PARENT' ? '/onboarding' : '/dashboard');
       } else {
         setError('Google signup failed. Please try email/password signup instead.');
       }
-    } catch (err: any) {
-      setError(err.message || 'Google signup failed');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Google signup failed');
     } finally {
       setLoading(false);
     }
@@ -89,6 +94,10 @@ const SignupPage: React.FC = () => {
       setError('You must agree to the Terms & Conditions.');
       return false;
     }
+    if (!selectedRole) {
+      setError('Please select whether you are a parent or educator.');
+      return false;
+    }
     setError(null);
     return true;
   };
@@ -104,7 +113,7 @@ const SignupPage: React.FC = () => {
         email: form.email,
         password: form.password,
         full_name: form.fullName,
-        role: 'EDUCATOR',
+        role: selectedRole,
         country: 'Nigeria',
         region: null,
         school_name: null,
@@ -118,8 +127,8 @@ const SignupPage: React.FC = () => {
       } else {
         setError('Signup failed. Please try again.');
       }
-    } catch (err: any) {
-      setError(err.message || 'Signup failed');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Signup failed');
     } finally {
       setLoading(false);
     }
@@ -148,7 +157,7 @@ const SignupPage: React.FC = () => {
             </Link>
           </h1>
           <p className="text-primary-600 text-sm sm:text-base mt-2">
-            AI-Powered Lesson Planning
+            Support your child's learning
           </p>
         </div>
 
@@ -157,8 +166,49 @@ const SignupPage: React.FC = () => {
           <div className="text-center mb-6">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Create Account</h2>
             <p className="text-gray-600 text-sm sm:text-base">
-              Join thousands of educators transforming their teaching with AI
+              Join thousands of families and educators across Africa
             </p>
+          </div>
+
+          {/* Role Selector */}
+          <div className="mb-6">
+            <p className="text-sm font-semibold text-gray-700 mb-3 text-center">I am a...</p>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setSelectedRole('PARENT')}
+                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 ${
+                  selectedRole === 'PARENT'
+                    ? 'border-accent-600 bg-accent-50 shadow-sm'
+                    : 'border-gray-200 bg-white hover:border-accent-300'
+                }`}
+              >
+                <FaChild className={`w-6 h-6 ${selectedRole === 'PARENT' ? 'text-accent-600' : 'text-gray-400'}`} />
+                <span className={`text-sm font-semibold ${selectedRole === 'PARENT' ? 'text-accent-700' : 'text-gray-600'}`}>
+                  Parent
+                </span>
+                <span className="text-xs text-gray-400 text-center leading-tight">
+                  Help my child at home
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedRole('EDUCATOR')}
+                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 ${
+                  selectedRole === 'EDUCATOR'
+                    ? 'border-primary-600 bg-primary-50 shadow-sm'
+                    : 'border-gray-200 bg-white hover:border-primary-300'
+                }`}
+              >
+                <FaGraduationCap className={`w-6 h-6 ${selectedRole === 'EDUCATOR' ? 'text-primary-600' : 'text-gray-400'}`} />
+                <span className={`text-sm font-semibold ${selectedRole === 'EDUCATOR' ? 'text-primary-700' : 'text-gray-600'}`}>
+                  Educator
+                </span>
+                <span className="text-xs text-gray-400 text-center leading-tight">
+                  Create lesson plans
+                </span>
+              </button>
+            </div>
           </div>
 
           {/* Google Sign Up */}
@@ -333,9 +383,11 @@ const SignupPage: React.FC = () => {
                 <FaCheckCircle className="h-8 w-8 text-green-600" />
               </div>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">Account Created Successfully!</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">Welcome to Awade!</h3>
             <p className="text-gray-600 text-sm sm:text-base mb-6">
-              Welcome to Awade! You'll be redirected to the login page in a few seconds.
+              {selectedRole === 'PARENT'
+                ? "Your account is ready. Let's add your first child!"
+                : "Your account is ready. Let's get started!"}
             </p>
             <div className="flex justify-center">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>

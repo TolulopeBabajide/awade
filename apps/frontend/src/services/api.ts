@@ -1,4 +1,15 @@
-const API_BASE_URL = 'https://awade-backend-test.onrender.com/api';
+import { sanitizeInput } from '../utils/sanitizer';
+import type {
+  ChildProfile,
+  ChildProfileCreate,
+  ChildProfileUpdate,
+  ChildProfileListResponse,
+  ChildTopic,
+  ParentGuide,
+  ParentGuideListResponse,
+} from '../types/children';
+
+const API_BASE_URL = ((import.meta as any).env.VITE_API_URL || '') + '/api';
 
 interface ApiResponse<T> {
   data?: T;
@@ -6,49 +17,103 @@ interface ApiResponse<T> {
 }
 
 class ApiService {
+  /**
+   * Base headers for every request.
+   * Auth is handled by the HttpOnly access_token cookie — no Authorization header needed.
+   */
   private getAuthHeaders(): HeadersInit {
-    const token = localStorage.getItem('access_token');
-    return {
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` })
-    };
+    return { 'Content-Type': 'application/json' };
   }
 
-  private async handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
+  /**
+   * Thin wrapper around fetch that always sends cookies (credentials: 'include').
+   * All authenticated requests must use this instead of bare fetch().
+   */
+  private async apiFetch(url: string, init: RequestInit = {}): Promise<Response> {
+    return fetch(url, { ...init, credentials: 'include' });
+  }
+
+  private async handleResponse<T>(response: Response, retryCallback?: () => Promise<ApiResponse<T>>): Promise<ApiResponse<T>> {
     if (response.ok) {
+      if (response.status === 204) {
+        return {};
+      }
       const data = await response.json();
       return { data };
     } else {
-      const errorData = await response.json().catch(() => ({}));
-      
+      let errorData: any = {};
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        // Response body might be empty or not JSON
+      }
+
       // Handle 401 Unauthorized globally
       if (response.status === 401) {
-        // Clear invalid tokens
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('user_data');
-        
-        // Redirect to login page
-        window.location.href = '/login';
-        
+        // Login and Signup endpoints return 401 for invalid credentials, not token expiry
+        if (response.url.includes('/auth/login') || response.url.includes('/auth/signup')) {
+          return { error: errorData.detail || 'Invalid credentials' };
+        }
+
+        // If this was already a refresh attempt or we have no retry logic, fail
+        if (response.url.includes('/auth/refresh') || !retryCallback) {
+          this.logout();
+          return { error: 'Session expired. Please login again.' };
+        }
+
+        // Attempt to refresh token
+        try {
+          const refreshSuccess = await this.refreshAccessToken();
+          if (refreshSuccess && retryCallback) {
+            // Retry original request
+            return await retryCallback();
+          }
+        } catch (e) {
+          console.error("Refresh failed", e);
+        }
+
+        // If refresh failed, logout
+        this.logout();
         return { error: 'Session expired. Please login again.' };
       }
-      
+
       return { error: errorData.detail || `HTTP ${response.status}: ${response.statusText}` };
+    }
+  }
+
+  private logout() {
+    // Tokens live in HttpOnly cookies — cleared server-side via /auth/logout.
+    // Best-effort call; even if it fails the user is redirected to login.
+    this.apiFetch(`${API_BASE_URL}/auth/logout`, { method: 'POST' }).catch(() => undefined);
+    window.location.href = '/login';
+  }
+
+  private async refreshAccessToken(): Promise<boolean> {
+    try {
+      // The refresh_token cookie is sent automatically; the server rotates both
+      // cookies and returns the new user data — no localStorage involved.
+      const response = await this.apiFetch(`${API_BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      return response.ok;
+    } catch (e) {
+      return false;
     }
   }
 
   // Authentication
   async login(email: string, password: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    const response = await this.apiFetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password }),
     });
     return this.handleResponse(response);
   }
 
   async signup(userData: any): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+    const response = await this.apiFetch(`${API_BASE_URL}/auth/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData)
@@ -58,7 +123,47 @@ class ApiService {
 
   // Get current user profile
   async getCurrentUser(): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/auth/me`, {
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/auth/me`, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+
+    // We pass a closure that re-executes the fetch to handleResponse for retries
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getCurrentUser());
+  }
+
+  // Admin / Templates
+  async listTemplates(): Promise<ApiResponse<any[]>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/admin/templates`, {
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async createTemplate(templateData: any): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/admin/templates`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(templateData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateTemplate(templateId: number, templateData: any): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/admin/templates/${templateId}`, {
+      method: 'PATCH',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(templateData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteTemplate(templateId: number): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/admin/templates/${templateId}`, {
+      method: 'DELETE',
       headers: this.getAuthHeaders()
     });
     return this.handleResponse(response);
@@ -69,78 +174,106 @@ class ApiService {
     if (!userId) {
       return { error: 'User ID is required for profile updates.' };
     }
-    
-    const response = await fetch(`${API_BASE_URL}/users/${userId}/profile`, {
-      method: 'PUT',
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(profileData)
-    });
-    return this.handleResponse(response);
+
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/users/${userId}/profile`, {
+        method: 'PUT',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(profileData)
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.updateProfile(profileData, userId));
   }
 
   // Lesson Plans
   async generateLessonPlan(planData: any): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/lesson-plans/generate`, {
-      method: 'POST',
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(planData)
-    });
-    return this.handleResponse(response);
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/lesson-plans/generate`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(planData)
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.generateLessonPlan(planData));
   }
 
   async getLessonPlans(): Promise<ApiResponse<any[]>> {
-    const response = await fetch(`${API_BASE_URL}/lesson-plans/`, {
-      headers: this.getAuthHeaders()
-    });
-    return this.handleResponse(response);
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/lesson-plans/`, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getLessonPlans());
   }
 
   async getLessonPlan(id: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/lesson-plans/${id}`, {
-      headers: this.getAuthHeaders()
-    });
-    return this.handleResponse(response);
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/lesson-plans/${id}`, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getLessonPlan(id));
   }
 
   // Lesson Resources
   async generateLessonResource(lessonPlanId: string, contextInput: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/lesson-plans/${lessonPlanId}/resources/generate`, {
-      method: 'POST',
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify({
-        lesson_plan_id: parseInt(lessonPlanId),
-        context_input: contextInput
-      })
-    });
-    return this.handleResponse(response);
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/lesson-plans/${lessonPlanId}/resources/generate`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify({
+          lesson_plan_id: parseInt(lessonPlanId),
+          context_input: sanitizeInput(contextInput)
+        })
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.generateLessonResource(lessonPlanId, contextInput));
   }
 
   // Context Management
   async submitContext(lessonPlanId: string, contextText: string, contextType?: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/contexts/lesson-plan/${lessonPlanId}/submit`, {
-      method: 'POST',
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify({
-        context_text: contextText,
-        context_type: contextType
-      })
-    });
-    return this.handleResponse(response);
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/contexts/lesson-plan/${lessonPlanId}/submit`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify({
+          context_text: sanitizeInput(contextText),
+          context_type: contextType
+        })
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.submitContext(lessonPlanId, contextText, contextType));
   }
 
   async getContexts(lessonPlanId: string): Promise<ApiResponse<any[]>> {
-    const response = await fetch(`${API_BASE_URL}/contexts/lesson-plan/${lessonPlanId}`, {
-      headers: this.getAuthHeaders()
-    });
-    return this.handleResponse(response);
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/contexts/lesson-plan/${lessonPlanId}`, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getContexts(lessonPlanId));
   }
 
   async updateContext(contextId: string, contextText: string, contextType?: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/contexts/${contextId}`, {
+    const response = await this.apiFetch(`${API_BASE_URL}/contexts/${contextId}`, {
       method: 'PUT',
       headers: this.getAuthHeaders(),
       body: JSON.stringify({
-        context_text: contextText,
+        context_text: sanitizeInput(contextText),
         context_type: contextType
       })
     });
@@ -148,7 +281,7 @@ class ApiService {
   }
 
   async deleteContext(contextId: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/contexts/${contextId}`, {
+    const response = await this.apiFetch(`${API_BASE_URL}/contexts/${contextId}`, {
       method: 'DELETE',
       headers: this.getAuthHeaders()
     });
@@ -156,46 +289,87 @@ class ApiService {
   }
 
   async getLessonResources(lessonPlanId: string): Promise<ApiResponse<any[]>> {
-    const response = await fetch(`${API_BASE_URL}/lesson-plans/${lessonPlanId}/resources`, {
-      headers: this.getAuthHeaders()
-    });
-    return this.handleResponse(response);
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/lesson-plans/${lessonPlanId}/resources`, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getLessonResources(lessonPlanId));
   }
 
   async getAllLessonResources(): Promise<ApiResponse<any[]>> {
-    const response = await fetch(`${API_BASE_URL}/lesson-plans/resources`, {
-      headers: this.getAuthHeaders()
-    });
-    return this.handleResponse(response);
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/lesson-plans/resources`, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getAllLessonResources());
   }
 
   async getLessonResource(resourceId: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/lesson-plans/resources/${resourceId}`, {
-      headers: this.getAuthHeaders()
-    });
-    return this.handleResponse(response);
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/lesson-plans/resources/${resourceId}`, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getLessonResource(resourceId));
   }
 
   async updateLessonResource(resourceId: string, userEditedContent: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/lesson-plans/resources/${resourceId}/review`, {
-      method: 'PUT',
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify({
-        user_edited_content: userEditedContent
-      })
-    });
-    return this.handleResponse(response);
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/lesson-plans/resources/${resourceId}/review`, {
+        method: 'PUT',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify({
+          user_edited_content: userEditedContent
+        })
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.updateLessonResource(resourceId, userEditedContent));
   }
 
   async exportLessonResource(resourceId: string, format: 'pdf' | 'docx'): Promise<ApiResponse<Blob>> {
-    const response = await fetch(`${API_BASE_URL}/lesson-plans/resources/${resourceId}/export`, {
-      method: 'POST',
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify({
-        format: format
-      })
-    });
-    
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/lesson-plans/resources/${resourceId}/export`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify({
+          format: format
+        })
+      });
+      return response;
+    }
+
+    // Export needs special handling because it returns a blob, not JSON
+    // We handle the retry manually here because handleResponse expects JSON usually 
+    // BUT our current handleResponse is generic ApiResponse<T>
+    // However, handleResponse parses JSON: `const data = await response.json();`
+    // This breaks for Blobs. We need to update exportLessonResource to NOT use handleResponse for success
+    // Or update handleResponse to support non-JSON?
+    // Given the complexity, let's just implement the retry logic manually here for export
+
+    // First try
+    let response = await fetchFn();
+
+    if (response.status === 401) {
+      // Try refresh
+      const refreshed = await this.refreshAccessToken();
+      if (refreshed) {
+        response = await fetchFn();
+      } else {
+        this.logout();
+        return { error: 'Session expired. Please login again.' };
+      }
+    }
+
     if (response.ok) {
       const blob = await response.blob();
       return { data: blob };
@@ -207,75 +381,445 @@ class ApiService {
 
   // Curriculum Data
   async getCountries(): Promise<ApiResponse<any[]>> {
-    const response = await fetch(`${API_BASE_URL}/countries/`, {
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/countries/`, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getCountries());
+  }
+
+  async createCountry(countryData: any): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/countries/`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(countryData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateCountry(countryId: number, countryData: any): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/countries/${countryId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(countryData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteCountry(countryId: number): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/countries/${countryId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async createCurriculum(curriculumData: any): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/curriculum/`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(curriculumData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateCurriculum(curriculaId: number, curriculumData: any): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/curriculum/${curriculaId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(curriculumData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteCurriculum(curriculaId: number): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/curriculum/${curriculaId}`, {
+      method: 'DELETE',
       headers: this.getAuthHeaders()
     });
     return this.handleResponse(response);
   }
 
   async getSubjects(): Promise<ApiResponse<any[]>> {
-    const response = await fetch(`${API_BASE_URL}/subjects/`, {
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/subjects/`, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getSubjects());
+  }
+
+  // ... existing getSubjects code ...
+
+  // Topics
+  async createTopic(topicData: any): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/curriculum/topics`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(topicData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateTopic(topicId: number, topicData: any): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/curriculum/topics/${topicId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(topicData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteTopic(topicId: number): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/curriculum/topics/${topicId}`, {
+      method: 'DELETE',
       headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async createSubject(subjectData: any): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/subjects/`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(subjectData)
     });
     return this.handleResponse(response);
   }
 
   async getGradeLevels(): Promise<ApiResponse<any[]>> {
-    const response = await fetch(`${API_BASE_URL}/grade-levels/`, {
-      headers: this.getAuthHeaders()
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/grade-levels/`, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getGradeLevels());
+  }
+
+  async createGradeLevel(gradeLevelData: any): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/grade-levels/`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(gradeLevelData)
     });
     return this.handleResponse(response);
   }
 
   async getTopics(): Promise<ApiResponse<any[]>> {
-    const response = await fetch(`${API_BASE_URL}/curriculum/topics`, {
-      headers: this.getAuthHeaders()
-    });
-    return this.handleResponse(response);
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/curriculum/topics`, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getTopics());
   }
 
   async getTopicsByCurriculumStructure(curriculumStructureId: number): Promise<ApiResponse<any[]>> {
-    const response = await fetch(`${API_BASE_URL}/curriculum/topics?curriculum_structure_id=${curriculumStructureId}`, {
-      headers: this.getAuthHeaders()
-    });
-    return this.handleResponse(response);
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/curriculum/topics?curriculum_structure_id=${curriculumStructureId}`, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getTopicsByCurriculumStructure(curriculumStructureId));
   }
 
-  // Curriculum Data
   async getCurriculums(countryId?: number): Promise<ApiResponse<any[]>> {
-    const url = countryId 
-      ? `${API_BASE_URL}/curriculum/?country_id=${countryId}`
-      : `${API_BASE_URL}/curriculum/`;
-    const response = await fetch(url, {
-      headers: this.getAuthHeaders()
-    });
-    return this.handleResponse(response);
+    const fetchFn = async () => {
+      const url = countryId
+        ? `${API_BASE_URL}/curriculum/?country_id=${countryId}`
+        : `${API_BASE_URL}/curriculum/`;
+      const response = await this.apiFetch(url, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getCurriculums(countryId));
   }
 
   async getCurriculumStructures(curriculaId?: number): Promise<ApiResponse<any[]>> {
-    const url = curriculaId 
-      ? `${API_BASE_URL}/curriculum-structures/?curricula_id=${curriculaId}`
-      : `${API_BASE_URL}/curriculum-structures/`;
-    const response = await fetch(url, {
+    const fetchFn = async () => {
+      const url = curriculaId
+        ? `${API_BASE_URL}/curriculum-structures/?curricula_id=${curriculaId}`
+        : `${API_BASE_URL}/curriculum-structures/`;
+      const response = await this.apiFetch(url, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getCurriculumStructures(curriculaId));
+  }
+
+  async createCurriculumStructure(structureData: any): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/curriculum-structures/`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(structureData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateCurriculumStructure(structureId: number, structureData: any): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/curriculum-structures/${structureId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(structureData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteCurriculumStructure(structureId: number): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/curriculum-structures/${structureId}`, {
+      method: 'DELETE',
       headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+
+  // Learning Objectives
+  async getLearningObjectives(topicId: number): Promise<ApiResponse<any[]>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/curriculum/topics/${topicId}/learning-objectives`, {
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async createLearningObjective(objectiveData: any): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/curriculum/learning-objectives`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(objectiveData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateLearningObjective(objectiveId: number, objective: string): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/curriculum/learning-objectives/${objectiveId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ objective })
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteLearningObjective(objectiveId: number): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/curriculum/learning-objectives/${objectiveId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  // Topic Content
+  async getTopicContents(topicId: number): Promise<ApiResponse<any[]>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/curriculum/topics/${topicId}/contents`, {
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async createTopicContent(contentData: any): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/curriculum/contents`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(contentData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateTopicContent(contentId: number, content_area: string): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/curriculum/contents/${contentId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ content_area })
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteTopicContent(contentId: number): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/curriculum/contents/${contentId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  // ── Children / Parent endpoints ────────────────────────────────────
+
+  async getChildren(): Promise<ApiResponse<ChildProfileListResponse>> {
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/children`, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getChildren());
+  }
+
+  async getChild(childId: number): Promise<ApiResponse<ChildProfile>> {
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/children/${childId}`, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getChild(childId));
+  }
+
+  async createChild(childData: ChildProfileCreate): Promise<ApiResponse<ChildProfile>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/children`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(childData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateChild(childId: number, childData: ChildProfileUpdate): Promise<ApiResponse<ChildProfile>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/children/${childId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(childData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteChild(childId: number): Promise<ApiResponse<null>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/children/${childId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async getChildTopics(childId: number, subjectId?: number): Promise<ApiResponse<ChildTopic[]>> {
+    const fetchFn = async () => {
+      const url = subjectId
+        ? `${API_BASE_URL}/children/${childId}/topics?subject_id=${subjectId}`
+        : `${API_BASE_URL}/children/${childId}/topics`;
+      const response = await this.apiFetch(url, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getChildTopics(childId, subjectId));
+  }
+
+  async getChildGuides(childId: number, bookmarked?: boolean): Promise<ApiResponse<ParentGuideListResponse>> {
+    const fetchFn = async () => {
+      const url = bookmarked
+        ? `${API_BASE_URL}/children/${childId}/guides?bookmarked=true`
+        : `${API_BASE_URL}/children/${childId}/guides`;
+      const response = await this.apiFetch(url, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getChildGuides(childId, bookmarked));
+  }
+
+  async generateGuide(childId: number, topicId: number): Promise<ApiResponse<ParentGuide>> {
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/children/${childId}/guides/generate?topic_id=${topicId}`, {
+        method: 'POST',
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.generateGuide(childId, topicId));
+  }
+
+  async getGuide(guideId: number): Promise<ApiResponse<ParentGuide>> {
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/guides/${guideId}`, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.getGuide(guideId));
+  }
+
+  async toggleGuideBookmark(guideId: number): Promise<ApiResponse<ParentGuide>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/guides/${guideId}/bookmark`, {
+      method: 'POST',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  /**
+   * Export a parent guide as a PDF blob for offline printing.
+   * Returns { blob, filename } on success, or { error } on failure.
+   */
+  async exportGuidePdf(
+    guideId: number,
+  ): Promise<{ blob: Blob; filename: string } | { error: string }> {
+    try {
+      const response = await this.apiFetch(
+        `${API_BASE_URL}/guides/${guideId}/export`,
+        { method: 'GET' },
+      )
+      if (!response.ok) {
+        let detail = `HTTP ${response.status}`
+        try {
+          const body = await response.json()
+          detail = body.detail || detail
+        } catch { /* empty */ }
+        return { error: detail }
+      }
+      const blob = await response.blob()
+      // Extract filename from Content-Disposition or fall back to default
+      const disposition = response.headers.get('Content-Disposition') ?? ''
+      const match = disposition.match(/filename="?([^";\n]+)"?/)
+      const filename = match?.[1] ?? `guide_${guideId}.pdf`
+      return { blob, filename }
+    } catch (err: unknown) {
+      return { error: err instanceof Error ? err.message : 'Export failed' }
+    }
+  }
+
+  /** Explicit logout — clears HttpOnly cookies server-side. */
+  async logoutUser(): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/auth/logout`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
     });
     return this.handleResponse(response);
   }
 
   // Google OAuth
-  async googleAuth(credential: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/auth/google`, {
+  async googleAuth(credential: string, role?: string): Promise<ApiResponse<any>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/auth/google`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ credential })
+      body: JSON.stringify({ credential, role: role || 'PARENT' })
     });
-    
+
     return this.handleResponse(response);
   }
 
   // Password Reset
   async forgotPassword(email: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+    const response = await this.apiFetch(`${API_BASE_URL}/auth/forgot-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
@@ -284,7 +828,7 @@ class ApiService {
   }
 
   async resetPassword(token: string, newPassword: string): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+    const response = await this.apiFetch(`${API_BASE_URL}/auth/reset-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token, new_password: newPassword })
@@ -294,12 +838,16 @@ class ApiService {
 
   // AI Health Check
   async checkAiHealth(): Promise<ApiResponse<any>> {
-    const response = await fetch(`${API_BASE_URL}/lesson-plans/ai/health`, {
-      headers: this.getAuthHeaders()
-    });
-    return this.handleResponse(response);
+    const fetchFn = async () => {
+      const response = await this.apiFetch(`${API_BASE_URL}/lesson-plans/ai/health`, {
+        headers: this.getAuthHeaders()
+      });
+      return response;
+    }
+    const response = await fetchFn();
+    return this.handleResponse(response, () => this.checkAiHealth());
   }
 }
 
 export const apiService = new ApiService();
-export default apiService; 
+export default apiService;

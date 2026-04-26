@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { FaHome, FaBookOpen, FaFolder, FaCog } from 'react-icons/fa';
-import apiService from '../services/api';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
+
 import Sidebar from '../components/Sidebar';
+import MobileNavigation from '../components/MobileNavigation';
+import AIGenerationLoadingActual from '../components/AIGenerationLoadingActual';
+
+import apiService from '../services/api';
+import { sanitizeInput } from '../utils/sanitizer';
 
 interface LessonPlanData {
   lesson_id: number;
@@ -29,6 +33,7 @@ const LessonPlanDetailPage: React.FC = () => {
   const [context, setContext] = useState('');
   const [isGeneratingLessonResource, setIsGeneratingLessonResource] = useState(false);
   const [contextFeedback, setContextFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [currentGenerationStep, setCurrentGenerationStep] = useState<string>('');
 
   useEffect(() => {
     const fetchLessonPlan = async () => {
@@ -67,18 +72,25 @@ const LessonPlanDetailPage: React.FC = () => {
     fetchLessonPlan();
   }, [id, location.state]);
 
+  // ... existing code ...
+
   const handleGenerateLessonResource = async () => {
     if (!lessonPlan) return;
 
     setIsGeneratingLessonResource(true);
     setContextFeedback(null);
-    
+    setCurrentGenerationStep('validate-lesson-plan');
+
     try {
-      // If context is provided, submit it to database first
-      if (context.trim()) {
+      // Sanitize context input
+      const sanitizedContext = sanitizeInput(context);
+
+      // Step 1: Submit context if provided
+      if (sanitizedContext) {
+        setCurrentGenerationStep('submit-context');
         const contextResponse = await apiService.submitContext(
           lessonPlan.lesson_id.toString(),
-          context
+          sanitizedContext
         );
 
         if (contextResponse.error) {
@@ -86,15 +98,56 @@ const LessonPlanDetailPage: React.FC = () => {
         }
       }
 
-      // Generate lesson resource using GPT service
+      // Step 2: Fetch curriculum data (simulated)
+      setCurrentGenerationStep('fetch-curriculum-data');
+      await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause to show step
+
+      // Step 3: Generate lesson resource (starts async process)
+      setCurrentGenerationStep('ai-generation');
       const response = await apiService.generateLessonResource(
         lessonPlan.lesson_id.toString(),
-        context || 'Generate a comprehensive lesson resource for this lesson plan'
+        sanitizedContext || 'Generate a comprehensive lesson resource for this lesson plan'
       );
 
-      if (response.error) {
-        throw new Error(response.error);
+      if (response.error || !response.data) {
+        throw new Error(response.error || 'Failed to initiate resource generation');
       }
+
+      let resource = response.data;
+      const resourceId = resource.lesson_resources_id;
+
+      // Step 4: Poll for completion if status is processing
+      if (resource.status === 'processing') {
+        setCurrentGenerationStep('ai-generation'); // Keep showing generation step
+
+        let attempts = 0;
+        const maxAttempts = 60; // 2 minutes timeout (2s * 60)
+
+        while (resource.status === 'processing' && attempts < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s
+          attempts++;
+
+          const pollResponse = await apiService.getLessonResource(resourceId.toString());
+          if (pollResponse.error || !pollResponse.data) {
+            console.warn("Polling failed temporarily", pollResponse.error);
+            continue; // Retry polling
+          }
+
+          resource = pollResponse.data;
+        }
+
+        if (resource.status === 'processing') {
+          throw new Error('Generation timed out. Please check back later.');
+        }
+
+        if (resource.status === 'failed') {
+          throw new Error('AI generation failed. Please try again.');
+        }
+      }
+
+      // Step 5: Complete
+      setCurrentGenerationStep('complete');
+      await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause before redirect
 
       // Show success feedback
       setContextFeedback({
@@ -102,7 +155,7 @@ const LessonPlanDetailPage: React.FC = () => {
         message: 'Lesson resource generated successfully! You can now view and edit the generated content.'
       });
       setContext('');
-      
+
       // Clear feedback after 5 seconds
       setTimeout(() => setContextFeedback(null), 5000);
 
@@ -115,6 +168,7 @@ const LessonPlanDetailPage: React.FC = () => {
       });
     } finally {
       setIsGeneratingLessonResource(false);
+      setCurrentGenerationStep('');
     }
   };
 
@@ -134,7 +188,7 @@ const LessonPlanDetailPage: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error || 'Lesson plan not found'}</p>
-          <button 
+          <button
             onClick={() => navigate('/dashboard')}
             className="bg-orange-400 text-white px-4 py-2 rounded hover:bg-orange-500"
           >
@@ -154,7 +208,7 @@ const LessonPlanDetailPage: React.FC = () => {
       <main className="flex-1 lg:ml-64 p-4 md:p-6 lg:p-8 pb-20 lg:pb-8">
         {/* Back Navigation */}
         <div className="mb-4 md:mb-6">
-          <button 
+          <button
             onClick={() => navigate('/dashboard')}
             className="text-primary-600 text-sm mb-2 flex items-center hover:text-primary-700 transition-colors duration-200"
           >
@@ -224,21 +278,19 @@ const LessonPlanDetailPage: React.FC = () => {
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
                 rows={3}
               />
-              
+
               {/* Loading State and Feedback */}
-            
-              
+
+
               {/* Success/Error Feedback */}
               {contextFeedback && (
-                <div className={`mt-3 p-3 rounded-lg border ${
-                  contextFeedback.type === 'success' 
-                    ? 'bg-green-50 border-green-200' 
-                    : 'bg-red-50 border-red-200'
-                }`}>
+                <div className={`mt-3 p-3 rounded-lg border ${contextFeedback.type === 'success'
+                  ? 'bg-green-50 border-green-200'
+                  : 'bg-red-50 border-red-200'
+                  }`}>
                   <div className="flex items-center space-x-2">
-                    <span className={`text-sm font-medium ${
-                      contextFeedback.type === 'success' ? 'text-green-800' : 'text-red-800'
-                    }`}>
+                    <span className={`text-sm font-medium ${contextFeedback.type === 'success' ? 'text-green-800' : 'text-red-800'
+                      }`}>
                       {contextFeedback.type === 'success' ? '✅' : '❌'} {contextFeedback.message}
                     </span>
                   </div>
@@ -248,7 +300,7 @@ const LessonPlanDetailPage: React.FC = () => {
 
             {/* Action Buttons */}
             <div className="flex gap-4 mt-6 md:mt-8">
-              <button 
+              <button
                 onClick={handleGenerateLessonResource}
                 disabled={isGeneratingLessonResource}
                 className="bg-primary-600 w-full text-center text-white font-semibold px-4 md:px-6 py-2 md:py-3 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base transition-colors duration-200"
@@ -258,8 +310,8 @@ const LessonPlanDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right panel: Additional Info - Hidden on mobile */}
-          <div className="hidden lg:flex w-64 flex-col gap-4 lg:gap-6">
+          {/* Right panel: Additional Info - Visible on all devices, stacked on mobile */}
+          <div className="flex w-full lg:w-64 flex-col gap-4 lg:gap-6 order-last lg:order-none">
             <div className="bg-white rounded-xl shadow-lg p-4 border border-gray-100">
               <div className="font-bold mb-2 text-primary-900">Lesson Info</div>
               <div className="text-sm text-gray-600 space-y-1">
@@ -280,38 +332,26 @@ const LessonPlanDetailPage: React.FC = () => {
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 z-50 shadow-lg">
-        <div className="flex justify-around items-center">
-          <button 
-            className="flex flex-col items-center py-2 px-3 text-primary-600 font-medium transition-colors duration-200"
-            onClick={() => navigate('/dashboard')}
-          >
-            <FaHome className="w-6 h-6 mb-1" />
-            <span className="text-xs">Dashboard</span>
-          </button>
-          <button 
-            className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
-            onClick={() => navigate('/lesson-plans')}
-          >
-            <FaBookOpen className="w-6 h-6 mb-1" />
-            <span className="text-xs">Plans</span>
-          </button>
-          <button 
-            className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
-            onClick={() => navigate('/lesson-resources')}
-          >
-            <FaFolder className="w-6 h-6 mb-1" />
-            <span className="text-xs">Resources</span>
-          </button>
-          <button 
-            className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
-            onClick={() => navigate('/settings')}
-          >
-            <FaCog className="w-6 h-6 mb-1" />
-            <span className="text-xs">Settings</span>
-          </button>
-        </div>
-      </nav>
+      <MobileNavigation />
+
+      {/* AI Generation Loading Modal */}
+      <AIGenerationLoadingActual
+        isVisible={isGeneratingLessonResource}
+        onComplete={() => setIsGeneratingLessonResource(false)}
+        onError={(error) => {
+          setContextFeedback({
+            type: 'error',
+            message: error
+          });
+          setIsGeneratingLessonResource(false);
+        }}
+        generationType="lesson-resource"
+        topic={lessonPlan?.topic}
+        subject={lessonPlan?.subject}
+        gradeLevel={lessonPlan?.grade_level}
+        currentStep={currentGenerationStep}
+        hasContext={!!context.trim()}
+      />
     </div>
   );
 };

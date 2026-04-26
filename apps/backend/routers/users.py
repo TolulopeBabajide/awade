@@ -53,10 +53,10 @@ async def get_user(
 ):
     """
     Get a specific user by ID.
-    Requires authentication and ownership or admin role.
+    Requires authentication; caller must own the record or hold ADMIN/SUPER_ADMIN role.
     """
     service = UserService(db)
-    return service.get_user(user_id)
+    return service.get_user(user_id, current_user)
 
 @router.put("/{user_id}", response_model=UserResponse)
 async def update_user(

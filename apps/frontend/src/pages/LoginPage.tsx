@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
-import { FaEye, FaEyeSlash, FaArrowLeft, FaEnvelope, FaLock, FaCheckCircle, FaArrowRight } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaArrowLeft, FaEnvelope, FaLock } from 'react-icons/fa';
 
 
 

@@ -1,25 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+
 import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
 import Sidebar from '../components/Sidebar';
+import MobileNavigation from '../components/MobileNavigation';
 // import Footer from '../components/Footer';
 import { 
   FaUser, 
   FaShieldAlt, 
-  FaGlobe, 
   FaTrash, 
   FaEdit, 
   FaTimes,
   FaCheck,
-  FaSignOutAlt,
-  FaBell,
-  FaHeadset,
-  FaPhone,
-  FaEnvelope,
-  FaMapMarkerAlt,
-  FaUserEdit,
-  FaKey,
   FaCog
 } from 'react-icons/fa';
 
@@ -43,8 +35,7 @@ interface UserProfile {
 
 
 const SettingsPage: React.FC = () => {
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'language'>('profile');
   const [editingField, setEditingField] = useState<string | null>(null);
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
@@ -110,7 +101,7 @@ const SettingsPage: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Error loading user profile:', error);
+      // Profile load failed silently; UI shows empty state
     }
   };
 
@@ -210,34 +201,25 @@ const SettingsPage: React.FC = () => {
       return;
     }
 
-    try {
-      // Update email if changed
-      if (loginForm.email !== profileData?.email) {
-        // TODO: Implement email update API call
-        console.log('Email update not implemented yet');
-      }
-      
-      // Update password if provided
-      if (loginForm.newPassword) {
-        // TODO: Implement password update API call
-        console.log('Password update not implemented yet');
-      }
-      
-      setIsEditingLogin(false);
-      setLoginForm({
-        email: '',
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
+    const emailChanged = loginForm.email !== profileData?.email;
+    const passwordProvided = !!loginForm.newPassword;
+
+    if (emailChanged || passwordProvided) {
+      setLoginErrors({
+        general: 'Email and password updates are not yet available. Please contact support if you need to change these details.'
       });
-      setLoginErrors({});
-      
-      // Show success message
-      alert('Login details updated successfully!');
-    } catch (error) {
-      console.error('Error updating login details:', error);
-      setLoginErrors({ general: 'Failed to update login details. Please try again.' });
+      return;
     }
+
+    // Nothing to update — close the edit form
+    setIsEditingLogin(false);
+    setLoginForm({
+      email: '',
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+    setLoginErrors({});
   };
 
 
@@ -327,7 +309,7 @@ const SettingsPage: React.FC = () => {
                       activeTab === 'language' ? 'text-accent-600 bg-accent-50' : 'text-gray-700'
                     }`}
                   >
-                    <FaGlobe className="w-4 h-4 mr-2" />
+                    <FaCog className="w-4 h-4 mr-2" />
                     Language
                   </button>
                   <div className="border-t border-gray-100 my-1"></div>
@@ -745,38 +727,7 @@ const SettingsPage: React.FC = () => {
         </div>
 
         {/* Mobile Bottom Navigation */}
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 z-50 shadow-lg">
-          <div className="flex justify-around items-center">
-            <button 
-              className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
-              onClick={() => navigate('/dashboard')}
-            >
-              <FaUser className="w-6 h-6 mb-1" />
-              <span className="text-xs">Dashboard</span>
-            </button>
-            <button 
-              className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
-              onClick={() => navigate('/lesson-plans')}
-            >
-              <FaShieldAlt className="w-6 h-6 mb-1" />
-              <span className="text-xs">Plans</span>
-            </button>
-            <button 
-              className="flex flex-col items-center py-2 px-3 text-gray-500 hover:text-primary-600 font-medium transition-colors duration-200"
-              onClick={() => navigate('/lesson-resources')}
-            >
-              <FaGlobe className="w-6 h-6 mb-1" />
-              <span className="text-xs">Resources</span>
-            </button>
-            <button 
-              className="flex flex-col items-center py-2 px-3 text-primary-600 font-medium transition-colors duration-200"
-              onClick={() => navigate('/settings')}
-            >
-              <FaCog className="w-6 h-6 mb-1" />
-              <span className="text-xs">Settings</span>
-            </button>
-          </div>
-        </nav>
+        <MobileNavigation />
       </main>
 
       {/* Footer */}

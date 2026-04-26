@@ -1,8 +1,13 @@
 import React, { useState } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
+import { useIntersectionObserver } from '../hooks/useIntersectionObserver'
 
 const TestimonialsSection: React.FC = () => {
   const [currentTestimonial, setCurrentTestimonial] = useState(0)
+  const { ref, isVisible } = useIntersectionObserver({
+    threshold: 0.1,
+    freezeOnceVisible: true,
+  })
 
   const testimonials = [
     {
@@ -37,10 +42,10 @@ const TestimonialsSection: React.FC = () => {
   }
 
   return (
-    <section id="testimonials" className="section-padding bg-gray-50">
+    <section id="testimonials" className="section-padding bg-gray-50" ref={ref}>
       <div className="container-custom">
         {/* Section Heading */}
-        <div className="text-center mb-12">
+        <div className={`text-center mb-12 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <div className="flex items-center justify-center mb-8">
             <div className="flex-1 h-px bg-gray-300"></div>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 px-8">
@@ -54,8 +59,8 @@ const TestimonialsSection: React.FC = () => {
         </div>
 
         {/* Testimonial Card */}
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 relative">
+        <div className={`max-w-4xl mx-auto transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+          <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 relative transform transition-transform duration-300 hover:scale-[1.02] hover:shadow-2xl">
             {/* Quote Icon */}
             <div className="absolute top-6 left-6 text-6xl text-primary-200">
               "
@@ -64,18 +69,18 @@ const TestimonialsSection: React.FC = () => {
             <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
               {/* Avatar */}
               <div className="flex-shrink-0">
-                <div className="w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-3xl text-white">
+                <div className="w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-3xl text-white animate-bounce-gentle">
                   {testimonials[currentTestimonial].avatar}
                 </div>
               </div>
 
               {/* Content */}
               <div className="flex-1 text-center md:text-left">
-                <p className="text-lg md:text-xl text-gray-700 leading-relaxed mb-6">
+                <p className="text-lg md:text-xl text-gray-700 leading-relaxed mb-6 animate-fade-in" key={currentTestimonial}>
                   {testimonials[currentTestimonial].content}
                 </p>
-                
-                <div className="text-center md:text-left">
+
+                <div className="text-center md:text-left animate-slide-up" key={`meta-${currentTestimonial}`}>
                   <h4 className="font-bold text-gray-900 text-lg">
                     {testimonials[currentTestimonial].name}
                   </h4>
@@ -90,7 +95,7 @@ const TestimonialsSection: React.FC = () => {
             <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-8">
               <button
                 onClick={prevTestimonial}
-                className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-600 hover:text-primary-600 transition-colors duration-200"
+                className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-600 hover:text-primary-600 transition-colors duration-200 hover:scale-110"
               >
                 <ChevronLeftIcon className="w-6 h-6" />
               </button>
@@ -99,7 +104,7 @@ const TestimonialsSection: React.FC = () => {
             <div className="absolute top-1/2 -translate-y-1/2 right-4 md:right-8">
               <button
                 onClick={nextTestimonial}
-                className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-600 hover:text-primary-600 transition-colors duration-200"
+                className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-600 hover:text-primary-600 transition-colors duration-200 hover:scale-110"
               >
                 <ChevronRightIcon className="w-6 h-6" />
               </button>
@@ -111,9 +116,8 @@ const TestimonialsSection: React.FC = () => {
                 <button
                   key={index}
                   onClick={() => setCurrentTestimonial(index)}
-                  className={`w-3 h-3 rounded-full transition-colors duration-200 ${
-                    index === currentTestimonial ? 'bg-primary-600' : 'bg-gray-300'
-                  }`}
+                  className={`w-3 h-3 rounded-full transition-colors duration-200 ${index === currentTestimonial ? 'bg-primary-600' : 'bg-gray-300'
+                    }`}
                 />
               ))}
             </div>

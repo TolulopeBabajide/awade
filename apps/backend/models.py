@@ -7,7 +7,7 @@ from sqlalchemy import (
     Column, Integer, String, Text, DateTime, ForeignKey, 
     Enum, Table, MetaData, Index
 )
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from datetime import datetime
@@ -19,7 +19,9 @@ Base = declarative_base()
 class UserRole(enum.Enum):
     """Enumeration of user roles in the Awade platform."""
     EDUCATOR = "EDUCATOR"
+    PARENT = "PARENT"
     ADMIN = "ADMIN"
+    SUPER_ADMIN = "SUPER_ADMIN"
 
 class LessonStatus(enum.Enum):
     """Enumeration of lesson plan statuses."""
@@ -189,11 +191,63 @@ class User(Base):
     phone = Column(String(20), nullable=True)  # Phone number
     bio = Column(Text, nullable=True)  # User bio/description
     last_login = Column(DateTime, nullable=True)
+    is_suspended = Column(Integer, default=0, nullable=False) # 0 = active, 1 = suspended
     created_at = Column(DateTime, default=func.now(), nullable=False)
     
     # Relationships
     lesson_resources = relationship("LessonResource", back_populates="user")
     lesson_plans = relationship("LessonPlan", back_populates="user", cascade="all, delete-orphan")
+    children = relationship("ChildProfile", back_populates="parent", cascade="all, delete-orphan")
+
+class ChildProfile(Base):
+    """Child profiles managed by parent users."""
+    __tablename__ = 'child_profiles'
+
+    child_id = Column(Integer, primary_key=True, autoincrement=True)
+    parent_id = Column(Integer, ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
+    name = Column(String(100), nullable=False)
+    age = Column(Integer, nullable=True)
+    school_name = Column(String(200), nullable=True)
+    country_id = Column(Integer, ForeignKey('countries.country_id'), nullable=True)
+    curricula_id = Column(Integer, ForeignKey('curricula.curricula_id'), nullable=True)
+    grade_level_id = Column(Integer, ForeignKey('grade_levels.grade_level_id'), nullable=True)
+    subjects = Column(Text, nullable=True)  # JSON array of subject IDs the child needs help with
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
+
+    # Relationships
+    parent = relationship("User", back_populates="children")
+    country = relationship("Country")
+    curriculum = relationship("Curriculum")
+    grade_level = relationship("GradeLevel")
+    parent_guides = relationship("ParentGuide", back_populates="child", cascade="all, delete-orphan")
+
+    __table_args__ = (
+        Index('idx_child_parent', 'parent_id'),
+    )
+
+
+class ParentGuide(Base):
+    """AI-generated 'How to Help' guides for parent users."""
+    __tablename__ = 'parent_guides'
+
+    guide_id = Column(Integer, primary_key=True, autoincrement=True)
+    child_id = Column(Integer, ForeignKey('child_profiles.child_id', ondelete='CASCADE'), nullable=False)
+    topic_id = Column(Integer, ForeignKey('topics.topic_id', ondelete='CASCADE'), nullable=False)
+    ai_generated_content = Column(Text, nullable=True)
+    user_edited_content = Column(Text, nullable=True)
+    is_bookmarked = Column(Integer, default=0, nullable=False)  # 0 = not bookmarked, 1 = bookmarked
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
+
+    # Relationships
+    child = relationship("ChildProfile", back_populates="parent_guides")
+    topic = relationship("Topic")
+
+    __table_args__ = (
+        Index('idx_guide_child_topic', 'child_id', 'topic_id'),
+    )
+
 
 class LessonPlan(Base):
     """Lesson plans created by educators."""
@@ -254,5 +308,49 @@ class Tag(Base):
     # Relationships
     lesson_plans = relationship("LessonPlan", secondary=lesson_tags, back_populates="tags")
 
+# Admin and Moderation Tables
+class AdminAuditLog(Base):
+    """Audit logs for administrative actions."""
+    __tablename__ = 'admin_audit_logs'
+    
+    log_id = Column(Integer, primary_key=True, autoincrement=True)
+    actor_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
+    action = Column(String(100), nullable=False)  # e.g., 'suspend_user', 'change_role', 'delete_resource'
+    target_type = Column(String(50), nullable=False)  # e.g., 'user', 'lesson_resource', 'curriculum'
+    target_id = Column(Integer, nullable=True)
+    metadata_json = Column(Text, nullable=True)  # Detailed info about the change (JSON string)
+    ip_address = Column(String(45), nullable=True)
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    
+    # Relationships
+    actor = relationship("User")
+
+class ResourceModeration(Base):
+    """Moderation status and notes for lesson resources."""
+    __tablename__ = 'resource_moderation'
+    
+    moderation_id = Column(Integer, primary_key=True, autoincrement=True)
+    lesson_resource_id = Column(Integer, ForeignKey('lesson_resources.lesson_resources_id', ondelete='CASCADE'), unique=True, nullable=False)
+    status = Column(String(20), default='pending', nullable=False)  # pending, safe, flagged, removed
+    notes = Column(Text, nullable=True)
+    reviewed_by = Column(Integer, ForeignKey('users.user_id'), nullable=True)
+    reviewed_at = Column(DateTime, nullable=True)
+    
+    # Relationships
+    lesson_resource = relationship("LessonResource", backref="moderation")
+    reviewer = relationship("User")
+
+class LessonTemplate(Base):
+    """Templates for AI-generated lesson plans."""
+    __tablename__ = 'lesson_templates'
+    
+    template_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(100), nullable=False)
+    version = Column(String(20), nullable=False)
+    schema_json = Column(Text, nullable=False)  # JSON schema for the template structure
+    is_active = Column(Integer, default=1, nullable=False)  # Using Integer as pseudo-boolean for consistency
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
+
 # Add tags relationship to LessonPlan
-LessonPlan.tags = relationship("Tag", secondary=lesson_tags, back_populates="lesson_plans") 
+LessonPlan.tags = relationship("Tag", secondary=lesson_tags, back_populates="lesson_plans")

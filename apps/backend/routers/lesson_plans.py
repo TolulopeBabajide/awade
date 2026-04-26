@@ -15,7 +15,9 @@ Endpoints:
 Author: Tolulope Babajide
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Response, Query
+import logging
+
+from fastapi import APIRouter, Depends, HTTPException, Response, Query, Request
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
@@ -23,6 +25,7 @@ from datetime import datetime
 from apps.backend.database import get_db
 from apps.backend.models import User, LessonResource, UserRole
 from apps.backend.dependencies import get_current_user, require_educator, require_admin_or_educator, get_optional_current_user
+from apps.backend.limiter import limiter
 from apps.backend.services.lesson_plan_service import LessonPlanService
 from apps.backend.schemas.lesson_plans import (
     LessonPlanCreate,
@@ -33,11 +36,15 @@ from apps.backend.schemas.lesson_plans import (
     LessonResourceResponse
 )
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/api/lesson-plans", tags=["lesson-plans"])
 
 @router.post("/generate", response_model=LessonPlanResponse)
+@limiter.limit("5/minute")
 async def generate_lesson_plan(
-    request: LessonPlanCreate,
+    request: Request,
+    data: LessonPlanCreate,
     current_user: User = Depends(require_educator),
     db: Session = Depends(get_db)
 ):
@@ -46,7 +53,7 @@ async def generate_lesson_plan(
     Requires educator authentication.
     """
     service = LessonPlanService(db)
-    return service.generate_lesson_plan(request, current_user)
+    return service.generate_lesson_plan(data, current_user)
 
 @router.get("/resources", response_model=List[LessonResourceResponse])
 async def get_all_lesson_resources(
@@ -63,6 +70,7 @@ async def get_all_lesson_resources(
 @router.get("/resources/{resource_id}", response_model=LessonResourceResponse)
 async def get_lesson_resource(
     resource_id: int,
+    response: Response,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -70,6 +78,10 @@ async def get_lesson_resource(
     Get a specific lesson resource.
     Requires authentication.
     """
+    # Prevent caching of polling results
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    
     service = LessonPlanService(db)
     return service.get_lesson_resource(resource_id, current_user)
 
@@ -143,9 +155,11 @@ async def get_lesson_plan_resources(
     return service.get_lesson_plan_resources(lesson_id, current_user)
 
 @router.post("/{lesson_id}/resources/generate", response_model=LessonResourceResponse)
+@limiter.limit("3/minute")
 async def generate_lesson_resource(
     lesson_id: int,
     data: LessonResourceCreate,
+    request: Request,
     current_user: User = Depends(require_educator),
     db: Session = Depends(get_db)
 ):
@@ -153,8 +167,9 @@ async def generate_lesson_resource(
     Generate AI-powered lesson resources for a specific lesson plan.
     Requires educator authentication.
     """
-    service = LessonPlanService(db)
-    return service.generate_lesson_resource(lesson_id, data, current_user)
+    redis_pool = getattr(request.app.state, "redis", None)
+    service = LessonPlanService(db, redis_pool)
+    return await service.generate_lesson_resource(lesson_id, data, current_user)
 
 @router.post("/resources/{resource_id}/export")
 async def export_lesson_resource(
@@ -205,10 +220,15 @@ async def export_lesson_resource(
         else:
             raise HTTPException(status_code=400, detail="Unsupported export format. Use 'pdf' or 'docx'")
             
-    except Exception as e:
+    except HTTPException:
+        raise
+    except Exception:
+        logger.error(
+            "Unexpected error exporting lesson resource %s", resource_id, exc_info=True
+        )
         raise HTTPException(
-            status_code=500, 
-            detail=f"An error occurred while exporting the resource: {str(e)}"
+            status_code=500,
+            detail="An error occurred while exporting the resource."
         )
 
 # Additional endpoints can be added here as needed 

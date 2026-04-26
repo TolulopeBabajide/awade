@@ -37,20 +37,65 @@ root_dir = os.path.dirname(parent_dir)
 sys.path.extend([parent_dir, root_dir])
 
 # Import routers
-try:
-    from apps.backend.routers import lesson_plans, curriculum, users, contexts, auth
-    from apps.backend.database import get_db, engine
-    from apps.backend.routers import country, grade_level, subject, curriculum_structure
-    from apps.backend.models import Base
-except ImportError:
-    # Fallback for Docker container
-    from apps.backend.routers import lesson_plans, curriculum, users, contexts, auth
-    from apps.backend.database import get_db, engine
-    from apps.backend.routers import country, grade_level, subject, curriculum_structure
-    from apps.backend.models import Base
+from apps.backend.routers import (
+    lesson_plans, curriculum, users, contexts, auth,
+    country, grade_level, subject, curriculum_structure, admin,
+    children
+)
+from apps.backend.database import get_db, engine
+from apps.backend.models import Base
 
 # Load environment variables
 load_dotenv()
+
+# ---------------------------------------------------------------------------
+# Sentry error monitoring (AWD-H-01)
+# Initialised early, before the app is created, so all exceptions are captured.
+# Only active when SENTRY_DSN is set and ENVIRONMENT is not "testing".
+# ---------------------------------------------------------------------------
+import logging as _logging
+
+_sentry_logger = _logging.getLogger(__name__)
+
+def _init_sentry() -> None:
+    sentry_dsn = os.getenv("SENTRY_DSN", "")
+    environment = os.getenv("ENVIRONMENT", "development")
+    if not sentry_dsn:
+        _sentry_logger.info("Sentry DSN not set — error monitoring disabled")
+        return
+    if environment == "testing":
+        _sentry_logger.info("Sentry disabled in testing environment")
+        return
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.fastapi import FastApiIntegration
+        from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+        from sentry_sdk.integrations.logging import LoggingIntegration
+
+        sentry_sdk.init(
+            dsn=sentry_dsn,
+            environment=environment,
+            integrations=[
+                FastApiIntegration(),
+                SqlalchemyIntegration(),
+                LoggingIntegration(
+                    level=_logging.INFO,       # breadcrumbs from INFO+
+                    event_level=_logging.ERROR, # send Sentry events for ERROR+
+                ),
+            ],
+            # Capture 10 % of transactions for performance monitoring;
+            # set to 1.0 in production if budget allows.
+            traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.1")),
+            # Never forward raw request bodies — COPPA / GDPR safety.
+            send_default_pii=False,
+        )
+        _sentry_logger.info("Sentry initialised (env=%s)", environment)
+    except ImportError:
+        _sentry_logger.warning("sentry-sdk not installed — error monitoring disabled")
+    except Exception as exc:
+        _sentry_logger.warning("Sentry initialisation failed: %s", exc)
+
+_init_sentry()
 
 # Auto-run database fix on startup
 def run_database_fix():
@@ -73,24 +118,111 @@ def run_database_fix():
         # Don't fail startup, just log the error
         pass
 
+from contextlib import asynccontextmanager
+from apps.backend.redis_client import create_redis_pool
+from apps.backend.dependencies import get_jwt_secret_key
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Validate required secrets before accepting traffic.
+    # get_jwt_secret_key() raises RuntimeError in production when unset.
+    get_jwt_secret_key()
+
+    # Startup: Create Redis pool
+    try:
+        app.state.redis = await create_redis_pool()
+        print("✅ Redis pool created")
+    except Exception as e:
+        print(f"⚠️ Failed to create Redis pool: {e}")
+        app.state.redis = None
+
+    yield
+    
+    # Shutdown: Close Redis pool
+    if getattr(app.state, "redis", None):
+        await app.state.redis.close()
+        print("🛑 Redis pool closed")
+
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from apps.backend.middleware import SecurityHeadersMiddleware
+from apps.backend.limiter import limiter
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+
+# ... existing code ...
+
 # Run database fix before creating the app
 run_database_fix()
+
+# ---------------------------------------------------------------------------
+# AWD-M-10: Hide API documentation in production.
+# docs_url and redoc_url are set to None when ENVIRONMENT=production so that
+# the Swagger UI and ReDoc pages are not publicly accessible on the live server.
+# ---------------------------------------------------------------------------
+_APP_ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+_docs_url = None if _APP_ENVIRONMENT == "production" else "/docs"
+_redoc_url = None if _APP_ENVIRONMENT == "production" else "/redoc"
 
 app = FastAPI(
     title="Awade API",
     description="AI-powered educator support platform for African teachers",
     version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc"
+    docs_url=_docs_url,
+    redoc_url=_redoc_url,
+    lifespan=lifespan
 )
 
+# Prometheus Metrics
+try:
+    from prometheus_fastapi_instrumentator import Instrumentator
+    Instrumentator().instrument(app).expose(app)
+except ImportError:
+    print("⚠️ Prometheus Instrumentator not found, skipping metrics exposure.")
+
+# Register Rate Limiter
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Security Headers Middleware
+app.add_middleware(SecurityHeadersMiddleware)
+
+# Audit Logging Middleware
+from apps.backend.middleware import AuditMiddleware
+app.add_middleware(AuditMiddleware)
+
+# ---------------------------------------------------------------------------
+# AWD-L-04: TrustedHostMiddleware guards against HTTP Host header injection
+# (OWASP A05 — Security Misconfiguration).
+# Set ALLOWED_HOSTS to a comma-separated list of valid host(s) in production
+# (e.g. "awade.app,www.awade.app"). Defaults to "*" (allow all) in dev/test.
+# ---------------------------------------------------------------------------
+_raw_allowed_hosts = os.getenv("ALLOWED_HOSTS", "*")
+_allowed_hosts = [h.strip() for h in _raw_allowed_hosts.split(",") if h.strip()] or ["*"]
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=_allowed_hosts)
+
 # CORS middleware
+# In production, set ALLOWED_ORIGINS to your frontend domain(s)
+# For development, we default to common local ports if env var is generic
+env_allowed_origins = os.getenv("ALLOWED_ORIGINS", "*")
+if env_allowed_origins == "*":
+    # If wildcard is set, we must specify origins to allow credentials
+    allowed_origins = [
+        "http://localhost:5173", # Vite default
+        "http://localhost:3001", # React default
+        "http://localhost:3000", # Vite (custom)
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:3001",
+        "http://127.0.0.1:3000"
+    ]
+else:
+    allowed_origins = env_allowed_origins.split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-Requested-With"],
 )
 
 # Create uploads directory if it doesn't exist
@@ -110,6 +242,8 @@ app.include_router(grade_level.router)
 app.include_router(subject.router)
 app.include_router(curriculum_structure.router)
 app.include_router(contexts.router)
+app.include_router(admin.router)
+app.include_router(children.router)
 
 # Basic health and info endpoints
 @app.get("/")

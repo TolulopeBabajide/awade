@@ -1,0 +1,34 @@
+{
+  "DATA_TIMESTAMP": "Awade \u2014 data as of 2026-04-22T18:45Z \u00b7 morning-brief 2026-04-22 \u00b7 dev-log top 18:11 \u00b7 qa-log top 18:32",
+  "CODE_HEALTH": {
+    "typescript": {
+      "status": "clean",
+      "label": "0 errors (tsc --noEmit)"
+    },
+    "tests_frontend": {
+      "status": "pass",
+      "label": "9 / 9 passing (vitest)"
+    },
+    "tests_backend": {
+      "status": "warn",
+      "label": "Sandbox disk full \u2014 CI authoritative; M-22 pre-existing, H-27/H-28/H-29 all fixed"
+    },
+    "lint": {
+      "status": "clean",
+      "label": "0 errors, 0 warnings (ESLint)"
+    },
+    "commits_today": 35,
+    "last_commit": "b9a089f"
+  },
+  "BACKLOG_OPEN_COUNT": 20,
+  "SECURITY_FINDINGS_COUNT": 6,
+  "DEV_ENTRIES_COUNT": 17,
+  "last_commit": "b9a089f",
+  "commits_today": 35,
+  "qa_latest": {
+    "time": "18:32",
+    "result": "pass",
+    "commit": "b9a089f",
+    "note": "H-23 fix (PyJWT==2.12.1 pin) clean. No new issues."
+  }
+}

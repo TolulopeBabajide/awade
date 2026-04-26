@@ -2,7 +2,7 @@
 GPT Service for Awade Lesson Planning
 
 This module provides AI-powered services for lesson plan generation,
-curriculum alignment, and educational content creation using OpenAI's GPT models.
+curriculum alignment, and educational content creation using LLM providers.
 
 Author: Tolulope Babajide
 """
@@ -10,21 +10,73 @@ Author: Tolulope Babajide
 import os
 import json
 import logging
+import re
 from typing import List, Dict, Any, Optional
-
-# Import OpenAI if available, otherwise use mock
-try:
-    import openai
-    OPENAI_AVAILABLE = True
-except ImportError:
-    OPENAI_AVAILABLE = False
-    logger.warning("OpenAI package not available. Using mock responses.")
-
-from .prompts import COMPREHENSIVE_LESSON_RESOURCE_PROMPT
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+from .prompts import COMPREHENSIVE_LESSON_RESOURCE_PROMPT, PARENT_HELPER_PROMPT
+
+# ---------------------------------------------------------------------------
+# Input-sanitisation constants — applied to user-supplied text BEFORE it is
+# inserted into a prompt template (AWD-M-12)
+# ---------------------------------------------------------------------------
+
+# Maximum characters accepted from a user-supplied context field.
+# Longer inputs are truncated to prevent token-stuffing / prompt DoS.
+_MAX_USER_CONTEXT_CHARS: int = 2000
+
+# Regex patterns that indicate an instruction-injection attempt in user input.
+# Any match causes the offending phrase to be scrubbed and logged.
+_INPUT_INJECTION_PATTERNS: list[str] = [
+    r"ignore\s+(all\s+)?(?:previous\s+)?instructions",
+    r"disregard\s+(all\s+)?instructions",
+    r"override\s+(your\s+)?(?:instructions|training)",
+    r"you\s+are\s+now\s+(?:a\s+)?(?:different|new|another)",
+    r"act\s+as\s+(?:a\s+)?(?:different|new|another|unrestricted|uncensored)",
+    r"\bsystem\s+prompt\b",
+    r"\bjailbreak\b",
+    r"bypass\s+(?:safety|security|filters)",
+    r"new\s+(?:role|persona|mode|behaviour|behavior)\s*:",
+    r"<\s*/?(?:system|assistant|user)\s*>",   # fake role tags
+]
+
+# ---------------------------------------------------------------------------
+# Content-safety patterns — applied to raw AI output in validate_output()
+# ---------------------------------------------------------------------------
+
+# PII that should never leak from prompts into persisted output
+_OUTPUT_PII_PATTERNS: list[tuple[str, str]] = [
+    (r"[\w\.\-]+@[\w\.\-]+\.\w+", "email address"),
+    (r"(?<!\d)\+?\d{10,15}(?!\d)", "phone number"),
+    (r"sk-[a-zA-Z0-9]{32,}", "API key"),
+]
+
+# Phrases that indicate the model was jailbroken / injection succeeded
+_OUTPUT_INJECTION_PATTERNS: list[str] = [
+    r"ignore\s+(all\s+)?previous\s+instructions",
+    r"\bsystem\s+prompt\b",
+    r"\bjailbreak\b",
+    r"disregard\s+(all\s+)?instructions",
+    r"bypass\s+(safety|security|filters)",
+    r"override\s+(your\s+)?(instructions|training)",
+    r"you\s+are\s+now\s+(?:a\s+)?(?:different|new|another)",
+]
+
+# Terms clearly inappropriate in child-facing educational content
+_HARMFUL_CONTENT_PATTERNS: list[str] = [
+    r"\bporn(?:ography)?\b",
+    r"\bxxx\b",
+    r"\bnudity\b",
+    r"\bkill\s+yourself\b",
+    r"\bself[- ]harm\b",
+]
+from .providers.base import LLMProvider
+from .providers.openai_provider import OpenAIProvider
+from .providers.gemini_provider import GeminiProvider
+from .cache import ContentCache
 
 # Load environment variables
 try:
@@ -44,130 +96,296 @@ class AwadeGPTService:
     - Generating comprehensive lesson resources from lesson plans
     - Curriculum-aligned content generation
     - Local context integration
+    
+    It delegates actual generation to the configured LLMProvider (OpenAI, Gemini)
+    and handles caching via ContentCache.
     """
     
-    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, provider_type: Optional[str] = None):
         """
         Initialize the GPT service.
         
         Args:
-            api_key (Optional[str]): OpenAI API key. If not provided, will try to get from environment.
-            model (Optional[str]): OpenAI model to use. If not provided, will use environment variable.
+            api_key (Optional[str]): API key for the provider.
+            provider_type (Optional[str]): 'openai', 'gemini', or 'mock'.
         """
-        # Get configuration from environment variables
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
-        self.model = model or os.getenv("OPENAI_MODEL", "gpt-4")
-        self.max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "4000"))
-        self.temperature = float(os.getenv("OPENAI_TEMPERATURE", "0.7"))
+        self.provider_type = provider_type or os.getenv("AI_PROVIDER", "openai").lower()
+        self.provider: Optional[LLMProvider] = None
+        self.max_tokens = int(os.getenv("AI_MAX_TOKENS", "8192"))
+        self.temperature = float(os.getenv("AI_TEMPERATURE", "0.7"))
         
-        # Initialize OpenAI client
-        if OPENAI_AVAILABLE and self.api_key:
-            try:
-                openai.api_key = self.api_key
-                self.client = openai.OpenAI(api_key=self.api_key)
-                logger.info(f"OpenAI client initialized successfully with model: {self.model}")
-            except Exception as e:
-                self.client = None
-        else:
-            self.client = None
-            if not OPENAI_AVAILABLE:
-                pass
-            elif not self.api_key:
-                pass
+        # Initialize Provider
+        self._init_provider(api_key)
+        
+        # Initialize Cache
+        self.cache = ContentCache() # Will use env vars for connection
     
-    def _make_api_call(self, prompt: str, temperature: Optional[float] = None, topic: str = "General Topic", subject: str = "Mathematics", grade: str = "Grade 4") -> str:
+    def _init_provider(self, api_key: Optional[str]):
+        """Initialize the specific provider backend."""
+        try:
+            if self.provider_type == "openai":
+                self.provider = OpenAIProvider(api_key=api_key)
+            elif self.provider_type == "gemini":
+                self.provider = GeminiProvider(api_key=api_key)
+            elif self.provider_type == "mock":
+                logger.info("Using explicit Mock provider configuration")
+                self.provider = None
+            else:
+                logger.warning(f"Unknown provider '{self.provider_type}', falling back to Mock")
+                self.provider = None
+                
+            if self.provider:
+                logger.info(f"AI Provider initialized: {self.provider_type}")
+        except Exception as e:
+            logger.error(f"Failed to initialize provider {self.provider_type}: {e}")
+            self.provider = None
+    
+    def _make_api_call(
+        self, 
+        prompt: str, 
+        temperature: Optional[float] = None, 
+        model_tier: str = "standard",
+        topic: str = "General Topic", 
+        subject: str = "Mathematics", 
+        grade: str = "Grade 4",
+        prompt_metadata: Optional[Dict[str, Any]] = None,
+        response_format: str = "text"
+    ) -> str:
         """
-        Make an API call to OpenAI or return mock response.
-        
-        Args:
-            prompt (str): The prompt to send to the AI
-            temperature (Optional[float]): Creativity level (0.0 to 1.0). If not provided, uses configured default.
-            topic (str): The topic being taught (for mock responses)
-            subject (str): The subject area (for mock responses)
-            grade (str): The grade level (for mock responses)
-            
-        Returns:
-            str: AI response or mock response
+        Make an API call to the configured provider or return mock response.
+        Handles caching automatically.
         """
-        if not self.client:
-            logger.info("Using mock response (OpenAI client not available)")
+        # 1. Check if we should use Mock
+        if not self.provider:
+            logger.info("Using mock response (Provider not available)")
             return self._generate_mock_response(prompt, topic, subject, grade)
         
-        # Use configured temperature if not provided
         temp = temperature if temperature is not None else self.temperature
         
+        # 2. Check Cache
+        if prompt_metadata:
+            # Add tier to metadata to ensure distinct cache keys for different tiers
+            cache_metadata = prompt_metadata.copy()
+            cache_metadata["model_tier"] = model_tier
+            
+            cached_content = self.cache.get(
+                provider=self.provider_type,
+                model=model_tier, # We use abstract model name in key
+                prompt_data=cache_metadata
+            )
+            if cached_content:
+                return cached_content
+        
+        # 3. Call Provider
         try:
-            logger.info(f"Making OpenAI API call with model: {self.model}, temperature: {temp}")
+            system_instruction = "You are an expert educational content creator specializing in African curriculum development. You create comprehensive, locally contextual lesson resources that are age-appropriate, culturally relevant, and practical for teachers to implement."
             
-            # Prepare API parameters
-            api_params = {
-                "model": self.model,
-                "messages": [
-                    {"role": "system", "content": "You are an expert educational content creator specializing in African curriculum development. You create comprehensive, locally contextual lesson resources that are age-appropriate, culturally relevant, and practical for teachers to implement."},
-                    {"role": "user", "content": prompt}
-                ]
-            }
+            logger.info(f"Generating content using {self.provider_type} (Tier: {model_tier})")
+            content = self.provider.generate_content(
+                prompt=prompt,
+                system_instruction=system_instruction,
+                model_tier=model_tier,
+                temperature=temp,
+                max_tokens=self.max_tokens,
+                response_format=response_format
+            )
             
-            # Add token limit parameter
-            api_params["max_tokens"] = self.max_tokens
-            
-            # Add temperature parameter
-            api_params["temperature"] = temp
-            
-            response = self.client.chat.completions.create(**api_params)
-            
-            content = response.choices[0].message.content
-            logger.info(f"OpenAI API call successful. Response length: {len(content)} characters")
-            
-            # Check if response is empty or just whitespace
+            # Check if response is empty
             if not content or not content.strip():
                 return self._generate_mock_lesson_resource(topic, subject, grade)
             
+            # 4. Save to Cache
+            if prompt_metadata:
+                self.cache.set(
+                    provider=self.provider_type,
+                    model=model_tier,
+                    prompt_data=cache_metadata,
+                    content=content
+                )
+                
             return content
             
-        except openai.AuthenticationError as e:
-            logger.warning(f"OpenAI authentication failed: {e}")
-            return self._generate_mock_lesson_resource(topic, subject, grade)
-        except openai.RateLimitError as e:
-            logger.warning(f"OpenAI rate limit exceeded: {e}")
-            return self._generate_mock_lesson_resource(topic, subject, grade)
-        except openai.APIError as e:
-            logger.warning(f"OpenAI API error: {e}")
-            return self._generate_mock_lesson_resource(topic, subject, grade)
         except Exception as e:
-            logger.error(f"Unexpected error in OpenAI API call: {e}")
+            logger.error(f"Error in AI generation: {e}")
+            # Fallback to mock on critical failure
             return self._generate_mock_lesson_resource(topic, subject, grade)
+            
+    def _sanitize_input(self, text: str) -> str:
+        """
+        Sanitize input to remove potentially sensitive information.
+        """
+        if not text:
+            return text
+            
+        # Remove potential API keys (simple heuristic)
+        text = re.sub(r'(sk-[a-zA-Z0-9]{32,})', '[REDACTED_KEY]', text)
+        
+        # Remove potential email addresses
+        text = re.sub(r'[\w\.-]+@[\w\.-]+\.\w+', '[REDACTED_EMAIL]', text)
+        
+        # Remove potential phone numbers (simple international format)
+        text = re.sub(r'\+?\d{10,15}', '[REDACTED_PHONE]', text)
+
+        return text
+
+    def _sanitize_user_context(self, text: Optional[str]) -> Optional[str]:
+        """
+        Sanitise educator-supplied context before inserting it into a prompt template.
+
+        Applies three layers of defence (AWD-M-12):
+        1. Truncate to _MAX_USER_CONTEXT_CHARS to prevent token-stuffing / DoS.
+        2. Strip PII (API keys, email addresses, phone numbers).
+        3. Detect and scrub instruction-injection patterns.
+
+        Returns the sanitised string; never raises — any error falls back to
+        an empty string so generation can continue safely.
+        """
+        if not text:
+            return text
+
+        try:
+            # 1. Truncate
+            if len(text) > _MAX_USER_CONTEXT_CHARS:
+                logger.warning(
+                    "User context truncated from %d to %d chars (AWD-M-12)",
+                    len(text),
+                    _MAX_USER_CONTEXT_CHARS,
+                )
+                text = text[:_MAX_USER_CONTEXT_CHARS] + " [truncated]"
+
+            # 2. Strip PII (reuse existing sanitiser)
+            text = self._sanitize_input(text)
+
+            # 3. Detect and scrub injection patterns
+            for pattern in _INPUT_INJECTION_PATTERNS:
+                if re.search(pattern, text, re.IGNORECASE):
+                    logger.warning(
+                        "Prompt injection pattern detected in user context, scrubbing (AWD-M-12)"
+                    )
+                    text = re.sub(pattern, "[removed]", text, flags=re.IGNORECASE)
+
+        except Exception:
+            logger.error("Unexpected error in _sanitize_user_context; returning empty context", exc_info=True)
+            return ""
+
+        return text
+
+    def _check_content_safety(self, text: str) -> tuple[bool, Optional[str]]:
+        """
+        Run content-safety checks on a raw AI output string.
+
+        Checks (in order):
+        1. PII leakage — email, phone number, API key
+        2. Prompt-injection markers — phrases indicating the model was manipulated
+        3. Harmful content — terms inappropriate for child-facing education
+
+        Returns (is_safe, reason).  reason is None when safe.
+        """
+        # 1. PII
+        for pattern, label in _OUTPUT_PII_PATTERNS:
+            if re.search(pattern, text, re.IGNORECASE):
+                logger.warning("Content safety: PII detected in AI output (%s)", label)
+                return False, f"Output contains {label}"
+
+        # 2. Injection markers
+        for pattern in _OUTPUT_INJECTION_PATTERNS:
+            if re.search(pattern, text, re.IGNORECASE):
+                logger.warning("Content safety: injection marker detected in AI output")
+                return False, "Output contains prompt-injection marker"
+
+        # 3. Harmful content
+        for pattern in _HARMFUL_CONTENT_PATTERNS:
+            if re.search(pattern, text, re.IGNORECASE):
+                logger.warning("Content safety: harmful content detected in AI output")
+                return False, "Output contains harmful content"
+
+        return True, None
+
+    def validate_output(self, content: str) -> tuple[bool, Optional[str]]:
+        """
+        Validate the AI output for safety and structure.
+
+        Runs in two passes:
+        1. Content-safety pass on the raw string (PII, injection markers, harmful words)
+        2. Structural validation — JSON parse + required-field check
+
+        Returns (is_valid, reason).  reason is None when valid.
+        """
+        try:
+            # 1. Content-safety pass (raw string — before JSON parsing)
+            is_safe, safety_reason = self._check_content_safety(content)
+            if not is_safe:
+                return False, safety_reason
+
+            # 2. Structural validation
+            # Clean and repair first (redundant when called from generate_lesson_resource,
+            # but provides a safety net for internal callers)
+            clean_content = self._clean_and_repair(content)
+
+            data = json.loads(clean_content)
+
+            # Check for minimum required fields
+            required_fields = ["title_header", "learning_objectives", "lesson_content"]
+            for field in required_fields:
+                if field not in data:
+                    return False, f"Missing required field: {field}"
+
+            return True, None
+        except json.JSONDecodeError as e:
+            # Provide first 50 chars of content for debugging
+            logger.error(f"JSON Decode Error: {e}. Content preview: {content[:50]}...")
+            return False, "Invalid JSON format"
+
+    def _repair_json(self, json_str: str) -> str:
+        """
+        Attempt to repair common JSON syntax errors from LLMs.
+        - Removes trailing commas in objects and arrays
+        """
+        if not json_str: return json_str
+        
+        # Remove trailing commas in objects: { "a": 1, } -> { "a": 1 }
+        json_str = re.sub(r',\s*}', '}', json_str)
+        # Remove trailing commas in arrays: [ 1, 2, ] -> [ 1, 2 ]
+        json_str = re.sub(r',\s*\]', ']', json_str)
+        
+        return json_str
     
     def check_health(self) -> bool:
         """
         Check if the AI service is healthy and ready to use.
-        
-        Returns:
-            bool: True if service is healthy, False otherwise
         """
-        try:
-            return bool(self.client)
-        except Exception as e:
-            return False
+        if self.provider:
+            return self.provider.health_check()
+        return False
     
     def _generate_mock_response(self, prompt: str, topic: str = "General Topic", subject: str = "Mathematics", grade: str = "Grade 4") -> str:
-        """
-        Generate a mock response for testing purposes.
-        
-        Args:
-            prompt (str): The original prompt
-            topic (str): The topic being taught
-            subject (str): The subject area
-            grade (str): The grade level
-            
-        Returns:
-            str: Mock response
-        """
+        """Generate a mock response for testing purposes."""
         if "comprehensive lesson resource" in prompt.lower():
             return self._generate_mock_lesson_resource(topic, subject, grade)
         else:
             return f"Mock response: This is a placeholder response for {topic} in {subject} for {grade} students."
     
+    def _clean_and_repair(self, content: str) -> str:
+        """
+        Clean markdown formatting and repair common JSON syntax errors.
+        """
+        if not content: return ""
+        
+        # 1. Strip markdown
+        clean_content = content.replace("```json", "").replace("```", "").strip()
+        
+        # 2. Extract JSON payload if surrounded by text
+        if "{" in clean_content:
+            import re
+            match = re.search(r'(\{.*\})', clean_content, re.DOTALL)
+            if match:
+                clean_content = match.group(1)
+                
+        # 3. Repair JSON syntax (trailing commas)
+        clean_content = self._repair_json(clean_content)
+        
+        return clean_content
+
     def _generate_mock_lesson_resource(self, topic: str = "General Topic", subject: str = "Mathematics", grade: str = "Grade 4") -> str:
         """Generate a mock comprehensive lesson resource with enhanced local context."""
         return json.dumps({
@@ -231,69 +449,238 @@ class AwadeGPTService:
         objectives: List[str],
         contents: Optional[List[str]] = None,
         duration: int = 45,
-        context: Optional[str] = None
-    ) -> str:
+        context: Optional[str] = None,
+        template_schema: Optional[str] = None,
+        model_tier: str = "standard"
+    ) -> tuple[str, bool]:
         """
         Generate a comprehensive lesson resource using the prompt template.
-        
-        Args:
-            subject (str): Subject area (e.g., Mathematics, Science)
-            grade (str): Grade level (e.g., Grade 4, JSS1)
-            topic (str): Specific topic to teach
-            objectives (List[str]): Learning objectives from curriculum
-            duration (int): Lesson duration in minutes
-            context (Optional[str]): Local context and available resources
-            
-        Returns:
-            str: Generated lesson resource content in JSON format
         """
         try:
-            logger.info(f"Generating lesson resource for {subject} {grade} - {topic}")
-            logger.info(f"Learning Objectives: {objectives}")
-            logger.info(f"Contents: {contents}")
-            logger.info(f"Context: {context}")
+            logger.info(f"Generating lesson resource for {subject} {grade} - {topic} (Tier: {model_tier})")
             
             # Format objectives as string
             objectives_str = ", ".join(objectives) if objectives else "To be determined"
             
+            # Sanitise user-supplied context before it enters the prompt (AWD-M-12).
+            # _sanitize_user_context enforces a length cap, strips PII, and removes
+            # instruction-injection patterns.
+            safe_context = self._sanitize_user_context(context) if context else None
+
             # Get country from context or use default
             country = "Nigeria"  # Default country
-            if context and "nigeria" in context.lower():
-                country = "Nigeria"
-            elif context and "ghana" in context.lower():
-                country = "Ghana"
-            elif context and "kenya" in context.lower():
-                country = "Kenya"
-            
-            # Prepare prompt parameters according to the template
+            if safe_context:
+                context_lower = safe_context.lower()
+                if "nigeria" in context_lower: country = "Nigeria"
+                elif "ghana" in context_lower: country = "Ghana"
+                elif "kenya" in context_lower: country = "Kenya"
+
+            # Prepare prompt parameters
+            contents_val = ", ".join(contents) if contents else "Comprehensive lesson content including introduction, main concepts, examples, and activities"
+            if template_schema:
+                contents_val = f"{contents_val}\n\nSTRICT TEMPLATE STRUCTURE RULES:\n{template_schema}"
+
             prompt_params = {
                 "topic": topic,
                 "subject": subject,
                 "grade_level": grade,
                 "country": country,
-                "local_context": context or "Standard classroom with basic resources",
+                "local_context": safe_context or "Standard classroom with basic resources",
                 "learning_objectives": objectives_str,
-                "contents": ", ".join(contents) if contents else "Comprehensive lesson content including introduction, main concepts, examples, and activities"
+                "contents": contents_val
             }
             
-            # Generate prompt using the template
+            # Generate prompt
             prompt = COMPREHENSIVE_LESSON_RESOURCE_PROMPT.format(**prompt_params)
-            logger.info(f"Generated prompt for {country} context")
+            prompt = self._sanitize_input(prompt)
             
-            # Make API call with topic, subject, and grade for proper mock responses
-            response = self._make_api_call(prompt, topic=topic, subject=subject, grade=grade)
-            logger.info(f"Received response from OpenAI API (length: {len(response)} characters)")
+            # Construct metadata for caching
+            # We use the prompt_params as the unique identifier for the request logic
+            # This satisfies "Include Context Input in cache hash" since context is in prompt_params["local_context"]
+            prompt_metadata = {
+                "topic": topic,
+                "subject": subject,
+                "grade_level": grade,
+                "objectives": objectives,
+                "context": safe_context,  # Use sanitised value, not raw user input (AWD-M-39)
+                "template_schema": template_schema
+            }
             
-            # Try to parse as JSON, fallback to plain text if needed
-            try:
-                # Check if response is valid JSON
-                parsed_json = json.loads(response)
-                logger.info("Successfully parsed AI response as JSON")
-                return response
-            except json.JSONDecodeError as e:
-                # If not valid JSON, return as plain text
-                return response
+            # Make API call
+            response = self._make_api_call(
+                prompt=prompt, 
+                topic=topic, 
+                subject=subject, 
+                grade=grade,
+                model_tier=model_tier,
+                prompt_metadata=prompt_metadata,
+                response_format="json"  # Enforce JSON mode
+            )
+            
+            # Clean and repair the response before validation
+            # This ensures we store valid JSON even if the Provider returned markdown or trailing commas
+            cleaned_response = self._clean_and_repair(response)
+            
+            # Validate output (using the cleaned version)
+            is_valid, reason = self.validate_output(cleaned_response)
+            if not is_valid:
+                logger.warning(f"AI output failed validation: {reason}. Flagging for review.")
+                # We return the cleaned version even if invalid, as it's better than raw markdown
+                return cleaned_response, False
+                
+            return cleaned_response, True
                 
         except Exception as e:
             logger.error(f"Error generating lesson resource: {e}")
-            return self._generate_mock_lesson_resource(topic, subject, grade)
+            return self._generate_mock_lesson_resource(topic, subject, grade), True
+
+    # ─── Parent Guide Generation ──────────────────────────────────────
+
+    def generate_parent_guide(
+        self,
+        subject: str,
+        grade: str,
+        topic: str,
+        country: str,
+        curriculum: str,
+        objectives: List[str],
+        contents: Optional[List[str]] = None,
+        model_tier: str = "standard",
+    ) -> tuple[str, bool]:
+        """
+        Generate a 'How to Help' guide for a parent using the PARENT_HELPER_PROMPT.
+
+        Returns:
+            tuple[str, bool]: (JSON string of the guide, whether validation passed)
+        """
+        try:
+            logger.info(f"Generating parent guide for {subject} {grade} - {topic} ({country})")
+
+            objectives_str = ", ".join(objectives) if objectives else "To be determined"
+            contents_str = (
+                ", ".join(contents) if contents
+                else "General topic content"
+            )
+
+            prompt_params = {
+                "topic": topic,
+                "subject": subject,
+                "grade_level": grade,
+                "country": country,
+                "curriculum": curriculum,
+                "learning_objectives": objectives_str,
+                "contents": contents_str,
+            }
+
+            prompt = PARENT_HELPER_PROMPT.format(**prompt_params)
+            prompt = self._sanitize_input(prompt)
+
+            prompt_metadata = {
+                "type": "parent_guide",
+                "topic": topic,
+                "subject": subject,
+                "grade_level": grade,
+                "country": country,
+                "curriculum": curriculum,
+                "objectives": objectives,
+            }
+
+            response = self._make_api_call(
+                prompt=prompt,
+                topic=topic,
+                subject=subject,
+                grade=grade,
+                model_tier=model_tier,
+                prompt_metadata=prompt_metadata,
+                response_format="json",
+            )
+
+            cleaned = self._clean_and_repair(response)
+
+            # Light validation — check for key fields
+            is_valid, reason = self._validate_parent_guide(cleaned)
+            if not is_valid:
+                logger.warning(f"Parent guide validation failed: {reason}")
+                return cleaned, False
+
+            return cleaned, True
+
+        except Exception as e:
+            logger.error(f"Error generating parent guide: {e}")
+            return self._generate_mock_parent_guide(topic, subject, grade, country, curriculum), True
+
+    def _validate_parent_guide(self, content: str) -> tuple[bool, Optional[str]]:
+        """Validate that the parent guide JSON has the required top-level keys."""
+        try:
+            data = json.loads(content)
+            required = ["topic_header", "simple_explanation", "home_activity", "conversation_starters", "common_mistakes"]
+            for field in required:
+                if field not in data:
+                    return False, f"Missing required field: {field}"
+            return True, None
+        except json.JSONDecodeError:
+            return False, "Invalid JSON format"
+
+    def _generate_mock_parent_guide(
+        self,
+        topic: str = "General Topic",
+        subject: str = "Mathematics",
+        grade: str = "Grade 4",
+        country: str = "Nigeria",
+        curriculum: str = "Nigerian Curriculum",
+    ) -> str:
+        """Generate a mock parent guide for testing / fallback."""
+        return json.dumps({
+            "topic_header": {
+                "topic": topic,
+                "subject": subject,
+                "grade_level": grade,
+                "country": country,
+                "curriculum": curriculum,
+            },
+            "simple_explanation": {
+                "what_it_is": f"{topic} is a foundational concept in {subject} that helps children understand how things work in the world around them. Think of it as the building blocks your child will use for more advanced ideas later on. At this level, the focus is on understanding the basics through practical, everyday examples.",
+                "why_it_matters": f"Understanding {topic.lower()} helps your child solve problems they encounter every day — from shopping at the market to understanding how things are built in your community.",
+            },
+            "home_activity": {
+                "title": f"Kitchen Table {subject} Challenge",
+                "description": f"A fun 20-minute activity where you and your child explore {topic.lower()} using things you already have at home.",
+                "materials_needed": [
+                    "A notebook or scrap paper",
+                    "A pen or pencil",
+                    "Household items (cups, spoons, coins)",
+                ],
+                "steps": [
+                    f"Step 1: Start by asking your child what they already know about {topic.lower()}. Listen without correcting — you want to understand where they are.",
+                    "Step 2: Together, look around the kitchen or living room for examples that connect to the topic. Talk about what you find.",
+                    "Step 3: Create a simple challenge — ask your child to explain the concept to you as if you've never heard of it before. This is where real understanding shows.",
+                ],
+                "what_to_look_for": "Your child can explain the basic idea in their own words, even if the language isn't perfect. They can point to a real example in your home.",
+            },
+            "conversation_starters": [
+                f"What did your teacher say about {topic.lower()} today? Was there anything that surprised you?",
+                f"If you had to explain {topic.lower()} to your younger cousin, what would you say?",
+                f"Can you think of a time you've seen {topic.lower()} in real life — maybe at the market or on the way to school?",
+            ],
+            "common_mistakes": [
+                {
+                    "mistake": f"Confusing {topic.lower()} with a related but different concept",
+                    "why_it_happens": "At this age, children are still building mental categories. It's completely normal to mix up similar ideas.",
+                    "how_to_help": "Instead of saying 'that's wrong,' try asking 'what's the difference between X and Y?' and let them work it out. If they get stuck, give a concrete example from home.",
+                },
+                {
+                    "mistake": "Memorising steps without understanding why they work",
+                    "why_it_happens": "School often rewards getting the right answer, so children learn to follow steps without asking why.",
+                    "how_to_help": "Ask 'why does that step come next?' or 'what would happen if we skipped it?' — this builds real understanding, not just memorisation.",
+                },
+            ],
+            "curriculum_context": {
+                "what_came_before": f"Before this topic, your child learned foundational concepts that set the stage for {topic.lower()}. If they're struggling, it might help to quickly revisit those basics.",
+                "what_comes_next": f"After {topic.lower()}, the curriculum moves to more advanced applications. A strong understanding now means less struggle later.",
+                "how_long_in_school": "About 1-2 weeks of class time",
+            },
+            "encouragement_tips": [
+                f"Try saying: 'I can see you're really thinking hard about this — that's exactly what good learners do.' Effort-based praise builds resilience.",
+                "If your child is frustrated, take a break. Say: 'Let's come back to this after dinner — sometimes our brains need time to process.' This teaches them that struggle is normal, not a sign of failure.",
+            ],
+        }, indent=2)

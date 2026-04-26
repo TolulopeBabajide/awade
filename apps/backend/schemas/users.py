@@ -2,7 +2,7 @@
 Pydantic schemas for user management API endpoints.
 """
 
-from pydantic import BaseModel, Field, EmailStr, validator
+from pydantic import BaseModel, Field, EmailStr, field_validator, ConfigDict
 from typing import List, Optional
 from datetime import datetime
 from enum import Enum
@@ -11,7 +11,9 @@ import os
 class UserRole(str, Enum):
     """Enumeration of user roles in the system."""
     EDUCATOR = "EDUCATOR"
+    PARENT = "PARENT"
     ADMIN = "ADMIN"
+    SUPER_ADMIN = "SUPER_ADMIN"
 
 def get_password_min_length() -> int:
     """Get minimum password length from environment variables."""
@@ -35,7 +37,8 @@ class UserCreate(BaseModel):
     grade_levels: Optional[List[str]] = Field(None, description="List of grade levels taught")
     languages_spoken: Optional[str] = Field(None, description="Comma-separated list of languages spoken")
 
-    @validator('password')
+    @field_validator('password')
+    @classmethod
     def validate_password(cls, v):
         min_length = get_password_min_length()
         max_length = get_password_max_length()
@@ -84,12 +87,11 @@ class UserResponse(BaseModel):
     languages_spoken: Optional[str] = None
     phone: Optional[str] = None
     bio: Optional[str] = None
+    profile_image_url: Optional[str] = None
     created_at: datetime
     last_login: Optional[datetime] = None
     
-    class Config:
-        """Pydantic configuration for attribute access."""
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class UserProfileResponse(BaseModel):
     """Simplified user profile for public display"""
@@ -101,13 +103,21 @@ class UserProfileResponse(BaseModel):
     subjects: Optional[List[str]] = None
     grade_levels: Optional[List[str]] = None
     
-    class Config:
-        """Pydantic configuration for attribute access."""
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class AuthResponse(BaseModel):
     """Schema for authentication response."""
     access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
+
+class CookieAuthResponse(BaseModel):
+    """Schema for cookie-based authentication response.
+
+    The access token is delivered via HttpOnly Set-Cookie header; only the
+    user payload is included in the response body so the frontend never needs
+    to touch or store the raw JWT.
+    """
     token_type: str = "bearer"
     user: UserResponse
 
@@ -120,7 +130,8 @@ class PasswordReset(BaseModel):
     token: str = Field(..., description="Password reset token")
     new_password: str = Field(..., description="New password")
 
-    @validator('new_password')
+    @field_validator('new_password')
+    @classmethod
     def validate_new_password(cls, v):
         min_length = get_password_min_length()
         max_length = get_password_max_length()

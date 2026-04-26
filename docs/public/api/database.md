@@ -26,7 +26,9 @@ The Awade database is designed to support teacher lesson planning, professional 
 
 ## 📊 Core Tables
 
-### Users
+Note: The sections below include both implemented and planned tables. Tables marked as [Implemented] exist in the current codebase; those marked as [Planned] are not yet implemented.
+
+### Users [Implemented]
 ```sql
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
@@ -46,7 +48,7 @@ CREATE TABLE users (
 );
 ```
 
-### Lesson Plans
+### Lesson Plans [Implemented]
 ```sql
 CREATE TABLE lesson_plans (
     id SERIAL PRIMARY KEY,
@@ -68,7 +70,7 @@ CREATE TABLE lesson_plans (
 );
 ```
 
-### Training Modules
+### Training Modules [Planned]
 ```sql
 CREATE TABLE training_modules (
     id SERIAL PRIMARY KEY,
@@ -85,7 +87,7 @@ CREATE TABLE training_modules (
 );
 ```
 
-### User Progress
+### User Progress [Planned]
 ```sql
 CREATE TABLE user_progress (
     id SERIAL PRIMARY KEY,
@@ -101,7 +103,7 @@ CREATE TABLE user_progress (
 );
 ```
 
-### Bookmarks
+### Bookmarks [Planned]
 ```sql
 CREATE TABLE bookmarks (
     id SERIAL PRIMARY KEY,
@@ -140,7 +142,7 @@ Training Modules (1) -----> (Many) Analytics Events
 
 ## 📈 Analytics Tables
 
-### Analytics Events
+### Analytics Events [Planned]
 ```sql
 CREATE TABLE analytics_events (
     id SERIAL PRIMARY KEY,
@@ -154,7 +156,7 @@ CREATE TABLE analytics_events (
 );
 ```
 
-### User Sessions
+### User Sessions [Planned]
 ```sql
 CREATE TABLE user_sessions (
     id SERIAL PRIMARY KEY,

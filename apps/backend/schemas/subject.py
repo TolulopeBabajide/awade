@@ -7,7 +7,7 @@ It includes schemas for creating, updating, and responding with subject informat
 Author: Tolulope Babajide
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 
 class SubjectBase(BaseModel):
@@ -26,11 +26,12 @@ class SubjectResponse(SubjectBase):
     """Schema for subject response."""
     subject_id: int = Field(..., description="Unique identifier for the subject")
     
-    class Config:
-        from_attributes = True
-        json_schema_extra = {
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
             "example": {
                 "subject_id": 1,
                 "name": "Mathematics"
             }
         }
+    )

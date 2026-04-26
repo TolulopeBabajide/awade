@@ -9,7 +9,7 @@ Author: Tolulope Babajide
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
 from typing import List, Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 
 from apps.backend.models import (
     Curriculum, Topic, CurriculumStructure, Country, GradeLevel, Subject, LearningObjective, TopicContent
@@ -98,7 +98,7 @@ class CurriculumService:
         for field, value in update_data.items():
             setattr(curriculum, field, value)
         
-        curriculum.updated_at = datetime.utcnow()
+        curriculum.updated_at = datetime.now(timezone.utc)
         self.db.commit()
         self.db.refresh(curriculum)
         return curriculum
@@ -189,7 +189,7 @@ class CurriculumService:
         for field, value in update_data.items():
             setattr(topic, field, value)
         
-        topic.updated_at = datetime.utcnow()
+        topic.updated_at = datetime.now(timezone.utc)
         self.db.commit()
         self.db.refresh(topic)
         return topic
@@ -219,7 +219,7 @@ class CurriculumService:
     
     def update_learning_objective(self, objective_id: int, objective_data: str) -> Optional[LearningObjective]:
         """Update a learning objective."""
-        objective = self.db.query(LearningObjective).filter(LearningObjective.id == objective_id).first()
+        objective = self.db.query(LearningObjective).filter(LearningObjective.learning_objective_id == objective_id).first()
         if not objective:
             return None
         
@@ -230,7 +230,7 @@ class CurriculumService:
     
     def delete_learning_objective(self, objective_id: int) -> bool:
         """Delete a learning objective."""
-        objective = self.db.query(LearningObjective).filter(LearningObjective.id == objective_id).first()
+        objective = self.db.query(LearningObjective).filter(LearningObjective.learning_objective_id == objective_id).first()
         if not objective:
             return False
         
@@ -253,7 +253,7 @@ class CurriculumService:
     
     def update_content(self, content_id: int, content_data: str) -> Optional[TopicContent]:
         """Update a content area."""
-        content = self.db.query(TopicContent).filter(TopicContent.id == content_id).first()
+        content = self.db.query(TopicContent).filter(TopicContent.topic_contents_id == content_id).first()
         if not content:
             return None
         
@@ -264,7 +264,7 @@ class CurriculumService:
     
     def delete_content(self, content_id: int) -> bool:
         """Delete a content area."""
-        content = self.db.query(TopicContent).filter(TopicContent.id == content_id).first()
+        content = self.db.query(TopicContent).filter(TopicContent.topic_contents_id == content_id).first()
         if not content:
             return False
         

@@ -20,5 +20,16 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    // Split large vendor chunks to improve initial load time (Lighthouse performance)
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-router': ['react-router-dom'],
+          'vendor-query': ['@tanstack/react-query'],
+        },
+      },
+    },
+    // Inline assets smaller than 4KB to reduce requests
+    assetsInlineLimit: 4096,
   },
 }) 
