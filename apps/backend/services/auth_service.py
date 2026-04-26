@@ -357,7 +357,7 @@ class AuthService:
             # Get user
             user = self.db.query(User).filter(User.user_id == int(user_id)).first()
             if not user:
-                raise HTTPException(status_code=401, detail="User not found")
+                raise HTTPException(status_code=401, detail="Invalid token")
                 
             # Generate new tokens
             token_payload = {

@@ -278,3 +278,50 @@ class TestSuspendedUserAuthBypass:
         assert response.status_code != 403, (
             "Re-activated user must not receive 403 from get_current_active_user"
         )
+
+
+# ---------------------------------------------------------------------------
+# M-47: Token refresh must not leak "User not found" (account enumeration)
+# ---------------------------------------------------------------------------
+
+class TestRefreshTokenEnumeration:
+    """Verify that the refresh endpoint returns a generic error when the user
+    associated with a valid refresh token no longer exists.  AWD-M-47."""
+
+    def test_deleted_user_refresh_returns_generic_error(self, client, sample_user, test_db):
+        """A valid refresh token whose user has been deleted must return 401 with
+        a generic 'Invalid token' message — not 'User not found'."""
+        import bcrypt as _bcrypt
+
+        # 1. Give sample_user a known password and log in to get a real refresh token.
+        password = "TestPassword1!"
+        salt = _bcrypt.gensalt()
+        sample_user.password_hash = _bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
+        test_db.commit()
+
+        login_resp = client.post(
+            "/api/auth/login",
+            json={"email": sample_user.email, "password": password},
+        )
+        assert login_resp.status_code == 200, (
+            f"Login failed unexpectedly: {login_resp.text}"
+        )
+        assert "refresh_token" in login_resp.cookies, "refresh_token cookie missing after login"
+
+        # 2. Delete the user from the database so the next refresh hits the
+        #    "user not found" branch in refresh_access_token().
+        from apps.backend.models import User
+        test_db.query(User).filter(User.user_id == sample_user.user_id).delete()
+        test_db.commit()
+
+        # 3. Call refresh — cookie is forwarded automatically by TestClient.
+        refresh_resp = client.post("/api/auth/refresh")
+
+        assert refresh_resp.status_code == 401
+        detail = refresh_resp.json().get("detail", "")
+        assert detail != "User not found", (
+            "Refresh endpoint must not reveal whether a user ID existed (AWD-M-47)"
+        )
+        assert "Invalid token" in detail or "invalid" in detail.lower() or "authentication" in detail.lower(), (
+            f"Expected a generic auth error, got: {detail!r}"
+        )
