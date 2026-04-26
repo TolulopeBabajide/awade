@@ -319,6 +319,25 @@ class TestDataExport:
         child_ids = [c["child_id"] for c in data["children"]]
         assert other_child.child_id not in child_ids
 
+    def test_rate_limit_returns_429_after_limit_exceeded(self, client, educator_user):
+        """AWD-H-49: data-export endpoint returns 429 once the per-minute rate limit is exceeded.
+
+        The conftest rate_limiter_reset autouse fixture clears limiter state before
+        and after this test, so 5 clean requests are expected before the limit fires.
+        """
+        headers = _auth(educator_user)
+        # Exhaust the 5/minute allowance
+        for i in range(5):
+            resp = client.get("/api/users/me/data-export", headers=headers)
+            assert resp.status_code == 200, (
+                f"Request {i + 1}/5 should succeed but got {resp.status_code}"
+            )
+        # Sixth request must be rate-limited
+        resp = client.get("/api/users/me/data-export", headers=headers)
+        assert resp.status_code == 429, (
+            f"Expected 429 after exceeding rate limit but got {resp.status_code}"
+        )
+
 
 # ---------------------------------------------------------------------------
 # AWD-M-48: SUPER_ADMIN role parity in service-layer checks
