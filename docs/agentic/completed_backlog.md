@@ -376,3 +376,12 @@
 - **Change**: Added `future={{ v7_startTransition: true, v7_relativeSplatPath: true }}` to all `BrowserRouter` and `MemoryRouter` instances across production entry point and test files. Both flags confirmed supported in react-router-dom 6.30.3 (installed). No React Router deprecation warnings appear in test output after fix.
 - **Validation**: tsc 0 errors ✅ · lint 0 errors ✅ · frontend tests 72/72 ✅ · 0 v7 future-flag warnings ✅ · openapi.json ✅ · mcp.json ✅
 - **Note**: Push to origin/develop blocked in sandbox (HTTPS auth) — Tolu must run `git push origin develop` to trigger CI.
+
+---
+
+## AWD-L-10 — Update `project-config.md` §5 ERROR_MONITORING to reflect Sentry shipped
+- **Completed**: 2026-04-26
+- **Commit**: n/a — `project-config.md` is gitignored (local agent config only); fix applied directly to disk
+- **Files changed**: `project-config.md` (two updates: §5 `ERROR_MONITORING` line; §9b Sentry entry toggled from `[ ]` to `[x]`)
+- **Change**: Updated `ERROR_MONITORING` from "not yet connected (Sentry recommended — flagged as H-01)" to reflect that Sentry is wired (AWD-H-01, commit 364762f) for both backend (`sentry-sdk[fastapi]==2.58.0`) and frontend (`@sentry/react ^8.0.0`). Also toggled the §9b Connected Tools Sentry entry to checked. Activation requires setting `SENTRY_DSN` env var.
+- **Validation**: No code changes → tsc, lint, frontend tests (72/72) all pass unchanged ✅

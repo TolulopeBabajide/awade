@@ -408,3 +408,4 @@ After removing it, the next hourly run will:
 
 2026-04-26T01:19:53Z | AWD-L-05 | Wire require_parent into children router | ce1e031 | ✅ Done | CI:pending (push required)
 | 2026-04-26T03:16:00Z | AWD-L-09 | React Router v7 future flag warnings — add future flags to BrowserRouter/MemoryRouter | 4ff1f34 | ✅ Done | CI:pending-push |
+2026-04-26T05:15:00Z | AWD-L-10 | Update project-config.md ERROR_MONITORING to reflect Sentry shipped | n/a (gitignored file — no commit) | ✅ Done | CI:n/a
