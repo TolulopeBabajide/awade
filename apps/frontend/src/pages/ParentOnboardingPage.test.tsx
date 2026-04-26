@@ -37,7 +37,7 @@ function makeQC() {
 function renderPage(initialPath = '/onboarding') {
   return render(
     <QueryClientProvider client={makeQC()}>
-      <MemoryRouter initialEntries={[initialPath]}>
+      <MemoryRouter initialEntries={[initialPath]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/onboarding" element={<ParentOnboardingPage />} />
           <Route path="/dashboard" element={<div data-testid="dashboard-page">Dashboard</div>} />

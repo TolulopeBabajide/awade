@@ -19,7 +19,7 @@ vi.mock('../contexts/AuthContext', () => ({
 }))
 
 const AppWithRouter = () => (
-  <BrowserRouter>
+  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
     <App />
   </BrowserRouter>
 )
