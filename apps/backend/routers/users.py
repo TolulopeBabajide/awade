@@ -7,7 +7,6 @@ for clean separation of concerns.
 
 Endpoints:
 - /api/users: Get all users with filtering
-- /api/users/me/data-export: GDPR data export for the authenticated user (GRC-02)
 - /api/users/{user_id}: Get specific user
 - /api/users/{user_id}: Update user profile
 - /api/users/{user_id}: Delete user
@@ -18,39 +17,16 @@ Author: Tolulope Babajide
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 from apps.backend.database import get_db
 from apps.backend.models import User, UserRole
-from apps.backend.dependencies import get_current_active_user, get_current_user, require_admin, require_admin_or_educator
+from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator
 from apps.backend.services.user_service import UserService
 from apps.backend.schemas.users import UserResponse, UserUpdate, UserProfileResponse
 
 router = APIRouter(prefix="/api/users", tags=["users"])
-
-# NOTE: /me/... routes MUST be declared before /{user_id}/... routes so FastAPI
-# does not attempt to parse the literal string "me" as an integer user_id.
-
-@router.get("/me/data-export")
-async def export_my_data(
-    current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db),
-) -> Dict[str, Any]:
-    """
-    GDPR data export — returns a JSON document containing all data Awade
-    holds about the authenticated user.
-
-    For PARENT users the response includes child profiles and all associated
-    AI-generated guides.  Password hashes and profile image blobs are
-    intentionally excluded from the export.
-
-    All authenticated roles are permitted to export their own data.
-    """
-    service = UserService(db)
-    return service.get_data_export(current_user)
-
 
 @router.get("/", response_model=List[UserResponse])
 async def get_users(
