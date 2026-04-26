@@ -152,16 +152,16 @@ class UserService:
         """
         try:
             # Check if user can update this profile
-            if current_user.user_id != user_id and current_user.role != UserRole.ADMIN:
+            if current_user.user_id != user_id and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
                 raise HTTPException(
                     status_code=403,
                     detail="You can only update your own profile"
                 )
-            
+
             user = self.db.query(User).filter(User.user_id == user_id).first()
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
-            
+
             # Update user fields
             update_data = user_data.dict(exclude_unset=True)
             
@@ -203,8 +203,8 @@ class UserService:
             HTTPException: If deletion fails or access denied
         """
         try:
-            # Only admins can delete users
-            if current_user.role != UserRole.ADMIN:
+            # Only admins and super admins can delete users
+            if current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
                 raise HTTPException(
                     status_code=403,
                     detail="Only administrators can delete users"
@@ -250,8 +250,8 @@ class UserService:
             HTTPException: If user not found or access denied
         """
         try:
-            # Users can view their own profile, admins can view any profile
-            if current_user.user_id != user_id and current_user.role != UserRole.ADMIN:
+            # Users can view their own profile, admins and super admins can view any profile
+            if current_user.user_id != user_id and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
                 raise HTTPException(
                     status_code=403,
                     detail="You can only view your own profile"
@@ -288,8 +288,8 @@ class UserService:
             HTTPException: If update fails or access denied
         """
         try:
-            # Users can update their own profile, admins can update any profile
-            if current_user.user_id != user_id and current_user.role != UserRole.ADMIN:
+            # Users can update their own profile, admins and super admins can update any profile
+            if current_user.user_id != user_id and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
                 raise HTTPException(
                     status_code=403,
                     detail="You can only update your own profile"
