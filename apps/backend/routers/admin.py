@@ -6,13 +6,14 @@ from datetime import datetime, timedelta
 
 from apps.backend.database import get_db
 from apps.backend.models import (
-    User, UserRole, LessonPlan, LessonResource, AdminAuditLog, 
-    ResourceModeration, LessonTemplate
+    User, UserRole, LessonPlan, LessonResource, AdminAuditLog,
+    ResourceModeration, LessonTemplate, ChildProfile
 )
 from apps.backend.dependencies import require_admin, require_super_admin
 from apps.backend.schemas.admin import (
-    AdminUserResponse, AdminUserUpdate, AdminAuditLogResponse, 
-    DashboardMetrics, ResourceModerationUpdate, LessonTemplateCreate, LessonTemplateResponse
+    AdminUserResponse, AdminUserUpdate, AdminAuditLogResponse,
+    DashboardMetrics, ResourceModerationUpdate, LessonTemplateCreate,
+    LessonTemplateResponse, AdminChildProfileResponse
 )
 from apps.backend.utils.admin_logs import log_admin_action
 
@@ -273,3 +274,78 @@ async def delete_template(
     )
     
     return {"status": "success", "message": "Template deleted"}
+
+
+# ---------------------------------------------------------------------------
+# GRC-05: COPPA — Audited admin read-only access to child profiles
+# Every endpoint here logs to AdminAuditLog so every admin view of child
+# data is traceable (required by COPPA and NDPR for minors' data).
+# ---------------------------------------------------------------------------
+
+@router.get("/children", response_model=List[AdminChildProfileResponse])
+async def admin_list_children(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=50, ge=1, le=200),
+    parent_id: Optional[int] = None,
+    request: Request = None,
+    current_admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """COPPA/GRC-05: List all child profiles for admin oversight.
+
+    Supports optional filtering by parent_id. Every call is audit-logged
+    with the actor, filter used, and result count so any admin access to
+    children's data is fully traceable.
+    """
+    stmt = db.query(ChildProfile)
+    if parent_id is not None:
+        stmt = stmt.filter(ChildProfile.parent_id == parent_id)
+    children = stmt.order_by(desc(ChildProfile.created_at)).offset(skip).limit(limit).all()
+
+    log_admin_action(
+        db,
+        current_admin.user_id,
+        "view_child_profiles",
+        "child_profile",
+        None,
+        {"result_count": len(children), "parent_id_filter": parent_id, "skip": skip, "limit": limit},
+        request,
+    )
+    return children
+
+
+@router.get("/children/{child_id}", response_model=AdminChildProfileResponse)
+async def admin_get_child(
+    child_id: int,
+    request: Request,
+    current_admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """COPPA/GRC-05: Retrieve a single child profile for admin oversight.
+
+    Returns 404 if the profile does not exist. The access (including
+    not-found attempts) is audit-logged for traceability.
+    """
+    child = db.query(ChildProfile).filter(ChildProfile.child_id == child_id).first()
+    if not child:
+        log_admin_action(
+            db,
+            current_admin.user_id,
+            "view_child_profile_not_found",
+            "child_profile",
+            child_id,
+            {},
+            request,
+        )
+        raise HTTPException(status_code=404, detail="Child profile not found")
+
+    log_admin_action(
+        db,
+        current_admin.user_id,
+        "view_child_profile",
+        "child_profile",
+        child_id,
+        {"parent_id": child.parent_id},
+        request,
+    )
+    return child

@@ -58,3 +58,26 @@ class DashboardMetrics(BaseModel):
     lessons_7d: int
     flagged_resources: int
     system_health: str
+
+
+class AdminChildProfileResponse(BaseModel):
+    """Read-only view of a child profile for admin/COPPA oversight.
+
+    Excludes AI-generated guide content — admins see structural data only.
+    Every request that returns this schema must log via log_admin_action
+    with target_type='child_profile' (GRC-05).
+    """
+    child_id: int
+    parent_id: int
+    name: str
+    age: Optional[int]
+    school_name: Optional[str]
+    country_id: Optional[int]
+    curricula_id: Optional[int]
+    grade_level_id: Optional[int]
+    subjects: Optional[str]  # JSON array of subject IDs (M-16 tracks migration to join table)
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
