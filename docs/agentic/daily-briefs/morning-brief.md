@@ -85,3 +85,21 @@ The image situation: AWD-M-06 staged old images for deletion but the new optimis
 - TypeScript: ✅ · Lint: ✅ · Frontend tests: ✅ 72/72 · OpenAPI: ✅ · Spot-check: ✅ clean
 
 ⚠️ **QA auto-filed AWD-M-46** — `venv/bin/python` is a broken symlink (points to python3.13, not available in QA sandbox). Backend pytest cannot run until venv is recreated with Python 3.10 on your Mac: `rm -rf venv && python3 -m venv venv && source venv/bin/activate && pip install -r apps/backend/requirements.txt`. S-effort, run locally.
+
+## QA Update — 2026-04-26T~hourly
+
+✅ **AWD-M-45 + AWD-C-08 spot-check PASS** — react ^18.3.0 bump and CSP restore both clean:
+- `package.json`: react, react-dom, @types/react, @types/react-dom all at ^18.3.0 ✅
+- `security_headers.py`: CSP intact — no unsafe-inline in script-src or style-src, font-src present ✅
+- No new issues filed.
+
+⚠️ **Bash sandbox still blocked** (9th+ consecutive cycle — "No space left on device"). tsc, lint, pytest, and git commands remain unavailable. CI mirror cannot run until sandbox disk is cleared. **Push to GitHub is the critical outstanding action** — 36 commits are local-only.
+
+## QA Update — 2026-04-26T~hourly (13th+ consecutive blocked cycle)
+
+⏭ **Skipped — no new commits to validate.** Dev log shows no new work since the prior QA cycle (AWD-L-02 docs change, already spot-checked clean). Bash sandbox still fails with "No space left on device" on all attempts — git log, tsc, lint, and pytest remain blocked.
+
+⚠️ **Outstanding Tolu actions (unchanged from prior cycles):**
+1. Clear sandbox disk space to restore QA automation
+2. Resolve dirty working tree (partial AWD-M-06 staging — `git diff --cached` vs `git diff`)
+3. Push ~37 pending commits: `git push origin develop` → triggers real CI pipeline

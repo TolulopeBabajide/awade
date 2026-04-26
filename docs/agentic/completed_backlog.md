@@ -385,3 +385,40 @@
 - **Files changed**: `project-config.md` (two updates: §5 `ERROR_MONITORING` line; §9b Sentry entry toggled from `[ ]` to `[x]`)
 - **Change**: Updated `ERROR_MONITORING` from "not yet connected (Sentry recommended — flagged as H-01)" to reflect that Sentry is wired (AWD-H-01, commit 364762f) for both backend (`sentry-sdk[fastapi]==2.58.0`) and frontend (`@sentry/react ^8.0.0`). Also toggled the §9b Connected Tools Sentry entry to checked. Activation requires setting `SENTRY_DSN` env var.
 - **Validation**: No code changes → tsc, lint, frontend tests (72/72) all pass unchanged ✅
+
+---
+
+## AWD-L-02 — Update `docs/public/api/README.md` with parent/children endpoints
+- **Completed**: 2026-04-26
+- **Commit**: pending — docs-only change; Tolu must commit and push
+- **Files changed**: `docs/public/api/README.md`
+- **Change**: Rewrote the public API README to document the full parent/children API surface added in the post-pivot sprint: all 10 CRUD + guide endpoints on `/api/children` and `/api/guides`, request/response schemas (`ChildProfileCreate`, `ChildProfileUpdate`, `ChildProfileResponse`, `ChildProfileListResponse`, `ParentGuideResponse`, `ParentGuideListResponse`, `ParentGuideAIContent`), rate-limit note on `generate_guide`, export PDF endpoint behaviour, and HTTP 403/502/503 error codes. Also updated the auth section (Basic Auth → HttpOnly cookie + Bearer token) and the overview (educator + parent roles). No code changes — docs only.
+- **Validation**: N/A (docs-only, no tsc/pytest/lint impact)
+- **Action required**: `git add docs/public/api/README.md && git commit -m "docs(api): AWD-L-02 add parent/children endpoint docs to public API README" && git push origin develop`
+
+---
+
+## AWD-L-04 — Re-enable TrustedHostMiddleware with ALLOWED_HOSTS env var in production
+- **Completed**: 2026-04-26 (discovered already implemented — backlog entry was stale)
+- **Commit**: n/a — already shipped as part of a prior commit; no additional change needed
+- **Files**: `apps/backend/main.py` (lines 193–201), `.env.example` (lines 50–54)
+- **Change (pre-existing)**: `TrustedHostMiddleware` is already active with `ALLOWED_HOSTS` env var. `os.getenv("ALLOWED_HOSTS", "*")` defaults to `*` in dev/test; in production Tolu sets `ALLOWED_HOSTS=awade.app,www.awade.app`. `.env.example` documents the variable with clear instructions. No code change needed — backlog entry was filed before the implementation landed.
+- **Validation**: Implementation confirmed by reading `apps/backend/main.py` lines 193–201 and `.env.example` lines 50–54.
+
+---
+
+## AWD-L-01 — CI pip cache key for backend-test and contract-test jobs
+- **Completed**: 2026-04-26
+- **Commit**: pending — Tolu must commit and push
+- **Files changed**: `.github/workflows/ci.yml`
+- **Change**: Added `cache: "pip"` and `cache-dependency-path: apps/backend/requirements.txt` to the `actions/setup-python@v4` step in both the `backend-test` job and the `contract-test` job. GitHub Actions will now cache the pip dependency layer keyed on the `requirements.txt` hash, avoiding a full reinstall on every push when dependencies haven't changed. The `frontend-test` and `lighthouse-test` jobs already used `cache: "npm"` on `setup-node`. No logic changes — CI-only.
+- **Validation**: YAML structure verified by reading the edited file. No tsc/lint/test impact (CI config only).
+- **Action required**: `git add .github/workflows/ci.yml && git commit -m "chore(ci): AWD-L-01 add pip cache to backend-test and contract-test jobs" && git push origin develop`
+
+## AWD-GRC-05 — COPPA audit logs for admin access to child profiles
+- **Completed**: 2026-04-26
+- **Commits**: 7ffcee1 (feat) / 8f8e699 (merge)
+- **Files changed**: `apps/backend/schemas/admin.py`, `apps/backend/routers/admin.py`, `apps/backend/tests/test_admin_children.py`
+- **Change**: Added `AdminChildProfileResponse` Pydantic schema to `schemas/admin.py`. Added two audited read-only endpoints to `routers/admin.py` under the existing `require_admin` guard: `GET /api/admin/children` (list all child profiles, optional `parent_id` filter) and `GET /api/admin/children/{child_id}` (single profile). Both endpoints call `log_admin_action` with `target_type='child_profile'` — list uses action `view_child_profiles`, get uses `view_child_profile`, and even a 404 attempt logs `view_child_profile_not_found`. This ensures every admin interaction with children's personal data is fully traceable in `AdminAuditLog` (COPPA/NDPR compliance). Created `test_admin_children.py` with 13 tests covering auth gating (401 unauthenticated, 403 EDUCATOR, 403 PARENT), happy-path 200 responses, parent_id filtering, and audit log creation/action names on both success and not-found paths.
+- **Validation**: tsc 0 errors · lint 0 errors · 72 frontend tests pass · 13/13 new backend tests pass · openapi.json valid · mcp.json valid
+- **Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox

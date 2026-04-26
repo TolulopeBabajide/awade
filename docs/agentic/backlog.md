@@ -1,6 +1,6 @@
 # Awade — Backlog
 
-> Last updated: 2026-04-26 (Lead Dev Agent — AWD-L-10 shipped)
+> Last updated: 2026-04-26 (Lead Dev Agent — AWD-GRC-05 shipped)
 > Last groomed: 2026-04-25 (weekend-ops / Ops Agent) — see notes below. Removed stale items, updated priorities for post-security-sprint phase. Parent pivot code is feature-complete; focus shifts to launch prep + compliance.
 > Source of truth for active work. Completed items move to [`completed_backlog.md`](completed_backlog.md).
 > Issue prefix: `AWD` — e.g., reference as `AWD-H-03` in commits.
@@ -319,16 +319,16 @@ Or: accept the full working-tree version of `children_service.py` (which has bot
 
 | # | Area | Issue | File(s) | Effort |
 |---|------|-------|---------|--------|
-| L-01 | DX | CI cache key for pip dependencies (backend-test is slow on every run) | `.github/workflows/ci.yml` | S |
-| L-02 | Docs | Update `docs/public/api/README.md` with parent/children endpoints | `docs/public/api/` | S |
+~~| L-01 | DX | CI cache key for pip dependencies (backend-test is slow on every run) | `.github/workflows/ci.yml` | S |~~ ✅ 2026-04-26
+~~| L-02 | Docs | Update `docs/public/api/README.md` with parent/children endpoints | `docs/public/api/` | S |~~ ✅ 2026-04-26
 | L-03 | A11y | Run WCAG 2.1 AA audit on parent flow, file specific items | `apps/frontend/src/pages/Parent*.tsx`, `GuideViewPage.tsx` | M |
-| L-04 | Security | Re-enable `TrustedHostMiddleware` with `ALLOWED_HOSTS` env var in production | `apps/backend/main.py` (lines 133-135) | S |
+~~| L-04 | Security | Re-enable `TrustedHostMiddleware` with `ALLOWED_HOSTS` env var in production | `apps/backend/main.py` (lines 133-135) | S |~~ ✅ 2026-04-26
 ~~| L-05 | Code hygiene | `require_parent` and `require_any_role` added to `dependencies.py` but never imported. Either wire `require_parent` into `children.py` router `dependencies=[...]` (fails earlier with 403) or delete the helpers | `apps/backend/dependencies.py` (lines 168, 170), `apps/backend/routers/children.py` | S |~~ ✅ 2026-04-26
 | L-06 | Data model | `ParentGuide.is_bookmarked` uses `Integer` (0/1) instead of `Boolean` — response schema already coerces with `bool(...)`, so the column type should match. Small alembic migration + model tweak | `apps/backend/models.py` (ParentGuide), `apps/backend/alembic/versions/` (new migration) | S |
 | L-07 | Compatibility | `GoogleAuthRequest.role` now defaults to `"PARENT"` — any existing client that calls `/auth/google` without passing a role will create parents instead of educators (a behaviour change from the prior EDUCATOR default). Confirm no older mobile/web clients are still in the wild; otherwise make `role` required | `apps/backend/routers/auth.py` (line 44) | S | **⚠️ Grooming note (2026-04-25): requires Tolu decision — are any pre-pivot educator clients still active? Block on Tolu confirmation before closing.**
 ~~| L-10 | Docs / Config | `project-config.md` §5 `ERROR_MONITORING` still reads "not yet connected (Sentry recommended — flagged as H-01)". AWD-H-01 shipped in commit 364762f — update the line to reflect Sentry is now wired for both backend (`sentry-sdk[fastapi]==2.58.0`) and frontend (`@sentry/react ^8.0.0`). Filed: 2026-04-23 QA. **Grooming note (2026-04-25): trivially bundleable with any doc/config commit. S = minutes.** | `project-config.md` (§5, line ~28) | S |~~ ✅ 2026-04-26
 ~~| L-09 | DX / Frontend | React Router v7 future flag warnings in frontend test output — `v7_startTransition` and `v7_relativeSplatPath` flags not set on `<BrowserRouter>`. Will become breaking changes in v7. Fix: add `future={{ v7_startTransition: true, v7_relativeSplatPath: true }}` to the `<BrowserRouter>` or `<RouterProvider>` in `apps/frontend/src/App.tsx`. Filed: 2026-04-22 QA. | `apps/frontend/src/App.tsx` | S |~~ ✅ 2026-04-26
-| L-11 | Security / Deps | `Pillow==10.0.0` pinned in `requirements.txt` (AWD-M-08). Multiple CVEs affect Pillow versions below 10.3.0, including CVE-2024-28219 (heap buffer overflow in `ImagingResampleHorizontal`). Current pin may be intentional for compatibility but should be reviewed and upgraded to `Pillow>=10.3.0` (or latest stable) if no breaking change. Check release notes for Pillow 10.x before bumping. Filed: 2026-04-24 QA Agent. | `apps/backend/requirements.txt` | S |
+~~| L-11 | Security / Deps | `Pillow==10.0.0` pinned in `requirements.txt` (AWD-M-08). Multiple CVEs affect Pillow versions below 10.3.0, including CVE-2024-28219 (heap buffer overflow in `ImagingResampleHorizontal`). Current pin may be intentional for compatibility but should be reviewed and upgraded to `Pillow>=10.3.0` (or latest stable) if no breaking change. Check release notes for Pillow 10.x before bumping. Filed: 2026-04-24 QA Agent. | `apps/backend/requirements.txt` | S |~~ ✅ 2026-04-26
 ~~| L-12 | Code Hygiene | `GeminiProvider` class docstring (line 20) is stale after AWD-M-39 migration: still says "Uses 'gemini-1.5-pro' for standard tier and 'gemini-1.5-flash' for basic tier" but the code returns `gemini-flash-latest` for both tiers. Also: `import re` is done inline inside `generate_content()` (line 98) rather than at module top — minor convention violation. Fix: (1) update docstring to reflect `gemini-flash-latest`; (2) move `import re` to module-level imports. Effort: S. Filed: 2026-04-25 QA Agent. | `packages/ai/providers/gemini_provider.py` (lines 20-21, 98) | S |~~ ✅ 2026-04-25
 
 ---
@@ -349,7 +349,7 @@ Or: accept the full working-tree version of `children_service.py` (which has bot
 | GRC-02 | GDPR | Data export endpoint — allow a parent to download all their data + their children's data as JSON | `apps/backend/routers/users.py` (new endpoint), `apps/backend/services/user_service.py` | M |
 | GRC-03 | GDPR | Account deletion endpoint with cascade for ChildProfile + ParentGuide | `apps/backend/routers/users.py`, migrations (cascade rules) | M |
 | GRC-04 | NDPR/POPIA | Data-residency note in privacy policy — document where Awade stores African parent/child data | `docs/public/external/`, privacy policy file | S |
-| GRC-05 | COPPA | Audit logs for any admin access to a ChildProfile | `apps/backend/models.py` (AdminAuditLog — verify coverage), `apps/backend/routers/admin.py` | S |
+~~| GRC-05 | COPPA | Audit logs for any admin access to a ChildProfile | `apps/backend/models.py` (AdminAuditLog — verify coverage), `apps/backend/routers/admin.py` | S |~~ ✅ 2026-04-26
 
 ---
 
