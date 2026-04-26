@@ -325,6 +325,50 @@ class UserService:
                 detail="An error occurred while updating the user profile"
             )
     
+    def delete_account(self, current_user: User) -> Dict[str, str]:
+        """
+        GDPR account deletion — permanently delete the authenticated user's account
+        and all associated data (ChildProfile records and their ParentGuide records).
+
+        The SQLAlchemy ``cascade="all, delete-orphan"`` on ``User.children`` and
+        ``ChildProfile.parent_guides`` ensures that all dependent rows are removed
+        within the same transaction.  LessonPlan records owned by EDUCATOR users are
+        also cascaded via ``User.lesson_plans``.
+
+        Args:
+            current_user (User): The authenticated user requesting deletion.
+
+        Returns:
+            Dict[str, str]: Confirmation message.
+
+        Raises:
+            HTTPException: 500 if deletion fails unexpectedly.
+        """
+        try:
+            user = self.db.query(User).filter(User.user_id == current_user.user_id).first()
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+
+            self.db.delete(user)
+            self.db.commit()
+
+            logger.info("User %s account deleted (GRC-03)", current_user.user_id)
+            return {"message": "Account deleted successfully"}
+
+        except HTTPException:
+            raise
+        except Exception:
+            self.db.rollback()
+            logger.error(
+                "Failed to delete account for user %s",
+                current_user.user_id,
+                exc_info=True,
+            )
+            raise HTTPException(
+                status_code=500,
+                detail="An error occurred while deleting the account",
+            )
+
     def get_data_export(self, current_user: User) -> Dict[str, Any]:
         """
         Produce a full GDPR data export for the authenticated user.
