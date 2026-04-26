@@ -27,6 +27,7 @@ import ModerationList from './pages/admin/ModerationList'
 import CurriculumManager from './pages/admin/CurriculumManager'
 import TemplateManager from './pages/admin/TemplateManager'
 import AdminSettings from './pages/admin/Settings'
+import ChildProfileList from './pages/admin/ChildProfileList'
 
 function App() {
   return (
@@ -118,6 +119,7 @@ function App() {
             <Route path="curriculum" element={<CurriculumManager />} />
             <Route path="templates" element={<TemplateManager />} />
             <Route path="logs" element={<AuditLogs />} />
+            <Route path="children" element={<ChildProfileList />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
         </Routes>

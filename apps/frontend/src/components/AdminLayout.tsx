@@ -11,7 +11,8 @@ import {
     FiLogOut,
     FiMenu,
     FiX,
-    FiClock
+    FiClock,
+    FiHeart
 } from 'react-icons/fi';
 
 const AdminLayout: React.FC = () => {
@@ -24,6 +25,7 @@ const AdminLayout: React.FC = () => {
         { name: 'Lesson Resources', path: '/admin/resources', icon: FiFileText },
         { name: 'Moderation', path: '/admin/moderation', icon: FiShield },
         { name: 'Curriculum', path: '/admin/curriculum', icon: FiBookOpen },
+        { name: 'Child Profiles', path: '/admin/children', icon: FiHeart },
         { name: 'Audit Logs', path: '/admin/logs', icon: FiClock },
         { name: 'Settings', path: '/admin/settings', icon: FiSettings },
     ];

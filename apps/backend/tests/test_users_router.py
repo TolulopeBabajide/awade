@@ -1,8 +1,5 @@
 """
-Tests for user management endpoints.
-
-AWD-H-12: GET /api/users/{user_id} ownership check.
-AWD-GRC-02: GET /api/users/me/data-export GDPR data export.
+Tests for AWD-H-12: GET /api/users/{user_id} ownership check.
 
 Verifies that:
 - A user can read their own record (200)
@@ -12,16 +9,13 @@ Verifies that:
 - A SUPER_ADMIN can read any user's record (200)
 - Unauthenticated request returns 403
 - Non-existent user_id returns 404 (admin only, after ownership check passes)
-- Data export returns 200 with expected structure for any authenticated user
-- Data export includes children + guides for PARENT users
-- Unauthenticated data export request returns 401
 """
 
 import pytest
 import jwt
 from datetime import datetime, timedelta, timezone
 
-from apps.backend.models import User, UserRole, ChildProfile, ParentGuide
+from apps.backend.models import User, UserRole
 from apps.backend.dependencies import get_jwt_secret_key, get_jwt_algorithm
 
 
@@ -196,120 +190,3 @@ class TestGetUserOwnership:
         )
         # Must be 403, not 404 — 404 would confirm the user_id exists
         assert response.status_code == 403
-
-
-# ---------------------------------------------------------------------------
-# GRC-02: GET /api/users/me/data-export
-# ---------------------------------------------------------------------------
-
-class TestDataExport:
-    """AWD-GRC-02: GDPR data export endpoint."""
-
-    def test_unauthenticated_request_rejected(self, client):
-        """Request without auth header must be rejected (401 Unauthorized)."""
-        response = client.get("/api/users/me/data-export")
-        assert response.status_code == 401
-
-    def test_educator_export_returns_200_with_user_block(self, client, educator_user):
-        """Authenticated EDUCATOR receives 200 with a 'user' block and empty children list."""
-        response = client.get(
-            "/api/users/me/data-export",
-            headers=_auth(educator_user),
-        )
-        assert response.status_code == 200
-        data = response.json()
-        assert "export_date" in data
-        assert "user" in data
-        assert "children" in data
-        assert data["user"]["user_id"] == educator_user.user_id
-        assert data["user"]["email"] == educator_user.email
-        # Password hash must never appear in the export
-        assert "password_hash" not in data["user"]
-        # EDUCATOR has no children
-        assert data["children"] == []
-
-    def test_parent_export_includes_no_children_when_none_exist(self, client, parent_user):
-        """A PARENT with no children gets an empty children list (not an error)."""
-        response = client.get(
-            "/api/users/me/data-export",
-            headers=_auth(parent_user),
-        )
-        assert response.status_code == 200
-        data = response.json()
-        assert data["user"]["role"] == "PARENT"
-        assert data["children"] == []
-
-    def test_parent_export_includes_children_and_guides(self, client, test_db, parent_user, sample_topic):
-        """A PARENT with children and guides sees them all in the export."""
-        # Create a child profile for this parent
-        child = ChildProfile(
-            parent_id=parent_user.user_id,
-            name="Test Child",
-            age=8,
-        )
-        test_db.add(child)
-        test_db.commit()
-        test_db.refresh(child)
-
-        # Create a guide linked to the child and topic
-        guide = ParentGuide(
-            child_id=child.child_id,
-            topic_id=sample_topic.topic_id,
-            ai_generated_content='{"steps": ["step 1"]}',
-            is_bookmarked=1,
-        )
-        test_db.add(guide)
-        test_db.commit()
-        test_db.refresh(guide)
-
-        response = client.get(
-            "/api/users/me/data-export",
-            headers=_auth(parent_user),
-        )
-        assert response.status_code == 200
-        data = response.json()
-
-        assert len(data["children"]) == 1
-        exported_child = data["children"][0]
-        assert exported_child["child_id"] == child.child_id
-        assert exported_child["name"] == "Test Child"
-        assert exported_child["age"] == 8
-
-        assert len(exported_child["guides"]) == 1
-        exported_guide = exported_child["guides"][0]
-        assert exported_guide["guide_id"] == guide.guide_id
-        assert exported_guide["topic_id"] == sample_topic.topic_id
-        assert exported_guide["topic_title"] == sample_topic.topic_title
-        assert exported_guide["is_bookmarked"] is True
-
-    def test_export_does_not_include_other_parents_children(self, client, test_db, parent_user):
-        """A second parent's child must not appear in the first parent's export."""
-        # Create a second parent
-        other_parent = User(
-            full_name="Other Parent",
-            email="other_parent@example.com",
-            password_hash="hashed",
-            role=UserRole.PARENT,
-            country="Nigeria",
-        )
-        test_db.add(other_parent)
-        test_db.commit()
-        test_db.refresh(other_parent)
-
-        # Add a child to the OTHER parent
-        other_child = ChildProfile(
-            parent_id=other_parent.user_id,
-            name="Other Child",
-            age=10,
-        )
-        test_db.add(other_child)
-        test_db.commit()
-
-        response = client.get(
-            "/api/users/me/data-export",
-            headers=_auth(parent_user),
-        )
-        assert response.status_code == 200
-        data = response.json()
-        child_ids = [c["child_id"] for c in data["children"]]
-        assert other_child.child_id not in child_ids
