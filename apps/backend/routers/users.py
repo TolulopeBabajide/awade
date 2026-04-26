@@ -17,12 +17,13 @@ Endpoints:
 Author: Tolulope Babajide
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from typing import Any, Dict, List, Optional
 
 from apps.backend.database import get_db
+from apps.backend.limiter import limiter
 from apps.backend.models import User, UserRole
 from apps.backend.dependencies import get_current_active_user, get_current_user, require_admin, require_admin_or_educator
 from apps.backend.services.user_service import UserService
@@ -34,7 +35,9 @@ router = APIRouter(prefix="/api/users", tags=["users"])
 # does not attempt to parse the literal string "me" as an integer user_id.
 
 @router.get("/me/data-export")
+@limiter.limit("5/minute")
 async def export_my_data(
+    request: Request,
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
