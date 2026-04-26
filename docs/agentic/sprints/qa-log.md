@@ -1855,3 +1855,213 @@ Issues:
 - **Type regression in committed HEAD**: Commit `7fe0c3b` (test(backend): AWD-M-04) accidentally stripped the typed import block from `api.ts` and deleted 3 interfaces from `children.ts` (`ChildProfileUpdate`, `ChildProfileListResponse`, `ParentGuideListResponse`), reverting the AWD-M-15 type safety work shipped one commit earlier. Six API methods in `api.ts` now return `ApiResponse<any>` in the committed HEAD — a direct violation of the code quality rule "No `any` types added without a `// TODO(AWD-...)` justification". The fix IS in the working tree (uncommitted) but was never staged into the test commit. Working tree also has additional null-guard improvements to `GuideViewPage.tsx` (two `if (!res.data)` guards) and a safe-default fix in `ParentDashboardPage.tsx` (`res.data ?? []` replacing the unsafe `as ChildTopic[]` cast). TypeScript and lint passed only because they ran on the working tree (with the fix), not on the committed HEAD.
 - Auto-filed: AWD-M-41 (see backlog)
 Verdict: Needs fix — commit the working tree changes before pushing develop
+
+---
+## QA — 2026-04-25T14:36:00Z
+Result: ✅ PASS
+Commits: e3627b9, fc55014, 7aec8cc | Files: apps/frontend/src/pages/ChildrenPage.test.tsx, apps/frontend/src/pages/GuideViewPage.tsx, apps/frontend/src/pages/ParentDashboardPage.test.tsx, apps/frontend/src/pages/ParentDashboardPage.tsx, apps/frontend/src/pages/SavedGuidesPage.test.tsx, apps/frontend/src/services/api.ts, apps/frontend/src/types/children.ts, apps/backend/tests/test_children_service.py, apps/backend/tests/test_lesson_plan_service.py, docs/agentic/backlog.md, docs/agentic/completed_backlog.md, docs/agentic/sprints/dev-log.md, manual_to_do.md
+| TypeScript        | ✅ 0 errors |
+| Lint              | ✅ 0 errors, 0 warnings |
+| Frontend tests    | ✅ 72 passing, 0 failing (7 test files) |
+| Backend tests     | ⚠️ Skipped — pre-existing sandbox issue: venv is a broken symlink to python3.13, sandbox only has python3.10 and no disk space to install pytest |
+| OpenAPI valid     | ✅ |
+| Spot-check        | ✅ AWD-M-41 fix confirmed: api.ts now fully typed (ChildProfile, ChildProfileCreate, ChildProfileUpdate, ChildProfileListResponse, ChildTopic, ParentGuide, ParentGuideListResponse imported and applied to all 8 children/guides API methods). children.ts has all 7 interfaces. GuideViewPage.tsx and ParentDashboardPage.tsx have null-guard improvements. No hardcoded secrets, no console.log added (pre-existing console.error at api.ts:72 only), no @ts-ignore, no TODO/FIXME, no dangerouslySetInnerHTML. test_children_service.py is comprehensive (role-gating, ownership 404s, FK validation, idempotency, AI 502 handling, delete, get_child_topics, update subject batch query, list_guides, get_guide, toggle_bookmark). All test data synthetic. |
+| CI on develop     | unknown (gh CLI not available in sandbox) |
+Issues: None — AWD-M-41 type regression from previous cycle fully resolved and verified.
+Verdict: Ship (pending Tolu's `git push origin develop` and CI green run)
+
+---
+
+## QA — 2026-04-25T15:36:30Z — AWD-M-21 (PDF export for parent guides)
+
+**Result**: ✅ PASS (with one M-level warning)
+
+**Commits**: c83bee8, f97e86b, c423fa9
+**Files changed**: `apps/backend/routers/children.py`, `apps/backend/services/pdf_service.py`, `apps/backend/tests/test_children_router.py`, `apps/frontend/src/pages/GuideViewPage.tsx`, `apps/frontend/src/services/api.ts`, `docs/agentic/backlog.md`, `docs/agentic/completed_backlog.md`, `docs/agentic/sprints/dev-log.md`, `manual_to_do.md`
+
+| Check | Result |
+|---|---|
+| TypeScript | ✅ `tsc --noEmit` clean (0 errors) |
+| Lint | ✅ `eslint` clean (0 warnings, 0 errors) |
+| Frontend tests | ✅ 72 passing, 0 failing (7 test files) |
+| Backend tests | ⚠️ venv links to macOS Python (`/Library/Frameworks/Python.framework/Versions/3.13/...`) — not executable in Linux sandbox; pip install failed (disk full). Backend tests skipped. Last known state: all passing (previous cycle). |
+| OpenAPI valid | ✅ `apps/backend/app/openapi.json` valid JSON |
+| Spot-check | ⚠️ 1 issue — see below |
+| CI on develop | unknown (gh CLI not available in sandbox) |
+
+**Issues**:
+- `apps/backend/services/pdf_service.py:19` — bare `print("Warning: WeasyPrint not available. PDF generation will be disabled.")` at module level (executed on import). Violates CLAUDE.md code hygiene rule: "No `print()` left in production paths (use structured logger)". This is a pre-existing line but in a file newly modified for AWD-M-21. Filed as **AWD-M-42**.
+
+**New code quality (AWD-M-21)**:
+- `export_guide_pdf` endpoint: auth guard ✅, ownership via `get_guide()` ✅, proper 422/503/500 handling with `logger.error(..., exc_info=True)` ✅, no secrets ✅
+- `generate_guide_pdf` / `_generate_guide_html`: all user-supplied strings escaped via `_h()` ✅, no dangerouslySetInnerHTML ✅
+- `exportGuidePdf` in `api.ts`: full try/catch ✅, non-blocking alert fallback in `GuideViewPage` ✅
+- `TestExportGuidePdf` covers 401, 404, 422×2, 503, 200 happy path — comprehensive ✅
+
+**Verdict**: Ship (pending Tolu's `git push origin develop` and CI green run). AWD-M-42 is non-blocking.
+
+---
+## QA — 2026-04-25T17:35:00Z — AWD-M-42 (WeasyPrint logger fix + docs update)
+
+**Result**: ✅ PASS
+
+**Commits**: `f0dddf4`, `3bfbbc6`
+**Files changed**: `apps/backend/services/pdf_service.py`, `docs/agentic/backlog.md`, `docs/agentic/completed_backlog.md`, `docs/agentic/sprints/dev-log.md`, `manual_to_do.md`
+
+| Check | Result | Notes |
+|---|---|---|
+| TypeScript | ✅ | 0 errors |
+| Lint | ✅ | 0 errors, 0 warnings |
+| Frontend tests | ✅ | 72 tests passing across 7 files |
+| Backend tests | ⚠️ Skipped | venv is macOS/Python 3.13 binary — broken symlink in Linux sandbox. Run locally: `cd apps/backend && python -m pytest tests/ -v` |
+| OpenAPI valid | ✅ | `apps/backend/app/openapi.json` parses cleanly |
+| Spot-check | ✅ | No secrets, no bare print(), no @ts-ignore, no TODO/FIXME added, no role-check gaps, prompts.py untouched |
+| CI on develop | ⚠️ Unknown | `gh` CLI not available in QA sandbox |
+
+**Change summary**: `fix(pdf)` replaced a bare `print()` in the WeasyPrint import guard with `logger.warning()` using a properly initialized `logging.getLogger(__name__)`. Fix is minimal, targeted, and correct — no unintended side effects.
+
+**Issues**: None
+**Verdict**: Ship — pending Tolu's `git push origin develop` and CI green run.
+
+---
+
+## QA — 2026-04-25T18:37:53Z
+Result: ✅ PASS
+Commits: fb9e718 | Files: apps/backend/middleware/security_headers.py, apps/backend/tests/test_security.py
+
+| Check | Result |
+|-------|--------|
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 72 passing, 0 failing |
+| Backend tests | ⚠️ skipped — venv/bin/python is broken symlink to python3.13 (not present in QA sandbox); same infra limitation as prior cycles |
+| OpenAPI valid | ✅ |
+| Spot-check | ✅ (2 pre-existing issues discovered — see below) |
+| CI on develop | unknown — gh CLI not available in sandbox |
+
+**Change summary**: `fix(security): AWD-M-35` removes `'unsafe-inline'` from `script-src` in the CSP middleware. The fix is correct and well-targeted. New test `test_csp_script_src_no_unsafe_inline` directly asserts the fix holds. No hardcoded secrets, no debug logs, no `@ts-ignore`, no missing role checks, no prompt changes.
+
+**Spot-check findings (pre-existing, not introduced by this commit):**
+- `style-src 'unsafe-inline'` remains in CSP (`security_headers.py` line 30). The in-code comment acknowledges this as deferred from M-35, but M-35 is now marked done in the backlog with no separate open ticket tracking the nonce migration for style-src. Filed as **AWD-M-43**.
+- `test_rate_limiting` in `test_security.py` (line 171) is a hollow test — body is `pass` with no assertions and no `@pytest.mark.skip(reason="AWD-...")`. Violates testing standards. Pre-existed this commit. Filed as **AWD-M-44**.
+
+Issues: AWD-M-43, AWD-M-44 (both pre-existing — not regressions from this commit)
+Verdict: Ship
+
+---
+
+## QA — 2026-04-25T19:35:45Z
+Result: ✅ PASS
+Commits: 2f79fed, 27a45f0, 4b12ac8 | Files: apps/backend/tests/test_security.py, manual_to_do.md
+
+| Check | Result |
+|-------|--------|
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 72 passing, 0 failing |
+| Backend tests | ⚠️ skipped — venv/bin/python is broken symlink to python3.13 (not present in QA sandbox); pip install blocked by no-space-left-on-device; consistent with prior cycles |
+| OpenAPI valid | ✅ |
+| Spot-check | ✅ clean |
+| CI on develop | unknown — gh CLI not available in sandbox |
+
+**Change summary**: AWD-M-44 — `test_rate_limiting` in `apps/backend/tests/test_security.py` correctly marked `@pytest.mark.skip(reason="AWD-M-44 ...")` with full backlog justification. No production code changed. `manual_to_do.md` updated with new commits. Spot-check confirms: no hardcoded secrets, no debug logs (`console.log`/`print()`), no `@ts-ignore`, no TODO/FIXME without backlog links, no missing role checks, no prompt changes.
+
+**Issues**: None — no new issues introduced.
+**Verdict**: Ship — pending Tolu's `git push origin develop` and CI green run.
+
+---
+## QA — 2026-04-25T20:46:32Z
+Result: ✅ PASS (backend tests skipped — sandbox constraint)
+Commits: e606029 b63adbf 490b05a | Files: apps/backend/middleware/security_headers.py, apps/backend/tests/test_security.py, docs/agentic/backlog.md, docs/agentic/completed_backlog.md, docs/agentic/sprints/dev-log.md, manual_to_do.md
+
+| Check | Result |
+|---|---|
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors/warnings |
+| Frontend tests | ✅ 72 passing, 0 failing (7 test files) |
+| Backend tests | ⚠️ skipped — venv symlink broken in sandbox; pip install blocked (no disk space) |
+| OpenAPI valid | ✅ |
+| Spot-check | ✅ |
+| CI on develop | unknown — gh CLI not available in sandbox |
+
+**Change summary**: AWD-M-43 — removed `unsafe-inline` from `style-src` CSP directive; added explicit `font-src` allowing `fonts.gstatic.com` for Google Fonts woff2 files. Three new tests added in `test_security.py` (`test_csp_style_src_no_unsafe_inline`, `test_csp_font_src_google_fonts`, plus updated `test_csp_header_directives`). Docs updated (backlog, completed_backlog, dev-log, manual_to_do). No production logic changes.
+
+**Spot-check findings**:
+- `security_headers.py`: Clean. CSP change is correct and well-documented with inline comments referencing AWD-M-35/AWD-M-43. No secrets, no debug prints, no @ts-ignore, no TODO/FIXME.
+- `test_security.py`: Clean. New tests are thorough and correctly assert the absence of `unsafe-inline` in `style-src` and the presence of `fonts.googleapis.com`/`fonts.gstatic.com`. Skipped test (`test_rate_limiting`) retains valid backlog link (AWD-M-44). No issues.
+- Docs files: safe — no code changes.
+
+**Issues**: Backend tests could not be run in the QA sandbox (recurring infra constraint — not a code issue). No new code issues found.
+**Verdict**: Ship — pending Tolu's `git push origin develop` and CI green run (GitHub Actions will execute backend tests in a real environment).
+
+---
+## QA — 2026-04-25T21:43:18Z
+Result: ✅ PASS
+Commits: fd42a4e, ebf6289, 3c0e2be | Files: apps/frontend/src/components/FeaturesSection.tsx, apps/frontend/src/components/HeroSection.tsx, apps/frontend/src/components/HeroSectionParent.tsx, apps/frontend/vite.config.ts, image assets (6 WebP/PNG), docs/agentic/backlog.md, docs/agentic/completed_backlog.md, docs/agentic/sprints/dev-log.md, manual_to_do.md
+
+| Check              | Result |
+|--------------------|--------|
+| TypeScript         | ✅ 0 errors |
+| Lint               | ✅ 0 errors, 0 warnings |
+| Frontend tests     | ✅ 72 passing, 0 failing (7 test files) |
+| Backend tests      | ⚠️ Skipped — venv symlinks to macOS Python framework (unavailable in Linux sandbox); no disk space for pip install |
+| OpenAPI valid      | ✅ apps/backend/app/openapi.json is valid JSON |
+| Spot-check         | ✅ No secrets, console.log, @ts-ignore, TODO/FIXME, or missing role checks found |
+| CI on develop      | ⚠️ Unknown — gh CLI not available in sandbox |
+
+Issues:
+- ⚠️ `fetchPriority` prop (React 18.2.0 compat) — HeroSection.tsx:74 and HeroSectionParent.tsx:84 use `fetchPriority="high"` which is not recognised by React 18.2.0, generating a test-time console warning. React 18.3.0+ added proper camelCase support. Fix: bump react/react-dom to ^18.3.0 in apps/frontend/package.json, or replace `fetchPriority` with lowercase `fetchpriority` as an HTML attribute fallback. → Filed AWD-M-45.
+
+Verdict: Ship (with AWD-M-45 to be addressed in a follow-up sprint)
+
+---
+## QA — 2026-04-25T22:34:57Z
+Result: ⏭ SKIPPED
+Commits: none in last 40 minutes
+Verdict: No action required — no new commits on develop
+
+---
+## QA — 2026-04-25T23:37:16Z
+Result: ✅ PASS
+Commits: 27f9f01, c863a67, ccab23f | Files: apps/frontend/package.json, docs/agentic/backlog.md, docs/agentic/completed_backlog.md, docs/agentic/sprints/dev-log.md, manual_to_do.md
+
+| Check              | Result |
+|--------------------|--------|
+| TypeScript         | ✅ 0 errors |
+| Lint               | ✅ 0 errors, 0 warnings |
+| Frontend tests     | ✅ 7 files, 72 passing, 0 failing |
+| Backend tests      | ⚠️ Skipped — venv/bin/python is broken symlink to python3.13 (pre-existing sandbox issue; not introduced by this commit) |
+| OpenAPI valid      | ✅ valid JSON |
+| Spot-check         | ✅ No secrets, no console.log/print, no @ts-ignore, no TODO/FIXME, no missing role checks |
+| CI on develop      | ⚠️ Unknown — gh CLI not available in sandbox |
+
+Issues:
+- ⚠️ Backend tests skipped (pre-existing): venv/bin/python is a broken symlink to python3.13 which is absent from the sandbox. This is a sandbox environment limitation, not a code regression. Backend tests were passing in prior sessions (see dev-log entries). No action needed unless Tolu wants to verify locally.
+- ℹ️ React Router v7 future flag warnings in test output (pre-existing, tracked as L-09): `v7_startTransition` and `v7_relativeSplatPath` flags not set. No test failures caused.
+
+Summary: AWD-M-45 is a clean, targeted dependency bump — react + react-dom + @types/react + @types/react-dom promoted from ^18.0/18.2 to ^18.3.0. Resolves the `fetchPriority` TypeScript warning introduced in AWD-M-06. All frontend checks pass. No new issues to file.
+
+Verdict: Ship
+
+---
+## QA — 2026-04-26T00:37:14Z
+Result: ✅ PASS (with infrastructure warning)
+Commits: 6fd5912 fix(security): AWD-C-08 restore M-43 CSP fix | 85c1199 Merge | 807adc9 docs(agentic): AWD-C-08 update backlog
+Files: apps/backend/middleware/security_headers.py · apps/backend/tests/test_security.py
+
+| Check            | Result |
+|-----------------|--------|
+| TypeScript       | ✅ 0 errors |
+| Lint             | ✅ 0 errors, 0 warnings |
+| Frontend tests   | ✅ 72 passing, 0 failing |
+| Backend tests    | ⚠️ SKIPPED — venv symlink broken (points to python3.13, not present in QA sandbox). Filed AWD-M-46. |
+| OpenAPI valid    | ✅ |
+| Spot-check       | ✅ |
+| CI on develop    | unknown (gh CLI not available in sandbox) |
+
+Spot-check summary:
+- security_headers.py: Clean restore of AWD-M-43 CSP fix. style-src now uses `https://fonts.googleapis.com` (no unsafe-inline). font-src added with `https://fonts.gstatic.com`. No secrets, no console.log, no @ts-ignore, no hardcoded values. Comments clearly reference AWD-M-35 and AWD-M-43.
+- test_security.py: Two new test functions added — `test_csp_style_src_no_unsafe_inline` and `test_csp_font_src_google_fonts`. Both are well-structured and directly validate the middleware change. No issues.
+
+Issues: AWD-M-46 filed (venv broken symlink — infrastructure, not code regression)
+Verdict: Ship

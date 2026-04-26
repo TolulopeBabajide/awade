@@ -1,6 +1,6 @@
 # Awade — Backlog
 
-> Last updated: 2026-04-26 (Lead Dev Agent — AWD-M-45 shipped)
+> Last updated: 2026-04-26 (Lead Dev Agent — AWD-C-08 shipped)
 > Last groomed: 2026-04-25 (weekend-ops / Ops Agent) — see notes below. Removed stale items, updated priorities for post-security-sprint phase. Parent pivot code is feature-complete; focus shifts to launch prep + compliance.
 > Source of truth for active work. Completed items move to [`completed_backlog.md`](completed_backlog.md).
 > Issue prefix: `AWD` — e.g., reference as `AWD-H-03` in commits.
@@ -19,6 +19,8 @@
 ## 🔴 Critical
 
 ~~**AWD-C-07 — Chore commit `547a4ac` silently reverted two security fixes from AWD-M-39**~~ ✅ 2026-04-25
+
+~~**AWD-C-08 — Docs commit `e606029` silently reverted AWD-M-43 CSP security fix**~~ ✅ 2026-04-26
 
 ---
 
@@ -335,6 +337,7 @@ Or: accept the full working-tree version of `children_service.py` (which has bot
 
 ~~| M-39 | Security / Deps + AI | Two related issues: **(A)** `openai==1.12.0` is ~70 minor versions behind latest 1.x (1.82+). Pinned at 1.12.0 for API compatibility (AWD-M-08 comment) but no breaking changes occur within 1.x — the gap means missed security patches. Fix: upgrade to `openai>=1.82.0` (latest stable 1.x), run backend tests to confirm no breakage. **(B)** `generate_lesson_resource()` cache metadata (line 505) stores `"context": context` (original unsanitized value) instead of `"context": safe_context`. If ContentCache persists metadata to Redis as JSON, unsanitized educator input is stored in Redis (injection risk is low since the prompt uses `safe_context`, but defence-in-depth gap). Fix: change `"context": context` → `"context": safe_context` at line 505. | `apps/backend/requirements.txt`, `packages/ai/gpt_service.py` (line 505) | S |~~ ✅ 2026-04-25
 ~~| M-38 | Code Quality / Types | `_sanitize_user_context` in `packages/ai/gpt_service.py` is typed `(text: str) -> str` but the companion test `test_returns_empty_for_none` documents it accepts `None` and returns `None`. The production caller correctly guards with `if context else None` so `None` is never passed at runtime, but the type annotation is incorrect — should be `Optional[str] -> Optional[str]`. Fix: update type hints to `def _sanitize_user_context(self, text: Optional[str]) -> Optional[str]` and add the `Optional` import. Filed: 2026-04-24 QA Agent (spotted during AWD-M-12 review). | `packages/ai/gpt_service.py` (line ~231), `apps/backend/tests/test_ai_providers.py` (`test_returns_empty_for_none`) | S |~~ ✅ 2026-04-25
+| M-46 | DX / Infrastructure | `venv/bin/python` is a broken symlink — points to `python3.13` which is not present in the QA sandbox (Ubuntu 22 / Python 3.10). `venv/bin/python3` has the same broken symlink. Backend pytest cannot run in the QA sandbox until this is recreated with the correct interpreter. This means security tests (e.g. test_security.py for AWD-C-08 CSP changes) cannot be automatically validated post-merge. **Fix**: delete and recreate the venv with the system Python: `cd <project root> && rm -rf venv && python3 -m venv venv && source venv/bin/activate && pip install -r apps/backend/requirements.txt`. Run `cd apps/backend && python -m pytest tests/ -v` after to confirm. Must be done on the dev machine (Tolu's Mac), not the QA sandbox. Filed: 2026-04-26 QA Agent. | `venv/` (infra only — no app code change) | S |
 
 ---
 

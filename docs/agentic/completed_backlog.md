@@ -348,3 +348,12 @@
 - **Commit**: 27f9f01 (fix(frontend): AWD-M-45 bump react/react-dom to ^18.3.0 for fetchPriority support)
 - **Merge**: c863a67
 - **Fix**: Bumped react/react-dom from ^18.2.0 to ^18.3.0 and @types/react/@types/react-dom from ^18.2.0 to ^18.3.0 in apps/frontend/package.json. React 18.3.0 added official camelCase fetchPriority prop support, eliminating the test-suite warning. Lock file already pinned 18.3.1 so no npm install was required. 72/72 frontend tests pass, 0 TS errors, 0 lint errors.
+
+## AWD-C-08 — Docs commit `e606029` silently reverted AWD-M-43 CSP security fix
+- **Completed**: 2026-04-26
+- **Commit**: 6fd5912 (fix(security): AWD-C-08 restore M-43 CSP fix reverted by docs commit e606029)
+- **Merge**: 85c1199
+- **Root cause**: The docs/records commit `e606029` (AWD-M-43 update backlog, dev-log and manual_to_do) accidentally staged and committed the pre-M-43 versions of `security_headers.py` and `test_security.py`, re-introducing `style-src 'unsafe-inline'` in the CSP and deleting the two new M-43 tests. Same class of failure as AWD-C-07. The correct M-43 content was preserved in the working tree.
+- **Fix**: Re-applied the M-43 CSP changes: `style-src 'self' https://fonts.googleapis.com`, new `font-src 'self' https://fonts.gstatic.com` directive, and restored `test_csp_style_src_no_unsafe_inline` + `test_csp_font_src_google_fonts` in `test_security.py`.
+- **Validation**: tsc 0 errors ✅ · lint 0 errors ✅ · frontend tests 72/72 ✅ · openapi.json ✅ · mcp.json ✅
+- **Note**: Push to origin/develop blocked in sandbox (HTTPS auth) — Tolu must run `git push origin develop` to trigger CI.

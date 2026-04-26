@@ -29,7 +29,7 @@ from typing import Optional
 
 from apps.backend.database import get_db
 from apps.backend.models import User
-from apps.backend.dependencies import get_current_active_user
+from apps.backend.dependencies import require_parent
 from apps.backend.limiter import limiter
 
 logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ router = APIRouter(prefix="/api", tags=["children"])
 @router.post("/children", response_model=ChildProfileResponse, status_code=201)
 def create_child(
     data: ChildProfileCreate,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
 ):
     """Create a new child profile for the current parent."""
@@ -61,7 +61,7 @@ def create_child(
 
 @router.get("/children", response_model=ChildProfileListResponse)
 def list_children(
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
 ):
     """List all child profiles for the current parent."""
@@ -72,7 +72,7 @@ def list_children(
 @router.get("/children/{child_id}", response_model=ChildProfileResponse)
 def get_child(
     child_id: int,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
 ):
     """Get a single child profile by ID."""
@@ -84,7 +84,7 @@ def get_child(
 def update_child(
     child_id: int,
     data: ChildProfileUpdate,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
 ):
     """Update a child profile."""
@@ -95,7 +95,7 @@ def update_child(
 @router.delete("/children/{child_id}")
 def delete_child(
     child_id: int,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
 ):
     """Delete a child profile and all associated guides."""
@@ -109,7 +109,7 @@ def delete_child(
 def get_child_topics(
     child_id: int,
     subject_id: Optional[int] = Query(None, description="Filter topics by subject ID"),
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
 ):
     """
@@ -126,7 +126,7 @@ def get_child_topics(
 def list_child_guides(
     child_id: int,
     bookmarked: bool = Query(False, description="Only return bookmarked guides"),
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
 ):
     """List all parent guides for a child."""
@@ -140,7 +140,7 @@ def generate_guide(
     request: Request,
     child_id: int,
     topic_id: int = Query(..., description="Topic ID to generate a guide for"),
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
 ):
     """
@@ -155,7 +155,7 @@ def generate_guide(
 @router.get("/guides/{guide_id}", response_model=ParentGuideResponse)
 def get_guide(
     guide_id: int,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
 ):
     """Get a single parent guide by ID."""
@@ -166,7 +166,7 @@ def get_guide(
 @router.post("/guides/{guide_id}/bookmark", response_model=ParentGuideResponse)
 def toggle_bookmark(
     guide_id: int,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
 ):
     """Toggle the bookmark status of a guide."""
@@ -177,7 +177,7 @@ def toggle_bookmark(
 @router.get("/guides/{guide_id}/export")
 def export_guide_pdf(
     guide_id: int,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
 ):
     """
