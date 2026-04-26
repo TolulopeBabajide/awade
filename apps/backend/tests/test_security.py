@@ -99,7 +99,9 @@ def test_csp_style_src_no_unsafe_inline():
     )
     assert "'self'" in style_src_value, "style-src must retain 'self'"
     # Google Fonts CSS (loaded via @import in index.css) must remain permitted.
-    assert "https://fonts.googleapis.com" in style_src_value, (
+    # Use split() to check for an exact CSP token, not a substring, to satisfy
+    # CodeQL CWE-020 (incomplete URL substring sanitisation).
+    assert "https://fonts.googleapis.com" in style_src_value.split(), (
         "style-src must include https://fonts.googleapis.com for Google Fonts CSS — AWD-M-43."
     )
 
@@ -122,7 +124,8 @@ def test_csp_font_src_google_fonts():
         "font-src directive must be present in the CSP header — "
         "required to load Google Fonts woff2 files from fonts.gstatic.com (AWD-M-43)."
     )
-    assert "https://fonts.gstatic.com" in font_src_value, (
+    # Use split() for exact CSP token check (CodeQL CWE-020).
+    assert "https://fonts.gstatic.com" in font_src_value.split(), (
         "font-src must include https://fonts.gstatic.com for Google Fonts — AWD-M-43."
     )
 
