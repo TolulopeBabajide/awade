@@ -360,8 +360,19 @@
 
 ---
 
-**AWD-L-04 — Re-enable TrustedHostMiddleware with ALLOWED_HOSTS env var**
-Completed: 2026-04-26
-Commit: 62c4397 (fix(security): AWD-L-04 re-enable TrustedHostMiddleware with ALLOWED_HOSTS env var)
-Merged: b7bd011 (Merge fix/security/AWD-L-04-trusted-host-middleware into develop)
-Files: apps/backend/main.py, apps/backend/tests/test_security.py, .env.example, env.production.template, env.test.template
+### AWD-L-05 — Wire `require_parent` into children router (completed 2026-04-26)
+- **Commit**: ce1e031
+- **Files changed**: `apps/backend/routers/children.py`
+- **Change**: Replaced `Depends(get_current_active_user)` with `Depends(require_parent)` on all 10 endpoints in the children/guides router. Updated import to use `require_parent` instead of `get_current_active_user`. Adds router-level 403 for EDUCATOR/unauthenticated callers before any service logic runs (defence-in-depth alongside service-layer `_verify_parent()`).
+- **Validation**: tsc 0 errors ✅ · lint 0 errors ✅ · frontend tests 72/72 ✅ · openapi.json ✅ · mcp.json ✅ · backend tests skipped (M-46 venv/disk issue)
+- **Note**: Push to origin/develop blocked in sandbox (HTTPS auth) — Tolu must run `git push origin develop` to trigger CI.
+
+---
+
+## AWD-L-09 — React Router v7 future flag warnings
+- **Completed**: 2026-04-26
+- **Commit**: 4ff1f34 (feature) · 6b5e7d1 (merge)
+- **Files changed**: `apps/frontend/src/main.tsx`, `apps/frontend/src/test/App.test.tsx`, `apps/frontend/src/pages/ParentOnboardingPage.test.tsx`, `apps/frontend/src/pages/ChildrenPage.test.tsx`, `apps/frontend/src/pages/SavedGuidesPage.test.tsx`, `apps/frontend/src/pages/GuideViewPage.test.tsx`, `apps/frontend/src/pages/ParentDashboardPage.test.tsx`
+- **Change**: Added `future={{ v7_startTransition: true, v7_relativeSplatPath: true }}` to all `BrowserRouter` and `MemoryRouter` instances across production entry point and test files. Both flags confirmed supported in react-router-dom 6.30.3 (installed). No React Router deprecation warnings appear in test output after fix.
+- **Validation**: tsc 0 errors ✅ · lint 0 errors ✅ · frontend tests 72/72 ✅ · 0 v7 future-flag warnings ✅ · openapi.json ✅ · mcp.json ✅
+- **Note**: Push to origin/develop blocked in sandbox (HTTPS auth) — Tolu must run `git push origin develop` to trigger CI.
