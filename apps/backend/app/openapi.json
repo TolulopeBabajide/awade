@@ -1626,6 +1626,34 @@
         }
       }
     },
+    "/api/users/me/data-export": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Export My Data",
+        "description": "GDPR data export \u2014 returns a JSON document containing all data Awade holds about the authenticated user.\n\nFor PARENT users the response includes child profiles and all associated AI-generated guides. Password hashes and profile image blobs are intentionally excluded from the export.\n\nAll authenticated roles are permitted to export their own data.",
+        "operationId": "export_my_data_api_users_me_data_export_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Export My Data Api Users Me Data Export Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/users/": {
       "get": {
         "tags": [
