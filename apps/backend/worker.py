@@ -1,11 +1,13 @@
 
 import asyncio
+import logging
 from arq.connections import RedisSettings
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 import os
 import sys
 from datetime import datetime, timezone
+from pydantic import ValidationError
 
 # Add parent directories to Python path for imports
 current_dir = os.path.dirname(__file__)
@@ -16,7 +18,10 @@ sys.path.extend([parent_dir, root_dir])
 from apps.backend.database import get_db_url
 from apps.backend.models import LessonResource, Topic, CurriculumStructure, Subject, GradeLevel, Context, User
 from apps.backend.services.auth_service import AuthService
+from apps.backend.schemas.lesson_plans import LessonResourceAIContent
 from packages.ai.gpt_service import AwadeGPTService
+
+logger = logging.getLogger(__name__)
 
 # Configure database session for worker
 engine = create_engine(get_db_url())
@@ -108,12 +113,34 @@ async def generate_lesson_resource_task(ctx, resource_id: int):
             )
         )
         
+        from apps.backend.models import ResourceModeration
+
+        # Validate AI output shape against Pydantic schema before persisting (AWD-M-48).
+        # Malformed output from the AI service can cause downstream 503s in the PDF
+        # export service; flagging it here keeps bad data out of the DB entirely.
+        try:
+            LessonResourceAIContent.model_validate_json(ai_content)
+        except (ValidationError, ValueError) as exc:
+            logger.error(
+                "Lesson resource schema validation failed for resource %s: %s",
+                resource_id,
+                exc,
+            )
+            resource.status = "failed"
+            moderation = ResourceModeration(
+                lesson_resource_id=resource_id,
+                status='flagged',
+                notes="AI output failed Pydantic schema validation — content not persisted.",
+            )
+            db.add(moderation)
+            db.commit()
+            return
+
         # Update resource
         resource.ai_generated_content = ai_content
         resource.status = "generated"
-        
-        # If not safe, create a moderation entry
-        from apps.backend.models import ResourceModeration
+
+        # If not safe, create a moderation entry for content-safety issues
         if not is_safe:
             moderation = ResourceModeration(
                 lesson_resource_id=resource_id,
@@ -121,7 +148,7 @@ async def generate_lesson_resource_task(ctx, resource_id: int):
                 notes="Automatically flagged by AI safety filter due to potential structural or content issues."
             )
             db.add(moderation)
-            
+
         db.commit()
         print(f"Successfully generated content for resource {resource_id}")
         

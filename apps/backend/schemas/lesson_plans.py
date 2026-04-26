@@ -81,4 +81,42 @@ class LessonResourceResponse(BaseModel):
     status: str
     created_at: datetime
 
-    model_config = ConfigDict(from_attributes=True) 
+    model_config = ConfigDict(from_attributes=True)
+
+
+# AI-output validation schemas (AWD-M-48)
+
+class LessonResourceTitleHeader(BaseModel):
+    """Sub-schema for the title_header field in AI-generated lesson resource content."""
+    topic: str
+    subject: str
+    grade_level: str
+    country: Optional[str] = None
+    local_context: Optional[str] = None
+
+
+class LessonResourceLessonContent(BaseModel):
+    """Sub-schema for the lesson_content field in AI-generated lesson resource content."""
+    introduction: str
+    main_concepts: List[str]
+    examples: Optional[List[str]] = None
+    step_by_step_instructions: Optional[List[str]] = None
+
+
+class LessonResourceAIContent(BaseModel):
+    """
+    Full Pydantic schema for AI-generated lesson resource content.
+
+    Used to validate the JSON returned by AwadeGPTService.generate_lesson_resource()
+    before the content is written to the database.  If validation fails the worker
+    sets the resource status to 'failed' and creates a ResourceModeration entry
+    rather than persisting malformed data that could cause downstream 503s in the
+    PDF export service (OWASP LLM02 — insecure output handling).
+    """
+    title_header: LessonResourceTitleHeader
+    learning_objectives: List[str]
+    lesson_content: LessonResourceLessonContent
+    assessment: Optional[List[str]] = None
+    key_takeaways: Optional[List[str]] = None
+    related_projects_or_activities: Optional[List[str]] = None
+    references: Optional[List[str]] = None
