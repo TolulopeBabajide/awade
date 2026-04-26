@@ -357,3 +357,11 @@
 - **Fix**: Re-applied the M-43 CSP changes: `style-src 'self' https://fonts.googleapis.com`, new `font-src 'self' https://fonts.gstatic.com` directive, and restored `test_csp_style_src_no_unsafe_inline` + `test_csp_font_src_google_fonts` in `test_security.py`.
 - **Validation**: tsc 0 errors ✅ · lint 0 errors ✅ · frontend tests 72/72 ✅ · openapi.json ✅ · mcp.json ✅
 - **Note**: Push to origin/develop blocked in sandbox (HTTPS auth) — Tolu must run `git push origin develop` to trigger CI.
+
+---
+
+**AWD-L-04 — Re-enable TrustedHostMiddleware with ALLOWED_HOSTS env var**
+Completed: 2026-04-26
+Commit: 62c4397 (fix(security): AWD-L-04 re-enable TrustedHostMiddleware with ALLOWED_HOSTS env var)
+Merged: b7bd011 (Merge fix/security/AWD-L-04-trusted-host-middleware into develop)
+Files: apps/backend/main.py, apps/backend/tests/test_security.py, .env.example, env.production.template, env.test.template
