@@ -190,10 +190,15 @@ app.add_middleware(SecurityHeadersMiddleware)
 from apps.backend.middleware import AuditMiddleware
 app.add_middleware(AuditMiddleware)
 
-# Trusted Host Middleware
-# In production, set ALLOWED_HOSTS to your domain(s)
-# allowed_hosts = os.getenv("ALLOWED_HOSTS", "*").split(",")
-# app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
+# ---------------------------------------------------------------------------
+# AWD-L-04: TrustedHostMiddleware guards against HTTP Host header injection
+# (OWASP A05 — Security Misconfiguration).
+# Set ALLOWED_HOSTS to a comma-separated list of valid host(s) in production
+# (e.g. "awade.app,www.awade.app"). Defaults to "*" (allow all) in dev/test.
+# ---------------------------------------------------------------------------
+_raw_allowed_hosts = os.getenv("ALLOWED_HOSTS", "*")
+_allowed_hosts = [h.strip() for h in _raw_allowed_hosts.split(",") if h.strip()] or ["*"]
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=_allowed_hosts)
 
 # CORS middleware
 # In production, set ALLOWED_ORIGINS to your frontend domain(s)
