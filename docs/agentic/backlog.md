@@ -1,6 +1,6 @@
 # Awade — Backlog
 
-> Last updated: 2026-04-26 (Lead Dev Agent — AWD-GRC-05 shipped)
+> Last updated: 2026-04-26 (Lead Dev Agent — AWD-GRC-02 shipped)
 > Last groomed: 2026-04-25 (weekend-ops / Ops Agent) — see notes below. Removed stale items, updated priorities for post-security-sprint phase. Parent pivot code is feature-complete; focus shifts to launch prep + compliance.
 > Source of truth for active work. Completed items move to [`completed_backlog.md`](completed_backlog.md).
 > Issue prefix: `AWD` — e.g., reference as `AWD-H-03` in commits.
@@ -346,9 +346,9 @@ Or: accept the full working-tree version of `children_service.py` (which has bot
 | # | Area | Issue | File(s) | Effort |
 |---|------|-------|---------|--------|
 | GRC-01 | COPPA | Parental consent flow before first ChildProfile creation (plain-language disclosure + explicit opt-in, dated record) | `apps/backend/routers/children.py`, `apps/frontend/src/pages/ParentDashboardPage.tsx`, new consent table | M |
-| GRC-02 | GDPR | Data export endpoint — allow a parent to download all their data + their children's data as JSON | `apps/backend/routers/users.py` (new endpoint), `apps/backend/services/user_service.py` | M |
+~~| GRC-02 | GDPR | Data export endpoint — allow a parent to download all their data + their children's data as JSON | `apps/backend/routers/users.py` (new endpoint), `apps/backend/services/user_service.py` | M |~~ ✅ 2026-04-26
 | GRC-03 | GDPR | Account deletion endpoint with cascade for ChildProfile + ParentGuide | `apps/backend/routers/users.py`, migrations (cascade rules) | M |
-| GRC-04 | NDPR/POPIA | Data-residency note in privacy policy — document where Awade stores African parent/child data | `docs/public/external/`, privacy policy file | S |
+~~| GRC-04 | NDPR/POPIA | Data-residency note in privacy policy — document where Awade stores African parent/child data | `docs/public/external/`, privacy policy file | S |~~ ✅ 2026-04-26
 ~~| GRC-05 | COPPA | Audit logs for any admin access to a ChildProfile | `apps/backend/models.py` (AdminAuditLog — verify coverage), `apps/backend/routers/admin.py` | S |~~ ✅ 2026-04-26
 
 ---

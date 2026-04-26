@@ -413,3 +413,5 @@ After removing it, the next hourly run will:
 | 2026-04-26T03:16:00Z | AWD-L-09 | React Router v7 future flag warnings — add future flags to BrowserRouter/MemoryRouter | 4ff1f34 | ✅ Done | CI:pending-push |
 2026-04-26T05:15:00Z | AWD-L-10 | Update project-config.md ERROR_MONITORING to reflect Sentry shipped | n/a (gitignored file — no commit) | ✅ Done | CI:n/a
 2026-04-26T14:17:00Z | AWD-GRC-05 | COPPA audit logs for admin access to child profiles | 7ffcee1 (merge: 8f8e699) | ✅ Done | CI:pending (push blocked — Tolu must `git push origin develop`)
+2026-04-26T16:13:00Z | GRC-04 | Data-residency note in privacy policy (NDPR/POPIA) | 0b43b51 | ✅ Done | CI:pending (push required — no GitHub credentials in sandbox)
+2026-04-26T17:15:00Z | GRC-02 | GDPR data export endpoint | 1290ff9 | ✅ Done | CI:pending

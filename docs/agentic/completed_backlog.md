@@ -422,3 +422,24 @@
 - **Change**: Added `AdminChildProfileResponse` Pydantic schema to `schemas/admin.py`. Added two audited read-only endpoints to `routers/admin.py` under the existing `require_admin` guard: `GET /api/admin/children` (list all child profiles, optional `parent_id` filter) and `GET /api/admin/children/{child_id}` (single profile). Both endpoints call `log_admin_action` with `target_type='child_profile'` — list uses action `view_child_profiles`, get uses `view_child_profile`, and even a 404 attempt logs `view_child_profile_not_found`. This ensures every admin interaction with children's personal data is fully traceable in `AdminAuditLog` (COPPA/NDPR compliance). Created `test_admin_children.py` with 13 tests covering auth gating (401 unauthenticated, 403 EDUCATOR, 403 PARENT), happy-path 200 responses, parent_id filtering, and audit log creation/action names on both success and not-found paths.
 - **Validation**: tsc 0 errors · lint 0 errors · 72 frontend tests pass · 13/13 new backend tests pass · openapi.json valid · mcp.json valid
 - **Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox
+
+---
+
+## AWD-GRC-04 — Data-residency note in privacy policy (NDPR / POPIA)
+- **Completed**: 2026-04-26
+- **Commits**: 1551b38 (docs) / 0b43b51 (merge)
+- **Files changed**: `docs/public/external/privacy-policy.md` (new, 194 lines)
+- **Change**: Created a full privacy policy document at `docs/public/external/privacy-policy.md`. Key addition is §4 "Data Residency and International Transfers" which explicitly documents: (1) all data stored in the United States (Render Oregon / Vercel CDN / OpenAI / Sentry); (2) NDPR cross-border transfer basis — explicit informed consent per Article 2.11 of the NDPR Implementation Framework; (3) POPIA cross-border transfer basis — explicit informed consent per Section 72; (4) GDPR basis — Standard Contractual Clauses (SCCs) plus consent; (5) sub-processor table (Render, Vercel, OpenAI, Sentry) with data shared per processor; (6) data-minimisation note — child names are never sent to OpenAI. Also covers rights table (GDPR/NDPR/POPIA), children's privacy (COPPA/NDPR/POPIA), retention schedule, cookie table, and complaint authority links (NDPC Nigeria, Information Regulator South Africa).
+- **Validation**: secrets scan clean · no docs/private content · markdown content checks pass · no code changes → tsc/lint/tests not applicable
+- **Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox
+
+---
+
+### AWD-GRC-02 — GDPR data export endpoint
+- **Completed**: 2026-04-26
+- **Commits**: d860d48 (feat) / 1290ff9 (merge)
+- **Files changed**: `apps/backend/services/user_service.py`, `apps/backend/routers/users.py`, `apps/backend/tests/test_users_router.py`
+- **Change**: Added `GET /api/users/me/data-export` endpoint (GDPR Article 20 — right to data portability). All authenticated users can request a JSON export of their own data. For PARENT users the export includes all child profiles and associated AI-generated guides (with topic titles), in a structured `{export_date, user, children}` payload. Password hashes and profile image blobs are intentionally excluded. Endpoint uses `get_current_active_user` dependency (suspended accounts blocked). Route is declared before `/{user_id}` routes to prevent FastAPI parsing "me" as an integer. Service method `UserService.get_data_export()` queries ChildProfile + ParentGuide + Topic lazily for PARENT role only; EDUCATOR/ADMIN see only their profile block with empty children list. Added 5 pytest tests covering: unauthenticated rejection (401), educator export (200, no password_hash, empty children), parent with no children (200, empty children), parent with children+guides (200, correct child/guide/topic data), cross-parent isolation (second parent's child not visible). Python AST-validated all three changed files. Frontend: tsc 0 errors, lint 0 errors, 72/72 vitest tests passing.
+- **Backend tests**: Skipped — venv broken symlinks (pre-existing AWD-M-46); Python AST parse clean on all 3 files
+- **Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox
+- **Note**: `apps/backend/app/openapi.json` should be regenerated on Tolu's Mac to include the new endpoint (`python -c "from apps.backend.main import app; import json; print(json.dumps(app.openapi(), indent=2))" > apps/backend/app/openapi.json`)
