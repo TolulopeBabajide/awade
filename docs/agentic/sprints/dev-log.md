@@ -415,3 +415,10 @@ After removing it, the next hourly run will:
 2026-04-26T14:17:00Z | AWD-GRC-05 | COPPA audit logs for admin access to child profiles | 7ffcee1 (merge: 8f8e699) | ✅ Done | CI:pending (push blocked — Tolu must `git push origin develop`)
 2026-04-26T16:13:00Z | GRC-04 | Data-residency note in privacy policy (NDPR/POPIA) | 0b43b51 | ✅ Done | CI:pending (push required — no GitHub credentials in sandbox)
 2026-04-26T17:15:00Z | GRC-02 | GDPR data export endpoint | 1290ff9 | ✅ Done | CI:pending
+2026-04-26T18:15:00Z | AWD-H-03 | Admin panel: child profile management view | 5d9af8e (merge: f2c87bc) | ✅ Done | CI:pending (push blocked — Tolu must `git push origin develop`)
+2026-04-26T19:14:00Z | AWD-H-42 | Restore GRC-02 data-export endpoint deleted in AWD-H-03 commit | a675345 | ✅ Done | CI:pending (push blocked — Tolu must `git push origin develop`)
+2026-04-26T20:12Z | M-48 | SUPER_ADMIN role parity in user_service | d0fc40b | ✅ Done | CI:pending (push blocked — no GH creds in sandbox; Tolu to run `git push origin develop`)
+2026-04-26T21:14:00Z | AWD-M-47 | Regenerate openapi.json to include data-export endpoint | 2e598f0 | ✅ Done | CI:pending (push required)
+2026-04-26T22:09Z | AWD-H-49 | Add rate limiter to data-export endpoint | 49eb39f | ✅ Done | CI:pending (push required)
+2026-04-27T23:20:00Z | GRC-03 | GDPR account deletion endpoint with cascade | a395aa2 | ✅ Done | CI:pending (push required)
+2026-04-27T00:20:49Z | AWD-M-49 | Regenerate openapi.json to include account-deletion endpoint (DELETE /api/users/me) | 7939e43 (feat: 0246466) | ✅ Done | CI:pending (push blocked — Tolu must `git push origin develop`)

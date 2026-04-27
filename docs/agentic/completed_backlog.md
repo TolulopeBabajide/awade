@@ -443,3 +443,93 @@
 - **Backend tests**: Skipped — venv broken symlinks (pre-existing AWD-M-46); Python AST parse clean on all 3 files
 - **Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox
 - **Note**: `apps/backend/app/openapi.json` should be regenerated on Tolu's Mac to include the new endpoint (`python -c "from apps.backend.main import app; import json; print(json.dumps(app.openapi(), indent=2))" > apps/backend/app/openapi.json`)
+
+---
+
+**AWD-H-03 — Admin panel: parent/child management views** — Completed 2026-04-26
+- Added `apps/frontend/src/pages/admin/ChildProfileList.tsx` — read-only COPPA-audited admin view of all child profiles, backed by existing `GET /api/admin/children` endpoint (GRC-05). Features: loading/error/empty states, name search, parent-ID filter, subject count badges, click-to-filter by parent.
+- Added `apps/frontend/src/pages/admin/ChildProfileList.test.tsx` — 8 vitest tests covering all states (loading, error, empty, success, search filter, COPPA badge, subject count, null fields).
+- Updated `apps/frontend/src/App.tsx` — added `/admin/children` route.
+- Updated `apps/frontend/src/components/AdminLayout.tsx` — added "Child Profiles" nav item (FiHeart icon).
+- **Commit**: `5d9af8e` feat(admin): AWD-H-03 add child profile management view to admin panel
+- **Merge**: `f2c87bc` Merge feat/admin/AWD-H-03-parent-child-views into develop
+- **Validation**: TS clean (exit 0), lint clean (0 errors), 80/80 tests pass (8 new)
+- **Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox
+
+---
+
+### AWD-H-42 — Restore GRC-02 data-export endpoint deleted in H-03 commit ✅ 2026-04-26
+
+**Completed**: 2026-04-26 by Lead Dev Agent
+**Issue**: Commit `5d9af8e` (AWD-H-03 admin panel) accidentally removed `GET /api/users/me/data-export`, `UserService.get_data_export()`, its model imports (`ChildProfile`, `ParentGuide`, `Topic`), and the GRC-02 test suite from `test_users_router.py`. The fix was already on disk (uncommitted) — this run staged and committed it.
+**Files changed**:
+- `apps/backend/routers/users.py` — restored `/me/data-export` endpoint with `get_current_active_user` auth guard; `/me/...` route declared before `/{user_id}/...` to avoid int-parse collision
+- `apps/backend/services/user_service.py` — restored `get_data_export()` method + `ChildProfile`, `ParentGuide`, `Topic` imports
+- `apps/backend/tests/test_users_router.py` — restored `TestDataExport` class (5 tests: unauthenticated 401, educator export, parent with no children, parent with children + guides, isolation between parents)
+**Commit**: `a675345` fix(users): AWD-H-42 restore GRC-02 data-export endpoint deleted in H-03 commit
+**Branch advance**: `develop` ref advanced from `f2c87bc` → `a675345` (fast-forward via direct ref write; index.lock FUSE limitation)
+**Validation**: syntax clean (py_compile), JSON files valid; pytest/tsc skipped (broken venv — see M-46)
+**Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox
+
+---
+
+## AWD-M-48 — SUPER_ADMIN role parity in user_service methods
+**Completed**: 2026-04-26
+**Issue**: `user_service.delete_user()` checked `role != UserRole.ADMIN` but `require_admin` (router guard) already allows `SUPER_ADMIN`. Three other service methods (`update_user`, `get_user_profile`, `update_user_profile`) had the same gap, silently returning 403 to SUPER_ADMIN callers who had legitimately cleared the router guard.
+**Fix**:
+- `apps/backend/services/user_service.py` — changed all 4 `!= UserRole.ADMIN` guards to `not in (UserRole.ADMIN, UserRole.SUPER_ADMIN)` (lines 155, 207, 254, 292). Consistent with existing pattern at line 116.
+- `apps/backend/tests/test_users_router.py` — added `TestSuperAdminRoleParity` class (6 tests): delete, self-delete guard, update user, view profile, update profile, and non-admin still blocked.
+**Commit**: `d0fc40b` fix(users): AWD-M-48 extend SUPER_ADMIN role check parity in user_service
+**Merge commit**: `d35ba10` Merge fix/users/AWD-M-48-super-admin-role-check into develop
+**Branch advance**: `develop` ref advanced from `a675345` → `d35ba10` (no-ff merge via commit-tree; index.lock FUSE limitation)
+**Validation**: syntax clean (ast.parse); pytest skipped (broken venv — see M-46)
+**Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox
+
+---
+
+## AWD-M-47 — Regenerate openapi.json to include data-export endpoint
+**Completed**: 2026-04-26
+**Issue**: `GET /api/users/me/data-export` (GRC-02) was live and tested but absent from the checked-in OpenAPI spec.
+**Fix**: Manually inserted the missing path entry for `/api/users/me/data-export` into `apps/backend/app/openapi.json` using Python, following FastAPI's path-entry schema conventions (operationId, tags, security, response schema). Placed before `/api/users/` to match route-registration order in `users.py`.
+**Commit**: `2e598f0` docs(api): AWD-M-47 regenerate openapi.json to include data-export endpoint
+**Branch advance**: `develop` ref advanced from `d35ba10` → `2e598f0` (direct ref write; index.lock FUSE limitation prevented standard merge)
+**Validation**: openapi.json valid JSON ✅; tsc 0 errors ✅; lint 0 errors ✅; 80 frontend tests pass ✅; backend tests skipped (broken venv — see M-46)
+**Note**: Also caught and unstaged a stale regression (staged changes in user_service.py + test_users_router.py that would have reverted the AWD-M-48 SUPER_ADMIN fix). No new issue filed — no code was committed.
+**Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox
+
+---
+
+## AWD-H-49 — Missing rate limiter on `GET /api/users/me/data-export`
+**Completed**: 2026-04-26
+**Type**: Security / Rate Limiting
+**Commit**: `5d860d9` fix(users): AWD-H-49 add rate limiter to data-export endpoint
+**Merge commit**: `49eb39f` Merge fix/users/AWD-H-49-rate-limit-data-export into develop
+**Branch advance**: `develop` ref advanced from `2e598f0` → `49eb39f` (local-clone workaround; index.lock FUSE limitation)
+**Changes**:
+- `apps/backend/routers/users.py`: added `Request` to FastAPI imports, added `from apps.backend.limiter import limiter`, added `@limiter.limit("5/minute")` decorator and `request: Request` param to `export_my_data`
+- `apps/backend/tests/test_users_router.py`: added `test_rate_limit_returns_429_after_limit_exceeded` to `TestDataExport`
+**Validation**: tsc 0 errors ✅; lint 0 errors ✅; 80 frontend tests pass ✅; backend tests skipped (broken venv — see M-46)
+**Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox
+
+---
+
+**AWD-GRC-03 — GDPR account deletion endpoint with cascade** ✅ 2026-04-27
+**Commit**: `63989b5` (feat) + `a395aa2` (merge into develop)
+**Branch**: `feat/compliance/GRC-03-account-deletion` → merged into `develop`
+**Changes**:
+- `apps/backend/routers/users.py`: added `DELETE /api/users/me` endpoint (rate-limited 3/min); updated module docstring
+- `apps/backend/services/user_service.py`: added `delete_account()` — deletes the authenticated user with SQLAlchemy cascade (ChildProfile → ParentGuide via existing `cascade="all, delete-orphan"` relationships; no migration needed)
+- `apps/backend/tests/test_users_router.py`: added `TestAccountDeletion` class with 5 tests: educator/parent self-deletion, cascade to ChildProfile, cascade to ParentGuide, unauthenticated 401
+- `apps/backend/app/openapi.json`: reverted to HEAD (sandbox venv broken — needs regeneration on Tolu's Mac with `python -c "import json; from apps.backend.main import app; print(json.dumps(app.openapi()))" > apps/backend/app/openapi.json`)
+**Validation**: tsc 0 errors ✅; lint 0 errors ✅; 80 frontend tests pass ✅; 25/25 backend users router tests pass ✅ (run in sandbox via /tmp/pypkg)
+**Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox
+**Note**: openapi.json needs regeneration locally to add `DELETE /api/users/me` to the spec (sandbox can't do it cleanly due to M-46 broken venv)
+
+---
+
+### AWD-M-49 — Regenerate openapi.json to include account-deletion endpoint ✅ 2026-04-27
+**Shipped**: commit `0246466`, merge `7939e43` → develop
+**What was done**: Added `DELETE /api/users/me` operation to `apps/backend/app/openapi.json`. The endpoint was live and tested (GRC-03, commit `63989b5`) but absent from the spec. Constructed the OpenAPI operation object from the router source (`apps/backend/routers/users.py` lines 59–81) matching FastAPI's naming conventions (`operationId: delete_my_account_api_users_me_delete`, HTTPBearer security, 200 response with `{"message": string}` schema). Path inserted after `/api/users/me/data-export` to preserve the `/me/*` before `/{user_id}` ordering.
+**Side-fix discovered**: Staging area held stale deletions of `users.py`, `user_service.py`, `test_users_router.py` from a prior aborted run — would have regressed GRC-03 if committed. Unstaged via `git restore --staged` before proceeding.
+**Note**: `children.py` and `admin.py` router endpoints are also absent from the spec (pre-existing gap, never in spec). Filed as context for a future full-regeneration task when M-46 (broken venv) is resolved by Tolu locally.
+**Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox (19 commits queued).
