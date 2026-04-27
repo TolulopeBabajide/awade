@@ -7,7 +7,6 @@ const Footer: React.FC = () => {
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault()
     // Handle subscription logic here
-    console.log('Subscribing email:', email)
     setEmail('')
   }
 
