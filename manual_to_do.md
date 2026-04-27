@@ -2,7 +2,7 @@
 
 > Things the agent cannot do autonomously (no GitHub credentials, no secrets access, requires your judgment).
 > Agent updates this file whenever a task needs Tolu's hands. Check it before and after each dev session.
-> Last updated: 2026-04-25 (Dev Agent — AWD-M-06 commits 3c0e2be + ebf6289 added)
+> Last updated: 2026-04-27 (Dev Agent — AWD-M-51 commits ef73e69 + 510fd89 added)
 
 ---
 
@@ -73,6 +73,10 @@ This single push covers all commits — they are already merged to `develop` in 
 | `ebf6289` | M-06 | Merge fix/performance/AWD-M-06-lighthouse-image-optimisation into develop |
 | `6f69506` | H-50 | Docs: regenerate openapi.json — consent, children, guide routes now included |
 | `2813ef4` | H-50 | Merge fix/api-docs/AWD-H-50-openapi-regen into develop |
+| `ef73e69` | M-51 | fix(frontend): remove console.log PII leak and unguarded debug logs (3 files) |
+| `510fd89` | M-51 | Merge fix/frontend/AWD-M-51-remove-console-logs into develop |
+| `ad60f1c` | M-50 | fix(backend): replace bare print() calls with structured logger in main.py |
+| TBD | H-51 | fix(frontend): AWD-H-51 re-apply M-51 DEV guards reverted by ad60f1c |
 
 ---
 

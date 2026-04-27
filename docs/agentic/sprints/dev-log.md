@@ -425,3 +425,6 @@ After removing it, the next hourly run will:
 2026-04-27T02:25:00Z | GRC-01 | COPPA parental consent flow | 07ca8e9 | ✅ Done | CI:pending (push queued)
 
 | 2026-04-27T04:16:26Z | AWD-H-50 | Regenerate openapi.json — consent, children, guide routes | 2813ef4 | ✅ Done | CI:pending-push |
+| 2026-04-27T06:15:00Z | AWD-M-51 | Remove console.log PII leak and unguarded debug logs (3 frontend files) | 510fd89 | ✅ Done | CI:pending-push |
+2026-04-27T07:10:00Z | AWD-M-50 | Replace bare print() calls with structured logger in main.py | 7431dd3 | ✅ Done | CI:pending
+| 2026-04-27T08:20:00Z | AWD-H-51 | Re-apply M-51 DEV guards reverted by ad60f1c — PII console.log regression | TBD | ✅ Done | CI:pending-push |

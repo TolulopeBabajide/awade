@@ -2168,3 +2168,497 @@ Spot-check summary:
 
 Issues: AWD-M-46 filed (venv broken symlink — infrastructure, not code regression)
 Verdict: Ship
+
+---
+
+## QA — 2026-04-26T14:38Z
+
+**Result**: ✅ PASS
+
+**Commits**: `9452277` `8f8e699` `7ffcee1`
+
+**Files changed**:
+- `apps/backend/routers/admin.py` — GRC-05 new endpoints
+- `apps/backend/schemas/admin.py` — AdminChildProfileResponse schema
+- `apps/backend/tests/test_admin_children.py` — new test file (303 lines)
+- `.github/workflows/ci.yml` — pip cache on backend-test job (L-01)
+- `docs/public/api/README.md` — parent API docs expanded (L-02)
+- `docs/agentic/backlog.md`, `completed_backlog.md`, `dev-log.md`, `morning-brief.md`, `qa-log.md`
+
+| Check | Result |
+|-------|--------|
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 72/72 passing (7 files) |
+| Backend tests | ⚠️ Skipped — venv binaries are macOS-only symlinks (AWD-M-46) |
+| OpenAPI valid | ✅ |
+| Spot-check | ✅ |
+| CI on develop | ⚠️ Unknown — gh CLI unavailable in sandbox |
+
+**Spot-check detail (GRC-05 admin.py + schemas/admin.py + test file)**:
+- Auth: all new routes inherit `dependencies=[Depends(require_admin)]` at router level ✅
+- Access control: endpoints are read-only (GET only) — no write, patch, or delete ✅
+- Audit logging: every access (list, get, and 404 not-found) is logged with `log_admin_action` → `AdminAuditLog` ✅
+- COPPA: `AdminChildProfileResponse` excludes AI-generated guide content; exposes structural fields only ✅
+- `request: Request = None` pattern in `admin_list_children` is safe — `log_admin_action` handles `None` request at line 20 ✅
+- No hardcoded secrets, no `print()`, no `console.log`, no `@ts-ignore`, no TODO/FIXME ✅
+- Test coverage: 401 unauth × 2, 403 EDUCATOR × 2, 403 PARENT × 2, 200 list, 200 list w/ filter, 200 get, 404 get, audit-log on list, audit-log on get success, audit-log on 404 ✅
+- `ci.yml`: pip cache + cache-dependency-path addition is clean — no secrets, expected CI optimisation ✅
+- `docs/public/api/README.md`: no secrets or tokens; documentation only ✅
+
+**Issues**: None new to file. M-46 (venv broken symlink) pre-existing open.
+
+**Verdict**: Ship ✅ — GRC-05 implementation is correct, well-tested, and COPPA-compliant. Backend tests pending Tolu recreating venv locally.
+
+---
+## QA — 2026-04-26T16:35:00Z
+Result: ✅ PASS
+Commits: `0b43b51` (merge), `1551b38` (docs) | Files: `docs/public/external/privacy-policy.md`
+
+| Check | Result |
+|-------|--------|
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 72/72 passing (7 files) |
+| Backend tests | ⚠️ Skipped — venv binaries are macOS-only symlinks (pre-existing AWD-M-46) |
+| OpenAPI valid | ✅ |
+| Spot-check | ✅ |
+| CI on develop | ⚠️ Unknown — gh CLI unavailable in sandbox |
+
+**Spot-check detail (docs/public/external/privacy-policy.md — GRC-04)**:
+- Docs-only change — no app code modified ✅
+- File correctly placed in `docs/public/` (not `docs/private/`) ✅
+- No hardcoded secrets, API keys, env variable values, or internal paths leaked ✅
+- No `console.log`, `print()`, `@ts-ignore`, TODO/FIXME ✅
+- No role-check, auth guard, or API route concerns (markdown document only) ✅
+- No changes to `packages/ai/prompts.py` ✅
+- Policy text accurately reflects known infrastructure (Render US-West, Vercel, OpenAI, Sentry) ✅
+- NDPR Art. 2.11, POPIA Sec. 72, GDPR SCCs — all addressed with explicit consent clause ✅
+- COPPA data-minimisation commitment (no child name sent to OpenAI) consistent with code in `packages/ai/gpt_service.py` ✅
+
+**Issues**: None. AWD-M-46 (venv broken symlink) pre-existing, not caused by this commit.
+
+**Verdict**: Ship ✅ — Documentation-only compliance update (GRC-04). Safe to promote to main.
+
+---
+
+## QA — 2026-04-26T17:35 UTC
+**Result**: ⚠️ PASS WITH ADVISORY
+
+**Commits**: `d860d48`, `1290ff9`, `7a5f266`
+**Files**: `apps/backend/routers/users.py`, `apps/backend/services/user_service.py`, `apps/backend/tests/test_users_router.py`, `docs/agentic/backlog.md`, `docs/agentic/completed_backlog.md`, `docs/agentic/sprints/dev-log.md`, `docs/public/external/privacy-policy.md`
+
+| Check | Result |
+|-------|--------|
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 warnings (`--max-warnings 0` clean) |
+| Frontend tests | ✅ 72/72 passing (7 files) |
+| Backend tests | ⚠️ Skipped — venv broken symlinks (pre-existing AWD-M-46) |
+| OpenAPI valid | ✅ |
+| Spot-check | ⚠️ 1 advisory (see below) |
+| CI on develop | ⚠️ Unknown — gh CLI unavailable in sandbox |
+
+**Spot-check detail (AWD-GRC-02 — `GET /api/users/me/data-export`)**:
+- ✅ Auth guard correct: `Depends(get_current_active_user)` on new endpoint — unauthenticated requests return 401
+- ✅ Route ordering correct: `/me/data-export` declared before `/{user_id}` (prevents "me" being parsed as integer user_id)
+- ✅ Password hash intentionally excluded from export payload
+- ✅ Child data scoped with `ChildProfile.parent_id == current_user.user_id` — no cross-parent data leakage
+- ✅ JSON parse guards on `subjects` / `grade_levels` (graceful fallback to `None` on malformed data)
+- ✅ No hardcoded secrets, API keys, tokens, or passwords
+- ✅ No `print()` / `console.log()` in production paths
+- ✅ No `@ts-ignore` or `TODO/FIXME`
+- ✅ Test coverage: 401 unauthenticated, EDUCATOR 200 + empty children, PARENT 200 + empty children, PARENT with children+guides (cross-validates `topic_title`, `is_bookmarked`), cross-parent isolation (other parent's child absent from export)
+- ⚠️ **OpenAPI spec not regenerated** — `/api/users/me/data-export` is absent from `apps/backend/app/openapi.json`. New endpoint added in `d860d48` but spec regeneration was skipped. Violates CLAUDE.md rule ("If the change touches API endpoints, regenerate `apps/backend/app/openapi.json`"). Filed as **AWD-M-47**. Does not block current CI (contract-test checks JSON validity only, not completeness) but the spec is stale for API consumers.
+
+**Issues**: AWD-M-47 (OpenAPI spec missing new endpoint — auto-filed below)
+
+**Verdict**: Ship ✅ with advisory — GRC-02 is correct, secure, and well-tested. AWD-M-47 should be resolved in the next dev cycle.
+
+---
+## QA — 2026-04-26T18:45:00Z
+**Result**: ❌ FAIL
+
+**Commits**: `5d9af8e` | **Files**: `apps/backend/routers/users.py`, `apps/backend/services/user_service.py`, `apps/backend/tests/test_users_router.py`, `apps/frontend/src/App.tsx`, `apps/frontend/src/components/AdminLayout.tsx`, `apps/frontend/src/pages/admin/ChildProfileList.test.tsx`, `apps/frontend/src/pages/admin/ChildProfileList.tsx`
+
+| Check | Result |
+|-------|--------|
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 warnings |
+| Frontend tests | ✅ 80/80 passing (8 files, includes new ChildProfileList tests) |
+| Backend tests | ⚠️ Skipped — venv symlink broken (Python 3.13 not in sandbox, pre-existing AWD-M-46) |
+| OpenAPI valid | ✅ JSON is valid |
+| Spot-check | ❌ Critical regression found (see below) |
+| CI on develop | ⚠️ Unknown — gh CLI not available in sandbox |
+
+**Spot-check findings**:
+
+**❌ CRITICAL REGRESSION — AWD-H-39**: Commit `5d9af8e` accidentally removed the GRC-02 GDPR data export feature that was added in the previous dev cycle.
+- `GET /api/users/me/data-export` endpoint removed from `apps/backend/routers/users.py`
+- `UserService.get_data_export()` method removed from `apps/backend/services/user_service.py`
+- Imports for `ChildProfile`, `ParentGuide`, `Topic` removed from `user_service.py`
+- GRC-02 tests removed from `apps/backend/tests/test_users_router.py`
+- Local uncommitted changes on disk restore all of the above — the fix exists but was never committed. The dev agent appears to have made the fix locally but left it unstaged before making this commit.
+- **Fix**: Stage and commit the existing local changes to `apps/backend/routers/users.py`, `apps/backend/services/user_service.py`, and `apps/backend/tests/test_users_router.py` — they are correct and ready.
+
+**⚠️ Pre-existing inconsistency — SUPER_ADMIN role gap in user_service.py**:
+- `get_user()` (line 116) correctly uses `not in (UserRole.ADMIN, UserRole.SUPER_ADMIN)`
+- `update_user()`, `delete_user()`, `get_user_profile()`, `update_user_profile()` only check `!= UserRole.ADMIN`
+- SUPER_ADMIN passes the `require_admin` route guard but gets 403 from the service layer on these four operations. Pre-existing issue not introduced by this commit.
+
+**✅ New ChildProfileList feature (AWD-H-03) — clean**:
+- `AdminRoute` guard correctly requires `ADMIN` or `SUPER_ADMIN` before rendering admin layout
+- `/admin/children` route wired correctly behind `AdminRoute` in `App.tsx`
+- `AdminLayout.tsx` has no hardcoded secrets, console.log, or @ts-ignore
+- `ChildProfileList.tsx` has proper loading/error/empty states; fetch wrapped in try/catch; user-facing error message is generic
+- Backend `/api/admin/children` route guarded with `require_admin` + `Depends(require_admin)` on the router itself (double-guarded)
+- Every admin child access is audit-logged to `AdminAuditLog` (COPPA/GRC-05 ✅)
+- 8 frontend tests passing, covering loading, success, error, empty, search filter, and subject count
+
+**⚠️ Pre-existing — openapi.json missing all admin paths**: 0 of 44 paths in spec are under `/api/admin`. Not introduced by this commit; pre-existing gap.
+
+**Issues**: AWD-H-42 (critical regression — GRC-02 endpoint deleted from commit)
+
+**Verdict**: Needs fix — commit `5d9af8e` on develop has a broken GRC-02 regression. Local disk has the fix ready; it must be committed before next deploy.
+
+---
+
+## QA — 2026-04-26T19:36:00Z
+Result: ⚠️ NEEDS FIX
+Commits: `a675345` | Files: `apps/backend/routers/users.py`, `apps/backend/services/user_service.py`, `apps/backend/tests/test_users_router.py`
+
+| Check | Result |
+|-------|--------|
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 80 passing, 0 failing |
+| Backend tests | ⚠️ SKIPPED — venv broken symlink (pre-existing AWD-M-46); venv/bin/python → python3.13 not found in QA sandbox |
+| OpenAPI valid (JSON) | ✅ valid JSON |
+| OpenAPI completeness | ❌ `/api/users/me/data-export` absent from spec (AWD-M-47, pre-existing but compounded by this commit) |
+| Spot-check | ⚠️ see issues below |
+| CI on develop | ❓ unknown — gh CLI not available in QA sandbox |
+
+**Spot-check findings:**
+- ✅ No hardcoded secrets, API keys, or tokens
+- ✅ No `console.log` / `print()` in production paths
+- ✅ No `@ts-ignore` / `@ts-expect-error`
+- ✅ Auth guard (`get_current_active_user`) applied to `/me/data-export`
+- ✅ `/me/data-export` route declared before `/{user_id}` routes (correct FastAPI ordering — comment explains why)
+- ✅ Password hash excluded from export; tested explicitly
+- ✅ No PII in log messages (only user_id logged)
+- ✅ SQL via SQLAlchemy ORM — no string-formatted queries
+- ✅ Error handling: HTTPException re-raised, unexpected exceptions caught + logged with structured logger
+- ✅ Tests comprehensive: 200, 401 unauthenticated, 403 wrong-role, 404, cross-parent data isolation, password_hash exclusion
+- ❌ `openapi.json` not regenerated — `/api/users/me/data-export` still absent from spec (CLAUDE.md requirement: "regenerate openapi.json if API endpoints changed") → AWD-M-47
+- ⚠️ Pre-existing bug exposed: `user_service.delete_user()` checks `current_user.role != UserRole.ADMIN` but `require_admin` dependency allows `SUPER_ADMIN` through — SUPER_ADMIN gets 403 inside the service despite passing the router guard → AWD-M-48 (new, filed below)
+
+Issues: AWD-M-47 (pre-existing, compounded), AWD-M-48 (newly filed)
+Verdict: Needs fix — commit itself is correct and well-tested; openapi.json must be regenerated (M-47) and SUPER_ADMIN delete bug should be addressed (M-48)
+
+---
+## QA — 2026-04-26T20:36:37Z
+Result: ✅ PASS
+Commits: `d0fc40b`, `d35ba10` (merge) | Files: `apps/backend/services/user_service.py`, `apps/backend/tests/test_users_router.py`
+
+| Check | Result |
+|-------|--------|
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 80 passing, 0 failing |
+| Backend tests | ⚠️ SKIPPED — venv broken symlink (pre-existing AWD-M-46); venv/bin/python → python3.13 not present in QA sandbox |
+| OpenAPI valid (JSON) | ✅ valid JSON |
+| Spot-check | ✅ clean |
+| CI on develop | ❓ unknown — gh CLI not available in QA sandbox |
+
+**Spot-check findings:**
+- ✅ No hardcoded secrets, API keys, or tokens
+- ✅ No `console.log` / `print()` / debug statements in production paths
+- ✅ No `@ts-ignore` / `@ts-expect-error`
+- ✅ No TODO/FIXME comments added
+- ✅ All four service methods (`delete_user`, `update_user`, `get_user_profile`, `update_user_profile`) now correctly check `current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN)` — AWD-M-48 fix is correct and complete
+- ✅ Auth guard (`get_current_active_user`) applied on all relevant routes; no new unprotected routes
+- ✅ No PII in log messages (only `user_id` logged via structured logger)
+- ✅ SQL via SQLAlchemy ORM — no string-formatted queries
+- ✅ HTTPException re-raised correctly; unexpected exceptions caught, logged, then re-raised as 500
+- ✅ Tests comprehensive: covers SUPER_ADMIN can delete/update/view/update-profile (AWD-M-48), self-deletion blocked (400), EDUCATOR still blocked (403)
+- ✅ No changes to `packages/ai/prompts.py`
+- ✅ No API endpoint changes — no new routes added, no openapi.json regeneration required for this commit
+
+Issues: None (AWD-M-46 pre-existing — venv symlink broken; AWD-M-47 pre-existing — openapi.json stale, not touched by this commit)
+Verdict: Ship ✅ — fix is correct, tests are thorough, no regressions detected
+
+---
+
+## QA — 2026-04-26T21:38:10Z
+Result: ⚠️ PASS WITH ISSUE
+Commits: `2e598f0` (docs(api): AWD-M-47 regenerate openapi.json to include data-export endpoint) | Files: `apps/backend/app/openapi.json`
+
+| Check | Result | Notes |
+|-------|--------|-------|
+| TypeScript | ✅ | `npx tsc --noEmit` — 0 errors |
+| Lint | ✅ | `npm run lint` — 0 errors, 0 warnings |
+| Frontend tests | ✅ | 80 tests across 8 suites — all passing |
+| Backend tests | ⚠️ SKIPPED | `venv/bin/python` symlink points to macOS Python 3.13 path unavailable in QA sandbox; disk full prevented pip reinstall. Pre-existing issue AWD-M-46. |
+| OpenAPI valid | ✅ | `python3 -m json.tool` — valid JSON |
+| Spot-check | ⚠️ | See issue AWD-H-49 below |
+| CI on develop | unknown | `gh` CLI not available in QA sandbox |
+
+**Spot-check findings — `apps/backend/app/openapi.json`:**
+- ✅ No hardcoded secrets or API keys in diff
+- ✅ New `/api/users/me/data-export` endpoint has `HTTPBearer` security scheme in spec (matches code)
+- ✅ Auth guard confirmed in `routers/users.py` (`Depends(get_current_active_user)`)
+- ✅ `password_hash` confirmed absent from `get_data_export()` export payload
+- ✅ Structured logger used in error path (user_id only, no PII names/email)
+- ✅ Tests in `test_users_router.py` cover 401, all roles, PARENT child+guide inclusion
+- ⚠️ **Missing rate limiter** on `GET /api/users/me/data-export` — see AWD-H-49
+
+Issues: AWD-H-49 (missing rate limiter on data-export endpoint)
+Verdict: Needs fix — endpoint is safe to ship functionally, but rate limiter must be added before load testing or public launch (see AWD-H-49)
+
+---
+## QA — 2026-04-26T22:37:37Z
+Result: ✅ PASS
+Commits: 49eb39f (merge), 5d860d9 (fix) | Files: apps/backend/routers/users.py, apps/backend/tests/test_users_router.py
+
+| Check | Result | Notes |
+|-------|--------|-------|
+| TypeScript | ✅ | `npx tsc --noEmit` — 0 errors |
+| Lint | ✅ | `npm run lint` — 0 errors, 0 warnings |
+| Frontend tests | ✅ | 80 tests across 8 suites — all passing |
+| Backend tests | ⚠️ SKIPPED | `venv/bin/python` symlink broken in QA sandbox (points to python3.13; sandbox has python3.10). Disk full prevented pip reinstall. Pre-existing infra issue — see AWD-M-46. |
+| OpenAPI valid | ✅ | `python3 -m json.tool` — valid JSON |
+| Spot-check | ✅ | See findings below |
+| CI on develop | unknown | `gh` CLI not available in QA sandbox |
+
+**Spot-check findings — AWD-H-49 fix (`apps/backend/routers/users.py`):**
+- ✅ `@limiter.limit("5/minute")` decorator correctly applied to `GET /api/users/me/data-export`
+- ✅ `request: Request` parameter present (required by slowapi for limiter to resolve client IP)
+- ✅ `get_current_active_user` auth guard retained — all roles permitted to export own data
+- ✅ Return type annotation `Dict[str, Any]` present on `export_my_data()`
+- ✅ No hardcoded secrets, API keys, or tokens
+- ✅ No `print()` / `console.log()` / debug statements in production paths
+- ✅ No `@ts-ignore` or `@ts-expect-error` (Python file, N/A)
+- ✅ No TODO/FIXME comments
+- ✅ No broad `except Exception` without logging
+- ✅ Password hash excluded from export payload (confirmed in service layer)
+- ✅ No PII in log paths
+
+**Spot-check findings — `apps/backend/tests/test_users_router.py`:**
+- ✅ `test_rate_limit_returns_429_after_limit_exceeded` covers the new limiter (5 OK + 1 → 429)
+- ✅ `rate_limiter_reset` autouse fixture referenced — limiter state is isolated per test
+- ✅ All role paths tested: EDUCATOR, PARENT, ADMIN, SUPER_ADMIN, unauthenticated
+- ✅ Data-export cross-tenant isolation test present (other parent's children must not appear)
+- ✅ Password hash exclusion assertion present
+- ✅ No `.skip` / `@pytest.mark.skip` without backlog ID
+- ✅ Synthetic test data (no real PII; obviously-fake names/emails)
+
+Issues: None
+Verdict: Ship — AWD-H-49 fix is clean. Backend test suite could not be executed in sandbox (pre-existing venv/disk constraint, AWD-M-46). Recommend verifying backend tests pass in CI before merging to main.
+
+---
+
+## QA — 2026-04-26T23:38:33Z
+
+**Result**: ❌ FAIL
+**Commits**: `a395aa2` (merge), `63989b5` (feat: AWD-GRC-03 account deletion)
+**Files changed**: `apps/backend/routers/users.py`, `apps/backend/services/user_service.py`, `apps/backend/tests/test_users_router.py`
+
+| Check | Result |
+|-------|--------|
+| TypeScript | ✅ 0 errors |
+| Lint (ESLint) | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 80 passed, 0 failed (8 test files) |
+| Backend tests | ⚠️ SKIPPED — venv broken symlink (python3.13 absent in sandbox, AWD-M-46) |
+| OpenAPI valid JSON | ✅ Valid |
+| Spot-check | ❌ `DELETE /api/users/me` absent from `apps/backend/app/openapi.json` |
+| CI on develop | unknown — gh CLI not available in sandbox |
+
+**Spot-check findings**:
+
+**`apps/backend/routers/users.py`** — CLEAN
+- ✅ `DELETE /api/users/me` guarded by `get_current_active_user` (any authenticated role, correct for self-deletion)
+- ✅ `@limiter.limit("3/minute")` applied — rate-limited per security rules
+- ✅ `/me/...` routes declared before `/{user_id}/...` routes (FastAPI routing order correct)
+- ✅ No hardcoded secrets, print(), @ts-ignore, TODO/FIXME
+- ✅ `JSONResponse` import present but unused — minor hygiene (pre-existing)
+- ❌ **`DELETE /api/users/me` not present in `apps/backend/app/openapi.json`** — spec was not regenerated after adding the new endpoint (same pattern as AWD-M-47, which covered GRC-02)
+
+**`apps/backend/services/user_service.py`** — CLEAN
+- ✅ `delete_account()` does `db.rollback()` on exception — correct transaction safety
+- ✅ `get_data_export()` excludes `password_hash` and internal blobs
+- ✅ Structured logger used throughout; no print()
+- ✅ All except blocks re-raise as typed HTTPException with logging
+- ⚠️ N+1 query in `get_data_export()`: per-guide Topic lookup (lines 459–465). Not a correctness bug; low-traffic GDPR endpoint, acceptable for now. No backlog item filed (existing guidance: file M-## only for systematic gaps — this is minor).
+
+**`apps/backend/tests/test_users_router.py`** — CLEAN
+- ✅ GRC-03 coverage: self-deletion for EDUCATOR and PARENT, cascade to ChildProfile and ParentGuide, unauthenticated 401
+- ✅ `sample_topic` and `rate_limiter_reset` fixtures confirmed present in conftest.py
+- ✅ Synthetic test data only — no real PII
+- ✅ No skipped tests without backlog IDs
+
+**Issues**:
+- ❌ AWD-M-49 auto-filed: `DELETE /api/users/me` absent from openapi.json — spec not regenerated post-GRC-03
+
+**Verdict**: **Needs fix** — OpenAPI spec must be regenerated before merge to `main`. Backend test suite unverifiable in sandbox (AWD-M-46 still open). Recommend Tolu runs `python -m pytest tests/ -v` locally before promoting to main.
+
+## QA — 2026-04-27T00:36:39Z
+Result: ✅ PASS
+Commits: `197a19d` `7939e43` `0246466` | Files: `docs/agentic/backlog.md` `docs/agentic/completed_backlog.md` `docs/agentic/sprints/dev-log.md`
+| Check | Result |
+|-------|--------|
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 80 passing, 0 failing (8 test files) |
+| Backend tests | ⚠️ skipped — venv/bin/python is a macOS binary (broken symlink to python3.13), not executable in Linux sandbox. Pre-existing issue: AWD-M-46. |
+| OpenAPI valid | ✅ apps/backend/app/openapi.json is valid JSON; DELETE /api/users/me confirmed present with correct operationId, HTTPBearer security, 200 response |
+| Spot-check | ✅ All 3 changed files are docs-only (backlog, completed_backlog, dev-log). No secrets, console.log, @ts-ignore, hardcoded values, or TODO/FIXME in any changed file. |
+| CI on develop | unknown — gh CLI not available in sandbox |
+Issues: None
+Verdict: Ship — docs-only commit, all applicable checks pass. Tolu must run `git push origin develop` to trigger CI (19+ commits queued).
+
+---
+## QA — 2026-04-27T02:40:00Z
+Result: ❌ FAIL
+Commits: 07ca8e9, 8f3e30c | Files: apps/backend/alembic/versions/b3f92c1d4e87_add_parental_consents_table.py, apps/backend/models.py, apps/backend/routers/children.py, apps/backend/schemas/children.py, apps/backend/services/children_service.py, apps/backend/tests/test_consent_router.py, apps/frontend/src/components/ConsentModal.test.tsx, apps/frontend/src/components/ConsentModal.tsx, apps/frontend/src/pages/ParentDashboardPage.tsx, apps/frontend/src/services/api.ts, apps/frontend/src/types/children.ts, docs/agentic/backlog.md, docs/agentic/completed_backlog.md, docs/agentic/sprints/dev-log.md
+
+| Check               | Result | Notes                                                                 |
+|---------------------|--------|-----------------------------------------------------------------------|
+| TypeScript          | ✅     | 0 errors                                                              |
+| Lint                | ✅     | 0 errors, 0 warnings                                                  |
+| Frontend tests      | ✅     | 88 passing, 0 failing (act() warnings are non-blocking, test-only)    |
+| Backend tests       | ⚠️     | Could not run — venv symlinks to macOS Python 3.13 (incompatible with Linux sandbox); pip install blocked by no disk space. Requires local or CI run. |
+| OpenAPI JSON valid  | ✅     | Valid JSON                                                             |
+| Spot-check          | ❌     | openapi.json is missing ALL children, guide, and consent endpoints. GRC-01 added 2 new consent routes (/api/consent/status, /api/consent) to children.py but did not regenerate openapi.json. Pre-existing gap: children/guide routes also absent. contract-test CI job will fail. Filed AWD-H-50. |
+| CI on develop       | unknown | gh CLI not available in sandbox                                       |
+
+Issues:
+- AWD-H-50: openapi.json not regenerated — missing consent, children, and guide routes (introduced by 07ca8e9; pre-existing gap compounded). contract-test CI job will fail.
+- Backend tests unverified in this run (environment constraint — not a code defect).
+
+Verdict: Needs fix — regenerate openapi.json before CI contract-test passes.
+
+---
+## QA — 2026-04-27T03:34:48Z
+Result: ⏭ SKIPPED
+Reason: No commits on develop in the last 40 minutes (last commit 8f3e30c at 02:22 UTC, 72 min ago)
+Verdict: No action required
+
+---
+
+## QA — 2026-04-27T04:36:51Z
+
+**Result**: ✅ PASS
+
+**Commits validated**:
+- `6f69506` — docs(api): AWD-H-50 regenerate openapi.json to include consent, children, and guide routes
+- `2813ef4` — Merge fix/api-docs/AWD-H-50-openapi-regen into develop
+- `c7ec892` — docs(agentic): AWD-H-50 mark complete in backlog, completed_backlog, dev-log
+
+**Files changed**: `apps/backend/app/openapi.json` · `docs/agentic/backlog.md` · `docs/agentic/completed_backlog.md` · `docs/agentic/sprints/dev-log.md` · `manual_to_do.md`
+
+| Check | Result |
+|-------|--------|
+| TypeScript (`tsc --noEmit`) | ✅ 0 errors |
+| Lint (`npm run lint`) | ✅ 0 errors, 0 warnings |
+| Frontend tests (`npm run test:run`) | ✅ 88/88 passing (9 test files) |
+| Backend tests (`pytest`) | ⚠️ Skipped — venv broken symlink (known AWD-M-46; no app code changed this cycle) |
+| OpenAPI valid (`python3 -m json.tool`) | ✅ Valid JSON, 74 paths — consent, children, guide routes confirmed present |
+| Spot-check | ✅ Clean — docs + openapi.json only; no secrets, console.log, @ts-ignore, TODOs, or missing role checks |
+| CI on develop | ❓ Unknown — gh CLI unavailable; all commits still pending push (see manual_to_do.md) |
+
+**Notes**:
+- 2 `act()` React warnings in `ConsentModal.test.tsx` — pre-existing, non-blocking
+- React Router v6 future flag warnings in `ChildProfileList.test.tsx` — pre-existing, tracked via AWD-L-09
+- openapi.json confirmed to include all 12 new routes (consent, children, guides) matching AWD-H-50 intent
+- No app code touched this cycle — backend pytest skip is safe given docs-only changes
+
+**Issues filed this cycle**: None — all conditions clean
+
+**Verdict**: Ship (pending Tolu push to GitHub to trigger real CI)
+
+---
+
+## QA Cycle — 2026-04-27 (AWD-M-51 Dev Agent run)
+
+**Issue**: AWD-M-51 — Remove console.log PII leak and unguarded debug logs
+**Commit**: ef73e69 / merge 510fd89
+
+| Check | Result |
+|-------|--------|
+| TypeScript (`tsc --noEmit`) | ✅ 0 errors |
+| Lint (`npm run lint`) | ✅ 0 errors, 0 warnings (fixed unused param on first pass) |
+| Frontend tests (`npm run test:run`) | ✅ 88/88 passing (9 test files) |
+| Backend tests (`pytest`) | ⏭ Skipped — no backend changes this cycle |
+| OpenAPI valid (`python3 -m json.tool`) | ✅ Valid JSON |
+| Spot-check | ✅ Zero bare `console.log/warn/error` in production paths across all 3 files; websocket.ts guards all 9 calls with `import.meta.env.DEV` |
+
+**Verdict**: Ship (pending `git push origin develop` by Tolu)
+
+---
+
+## QA — 2026-04-27T06:37:27Z
+**Result**: ✅ PASS
+**Commits**: 510fd89 (merge), ef73e69 (fix) | **Files**: AIGenerationLoadingRealtime.tsx, Footer.tsx, websocket.ts
+
+| Check | Result |
+|-------|--------|
+| TypeScript (`tsc --noEmit`) | ✅ 0 errors |
+| Lint (`npm run lint`) | ✅ 0 errors, 0 warnings |
+| Frontend tests (`npm run test:run`) | ✅ 88 passing, 0 failing (9 test files) |
+| Backend tests (`pytest`) | ⚠️ Skipped — venv symlink broken (M-46, pre-existing) |
+| OpenAPI valid (`python3 -m json.tool`) | ✅ Valid JSON |
+| Spot-check | ✅ |
+| CI on develop | unknown (gh CLI not available in sandbox) |
+
+**Spot-check detail**:
+- `Footer.tsx`: `console.log('Subscribing email:', email)` removed ✅ — PII leak patched
+- `websocket.ts`: 8× bare `console.*` calls all now guarded with `if (import.meta.env.DEV)` ✅
+- `AIGenerationLoadingRealtime.tsx`: unused `data: any` param + `console.log('Generation session started:')` removed ✅
+- No hardcoded secrets, no `@ts-ignore`, no new `any` types, no TODO/FIXME, no missing role checks
+
+**Issues**: None new. M-46 (venv broken symlink) remains open — backend tests cannot run in QA sandbox until recreated on dev machine.
+
+**Verdict**: Ship
+
+---
+
+## QA — 2026-04-27T07:39:49Z
+**Result**: ❌ FAIL
+**Commits**: ad60f1c (fix(backend): AWD-M-50 replace bare print() calls with structured logger in main.py) | **Files**: apps/backend/main.py, apps/frontend/src/components/AIGenerationLoadingRealtime.tsx, apps/frontend/src/components/Footer.tsx, apps/frontend/src/services/websocket.ts
+
+| Check | Result |
+|-------|--------|
+| TypeScript (`tsc --noEmit`) | ✅ 0 errors |
+| Lint (`npm run lint`) | ✅ 0 errors, 0 warnings |
+| Frontend tests (`npm run test:run`) | ✅ 88 passing, 0 failing (9 test files) |
+| Backend tests (`pytest`) | ⚠️ Skipped — venv/bin/python3.13 is a broken macOS symlink in Linux sandbox (M-46, pre-existing) |
+| OpenAPI valid (`python3 -m json.tool`) | ✅ Valid JSON |
+| Spot-check | ❌ Regression detected — see issues below |
+| CI on develop | unknown (gh CLI not available in sandbox) |
+
+**Spot-check detail**:
+
+**❌ REGRESSION — AWD-M-50 commit (ad60f1c) reverted AWD-M-51 fixes:**
+Commit `ad60f1c` was scoped to `apps/backend/main.py` (logging fix) but also included diffs that undid the `ef73e69` (AWD-M-51) frontend console.log removals. The COMMITTED state of develop now has:
+- `apps/frontend/src/components/Footer.tsx` line 10: `console.log('Subscribing email:', email)` — logs user email to browser console on every subscription attempt. **PII leak.**
+- `apps/frontend/src/components/AIGenerationLoadingRealtime.tsx` line ~145: `console.log('Generation session started:', data)` — logs WebSocket session payload.
+- `apps/frontend/src/services/websocket.ts` lines 51, 62, 67, 73, 78, 86, 91, 116: 8 bare `console.log/error/warn` calls without `import.meta.env.DEV` guard.
+
+The correct working-tree fix (DEV guards restored, console.log removed from Footer and AIGenerationLoadingRealtime) already exists as **uncommitted changes** on develop. It needs to be committed immediately.
+
+**⚠️ ADDITIONAL — Multiple uncommitted working-tree changes:**
+`git status` shows 10 modified tracked files and 4 untracked paths in the working tree:
+- Modified: `apps/backend/app/openapi.json` (5711-line diff — likely a regeneration), `docs/agentic/backlog.md`, `docs/agentic/completed_backlog.md`, `docs/agentic/daily-briefs/morning-brief.md`, `docs/agentic/sprints/dev-log.md`, `docs/agentic/sprints/qa-log.md`, `manual_to_do.md`
+- Untracked: `.agent-health/`, `.sandbox_deps/`, `.sandbox_work_H50/`, `apps/frontend/package-lock 2.json`
+These represent several previous agent runs' outputs that were never pushed.
+
+**⚠️ PRE-EXISTING — Hardcoded WebSocket production URL placeholder:**
+`apps/frontend/src/services/websocket.ts` line 44: `'wss://your-production-domain.com/ws'` is hardcoded. Should be `import.meta.env.VITE_WS_URL`. Not introduced by this commit but not previously filed (see AWD-M-52 below).
+
+**⚠️ MINOR — Stale placeholder comment in main.py:**
+`apps/backend/main.py` line 153: `# ... existing code ...` is a code-editor placeholder comment that survived the AWD-M-50 fix. Violates the "no dead comments" rule. Bundleable with any future main.py touch.
+
+**Issues auto-filed**:
+- AWD-H-51: PII regression — AWD-M-50 commit reverted AWD-M-51 console.log fixes (see backlog)
+- AWD-M-52: Hardcoded WebSocket production URL should use env var (see backlog)
+
+**Verdict**: Needs fix — commit the working-tree fix for H-51 immediately before next deploy.

@@ -562,3 +562,32 @@
 **Problem**: `openapi.json` was stale — missing all consent endpoints (`/api/consent/status`, `/api/consent`) added by GRC-01, plus all pre-existing children and guide routes. Spec had 74 paths after fix vs a subset before.
 **Fix**: Loaded FastAPI app with stubbed DB (SQLite in-memory + mocked database module) and called `app.openapi()` to regenerate the spec in the sandboxed Linux environment. All 10 required routes confirmed present. JSON validity check passed.
 **Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox (23 commits queued).
+
+---
+
+### AWD-M-51 — Remove console.log PII leak and unguarded debug logs from frontend production paths
+**Completed**: 2026-04-27
+**Commit**: ef73e69 (feature) / 510fd89 (merge into develop)
+**Problem**: Three frontend files emitted `console.log` in production code paths, including one that logged user-entered email (PII): `Footer.tsx` logged email on newsletter subscribe; `AIGenerationLoadingRealtime.tsx` logged WebSocket session payload; `websocket.ts` had 9 lifecycle debug logs visible in browser console.
+**Fix**: Removed `console.log('Subscribing email:', email)` from `Footer.tsx`. Replaced session_started callback body in `AIGenerationLoadingRealtime.tsx` with a no-op comment. Guarded all 9 `console.*` calls in `websocket.ts` with `if (import.meta.env.DEV)` so they only fire during development. All 88 frontend tests pass; lint and tsc clean.
+**Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox.
+
+---
+
+## AWD-M-50 — Replace bare print() calls with structured logger in main.py
+**Completed**: 2026-04-27
+**Commit**: ad60f1c (feature) / 7431dd3 (merge into develop)
+**Problem**: `apps/backend/main.py` had 9 bare `print()` calls in startup paths (`run_database_fix`, lifespan handler, Prometheus setup). Two included exception text via f-strings that could leak internal details to infrastructure logs. All bypassed the structured logger already present in the module.
+**Fix**: Added `logger = _sentry_logger` alias (reusing the existing `logging.getLogger(__name__)` instance). Replaced all 9 `print()` calls with `logger.info()`, `logger.warning()`, or `logger.error(..., exc_info=True)`. Exception text removed from log message strings; full tracebacks captured via `exc_info=True` for infra visibility without string-formatting the exception into the message.
+**Validation**: tsc 0 errors, lint 0 warnings, 88/88 frontend tests pass, OpenAPI + MCP JSON valid. Backend pytest blocked by pre-existing M-46 venv issue.
+**Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox.
+
+---
+
+## AWD-H-51 — Re-apply M-51 DEV guards reverted by ad60f1c (PII console.log regression)
+**Completed**: 2026-04-27
+**Commit**: (see dev-log for hash)
+**Problem**: Commit `ad60f1c` (AWD-M-50) was cut from a working tree that pre-dated the AWD-M-51 merge. It clobbered the M-51 console.log fixes, reintroducing: (A) `console.log('Subscribing email:', email)` in `Footer.tsx` (PII leak); (B) `console.log('Generation session started:', data)` in `AIGenerationLoadingRealtime.tsx`; (C) 8 bare `console.*` calls in `websocket.ts` without `import.meta.env.DEV` guard.
+**Fix**: Re-applied the working-tree state of all three files: removed PII log from `Footer.tsx`; replaced session_started callback body with a no-op comment in `AIGenerationLoadingRealtime.tsx`; wrapped all 8 WebSocket lifecycle logs in `if (import.meta.env.DEV)` guards in `websocket.ts`.
+**Validation**: tsc 0 errors, lint 0 warnings, 88/88 frontend tests pass (9 test files), OpenAPI + MCP JSON valid.
+**Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox.

@@ -1,105 +1,82 @@
-# Morning Brief — 2026-04-26
+# Awade — Morning Brief
+**Date**: 2026-04-27 | **Agent**: Weekly Review Agent (Monday)
 
-Status: 🟡 Attention Needed
+## Weekly Review Executive Summary
+🟡 **Attention needed** — extraordinary engineering week (195 commits, ~51 issues closed) but nothing has been pushed to GitHub yet and CI has not run once.
+**Biggest win:** Parent pivot is feature-complete — COPPA, GDPR, HttpOnly cookies, Sentry, parent onboarding, admin panel, full compliance suite all shipped.
+**Biggest risk:** AWD-H-51 PII regression live in committed HEAD (`console.log(email)` in Footer.tsx); fix is in working tree. Also, `git push origin develop` must be run immediately to trigger CI.
+**Key number:** No analytics tool connected — Weekly Active Learners cannot yet be measured.
+**Decision needed:** Push develop to GitHub (commit H-51 fix first), then decide on migration system (AWD-M-17) and analytics tool before June launch.
 
-> Code is clean — TypeScript and frontend tests pass. Main action item: resolve the working tree's staged/unstaged complexity and push **35 unpushed commits** to GitHub to trigger CI.
+> Full report: [`docs/agentic/weekly-reviews/review-2026-04-27.md`](../weekly-reviews/review-2026-04-27.md)
+
+---
+
+## Status: 🟡 Attention Needed
 
 ---
 
 ## Code Health
 
-| Check | Result |
-|-------|--------|
-| TypeScript | ✅ 0 errors |
-| Frontend tests | ✅ 72 passing / 0 failing (7 test files) |
-| Backend tests | ⚠️ Skipped — `pytest` not installed in nightly sandbox (recurring infra constraint; not a code issue) |
-| Last CI on develop | ⚠️ Unknown — `gh` CLI not available in sandbox |
-| Uncommitted | ⚠️ Complex — see Working Tree section below |
+| Check | Result | Notes |
+|-------|--------|-------|
+| TypeScript (`tsc --noEmit`) | ✅ PASS | No type errors |
+| Lint (`npm run lint`) | ✅ PASS | Zero warnings |
+| Frontend tests (vitest) | ✅ PASS | 88/88, 9 files |
+| Backend tests (pytest) | ⚠️ SKIPPED | Sandbox disk full + broken venv symlink (AWD-M-46) — must run on Tolu's Mac |
+| OpenAPI JSON | ✅ VALID | `apps/backend/app/openapi.json` parses cleanly |
+| Last CI runs | ⚠️ gh CLI unavailable | Cannot verify — check GitHub Actions manually |
 
 ---
 
-## Working Tree (Action Required)
+## Yesterday's Commits (2026-04-26/27 — 13+ commits)
 
-`develop` is **35 commits ahead of `origin/develop`** — nothing has been pushed to GitHub yet. CI has not run on any of today's work.
-
-There is also unfinished staging from AWD-M-06:
-
-- **Staged (index):** deletions of 7 image assets + modifications to `FeaturesSection.tsx`, `HeroSection.tsx`, `HeroSectionParent.tsx`, `vite.config.ts`
-- **Unstaged modifications:** `apps/backend/middleware/security_headers.py`, `apps/backend/tests/test_security.py`, the same 4 frontend components above, `docs/agentic/backlog.md`, `docs/agentic/sprints/qa-log.md`
-- **Untracked:** the same image asset filenames that are staged for deletion (new optimised versions), plus `apps/frontend/package-lock 2.json` and `apps/backend/test_awade.db-journal`
-
-The image situation: AWD-M-06 staged old images for deletion but the new optimised versions landed as untracked. The frontend components appear in both staged and unstaged, meaning the index holds a partial snapshot. This needs to be committed or reset before pushing.
-
----
-
-## Today's Commits (2026-04-25 — 28 commits)
-
-| Commit | Issue | Summary |
-|--------|-------|---------|
-| `fd42a4e` | M-06 | docs: update backlog, dev-log, manual_to_do |
-| `3c0e2be` | M-06 | perf: optimise landing page images + code splitting |
-| `490b05a` | M-43 | fix(security): remove unsafe-inline from style-src, add font-src |
-| `2f79fed` | M-44 | test(security): mark hollow test_rate_limiting skip with backlog reason |
-| `fb9e718` | M-35 | fix(security): remove unsafe-inline from CSP script-src |
-| `c83bee8` | M-21 | feat(parents): PDF export for parent guides |
-| `e3627b9` | M-41 | fix(frontend): restore typed API interfaces stripped in M-04 |
-| `7fe0c3b` | M-04 | test(backend): service-layer tests for lesson_plan_service + children |
-| `663b50a` | M-15 | feat(frontend): proper types for children/guides API methods |
-| `6880ce3` | C-07 | fix(security): restore safe_context + openai 1.109.1 |
-| `3b2c067` | M-39 | fix(security): upgrade openai + safe_context in cache metadata |
-| `f9605aa` | H-41 | fix(testing): GuideViewPage.test.tsx TS errors + failing test |
-| `a762c11` | C-06 | fix(git): restore full 266-file tree lost by mass deletion |
-| `4b52109` | M-38 | fix(ai): correct _sanitize_user_context type to Optional[str] |
-| *(+ 14 earlier in 24h window)* | — | See `git log --oneline --since="24 hours ago"` for full list |
+Heavy compliance and hygiene sprint shipped to `develop`:
+- `AWD-M-51` — removed console.log PII leaks (frontend)
+- `AWD-H-50` — regenerated OpenAPI spec (consent + children + guide routes)
+- `AWD-GRC-01` — COPPA parental consent flow before child profile creation
+- `AWD-GRC-03` — GDPR account deletion endpoint with cascade
+- `AWD-H-49` — rate limiter on data-export endpoint
+- `AWD-M-48` / `M-49` — structured logger, Pydantic AI output validation
+- `AWD-H-03` — child profile management in admin panel
+- `AWD-GRC-02/04/05` — data export, privacy policy, audited admin reads
+- `AWD-M-41/42/43` — package-lock regen, httpx upgrade, CodeQL CSP fix
 
 ---
 
 ## Open Issues
 
-| Priority | Count |
-|----------|-------|
-| 🔴 Critical | 0 |
-| 🟠 High | 1 |
-| 🟡 Medium | 6 |
-| 🔵 Low | 10 |
-
-**Open High:** AWD-H-03 — Admin panel has no parent/child management views (effort: L)
-
-**Open Medium:** AWD-M-45 (fetchPriority React compat), M-07 (landing screenshots), M-16 (subjects join table), M-17 (migration system consolidation — needs Tolu decision), M-19 (mobile audit), M-20 (AI prompt quality review)
+| Severity | Count | Top Item |
+|----------|-------|----------|
+| 🔴 Critical | 0 | — |
+| 🟠 High | 0 | — |
+| 🟡 Medium | 7 | AWD-M-50 (8 bare print() in main.py), AWD-M-46 (broken venv), AWD-M-17 (migration decision needed) |
+| 🟢 Low | 3 | L-03 a11y audit, L-06 Boolean type, L-07 Google auth default |
 
 ---
 
-## Tomorrow's Focus
+## Top 3 Actions Today
 
-1. **Push to GitHub** — run `git push origin develop` and monitor CI. This is blocking — 35 commits are local-only and no CI has validated today's security, testing, and performance work. The push table in `manual_to_do.md` lists every commit in order.
-
-2. **Resolve working tree state before pushing** — the staged index holds partial AWD-M-06 work (image deletions + component changes). The working tree has further modifications on top. Options: (a) commit the remaining unstaged changes to close out M-06 cleanly, or (b) reset to last clean commit and re-stage selectively. Check `git diff --cached` vs `git diff` to decide. Do not `git push` with a dirty, inconsistent index.
-
-3. **Fix AWD-M-45** — bump `react` / `react-dom` to `^18.3.0` in `apps/frontend/package.json` (also bumps `@types/react`, `@types/react-dom`). Resolves the `fetchPriority` console warning in tests. S-effort, fully unblocked.
+1. **Fix AWD-M-50** — 8 bare `print()` calls remain in `apps/backend/main.py` startup paths; replace with structured logger. Quick S-effort win.
+2. **Recreate venv on Mac (AWD-M-46)** — run `rm -rf venv && python3 -m venv venv && pip install -r apps/backend/requirements.txt` locally so backend tests can be validated before the next push to CI.
+3. **Tolu decision needed — AWD-M-17** — migration strategy choice is blocked on founder input; pick it up so the data model work can proceed.
 
 ---
+### QA Alert — 2026-04-27T07:39:49Z
 
-## QA Update — 2026-04-26T00:37Z
+⚠️ QA auto-filed **AWD-H-51** — will be picked up next dev run.
 
-✅ **AWD-C-08 QA PASS** — CSP restore (security_headers.py + test_security.py) passed all automated checks:
-- TypeScript: ✅ · Lint: ✅ · Frontend tests: ✅ 72/72 · OpenAPI: ✅ · Spot-check: ✅ clean
+**Root cause**: Commit `ad60f1c` (AWD-M-50 fix, 07:07 UTC) accidentally reverted AWD-M-51's frontend console.log removals. The committed state of `develop` has a PII leak: `Footer.tsx` logs the user's email address to the browser console on every newsletter subscription. Two additional console.log calls also re-appeared in production paths.
 
-⚠️ **QA auto-filed AWD-M-46** — `venv/bin/python` is a broken symlink (points to python3.13, not available in QA sandbox). Backend pytest cannot run until venv is recreated with Python 3.10 on your Mac: `rm -rf venv && python3 -m venv venv && source venv/bin/activate && pip install -r apps/backend/requirements.txt`. S-effort, run locally.
+**The fix is already in the working tree (uncommitted).** No new code required — just run:
+```
+git add apps/frontend/src/components/Footer.tsx \
+        apps/frontend/src/components/AIGenerationLoadingRealtime.tsx \
+        apps/frontend/src/services/websocket.ts
+git commit -m "fix(frontend): AWD-H-51 re-apply M-51 DEV guards reverted by ad60f1c"
+git push origin develop
+```
 
-## QA Update — 2026-04-26T~hourly
+⚠️ QA also auto-filed **AWD-M-52** — hardcoded WebSocket production URL placeholder in `websocket.ts` (pre-existing, not urgent but blocks correct real-time UX in production).
 
-✅ **AWD-M-45 + AWD-C-08 spot-check PASS** — react ^18.3.0 bump and CSP restore both clean:
-- `package.json`: react, react-dom, @types/react, @types/react-dom all at ^18.3.0 ✅
-- `security_headers.py`: CSP intact — no unsafe-inline in script-src or style-src, font-src present ✅
-- No new issues filed.
-
-⚠️ **Bash sandbox still blocked** (9th+ consecutive cycle — "No space left on device"). tsc, lint, pytest, and git commands remain unavailable. CI mirror cannot run until sandbox disk is cleared. **Push to GitHub is the critical outstanding action** — 36 commits are local-only.
-
-## QA Update — 2026-04-26T~hourly (13th+ consecutive blocked cycle)
-
-⏭ **Skipped — no new commits to validate.** Dev log shows no new work since the prior QA cycle (AWD-L-02 docs change, already spot-checked clean). Bash sandbox still fails with "No space left on device" on all attempts — git log, tsc, lint, and pytest remain blocked.
-
-⚠️ **Outstanding Tolu actions (unchanged from prior cycles):**
-1. Clear sandbox disk space to restore QA automation
-2. Resolve dirty working tree (partial AWD-M-06 staging — `git diff --cached` vs `git diff`)
-3. Push ~37 pending commits: `git push origin develop` → triggers real CI pipeline
+⚠️ **10 tracked files + 4 untracked paths have uncommitted working-tree changes** (including the H-51 fix, a 5711-line openapi.json diff, and several docs/agentic files from prior agent runs). Review `git status` and commit or stash before next dev cycle.
