@@ -6,23 +6,6 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/metrics": {
-      "get": {
-        "summary": "Metrics",
-        "description": "Endpoint that serves Prometheus metrics.",
-        "operationId": "metrics_metrics_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/lesson-plans/generate": {
       "post": {
         "tags": [
@@ -392,58 +375,6 @@
         }
       }
     },
-    "/api/lesson-plans/{lesson_id}/resources": {
-      "get": {
-        "tags": [
-          "lesson-plans"
-        ],
-        "summary": "Get Lesson Plan Resources",
-        "description": "Get all resources for a specific lesson plan.\nRequires authentication and ownership.",
-        "operationId": "get_lesson_plan_resources_api_lesson_plans__lesson_id__resources_get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "lesson_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Lesson Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/LessonResourceResponse"
-                  },
-                  "title": "Response Get Lesson Plan Resources Api Lesson Plans  Lesson Id  Resources Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/lesson-plans/{lesson_id}/resources/generate": {
       "post": {
         "tags": [
@@ -502,13 +433,143 @@
         }
       }
     },
+    "/api/lesson-plans/{lesson_id}/resources": {
+      "get": {
+        "tags": [
+          "lesson-plans"
+        ],
+        "summary": "Get Lesson Resources By Plan",
+        "description": "Get all lesson resources for a specific lesson plan.\nRequires authentication and ownership.",
+        "operationId": "get_lesson_resources_by_plan_api_lesson_plans__lesson_id__resources_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "lesson_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Lesson Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LessonResourceResponse"
+                  },
+                  "title": "Response Get Lesson Resources By Plan Api Lesson Plans  Lesson Id  Resources Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lesson-plans/ai/health": {
+      "get": {
+        "tags": [
+          "lesson-plans"
+        ],
+        "summary": "Check Ai Service Health",
+        "description": "Check AI service health.\nPublic endpoint - no authentication required.",
+        "operationId": "check_ai_service_health_api_lesson_plans_ai_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lesson-plans/resources/{resource_id}/review": {
+      "put": {
+        "tags": [
+          "lesson-plans"
+        ],
+        "summary": "Review Lesson Resource",
+        "description": "Review and update a lesson resource.\nRequires educator authentication.",
+        "operationId": "review_lesson_resource_api_lesson_plans_resources__resource_id__review_put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "resource_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Resource Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LessonResourceUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonResourceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/lesson-plans/resources/{resource_id}/export": {
       "post": {
         "tags": [
           "lesson-plans"
         ],
         "summary": "Export Lesson Resource",
-        "description": "Export a lesson resource to PDF or DOCX format.\nRequires authentication and ownership.",
+        "description": "Export a lesson resource to PDF or DOCX format.\nRequires educator authentication.",
         "operationId": "export_lesson_resource_api_lesson_plans_resources__resource_id__export_post",
         "security": [
           {
@@ -533,7 +594,7 @@
               "schema": {
                 "type": "object",
                 "additionalProperties": true,
-                "title": "Format Data"
+                "title": "Data"
               }
             }
           }
@@ -671,108 +732,6 @@
                   },
                   "title": "Response Get Curriculums Api Curriculum  Get"
                 }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/curriculum/{curricula_id}": {
-      "put": {
-        "tags": [
-          "curriculum"
-        ],
-        "summary": "Update Curriculum",
-        "description": "Update a curriculum by ID.\nRequires admin authentication.",
-        "operationId": "update_curriculum_api_curriculum__curricula_id__put",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "curricula_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Curricula Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CurriculumCreate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CurriculumResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "curriculum"
-        ],
-        "summary": "Delete Curriculum",
-        "description": "Delete a curriculum by ID.\nRequires admin authentication.",
-        "operationId": "delete_curriculum_api_curriculum__curricula_id__delete",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "curricula_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Curricula Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
               }
             }
           },
@@ -948,106 +907,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/TopicResponse"
                 }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "curriculum"
-        ],
-        "summary": "Update Topic",
-        "description": "Update a topic by ID.\nRequires admin authentication.",
-        "operationId": "update_topic_api_curriculum_topics__topic_id__put",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "topic_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Topic Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TopicCreate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TopicResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "curriculum"
-        ],
-        "summary": "Delete Topic",
-        "description": "Delete a topic by ID.\nRequires admin authentication.",
-        "operationId": "delete_topic_api_curriculum_topics__topic_id__delete",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "topic_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Topic Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
               }
             }
           },
@@ -1520,7 +1379,7 @@
           "auth"
         ],
         "summary": "Google Auth",
-        "description": "Authenticate user with Google OAuth credential (ID token).\nThe access token is delivered as an HttpOnly cookie; only user data is\nreturned in the response body.\nRate limit: 10 requests per minute.",
+        "description": "Authenticate user with Google OAuth credential (ID token).",
         "operationId": "google_auth_api_auth_google_post",
         "requestBody": {
           "content": {
@@ -1562,7 +1421,7 @@
           "auth"
         ],
         "summary": "Signup",
-        "description": "Register a new user with email and password.\nThe access token is delivered as an HttpOnly cookie; only user data is\nreturned in the response body.\nRate limit: 5 requests per minute.",
+        "description": "Register a new user with email and password.",
         "operationId": "signup_api_auth_signup_post",
         "requestBody": {
           "content": {
@@ -1604,7 +1463,7 @@
           "auth"
         ],
         "summary": "Login",
-        "description": "Authenticate user with email and password.\nThe access token is delivered as an HttpOnly cookie; only user data is\nreturned in the response body.\nRate limit: 10 requests per minute.",
+        "description": "Authenticate user with email and password.",
         "operationId": "login_api_auth_login_post",
         "requestBody": {
           "content": {
@@ -1667,35 +1526,13 @@
         ]
       }
     },
-    "/api/auth/refresh": {
-      "post": {
-        "tags": [
-          "auth"
-        ],
-        "summary": "Refresh Token",
-        "description": "Refresh JWT token using the refresh_token HttpOnly cookie and rotate both tokens.\nThe new access token is issued as an HttpOnly cookie; only user data is returned in the\nresponse body.\nRate limit: 20 requests per minute.",
-        "operationId": "refresh_token_api_auth_refresh_post",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CookieAuthResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/auth/logout": {
       "post": {
         "tags": [
           "auth"
         ],
         "summary": "Logout",
-        "description": "Logout endpoint (client-side token removal and server-side blacklisting).",
+        "description": "Logout endpoint (client-side token removal).\nIn a more sophisticated setup, you might want to blacklist tokens.",
         "operationId": "logout_api_auth_logout_post",
         "responses": {
           "200": {
@@ -1715,7 +1552,7 @@
           "auth"
         ],
         "summary": "Forgot Password",
-        "description": "Request password reset for a user.\nRate limit: 5 requests per minute (prevents email-bombing and user enumeration).",
+        "description": "Handle password reset requests by generating a reset token and (in production) sending a reset link to the user's email.\n\nArgs:\n    request (PasswordResetRequest): The password reset request containing the user's email.\n    db (Session): Database session dependency.\n\nReturns:\n    dict: Message indicating whether a reset link was sent.",
         "operationId": "forgot_password_api_auth_forgot_password_post",
         "requestBody": {
           "content": {
@@ -1755,7 +1592,7 @@
           "auth"
         ],
         "summary": "Reset Password",
-        "description": "Reset user password using reset token.\nRate limit: 5 requests per minute (prevents token brute-force).",
+        "description": "Reset a user's password using a valid reset token.\n\nArgs:\n    request (PasswordReset): The password reset request containing the token and new password.\n    db (Session): Database session dependency.\n\nReturns:\n    dict: Message indicating whether the password was reset successfully.",
         "operationId": "reset_password_api_auth_reset_password_post",
         "requestBody": {
           "content": {
@@ -1795,7 +1632,7 @@
           "users"
         ],
         "summary": "Export My Data",
-        "description": "GDPR data export \u2014 returns a JSON document containing all data Awade\nholds about the authenticated user.\n\nFor PARENT users the response includes child profiles and all associated\nAI-generated guides.  Password hashes and profile image blobs are\nintentionally excluded from the export.\n\nAll authenticated roles are permitted to export their own data.",
+        "description": "GDPR data export \u2014 returns a JSON document containing all data Awade holds about the authenticated user.\n\nFor PARENT users the response includes child profiles and all associated AI-generated guides. Password hashes and profile image blobs are intentionally excluded from the export.\n\nAll authenticated roles are permitted to export their own data.",
         "operationId": "export_my_data_api_users_me_data_export_get",
         "responses": {
           "200": {
@@ -1803,7 +1640,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
                   "type": "object",
                   "title": "Response Export My Data Api Users Me Data Export Get"
                 }
@@ -1824,7 +1660,7 @@
           "users"
         ],
         "summary": "Delete My Account",
-        "description": "GDPR account deletion (GRC-03) \u2014 permanently delete the authenticated\nuser's own account together with all dependent data:\n\n- PARENT users: all ChildProfile records and their associated ParentGuide records\n- EDUCATOR users: all LessonPlan records (and their resources / contexts)\n\nThe response is a plain ``{\"message\": \"Account deleted successfully\"}`` body.\nCallers should treat the returned 200 as a signal to clear local auth state\nand redirect to the landing page.\n\nRate-limited to 3 requests / minute as an extra guard against accidental\nor automated mass-deletion attempts.",
+        "description": "GDPR account deletion (GRC-03) \u2014 permanently delete the authenticated user\u2019s own account together with all dependent data:\n\n- PARENT users: all ChildProfile records and their associated ParentGuide records\n- EDUCATOR users: all LessonPlan records (and their resources / contexts)\n\nThe response is a plain ``{\"message\": \"Account deleted successfully\"}`` body.\nCallers should treat the returned 200 as a signal to clear local auth state\nand redirect to the landing page.\n\nRate-limited to 3 requests / minute as an extra guard against accidental\nor automated mass-deletion attempts.",
         "operationId": "delete_my_account_api_users_me_delete",
         "responses": {
           "200": {
@@ -1832,8 +1668,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
                   "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "title": "Message"
+                    }
+                  },
                   "title": "Response Delete My Account Api Users Me Delete"
                 }
               }
@@ -1852,9 +1693,9 @@
         "tags": [
           "users"
         ],
-        "summary": "Get Users",
-        "description": "Get users with optional filtering and search.\nRequires admin authentication.",
-        "operationId": "get_users_api_users__get",
+        "summary": "Get All Users",
+        "description": "Get all users with optional filtering.\nRequires admin authentication.",
+        "operationId": "get_all_users_api_users__get",
         "security": [
           {
             "HTTPBearer": []
@@ -1888,52 +1729,14 @@
             "schema": {
               "anyOf": [
                 {
-                  "$ref": "#/components/schemas/apps__backend__models__UserRole"
+                  "type": "string"
                 },
                 {
                   "type": "null"
                 }
               ],
-              "description": "Filter by user role",
               "title": "Role"
-            },
-            "description": "Filter by user role"
-          },
-          {
-            "name": "country",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Filter by country",
-              "title": "Country"
-            },
-            "description": "Filter by country"
-          },
-          {
-            "name": "search",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Search in name and email",
-              "title": "Search"
-            },
-            "description": "Search in name and email"
+            }
           }
         ],
         "responses": {
@@ -1946,7 +1749,7 @@
                   "items": {
                     "$ref": "#/components/schemas/UserResponse"
                   },
-                  "title": "Response Get Users Api Users  Get"
+                  "title": "Response Get All Users Api Users  Get"
                 }
               }
             }
@@ -1970,7 +1773,7 @@
           "users"
         ],
         "summary": "Get User",
-        "description": "Get a specific user by ID.\nRequires authentication; caller must own the record or hold ADMIN/SUPER_ADMIN role.",
+        "description": "Get a specific user by ID.\nRequires admin authentication.",
         "operationId": "get_user_api_users__user_id__get",
         "security": [
           {
@@ -2016,7 +1819,7 @@
           "users"
         ],
         "summary": "Update User",
-        "description": "Update a user profile.\nRequires authentication and ownership or admin role.",
+        "description": "Update a user's profile.\nRequires admin authentication or the user updating their own profile.",
         "operationId": "update_user_api_users__user_id__put",
         "security": [
           {
@@ -2112,85 +1915,48 @@
         }
       }
     },
-    "/api/users/{user_id}/profile": {
+    "/api/users/profile": {
       "get": {
         "tags": [
           "users"
         ],
-        "summary": "Get User Profile",
-        "description": "Get a user's profile information.\nRequires authentication and ownership or admin role.",
-        "operationId": "get_user_profile_api_users__user_id__profile_get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "user_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "User Id"
-            }
-          }
-        ],
+        "summary": "Get Own Profile",
+        "description": "Get current user's own profile.\nRequires authentication.",
+        "operationId": "get_own_profile_api_users_profile_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserProfileResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/UserResponse"
                 }
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       },
       "put": {
         "tags": [
           "users"
         ],
-        "summary": "Update User Profile",
-        "description": "Update a user's profile information.\nRequires authentication and ownership or admin role.",
-        "operationId": "update_user_profile_api_users__user_id__profile_put",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "user_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "User Id"
-            }
-          }
-        ],
+        "summary": "Update Own Profile",
+        "description": "Update current user's own profile.\nRequires authentication.",
+        "operationId": "update_own_profile_api_users_profile_put",
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/UserUpdate"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -2198,7 +1964,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserProfileResponse"
+                  "$ref": "#/components/schemas/UserResponse"
                 }
               }
             }
@@ -2213,7 +1979,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/countries/": {
@@ -2222,64 +1993,29 @@
           "countries"
         ],
         "summary": "List Countries",
-        "description": "Retrieve a list of all countries with pagination.\nRequires authentication.",
+        "description": "Retrieve a list of all countries.\nRequires authentication.",
         "operationId": "list_countries_api_countries__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 1000,
-              "minimum": 1,
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/CountryResponse"
                   },
+                  "type": "array",
                   "title": "Response List Countries Api Countries  Get"
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -2288,20 +2024,15 @@
         "summary": "Create Country",
         "description": "Create a new country record.\nRequires admin authentication.",
         "operationId": "create_country_api_countries__post",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/CountryCreate"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -2324,7 +2055,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/countries/{country_id}": {
@@ -2402,7 +2138,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CountryUpdate"
+                "$ref": "#/components/schemas/CountryCreate"
               }
             }
           }
@@ -2475,244 +2211,52 @@
         }
       }
     },
-    "/api/countries/search": {
-      "get": {
-        "tags": [
-          "countries"
-        ],
-        "summary": "Search Countries",
-        "description": "Search countries by name, ISO code, or region.\nRequires authentication.",
-        "operationId": "search_countries_api_countries_search_get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "q",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "description": "Search term",
-              "title": "Q"
-            },
-            "description": "Search term"
-          },
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 1000,
-              "minimum": 1,
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CountryResponse"
-                  },
-                  "title": "Response Search Countries Api Countries Search Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/countries/region/{region}": {
-      "get": {
-        "tags": [
-          "countries"
-        ],
-        "summary": "Get Countries By Region",
-        "description": "Get countries by region.\nRequires authentication.",
-        "operationId": "get_countries_by_region_api_countries_region__region__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "region",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Region"
-            }
-          },
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 1000,
-              "minimum": 1,
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CountryResponse"
-                  },
-                  "title": "Response Get Countries By Region Api Countries Region  Region  Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/grade-levels/": {
       "get": {
         "tags": [
           "grade-levels"
         ],
         "summary": "List Grade Levels",
-        "description": "Retrieve a list of all grade levels with pagination.\nRequires authentication.",
+        "description": "Retrieve a list of all grade levels.\nRequires authentication.",
         "operationId": "list_grade_levels_api_grade_levels__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 1000,
-              "minimum": 1,
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/GradeLevelResponse"
                   },
+                  "type": "array",
                   "title": "Response List Grade Levels Api Grade Levels  Get"
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       },
       "post": {
         "tags": [
           "grade-levels"
         ],
         "summary": "Create Grade Level",
-        "description": "Create a new grade level record.\nRequires admin authentication.",
+        "description": "Create a new grade level.\nRequires admin authentication.",
         "operationId": "create_grade_level_api_grade_levels__post",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/GradeLevelCreate"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -2735,7 +2279,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/grade-levels/{grade_level_id}": {
@@ -2790,7 +2339,7 @@
           "grade-levels"
         ],
         "summary": "Update Grade Level",
-        "description": "Update a grade level record.\nRequires admin authentication.",
+        "description": "Update a grade level.\nRequires admin authentication.",
         "operationId": "update_grade_level_api_grade_levels__grade_level_id__put",
         "security": [
           {
@@ -2813,7 +2362,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/GradeLevelUpdate"
+                "$ref": "#/components/schemas/GradeLevelCreate"
               }
             }
           }
@@ -2846,7 +2395,7 @@
           "grade-levels"
         ],
         "summary": "Delete Grade Level",
-        "description": "Delete a grade level record.\nRequires admin authentication.",
+        "description": "Delete a grade level.\nRequires admin authentication.",
         "operationId": "delete_grade_level_api_grade_levels__grade_level_id__delete",
         "security": [
           {
@@ -2886,319 +2435,52 @@
         }
       }
     },
-    "/api/grade-levels/search": {
-      "get": {
-        "tags": [
-          "grade-levels"
-        ],
-        "summary": "Search Grade Levels",
-        "description": "Search grade levels by name.\nRequires authentication.",
-        "operationId": "search_grade_levels_api_grade_levels_search_get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "q",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "description": "Search term",
-              "title": "Q"
-            },
-            "description": "Search term"
-          },
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 1000,
-              "minimum": 1,
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GradeLevelResponse"
-                  },
-                  "title": "Response Search Grade Levels Api Grade Levels Search Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/grade-levels/curriculum/{curriculum_id}": {
-      "get": {
-        "tags": [
-          "grade-levels"
-        ],
-        "summary": "Get Grade Levels By Curriculum",
-        "description": "Get grade levels by curriculum.\nRequires authentication.",
-        "operationId": "get_grade_levels_by_curriculum_api_grade_levels_curriculum__curriculum_id__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "curriculum_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Curriculum Id"
-            }
-          },
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 1000,
-              "minimum": 1,
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GradeLevelResponse"
-                  },
-                  "title": "Response Get Grade Levels By Curriculum Api Grade Levels Curriculum  Curriculum Id  Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/grade-levels/subject/{subject_id}": {
-      "get": {
-        "tags": [
-          "grade-levels"
-        ],
-        "summary": "Get Grade Levels By Subject",
-        "description": "Get grade levels by subject.\nRequires authentication.",
-        "operationId": "get_grade_levels_by_subject_api_grade_levels_subject__subject_id__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "subject_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Subject Id"
-            }
-          },
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 1000,
-              "minimum": 1,
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GradeLevelResponse"
-                  },
-                  "title": "Response Get Grade Levels By Subject Api Grade Levels Subject  Subject Id  Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/subjects/": {
       "get": {
         "tags": [
           "subjects"
         ],
         "summary": "List Subjects",
-        "description": "Retrieve a list of all subjects with pagination.\nRequires authentication.",
+        "description": "Retrieve a list of all subjects.\nRequires authentication.",
         "operationId": "list_subjects_api_subjects__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 1000,
-              "minimum": 1,
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/SubjectResponse"
                   },
+                  "type": "array",
                   "title": "Response List Subjects Api Subjects  Get"
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       },
       "post": {
         "tags": [
           "subjects"
         ],
         "summary": "Create Subject",
-        "description": "Create a new subject record.\nRequires admin authentication.",
+        "description": "Create a new subject.\nRequires admin authentication.",
         "operationId": "create_subject_api_subjects__post",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/SubjectCreate"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -3221,7 +2503,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/subjects/{subject_id}": {
@@ -3276,7 +2563,7 @@
           "subjects"
         ],
         "summary": "Update Subject",
-        "description": "Update a subject record.\nRequires admin authentication.",
+        "description": "Update a subject.\nRequires admin authentication.",
         "operationId": "update_subject_api_subjects__subject_id__put",
         "security": [
           {
@@ -3299,7 +2586,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SubjectUpdate"
+                "$ref": "#/components/schemas/SubjectCreate"
               }
             }
           }
@@ -3332,7 +2619,7 @@
           "subjects"
         ],
         "summary": "Delete Subject",
-        "description": "Delete a subject record.\nRequires admin authentication.",
+        "description": "Delete a subject.\nRequires admin authentication.",
         "operationId": "delete_subject_api_subjects__subject_id__delete",
         "security": [
           {
@@ -3372,215 +2659,35 @@
         }
       }
     },
-    "/api/subjects/search": {
-      "get": {
-        "tags": [
-          "subjects"
-        ],
-        "summary": "Search Subjects",
-        "description": "Search subjects by name.\nRequires authentication.",
-        "operationId": "search_subjects_api_subjects_search_get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "q",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "description": "Search term",
-              "title": "Q"
-            },
-            "description": "Search term"
-          },
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 1000,
-              "minimum": 1,
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SubjectResponse"
-                  },
-                  "title": "Response Search Subjects Api Subjects Search Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/subjects/curriculum/{curriculum_id}": {
-      "get": {
-        "tags": [
-          "subjects"
-        ],
-        "summary": "Get Subjects By Curriculum",
-        "description": "Get subjects by curriculum.\nRequires authentication.",
-        "operationId": "get_subjects_by_curriculum_api_subjects_curriculum__curriculum_id__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "curriculum_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Curriculum Id"
-            }
-          },
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 1000,
-              "minimum": 1,
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SubjectResponse"
-                  },
-                  "title": "Response Get Subjects By Curriculum Api Subjects Curriculum  Curriculum Id  Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/curriculum-structures/": {
       "get": {
         "tags": [
           "curriculum-structures"
         ],
         "summary": "List Curriculum Structures",
-        "description": "Retrieve a list of curriculum structures, optionally filtered by curricula_id.\nRequires authentication.",
+        "description": "Retrieve a list of all curriculum structures.\nRequires authentication.",
         "operationId": "list_curriculum_structures_api_curriculum_structures__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "curricula_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Curricula Id"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/CurriculumStructureResponse"
                   },
+                  "type": "array",
                   "title": "Response List Curriculum Structures Api Curriculum Structures  Get"
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -3589,20 +2696,15 @@
         "summary": "Create Curriculum Structure",
         "description": "Create a new curriculum structure record.\nRequires admin authentication.",
         "operationId": "create_curriculum_structure_api_curriculum_structures__post",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/CurriculumStructureCreate"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -3625,7 +2727,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/curriculum-structures/{structure_id}": {
@@ -3782,22 +2889,17 @@
           "contexts"
         ],
         "summary": "Create Context",
-        "description": "Create a new context for a lesson plan. Educators may only add contexts to their own lesson plans.",
+        "description": "Create a new context for a lesson plan.",
         "operationId": "create_context_api_contexts__post",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ContextCreate"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "201": {
@@ -3821,70 +2923,6 @@
             }
           }
         }
-      },
-      "get": {
-        "tags": [
-          "contexts"
-        ],
-        "summary": "Get All Contexts",
-        "description": "Get contexts with pagination.\nAdmins receive all contexts; educators receive only contexts for their own lesson plans.",
-        "operationId": "get_all_contexts_api_contexts__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 1000,
-              "minimum": 1,
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ContextResponse"
-                  },
-                  "title": "Response Get All Contexts Api Contexts  Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
       }
     },
     "/api/contexts/lesson-plan/{lesson_plan_id}": {
@@ -3893,13 +2931,8 @@
           "contexts"
         ],
         "summary": "Get Contexts By Lesson Plan",
-        "description": "Get all contexts for a specific lesson plan. Educators may only access their own lesson plans.",
+        "description": "Get all contexts for a specific lesson plan.",
         "operationId": "get_contexts_by_lesson_plan_api_contexts_lesson_plan__lesson_plan_id__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
         "parameters": [
           {
             "name": "lesson_plan_id",
@@ -3941,13 +2974,8 @@
           "contexts"
         ],
         "summary": "Get Context",
-        "description": "Get a specific context by ID. Educators may only access contexts for their own lesson plans.",
+        "description": "Get a specific context by ID.",
         "operationId": "get_context_api_contexts__context_id__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
         "parameters": [
           {
             "name": "context_id",
@@ -3987,13 +3015,8 @@
           "contexts"
         ],
         "summary": "Update Context",
-        "description": "Update a specific context. Educators may only update contexts for their own lesson plans.",
+        "description": "Update a specific context.",
         "operationId": "update_context_api_contexts__context_id__put",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
         "parameters": [
           {
             "name": "context_id",
@@ -4043,13 +3066,8 @@
           "contexts"
         ],
         "summary": "Delete Context",
-        "description": "Delete a specific context. Educators may only delete contexts for their own lesson plans.",
+        "description": "Delete a specific context.",
         "operationId": "delete_context_api_contexts__context_id__delete",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
         "parameters": [
           {
             "name": "context_id",
@@ -4062,13 +3080,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
+          "204": {
+            "description": "Successful Response"
           },
           "422": {
             "description": "Validation Error",
@@ -4089,13 +3102,8 @@
           "contexts"
         ],
         "summary": "Submit Context",
-        "description": "Submit context for a lesson plan (frontend endpoint).\nEducators may only submit contexts for their own lesson plans.",
+        "description": "Submit context for a lesson plan (frontend endpoint).",
         "operationId": "submit_context_api_contexts_lesson_plan__lesson_plan_id__submit_post",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
         "parameters": [
           {
             "name": "lesson_plan_id",
@@ -4125,1311 +3133,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/ContextResponse"
                 }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/admin/metrics": {
-      "get": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "Get Admin Metrics",
-        "description": "Get dashboard metrics for administrative overview.",
-        "operationId": "get_admin_metrics_api_admin_metrics_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DashboardMetrics"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/api/admin/users": {
-      "get": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "List Users",
-        "description": "List all users with filtering and search.",
-        "operationId": "list_users_api_admin_users_get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 100,
-              "title": "Limit"
-            }
-          },
-          {
-            "name": "role",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "$ref": "#/components/schemas/apps__backend__models__UserRole"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Role"
-            }
-          },
-          {
-            "name": "query",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Query"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AdminUserResponse"
-                  },
-                  "title": "Response List Users Api Admin Users Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/admin/users/{user_id}": {
-      "patch": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "Update User Status",
-        "description": "Update user role or suspension status.",
-        "operationId": "update_user_status_api_admin_users__user_id__patch",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "user_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "User Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AdminUserUpdate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminUserResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/admin/audit-logs": {
-      "get": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "Get Audit Logs",
-        "description": "View administrative audit logs.",
-        "operationId": "get_audit_logs_api_admin_audit_logs_get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 50,
-              "title": "Limit"
-            }
-          },
-          {
-            "name": "actor_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Actor Id"
-            }
-          },
-          {
-            "name": "target_type",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Target Type"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AdminAuditLogResponse"
-                  },
-                  "title": "Response Get Audit Logs Api Admin Audit Logs Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/admin/resources": {
-      "get": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "List Resources",
-        "description": "List lesson resources with moderation info.",
-        "operationId": "list_resources_api_admin_resources_get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 50,
-              "title": "Limit"
-            }
-          },
-          {
-            "name": "flagged_only",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "default": false,
-              "title": "Flagged Only"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/admin/resources/{resource_id}": {
-      "patch": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "Moderate Resource",
-        "description": "Moderate a lesson resource (Approve, Flag, Remove).",
-        "operationId": "moderate_resource_api_admin_resources__resource_id__patch",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "resource_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Resource Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ResourceModerationUpdate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/admin/templates": {
-      "get": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "List Templates",
-        "description": "List all AI lesson templates.",
-        "operationId": "list_templates_api_admin_templates_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/LessonTemplateResponse"
-                  },
-                  "type": "array",
-                  "title": "Response List Templates Api Admin Templates Get"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "Create Template",
-        "description": "Create a new AI lesson template.",
-        "operationId": "create_template_api_admin_templates_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LessonTemplateCreate"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LessonTemplateResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/api/admin/templates/{template_id}": {
-      "patch": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "Update Template",
-        "description": "Update an existing AI lesson template.",
-        "operationId": "update_template_api_admin_templates__template_id__patch",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "template_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Template Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LessonTemplateCreate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LessonTemplateResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "Delete Template",
-        "description": "Delete an AI lesson template.",
-        "operationId": "delete_template_api_admin_templates__template_id__delete",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "template_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Template Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/admin/children": {
-      "get": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "Admin List Children",
-        "description": "COPPA/GRC-05: List all child profiles for admin oversight.\n\nSupports optional filtering by parent_id. Every call is audit-logged\nwith the actor, filter used, and result count so any admin access to\nchildren's data is fully traceable.",
-        "operationId": "admin_list_children_api_admin_children_get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 200,
-              "minimum": 1,
-              "default": 50,
-              "title": "Limit"
-            }
-          },
-          {
-            "name": "parent_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Parent Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AdminChildProfileResponse"
-                  },
-                  "title": "Response Admin List Children Api Admin Children Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/admin/children/{child_id}": {
-      "get": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "Admin Get Child",
-        "description": "COPPA/GRC-05: Retrieve a single child profile for admin oversight.\n\nReturns 404 if the profile does not exist. The access (including\nnot-found attempts) is audit-logged for traceability.",
-        "operationId": "admin_get_child_api_admin_children__child_id__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "child_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Child Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminChildProfileResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/consent/status": {
-      "get": {
-        "tags": [
-          "children"
-        ],
-        "summary": "Get Consent Status",
-        "description": "Return whether the authenticated parent has given COPPA consent.",
-        "operationId": "get_consent_status_api_consent_status_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ConsentStatusResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/api/consent": {
-      "post": {
-        "tags": [
-          "children"
-        ],
-        "summary": "Record Consent",
-        "description": "Record COPPA parental consent for the authenticated parent.\n\nIdempotent \u2014 re-posting updates the consent timestamp.\nThe client must display the full disclosure text before calling this endpoint.\nRate-limited to 10 requests/minute to prevent abuse.",
-        "operationId": "record_consent_api_consent_post",
-        "responses": {
-          "201": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ParentalConsentResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/api/children": {
-      "get": {
-        "tags": [
-          "children"
-        ],
-        "summary": "List Children",
-        "description": "List all child profiles for the current parent.",
-        "operationId": "list_children_api_children_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ChildProfileListResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "children"
-        ],
-        "summary": "Create Child",
-        "description": "Create a new child profile for the current parent.",
-        "operationId": "create_child_api_children_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ChildProfileCreate"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ChildProfileResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/api/children/{child_id}": {
-      "get": {
-        "tags": [
-          "children"
-        ],
-        "summary": "Get Child",
-        "description": "Get a single child profile by ID.",
-        "operationId": "get_child_api_children__child_id__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "child_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Child Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ChildProfileResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "children"
-        ],
-        "summary": "Update Child",
-        "description": "Update a child profile.",
-        "operationId": "update_child_api_children__child_id__put",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "child_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Child Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ChildProfileUpdate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ChildProfileResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "children"
-        ],
-        "summary": "Delete Child",
-        "description": "Delete a child profile and all associated guides.",
-        "operationId": "delete_child_api_children__child_id__delete",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "child_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Child Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/children/{child_id}/topics": {
-      "get": {
-        "tags": [
-          "children"
-        ],
-        "summary": "Get Child Topics",
-        "description": "Get curriculum topics available for a child based on their\ncurriculum and grade level. Optionally filter by subject.",
-        "operationId": "get_child_topics_api_children__child_id__topics_get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "child_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Child Id"
-            }
-          },
-          {
-            "name": "subject_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Filter topics by subject ID",
-              "title": "Subject Id"
-            },
-            "description": "Filter topics by subject ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/children/{child_id}/guides": {
-      "get": {
-        "tags": [
-          "children"
-        ],
-        "summary": "List Child Guides",
-        "description": "List all parent guides for a child.",
-        "operationId": "list_child_guides_api_children__child_id__guides_get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "child_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Child Id"
-            }
-          },
-          {
-            "name": "bookmarked",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "description": "Only return bookmarked guides",
-              "default": false,
-              "title": "Bookmarked"
-            },
-            "description": "Only return bookmarked guides"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ParentGuideListResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/children/{child_id}/guides/generate": {
-      "post": {
-        "tags": [
-          "children"
-        ],
-        "summary": "Generate Guide",
-        "description": "Generate (or retrieve existing) a 'How to Help' guide for a child and topic.\nIf a guide already exists for this child+topic, returns the existing one.\nRate-limited to 5 requests/minute per IP to prevent OpenAI cost abuse.",
-        "operationId": "generate_guide_api_children__child_id__guides_generate_post",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "child_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Child Id"
-            }
-          },
-          {
-            "name": "topic_id",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "description": "Topic ID to generate a guide for",
-              "title": "Topic Id"
-            },
-            "description": "Topic ID to generate a guide for"
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ParentGuideResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/guides/{guide_id}": {
-      "get": {
-        "tags": [
-          "children"
-        ],
-        "summary": "Get Guide",
-        "description": "Get a single parent guide by ID.",
-        "operationId": "get_guide_api_guides__guide_id__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "guide_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Guide Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ParentGuideResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/guides/{guide_id}/bookmark": {
-      "post": {
-        "tags": [
-          "children"
-        ],
-        "summary": "Toggle Bookmark",
-        "description": "Toggle the bookmark status of a guide.",
-        "operationId": "toggle_bookmark_api_guides__guide_id__bookmark_post",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "guide_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Guide Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ParentGuideResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/guides/{guide_id}/export": {
-      "get": {
-        "tags": [
-          "children"
-        ],
-        "summary": "Export Guide Pdf",
-        "description": "Export a parent guide as a downloadable PDF for offline printing.\n\nReturns a PDF binary with Content-Disposition: attachment.\nRequires the guide to belong to the current parent (404 otherwise).",
-        "operationId": "export_guide_pdf_api_guides__guide_id__export_get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "guide_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Guide Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
               }
             }
           },
@@ -5483,658 +3186,28 @@
   },
   "components": {
     "schemas": {
-      "AdminAuditLogResponse": {
+      "AuthResponse": {
         "properties": {
-          "log_id": {
-            "type": "integer",
-            "title": "Log Id"
-          },
-          "actor_id": {
-            "type": "integer",
-            "title": "Actor Id"
-          },
-          "action": {
+          "access_token": {
             "type": "string",
-            "title": "Action"
+            "title": "Access Token"
           },
-          "target_type": {
+          "token_type": {
             "type": "string",
-            "title": "Target Type"
+            "title": "Token Type",
+            "default": "bearer"
           },
-          "target_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Target Id"
-          },
-          "metadata_json": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Metadata Json"
-          },
-          "ip_address": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Ip Address"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Created At"
-          },
-          "actor_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Actor Name"
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
           }
         },
         "type": "object",
         "required": [
-          "log_id",
-          "actor_id",
-          "action",
-          "target_type",
-          "target_id",
-          "metadata_json",
-          "ip_address",
-          "created_at",
-          "actor_name"
+          "access_token",
+          "user"
         ],
-        "title": "AdminAuditLogResponse"
-      },
-      "AdminChildProfileResponse": {
-        "properties": {
-          "child_id": {
-            "type": "integer",
-            "title": "Child Id"
-          },
-          "parent_id": {
-            "type": "integer",
-            "title": "Parent Id"
-          },
-          "name": {
-            "type": "string",
-            "title": "Name"
-          },
-          "age": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Age"
-          },
-          "school_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "School Name"
-          },
-          "country_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Country Id"
-          },
-          "curricula_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Curricula Id"
-          },
-          "grade_level_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Grade Level Id"
-          },
-          "subjects": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Subjects"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Created At"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Updated At"
-          }
-        },
-        "type": "object",
-        "required": [
-          "child_id",
-          "parent_id",
-          "name",
-          "age",
-          "school_name",
-          "country_id",
-          "curricula_id",
-          "grade_level_id",
-          "subjects",
-          "created_at",
-          "updated_at"
-        ],
-        "title": "AdminChildProfileResponse",
-        "description": "Read-only view of a child profile for admin/COPPA oversight.\n\nExcludes AI-generated guide content \u2014 admins see structural data only.\nEvery request that returns this schema must log via log_admin_action\nwith target_type='child_profile' (GRC-05)."
-      },
-      "AdminUserResponse": {
-        "properties": {
-          "user_id": {
-            "type": "integer",
-            "title": "User Id"
-          },
-          "full_name": {
-            "type": "string",
-            "title": "Full Name"
-          },
-          "email": {
-            "type": "string",
-            "title": "Email"
-          },
-          "role": {
-            "$ref": "#/components/schemas/apps__backend__models__UserRole"
-          },
-          "country": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Country"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Created At"
-          },
-          "last_login": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Last Login"
-          }
-        },
-        "type": "object",
-        "required": [
-          "user_id",
-          "full_name",
-          "email",
-          "role",
-          "country",
-          "created_at",
-          "last_login"
-        ],
-        "title": "AdminUserResponse"
-      },
-      "AdminUserUpdate": {
-        "properties": {
-          "role": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/apps__backend__models__UserRole"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "is_suspended": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Is Suspended"
-          }
-        },
-        "type": "object",
-        "title": "AdminUserUpdate"
-      },
-      "ChildProfileCreate": {
-        "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 100,
-            "minLength": 1,
-            "title": "Name",
-            "description": "Child's name"
-          },
-          "age": {
-            "anyOf": [
-              {
-                "type": "integer",
-                "maximum": 25.0,
-                "minimum": 3.0
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Age",
-            "description": "Child's age"
-          },
-          "school_name": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 200
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "School Name",
-            "description": "Child's school name"
-          },
-          "country_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Country Id",
-            "description": "Country ID for curriculum"
-          },
-          "curricula_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Curricula Id",
-            "description": "Curriculum ID"
-          },
-          "grade_level_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Grade Level Id",
-            "description": "Grade level ID"
-          },
-          "subjects": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "integer"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Subjects",
-            "description": "List of subject IDs the child needs help with"
-          }
-        },
-        "type": "object",
-        "required": [
-          "name"
-        ],
-        "title": "ChildProfileCreate",
-        "description": "Schema for creating a new child profile."
-      },
-      "ChildProfileListResponse": {
-        "properties": {
-          "children": {
-            "items": {
-              "$ref": "#/components/schemas/ChildProfileResponse"
-            },
-            "type": "array",
-            "title": "Children"
-          },
-          "total": {
-            "type": "integer",
-            "title": "Total"
-          }
-        },
-        "type": "object",
-        "required": [
-          "children",
-          "total"
-        ],
-        "title": "ChildProfileListResponse",
-        "description": "Schema for listing child profiles."
-      },
-      "ChildProfileResponse": {
-        "properties": {
-          "child_id": {
-            "type": "integer",
-            "title": "Child Id"
-          },
-          "parent_id": {
-            "type": "integer",
-            "title": "Parent Id"
-          },
-          "name": {
-            "type": "string",
-            "title": "Name"
-          },
-          "age": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Age"
-          },
-          "school_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "School Name"
-          },
-          "country_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Country Id"
-          },
-          "country_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Country Name"
-          },
-          "curricula_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Curricula Id"
-          },
-          "curricula_title": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Curricula Title"
-          },
-          "grade_level_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Grade Level Id"
-          },
-          "grade_level_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Grade Level Name"
-          },
-          "subjects": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "integer"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Subjects"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Created At"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Updated At"
-          }
-        },
-        "type": "object",
-        "required": [
-          "child_id",
-          "parent_id",
-          "name",
-          "created_at",
-          "updated_at"
-        ],
-        "title": "ChildProfileResponse",
-        "description": "Schema for child profile response data."
-      },
-      "ChildProfileUpdate": {
-        "properties": {
-          "name": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 100,
-                "minLength": 1
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Name",
-            "description": "Child's name"
-          },
-          "age": {
-            "anyOf": [
-              {
-                "type": "integer",
-                "maximum": 25.0,
-                "minimum": 3.0
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Age",
-            "description": "Child's age"
-          },
-          "school_name": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 200
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "School Name",
-            "description": "Child's school name"
-          },
-          "country_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Country Id",
-            "description": "Country ID for curriculum"
-          },
-          "curricula_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Curricula Id",
-            "description": "Curriculum ID"
-          },
-          "grade_level_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Grade Level Id",
-            "description": "Grade level ID"
-          },
-          "subjects": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "integer"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Subjects",
-            "description": "List of subject IDs the child needs help with"
-          }
-        },
-        "type": "object",
-        "title": "ChildProfileUpdate",
-        "description": "Schema for updating a child profile."
-      },
-      "ConsentStatusResponse": {
-        "properties": {
-          "has_consented": {
-            "type": "boolean",
-            "title": "Has Consented"
-          },
-          "consent": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/ParentalConsentResponse"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "type": "object",
-        "required": [
-          "has_consented"
-        ],
-        "title": "ConsentStatusResponse",
-        "description": "Response schema for checking whether a parent has consented."
+        "title": "AuthResponse",
+        "description": "Schema for authentication response."
       },
       "ContentCreate": {
         "properties": {
@@ -6159,9 +3232,9 @@
       },
       "ContentResponse": {
         "properties": {
-          "topic_contents_id": {
+          "id": {
             "type": "integer",
-            "title": "Topic Contents Id"
+            "title": "Id"
           },
           "topic_id": {
             "type": "integer",
@@ -6170,13 +3243,19 @@
           "content_area": {
             "type": "string",
             "title": "Content Area"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
           }
         },
         "type": "object",
         "required": [
-          "topic_contents_id",
+          "id",
           "topic_id",
-          "content_area"
+          "content_area",
+          "created_at"
         ],
         "title": "ContentResponse",
         "description": "Schema for content response data."
@@ -6358,58 +3437,19 @@
         "title": "ContextUpdate",
         "description": "Schema for updating an existing context."
       },
-      "CookieAuthResponse": {
-        "properties": {
-          "token_type": {
-            "type": "string",
-            "title": "Token Type",
-            "default": "bearer"
-          },
-          "user": {
-            "$ref": "#/components/schemas/UserResponse"
-          }
-        },
-        "type": "object",
-        "required": [
-          "user"
-        ],
-        "title": "CookieAuthResponse",
-        "description": "Schema for cookie-based authentication response.\n\nThe access token is delivered via HttpOnly Set-Cookie header; only the\nuser payload is included in the response body so the frontend never needs\nto touch or store the raw JWT."
-      },
       "CountryCreate": {
         "properties": {
           "country_name": {
             "type": "string",
-            "maxLength": 100,
-            "minLength": 1,
-            "title": "Country Name",
-            "description": "Name of the country"
+            "title": "Country Name"
           },
           "iso_code": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 2
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Iso Code",
-            "description": "ISO 2-letter country code"
+            "type": "string",
+            "title": "Iso Code"
           },
           "region": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 100
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Region",
-            "description": "Geographic region of the country"
+            "type": "string",
+            "title": "Region"
           }
         },
         "type": "object",
@@ -6421,105 +3461,30 @@
       },
       "CountryResponse": {
         "properties": {
-          "country_name": {
-            "type": "string",
-            "maxLength": 100,
-            "minLength": 1,
-            "title": "Country Name",
-            "description": "Name of the country"
-          },
-          "iso_code": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 2
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Iso Code",
-            "description": "ISO 2-letter country code"
-          },
-          "region": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 100
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Region",
-            "description": "Geographic region of the country"
-          },
           "country_id": {
             "type": "integer",
-            "title": "Country Id",
-            "description": "Unique identifier for the country"
+            "title": "Country Id"
+          },
+          "country_name": {
+            "type": "string",
+            "title": "Country Name"
+          },
+          "iso_code": {
+            "type": "string",
+            "title": "Iso Code"
+          },
+          "region": {
+            "type": "string",
+            "title": "Region"
           }
         },
         "type": "object",
         "required": [
-          "country_name",
-          "country_id"
+          "country_id",
+          "country_name"
         ],
         "title": "CountryResponse",
-        "description": "Schema for country response.",
-        "example": {
-          "country_id": 1,
-          "country_name": "Nigeria",
-          "iso_code": "NG",
-          "region": "West Africa"
-        }
-      },
-      "CountryUpdate": {
-        "properties": {
-          "country_name": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 100,
-                "minLength": 1
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Country Name",
-            "description": "Name of the country"
-          },
-          "iso_code": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 2
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Iso Code",
-            "description": "ISO 2-letter country code"
-          },
-          "region": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 100
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Region",
-            "description": "Geographic region of the country"
-          }
-        },
-        "type": "object",
-        "title": "CountryUpdate",
-        "description": "Schema for updating an existing country."
+        "description": "Schema for country response data."
       },
       "CurriculumCreate": {
         "properties": {
@@ -6617,54 +3582,11 @@
         "title": "CurriculumStructureResponse",
         "description": "Schema for curriculum structure response data."
       },
-      "DashboardMetrics": {
-        "properties": {
-          "total_users": {
-            "type": "integer",
-            "title": "Total Users"
-          },
-          "new_users_7d": {
-            "type": "integer",
-            "title": "New Users 7D"
-          },
-          "total_lessons": {
-            "type": "integer",
-            "title": "Total Lessons"
-          },
-          "lessons_7d": {
-            "type": "integer",
-            "title": "Lessons 7D"
-          },
-          "flagged_resources": {
-            "type": "integer",
-            "title": "Flagged Resources"
-          },
-          "system_health": {
-            "type": "string",
-            "title": "System Health"
-          }
-        },
-        "type": "object",
-        "required": [
-          "total_users",
-          "new_users_7d",
-          "total_lessons",
-          "lessons_7d",
-          "flagged_resources",
-          "system_health"
-        ],
-        "title": "DashboardMetrics"
-      },
       "GoogleAuthRequest": {
         "properties": {
           "credential": {
             "type": "string",
             "title": "Credential"
-          },
-          "role": {
-            "type": "string",
-            "title": "Role",
-            "default": "PARENT"
           }
         },
         "type": "object",
@@ -6678,66 +3600,32 @@
         "properties": {
           "name": {
             "type": "string",
-            "maxLength": 50,
-            "minLength": 1,
-            "title": "Name",
-            "description": "Name of the grade level"
+            "title": "Name"
           }
         },
         "type": "object",
         "required": [
           "name"
         ],
-        "title": "GradeLevelCreate",
-        "description": "Schema for creating a new grade level."
+        "title": "GradeLevelCreate"
       },
       "GradeLevelResponse": {
         "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 50,
-            "minLength": 1,
-            "title": "Name",
-            "description": "Name of the grade level"
-          },
           "grade_level_id": {
             "type": "integer",
-            "title": "Grade Level Id",
-            "description": "Unique identifier for the grade level"
+            "title": "Grade Level Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
           }
         },
         "type": "object",
         "required": [
-          "name",
-          "grade_level_id"
+          "grade_level_id",
+          "name"
         ],
-        "title": "GradeLevelResponse",
-        "description": "Schema for grade level response.",
-        "example": {
-          "grade_level_id": 1,
-          "name": "Grade 5"
-        }
-      },
-      "GradeLevelUpdate": {
-        "properties": {
-          "name": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 50,
-                "minLength": 1
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Name",
-            "description": "Name of the grade level"
-          }
-        },
-        "type": "object",
-        "title": "GradeLevelUpdate",
-        "description": "Schema for updating an existing grade level."
+        "title": "GradeLevelResponse"
       },
       "HTTPValidationError": {
         "properties": {
@@ -6774,9 +3662,9 @@
       },
       "LearningObjectiveResponse": {
         "properties": {
-          "learning_objective_id": {
+          "id": {
             "type": "integer",
-            "title": "Learning Objective Id"
+            "title": "Id"
           },
           "topic_id": {
             "type": "integer",
@@ -6785,13 +3673,19 @@
           "objective": {
             "type": "string",
             "title": "Objective"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
           }
         },
         "type": "object",
         "required": [
-          "learning_objective_id",
+          "id",
           "topic_id",
-          "objective"
+          "objective",
+          "created_at"
         ],
         "title": "LearningObjectiveResponse"
       },
@@ -7151,6 +4045,31 @@
         "title": "LessonResourceResponse",
         "description": "Schema for lesson resource response data."
       },
+      "LessonResourceUpdate": {
+        "properties": {
+          "user_edited_content": {
+            "type": "string",
+            "title": "User Edited Content"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_edited_content"
+        ],
+        "title": "LessonResourceUpdate",
+        "description": "Schema for updating lesson resources."
+      },
       "LessonStatus": {
         "type": "string",
         "enum": [
@@ -7162,225 +4081,6 @@
         ],
         "title": "LessonStatus",
         "description": "Enumeration of lesson plan status values."
-      },
-      "LessonTemplateCreate": {
-        "properties": {
-          "name": {
-            "type": "string",
-            "title": "Name"
-          },
-          "version": {
-            "type": "string",
-            "title": "Version"
-          },
-          "schema_json": {
-            "type": "string",
-            "title": "Schema Json"
-          },
-          "is_active": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Is Active",
-            "default": 1
-          }
-        },
-        "type": "object",
-        "required": [
-          "name",
-          "version",
-          "schema_json"
-        ],
-        "title": "LessonTemplateCreate"
-      },
-      "LessonTemplateResponse": {
-        "properties": {
-          "name": {
-            "type": "string",
-            "title": "Name"
-          },
-          "version": {
-            "type": "string",
-            "title": "Version"
-          },
-          "schema_json": {
-            "type": "string",
-            "title": "Schema Json"
-          },
-          "is_active": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Is Active",
-            "default": 1
-          },
-          "template_id": {
-            "type": "integer",
-            "title": "Template Id"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Created At"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Updated At"
-          }
-        },
-        "type": "object",
-        "required": [
-          "name",
-          "version",
-          "schema_json",
-          "template_id",
-          "created_at",
-          "updated_at"
-        ],
-        "title": "LessonTemplateResponse"
-      },
-      "ParentGuideListResponse": {
-        "properties": {
-          "guides": {
-            "items": {
-              "$ref": "#/components/schemas/ParentGuideResponse"
-            },
-            "type": "array",
-            "title": "Guides"
-          },
-          "total": {
-            "type": "integer",
-            "title": "Total"
-          }
-        },
-        "type": "object",
-        "required": [
-          "guides",
-          "total"
-        ],
-        "title": "ParentGuideListResponse",
-        "description": "Schema for listing parent guides."
-      },
-      "ParentGuideResponse": {
-        "properties": {
-          "guide_id": {
-            "type": "integer",
-            "title": "Guide Id"
-          },
-          "child_id": {
-            "type": "integer",
-            "title": "Child Id"
-          },
-          "topic_id": {
-            "type": "integer",
-            "title": "Topic Id"
-          },
-          "topic_title": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Topic Title"
-          },
-          "subject_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Subject Name"
-          },
-          "ai_generated_content": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Ai Generated Content"
-          },
-          "user_edited_content": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "User Edited Content"
-          },
-          "is_bookmarked": {
-            "type": "boolean",
-            "title": "Is Bookmarked",
-            "default": false
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Created At"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Updated At"
-          }
-        },
-        "type": "object",
-        "required": [
-          "guide_id",
-          "child_id",
-          "topic_id",
-          "created_at",
-          "updated_at"
-        ],
-        "title": "ParentGuideResponse",
-        "description": "Schema for parent guide response data."
-      },
-      "ParentalConsentResponse": {
-        "properties": {
-          "parent_id": {
-            "type": "integer",
-            "title": "Parent Id"
-          },
-          "consented_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Consented At"
-          },
-          "consent_version": {
-            "type": "string",
-            "title": "Consent Version"
-          }
-        },
-        "type": "object",
-        "required": [
-          "parent_id",
-          "consented_at",
-          "consent_version"
-        ],
-        "title": "ParentalConsentResponse",
-        "description": "Response schema for a parental consent record."
       },
       "PasswordReset": {
         "properties": {
@@ -7419,94 +4119,36 @@
         "title": "PasswordResetRequest",
         "description": "Schema for password reset request."
       },
-      "ResourceModerationUpdate": {
-        "properties": {
-          "status": {
-            "type": "string",
-            "title": "Status"
-          },
-          "notes": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Notes"
-          }
-        },
-        "type": "object",
-        "required": [
-          "status"
-        ],
-        "title": "ResourceModerationUpdate"
-      },
       "SubjectCreate": {
         "properties": {
           "name": {
             "type": "string",
-            "maxLength": 100,
-            "minLength": 1,
-            "title": "Name",
-            "description": "Name of the subject"
+            "title": "Name"
           }
         },
         "type": "object",
         "required": [
           "name"
         ],
-        "title": "SubjectCreate",
-        "description": "Schema for creating a new subject."
+        "title": "SubjectCreate"
       },
       "SubjectResponse": {
         "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 100,
-            "minLength": 1,
-            "title": "Name",
-            "description": "Name of the subject"
-          },
           "subject_id": {
             "type": "integer",
-            "title": "Subject Id",
-            "description": "Unique identifier for the subject"
+            "title": "Subject Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
           }
         },
         "type": "object",
         "required": [
-          "name",
-          "subject_id"
+          "subject_id",
+          "name"
         ],
-        "title": "SubjectResponse",
-        "description": "Schema for subject response.",
-        "example": {
-          "name": "Mathematics",
-          "subject_id": 1
-        }
-      },
-      "SubjectUpdate": {
-        "properties": {
-          "name": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 100,
-                "minLength": 1
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Name",
-            "description": "Name of the subject"
-          }
-        },
-        "type": "object",
-        "title": "SubjectUpdate",
-        "description": "Schema for updating an existing subject."
+        "title": "SubjectResponse"
       },
       "TopicCreate": {
         "properties": {
@@ -7570,7 +4212,7 @@
             "description": "User's full name"
           },
           "role": {
-            "$ref": "#/components/schemas/apps__backend__schemas__users__UserRole",
+            "$ref": "#/components/schemas/UserRole",
             "description": "User role",
             "default": "EDUCATOR"
           },
@@ -7678,86 +4320,6 @@
         "title": "UserLogin",
         "description": "Schema for user login credentials."
       },
-      "UserProfileResponse": {
-        "properties": {
-          "user_id": {
-            "type": "integer",
-            "title": "User Id"
-          },
-          "full_name": {
-            "type": "string",
-            "title": "Full Name"
-          },
-          "country": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Country"
-          },
-          "region": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Region"
-          },
-          "school_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "School Name"
-          },
-          "subjects": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Subjects"
-          },
-          "grade_levels": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Grade Levels"
-          }
-        },
-        "type": "object",
-        "required": [
-          "user_id",
-          "full_name"
-        ],
-        "title": "UserProfileResponse",
-        "description": "Simplified user profile for public display"
-      },
       "UserResponse": {
         "properties": {
           "user_id": {
@@ -7773,17 +4335,10 @@
             "title": "Full Name"
           },
           "role": {
-            "$ref": "#/components/schemas/apps__backend__schemas__users__UserRole"
+            "$ref": "#/components/schemas/UserRole"
           },
           "country": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "string",
             "title": "Country"
           },
           "region": {
@@ -7847,39 +4402,6 @@
             ],
             "title": "Languages Spoken"
           },
-          "phone": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Phone"
-          },
-          "bio": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Bio"
-          },
-          "profile_image_url": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Profile Image Url"
-          },
           "created_at": {
             "type": "string",
             "format": "date-time",
@@ -7904,10 +4426,26 @@
           "email",
           "full_name",
           "role",
-          "created_at"
+          "country",
+          "region",
+          "school_name",
+          "subjects",
+          "grade_levels",
+          "languages_spoken",
+          "created_at",
+          "last_login"
         ],
         "title": "UserResponse",
         "description": "Schema for user response data."
+      },
+      "UserRole": {
+        "type": "string",
+        "enum": [
+          "EDUCATOR",
+          "ADMIN"
+        ],
+        "title": "UserRole",
+        "description": "Enumeration of user roles in the system."
       },
       "UserUpdate": {
         "properties": {
@@ -7993,28 +4531,6 @@
               }
             ],
             "title": "Languages Spoken"
-          },
-          "phone": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Phone"
-          },
-          "bio": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Bio"
           }
         },
         "type": "object",
@@ -8054,27 +4570,23 @@
         ],
         "title": "ValidationError"
       },
-      "apps__backend__models__UserRole": {
-        "type": "string",
-        "enum": [
-          "EDUCATOR",
-          "PARENT",
-          "ADMIN",
-          "SUPER_ADMIN"
-        ],
-        "title": "UserRole",
-        "description": "Enumeration of user roles in the Awade platform."
-      },
-      "apps__backend__schemas__users__UserRole": {
-        "type": "string",
-        "enum": [
-          "EDUCATOR",
-          "PARENT",
-          "ADMIN",
-          "SUPER_ADMIN"
-        ],
-        "title": "UserRole",
-        "description": "Enumeration of user roles in the system."
+      "CookieAuthResponse": {
+        "title": "CookieAuthResponse",
+        "description": "Cookie-based authentication response. The access token is delivered via HttpOnly Set-Cookie header; only the user payload is included in the response body.",
+        "type": "object",
+        "properties": {
+          "token_type": {
+            "title": "Token Type",
+            "default": "bearer",
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          }
+        },
+        "required": [
+          "user"
+        ]
       }
     },
     "securitySchemes": {

@@ -1,6 +1,6 @@
 # Awade — Backlog
 
-> Last updated: 2026-04-27 (Lead Dev Agent — AWD-M-49 shipped)
+> Last updated: 2026-04-27 (QA Agent — AWD-H-50 filed)
 > Last groomed: 2026-04-25 (weekend-ops / Ops Agent) — see notes below. Removed stale items, updated priorities for post-security-sprint phase. Parent pivot code is feature-complete; focus shifts to launch prep + compliance.
 > Source of truth for active work. Completed items move to [`completed_backlog.md`](completed_backlog.md).
 > Issue prefix: `AWD` — e.g., reference as `AWD-H-03` in commits.
@@ -324,6 +324,23 @@ Or: accept the full working-tree version of `children_service.py` (which has bot
 **Effort**: S (minutes)
 **Audience**: all
 **Filed**: 2026-04-26 QA Agent (spot-check of commit 2e598f0)
+
+---
+
+~~**AWD-H-50 — `openapi.json` not regenerated after GRC-01 — consent + all children/guide routes missing from spec**~~ ✅ 2026-04-27
+
+**Problem**: Commit `07ca8e9` (AWD-GRC-01) added 2 new consent endpoints (`GET /api/consent/status`, `POST /api/consent`) to `apps/backend/routers/children.py` but did not regenerate `apps/backend/app/openapi.json`. Additionally, all existing children and guide routes (`/api/children`, `/api/children/{child_id}`, `/api/children/{child_id}/topics`, `/api/children/{child_id}/guides`, `/api/children/{child_id}/guides/generate`, `/api/guides/{guide_id}`, `/api/guides/{guide_id}/bookmark`, `/api/guides/{guide_id}/export`) are absent from the spec — a pre-existing gap, compounded by this commit. `CLAUDE.md` requires: "If the change touches API endpoints, regenerate `apps/backend/app/openapi.json`". The `contract-test` CI job validates the JSON but not completeness, so CI may appear green locally — but the spec is stale and any API consumer check against it will miss these endpoints entirely.
+
+**Acceptance criteria**:
+- [ ] Start the FastAPI app and regenerate: `python -c "import json; from apps.backend.main import app; print(json.dumps(app.openapi(), indent=2))" > apps/backend/app/openapi.json`
+- [ ] Confirm `/api/consent/status`, `/api/consent`, `/api/children`, `/api/children/{child_id}`, `/api/children/{child_id}/topics`, `/api/children/{child_id}/guides`, `/api/children/{child_id}/guides/generate`, `/api/guides/{guide_id}`, `/api/guides/{guide_id}/bookmark`, `/api/guides/{guide_id}/export` all appear in the regenerated spec
+- [ ] `python3 -m json.tool apps/backend/app/openapi.json >/dev/null` passes
+- [ ] Commit: `docs(api): AWD-H-50 regenerate openapi.json to include consent, children, and guide routes`
+
+**Files**: `apps/backend/app/openapi.json`
+**Effort**: S (minutes — regeneration only, no code changes)
+**Audience**: internal / CI
+**Filed**: 2026-04-27 QA Agent (spot-check of 07ca8e9)
 
 ---
 

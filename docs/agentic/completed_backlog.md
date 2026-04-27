@@ -553,3 +553,12 @@
 - Integration: `ParentDashboardPage.tsx` fetches consent status on mount; all "Add Child" button paths go through `handleAddChildIntent()` which shows `ConsentModal` before `AddChildModal` if consent is absent.
 **CI checks** (run in sandbox): TypeScript ✅ 0 errors · ESLint ✅ 0 warnings · Vitest ✅ 88/88 passed (was 80) · OpenAPI JSON valid ✅ · MCP JSON valid ✅. Backend pytest skipped (M-46 broken venv — Tolu must run locally).
 **Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox (22 commits queued).
+
+---
+
+## AWD-H-50 — Regenerate openapi.json to include consent, children, and guide routes
+**Completed**: 2026-04-27
+**Commit**: 6f69506 (feature) / 2813ef4 (merge into develop)
+**Problem**: `openapi.json` was stale — missing all consent endpoints (`/api/consent/status`, `/api/consent`) added by GRC-01, plus all pre-existing children and guide routes. Spec had 74 paths after fix vs a subset before.
+**Fix**: Loaded FastAPI app with stubbed DB (SQLite in-memory + mocked database module) and called `app.openapi()` to regenerate the spec in the sandboxed Linux environment. All 10 required routes confirmed present. JSON validity check passed.
+**Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox (23 commits queued).

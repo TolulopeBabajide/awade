@@ -71,6 +71,8 @@ This single push covers all commits — they are already merged to `develop` in 
 | `b63adbf` | M-43 | Merge fix/security/AWD-M-43-remove-style-src-unsafe-inline into develop |
 | `3c0e2be` | M-06 | Perf: optimise landing page images (WebP, picture, fetchPriority) + Vite code splitting |
 | `ebf6289` | M-06 | Merge fix/performance/AWD-M-06-lighthouse-image-optimisation into develop |
+| `6f69506` | H-50 | Docs: regenerate openapi.json — consent, children, guide routes now included |
+| `2813ef4` | H-50 | Merge fix/api-docs/AWD-H-50-openapi-regen into develop |
 
 ---
 
