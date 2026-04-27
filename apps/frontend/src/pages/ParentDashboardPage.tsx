@@ -250,14 +250,14 @@ const ParentDashboardPage: React.FC = () => {
                   <div className="flex gap-2 mt-2">
                     <button
                       onClick={e => { e.stopPropagation(); handleAddChildIntent(child) }}
-                      className="text-gray-400 hover:text-primary-600 transition-colors"
+                      className="text-gray-500 hover:text-primary-600 transition-colors"
                       title="Edit"
                     >
                       <FaEdit className="w-3 h-3" />
                     </button>
                     <button
                       onClick={e => { e.stopPropagation(); handleDeleteChild(child.child_id) }}
-                      className="text-gray-400 hover:text-red-500 transition-colors"
+                      className="text-gray-500 hover:text-red-500 transition-colors"
                       title="Remove"
                       disabled={deletingChildId === child.child_id}
                     >
