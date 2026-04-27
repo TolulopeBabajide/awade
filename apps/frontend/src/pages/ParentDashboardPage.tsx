@@ -159,7 +159,7 @@ const ParentDashboardPage: React.FC = () => {
         </p>
         <button
           onClick={() => handleAddChildIntent(null)}
-          className="bg-accent-600 hover:bg-accent-700 text-white font-semibold py-3 px-8 rounded-xl transition-colors inline-flex items-center gap-2 shadow-md"
+          className="bg-accent-700 hover:bg-accent-800 text-white font-semibold py-3 px-8 rounded-xl transition-colors inline-flex items-center gap-2 shadow-md"
         >
           <FaPlus className="w-4 h-4" />
           Add Your Child
@@ -188,7 +188,7 @@ const ParentDashboardPage: React.FC = () => {
             </div>
             <button
               onClick={() => handleAddChildIntent(null)}
-              className="bg-accent-600 hover:bg-accent-700 text-white font-medium py-2 px-4 rounded-xl transition-colors inline-flex items-center gap-2 text-sm"
+              className="bg-accent-700 hover:bg-accent-800 text-white font-medium py-2 px-4 rounded-xl transition-colors inline-flex items-center gap-2 text-sm"
             >
               <FaPlus className="w-3 h-3" />
               <span className="hidden sm:inline">Add Child</span>

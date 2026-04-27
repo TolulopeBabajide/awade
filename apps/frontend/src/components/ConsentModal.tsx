@@ -123,7 +123,7 @@ const ConsentModal: React.FC<ConsentModalProps> = ({
           <button
             onClick={onConsented}
             disabled={!checked || isSubmitting}
-            className="flex-1 bg-accent-600 hover:bg-accent-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-xl transition-colors"
+            className="flex-1 bg-accent-700 hover:bg-accent-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-xl transition-colors"
             aria-disabled={!checked || isSubmitting}
           >
             {isSubmitting ? 'Saving…' : 'I Agree — Add a Child'}
