@@ -76,7 +76,7 @@ This single push covers all commits — they are already merged to `develop` in 
 | `ef73e69` | M-51 | fix(frontend): remove console.log PII leak and unguarded debug logs (3 files) |
 | `510fd89` | M-51 | Merge fix/frontend/AWD-M-51-remove-console-logs into develop |
 | `ad60f1c` | M-50 | fix(backend): replace bare print() calls with structured logger in main.py |
-| TBD | H-51 | fix(frontend): AWD-H-51 re-apply M-51 DEV guards reverted by ad60f1c |
+| `561da10` | H-51 | fix(frontend): AWD-H-51 re-apply M-51 DEV guards reverted by ad60f1c |
 
 ---
 
