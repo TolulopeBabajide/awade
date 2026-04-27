@@ -20,6 +20,7 @@
     "@react-oauth/google": "^0.12.1",
     "@sentry/react": "^8.0.0",
     "@tanstack/react-query": "^5.99.0",
+    "@vercel/analytics": "^2.0.1",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "react-icons": "^4.12.0",
@@ -40,23 +41,25 @@
     "eslint": "^8.38.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.3.4",
+    "husky": "^9.1.7",
     "jsdom": "^23.0.0",
+    "lint-staged": "^15.4.3",
     "postcss": "^8.4.24",
     "tailwindcss": "^3.3.2",
     "typescript": "^5.0.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^15.4.3",
     "vite": "^7.1.7",
     "vitest": "^3.2.4"
   },
   "lint-staged": {
-    "src/**/*.{ts,tsx}": ["eslint --fix --max-warnings 0"]
+    "src/**/*.{ts,tsx}": [
+      "eslint --fix --max-warnings 0"
+    ]
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.60.2",
-    "@rollup/rollup-linux-x64-musl": "4.60.2",
     "@rollup/rollup-linux-arm64-gnu": "4.60.2",
-    "@rollup/rollup-linux-arm64-musl": "4.60.2"
+    "@rollup/rollup-linux-arm64-musl": "4.60.2",
+    "@rollup/rollup-linux-x64-gnu": "4.60.2",
+    "@rollup/rollup-linux-x64-musl": "4.60.2"
   },
   "comment": "Force Vercel rebuild - API routing fix"
 }
