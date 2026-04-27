@@ -1654,6 +1654,40 @@
         ]
       }
     },
+    "/api/users/me": {
+      "delete": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Delete My Account",
+        "description": "GDPR account deletion (GRC-03) \u2014 permanently delete the authenticated user\u2019s own account together with all dependent data:\n\n- PARENT users: all ChildProfile records and their associated ParentGuide records\n- EDUCATOR users: all LessonPlan records (and their resources / contexts)\n\nThe response is a plain ``{\"message\": \"Account deleted successfully\"}`` body.\nCallers should treat the returned 200 as a signal to clear local auth state\nand redirect to the landing page.\n\nRate-limited to 3 requests / minute as an extra guard against accidental\nor automated mass-deletion attempts.",
+        "operationId": "delete_my_account_api_users_me_delete",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "title": "Message"
+                    }
+                  },
+                  "title": "Response Delete My Account Api Users Me Delete"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/users/": {
       "get": {
         "tags": [
