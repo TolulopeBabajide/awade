@@ -40,9 +40,9 @@ class WebSocketService {
     }
 
     this.isConnecting = true;
-    // VITE_WS_URL must be set in production (e.g. wss://your-domain.com/ws).
-    // Falls back to localhost for local development.
-    const wsUrl = (import.meta.env.VITE_WS_URL as string | undefined) ?? 'ws://localhost:8000/ws';
+    const wsUrl = import.meta.env.MODE === 'production' 
+      ? 'wss://your-production-domain.com/ws' 
+      : 'ws://localhost:8000/ws';
 
     try {
       this.ws = new WebSocket(wsUrl);

@@ -591,3 +591,13 @@
 **Fix**: Re-applied the working-tree state of all three files: removed PII log from `Footer.tsx`; replaced session_started callback body with a no-op comment in `AIGenerationLoadingRealtime.tsx`; wrapped all 8 WebSocket lifecycle logs in `if (import.meta.env.DEV)` guards in `websocket.ts`.
 **Validation**: tsc 0 errors, lint 0 warnings, 88/88 frontend tests pass (9 test files), OpenAPI + MCP JSON valid.
 **Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox.
+
+---
+
+## AWD-M-52 — Fix hardcoded production WebSocket URL ✅ 2026-04-27
+**Commit**: `a8ed1d6` (fix(config): AWD-M-52 replace hardcoded WS URL with VITE_WS_URL env var) | Merge: `521d702`
+**Problem**: `websocket.ts` used `import.meta.env.MODE === 'production'` to hardcode `'wss://your-production-domain.com/ws'` as the production WebSocket URL. Every production user's real-time AI generation progress updates would silently fail to connect.
+**Fix**: Replaced the hardcoded URL with `(import.meta.env.VITE_WS_URL as string | undefined) ?? 'ws://localhost:8000/ws'`. Added `VITE_WS_URL` documentation to `.env.example`, `env.example`, and `env.production.template`.
+**Validation**: tsc 0 errors, lint 0 warnings, 88/88 frontend tests pass, OpenAPI + MCP JSON valid.
+**Action required**: Set `VITE_WS_URL=wss://<your-api-domain>/ws` in Vercel environment variables before deploying to production.
+**Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox.

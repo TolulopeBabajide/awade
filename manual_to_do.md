@@ -2,7 +2,7 @@
 
 > Things the agent cannot do autonomously (no GitHub credentials, no secrets access, requires your judgment).
 > Agent updates this file whenever a task needs Tolu's hands. Check it before and after each dev session.
-> Last updated: 2026-04-27 (Dev Agent — AWD-M-51 commits ef73e69 + 510fd89 added)
+> Last updated: 2026-04-27 (Dev Agent — AWD-M-52 commits a8ed1d6 + 521d702 added)
 
 ---
 
@@ -77,6 +77,8 @@ This single push covers all commits — they are already merged to `develop` in 
 | `510fd89` | M-51 | Merge fix/frontend/AWD-M-51-remove-console-logs into develop |
 | `ad60f1c` | M-50 | fix(backend): replace bare print() calls with structured logger in main.py |
 | `561da10` | H-51 | fix(frontend): AWD-H-51 re-apply M-51 DEV guards reverted by ad60f1c |
+| `a8ed1d6` | M-52 | fix(config): AWD-M-52 replace hardcoded WS URL with VITE_WS_URL env var |
+| `521d702` | M-52 | Merge fix/config/AWD-M-52-vite-ws-url into develop |
 
 ---
 
@@ -94,6 +96,12 @@ _No open decisions — all cleared._
    - Render (backend): `SENTRY_DSN=<backend-dsn>` and `SENTRY_TRACES_SAMPLE_RATE=0.1`
    - Vercel (frontend): `VITE_SENTRY_DSN=<frontend-dsn>`
 3. No code changes needed — the init blocks already exist and activate when the env var is set
+
+### Set VITE_WS_URL in production (AWD-M-52)
+The hardcoded WebSocket URL has been replaced with an env var. Before the next production deploy:
+1. In Vercel → Settings → Environment Variables (Production), add:
+   `VITE_WS_URL=wss://<your-backend-domain>/ws` (e.g. `wss://api.awade.app/ws`)
+2. No backend change needed — value only affects the browser WebSocket client.
 
 ### project-config.md §5 — update ERROR_MONITORING field (AWD-L-10)
 The line still reads `not yet connected (Sentry recommended — flagged as H-01)`.
