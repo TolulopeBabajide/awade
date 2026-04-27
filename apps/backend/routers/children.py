@@ -5,7 +5,9 @@ This module provides endpoints for managing child profiles and parent guides.
 Parents can add children, view their curriculum topics, and access saved guides.
 
 Endpoints:
-- POST   /api/children              — Create a child profile
+- GET    /api/consent/status         — Check COPPA consent status (AWD-GRC-01)
+- POST   /api/consent                — Record COPPA parental consent (AWD-GRC-01)
+- POST   /api/children              — Create a child profile (requires consent)
 - GET    /api/children              — List all children for the current parent
 - GET    /api/children/{child_id}   — Get a single child profile
 - PUT    /api/children/{child_id}   — Update a child profile
@@ -40,10 +42,43 @@ from apps.backend.schemas.children import (
     ChildProfileListResponse,
     ParentGuideResponse,
     ParentGuideListResponse,
+    ParentalConsentResponse,
+    ConsentStatusResponse,
 )
 from apps.backend.services.children_service import ChildrenService
 
 router = APIRouter(prefix="/api", tags=["children"])
+
+
+# ── COPPA Consent (AWD-GRC-01) ────────────────────────────────────────
+
+@router.get("/consent/status", response_model=ConsentStatusResponse)
+def get_consent_status(
+    current_user: User = Depends(require_parent),
+    db: Session = Depends(get_db),
+):
+    """Return whether the authenticated parent has given COPPA consent."""
+    service = ChildrenService(db)
+    return service.get_consent_status(current_user)
+
+
+@router.post("/consent", response_model=ParentalConsentResponse, status_code=201)
+@limiter.limit("10/minute")
+def record_consent(
+    request: Request,
+    current_user: User = Depends(require_parent),
+    db: Session = Depends(get_db),
+):
+    """
+    Record COPPA parental consent for the authenticated parent.
+
+    Idempotent — re-posting updates the consent timestamp.
+    The client must display the full disclosure text before calling this endpoint.
+    Rate-limited to 10 requests/minute to prevent abuse.
+    """
+    ip_address = request.client.host if request.client else None
+    service = ChildrenService(db)
+    return service.record_consent(current_user, ip_address=ip_address)
 
 
 # ── Child Profile CRUD ────────────────────────────────────────────────

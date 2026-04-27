@@ -1,5 +1,18 @@
 /** Types for the parent/children feature */
 
+// ── COPPA Consent (AWD-GRC-01) ─────────────────────────────────────────────
+
+export interface ParentalConsentResponse {
+  parent_id: number;
+  consented_at: string;
+  consent_version: string;
+}
+
+export interface ConsentStatusResponse {
+  has_consented: boolean;
+  consent: ParentalConsentResponse | null;
+}
+
 export interface ChildProfile {
   child_id: number;
   parent_id: number;

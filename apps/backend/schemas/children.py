@@ -7,6 +7,23 @@ from typing import List, Optional
 from datetime import datetime
 
 
+# ── Parental Consent schemas (AWD-GRC-01) ─────────────────────────────────────
+
+class ParentalConsentResponse(BaseModel):
+    """Response schema for a parental consent record."""
+    parent_id: int
+    consented_at: datetime
+    consent_version: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ConsentStatusResponse(BaseModel):
+    """Response schema for checking whether a parent has consented."""
+    has_consented: bool
+    consent: Optional[ParentalConsentResponse] = None
+
+
 # Request schemas
 class ChildProfileCreate(BaseModel):
     """Schema for creating a new child profile."""

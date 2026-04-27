@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/AuthContext'
 import Sidebar from '../components/Sidebar'
 import MobileNavigation from '../components/MobileNavigation'
 import AddChildModal from '../components/AddChildModal'
+import ConsentModal from '../components/ConsentModal'
 import type { ChildProfile, ChildTopic } from '../types/children'
 
 const ParentDashboardPage: React.FC = () => {
@@ -19,6 +20,21 @@ const ParentDashboardPage: React.FC = () => {
   const [selectedChild, setSelectedChild] = useState<ChildProfile | null>(null)
   const [selectedSubjectId, setSelectedSubjectId] = useState<number | null>(null)
   const [deletingChildId, setDeletingChildId] = useState<number | null>(null)
+
+  // ── COPPA consent state (AWD-GRC-01) ──────────────────────────────
+  const [showConsentModal, setShowConsentModal] = useState(false)
+  const [consentSubmitting, setConsentSubmitting] = useState(false)
+  const [consentError, setConsentError] = useState<string | null>(null)
+
+  // Fetch consent status once on mount so we know whether to gate "Add Child"
+  const { data: consentStatus, refetch: refetchConsent } = useQuery({
+    queryKey: ['consentStatus'],
+    queryFn: async () => {
+      const res = await apiService.getConsentStatus()
+      if (res.error) throw new Error(res.error)
+      return res.data
+    },
+  })
 
   // Fetch children
   const {
@@ -90,6 +106,44 @@ const ParentDashboardPage: React.FC = () => {
     queryClient.invalidateQueries({ queryKey: ['children'] })
   }
 
+  /**
+   * Called when the parent clicks any "Add Child" button.
+   * If consent has not yet been given, show the COPPA consent modal first.
+   * editingChild is already set by the caller when opening for edit.
+   */
+  const handleAddChildIntent = (child: ChildProfile | null = null) => {
+    setEditingChild(child)
+    if (consentStatus?.has_consented) {
+      setShowAddChild(true)
+    } else {
+      setShowConsentModal(true)
+    }
+  }
+
+  /**
+   * Called when the parent presses "I Agree" in the ConsentModal.
+   * Records consent via the API, then opens AddChildModal on success.
+   */
+  const handleConsentConfirmed = async () => {
+    setConsentSubmitting(true)
+    setConsentError(null)
+    try {
+      const res = await apiService.recordConsent()
+      if (res.error) {
+        setConsentError(res.error)
+        return
+      }
+      // Invalidate the consent status query so subsequent checks are correct
+      await refetchConsent()
+      setShowConsentModal(false)
+      setShowAddChild(true)
+    } catch {
+      setConsentError('Something went wrong. Please try again.')
+    } finally {
+      setConsentSubmitting(false)
+    }
+  }
+
   // ── Empty state: no children yet ─────────────────────────────────
   const EmptyState = () => (
     <div className="flex-1 flex items-center justify-center">
@@ -104,7 +158,7 @@ const ParentDashboardPage: React.FC = () => {
           Add your first child to start exploring their curriculum and get personalised guides for helping them at home.
         </p>
         <button
-          onClick={() => setShowAddChild(true)}
+          onClick={() => handleAddChildIntent(null)}
           className="bg-accent-600 hover:bg-accent-700 text-white font-semibold py-3 px-8 rounded-xl transition-colors inline-flex items-center gap-2 shadow-md"
         >
           <FaPlus className="w-4 h-4" />
@@ -133,7 +187,7 @@ const ParentDashboardPage: React.FC = () => {
               )}
             </div>
             <button
-              onClick={() => { setEditingChild(null); setShowAddChild(true) }}
+              onClick={() => handleAddChildIntent(null)}
               className="bg-accent-600 hover:bg-accent-700 text-white font-medium py-2 px-4 rounded-xl transition-colors inline-flex items-center gap-2 text-sm"
             >
               <FaPlus className="w-3 h-3" />
@@ -195,7 +249,7 @@ const ParentDashboardPage: React.FC = () => {
                   {/* Edit / Delete */}
                   <div className="flex gap-2 mt-2">
                     <button
-                      onClick={e => { e.stopPropagation(); setEditingChild(child); setShowAddChild(true) }}
+                      onClick={e => { e.stopPropagation(); handleAddChildIntent(child) }}
                       className="text-gray-400 hover:text-primary-600 transition-colors"
                       title="Edit"
                     >
@@ -288,6 +342,16 @@ const ParentDashboardPage: React.FC = () => {
       </main>
 
       <MobileNavigation currentPage="dashboard" />
+
+      {/* COPPA Consent Modal (AWD-GRC-01) — shown before the first "Add Child" */}
+      {showConsentModal && (
+        <ConsentModal
+          onConsented={handleConsentConfirmed}
+          onCancel={() => { setShowConsentModal(false); setEditingChild(null); setConsentError(null) }}
+          isSubmitting={consentSubmitting}
+          error={consentError}
+        />
+      )}
 
       {/* Add/Edit Child Modal */}
       <AddChildModal

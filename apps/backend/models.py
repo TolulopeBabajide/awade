@@ -4,8 +4,8 @@ Simplified and clean implementation based on the new schema.
 """
 
 from sqlalchemy import (
-    Column, Integer, String, Text, DateTime, ForeignKey, 
-    Enum, Table, MetaData, Index
+    Column, Integer, String, Text, DateTime, ForeignKey,
+    Enum, Table, MetaData, Index, Boolean
 )
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import relationship
@@ -247,6 +247,34 @@ class ParentGuide(Base):
     __table_args__ = (
         Index('idx_guide_child_topic', 'child_id', 'topic_id'),
     )
+
+
+class ParentalConsent(Base):
+    """COPPA-required parental consent record for child profile creation.
+
+    One row per parent. Records the datetime and consent-text version at the
+    moment the parent explicitly agreed to the data collection disclosure.
+    The unique constraint on parent_id ensures idempotency — re-POSTing to
+    /api/consent is safe and updates the timestamp.
+    """
+    __tablename__ = 'parental_consents'
+
+    consent_id = Column(Integer, primary_key=True, autoincrement=True)
+    parent_id = Column(
+        Integer,
+        ForeignKey('users.user_id', ondelete='CASCADE'),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+    consented_at = Column(DateTime, default=func.now(), nullable=False)
+    # ip_address stores the originating IP for audit purposes (IPv6-safe length).
+    ip_address = Column(String(45), nullable=True)
+    # Version of the consent text shown to the user — bump when the disclosure changes.
+    consent_version = Column(String(20), default='1.0', nullable=False)
+
+    # Relationship back to the parent user
+    parent = relationship("User", foreign_keys=[parent_id])
 
 
 class LessonPlan(Base):

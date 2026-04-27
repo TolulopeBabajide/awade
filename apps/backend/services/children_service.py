@@ -17,14 +17,14 @@ import logging
 from pydantic import ValidationError
 
 from apps.backend.models import (
-    ChildProfile, ParentGuide, User, UserRole,
+    ChildProfile, ParentGuide, ParentalConsent, User, UserRole,
     Country, Curriculum, GradeLevel, Subject, Topic,
     CurriculumStructure
 )
 from apps.backend.schemas.children import (
     ChildProfileCreate, ChildProfileUpdate, ChildProfileResponse,
     ChildProfileListResponse, ParentGuideResponse, ParentGuideListResponse,
-    ParentGuideAIContent
+    ParentGuideAIContent, ParentalConsentResponse, ConsentStatusResponse
 )
 
 logger = logging.getLogger(__name__)
@@ -94,9 +94,84 @@ class ChildrenService:
 
     # ── CRUD ──────────────────────────────────────────────────────────
 
-    def create_child(self, user: User, data: ChildProfileCreate) -> ChildProfileResponse:
-        """Create a new child profile for the authenticated parent."""
+    # ── COPPA Consent (AWD-GRC-01) ────────────────────────────────────────────
+
+    def get_consent_status(self, user: User) -> ConsentStatusResponse:
+        """Return whether the parent has already given COPPA consent."""
         self._verify_parent(user)
+        record = (
+            self.db.query(ParentalConsent)
+            .filter(ParentalConsent.parent_id == user.user_id)
+            .first()
+        )
+        if record:
+            return ConsentStatusResponse(
+                has_consented=True,
+                consent=ParentalConsentResponse.model_validate(record),
+            )
+        return ConsentStatusResponse(has_consented=False, consent=None)
+
+    def record_consent(self, user: User, ip_address: Optional[str] = None) -> ParentalConsentResponse:
+        """Record (or refresh) COPPA consent for the authenticated parent.
+
+        Idempotent — calling again updates the timestamp and IP but does not
+        create a duplicate row.
+        """
+        self._verify_parent(user)
+        record = (
+            self.db.query(ParentalConsent)
+            .filter(ParentalConsent.parent_id == user.user_id)
+            .first()
+        )
+        if record:
+            # Update existing record (parent re-confirmed consent)
+            from sqlalchemy.sql import func as sqlfunc
+            record.consented_at = sqlfunc.now()
+            record.ip_address = ip_address
+        else:
+            record = ParentalConsent(
+                parent_id=user.user_id,
+                ip_address=ip_address,
+                consent_version='1.0',
+            )
+            self.db.add(record)
+        try:
+            self.db.commit()
+            self.db.refresh(record)
+        except Exception:
+            self.db.rollback()
+            logger.error("Failed to record parental consent for user %s", user.user_id, exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Could not save consent. Please try again.",
+            )
+        return ParentalConsentResponse.model_validate(record)
+
+    def _require_consent(self, user: User) -> None:
+        """Raise 403 if the parent has not yet given COPPA consent."""
+        record = (
+            self.db.query(ParentalConsent)
+            .filter(ParentalConsent.parent_id == user.user_id)
+            .first()
+        )
+        if not record:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=(
+                    "Parental consent required. "
+                    "Please accept the data collection disclosure before adding a child profile."
+                ),
+            )
+
+    # ── Child Profile CRUD ────────────────────────────────────────────────────
+
+    def create_child(self, user: User, data: ChildProfileCreate) -> ChildProfileResponse:
+        """Create a new child profile for the authenticated parent.
+
+        Requires prior COPPA consent (AWD-GRC-01).
+        """
+        self._verify_parent(user)
+        self._require_consent(user)
 
         # Validate foreign keys if provided
         if data.country_id:

@@ -7,6 +7,8 @@ import type {
   ChildTopic,
   ParentGuide,
   ParentGuideListResponse,
+  ConsentStatusResponse,
+  ParentalConsentResponse,
 } from '../types/children';
 
 const API_BASE_URL = ((import.meta as any).env.VITE_API_URL || '') + '/api';
@@ -653,6 +655,23 @@ class ApiService {
     const response = await this.apiFetch(`${API_BASE_URL}/curriculum/contents/${contentId}`, {
       method: 'DELETE',
       headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  // ── COPPA Consent (AWD-GRC-01) ────────────────────────────────────
+
+  async getConsentStatus(): Promise<ApiResponse<ConsentStatusResponse>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/consent/status`, {
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  async recordConsent(): Promise<ApiResponse<ParentalConsentResponse>> {
+    const response = await this.apiFetch(`${API_BASE_URL}/consent`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
     });
     return this.handleResponse(response);
   }
