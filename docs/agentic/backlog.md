@@ -360,7 +360,7 @@ Or: accept the full working-tree version of `children_service.py` (which has bot
 
 | # | Area | Issue | File(s) | Effort |
 |---|------|-------|---------|--------|
-| GRC-01 | COPPA | Parental consent flow before first ChildProfile creation (plain-language disclosure + explicit opt-in, dated record) | `apps/backend/routers/children.py`, `apps/frontend/src/pages/ParentDashboardPage.tsx`, new consent table | M |
+~~| GRC-01 | COPPA | Parental consent flow before first ChildProfile creation (plain-language disclosure + explicit opt-in, dated record) | `apps/backend/routers/children.py`, `apps/frontend/src/pages/ParentDashboardPage.tsx`, new consent table | M |~~ ✅ 2026-04-27
 ~~| GRC-02 | GDPR | Data export endpoint — allow a parent to download all their data + their children's data as JSON | `apps/backend/routers/users.py` (new endpoint), `apps/backend/services/user_service.py` | M |~~ ✅ 2026-04-26
 ~~| GRC-03 | GDPR | Account deletion endpoint with cascade for ChildProfile + ParentGuide | `apps/backend/routers/users.py`, migrations (cascade rules) | M |~~ ✅ 2026-04-27
 ~~| GRC-04 | NDPR/POPIA | Data-residency note in privacy policy — document where Awade stores African parent/child data | `docs/public/external/`, privacy policy file | S |~~ ✅ 2026-04-26

@@ -533,3 +533,23 @@
 **Side-fix discovered**: Staging area held stale deletions of `users.py`, `user_service.py`, `test_users_router.py` from a prior aborted run — would have regressed GRC-03 if committed. Unstaged via `git restore --staged` before proceeding.
 **Note**: `children.py` and `admin.py` router endpoints are also absent from the spec (pre-existing gap, never in spec). Filed as context for a future full-regeneration task when M-46 (broken venv) is resolved by Tolu locally.
 **Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox (19 commits queued).
+
+---
+
+**AWD-GRC-01 — COPPA parental consent flow before child profile creation**
+**Completed**: 2026-04-27
+**Shipped**: commit `07ca8e9` → develop (fast-forward via update-ref; Tolu must push)
+**What was done**:
+- Backend: added `ParentalConsent` SQLAlchemy model (`apps/backend/models.py`) with `parent_id` unique constraint, `consented_at`, `ip_address`, `consent_version` fields.
+- Migration: `apps/backend/alembic/versions/b3f92c1d4e87_add_parental_consents_table.py` with full `upgrade()` and `downgrade()`.
+- Schemas: `ParentalConsentResponse` + `ConsentStatusResponse` in `apps/backend/schemas/children.py`.
+- Service: `get_consent_status()`, `record_consent()` (idempotent), `_require_consent()` guard added to `ChildrenService`. `create_child()` now calls `_require_consent()` — returns HTTP 403 if consent not given.
+- Router: `GET /api/consent/status` + `POST /api/consent` (rate-limited 10/min) added to `apps/backend/routers/children.py`.
+- Tests: `apps/backend/tests/test_consent_router.py` — 11 tests covering unauthenticated, educator gating, parent happy-path, idempotency, and consent guard on `POST /children`.
+- Frontend types: `ParentalConsentResponse` + `ConsentStatusResponse` added to `apps/frontend/src/types/children.ts`.
+- Frontend API: `getConsentStatus()` + `recordConsent()` added to `apps/frontend/src/services/api.ts`.
+- Frontend component: `apps/frontend/src/components/ConsentModal.tsx` — COPPA disclosure modal with checkbox gate, "I Agree" button, error display, submitting state.
+- Frontend tests: `apps/frontend/src/components/ConsentModal.test.tsx` — 8 tests (heading, disclosure text, checkbox gate, enable/disable, onConsented, onCancel, error, submitting).
+- Integration: `ParentDashboardPage.tsx` fetches consent status on mount; all "Add Child" button paths go through `handleAddChildIntent()` which shows `ConsentModal` before `AddChildModal` if consent is absent.
+**CI checks** (run in sandbox): TypeScript ✅ 0 errors · ESLint ✅ 0 warnings · Vitest ✅ 88/88 passed (was 80) · OpenAPI JSON valid ✅ · MCP JSON valid ✅. Backend pytest skipped (M-46 broken venv — Tolu must run locally).
+**Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox (22 commits queued).

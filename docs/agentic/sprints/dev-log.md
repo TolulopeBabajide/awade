@@ -422,3 +422,4 @@ After removing it, the next hourly run will:
 2026-04-26T22:09Z | AWD-H-49 | Add rate limiter to data-export endpoint | 49eb39f | ✅ Done | CI:pending (push required)
 2026-04-27T23:20:00Z | GRC-03 | GDPR account deletion endpoint with cascade | a395aa2 | ✅ Done | CI:pending (push required)
 2026-04-27T00:20:49Z | AWD-M-49 | Regenerate openapi.json to include account-deletion endpoint (DELETE /api/users/me) | 7939e43 (feat: 0246466) | ✅ Done | CI:pending (push blocked — Tolu must `git push origin develop`)
+2026-04-27T02:25:00Z | GRC-01 | COPPA parental consent flow | 07ca8e9 | ✅ Done | CI:pending (push queued)
