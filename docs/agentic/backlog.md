@@ -1,6 +1,6 @@
 # Awade — Backlog
 
-> Last updated: 2026-04-27 (Dev Agent — AWD-M-50 fixed; structured logging in main.py)
+> Last updated: 2026-04-27 (Dev Agent — AWD-L-03 a11y audit complete; 13 findings filed as H-52..55, M-53..57, L-13..16)
 > Last groomed: 2026-04-25 (weekend-ops / Ops Agent) — see notes below. Removed stale items, updated priorities for post-security-sprint phase. Parent pivot code is feature-complete; focus shifts to launch prep + compliance.
 > Source of truth for active work. Completed items move to [`completed_backlog.md`](completed_backlog.md).
 > Issue prefix: `AWD` — e.g., reference as `AWD-H-03` in commits.
@@ -352,7 +352,7 @@ Or: accept the full working-tree version of `children_service.py` (which has bot
 |---|------|-------|---------|--------|
 ~~| L-01 | DX | CI cache key for pip dependencies (backend-test is slow on every run) | `.github/workflows/ci.yml` | S |~~ ✅ 2026-04-26
 ~~| L-02 | Docs | Update `docs/public/api/README.md` with parent/children endpoints | `docs/public/api/` | S |~~ ✅ 2026-04-26
-| L-03 | A11y | Run WCAG 2.1 AA audit on parent flow, file specific items | `apps/frontend/src/pages/Parent*.tsx`, `GuideViewPage.tsx` | M |
+~~| L-03 | A11y | Run WCAG 2.1 AA audit on parent flow, file specific items | `apps/frontend/src/pages/Parent*.tsx`, `GuideViewPage.tsx` | M |~~ ✅ 2026-04-27 — see [`docs/agentic/audits/a11y-parent-flow-2026-04-27.md`](audits/a11y-parent-flow-2026-04-27.md). 13 findings filed as AWD-H-52..55, AWD-M-53..57, AWD-L-13..16.
 ~~| L-04 | Security | Re-enable `TrustedHostMiddleware` with `ALLOWED_HOSTS` env var in production | `apps/backend/main.py` (lines 133-135) | S |~~ ✅ 2026-04-26
 ~~| L-05 | Code hygiene | `require_parent` and `require_any_role` added to `dependencies.py` but never imported. Either wire `require_parent` into `children.py` router `dependencies=[...]` (fails earlier with 403) or delete the helpers | `apps/backend/dependencies.py` (lines 168, 170), `apps/backend/routers/children.py` | S |~~ ✅ 2026-04-26
 ~~| L-06 | Data model | `ParentGuide.is_bookmarked` uses `Integer` (0/1) instead of `Boolean` — response schema already coerces with `bool(...)`, so the column type should match. Small alembic migration + model tweak | `apps/backend/models.py` (ParentGuide), `apps/backend/alembic/versions/` (new migration) | S |~~ ✅ 2026-04-27
@@ -386,6 +386,40 @@ Or: accept the full working-tree version of `children_service.py` (which has bot
 ~~| GRC-03 | GDPR | Account deletion endpoint with cascade for ChildProfile + ParentGuide | `apps/backend/routers/users.py`, migrations (cascade rules) | M |~~ ✅ 2026-04-27
 ~~| GRC-04 | NDPR/POPIA | Data-residency note in privacy policy — document where Awade stores African parent/child data | `docs/public/external/`, privacy policy file | S |~~ ✅ 2026-04-26
 ~~| GRC-05 | COPPA | Audit logs for any admin access to a ChildProfile | `apps/backend/models.py` (AdminAuditLog — verify coverage), `apps/backend/routers/admin.py` | S |~~ ✅ 2026-04-26
+
+---
+
+## A11Y — AWD-L-03 audit findings (2026-04-27)
+
+> Source: [`docs/agentic/audits/a11y-parent-flow-2026-04-27.md`](audits/a11y-parent-flow-2026-04-27.md). Each row links to the audit's finding ID for full context.
+
+### 🟠 High
+
+| # | Area | Issue | File(s) | Effort |
+|---|------|-------|---------|--------|
+| H-52 | A11y / Contrast | A11Y-PF-01 — Primary CTA `bg-accent-600 text-white` contrast is **3.66:1**, fails WCAG 1.4.3 (AA needs 4.5:1 for normal text). Affects every parent-flow CTA: "Add Child" / "Add Your First Child" / "Get Started" / "I Agree — Add a Child" / "Save Changes". Fix: shift default ↔ hover so default uses `accent-700` (5.07:1) and hover uses `accent-800`, OR darken `accent-600` itself in `tailwind.config.js`. Filed: 2026-04-27 audit. | `apps/frontend/tailwind.config.js`, `apps/frontend/src/pages/ParentDashboardPage.tsx` (160-166, 189-196), `ChildrenPage.tsx` (92-98, 139-146), `ParentOnboardingPage.tsx` (286-302), `apps/frontend/src/components/ConsentModal.tsx` (122-130), `AddChildModal.tsx` (255-264) | S |
+| H-53 | A11y / Non-text Contrast | A11Y-PF-02 — `text-gray-400` icon-only buttons are **2.53:1** on white, fail WCAG 1.4.11 (3:1 for graphical UI components). Edit/Trash on dashboard child cards and Download/WhatsApp/Bookmark in guide top bar. Fix: bump default to `text-gray-500` (4.86:1) or `text-gray-600`. Filed: 2026-04-27 audit. | `apps/frontend/src/pages/ParentDashboardPage.tsx` (251-265), `GuideViewPage.tsx` (179-210) | S |
+| H-54 | A11y / Modals | A11Y-PF-03 — `AddChildModal` lacks `role="dialog"`, `aria-modal="true"`, and `aria-labelledby` — screen-reader users get no signal that a modal opened. Mirror the pattern from `ConsentModal.tsx` (lines 35-40, 47-53). Filed: 2026-04-27 audit. | `apps/frontend/src/components/AddChildModal.tsx` (122-127) | S |
+| H-55 | A11y / Keyboard | A11Y-PF-04 — Topic action buttons reveal `"Get 'How to Help' guide →"` only on hover (`opacity-0 group-hover:opacity-100`); keyboard-only users never see it. Also no `aria-label` on the button — accessible name is just topic title with no action verb. Fix: add `group-focus-within:opacity-100` and `aria-label={\`Generate "How to Help" guide for ${topic.topic_title}\`}`. Same pattern in SavedGuides cards. Filed: 2026-04-27 audit. | `apps/frontend/src/pages/ParentDashboardPage.tsx` (319-332), `SavedGuidesPage.tsx` (158-176) | S |
+
+### 🟡 Medium
+
+| # | Area | Issue | File(s) | Effort |
+|---|------|-------|---------|--------|
+| M-53 | A11y / Forms | A11Y-PF-05 — Required-field indication is `<span class="text-red-500">*</span>` only — colour-blind users miss the cue, screen readers announce "asterisk". Add `required aria-required="true"` to the input and a visually-hidden `(required)` to the label. Filed: 2026-04-27 audit. | `apps/frontend/src/pages/ParentOnboardingPage.tsx` (167-169), `apps/frontend/src/components/AddChildModal.tsx` (145) | S |
+| M-54 | A11y / Status Messages | A11Y-PF-06 — Form-level error banners and loading text are not announced to assistive tech. No `role="alert"` / `aria-live="polite"` on the `bg-red-50` containers; no `role="status"` on "Generating your guide…". `ConsentModal.tsx:116` already uses `role="alert"` — propagate the pattern. Filed: 2026-04-27 audit. | `apps/frontend/src/pages/ParentOnboardingPage.tsx` (161-163), `apps/frontend/src/components/AddChildModal.tsx` (139-141), `ChildrenPage.tsx` (104-108), `GuideViewPage.tsx` (104-107) | S |
+| M-55 | A11y / Forms | A11Y-PF-07 — Form inputs do not surface `aria-invalid` or `aria-describedby` after server validation. When `setError("Please enter your child's name")` fires, the offending input is not flagged programmatically. Track an `invalidFields` set in component state and bind `aria-invalid={invalidFields.has(...)}` + `aria-describedby` linking to the error message. Filed: 2026-04-27 audit. | `apps/frontend/src/pages/ParentOnboardingPage.tsx` (170-191), `apps/frontend/src/components/AddChildModal.tsx` (146-167) | S |
+| M-56 | A11y / Modals | A11Y-PF-08 — Neither `AddChildModal` nor `ConsentModal` traps focus, sets initial focus on the dialog, or closes on Escape. Risk: keyboard users can Tab back into the page behind the modal. Recommend adopting `@headlessui/react`'s `Dialog` (handles trap + Escape + `aria-modal` for free) or building a `useFocusTrap` hook. Filed: 2026-04-27 audit. | `apps/frontend/src/components/AddChildModal.tsx`, `ConsentModal.tsx` | M |
+| M-57 | A11y / Navigation | A11Y-PF-09 — No "Skip to main content" link on any parent-flow page. Keyboard users must Tab through the full Sidebar nav on every page load. Add `<a href="#main-content" className="sr-only focus:not-sr-only ...">` at the top of the layout chrome and `id="main-content" tabIndex={-1}` on each `<main>`. Filed: 2026-04-27 audit. | `apps/frontend/src/components/Sidebar.tsx`, all five parent-flow pages | S |
+
+### 🟢 Low / Polish
+
+| # | Area | Issue | File(s) | Effort |
+|---|------|-------|---------|--------|
+| L-13 | A11y / Focus | A11Y-PF-10 — Parent-flow buttons use raw Tailwind utilities and never set `focus:` styles (`grep -c "focus:" apps/frontend/src/pages/{Parent,Children,Guide,SavedGuides}*.tsx` → 0 each). Browser default focus rings satisfy AA in most browsers but are weak on coloured CTAs. Either migrate CTAs to the `.btn-primary` / `.btn-accent` classes already defined in `apps/frontend/src/index.css` (lines 77-89) or add a project-level `button:focus-visible { @apply outline-none ring-2 ring-primary-500 ring-offset-2; }` rule. Filed: 2026-04-27 audit. | `apps/frontend/src/index.css`, parent-flow pages | S |
+| L-14 | A11y / Landmarks | A11Y-PF-11 — `<nav>` elements in `Sidebar` and `MobileNavigation` lack `aria-label`. In a screen-reader landmarks list both render as "navigation" with no way to distinguish them. Also missing `aria-current="page"` on the active link. Fix: `<nav aria-label="Primary">` / `<nav aria-label="Mobile primary">`, plus `aria-current="page"` per link. Filed: 2026-04-27 audit. | `apps/frontend/src/components/Sidebar.tsx`, `MobileNavigation.tsx` | S |
+| L-15 | A11y / Touch Targets | A11Y-PF-12 — Edit/Trash buttons in `ParentDashboardPage` (lines 251-265) have no `p-*` padding around 12px icons — effective hit target ~12×12 px, well below the 24×24 minimum (and 44×44 AAA recommendation). `ChildrenPage.tsx:172-188` has the correct `p-2 rounded-lg` pattern; copy it. Filed: 2026-04-27 audit. | `apps/frontend/src/pages/ParentDashboardPage.tsx` (251-265) | S |
+| L-16 | A11y / Forms | A11Y-PF-13 — Form labels are siblings of their inputs, not wrapped or associated via `htmlFor` / `id`. Browser heuristics usually pair them but the association is not guaranteed. Add `id="..."` to each input/select and `htmlFor="..."` to each label. Filed: 2026-04-27 audit. | `apps/frontend/src/pages/ParentOnboardingPage.tsx` (165-254), `apps/frontend/src/components/AddChildModal.tsx` (144-227) | S |
 
 ---
 
