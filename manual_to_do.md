@@ -137,3 +137,4 @@ Change it to reflect Sentry is now wired (`sentry-sdk[fastapi]==2.58.0` + `@sent
 
 - [ ] Push develop to GitHub to trigger CI for AWD-M-45 (react ^18.3.0 bump, commit 27f9f01 / merge c863a67)
 - [ ] Push develop to GitHub to trigger CI for AWD-H-52 (parent CTA contrast fix, commit cf64691 / merge 95b33f5)
+- [ ] Push develop to GitHub to trigger CI for AWD-H-54 (AddChildModal dialog ARIA attrs, commit e0ed6ea / merge 5aaca85)
