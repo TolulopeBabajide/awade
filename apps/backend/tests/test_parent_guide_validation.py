@@ -99,7 +99,7 @@ def _make_mock_db(existing_guide=None, topic=None, child=None):
     final_guide.topic_id = 1
     final_guide.ai_generated_content = json.dumps(VALID_GUIDE_CONTENT)
     final_guide.user_edited_content = None
-    final_guide.is_bookmarked = 0
+    final_guide.is_bookmarked = False
     from datetime import datetime
     final_guide.created_at = datetime.utcnow()
     final_guide.updated_at = datetime.utcnow()
@@ -323,7 +323,7 @@ class TestGenerateGuideValidation:
         existing.topic_id = 1
         existing.ai_generated_content = json.dumps(VALID_GUIDE_CONTENT)
         existing.user_edited_content = None
-        existing.is_bookmarked = 0
+        existing.is_bookmarked = False
         from datetime import datetime
         existing.created_at = datetime.utcnow()
         existing.updated_at = datetime.utcnow()

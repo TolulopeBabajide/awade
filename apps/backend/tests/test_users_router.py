@@ -265,7 +265,7 @@ class TestDataExport:
             child_id=child.child_id,
             topic_id=sample_topic.topic_id,
             ai_generated_content='{"steps": ["step 1"]}',
-            is_bookmarked=1,
+            is_bookmarked=True,
         )
         test_db.add(guide)
         test_db.commit()

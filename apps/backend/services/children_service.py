@@ -351,7 +351,7 @@ class ChildrenService:
         )
 
         if bookmarked_only:
-            query = query.filter(ParentGuide.is_bookmarked == 1)
+            query = query.filter(ParentGuide.is_bookmarked.is_(True))
 
         guides = query.order_by(ParentGuide.created_at.desc()).all()
 
@@ -402,7 +402,7 @@ class ChildrenService:
                 detail="Guide not found"
             )
 
-        guide.is_bookmarked = 0 if guide.is_bookmarked else 1
+        guide.is_bookmarked = not guide.is_bookmarked
         self.db.commit()
         self.db.refresh(guide)
 
@@ -523,7 +523,7 @@ class ChildrenService:
             subject_name=subject_name,
             ai_generated_content=guide.ai_generated_content,
             user_edited_content=guide.user_edited_content,
-            is_bookmarked=bool(guide.is_bookmarked),
+            is_bookmarked=guide.is_bookmarked,
             created_at=guide.created_at,
             updated_at=guide.updated_at,
         )

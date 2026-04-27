@@ -90,7 +90,7 @@ def _guide(guide_id: int, child_id: int, topic_id: int = 1) -> ParentGuide:
     g.topic_id = topic_id
     g.ai_generated_content = None
     g.user_edited_content = None
-    g.is_bookmarked = 0
+    g.is_bookmarked = False
     g.created_at = _now()
     g.updated_at = _now()
     t = MagicMock()
@@ -988,11 +988,11 @@ class TestGetGuide:
         assert result.topic_id == 1
         assert result.topic_title == "Fractions"
 
-    def test_is_bookmarked_coerced_to_bool(self):
-        """is_bookmarked Integer column → bool in response."""
+    def test_is_bookmarked_is_bool(self):
+        """is_bookmarked Boolean column returns bool in response."""
         parent = _parent(user_id=1)
         guide_obj = _guide(guide_id=10, child_id=5)
-        guide_obj.is_bookmarked = 1
+        guide_obj.is_bookmarked = True
         guide_obj.updated_at = guide_obj.created_at
 
         db = MagicMock()
@@ -1039,7 +1039,7 @@ class TestToggleBookmark:
     def test_toggle_unbookmarked_to_bookmarked(self):
         parent = _parent(user_id=1)
         guide_obj = _guide(guide_id=10, child_id=5)
-        guide_obj.is_bookmarked = 0
+        guide_obj.is_bookmarked = False
         guide_obj.updated_at = guide_obj.created_at
 
         db = self._db_with_guide(guide_obj)
@@ -1052,14 +1052,14 @@ class TestToggleBookmark:
         svc = ChildrenService(db=db)
         result = svc.toggle_bookmark(parent, guide_id=10)
 
-        assert guide_obj.is_bookmarked == 1, "Expected is_bookmarked to be set to 1"
+        assert guide_obj.is_bookmarked is True, "Expected is_bookmarked to be set to True"
         db.commit.assert_called_once()
         assert result.is_bookmarked is True
 
     def test_toggle_bookmarked_to_unbookmarked(self):
         parent = _parent(user_id=1)
         guide_obj = _guide(guide_id=11, child_id=5)
-        guide_obj.is_bookmarked = 1
+        guide_obj.is_bookmarked = True
         guide_obj.updated_at = guide_obj.created_at
 
         db = self._db_with_guide(guide_obj)
@@ -1067,14 +1067,14 @@ class TestToggleBookmark:
         svc = ChildrenService(db=db)
         result = svc.toggle_bookmark(parent, guide_id=11)
 
-        assert guide_obj.is_bookmarked == 0, "Expected is_bookmarked to be set to 0"
+        assert guide_obj.is_bookmarked is False, "Expected is_bookmarked to be set to False"
         db.commit.assert_called_once()
         assert result.is_bookmarked is False
 
     def test_commit_called_on_toggle(self):
         parent = _parent(user_id=1)
         guide_obj = _guide(guide_id=10, child_id=5)
-        guide_obj.is_bookmarked = 0
+        guide_obj.is_bookmarked = False
         guide_obj.updated_at = guide_obj.created_at
 
         db = self._db_with_guide(guide_obj)

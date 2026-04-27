@@ -236,7 +236,7 @@ class ParentGuide(Base):
     topic_id = Column(Integer, ForeignKey('topics.topic_id', ondelete='CASCADE'), nullable=False)
     ai_generated_content = Column(Text, nullable=True)
     user_edited_content = Column(Text, nullable=True)
-    is_bookmarked = Column(Integer, default=0, nullable=False)  # 0 = not bookmarked, 1 = bookmarked
+    is_bookmarked = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, default=func.now(), nullable=False)
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
 
