@@ -22,6 +22,8 @@
 
 ~~**AWD-C-08 — Docs commit `e606029` silently reverted AWD-M-43 CSP security fix**~~ ✅ 2026-04-26
 
+~~**AWD-C-09 — Chore commits `c3ae0c4` and `d235cc5` corrupted develop: `c3ae0c4` reverted AWD-M-52 websocket fix and `d235cc5` mass-deleted 312 files**~~ ✅ 2026-04-27
+
 ---
 
 ## 🟠 High
@@ -353,7 +355,7 @@ Or: accept the full working-tree version of `children_service.py` (which has bot
 | L-03 | A11y | Run WCAG 2.1 AA audit on parent flow, file specific items | `apps/frontend/src/pages/Parent*.tsx`, `GuideViewPage.tsx` | M |
 ~~| L-04 | Security | Re-enable `TrustedHostMiddleware` with `ALLOWED_HOSTS` env var in production | `apps/backend/main.py` (lines 133-135) | S |~~ ✅ 2026-04-26
 ~~| L-05 | Code hygiene | `require_parent` and `require_any_role` added to `dependencies.py` but never imported. Either wire `require_parent` into `children.py` router `dependencies=[...]` (fails earlier with 403) or delete the helpers | `apps/backend/dependencies.py` (lines 168, 170), `apps/backend/routers/children.py` | S |~~ ✅ 2026-04-26
-| L-06 | Data model | `ParentGuide.is_bookmarked` uses `Integer` (0/1) instead of `Boolean` — response schema already coerces with `bool(...)`, so the column type should match. Small alembic migration + model tweak | `apps/backend/models.py` (ParentGuide), `apps/backend/alembic/versions/` (new migration) | S |
+~~| L-06 | Data model | `ParentGuide.is_bookmarked` uses `Integer` (0/1) instead of `Boolean` — response schema already coerces with `bool(...)`, so the column type should match. Small alembic migration + model tweak | `apps/backend/models.py` (ParentGuide), `apps/backend/alembic/versions/` (new migration) | S |~~ ✅ 2026-04-27
 | L-07 | Compatibility | `GoogleAuthRequest.role` now defaults to `"PARENT"` — any existing client that calls `/auth/google` without passing a role will create parents instead of educators (a behaviour change from the prior EDUCATOR default). Confirm no older mobile/web clients are still in the wild; otherwise make `role` required | `apps/backend/routers/auth.py` (line 44) | S | **⚠️ Grooming note (2026-04-25): requires Tolu decision — are any pre-pivot educator clients still active? Block on Tolu confirmation before closing.**
 ~~| L-10 | Docs / Config | `project-config.md` §5 `ERROR_MONITORING` still reads "not yet connected (Sentry recommended — flagged as H-01)". AWD-H-01 shipped in commit 364762f — update the line to reflect Sentry is now wired for both backend (`sentry-sdk[fastapi]==2.58.0`) and frontend (`@sentry/react ^8.0.0`). Filed: 2026-04-23 QA. **Grooming note (2026-04-25): trivially bundleable with any doc/config commit. S = minutes.** | `project-config.md` (§5, line ~28) | S |~~ ✅ 2026-04-26
 ~~| L-09 | DX / Frontend | React Router v7 future flag warnings in frontend test output — `v7_startTransition` and `v7_relativeSplatPath` flags not set on `<BrowserRouter>`. Will become breaking changes in v7. Fix: add `future={{ v7_startTransition: true, v7_relativeSplatPath: true }}` to the `<BrowserRouter>` or `<RouterProvider>` in `apps/frontend/src/App.tsx`. Filed: 2026-04-22 QA. | `apps/frontend/src/App.tsx` | S |~~ ✅ 2026-04-26

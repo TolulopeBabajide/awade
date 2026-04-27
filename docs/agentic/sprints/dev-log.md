@@ -429,3 +429,5 @@ After removing it, the next hourly run will:
 2026-04-27T07:10:00Z | AWD-M-50 | Replace bare print() calls with structured logger in main.py | 7431dd3 | ✅ Done | CI:pending
 | 2026-04-27T08:20:00Z | AWD-H-51 | Re-apply M-51 DEV guards reverted by ad60f1c — PII console.log regression | 561da10 | ✅ Done | CI:pending-push |
 2026-04-27T09:13:18Z | AWD-M-52 | Fix hardcoded production WebSocket URL | a8ed1d6 | ✅ Done | CI:pending-push
+2026-04-27T10:15:00Z | AWD-L-06 | Fix ParentGuide.is_bookmarked Integer → Boolean | fd9b86b | ✅ Done | CI:pending (push required)
+2026-04-27T11:30:00Z | AWD-C-09 | Restore AWD-M-52 websocket fix and AWD-L-06 docs lost by chore commits c3ae0c4 and d235cc5 | <pending-commit> | ✅ Done | CI:pending (push required)

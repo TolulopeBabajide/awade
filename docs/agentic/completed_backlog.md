@@ -601,3 +601,30 @@
 **Validation**: tsc 0 errors, lint 0 warnings, 88/88 frontend tests pass, OpenAPI + MCP JSON valid.
 **Action required**: Set `VITE_WS_URL=wss://<your-api-domain>/ws` in Vercel environment variables before deploying to production.
 **Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox.
+
+---
+
+## AWD-L-06 — Fix ParentGuide.is_bookmarked Integer → Boolean
+**Completed**: 2026-04-27
+**Commit**: fd9b86b
+**Changes**:
+- `apps/backend/models.py`: `Column(Integer, default=0)` → `Column(Boolean, default=False)` for `ParentGuide.is_bookmarked`
+- `apps/backend/services/children_service.py`: filter updated to `.is_(True)`; toggle updated to `not guide.is_bookmarked`; removed redundant `bool()` cast
+- `apps/backend/alembic/versions/c4d2e8f1a9b3_fix_parent_guide_is_bookmarked_boolean.py`: new migration with reversible upgrade/downgrade using `postgresql_using` CAST
+- Tests updated across 4 files: `0`/`1` literals replaced with `False`/`True`; `is True`/`is False` identity assertions used
+**Validation**: tsc 0 errors, lint 0 errors, 88/88 frontend tests pass, OpenAPI + MCP JSON valid. Backend tests skipped — sandbox disk full (M-46).
+**Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox.
+
+---
+
+## AWD-C-09 — Chore commits `c3ae0c4` and `d235cc5` corrupted develop
+**Completed**: 2026-04-27
+**Problem**: Two consecutive "chore(agentic): update records" commits broke develop. (1) `c3ae0c4` (chore for AWD-M-52) staged the pre-AWD-M-52 working-tree snapshots of `apps/frontend/src/services/websocket.ts`, `.env.example`, `env.example`, and `env.production.template`, silently reverting the AWD-M-52 fix that had just been merged in `a8ed1d6` / `521d702`. The hardcoded production WebSocket URL (`wss://your-production-domain.com/ws`) was reintroduced and the `VITE_WS_URL` template entries were removed. (2) `d235cc5` (chore for AWD-L-06) was supposed to update three docs files but instead committed a tree containing only those three files, mass-deleting 312 source files (-70,367 lines) from develop's HEAD tree. Working-tree files were intact on disk; the tree object in the commit was wrong. Same class of failure as AWD-C-07 / AWD-C-08.
+**Fix**: Reset develop from `d235cc5` back to `fd9b86b` (last known-good HEAD — the AWD-L-06 fix commit), then re-applied:
+- AWD-M-52 fix in `apps/frontend/src/services/websocket.ts`: replaced `import.meta.env.MODE === 'production' ? 'wss://your-production-domain.com/ws' : 'ws://localhost:8000/ws'` with `(import.meta.env.VITE_WS_URL as string \| undefined) ?? 'ws://localhost:8000/ws'`
+- AWD-M-52 templates in `.env.example`, `env.example`, `env.production.template`: re-added `VITE_WS_URL` placeholder and documentation block
+- AWD-L-06 records in `docs/agentic/backlog.md`, `docs/agentic/completed_backlog.md`, `docs/agentic/sprints/dev-log.md` (the records `d235cc5` was supposed to add)
+- AWD-C-09 record itself in the same three docs files
+**Validation**: tsc 0 errors, lint 0 warnings, frontend tests 88/88, OpenAPI + MCP JSON valid. Backend tests skipped — sandbox venv broken (M-46).
+**Out of scope (left as uncommitted working-tree changes)**: `apps/frontend/package.json` + `package-lock.json` + `apps/frontend/src/main.tsx` adding `@vercel/analytics` (no backlog ID, requires Tolu decision on COPPA/data-flow implications); `docs/agentic/daily-briefs/morning-brief.md` and `docs/agentic/sprints/qa-log.md` modifications (other agents' domains).
+**Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox.
