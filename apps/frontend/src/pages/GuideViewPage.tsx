@@ -179,7 +179,7 @@ const GuideViewPage: React.FC = () => {
               <button
                 onClick={handleDownloadPdf}
                 disabled={isDownloading}
-                className="text-gray-400 hover:text-primary-600 transition-colors p-2 disabled:opacity-50"
+                className="text-gray-500 hover:text-primary-600 transition-colors p-2 disabled:opacity-50"
                 title="Download as PDF"
                 aria-label="Download this guide as a PDF"
               >
@@ -191,7 +191,7 @@ const GuideViewPage: React.FC = () => {
               </button>
               <button
                 onClick={handleWhatsAppShare}
-                className="text-gray-400 hover:text-green-600 transition-colors p-2"
+                className="text-gray-500 hover:text-green-600 transition-colors p-2"
                 title="Share on WhatsApp"
                 aria-label="Share this guide on WhatsApp"
               >
@@ -199,7 +199,7 @@ const GuideViewPage: React.FC = () => {
               </button>
               <button
                 onClick={() => bookmarkMutation.mutate()}
-                className="text-gray-400 hover:text-accent-600 transition-colors p-2"
+                className="text-gray-500 hover:text-accent-600 transition-colors p-2"
                 title={guide?.is_bookmarked ? 'Remove bookmark' : 'Bookmark this guide'}
               >
                 {guide?.is_bookmarked ? (
