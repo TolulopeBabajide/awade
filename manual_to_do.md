@@ -2,7 +2,7 @@
 
 > Things the agent cannot do autonomously (no GitHub credentials, no secrets access, requires your judgment).
 > Agent updates this file whenever a task needs Tolu's hands. Check it before and after each dev session.
-> Last updated: 2026-04-27 (Dev Agent — AWD-L-03 a11y audit shipped, commits 9a93d7e + merge c9af293 added)
+> Last updated: 2026-04-27 (Dev Agent — AWD-H-52 contrast fix shipped, commits cf64691 + merge 95b33f5 added)
 
 ---
 
@@ -136,3 +136,4 @@ Change it to reflect Sentry is now wired (`sentry-sdk[fastapi]==2.58.0` + `@sent
 ## Pending pushes
 
 - [ ] Push develop to GitHub to trigger CI for AWD-M-45 (react ^18.3.0 bump, commit 27f9f01 / merge c863a67)
+- [ ] Push develop to GitHub to trigger CI for AWD-H-52 (parent CTA contrast fix, commit cf64691 / merge 95b33f5)

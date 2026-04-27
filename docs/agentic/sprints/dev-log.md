@@ -433,3 +433,4 @@ After removing it, the next hourly run will:
 2026-04-27T09:13:18Z | AWD-M-52 | Fix hardcoded production WebSocket URL | a8ed1d6 | ✅ Done | CI:pending-push
 2026-04-27T10:15:00Z | AWD-L-06 | Fix ParentGuide.is_bookmarked Integer → Boolean | fd9b86b | ✅ Done | CI:pending (push required)
 2026-04-27T11:30:00Z | AWD-C-09 | Restore AWD-M-52 websocket fix and AWD-L-06 docs lost by chore commits c3ae0c4 and d235cc5 | a9c3816 | ✅ Done | CI:pending (push required)
+2026-04-27T21:13:00Z | AWD-H-52 | Raise parent CTA contrast to WCAG AA (bg-accent-600→700, hover →800 in 5 parent-flow components) | cf64691 (merge: 95b33f5) | ✅ Done | CI:pending (push blocked — no GH creds in sandbox; Tolu must `git push origin develop`)
