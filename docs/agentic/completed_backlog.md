@@ -628,3 +628,7 @@
 **Validation**: tsc 0 errors, lint 0 warnings, frontend tests 88/88, OpenAPI + MCP JSON valid. Backend tests skipped — sandbox venv broken (M-46).
 **Out of scope (left as uncommitted working-tree changes)**: `apps/frontend/package.json` + `package-lock.json` + `apps/frontend/src/main.tsx` adding `@vercel/analytics` (no backlog ID, requires Tolu decision on COPPA/data-flow implications); `docs/agentic/daily-briefs/morning-brief.md` and `docs/agentic/sprints/qa-log.md` modifications (other agents' domains).
 **Push required**: Tolu must run `git push origin develop` — no GitHub credentials in sandbox.
+
+---
+
+| L-03 | A11y: WCAG 2.1 AA audit on parent flow — produced `docs/agentic/audits/a11y-parent-flow-2026-04-27.md` covering `ParentDashboardPage`, `ChildrenPage`, `ParentOnboardingPage`, `GuideViewPage`, `SavedGuidesPage`, `AddChildModal`, `ConsentModal`. 13 findings filed (no level-AA blocker, but 4 High should clear before any external a11y certification): contrast on `accent-600` CTA (3.66:1) and `gray-400` icons (2.53:1), `AddChildModal` missing dialog semantics, hover-only topic prompts. New backlog IDs: AWD-H-52..55, AWD-M-53..57, AWD-L-13..16. | 2026-04-27 |
