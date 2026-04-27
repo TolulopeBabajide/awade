@@ -2,7 +2,7 @@
 
 > Things the agent cannot do autonomously (no GitHub credentials, no secrets access, requires your judgment).
 > Agent updates this file whenever a task needs Tolu's hands. Check it before and after each dev session.
-> Last updated: 2026-04-27 (Dev Agent — AWD-M-52 commits a8ed1d6 + 521d702 added)
+> Last updated: 2026-04-27 (Dev Agent — AWD-L-03 a11y audit shipped, commits 9a93d7e + merge c9af293 added)
 
 ---
 
@@ -79,6 +79,11 @@ This single push covers all commits — they are already merged to `develop` in 
 | `561da10` | H-51 | fix(frontend): AWD-H-51 re-apply M-51 DEV guards reverted by ad60f1c |
 | `a8ed1d6` | M-52 | fix(config): AWD-M-52 replace hardcoded WS URL with VITE_WS_URL env var |
 | `521d702` | M-52 | Merge fix/config/AWD-M-52-vite-ws-url into develop |
+| `fd9b86b` | L-06 | fix(data-model): use Boolean column for ParentGuide.is_bookmarked |
+| `a9c3816` | C-09 | fix(git): restore AWD-M-52 work and AWD-L-06 docs lost by chore commits |
+| `923fa87` | C-09 | chore(agentic): record AWD-C-09 commit hash in dev-log |
+| `9a93d7e` | L-03 | docs(a11y): WCAG 2.1 AA audit for parent flow + 13 findings filed |
+| `c9af293` | L-03 | Merge docs/parents/AWD-L-03-a11y-audit into develop |
 
 ---
 
