@@ -142,8 +142,8 @@ const AIGenerationLoadingRealtime: React.FC<AIGenerationLoadingRealtimeProps> = 
       handleGenerationError(error);
     });
 
-    const unsubscribeSessionStarted = websocketService.on('session_started', (data: any) => {
-      console.log('Generation session started:', data);
+    const unsubscribeSessionStarted = websocketService.on('session_started', () => {
+      // session_started acknowledged — no action needed in production
     });
 
     return () => {
