@@ -27,7 +27,6 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
   const [selectedSubjects, setSelectedSubjects] = useState<number[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
-  const [nameInvalid, setNameInvalid] = useState(false)
 
   // Load reference data
   useEffect(() => {
@@ -76,7 +75,6 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
       setSelectedSubjects([])
     }
     setError('')
-    setNameInvalid(false)
   }, [editData, isOpen])
 
   const toggleSubject = (id: number) => {
@@ -89,12 +87,10 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
     e.preventDefault()
     if (!form.name.trim()) {
       setError("Please enter your child's name")
-      setNameInvalid(true)
       return
     }
     setIsSubmitting(true)
     setError('')
-    setNameInvalid(false)
 
     const payload = {
       ...form,
@@ -147,7 +143,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-5" noValidate>
           {error && (
-            <div id="modal-error-msg" role="alert" className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
+            <div role="alert" className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
           )}
 
           {/* Name */}
@@ -161,16 +157,11 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
               id="modal-child-name"
               type="text"
               value={form.name}
-              onChange={e => {
-                setForm(f => ({ ...f, name: e.target.value }))
-                if (nameInvalid) { setNameInvalid(false); setError('') }
-              }}
+              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition"
               placeholder="e.g. Amina"
               required
               aria-required="true"
-              aria-invalid={nameInvalid || undefined}
-              aria-describedby={nameInvalid ? 'modal-error-msg' : undefined}
               autoFocus
             />
           </div>

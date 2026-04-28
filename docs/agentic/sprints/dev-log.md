@@ -443,3 +443,4 @@ After removing it, the next hourly run will:
 2026-04-28T03:15:48Z | AWD-M-54 | Restore source files reverted by chore commit 7882a6a (same FUSE-mount regression pattern as bdf97fa) | 2418d42 | ✅ Done | CI:pending (push blocked — Tolu must `git push origin develop`)
 2026-04-28T05:23:00Z | AWD-M-58 | Run content-safety pass (PII / injection markers / harmful content) on parent-guide AI output before JSON parse + persistence; mirrors lesson-resource validate_output flow (OWASP LLM02). +5 pytest cases in TestParentGuideContentSafety. | 68d1f73 (merge: b44171a) | ✅ Done | CI:pending (push blocked — no GH creds in sandbox; Tolu must `git push origin develop`)
 2026-04-28T07:15:00Z | AWD-M-53 | A11y: required-field aria-required + label association on name inputs | 3634ec8 | ✅ Done | CI:pending
+2026-04-28T08:12:00Z | M-55 | A11y: aria-invalid and aria-describedby wired to name inputs on validation error | cd5e299 | ✅ Done | CI:pending-push

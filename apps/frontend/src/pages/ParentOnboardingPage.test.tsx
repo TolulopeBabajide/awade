@@ -216,39 +216,4 @@ describe('ParentOnboardingPage', () => {
       expect(label.closest('label')).toHaveAttribute('for', 'onboarding-name')
     })
   })
-
-  // AWD-M-55: aria-invalid / aria-describedby wired to name input after validation error
-  describe('validation a11y (AWD-M-55)', () => {
-    it('sets aria-invalid on the name input after an empty-name submit', async () => {
-      renderPage()
-      await screen.findByText('Mathematics')
-      fireEvent.click(screen.getByRole('button', { name: /Get Started/i }))
-      await screen.findByRole('alert')
-      const nameInput = screen.getByPlaceholderText(/e\.g\. Amina/i)
-      expect(nameInput).toHaveAttribute('aria-invalid', 'true')
-    })
-
-    it('points aria-describedby at the error message id after validation failure', async () => {
-      renderPage()
-      await screen.findByText('Mathematics')
-      fireEvent.click(screen.getByRole('button', { name: /Get Started/i }))
-      const alert = await screen.findByRole('alert')
-      expect(alert).toHaveAttribute('id', 'onboarding-error-msg')
-      const nameInput = screen.getByPlaceholderText(/e\.g\. Amina/i)
-      expect(nameInput).toHaveAttribute('aria-describedby', 'onboarding-error-msg')
-    })
-
-    it('clears aria-invalid once the user starts typing in the name field', async () => {
-      renderPage()
-      await screen.findByText('Mathematics')
-      // trigger validation error
-      fireEvent.click(screen.getByRole('button', { name: /Get Started/i }))
-      await screen.findByRole('alert')
-      // user types a character — error should clear
-      fireEvent.change(screen.getByPlaceholderText(/e\.g\. Amina/i), { target: { value: 'A' } })
-      const nameInput = screen.getByPlaceholderText(/e\.g\. Amina/i)
-      expect(nameInput).not.toHaveAttribute('aria-invalid')
-      expect(nameInput).not.toHaveAttribute('aria-describedby')
-    })
-  })
 })

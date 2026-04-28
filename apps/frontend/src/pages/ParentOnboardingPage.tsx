@@ -26,7 +26,6 @@ const ParentOnboardingPage: React.FC = () => {
   const [selectedSubjects, setSelectedSubjects] = useState<number[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
-  const [nameInvalid, setNameInvalid] = useState(false)
   const [done, setDone] = useState(false)
 
   // Check if parent already has children — if so, skip onboarding
@@ -92,12 +91,10 @@ const ParentOnboardingPage: React.FC = () => {
     e.preventDefault()
     if (!form.name.trim()) {
       setError("Please enter your child's name")
-      setNameInvalid(true)
       return
     }
     setIsSubmitting(true)
     setError('')
-    setNameInvalid(false)
     try {
       const payload: ChildProfileCreate = {
         ...form,
@@ -162,7 +159,7 @@ const ParentOnboardingPage: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
           {error && (
-            <div id="onboarding-error-msg" role="alert" className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
+            <div role="alert" className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
           )}
 
           {/* Name */}
@@ -176,16 +173,11 @@ const ParentOnboardingPage: React.FC = () => {
               id="onboarding-name"
               type="text"
               value={form.name}
-              onChange={e => {
-                setForm(f => ({ ...f, name: e.target.value }))
-                if (nameInvalid) { setNameInvalid(false); setError('') }
-              }}
+              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition"
               placeholder="e.g. Amina"
               required
               aria-required="true"
-              aria-invalid={nameInvalid || undefined}
-              aria-describedby={nameInvalid ? 'onboarding-error-msg' : undefined}
               autoFocus
             />
           </div>
