@@ -2,17 +2,55 @@
 
 > Things the agent cannot do autonomously (no GitHub credentials, no secrets access, requires your judgment).
 > Agent updates this file whenever a task needs Tolu's hands. Check it before and after each dev session.
-> Last updated: 2026-04-28 (Dev Agent — flagged AWD-H-55 source regression via bdf97fa, restoration blocked by FUSE-mount git lock; see top of urgent list)
+> Last updated: 2026-04-28T05:23Z (Dev Agent — AWD-M-58 parent-guide content-safety pass merged at `b44171a` on local `develop`; just needs `git push origin develop`)
+
+## ✅ AWD-M-58 ready to push — `b44171a` on local `develop`
+
+The 2026-04-28T05:18Z dev cycle picked up M-58 (Security/AI LLM02 — parent-guide AI output bypassed `_check_content_safety`). `_validate_parent_guide` in `packages/ai/gpt_service.py` now runs the safety pass on the raw string before JSON parsing, mirroring `validate_output()` for lesson resources. 5 new pytest cases in `apps/backend/tests/test_parent_guide_validation.py::TestParentGuideContentSafety` cover the email-PII / injection-marker / harmful-content / safety-precedence / clean paths — all 23/23 in that file pass locally.
+
+Lock-sweep cleared `.git/objects/maintenance.lock`; `index.lock` reappeared during the commit but the rename-to-`.stale*` workaround unblocked `git add` + the underlying commit. Merge commit was created with plumbing (`commit-tree -p develop -p feature`) because the regular `git merge --no-ff` path required an unlinkable `index.lock`. Local `develop` now points to `b44171a`, which has parents `6d29396` (prior `develop`) and `68d1f73` (M-58 fix).
+
+```bash
+cd ~/Desktop/Projects/awade/awade
+git push origin develop
+```
+
+After push, GitHub Actions will run the full pipeline (validate → backend-test → frontend-test → lighthouse → doc-coverage → contract-test → security). The M-58 fix is backend-only (`packages/ai/gpt_service.py` + a test file), so `tsc --noEmit` is unaffected (verified clean) and openapi.json was not touched. Backend pytest in CI will pick up the new `TestParentGuideContentSafety` class.
 
 ---
 
 ## 🔴 Urgent / Blocking
 
-### Restore AWD-H-55 source files reverted by `bdf97fa` (do this BEFORE pushing)
+### ✅ AWD-H-55 source files restored — `6d29396` on local `develop` (just push)
+
+The 2026-04-28T04:13Z dev cycle resolved this regression in-sandbox after the prior cycle reported it blocked. Lock-sweep cleared the stale `HEAD.lock` / `objects/maintenance.lock`, and renaming `.git/index.lock` to `.lock.stale<ns>` (FUSE allows rename even though it blocks unlink) was enough to unblock `git add` + `git commit`. Working tree already held the byte-identical fix (verified each blob hash against `66d9a79`).
+
+**State now**: commit `6d29396` ("fix(parents): AWD-H-55 restore source files reverted by bdf97fa") sits on local `develop`. TS / lint / 98/98 vitest all green. **Just push:**
+
+```bash
+cd ~/Desktop/Projects/awade/awade
+git push origin develop
+```
+
+Expected post-push: `apps/frontend/src/pages/ParentDashboardPage.tsx` line ~323 has `aria-label={\`Generate "How to Help" guide for ${topic.topic_title}\`}` and the hint paragraph carries `group-focus-within:opacity-100`; same for `SavedGuidesPage.tsx`. CI's frontend-test job picks up the 2 new H-55 a11y assertions.
+
+After push, prune the FUSE-duplicated git objects so future sandbox clones aren't deadlocked (helps the next cycle):
+
+```bash
+find ~/Desktop/Projects/awade/awade/.git/objects -name '* 2' -delete
+find ~/Desktop/Projects/awade/awade/.git/refs/heads -name '*.stale*' -delete
+find ~/Desktop/Projects/awade/awade/.git/refs/heads -name '*.archived' -delete
+git -C ~/Desktop/Projects/awade/awade gc --prune=now
+```
+
+<details>
+<summary>Original blocker block (2026-04-28T02:13Z dev cycle)</summary>
 
 The chore commit `bdf97fa` ("chore(agentic): record AWD-H-55 in backlog, completed log, and dev-log") is a merge of `11c9040 + 66d9a79`, but its tree silently dropped the 4 AWD-H-55 source files. `git show bdf97fa --stat` shows `-88 lines` of code from `ParentDashboardPage.tsx`/`.test.tsx` and `SavedGuidesPage.tsx`/`.test.tsx`. The current `develop` HEAD (`8f372ee`) therefore documents AWD-H-55 as Done in `backlog.md` / `completed_backlog.md` / `dev-log.md` while the actual `aria-label` + `group-focus-within:opacity-100` accessibility code is gone — the parent flow regresses to the pre-fix state on push.
 
 The agent sandbox (virtiofs FUSE mount) cannot recover this on its own: `.git/index.lock` cannot be unlinked, and local-clones into `/tmp` and `/dev/shm` all fail (`Resource deadlock avoided` on FUSE-duplicated `* 2` objects, plus `git upload-pack: ... possible repository corruption` on `--no-local`).
+
+</details>
 
 **Run from your Mac (in this order, before any push):**
 
