@@ -690,3 +690,9 @@
 - **Completed**: 2026-04-28
 - **Commit**: `994a07f` (merge `39175fd`)
 - **Summary**: `Sidebar.tsx` nav lacked `aria-label`, causing screen readers to list two unlabelled "navigation" landmarks with no way to distinguish them. `MobileNavigation.tsx` had the same gap. Fix: added `aria-label="Primary navigation"` to Sidebar's `<nav>` and `aria-label="Mobile primary navigation"` to MobileNavigation's `<nav>`. Added `aria-current={isActive ? 'page' : undefined}` to each nav button in both components so screen readers announce the current page. New `MobileNavigation.test.tsx` (4 tests) + 3 new cases in `Sidebar.test.tsx` — 131/131 vitest tests passing. 0 TS errors · 0 lint warnings. **Push required**: Tolu must run `git push origin develop`.
+
+**AWD-L-15 — A11y/Touch Targets: Edit/Trash buttons in ParentDashboardPage have insufficient hit area**
+- **Area**: A11y / Touch Targets
+- **Completed**: 2026-04-28
+- **Commit**: `9476741`
+- **Summary**: Edit and Trash icon buttons in the child-selector cards had no padding — effective touch target ~12×12 px (icons were `w-3 h-3`), well below the 24×24 px minimum. Fix: added `p-2 rounded-lg` to both buttons (mirroring the correct pattern in `ChildrenPage.tsx`), enlarged icons to `w-4 h-4`, added `hover:bg-primary-50` / `hover:bg-red-50` hover backgrounds, and added descriptive `aria-label` attributes (`Edit ${child.name}'s profile` / `Remove ${child.name}'s profile`). 4 new vitest tests in `ParentDashboardPage.test.tsx` asserting `p-2` class and aria-label presence. 135/135 tests passing. 0 TS errors · 0 lint warnings. **Push required**: Tolu must run `git push origin develop`.

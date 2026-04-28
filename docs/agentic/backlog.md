@@ -1,7 +1,7 @@
 # Awade — Backlog
 
-> Last updated: 2026-04-28 (Lead Dev Agent — AWD-L-13 resolved: global button:focus-visible rule added; keyboard focus rings on all parent-flow buttons)
-> Prev update: 2026-04-28 (Security Agent — daily scan filed AWD-M-58, parent-guide LLM02 output-handling gap)
+> Last updated: 2026-04-28 (Lead Dev Agent — AWD-L-15 resolved: p-2 padding + aria-labels on Edit/Trash buttons in ParentDashboardPage; touch targets now ≥44×44 px)
+> Prev update: 2026-04-28 (Lead Dev Agent — AWD-L-13 resolved: global button:focus-visible rule added; keyboard focus rings on all parent-flow buttons)
 > Last groomed: 2026-04-25 (weekend-ops / Ops Agent) — see notes below. Removed stale items, updated priorities for post-security-sprint phase. Parent pivot code is feature-complete; focus shifts to launch prep + compliance.
 > Source of truth for active work. Completed items move to [`completed_backlog.md`](completed_backlog.md).
 > Issue prefix: `AWD` — e.g., reference as `AWD-H-03` in commits.
@@ -424,7 +424,7 @@ Or: accept the full working-tree version of `children_service.py` (which has bot
 |---|------|-------|---------|--------|
 ~~| L-13 | A11y / Focus | A11Y-PF-10 — Parent-flow buttons use raw Tailwind utilities and never set `focus:` styles (`grep -c "focus:" apps/frontend/src/pages/{Parent,Children,Guide,SavedGuides}*.tsx` → 0 each). Browser default focus rings satisfy AA in most browsers but are weak on coloured CTAs. Either migrate CTAs to the `.btn-primary` / `.btn-accent` classes already defined in `apps/frontend/src/index.css` (lines 77-89) or add a project-level `button:focus-visible { @apply outline-none ring-2 ring-primary-500 ring-offset-2; }` rule. Filed: 2026-04-27 audit. | `apps/frontend/src/index.css`, parent-flow pages | S |~~ ✅ 2026-04-28
 ~~| L-14 | A11y / Landmarks | A11Y-PF-11 — `<nav>` elements in `Sidebar` and `MobileNavigation` lack `aria-label`. In a screen-reader landmarks list both render as "navigation" with no way to distinguish them. Also missing `aria-current="page"` on the active link. Fix: `<nav aria-label="Primary">` / `<nav aria-label="Mobile primary">`, plus `aria-current="page"` per link. Filed: 2026-04-27 audit. | `apps/frontend/src/components/Sidebar.tsx`, `MobileNavigation.tsx` | S |~~ ✅ 2026-04-28
-| L-15 | A11y / Touch Targets | A11Y-PF-12 — Edit/Trash buttons in `ParentDashboardPage` (lines 251-265) have no `p-*` padding around 12px icons — effective hit target ~12×12 px, well below the 24×24 minimum (and 44×44 AAA recommendation). `ChildrenPage.tsx:172-188` has the correct `p-2 rounded-lg` pattern; copy it. Filed: 2026-04-27 audit. | `apps/frontend/src/pages/ParentDashboardPage.tsx` (251-265) | S |
+~~| L-15 | A11y / Touch Targets | A11Y-PF-12 — Edit/Trash buttons in `ParentDashboardPage` (lines 251-265) have no `p-*` padding around 12px icons — effective hit target ~12×12 px, well below the 24×24 minimum (and 44×44 AAA recommendation). `ChildrenPage.tsx:172-188` has the correct `p-2 rounded-lg` pattern; copy it. Filed: 2026-04-27 audit. | `apps/frontend/src/pages/ParentDashboardPage.tsx` (251-265) | S |~~ ✅ 2026-04-28
 | L-16 | A11y / Forms | A11Y-PF-13 — Form labels are siblings of their inputs, not wrapped or associated via `htmlFor` / `id`. Browser heuristics usually pair them but the association is not guaranteed. Add `id="..."` to each input/select and `htmlFor="..."` to each label. Filed: 2026-04-27 audit. | `apps/frontend/src/pages/ParentOnboardingPage.tsx` (165-254), `apps/frontend/src/components/AddChildModal.tsx` (144-227) | S |
 
 ---

@@ -451,3 +451,4 @@ After removing it, the next hourly run will:
 | 2026-04-28T14:25:29Z | AWD-M-60 | Regression: act() warnings in ConsentModal checkbox tests | e02962a | ✅ Done | CI:pending (push required)
 2026-04-28T16:12Z | AWD-L-13 | A11y/Focus: add global button:focus-visible rule | 9573817 | ✅ Done | CI:pending
 2026-04-28T17:12:09Z | AWD-L-14 | A11y: add aria-label to nav landmarks and aria-current to active links | 994a07f | ✅ Done | CI:pending
+2026-04-28T18:10:00Z | AWD-L-15 | A11y: Edit/Trash button touch targets (ParentDashboardPage) | 9476741 | ✅ Done | CI:pending (push required)
