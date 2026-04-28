@@ -251,4 +251,43 @@ describe('ParentOnboardingPage', () => {
       expect(nameInput).not.toHaveAttribute('aria-describedby')
     })
   })
+
+  // AWD-L-16: all form labels programmatically associated with their controls via htmlFor/id
+  describe('label association a11y (AWD-L-16)', () => {
+    it('associates the Age label with its input via htmlFor/id', async () => {
+      renderPage()
+      await screen.findByText('Mathematics')
+      const ageInput = screen.getByPlaceholderText(/e\.g\. 12/i)
+      expect(ageInput).toHaveAttribute('id', 'onboarding-age')
+      const label = screen.getByText(/^age$/i)
+      expect(label.closest('label')).toHaveAttribute('for', 'onboarding-age')
+    })
+
+    it('associates the School Name label with its input via htmlFor/id', async () => {
+      renderPage()
+      await screen.findByText('Mathematics')
+      const schoolInput = screen.getByPlaceholderText(/Federal Government College/i)
+      expect(schoolInput).toHaveAttribute('id', 'onboarding-school')
+      const label = screen.getByText(/^school name$/i)
+      expect(label.closest('label')).toHaveAttribute('for', 'onboarding-school')
+    })
+
+    it('associates the Country label with its select via htmlFor/id', async () => {
+      renderPage()
+      await screen.findByText('Mathematics')
+      const countrySelect = screen.getByRole('combobox', { name: /country/i })
+      expect(countrySelect).toHaveAttribute('id', 'onboarding-country')
+      const label = screen.getByText(/^country$/i)
+      expect(label.closest('label')).toHaveAttribute('for', 'onboarding-country')
+    })
+
+    it('associates the Grade Level label with its select via htmlFor/id', async () => {
+      renderPage()
+      await screen.findByText('Mathematics')
+      const gradeSelect = screen.getByRole('combobox', { name: /grade level/i })
+      expect(gradeSelect).toHaveAttribute('id', 'onboarding-grade')
+      const label = screen.getByText(/^grade level$/i)
+      expect(label.closest('label')).toHaveAttribute('for', 'onboarding-grade')
+    })
+  })
 })

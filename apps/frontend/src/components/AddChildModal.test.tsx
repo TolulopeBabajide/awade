@@ -138,6 +138,45 @@ describe('AddChildModal — a11y (AWD-H-54)', () => {
     })
   })
 
+  // AWD-L-16: all form labels programmatically associated with their controls via htmlFor/id
+  describe('label association a11y (AWD-L-16)', () => {
+    it('associates the Age label with its input via htmlFor/id', async () => {
+      render(<AddChildModal isOpen onClose={vi.fn()} onSuccess={vi.fn()} />)
+      await screen.findByRole('dialog')
+      const ageInput = screen.getByPlaceholderText(/e\.g\. 12/i)
+      expect(ageInput).toHaveAttribute('id', 'modal-age')
+      const label = screen.getByText(/^age$/i)
+      expect(label.closest('label')).toHaveAttribute('for', 'modal-age')
+    })
+
+    it('associates the School Name label with its input via htmlFor/id', async () => {
+      render(<AddChildModal isOpen onClose={vi.fn()} onSuccess={vi.fn()} />)
+      await screen.findByRole('dialog')
+      const schoolInput = screen.getByPlaceholderText(/Federal Government College/i)
+      expect(schoolInput).toHaveAttribute('id', 'modal-school')
+      const label = screen.getByText(/^school name$/i)
+      expect(label.closest('label')).toHaveAttribute('for', 'modal-school')
+    })
+
+    it('associates the Country label with its select via htmlFor/id', async () => {
+      render(<AddChildModal isOpen onClose={vi.fn()} onSuccess={vi.fn()} />)
+      await screen.findByRole('dialog')
+      const countrySelect = screen.getByRole('combobox', { name: /country/i })
+      expect(countrySelect).toHaveAttribute('id', 'modal-country')
+      const label = screen.getByText(/^country$/i)
+      expect(label.closest('label')).toHaveAttribute('for', 'modal-country')
+    })
+
+    it('associates the Grade Level label with its select via htmlFor/id', async () => {
+      render(<AddChildModal isOpen onClose={vi.fn()} onSuccess={vi.fn()} />)
+      await screen.findByRole('dialog')
+      const gradeSelect = screen.getByRole('combobox', { name: /grade level/i })
+      expect(gradeSelect).toHaveAttribute('id', 'modal-grade')
+      const label = screen.getByText(/^grade level$/i)
+      expect(label.closest('label')).toHaveAttribute('for', 'modal-grade')
+    })
+  })
+
   // AWD-M-56: focus trap and Escape handling
   describe('focus trap (AWD-M-56)', () => {
     const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
