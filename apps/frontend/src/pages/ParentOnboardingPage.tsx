@@ -192,8 +192,9 @@ const ParentOnboardingPage: React.FC = () => {
 
           {/* Age */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
+            <label htmlFor="onboarding-age" className="block text-sm font-medium text-gray-700 mb-1">Age</label>
             <input
+              id="onboarding-age"
               type="number"
               min={3}
               max={25}
@@ -206,8 +207,9 @@ const ParentOnboardingPage: React.FC = () => {
 
           {/* School */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">School Name</label>
+            <label htmlFor="onboarding-school" className="block text-sm font-medium text-gray-700 mb-1">School Name</label>
             <input
+              id="onboarding-school"
               type="text"
               value={form.school_name ?? ''}
               onChange={e => setForm(f => ({ ...f, school_name: e.target.value || null }))}
@@ -218,8 +220,9 @@ const ParentOnboardingPage: React.FC = () => {
 
           {/* Country */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+            <label htmlFor="onboarding-country" className="block text-sm font-medium text-gray-700 mb-1">Country</label>
             <select
+              id="onboarding-country"
               value={form.country_id ?? ''}
               onChange={e => setForm(f => ({
                 ...f,
@@ -238,8 +241,9 @@ const ParentOnboardingPage: React.FC = () => {
           {/* Curriculum — shown only after country selected */}
           {form.country_id && curriculums.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Curriculum</label>
+              <label htmlFor="onboarding-curriculum" className="block text-sm font-medium text-gray-700 mb-1">Curriculum</label>
               <select
+                id="onboarding-curriculum"
                 value={form.curricula_id ?? ''}
                 onChange={e => setForm(f => ({ ...f, curricula_id: e.target.value ? parseInt(e.target.value) : null }))}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition bg-white"
@@ -254,8 +258,9 @@ const ParentOnboardingPage: React.FC = () => {
 
           {/* Grade Level */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Grade Level</label>
+            <label htmlFor="onboarding-grade" className="block text-sm font-medium text-gray-700 mb-1">Grade Level</label>
             <select
+              id="onboarding-grade"
               value={form.grade_level_id ?? ''}
               onChange={e => setForm(f => ({ ...f, grade_level_id: e.target.value ? parseInt(e.target.value) : null }))}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition bg-white"

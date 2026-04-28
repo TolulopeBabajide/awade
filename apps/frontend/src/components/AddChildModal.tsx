@@ -182,8 +182,9 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
 
           {/* Age */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
+            <label htmlFor="modal-age" className="block text-sm font-medium text-gray-700 mb-1">Age</label>
             <input
+              id="modal-age"
               type="number"
               min={3}
               max={25}
@@ -196,8 +197,9 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
 
           {/* School */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">School Name</label>
+            <label htmlFor="modal-school" className="block text-sm font-medium text-gray-700 mb-1">School Name</label>
             <input
+              id="modal-school"
               type="text"
               value={form.school_name ?? ''}
               onChange={e => setForm(f => ({ ...f, school_name: e.target.value || null }))}
@@ -208,8 +210,9 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
 
           {/* Country */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+            <label htmlFor="modal-country" className="block text-sm font-medium text-gray-700 mb-1">Country</label>
             <select
+              id="modal-country"
               value={form.country_id ?? ''}
               onChange={e => setForm(f => ({ ...f, country_id: e.target.value ? parseInt(e.target.value) : null, curricula_id: null }))}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition bg-white"
@@ -224,8 +227,9 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
           {/* Curriculum */}
           {form.country_id && curriculums.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Curriculum</label>
+              <label htmlFor="modal-curriculum" className="block text-sm font-medium text-gray-700 mb-1">Curriculum</label>
               <select
+                id="modal-curriculum"
                 value={form.curricula_id ?? ''}
                 onChange={e => setForm(f => ({ ...f, curricula_id: e.target.value ? parseInt(e.target.value) : null }))}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition bg-white"
@@ -240,8 +244,9 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
 
           {/* Grade Level */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Grade Level</label>
+            <label htmlFor="modal-grade" className="block text-sm font-medium text-gray-700 mb-1">Grade Level</label>
             <select
+              id="modal-grade"
               value={form.grade_level_id ?? ''}
               onChange={e => setForm(f => ({ ...f, grade_level_id: e.target.value ? parseInt(e.target.value) : null }))}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition bg-white"
