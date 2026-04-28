@@ -12,7 +12,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import ConsentModal from './ConsentModal'
 
@@ -78,5 +78,75 @@ describe('ConsentModal', () => {
     renderModal({ isSubmitting: true })
     expect(screen.getByRole('button', { name: /saving/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /cancel/i })).toBeDisabled()
+  })
+
+  // AWD-M-56: focus trap and Escape handling
+  describe('focus trap (AWD-M-56)', () => {
+    const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
+    it('calls onCancel when Escape is pressed', () => {
+      const { props } = renderModal()
+      fireEvent.keyDown(document, { key: 'Escape' })
+      expect(props.onCancel).toHaveBeenCalledOnce()
+    })
+
+    it('does NOT call onCancel for other keys', () => {
+      const { props } = renderModal()
+      fireEvent.keyDown(document, { key: 'Enter' })
+      expect(props.onCancel).not.toHaveBeenCalled()
+    })
+
+    it('wraps Tab forward from the last focusable element back to the first', () => {
+      renderModal()
+      const dialog = screen.getByRole('dialog')
+      const focusables = Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE))
+      expect(focusables.length).toBeGreaterThan(1)
+
+      const last = focusables[focusables.length - 1]
+      last.focus()
+      expect(document.activeElement).toBe(last)
+
+      fireEvent.keyDown(document, { key: 'Tab', shiftKey: false })
+      expect(document.activeElement).toBe(focusables[0])
+    })
+
+    it('wraps Shift+Tab backward from the first focusable element to the last', () => {
+      renderModal()
+      const dialog = screen.getByRole('dialog')
+      const focusables = Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE))
+      expect(focusables.length).toBeGreaterThan(1)
+
+      const first = focusables[0]
+      first.focus()
+      expect(document.activeElement).toBe(first)
+
+      fireEvent.keyDown(document, { key: 'Tab', shiftKey: true })
+      expect(document.activeElement).toBe(focusables[focusables.length - 1])
+    })
+
+    it('does not prevent default Tab on a middle element', () => {
+      renderModal()
+      const dialog = screen.getByRole('dialog')
+      const focusables = Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE))
+      if (focusables.length >= 3) {
+        focusables[1].focus()
+        const tabEvent = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true })
+        document.dispatchEvent(tabEvent)
+        expect(tabEvent.defaultPrevented).toBe(false)
+      }
+    })
+
+    it('focuses the first focusable element when no element inside is already focused', () => {
+      // Blur any active element so the hook sets initial focus
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur()
+      }
+      renderModal()
+      const dialog = screen.getByRole('dialog')
+      const focusables = Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE))
+      // After hook activates, activeElement should be within the dialog
+      expect(dialog.contains(document.activeElement)).toBe(true)
+      expect(document.activeElement).toBe(focusables[0])
+    })
   })
 })

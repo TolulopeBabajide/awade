@@ -1,8 +1,9 @@
 /**
- * Tests for AddChildModal (AWD-H-54)
+ * Tests for AddChildModal (AWD-H-54 + AWD-M-56)
  *
- * Focused on the dialog ARIA attributes added to satisfy WCAG 1.3.1 / 4.1.2.
- * Other behavioural coverage lives alongside the consuming pages.
+ * Focused on the dialog ARIA attributes (AWD-H-54) and focus trap / Escape
+ * handling (AWD-M-56). Other behavioural coverage lives alongside the
+ * consuming pages.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
@@ -134,6 +135,77 @@ describe('AddChildModal — a11y (AWD-H-54)', () => {
       await screen.findByRole('dialog')
       const nameInput = screen.getByPlaceholderText(/e\.g\. amina/i)
       expect(nameInput).not.toHaveAttribute('aria-invalid')
+    })
+  })
+
+  // AWD-M-56: focus trap and Escape handling
+  describe('focus trap (AWD-M-56)', () => {
+    const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
+    it('calls onClose when Escape is pressed', async () => {
+      const onClose = vi.fn()
+      render(<AddChildModal isOpen onClose={onClose} onSuccess={vi.fn()} />)
+      await screen.findByRole('dialog')
+      fireEvent.keyDown(document, { key: 'Escape' })
+      expect(onClose).toHaveBeenCalledOnce()
+    })
+
+    it('does NOT call onClose for other keys', async () => {
+      const onClose = vi.fn()
+      render(<AddChildModal isOpen onClose={onClose} onSuccess={vi.fn()} />)
+      await screen.findByRole('dialog')
+      fireEvent.keyDown(document, { key: 'Enter' })
+      expect(onClose).not.toHaveBeenCalled()
+    })
+
+    it('wraps Tab forward from the last focusable element back to the first', async () => {
+      render(<AddChildModal isOpen onClose={vi.fn()} onSuccess={vi.fn()} />)
+      const dialog = await screen.findByRole('dialog')
+      const focusables = Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE))
+      expect(focusables.length).toBeGreaterThan(1)
+
+      const last = focusables[focusables.length - 1]
+      last.focus()
+      expect(document.activeElement).toBe(last)
+
+      fireEvent.keyDown(document, { key: 'Tab', shiftKey: false })
+      expect(document.activeElement).toBe(focusables[0])
+    })
+
+    it('wraps Shift+Tab backward from the first focusable element to the last', async () => {
+      render(<AddChildModal isOpen onClose={vi.fn()} onSuccess={vi.fn()} />)
+      const dialog = await screen.findByRole('dialog')
+      const focusables = Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE))
+      expect(focusables.length).toBeGreaterThan(1)
+
+      const first = focusables[0]
+      first.focus()
+      expect(document.activeElement).toBe(first)
+
+      fireEvent.keyDown(document, { key: 'Tab', shiftKey: true })
+      expect(document.activeElement).toBe(focusables[focusables.length - 1])
+    })
+
+    it('does not trap Tab when focus is on a middle element', async () => {
+      render(<AddChildModal isOpen onClose={vi.fn()} onSuccess={vi.fn()} />)
+      const dialog = await screen.findByRole('dialog')
+      const focusables = Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE))
+      // Focus a middle element — Tab should not be intercepted
+      if (focusables.length >= 3) {
+        const middle = focusables[1]
+        middle.focus()
+        // The handler should not call preventDefault for a mid-element Tab
+        const tabEvent = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true })
+        document.dispatchEvent(tabEvent)
+        expect(tabEvent.defaultPrevented).toBe(false)
+      }
+    })
+
+    it('Escape does not fire onClose when modal is closed', () => {
+      const onClose = vi.fn()
+      render(<AddChildModal isOpen={false} onClose={onClose} onSuccess={vi.fn()} />)
+      fireEvent.keyDown(document, { key: 'Escape' })
+      expect(onClose).not.toHaveBeenCalled()
     })
   })
 })

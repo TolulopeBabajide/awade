@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { FaTimes } from 'react-icons/fa'
 import apiService from '../services/api'
 import type { ChildProfileCreate } from '../types/children'
+import { useFocusTrap } from '../hooks/useFocusTrap'
 
 interface AddChildModalProps {
   isOpen: boolean
@@ -11,6 +12,9 @@ interface AddChildModalProps {
 }
 
 const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSuccess, editData }) => {
+  const dialogRef = useRef<HTMLDivElement>(null)
+  useFocusTrap(dialogRef, isOpen, onClose)
+
   const [form, setForm] = useState<ChildProfileCreate>({
     name: '',
     age: null,
@@ -124,6 +128,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
       onClick={onClose}
       role="dialog"
