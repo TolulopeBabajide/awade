@@ -610,7 +610,22 @@ class AwadeGPTService:
             return self._generate_mock_parent_guide(topic, subject, grade, country, curriculum), True
 
     def _validate_parent_guide(self, content: str) -> tuple[bool, Optional[str]]:
-        """Validate that the parent guide JSON has the required top-level keys."""
+        """Validate a parent-guide AI output.
+
+        Runs in two passes (mirrors ``validate_output`` for lesson resources):
+
+        1. Content-safety pass on the raw string — PII, prompt-injection markers,
+           harmful content (AWD-M-58, OWASP LLM02). Persisted parent guides are
+           exported as PDF, so any unscrubbed model emission must be rejected
+           before it reaches the database.
+        2. Structural validation — JSON parse + required top-level keys.
+        """
+        # 1. Content-safety pass (raw string — before JSON parsing)
+        is_safe, safety_reason = self._check_content_safety(content)
+        if not is_safe:
+            return False, safety_reason
+
+        # 2. Structural validation
         try:
             data = json.loads(content)
             required = ["topic_header", "simple_explanation", "home_activity", "conversation_starters", "common_mistakes"]
