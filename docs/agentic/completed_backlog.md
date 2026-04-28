@@ -650,3 +650,35 @@
 - **Completed**: 2026-04-28
 - **Commit**: `1a09e9f` (merge `262369c`)
 - **Summary**: Chore commit `0a00d4f` (record AWD-M-55 in agentic docs) accidentally staged and committed reversions to `AddChildModal.tsx`, `AddChildModal.test.tsx`, `ParentOnboardingPage.tsx`, and `ParentOnboardingPage.test.tsx`, undoing the 7 vitest tests and the `nameInvalid` state / `aria-invalid` / `aria-describedby` wiring shipped in AWD-M-55 (commit `5c4e4d3`). Fix: re-staged all 4 files from the working tree (which retained the correct content) and committed them as `fix(a11y): AWD-C-10 restore AWD-M-55 aria-invalid fixes reverted by chore commit 0a00d4f`. Merge commit `262369c` created via `commit-tree` (virtiofs index.lock blocked standard merge). Validated: TypeScript 0 errors, lint 0 warnings, 112 frontend tests passing (including the 7 restored M-55 cases). **Push required**: Tolu must run `git push origin develop`.
+
+---
+
+## AWD-M-56 — Focus trap and Escape close for AddChildModal and ConsentModal
+
+- **Area**: A11y / Modals
+- **Completed**: 2026-04-28
+- **Commit**: `f30487a` (merge `2efa824`)
+- **Summary**: Neither `AddChildModal` nor `ConsentModal` trapped keyboard focus or responded to Escape — keyboard users could Tab back into the page behind the modal. Fix: created `apps/frontend/src/hooks/useFocusTrap.ts` — a reusable hook that (1) focuses the first focusable descendant on activation unless an element is already focused via `autoFocus`, (2) wraps Tab and Shift+Tab so focus stays within the container, (3) fires an `onEscape` callback on Escape, and (4) restores focus to the previously-focused element on cleanup. Wired into `AddChildModal` (pass `onClose` as Escape handler) and `ConsentModal` (always active, passes `onCancel`). Added 12 new vitest tests across the two test files covering Escape close, Tab forward wrap, Shift+Tab backward wrap, and mid-element Tab non-interception. Validated: TypeScript 0 errors, lint 0 warnings, 124 frontend tests passing. **Push required**: Tolu must run `git push origin develop`.
+
+---
+
+### AWD-M-59 — ConsentModal act() warnings in checkbox tests
+
+- **Area**: Testing / A11y
+- **Completed**: 2026-04-28
+- **Commit**: `7ee95c3` (merge `18f5d14`)
+- **Summary**: Two tests in `ConsentModal.test.tsx` emitted React `act()` boundary warnings: `"I Agree" button becomes enabled after ticking the checkbox` and `calls onConsented when "I Agree" is clicked with checkbox ticked`. Root cause: `useFocusTrap` calls `.focus()` in a `useEffect` on mount; after `userEvent.click(checkbox)` triggers a re-render, the focus effect fires outside userEvent's `act()` boundary. Fix: added `waitFor` to imports from `@testing-library/react` and wrapped the button-enabled assertion in `await waitFor(...)` in both tests — draining pending React effects before asserting. Pattern mirrors AWD-M-25 (`ParentOnboardingPage.test.tsx`). Validated: TypeScript 0 errors, lint 0 warnings, 124 frontend tests passing. **Push required**: Tolu must run `git push origin develop`.
+
+---
+
+**AWD-M-60 — Regression: act() warnings in ConsentModal checkbox tests (regression of AWD-M-59)**
+- **Area**: Testing / Regression
+- **Completed**: 2026-04-28
+- **Commit**: `e02962a` (merge `0f7c8f6`)
+- **Summary**: Two tests in `ConsentModal.test.tsx` continued to emit React `act()` boundary warnings after the AWD-M-59 fix. Root cause: `userEvent.click` on a controlled `<input type="checkbox">` triggers React 18's internal controlled-input synchronisation in a micro-task that escapes `userEvent`'s `act()` boundary — neither `await act(async()=>{})` before the click nor `userEvent.setup()` prevents this. Fix: replaced `await userEvent.click(checkbox)` with `await act(async () => { fireEvent.click(checkbox) })` in both affected tests. `fireEvent` fires the change event synchronously without simulating the focus sequence that causes the micro-task, eliminating the warning entirely. Removed unused `waitFor` import; lint/tsc/tests all clean: 0 TS errors, 0 lint warnings, 124 frontend tests passing, zero act() warnings. **Push required**: Tolu must run `git push origin develop`.
+
+**AWD-L-13 — A11y/Focus: parent-flow buttons missing focus-visible styles**
+- **Area**: A11y / Focus
+- **Completed**: 2026-04-28
+- **Commit**: `9573817` (merge `1d47113`)
+- **Summary**: Parent-flow pages (ParentDashboardPage, ChildrenPage, GuideViewPage, SavedGuidesPage) used raw Tailwind utilities on all `<button>` elements with no `focus:` styles. Fix: added a project-level `button:focus-visible { @apply outline-none ring-2 ring-primary-500 ring-offset-2; }` rule inside `@layer base` in `apps/frontend/src/index.css`. This covers every button across all four pages — and the whole app — in one change, matching the existing pattern used by `.btn-primary` / `.btn-accent` for keyboard focus. `focus-visible` ensures the ring only appears for keyboard/sequential navigation, not mouse clicks. 0 TS errors · 0 lint warnings · 124/124 vitest tests passing. **Push required**: Tolu must run `git push origin develop`.

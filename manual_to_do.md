@@ -2,7 +2,35 @@
 
 > Things the agent cannot do autonomously (no GitHub credentials, no secrets access, requires your judgment).
 > Agent updates this file whenever a task needs Tolu's hands. Check it before and after each dev session.
-> Last updated: 2026-04-28T05:23Z (Dev Agent — AWD-M-58 parent-guide content-safety pass merged at `b44171a` on local `develop`; just needs `git push origin develop`)
+> Last updated: 2026-04-28T16:12Z (Dev Agent — AWD-L-13 merged at `1d47113` on local `develop`; all pending work needs `git push origin develop`)
+
+## ✅ AWD-L-13 ready to push — `1d47113` on local `develop`
+
+The 2026-04-28T16:12Z dev cycle picked up L-13 (A11y/Focus — parent-flow buttons missing focus-visible styles). Added a single `button:focus-visible { @apply outline-none ring-2 ring-primary-500 ring-offset-2; }` rule inside `@layer base` in `apps/frontend/src/index.css`. Covers all buttons across ParentDashboardPage, ChildrenPage, GuideViewPage, and SavedGuidesPage in one change. `focus-visible` means rings only appear for keyboard navigation, not mouse clicks. 0 TS errors · 0 lint · 124/124 vitest green.
+
+Merge commit `1d47113` on local `develop` (parents: `0f7c8f6` + `9573817`).
+
+```bash
+cd ~/Desktop/Projects/awade/awade
+git push origin develop
+```
+
+---
+
+## ✅ AWD-M-56 ready to push — `2efa824` on local `develop`
+
+The 2026-04-28T11:19Z dev cycle picked up M-56 (A11y/Modals — AddChildModal and ConsentModal missing focus trap and Escape close). A new reusable hook `apps/frontend/src/hooks/useFocusTrap.ts` was created. It traps Tab/Shift+Tab within the container, fires `onEscape` on Escape, sets initial focus on the first focusable element (unless `autoFocus` already handled it), and restores focus on cleanup. Both modals now use the hook. 12 new vitest cases cover Tab wrap, Shift+Tab wrap, Escape close, and mid-element Tab non-interception — all 124 frontend tests pass.
+
+Merge commit `2efa824` created via `commit-tree` plumbing (virtiofs FUSE blocks standard `git merge --no-ff` index.lock). Local `develop` points to `2efa824` (parents: `f99c7e4` prior develop + `f30487a` M-56 fix).
+
+```bash
+cd ~/Desktop/Projects/awade/awade
+git push origin develop
+```
+
+After push, GitHub Actions runs the full pipeline. This is frontend-only (new hook + component updates + tests); no API, schema, or backend changes. `tsc --noEmit` ✅ · lint ✅ · 124 vitest tests ✅ · openapi.json unchanged.
+
+---
 
 ## ✅ AWD-M-58 ready to push — `b44171a` on local `develop`
 
@@ -10,12 +38,7 @@ The 2026-04-28T05:18Z dev cycle picked up M-58 (Security/AI LLM02 — parent-gui
 
 Lock-sweep cleared `.git/objects/maintenance.lock`; `index.lock` reappeared during the commit but the rename-to-`.stale*` workaround unblocked `git add` + the underlying commit. Merge commit was created with plumbing (`commit-tree -p develop -p feature`) because the regular `git merge --no-ff` path required an unlinkable `index.lock`. Local `develop` now points to `b44171a`, which has parents `6d29396` (prior `develop`) and `68d1f73` (M-58 fix).
 
-```bash
-cd ~/Desktop/Projects/awade/awade
-git push origin develop
-```
-
-After push, GitHub Actions will run the full pipeline (validate → backend-test → frontend-test → lighthouse → doc-coverage → contract-test → security). The M-58 fix is backend-only (`packages/ai/gpt_service.py` + a test file), so `tsc --noEmit` is unaffected (verified clean) and openapi.json was not touched. Backend pytest in CI will pick up the new `TestParentGuideContentSafety` class.
+> **Note**: `b44171a` is now behind `2efa824`. `git push origin develop` above will push both in sequence.
 
 ---
 
