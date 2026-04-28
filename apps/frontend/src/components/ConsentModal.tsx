@@ -8,8 +8,9 @@
  * Consent version: "1.0" — bump when the disclosure text changes materially.
  */
 
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { FaShieldAlt, FaLock, FaChild } from 'react-icons/fa'
+import { useFocusTrap } from '../hooks/useFocusTrap'
 
 interface ConsentModalProps {
   /** Called after consent has been successfully recorded on the server. */
@@ -29,10 +30,14 @@ const ConsentModal: React.FC<ConsentModalProps> = ({
   error,
 }) => {
   const [checked, setChecked] = useState(false)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  // ConsentModal is always mounted when rendered — always active
+  useFocusTrap(dialogRef, true, onCancel)
 
   return (
     /* Backdrop */
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
       role="dialog"
       aria-modal="true"
