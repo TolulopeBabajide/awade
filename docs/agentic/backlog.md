@@ -1,7 +1,7 @@
 # Awade — Backlog
 
-> Last updated: 2026-04-28 (Security Agent — daily scan filed AWD-M-58, parent-guide LLM02 output-handling gap)
-> Prev update: 2026-04-27 (Dev Agent — AWD-L-03 a11y audit complete; 13 findings filed as H-52..55, M-53..57, L-13..16)
+> Last updated: 2026-04-28 (Dev Agent — AWD-M-57 skip-to-main-content link shipped)
+> Prev update: 2026-04-28 (Security Agent — daily scan filed AWD-M-58, parent-guide LLM02 output-handling gap)
 > Last groomed: 2026-04-25 (weekend-ops / Ops Agent) — see notes below. Removed stale items, updated priorities for post-security-sprint phase. Parent pivot code is feature-complete; focus shifts to launch prep + compliance.
 > Source of truth for active work. Completed items move to [`completed_backlog.md`](completed_backlog.md).
 > Issue prefix: `AWD` — e.g., reference as `AWD-H-03` in commits.
@@ -412,7 +412,7 @@ Or: accept the full working-tree version of `children_service.py` (which has bot
 ~~| M-54 | A11y / Status Messages | A11Y-PF-06 — Form-level error banners and loading text are not announced to assistive tech. No `role="alert"` / `aria-live="polite"` on the `bg-red-50` containers; no `role="status"` on "Generating your guide…". `ConsentModal.tsx:116` already uses `role="alert"` — propagate the pattern. Filed: 2026-04-27 audit. | `apps/frontend/src/pages/ParentOnboardingPage.tsx` (161-163), `apps/frontend/src/components/AddChildModal.tsx` (139-141), `ChildrenPage.tsx` (104-108), `GuideViewPage.tsx` (104-107) | S |~~ ✅ 2026-04-28
 ~~| M-55 | A11y / Forms | A11Y-PF-07 — Form inputs do not surface `aria-invalid` or `aria-describedby` after server validation. When `setError("Please enter your child's name")` fires, the offending input is not flagged programmatically. Track an `invalidFields` set in component state and bind `aria-invalid={invalidFields.has(...)}` + `aria-describedby` linking to the error message. Filed: 2026-04-27 audit. | `apps/frontend/src/pages/ParentOnboardingPage.tsx` (170-191), `apps/frontend/src/components/AddChildModal.tsx` (146-167) | S |~~ ✅ 2026-04-28
 | M-56 | A11y / Modals | A11Y-PF-08 — Neither `AddChildModal` nor `ConsentModal` traps focus, sets initial focus on the dialog, or closes on Escape. Risk: keyboard users can Tab back into the page behind the modal. Recommend adopting `@headlessui/react`'s `Dialog` (handles trap + Escape + `aria-modal` for free) or building a `useFocusTrap` hook. Filed: 2026-04-27 audit. | `apps/frontend/src/components/AddChildModal.tsx`, `ConsentModal.tsx` | M |
-| M-57 | A11y / Navigation | A11Y-PF-09 — No "Skip to main content" link on any parent-flow page. Keyboard users must Tab through the full Sidebar nav on every page load. Add `<a href="#main-content" className="sr-only focus:not-sr-only ...">` at the top of the layout chrome and `id="main-content" tabIndex={-1}` on each `<main>`. Filed: 2026-04-27 audit. | `apps/frontend/src/components/Sidebar.tsx`, all five parent-flow pages | S |
+~~| M-57 | A11y / Navigation | A11Y-PF-09 — No "Skip to main content" link on any parent-flow page. Keyboard users must Tab through the full Sidebar nav on every page load. Add `<a href="#main-content" className="sr-only focus:not-sr-only ...">` at the top of the layout chrome and `id="main-content" tabIndex={-1}` on each `<main>`. Filed: 2026-04-27 audit. | `apps/frontend/src/components/Sidebar.tsx`, all five parent-flow pages | S |~~ ✅ 2026-04-28 (commit `9dcde3f` / merge `500577c` — skip link added to Sidebar before `<aside>`; `id="main-content" tabIndex={-1} outline-none` added to `<main>` in ParentDashboardPage, ChildrenPage, GuideViewPage, SavedGuidesPage; 3 vitest cases in Sidebar.test.tsx)
 
 ### 🟢 Low / Polish
 
