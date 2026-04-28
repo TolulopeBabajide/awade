@@ -1,8 +1,10 @@
 /**
- * Tests for Sidebar (AWD-M-57)
+ * Tests for Sidebar (AWD-M-57, AWD-L-14)
  *
- * Focused on the "Skip to main content" accessibility link added to satisfy
- * WCAG 2.1 SC 2.4.1 (Bypass Blocks, Level A).
+ * Covers:
+ * - "Skip to main content" accessibility link (WCAG 2.1 SC 2.4.1)
+ * - Named navigation landmark aria-label (WCAG 2.1 SC 4.1.2)
+ * - aria-current="page" on the active nav item (WCAG 2.1 SC 2.4.8)
  */
 
 import { describe, it, expect, vi } from 'vitest'
@@ -15,10 +17,10 @@ vi.mock('../contexts/AuthContext', () => ({
   useAuth: () => ({ user: { role: 'PARENT' }, logout: vi.fn() }),
 }))
 
-const renderSidebar = () =>
+const renderSidebar = (currentPage: 'dashboard' | 'children' | 'saved-guides' | 'settings' = 'dashboard') =>
   render(
     <MemoryRouter>
-      <Sidebar currentPage="dashboard" />
+      <Sidebar currentPage={currentPage} />
     </MemoryRouter>,
   )
 
@@ -44,5 +46,33 @@ describe('Sidebar — skip-to-main-content (AWD-M-57)', () => {
     const nav = screen.getByRole('navigation', { hidden: true })
     // compareDocumentPosition flag 4 = "link precedes nav"
     expect(link.compareDocumentPosition(nav) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+})
+
+describe('Sidebar — navigation landmark (AWD-L-14)', () => {
+  it('nav element has aria-label="Primary navigation"', () => {
+    renderSidebar()
+    const nav = screen.getByRole('navigation', { hidden: true })
+    expect(nav).toHaveAttribute('aria-label', 'Primary navigation')
+  })
+
+  it('active nav item has aria-current="page"', () => {
+    renderSidebar('children')
+    // Find the button for "My Children" — the active page
+    const buttons = screen.getAllByRole('button')
+    const childrenBtn = buttons.find(b => b.textContent?.includes('My Children'))
+    expect(childrenBtn).toBeDefined()
+    expect(childrenBtn).toHaveAttribute('aria-current', 'page')
+  })
+
+  it('inactive nav items do not have aria-current', () => {
+    renderSidebar('dashboard')
+    const buttons = screen.getAllByRole('button')
+    const nonActiveButtons = buttons.filter(
+      b => b.textContent?.includes('My Children') || b.textContent?.includes('Saved Guides') || b.textContent?.includes('Settings')
+    )
+    nonActiveButtons.forEach(btn => {
+      expect(btn).not.toHaveAttribute('aria-current')
+    })
   })
 })

@@ -76,14 +76,16 @@ const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-2 mt-12 w-full hidden lg:block">
+      <nav aria-label="Primary navigation" className="flex-1 space-y-2 mt-12 w-full hidden lg:block">
         {navItems.map(item => {
           const Icon = item.icon;
+          const isActive = currentPage === item.id;
           return (
             <button
               key={item.id}
               className={`w-full text-left px-4 py-3 rounded-lg font-medium flex items-center transition-colors duration-200 ${getActiveClass(item.id)}`}
               onClick={() => navigate(item.path)}
+              aria-current={isActive ? 'page' : undefined}
             >
               <Icon className={`w-4 h-4 mr-3 ${getIconColor(item.id)}`} />
               {item.label}
