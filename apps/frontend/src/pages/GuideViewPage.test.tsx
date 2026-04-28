@@ -101,6 +101,15 @@ describe('GuideViewPage', () => {
     expect(screen.getByText('Generating your guide...')).toBeInTheDocument()
   })
 
+  // AWD-M-54: loading container is announced to assistive tech via role="status"
+  it('exposes the loading container with role="status" and aria-live', () => {
+    mockGetGuide.mockReturnValue(new Promise(() => {}))
+    renderPage()
+    const status = screen.getByRole('status')
+    expect(status).toHaveAttribute('aria-live', 'polite')
+    expect(status).toHaveTextContent(/generating your guide/i)
+  })
+
   // ── Error state ─────────────────────────────────────────────────────────
   it('shows error message when guide fetch returns an error', async () => {
     mockGetGuide.mockResolvedValue({ data: undefined, error: 'Guide not found' })

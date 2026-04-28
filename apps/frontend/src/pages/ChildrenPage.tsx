@@ -102,7 +102,7 @@ const ChildrenPage: React.FC = () => {
         <div className="px-4 sm:px-6 lg:px-8 py-6">
           {/* Delete error banner */}
           {deleteError && (
-            <div className="mb-4 bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm">
+            <div role="alert" className="mb-4 bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm">
               {deleteError}
             </div>
           )}

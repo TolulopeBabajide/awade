@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import AddChildModal from './AddChildModal'
 
 vi.mock('../services/api', () => ({
@@ -59,5 +59,14 @@ describe('AddChildModal — a11y (AWD-H-54)', () => {
   it('does not render a dialog when closed', () => {
     render(<AddChildModal isOpen={false} onClose={vi.fn()} onSuccess={vi.fn()} />)
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  // AWD-M-54: form-level error banner is announced to assistive tech
+  it('exposes the validation error banner with role="alert"', async () => {
+    render(<AddChildModal isOpen onClose={vi.fn()} onSuccess={vi.fn()} />)
+    await screen.findByRole('dialog')
+    fireEvent.click(screen.getByRole('button', { name: /add child/i }))
+    const alert = await screen.findByRole('alert')
+    expect(alert).toHaveTextContent(/please enter your child's name/i)
   })
 })
