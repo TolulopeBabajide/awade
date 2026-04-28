@@ -704,3 +704,11 @@
 - **Completed**: 2026-04-28
 - **Commit**: `8e76aa5` (merge `5f3d442`)
 - **Summary**: Age, School Name, Country, Curriculum, and Grade Level fields in `ParentOnboardingPage.tsx` and `AddChildModal.tsx` had labels that were siblings of their inputs with no `htmlFor`/`id` pairing — screen-reader association relied on browser heuristics only (WCAG 1.3.1 technique H44). Fix: added matching `htmlFor="<id>"` to each `<label>` and `id="<id>"` to each `<input>` / `<select>` (IDs: `onboarding-age`, `onboarding-school`, `onboarding-country`, `onboarding-curriculum`, `onboarding-grade` in ParentOnboardingPage; `modal-age`, `modal-school`, `modal-country`, `modal-curriculum`, `modal-grade` in AddChildModal). Name field and Subjects chip buttons were already correct. 8 new vitest tests added (4 per file) asserting `id` on controls and `for` on labels. 143/143 tests passing. 0 TS errors · 0 lint warnings. **Push required**: Tolu must run `git push origin develop`.
+
+---
+
+**AWD-M-07 — Content: "How it works" section for parents needs real screenshots, not placeholders**
+- **Area**: Content / Frontend
+- **Completed**: 2026-04-29
+- **Commit**: `2eded61` (merge `e1fef37`)
+- **Summary**: `HowItWorksSection.tsx` previously rendered three text-only numbered circles with no visuals. Replaced with inline SVG phone-frame mockups for all three parent-flow steps: (1) Add Child form — name/grade/country/subjects fields + Continue CTA; (2) Topics browser — subject filter tabs + scrollable topic list with Fractions/Decimals etc.; (3) Guide view — How to Help header, Simple Explanation / Try This at Home / Common Mistakes cards. Phone frames include side buttons, notch, and home-indicator bar. Each mockup uses brand colours (primary-800 green header, accent-700 CTAs). Step number badges retained below each mockup. Each mockup wrapped in `role="img"` div with descriptive `aria-label`. 5 new vitest tests in `HowItWorksSection.test.tsx` covering heading, step badges, step titles, aria-labels, and section id. 148/148 frontend tests passing. 0 TS errors · 0 lint warnings. **Also noted**: `ConsentModal.test.tsx` M-60 fix was silently reverted by AWD-L-13 commit `9573817` — filed as AWD-M-61. **Push required**: Tolu must run `git push origin develop`.
