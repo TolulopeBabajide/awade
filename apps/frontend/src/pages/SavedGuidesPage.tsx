@@ -159,7 +159,6 @@ const SavedGuidesPage: React.FC = () => {
                 <button
                   key={guide.guide_id}
                   onClick={() => handleGuideClick(guide)}
-                  aria-label={`Open "How to Help" guide for ${guide.topic_title || 'Untitled Topic'}${guide.is_bookmarked ? ' (bookmarked)' : ''}`}
                   className="bg-white border border-gray-200 rounded-xl p-5 text-left hover:border-primary-400 hover:shadow-md transition-all group"
                 >
                   <div className="flex items-start justify-between mb-2">
@@ -167,7 +166,7 @@ const SavedGuidesPage: React.FC = () => {
                       {guide.topic_title || 'Untitled Topic'}
                     </p>
                     {guide.is_bookmarked && (
-                      <FaBookmark className="w-3 h-3 text-accent-500 flex-shrink-0 ml-2 mt-0.5" aria-hidden="true" />
+                      <FaBookmark className="w-3 h-3 text-accent-500 flex-shrink-0 ml-2 mt-0.5" />
                     )}
                   </div>
                   <p className="text-xs text-gray-400">

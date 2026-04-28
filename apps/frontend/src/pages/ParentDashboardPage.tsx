@@ -320,13 +320,12 @@ const ParentDashboardPage: React.FC = () => {
                             <button
                               key={topic.topic_id}
                               onClick={() => handleTopicClick(topic)}
-                              aria-label={`Generate "How to Help" guide for ${topic.topic_title}`}
                               className="bg-white border border-gray-200 rounded-xl px-5 py-4 text-left hover:border-primary-400 hover:shadow-md transition-all group"
                             >
                               <p className="font-medium text-gray-800 group-hover:text-primary-700 text-sm leading-snug">
                                 {topic.topic_title}
                               </p>
-                              <p className="text-xs text-accent-600 mt-2 font-medium opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
+                              <p className="text-xs text-accent-600 mt-2 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                                 Get "How to Help" guide →
                               </p>
                             </button>
