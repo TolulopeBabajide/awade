@@ -87,4 +87,53 @@ describe('AddChildModal — a11y (AWD-H-54)', () => {
     const label = screen.getByText(/child's name/i)
     expect(label.closest('label')).toHaveAttribute('for', 'modal-child-name')
   })
+
+  // AWD-M-55: aria-invalid / aria-describedby wired to name input after validation error
+  describe('validation a11y (AWD-M-55)', () => {
+    it('sets aria-invalid on the name input after an empty-name submit', async () => {
+      render(<AddChildModal isOpen onClose={vi.fn()} onSuccess={vi.fn()} />)
+      await screen.findByRole('dialog')
+      fireEvent.click(screen.getByRole('button', { name: /add child/i }))
+      await screen.findByRole('alert')
+      const nameInput = screen.getByPlaceholderText(/e\.g\. amina/i)
+      expect(nameInput).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('points aria-describedby at the error message id after validation failure', async () => {
+      render(<AddChildModal isOpen onClose={vi.fn()} onSuccess={vi.fn()} />)
+      await screen.findByRole('dialog')
+      fireEvent.click(screen.getByRole('button', { name: /add child/i }))
+      const alert = await screen.findByRole('alert')
+      expect(alert).toHaveAttribute('id', 'modal-error-msg')
+      const nameInput = screen.getByPlaceholderText(/e\.g\. amina/i)
+      expect(nameInput).toHaveAttribute('aria-describedby', 'modal-error-msg')
+    })
+
+    it('clears aria-invalid once the user starts typing in the name field', async () => {
+      render(<AddChildModal isOpen onClose={vi.fn()} onSuccess={vi.fn()} />)
+      await screen.findByRole('dialog')
+      // trigger validation error
+      fireEvent.click(screen.getByRole('button', { name: /add child/i }))
+      await screen.findByRole('alert')
+      // user types a character — error should clear
+      fireEvent.change(screen.getByPlaceholderText(/e\.g\. amina/i), { target: { value: 'A' } })
+      const nameInput = screen.getByPlaceholderText(/e\.g\. amina/i)
+      expect(nameInput).not.toHaveAttribute('aria-invalid')
+      expect(nameInput).not.toHaveAttribute('aria-describedby')
+    })
+
+    it('resets aria-invalid when the modal is closed and reopened', async () => {
+      const { rerender } = render(<AddChildModal isOpen onClose={vi.fn()} onSuccess={vi.fn()} />)
+      await screen.findByRole('dialog')
+      // trigger validation error
+      fireEvent.click(screen.getByRole('button', { name: /add child/i }))
+      await screen.findByRole('alert')
+      // close and reopen the modal
+      rerender(<AddChildModal isOpen={false} onClose={vi.fn()} onSuccess={vi.fn()} />)
+      rerender(<AddChildModal isOpen onClose={vi.fn()} onSuccess={vi.fn()} />)
+      await screen.findByRole('dialog')
+      const nameInput = screen.getByPlaceholderText(/e\.g\. amina/i)
+      expect(nameInput).not.toHaveAttribute('aria-invalid')
+    })
+  })
 })
