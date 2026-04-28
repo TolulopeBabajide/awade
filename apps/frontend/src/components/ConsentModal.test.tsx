@@ -12,7 +12,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import ConsentModal from './ConsentModal'
 
@@ -48,15 +48,22 @@ describe('ConsentModal', () => {
   it('"I Agree" button becomes enabled after ticking the checkbox', async () => {
     renderModal()
     const checkbox = screen.getByRole('checkbox')
+    // Use waitFor to drain the useFocusTrap useEffect (.focus() call on mount)
+    // before asserting — prevents act() boundary warnings (AWD-M-59).
     await userEvent.click(checkbox)
-    const btn = screen.getByRole('button', { name: /i agree/i })
-    expect(btn).not.toBeDisabled()
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /i agree/i })).not.toBeDisabled()
+    )
   })
 
   it('calls onConsented when "I Agree" is clicked with checkbox ticked', async () => {
     const { props } = renderModal()
     const checkbox = screen.getByRole('checkbox')
     await userEvent.click(checkbox)
+    // waitFor drains the useFocusTrap focus effect so the act() boundary is clean (AWD-M-59).
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /i agree/i })).not.toBeDisabled()
+    )
     const btn = screen.getByRole('button', { name: /i agree/i })
     await userEvent.click(btn)
     expect(props.onConsented).toHaveBeenCalledOnce()
