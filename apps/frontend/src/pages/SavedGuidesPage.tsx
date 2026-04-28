@@ -63,7 +63,7 @@ const SavedGuidesPage: React.FC = () => {
     <div className="flex min-h-screen bg-background-50">
       <Sidebar currentPage="lesson-resources" />
 
-      <main className="flex-1 lg:ml-64 pb-20 lg:pb-0">
+      <main id="main-content" tabIndex={-1} className="flex-1 lg:ml-64 pb-20 lg:pb-0 outline-none">
         {/* Top bar */}
         <div className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
