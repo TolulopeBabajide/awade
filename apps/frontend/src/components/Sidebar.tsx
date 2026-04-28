@@ -56,6 +56,14 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
+    <>
+      {/* Skip to main content — hidden until focused, allows keyboard users to bypass sidebar nav */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-[200] focus:top-4 focus:left-4 bg-white text-primary-700 border border-primary-300 px-4 py-2 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+      >
+        Skip to main content
+      </a>
     <aside className={`hidden w-full lg:w-64 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 lg:flex flex-row lg:flex-col pb-3 md:pb-4 lg:pb-8 px-2 md:px-4 lg:px-4 lg:min-h-screen lg:fixed lg:left-0 lg:top-0 lg:z-[60] items-center lg:items-stretch flex-shrink-0 shadow-lg ${className}`}>
       {/* Logo */}
       {showLogo && (
@@ -95,6 +103,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         </button>
       )}
     </aside>
+    </>
   );
 };
 
