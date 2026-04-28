@@ -247,21 +247,23 @@ const ParentDashboardPage: React.FC = () => {
                     {child.grade_level_name || 'Grade not set'}
                   </p>
                   {/* Edit / Delete */}
-                  <div className="flex gap-2 mt-2">
+                  <div className="flex items-center gap-1 mt-2">
                     <button
                       onClick={e => { e.stopPropagation(); handleAddChildIntent(child) }}
-                      className="text-gray-500 hover:text-primary-600 transition-colors"
+                      className="p-2 rounded-lg text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-colors"
                       title="Edit"
+                      aria-label={`Edit ${child.name}'s profile`}
                     >
-                      <FaEdit className="w-3 h-3" />
+                      <FaEdit className="w-4 h-4" />
                     </button>
                     <button
                       onClick={e => { e.stopPropagation(); handleDeleteChild(child.child_id) }}
-                      className="text-gray-500 hover:text-red-500 transition-colors"
+                      className="p-2 rounded-lg text-gray-500 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       title="Remove"
+                      aria-label={`Remove ${child.name}'s profile`}
                       disabled={deletingChildId === child.child_id}
                     >
-                      <FaTrash className="w-3 h-3" />
+                      <FaTrash className="w-4 h-4" />
                     </button>
                   </div>
                 </div>

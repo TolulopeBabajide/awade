@@ -341,4 +341,43 @@ describe('ParentDashboardPage', () => {
       expect(hint.className).toContain('group-focus-within:opacity-100')
     })
   })
+
+  describe('edit/delete button touch targets (AWD-L-15)', () => {
+    const setupWithChild = () => {
+      mockApiService.getChildren.mockResolvedValue({
+        error: undefined,
+        data: { children: [makeChild()], total: 1 },
+      })
+      mockApiService.getChildTopics.mockResolvedValue({ error: undefined, data: [] })
+      renderWithProviders(<ParentDashboardPage />)
+    }
+
+    it('edit button has p-2 padding for a sufficient touch target', async () => {
+      setupWithChild()
+      await waitFor(() => expect(screen.getByTitle('Edit')).toBeTruthy())
+      const editBtn = screen.getByTitle('Edit')
+      expect(editBtn.className).toContain('p-2')
+    })
+
+    it('delete button has p-2 padding for a sufficient touch target', async () => {
+      setupWithChild()
+      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy())
+      const deleteBtn = screen.getByTitle('Remove')
+      expect(deleteBtn.className).toContain('p-2')
+    })
+
+    it('edit button has an accessible aria-label', async () => {
+      setupWithChild()
+      await waitFor(() => expect(screen.getByTitle('Edit')).toBeTruthy())
+      const editBtn = screen.getByTitle('Edit')
+      expect(editBtn.getAttribute('aria-label')).toMatch(/Edit .+ profile/i)
+    })
+
+    it('delete button has an accessible aria-label', async () => {
+      setupWithChild()
+      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy())
+      const deleteBtn = screen.getByTitle('Remove')
+      expect(deleteBtn.getAttribute('aria-label')).toMatch(/Remove .+ profile/i)
+    })
+  })
 })
