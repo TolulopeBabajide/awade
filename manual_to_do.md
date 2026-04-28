@@ -140,6 +140,10 @@ This single push covers all commits — they are already merged to `develop` in 
 | `11c9040` | H-55 | Merge fix/parents/AWD-H-55-keyboard-action-reveal into develop |
 | `bdf97fa` | H-55 | ⚠️ chore(agentic): record AWD-H-55 — **this commit silently reverted the H-55 source files** (see urgent block above; restore before pushing) |
 | `8f372ee` | H-55 | chore(agentic): note AWD-H-55 push pending in manual_to_do |
+| `bcb931f` | M-54 | fix(a11y): AWD-M-54 announce error banners and loading status to assistive tech |
+| `8a8a8e3` | M-54 | Merge fix/a11y/AWD-M-54-status-messages into develop |
+| `7882a6a` | M-54 | ⚠️ chore(agentic): record AWD-M-54 — **this commit silently reverted the M-54 source files** (same FUSE-mount pattern as bdf97fa); restored by `2418d42` |
+| `2418d42` | M-54 | fix(a11y): AWD-M-54 restore source files reverted by chore commit 7882a6a |
 
 ---
 
@@ -195,4 +199,4 @@ Change it to reflect Sentry is now wired (`sentry-sdk[fastapi]==2.58.0` + `@sent
 - [ ] Push develop to GitHub to trigger CI for AWD-H-52 (parent CTA contrast fix, commit cf64691 / merge 95b33f5)
 - [ ] Push develop to GitHub to trigger CI for AWD-H-54 (AddChildModal dialog ARIA attrs, commit e0ed6ea / merge 5aaca85)
 - [ ] Push develop to GitHub to trigger CI for AWD-H-55 (topic action button keyboard a11y + aria-labels, commit 66d9a79 / merge 11c9040, doc commit bdf97fa)
-- [ ] Push develop to GitHub to trigger CI for AWD-M-54 (announce error banners + loading status to assistive tech, commit bcb931f / merge 8a8a8e3)
+- [ ] Push develop to GitHub to trigger CI for AWD-M-54 (announce error banners + loading status to assistive tech, commit bcb931f / merge 8a8a8e3 / chore-revert 7882a6a / restoration 2418d42 — verify HEAD has `role="alert"` in `ParentOnboardingPage.tsx:162`, `AddChildModal.tsx:146`, `ChildrenPage.tsx:105` and `role="status"` in `GuideViewPage.tsx:103` before pushing)
