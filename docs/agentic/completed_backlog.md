@@ -682,3 +682,11 @@
 - **Completed**: 2026-04-28
 - **Commit**: `9573817` (merge `1d47113`)
 - **Summary**: Parent-flow pages (ParentDashboardPage, ChildrenPage, GuideViewPage, SavedGuidesPage) used raw Tailwind utilities on all `<button>` elements with no `focus:` styles. Fix: added a project-level `button:focus-visible { @apply outline-none ring-2 ring-primary-500 ring-offset-2; }` rule inside `@layer base` in `apps/frontend/src/index.css`. This covers every button across all four pages — and the whole app — in one change, matching the existing pattern used by `.btn-primary` / `.btn-accent` for keyboard focus. `focus-visible` ensures the ring only appears for keyboard/sequential navigation, not mouse clicks. 0 TS errors · 0 lint warnings · 124/124 vitest tests passing. **Push required**: Tolu must run `git push origin develop`.
+
+---
+
+**AWD-L-14 — A11y/Landmarks: `<nav>` elements lack aria-label; no aria-current on active links**
+- **Area**: A11y / Landmarks
+- **Completed**: 2026-04-28
+- **Commit**: `994a07f` (merge `39175fd`)
+- **Summary**: `Sidebar.tsx` nav lacked `aria-label`, causing screen readers to list two unlabelled "navigation" landmarks with no way to distinguish them. `MobileNavigation.tsx` had the same gap. Fix: added `aria-label="Primary navigation"` to Sidebar's `<nav>` and `aria-label="Mobile primary navigation"` to MobileNavigation's `<nav>`. Added `aria-current={isActive ? 'page' : undefined}` to each nav button in both components so screen readers announce the current page. New `MobileNavigation.test.tsx` (4 tests) + 3 new cases in `Sidebar.test.tsx` — 131/131 vitest tests passing. 0 TS errors · 0 lint warnings. **Push required**: Tolu must run `git push origin develop`.
