@@ -452,3 +452,4 @@ After removing it, the next hourly run will:
 2026-04-28T16:12Z | AWD-L-13 | A11y/Focus: add global button:focus-visible rule | 9573817 | ✅ Done | CI:pending
 2026-04-28T17:12:09Z | AWD-L-14 | A11y: add aria-label to nav landmarks and aria-current to active links | 994a07f | ✅ Done | CI:pending
 2026-04-28T18:10:00Z | AWD-L-15 | A11y: Edit/Trash button touch targets (ParentDashboardPage) | 9476741 | ✅ Done | CI:pending (push required)
+2026-04-28T19:12:00Z | AWD-L-16 | A11y/Forms: associate form labels via htmlFor/id in ParentOnboardingPage and AddChildModal | 8e76aa5 | ✅ Done | CI:pending (push required)

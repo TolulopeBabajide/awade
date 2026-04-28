@@ -696,3 +696,11 @@
 - **Completed**: 2026-04-28
 - **Commit**: `9476741`
 - **Summary**: Edit and Trash icon buttons in the child-selector cards had no padding — effective touch target ~12×12 px (icons were `w-3 h-3`), well below the 24×24 px minimum. Fix: added `p-2 rounded-lg` to both buttons (mirroring the correct pattern in `ChildrenPage.tsx`), enlarged icons to `w-4 h-4`, added `hover:bg-primary-50` / `hover:bg-red-50` hover backgrounds, and added descriptive `aria-label` attributes (`Edit ${child.name}'s profile` / `Remove ${child.name}'s profile`). 4 new vitest tests in `ParentDashboardPage.test.tsx` asserting `p-2` class and aria-label presence. 135/135 tests passing. 0 TS errors · 0 lint warnings. **Push required**: Tolu must run `git push origin develop`.
+
+---
+
+**AWD-L-16 — A11y/Forms: Form labels not programmatically associated with controls**
+- **Area**: A11y / Forms
+- **Completed**: 2026-04-28
+- **Commit**: `8e76aa5` (merge `5f3d442`)
+- **Summary**: Age, School Name, Country, Curriculum, and Grade Level fields in `ParentOnboardingPage.tsx` and `AddChildModal.tsx` had labels that were siblings of their inputs with no `htmlFor`/`id` pairing — screen-reader association relied on browser heuristics only (WCAG 1.3.1 technique H44). Fix: added matching `htmlFor="<id>"` to each `<label>` and `id="<id>"` to each `<input>` / `<select>` (IDs: `onboarding-age`, `onboarding-school`, `onboarding-country`, `onboarding-curriculum`, `onboarding-grade` in ParentOnboardingPage; `modal-age`, `modal-school`, `modal-country`, `modal-curriculum`, `modal-grade` in AddChildModal). Name field and Subjects chip buttons were already correct. 8 new vitest tests added (4 per file) asserting `id` on controls and `for` on labels. 143/143 tests passing. 0 TS errors · 0 lint warnings. **Push required**: Tolu must run `git push origin develop`.
