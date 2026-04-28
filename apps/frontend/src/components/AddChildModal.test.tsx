@@ -69,4 +69,22 @@ describe('AddChildModal — a11y (AWD-H-54)', () => {
     const alert = await screen.findByRole('alert')
     expect(alert).toHaveTextContent(/please enter your child's name/i)
   })
+
+  // AWD-M-53: required-field a11y — name input must be programmatically required
+  it('marks the child name input as required with aria-required', async () => {
+    render(<AddChildModal isOpen onClose={vi.fn()} onSuccess={vi.fn()} />)
+    await screen.findByRole('dialog')
+    const nameInput = screen.getByPlaceholderText(/e\.g\. amina/i)
+    expect(nameInput).toHaveAttribute('required')
+    expect(nameInput).toHaveAttribute('aria-required', 'true')
+  })
+
+  it('associates the child name label with its input via htmlFor/id', async () => {
+    render(<AddChildModal isOpen onClose={vi.fn()} onSuccess={vi.fn()} />)
+    await screen.findByRole('dialog')
+    const nameInput = screen.getByPlaceholderText(/e\.g\. amina/i)
+    expect(nameInput).toHaveAttribute('id', 'modal-child-name')
+    const label = screen.getByText(/child's name/i)
+    expect(label.closest('label')).toHaveAttribute('for', 'modal-child-name')
+  })
 })

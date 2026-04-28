@@ -196,4 +196,24 @@ describe('ParentOnboardingPage', () => {
       await screen.findByTestId('dashboard-page')
     })
   })
+
+  // AWD-M-53: required-field a11y — name input must be programmatically required
+  describe('required-field a11y (AWD-M-53)', () => {
+    it('marks the child name input as required with aria-required', async () => {
+      renderPage()
+      await screen.findByText('Mathematics')
+      const nameInput = screen.getByPlaceholderText(/e\.g\. Amina/i)
+      expect(nameInput).toHaveAttribute('required')
+      expect(nameInput).toHaveAttribute('aria-required', 'true')
+    })
+
+    it('associates the child name label with its input via htmlFor/id', async () => {
+      renderPage()
+      await screen.findByText('Mathematics')
+      const nameInput = screen.getByPlaceholderText(/e\.g\. Amina/i)
+      expect(nameInput).toHaveAttribute('id', 'onboarding-name')
+      const label = screen.getByText(/child's name/i)
+      expect(label.closest('label')).toHaveAttribute('for', 'onboarding-name')
+    })
+  })
 })

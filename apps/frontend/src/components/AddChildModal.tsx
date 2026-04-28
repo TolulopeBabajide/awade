@@ -141,20 +141,27 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5" noValidate>
           {error && (
             <div role="alert" className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
           )}
 
           {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Child's Name *</label>
+            <label htmlFor="modal-child-name" className="block text-sm font-medium text-gray-700 mb-1">
+              Child's Name{' '}
+              <span className="text-red-500" aria-hidden="true">*</span>
+              <span className="sr-only">(required)</span>
+            </label>
             <input
+              id="modal-child-name"
               type="text"
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition"
               placeholder="e.g. Amina"
+              required
+              aria-required="true"
               autoFocus
             />
           </div>
