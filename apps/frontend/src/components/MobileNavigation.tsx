@@ -52,7 +52,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentPage }) => {
   };
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 z-50 shadow-lg">
+    <nav aria-label="Mobile primary navigation" className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 z-50 shadow-lg">
       <div className="flex justify-around items-center">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -68,6 +68,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentPage }) => {
               }`}
               onClick={() => handleNavigation(item.path)}
               aria-label={`Navigate to ${item.label}`}
+              aria-current={isActive ? 'page' : undefined}
               title={item.label}
             >
               <Icon className="w-6 h-6 mb-1" />
