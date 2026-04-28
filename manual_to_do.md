@@ -2,11 +2,52 @@
 
 > Things the agent cannot do autonomously (no GitHub credentials, no secrets access, requires your judgment).
 > Agent updates this file whenever a task needs Tolu's hands. Check it before and after each dev session.
-> Last updated: 2026-04-27 (Dev Agent — AWD-H-52 contrast fix shipped, commits cf64691 + merge 95b33f5 added)
+> Last updated: 2026-04-28 (Dev Agent — flagged AWD-H-55 source regression via bdf97fa, restoration blocked by FUSE-mount git lock; see top of urgent list)
 
 ---
 
 ## 🔴 Urgent / Blocking
+
+### Restore AWD-H-55 source files reverted by `bdf97fa` (do this BEFORE pushing)
+
+The chore commit `bdf97fa` ("chore(agentic): record AWD-H-55 in backlog, completed log, and dev-log") is a merge of `11c9040 + 66d9a79`, but its tree silently dropped the 4 AWD-H-55 source files. `git show bdf97fa --stat` shows `-88 lines` of code from `ParentDashboardPage.tsx`/`.test.tsx` and `SavedGuidesPage.tsx`/`.test.tsx`. The current `develop` HEAD (`8f372ee`) therefore documents AWD-H-55 as Done in `backlog.md` / `completed_backlog.md` / `dev-log.md` while the actual `aria-label` + `group-focus-within:opacity-100` accessibility code is gone — the parent flow regresses to the pre-fix state on push.
+
+The agent sandbox (virtiofs FUSE mount) cannot recover this on its own: `.git/index.lock` cannot be unlinked, and local-clones into `/tmp` and `/dev/shm` all fail (`Resource deadlock avoided` on FUSE-duplicated `* 2` objects, plus `git upload-pack: ... possible repository corruption` on `--no-local`).
+
+**Run from your Mac (in this order, before any push):**
+
+```bash
+cd ~/Desktop/Projects/awade/awade
+git checkout develop && git pull --rebase
+# 1) Sanity check the regression
+git show bdf97fa --stat | grep -E "Page\.(tsx|test\.tsx)"   # should show 4 files at -88 lines
+# 2) Restore the 4 files exactly to what 66d9a79 produced
+git checkout 66d9a79 -- \
+  apps/frontend/src/pages/ParentDashboardPage.tsx \
+  apps/frontend/src/pages/ParentDashboardPage.test.tsx \
+  apps/frontend/src/pages/SavedGuidesPage.tsx \
+  apps/frontend/src/pages/SavedGuidesPage.test.tsx
+# 3) Validate
+cd apps/frontend && npx tsc --noEmit && npm run lint && npm run test:run
+cd ../..
+# 4) Commit + merge
+git add apps/frontend/src/pages/ParentDashboardPage.tsx \
+        apps/frontend/src/pages/ParentDashboardPage.test.tsx \
+        apps/frontend/src/pages/SavedGuidesPage.tsx \
+        apps/frontend/src/pages/SavedGuidesPage.test.tsx
+git commit -m "fix(parents): AWD-H-55 restore source files reverted by bdf97fa"
+git push origin develop
+```
+
+Once that ships, also prune the FUSE-duplicated git objects so the sandbox can clone again next cycle:
+
+```bash
+find /Users/tolulopebabajide/Desktop/Projects/awade/awade/.git/objects -name '* 2' -delete
+find /Users/tolulopebabajide/Desktop/Projects/awade/awade/.git/refs/heads -name '*.stale*' -delete
+find /Users/tolulopebabajide/Desktop/Projects/awade/awade/.git/junk-empty-refs -type f -delete 2>/dev/null
+rmdir /Users/tolulopebabajide/Desktop/Projects/awade/awade/.git/junk-empty-refs 2>/dev/null
+git -C /Users/tolulopebabajide/Desktop/Projects/awade/awade gc --aggressive --prune=now
+```
 
 ### Push commits to GitHub (triggers CI)
 The sandbox has no HTTPS credentials for GitHub. All commits listed below are on your local `develop` branch and need to be pushed:
@@ -84,6 +125,21 @@ This single push covers all commits — they are already merged to `develop` in 
 | `923fa87` | C-09 | chore(agentic): record AWD-C-09 commit hash in dev-log |
 | `9a93d7e` | L-03 | docs(a11y): WCAG 2.1 AA audit for parent flow + 13 findings filed |
 | `c9af293` | L-03 | Merge docs/parents/AWD-L-03-a11y-audit into develop |
+| `b2ae5fb` | L-03 | chore(agentic): record AWD-L-03 commit hashes in dev-log and manual_to_do |
+| `cf64691` | H-52 | fix(a11y): AWD-H-52 raise parent CTA contrast to WCAG AA |
+| `95b33f5` | H-52 | Merge fix/parents/AWD-H-52-cta-contrast into develop |
+| `f4f5adc` | H-52 | chore(agentic): record AWD-H-52 commit hash in dev-log and manual_to_do |
+| `09ce2ce` | H-53 | fix(a11y): AWD-H-53 raise icon-only button contrast to WCAG AA |
+| `7f5cf1a` | analytics | feat(analytics): add Vercel Analytics |
+| `d5bf297` | H-53 | Merge fix/parents/AWD-H-53-icon-contrast into develop |
+| `dc76aaa` | H-53 | chore(agentic): record AWD-H-53 commit hash in dev-log and backlog |
+| `e0ed6ea` | H-54 | fix(parents): AWD-H-54 add dialog ARIA attrs to AddChildModal |
+| `5aaca85` | H-54 | Merge fix/parents/AWD-H-54-modal-aria into develop |
+| `3ba8dd5` | H-54 | chore(agentic): record AWD-H-54 commit hash in dev-log and backlog |
+| `66d9a79` | H-55 | fix(parents): AWD-H-55 reveal topic action hint on keyboard focus and add aria-labels |
+| `11c9040` | H-55 | Merge fix/parents/AWD-H-55-keyboard-action-reveal into develop |
+| `bdf97fa` | H-55 | ⚠️ chore(agentic): record AWD-H-55 — **this commit silently reverted the H-55 source files** (see urgent block above; restore before pushing) |
+| `8f372ee` | H-55 | chore(agentic): note AWD-H-55 push pending in manual_to_do |
 
 ---
 
@@ -139,3 +195,4 @@ Change it to reflect Sentry is now wired (`sentry-sdk[fastapi]==2.58.0` + `@sent
 - [ ] Push develop to GitHub to trigger CI for AWD-H-52 (parent CTA contrast fix, commit cf64691 / merge 95b33f5)
 - [ ] Push develop to GitHub to trigger CI for AWD-H-54 (AddChildModal dialog ARIA attrs, commit e0ed6ea / merge 5aaca85)
 - [ ] Push develop to GitHub to trigger CI for AWD-H-55 (topic action button keyboard a11y + aria-labels, commit 66d9a79 / merge 11c9040, doc commit bdf97fa)
+- [ ] Push develop to GitHub to trigger CI for AWD-M-54 (announce error banners + loading status to assistive tech, commit bcb931f / merge 8a8a8e3)

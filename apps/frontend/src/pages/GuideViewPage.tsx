@@ -100,7 +100,7 @@ const GuideViewPage: React.FC = () => {
       <div className="flex min-h-screen bg-background-50">
         <Sidebar currentPage="dashboard" />
         <main className="flex-1 lg:ml-64 flex items-center justify-center">
-          <div role="status" aria-live="polite" className="text-center">
+          <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4" />
             <p className="text-gray-600 font-medium">Generating your guide...</p>
             <p className="text-gray-400 text-sm mt-1">This may take a few seconds</p>
