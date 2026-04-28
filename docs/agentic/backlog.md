@@ -1,6 +1,6 @@
 # Awade — Backlog
 
-> Last updated: 2026-04-28 (Dev Agent — AWD-M-57 skip-to-main-content link shipped)
+> Last updated: 2026-04-28 (Dev Agent — AWD-C-10 restore AWD-M-55 aria-invalid fixes reverted by chore commit 0a00d4f)
 > Prev update: 2026-04-28 (Security Agent — daily scan filed AWD-M-58, parent-guide LLM02 output-handling gap)
 > Last groomed: 2026-04-25 (weekend-ops / Ops Agent) — see notes below. Removed stale items, updated priorities for post-security-sprint phase. Parent pivot code is feature-complete; focus shifts to launch prep + compliance.
 > Source of truth for active work. Completed items move to [`completed_backlog.md`](completed_backlog.md).
@@ -24,6 +24,8 @@
 ~~**AWD-C-08 — Docs commit `e606029` silently reverted AWD-M-43 CSP security fix**~~ ✅ 2026-04-26
 
 ~~**AWD-C-09 — Chore commits `c3ae0c4` and `d235cc5` corrupted develop: `c3ae0c4` reverted AWD-M-52 websocket fix and `d235cc5` mass-deleted 312 files**~~ ✅ 2026-04-27
+
+~~**AWD-C-10 — Chore commit `0a00d4f` silently reverted AWD-M-55 `aria-invalid` / `aria-describedby` fixes**~~ ✅ 2026-04-28
 
 ---
 

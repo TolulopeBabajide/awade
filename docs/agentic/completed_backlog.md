@@ -645,3 +645,8 @@
 - **Completed**: 2026-04-28
 - **Commit**: `9dcde3f` (merge `500577c`)
 - **Summary**: Added `<a href="#main-content" className="sr-only focus:not-sr-only ...">Skip to main content</a>` to `Sidebar.tsx` before the `<aside>` element (rendered in a Fragment). Added `id="main-content" tabIndex={-1} className="... outline-none"` to `<main>` in `ParentDashboardPage.tsx`, `ChildrenPage.tsx`, `GuideViewPage.tsx`, and `SavedGuidesPage.tsx`. Created `Sidebar.test.tsx` with 3 vitest cases verifying the link exists, has `href="#main-content"`, carries `sr-only`, and precedes the `<nav>` in DOM order.
+
+## AWD-C-10 — Chore commit `0a00d4f` silently reverted AWD-M-55 `aria-invalid` fixes
+- **Completed**: 2026-04-28
+- **Commit**: `1a09e9f` (merge `262369c`)
+- **Summary**: Chore commit `0a00d4f` (record AWD-M-55 in agentic docs) accidentally staged and committed reversions to `AddChildModal.tsx`, `AddChildModal.test.tsx`, `ParentOnboardingPage.tsx`, and `ParentOnboardingPage.test.tsx`, undoing the 7 vitest tests and the `nameInvalid` state / `aria-invalid` / `aria-describedby` wiring shipped in AWD-M-55 (commit `5c4e4d3`). Fix: re-staged all 4 files from the working tree (which retained the correct content) and committed them as `fix(a11y): AWD-C-10 restore AWD-M-55 aria-invalid fixes reverted by chore commit 0a00d4f`. Merge commit `262369c` created via `commit-tree` (virtiofs index.lock blocked standard merge). Validated: TypeScript 0 errors, lint 0 warnings, 112 frontend tests passing (including the 7 restored M-55 cases). **Push required**: Tolu must run `git push origin develop`.

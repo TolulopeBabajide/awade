@@ -445,3 +445,4 @@ After removing it, the next hourly run will:
 2026-04-28T07:15:00Z | AWD-M-53 | A11y: required-field aria-required + label association on name inputs | 3634ec8 | ✅ Done | CI:pending
 2026-04-28T08:12:00Z | M-55 | A11y: aria-invalid and aria-describedby wired to name inputs on validation error | cd5e299 | ✅ Done | CI:pending-push
 | 2026-04-28T09:15:00Z | AWD-M-57 | A11y: add skip-to-main-content link to Sidebar; id=main-content on ParentDashboardPage, ChildrenPage, GuideViewPage, SavedGuidesPage; 3 vitest cases in Sidebar.test.tsx | 9dcde3f (merge: 500577c) | ✅ Done | CI:pending (push blocked — no GH creds in sandbox; Tolu must `git push origin develop`) |
+2026-04-28T10:15:08Z | C-10 | Restore AWD-M-55 aria-invalid fixes reverted by chore commit 0a00d4f | 262369c | ✅ Done | CI:pending (push required)
