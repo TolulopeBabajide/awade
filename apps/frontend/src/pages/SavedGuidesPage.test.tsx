@@ -224,4 +224,45 @@ describe('SavedGuidesPage', () => {
       })
     })
   })
+
+  describe('guide card a11y (AWD-H-55)', () => {
+    it('guide card exposes a descriptive aria-label naming the action', async () => {
+      mockApiService.getChildren.mockResolvedValue({
+        error: undefined,
+        data: { children: [makeChild()], total: 1 },
+      })
+      mockApiService.getChildGuides.mockResolvedValue({
+        error: undefined,
+        data: { guides: [makeGuide({ topic_title: 'Fractions' })], total: 1 },
+      })
+
+      renderWithProviders(<SavedGuidesPage />)
+
+      const btn = await screen.findByRole('button', {
+        name: /Open "How to Help" guide for Fractions/i,
+      })
+      expect(btn).toBeTruthy()
+    })
+
+    it('aria-label notes when a guide is bookmarked', async () => {
+      mockApiService.getChildren.mockResolvedValue({
+        error: undefined,
+        data: { children: [makeChild()], total: 1 },
+      })
+      mockApiService.getChildGuides.mockResolvedValue({
+        error: undefined,
+        data: {
+          guides: [makeGuide({ topic_title: 'Fractions', is_bookmarked: true })],
+          total: 1,
+        },
+      })
+
+      renderWithProviders(<SavedGuidesPage />)
+
+      const btn = await screen.findByRole('button', {
+        name: /Open "How to Help" guide for Fractions \(bookmarked\)/i,
+      })
+      expect(btn).toBeTruthy()
+    })
+  })
 })

@@ -299,4 +299,46 @@ describe('ParentDashboardPage', () => {
       })
     })
   })
+
+  describe('topic action buttons a11y (AWD-H-55)', () => {
+    it('topic button exposes a descriptive aria-label naming the action', async () => {
+      mockApiService.getChildren.mockResolvedValue({
+        error: undefined,
+        data: { children: [makeChild()], total: 1 },
+      })
+      mockApiService.getChildTopics.mockResolvedValue({
+        error: undefined,
+        data: [makeTopic({ topic_title: 'Fractions' })],
+      })
+
+      renderWithProviders(<ParentDashboardPage />)
+
+      const btn = await screen.findByRole('button', {
+        name: /Generate "How to Help" guide for Fractions/i,
+      })
+      expect(btn).toBeTruthy()
+    })
+
+    it('reveal hint includes group-focus-within so keyboard users can see it on focus', async () => {
+      mockApiService.getChildren.mockResolvedValue({
+        error: undefined,
+        data: { children: [makeChild()], total: 1 },
+      })
+      mockApiService.getChildTopics.mockResolvedValue({
+        error: undefined,
+        data: [makeTopic({ topic_title: 'Fractions' })],
+      })
+
+      renderWithProviders(<ParentDashboardPage />)
+
+      await waitFor(() => {
+        expect(screen.getByText(/Get "How to Help" guide/i)).toBeTruthy()
+      })
+
+      const hint = screen.getByText(/Get "How to Help" guide/i)
+      // Hint must reveal on both pointer hover AND keyboard focus
+      expect(hint.className).toContain('group-hover:opacity-100')
+      expect(hint.className).toContain('group-focus-within:opacity-100')
+    })
+  })
 })
