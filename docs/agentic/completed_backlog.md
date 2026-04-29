@@ -720,3 +720,9 @@
 - **Completed**: 2026-04-29
 - **Commit**: `02d5c66` (merge `f916e4a`)
 - **Summary**: AWD-L-13 commit `9573817` (`fix(a11y): AWD-L-13 add button:focus-visible rule for keyboard focus rings`) silently reverted the AWD-M-60 fix in `ConsentModal.test.tsx`. The reverted version restored the `waitFor`+`userEvent.click` pattern and dropped the detailed root-cause comments. The correct M-60 version — which uses `await act(async () => { fireEvent.click(checkbox) })` to avoid React 18 + jsdom act() boundary warnings — was preserved in the working tree. Fix: staged and committed the working-tree version on branch `fix/testing/AWD-M-61-re-apply-m60-act-fix`; merged into develop. 14/14 ConsentModal tests pass; 148/148 total frontend tests pass; 0 TS errors; 0 lint warnings. **Push required**: Tolu must run `git push origin develop`.
+
+**AWD-C-11 — Critical / Regression: Chore commit `e28dedb` silently reverted AWD-M-61 ConsentModal.test.tsx fix**
+- **Area**: Testing / Regression
+- **Completed**: 2026-04-29
+- **Commit**: `f067e14`
+- **Summary**: Chore commit `e28dedb` ("chore(agentic): record AWD-M-61 in backlog, completed log, and dev-log") accidentally staged and reverted `ConsentModal.test.tsx` from the M-60/M-61 act()+fireEvent fix back to the old waitFor+userEvent pattern (same class of bug as AWD-C-07, C-08, C-09, C-10). The correct fix was already present in the working tree from a prior agent cycle. Detection: during hourly dev-agent pre-flight, `git diff HEAD -- apps/frontend/src/components/ConsentModal.test.tsx` showed the revert. Fix: staged only `ConsentModal.test.tsx` and committed directly to develop. Validation: 0 TS errors, 0 lint errors, 148/148 frontend tests pass. **Push required**: Tolu must run `git push origin develop`.
