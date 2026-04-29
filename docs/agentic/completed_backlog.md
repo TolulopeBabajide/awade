@@ -712,3 +712,11 @@
 - **Completed**: 2026-04-29
 - **Commit**: `2eded61` (merge `e1fef37`)
 - **Summary**: `HowItWorksSection.tsx` previously rendered three text-only numbered circles with no visuals. Replaced with inline SVG phone-frame mockups for all three parent-flow steps: (1) Add Child form — name/grade/country/subjects fields + Continue CTA; (2) Topics browser — subject filter tabs + scrollable topic list with Fractions/Decimals etc.; (3) Guide view — How to Help header, Simple Explanation / Try This at Home / Common Mistakes cards. Phone frames include side buttons, notch, and home-indicator bar. Each mockup uses brand colours (primary-800 green header, accent-700 CTAs). Step number badges retained below each mockup. Each mockup wrapped in `role="img"` div with descriptive `aria-label`. 5 new vitest tests in `HowItWorksSection.test.tsx` covering heading, step badges, step titles, aria-labels, and section id. 148/148 frontend tests passing. 0 TS errors · 0 lint warnings. **Also noted**: `ConsentModal.test.tsx` M-60 fix was silently reverted by AWD-L-13 commit `9573817` — filed as AWD-M-61. **Push required**: Tolu must run `git push origin develop`.
+
+---
+
+**AWD-M-61 — Testing / Regression: Re-apply M-60 act() fix to ConsentModal.test.tsx reverted by L-13**
+- **Area**: Testing / Regression
+- **Completed**: 2026-04-29
+- **Commit**: `02d5c66` (merge `f916e4a`)
+- **Summary**: AWD-L-13 commit `9573817` (`fix(a11y): AWD-L-13 add button:focus-visible rule for keyboard focus rings`) silently reverted the AWD-M-60 fix in `ConsentModal.test.tsx`. The reverted version restored the `waitFor`+`userEvent.click` pattern and dropped the detailed root-cause comments. The correct M-60 version — which uses `await act(async () => { fireEvent.click(checkbox) })` to avoid React 18 + jsdom act() boundary warnings — was preserved in the working tree. Fix: staged and committed the working-tree version on branch `fix/testing/AWD-M-61-re-apply-m60-act-fix`; merged into develop. 14/14 ConsentModal tests pass; 148/148 total frontend tests pass; 0 TS errors; 0 lint warnings. **Push required**: Tolu must run `git push origin develop`.

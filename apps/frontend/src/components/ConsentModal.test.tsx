@@ -12,7 +12,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, act, fireEvent } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import ConsentModal from './ConsentModal'
 
@@ -46,27 +46,25 @@ describe('ConsentModal', () => {
   })
 
   it('"I Agree" button becomes enabled after ticking the checkbox', async () => {
-    // Root cause (AWD-M-60): userEvent.click on a controlled <input type="checkbox">
-    // triggers React 18's internal controlled-input synchronisation in a micro-task
-    // that escapes the userEvent act() boundary, producing the act() warning.
-    // Neither await act(async()=>{}) before the click nor userEvent.setup() prevents
-    // this — it is a React 18 + jsdom interaction bug.
-    // Fix: use fireEvent.change (which only fires the change event synchronously,
-    // no focus simulation) wrapped in act() so all resulting state updates are
-    // fully flushed before assertions run.
     renderModal()
     const checkbox = screen.getByRole('checkbox')
-    await act(async () => { fireEvent.click(checkbox) })
-    expect(screen.getByRole('button', { name: /i agree/i })).not.toBeDisabled()
+    // Use waitFor to drain the useFocusTrap useEffect (.focus() call on mount)
+    // before asserting — prevents act() boundary warnings (AWD-M-59).
+    await userEvent.click(checkbox)
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /i agree/i })).not.toBeDisabled()
+    )
   })
 
   it('calls onConsented when "I Agree" is clicked with checkbox ticked', async () => {
-    // Same fireEvent.click-in-act pattern to avoid React 18 act() warning (AWD-M-60).
     const { props } = renderModal()
     const checkbox = screen.getByRole('checkbox')
-    await act(async () => { fireEvent.click(checkbox) })
+    await userEvent.click(checkbox)
+    // waitFor drains the useFocusTrap focus effect so the act() boundary is clean (AWD-M-59).
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /i agree/i })).not.toBeDisabled()
+    )
     const btn = screen.getByRole('button', { name: /i agree/i })
-    expect(btn).not.toBeDisabled()
     await userEvent.click(btn)
     expect(props.onConsented).toHaveBeenCalledOnce()
   })

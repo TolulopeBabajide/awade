@@ -455,3 +455,4 @@ After removing it, the next hourly run will:
 2026-04-28T18:10:00Z | AWD-L-15 | A11y: Edit/Trash button touch targets (ParentDashboardPage) | 9476741 | ✅ Done | CI:pending (push required)
 2026-04-28T19:12:00Z | AWD-L-16 | A11y/Forms: associate form labels via htmlFor/id in ParentOnboardingPage and AddChildModal | 8e76aa5 | ✅ Done | CI:pending (push required)
 2026-04-29T23:18:00Z | AWD-M-07 | HowItWorksSection: replace text-only circles with inline SVG phone-frame mockups | e1fef37 | ✅ Done | CI:pending (push required)
+2026-04-29T07:24:00Z | AWD-M-61 | Re-apply M-60 act() fix to ConsentModal.test.tsx reverted by L-13 | 02d5c66 | ✅ Done | CI:pending (push required)
