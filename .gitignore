@@ -125,6 +125,10 @@ logs/
 cache/
 .pytest_cache/
 
+# Prototype / scratch images — not for source control
+apps/frontend/src/assets/ChatGPT*
+apps/frontend/public/assets/ChatGPT*
+
 # Agentic framework — keep local, do not commit
 # (installed 2026-04-20 from agentic-team-template, adapted for Awade)
 CLAUDE.md
