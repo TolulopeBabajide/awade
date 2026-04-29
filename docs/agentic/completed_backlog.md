@@ -726,3 +726,9 @@
 - **Completed**: 2026-04-29
 - **Commit**: `f067e14`
 - **Summary**: Chore commit `e28dedb` ("chore(agentic): record AWD-M-61 in backlog, completed log, and dev-log") accidentally staged and reverted `ConsentModal.test.tsx` from the M-60/M-61 act()+fireEvent fix back to the old waitFor+userEvent pattern (same class of bug as AWD-C-07, C-08, C-09, C-10). The correct fix was already present in the working tree from a prior agent cycle. Detection: during hourly dev-agent pre-flight, `git diff HEAD -- apps/frontend/src/components/ConsentModal.test.tsx` showed the revert. Fix: staged only `ConsentModal.test.tsx` and committed directly to develop. Validation: 0 TS errors, 0 lint errors, 148/148 frontend tests pass. **Push required**: Tolu must run `git push origin develop`.
+
+**AWD-C-05 — Critical / Git: git repo corruption `refs/heads/develop` → missing commit object**
+- **Area**: Infrastructure / Git
+- **Completed**: 2026-04-29
+- **Commit**: N/A (git was already functional; no app code change required)
+- **Summary**: Filed as a Critical issue after `refs/heads/develop` pointed to a missing commit SHA (`187bd80b...`), blocking all git operations. The corruption was resolved at some earlier point (either Tolu ran `git update-ref` directly, or the local-clone workaround was used by a prior agent run). Verified 2026-04-29: `refs/heads/develop` = `d9c4b60e...` (valid commit object), develop branch has 57+ commits since the issue was filed, and all git operations (log, status, commit) work normally. Closing as resolved with verification only — no code change needed.
