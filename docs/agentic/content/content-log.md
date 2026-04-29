@@ -7,7 +7,7 @@
 2026-04-21 | Twitter/X | Parent | Pain Point | "You don't need to remember the maths" — fractions panic + 15-min guide framing | Draft saved
 2026-04-28 | Twitter/X | Educator | Pain Point | "You've been teaching for 10 years. Writing a lesson plan still takes 3 hours." — teacher Sunday prep pain point, local-context gap, Awade lesson plan generator | Draft saved
 2026-04-28 | Twitter/X | Both | Building in Public | "Everyone said build for the US market. Here's why we didn't." — Africa-first founder rationale | Calendar planned
-2026-04-29 | Twitter/X | Both | Curriculum Insights | Thread: Why African children deserve textbooks written about their world (7 tweets) | Calendar planned
+2026-04-29 | Twitter/X | Both | Curriculum Insights | Thread: Why African children deserve textbooks written about their world (7 tweets) | Draft saved
 2026-04-30 | LinkedIn | Parent | Parent Empowerment / Product Spotlight | Founder post: "Last year, a parent told me she sits with her daughter every night feeling useless." — parent guide origin story | Calendar planned
 2026-05-01 | Email | Educator | Teacher Workflow Tips / Partnership Outreach | Outreach email to Nigerian/Ghanaian school networks — demo request | Calendar planned
 2026-05-02 | Twitter/X | Both | Building in Public | Week-in-review: what shipped (H-06, H-02, security sprint), June launch target | Calendar planned
