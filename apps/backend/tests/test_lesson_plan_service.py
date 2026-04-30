@@ -9,7 +9,7 @@ Covers untested service methods:
 - delete_lesson_plan (404, 200)
 - get_all_lesson_resources (empty, populated)
 - get_lesson_plan_resources (404 no plan, 403 wrong user, 200, admin bypass)
-- get_lesson_resource (404, 403, 200, admin bypass)
+- get_lesson_resource (404, 404 cross-user, 200, admin bypass)
 """
 
 import pytest
@@ -445,17 +445,19 @@ class TestGetLessonResource:
             svc.get_lesson_resource(resource_id=99, current_user=user)
         assert exc_info.value.status_code == 404
 
-    def test_wrong_user_raises_403(self):
+    def test_wrong_user_returns_404_not_403(self):
+        # AWD-M-67: non-admin querying another user's resource gets 404, not 403,
+        # so the existence of the resource is not revealed.
         user = _educator(user_id=2)
-        resource = _make_resource(resource_id=1, user_id=1)  # owned by user 1
         db = MagicMock()
         q = MagicMock()
-        q.filter.return_value.first.return_value = resource
+        # Scoped query returns None — resource_id exists but is owned by user 1
+        q.filter.return_value.first.return_value = None
         db.query.return_value = q
         svc = LessonPlanService(db=db)
         with pytest.raises(HTTPException) as exc_info:
             svc.get_lesson_resource(resource_id=1, current_user=user)
-        assert exc_info.value.status_code == 403
+        assert exc_info.value.status_code == 404
 
     def test_owner_gets_resource(self):
         user = _educator(user_id=1)

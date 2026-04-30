@@ -4,7 +4,7 @@ internal error details in HTTPException.detail.
 
 Covers:
 - 404 when resource not found
-- 403 when educator tries to export another user's resource
+- 404 when educator tries to export another user's resource (AWD-M-67: no 403 leakage)
 - 400 for unsupported export format
 - 500 for unexpected export failure uses static detail (no str(e))
 - 200 PDF happy path
@@ -105,16 +105,19 @@ class TestExportLessonResource:
         )
         assert resp.status_code == 404
 
-    # ── 403 ──────────────────────────────────────────────────────────────────
+    # ── 404 (cross-user — AWD-M-67) ──────────────────────────────────────────
 
-    def test_cross_user_export_returns_403(self, other_educator, resource):
-        db = self._db_with_resource(resource)
+    def test_cross_user_export_returns_404_not_403(self, other_educator, resource):
+        # AWD-M-67: non-admin requesting another owner's resource must get 404,
+        # not 403, so the resource's existence is not revealed.
+        # The scoped query returns None for the other_educator's user_id.
+        db = self._db_without_resource()
         client = _client_for_user(other_educator, db)
         resp = client.post(
             f"/api/lesson-plans/resources/{resource.lesson_resources_id}/export",
             json={"format": "pdf"},
         )
-        assert resp.status_code == 403
+        assert resp.status_code == 404
 
     def test_admin_can_export_any_resource(self, admin_user, resource):
         db = self._db_with_resource(resource)

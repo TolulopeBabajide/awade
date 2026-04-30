@@ -536,13 +536,20 @@ class LessonPlanService:
             HTTPException: If resource not found or access denied
         """
         try:
-            lesson_resource = self.db.query(LessonResource).filter(LessonResource.lesson_resources_id == resource_id).first()
+            # AWD-M-67: scope query to user_id for non-admins so unauthorized IDs
+            # return 404 regardless of whether the resource exists, preventing
+            # existence leakage via 403/404 discrepancy.
+            if current_user.role == UserRole.ADMIN:
+                lesson_resource = self.db.query(LessonResource).filter(
+                    LessonResource.lesson_resources_id == resource_id
+                ).first()
+            else:
+                lesson_resource = self.db.query(LessonResource).filter(
+                    LessonResource.lesson_resources_id == resource_id,
+                    LessonResource.user_id == current_user.user_id
+                ).first()
             if not lesson_resource:
                 raise HTTPException(status_code=404, detail="Lesson resource not found")
-            
-            # Check if user is the resource author or admin
-            if current_user.user_id != lesson_resource.user_id and current_user.role != UserRole.ADMIN:
-                raise HTTPException(status_code=403, detail="You can only view your own resources")
             
             return LessonResourceResponse(
                 lesson_resources_id=lesson_resource.lesson_resources_id,

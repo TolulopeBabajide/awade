@@ -184,17 +184,20 @@ async def export_lesson_resource(
     """
     from apps.backend.services.pdf_service import PDFService
     
-    # Get the lesson resource
-    lesson_resource = db.query(LessonResource).filter(
-        LessonResource.lesson_resources_id == resource_id
-    ).first()
-    
+    # AWD-M-67: scope query to user_id for non-admins to prevent existence leakage
+    # via 403/404 discrepancy — unauthorised callers receive a uniform 404.
+    if current_user.role == UserRole.ADMIN:
+        lesson_resource = db.query(LessonResource).filter(
+            LessonResource.lesson_resources_id == resource_id
+        ).first()
+    else:
+        lesson_resource = db.query(LessonResource).filter(
+            LessonResource.lesson_resources_id == resource_id,
+            LessonResource.user_id == current_user.user_id
+        ).first()
+
     if not lesson_resource:
         raise HTTPException(status_code=404, detail="Lesson resource not found")
-    
-    # Check if user is the resource author or admin
-    if current_user.user_id != lesson_resource.user_id and current_user.role != UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="You can only export your own resources")
     
     # Get export format
     export_format = format_data.get("format", "pdf").lower()
