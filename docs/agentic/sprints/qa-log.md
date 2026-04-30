@@ -3692,3 +3692,31 @@ Issues: Pre-existing AWD-H-59 (JWT_EXPIRATION_HOURS vs JWT_EXPIRES_MINUTES misma
 
 Verdict: Ship ✅
 
+
+---
+
+## QA — 2026-04-30T11:35:00Z
+Result: ❌ FAIL
+Commits: `3782b92`, `f054da5`, `1fabdfa` | Files: `.env.example`, `docs/agentic/AGENTIC-TEAM.md`, `docs/agentic/SCHEDULED-TASKS.md`, `docs/agentic/backlog.md`, `docs/agentic/completed_backlog.md`, `docs/agentic/daily-briefs/morning-brief.md`, `docs/agentic/sprints/dev-log.md`, `docs/agentic/sprints/qa-log.md`, `manual_to_do.md`
+
+| Check | Result |
+|-------|--------|
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 148 passing, 0 failing (13 test files) |
+| Backend tests | ⚠️ skipped — venv Python 3.13 symlink broken in sandbox; no space to install pytest; no backend code changed in this batch |
+| OpenAPI valid | ✅ valid JSON |
+| Spot-check | ❌ CRITICAL — see Issues below |
+| CI on develop | unknown — gh CLI not available in sandbox |
+
+Issues:
+1. **❌ CRITICAL — staged .env.example reverts AWD-H-59 fix (AWD-H-60)**
+   - `git status` shows `.env.example` staged with `JWT_EXPIRATION_HOURS=24`, directly reverting commit `f054da5` which set `JWT_EXPIRES_MINUTES=60`. If this staged version is committed, the H-59 fix is silently undone.
+   - `git diff --cached -- .env.example` confirms the staging area contains the old value.
+   - Issues AWD-H-60 (risk of silent reversion) and AWD-M-69 (JWT lifetime change callout) already filed by code-review-agent in unstaged `docs/agentic/backlog.md`.
+   - **Tolu action required**: `git restore --staged .env.example && git checkout HEAD -- .env.example`
+2. **⚠️ Unstaged doc changes not yet committed** — `docs/agentic/backlog.md`, `docs/agentic/completed_backlog.md`, `docs/agentic/sprints/dev-log.md` have code-review-agent additions (AWD-H-60, AWD-M-69 filed) that are not staged or committed. These need a commit before the next dev run picks up a dirty tree.
+3. **⚠️ Backend tests skipped (pre-existing)** — venv Python symlink broken in sandbox; not introduced by this cycle.
+
+Verdict: Needs fix — Tolu must clear staged .env.example reversion before next dev run. ⚠️ DO NOT let dev-agent commit while .env.example is in staging area.
+

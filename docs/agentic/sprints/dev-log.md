@@ -474,3 +474,5 @@ After removing it, the next hourly run will:
 2026-04-30T00:20:00Z | AWD-M-65 | Remove TestPage.tsx debug page from production routing | 359b4a5 (merge: 631e45b) | ✅ Done | CI:pending-push
 2026-04-30T08:00:00Z | AWD-H-58 | Clear staged index reverting AWD-M-65 fix (TestPage.tsx unstaged; App.tsx restored to HEAD) | N/A (staging cleanup — no commit object) | ✅ Done | Residual: TestPage.tsx on disk as untracked — Tolu must `rm apps/frontend/src/pages/TestPage.tsx` locally. Staging area is clean; regression risk eliminated.
 2026-04-30T10:12:10Z | AWD-M-66 | Clean up duplicate/stale JWT secret variables in .env.example | 779881a (feature) / e0a633e (merge) | ✅ Done | CI:pending
+
+2026-04-30T11:14:08Z | AWD-H-59 | Correct JWT expiry var name in .env.example (EXPIRATION_HOURS→EXPIRES_MINUTES) | f054da5 (merge: 1fabdfa) | ✅ Done | CI:pending (push blocked in sandbox — Tolu to push develop)

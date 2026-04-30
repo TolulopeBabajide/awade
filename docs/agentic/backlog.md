@@ -1,6 +1,7 @@
 # Awade — Backlog
 
-> Last updated: 2026-04-30 (Lead Dev Agent — AWD-M-66 resolved: duplicate JWT vars and merge artifact removed from .env.example)
+> Last updated: 2026-04-30 (code-review-agent — filed AWD-H-60 working tree divergence, AWD-M-69 JWT lifetime callout)
+> Prev updated: 2026-04-30 (Lead Dev Agent — AWD-M-66 resolved: duplicate JWT vars and merge artifact removed from .env.example)
 > Prev update: 2026-04-30 (Lead Dev Agent — AWD-H-58 resolved: staging area cleared; TestPage.tsx no longer staged; residual untracked file on disk — Tolu to `rm apps/frontend/src/pages/TestPage.tsx` locally)
 > Last groomed: 2026-04-25 (weekend-ops / Ops Agent) — see notes below. Removed stale items, updated priorities for post-security-sprint phase. Parent pivot code is feature-complete; focus shifts to launch prep + compliance.
 > Source of truth for active work. Completed items move to [`completed_backlog.md`](completed_backlog.md).
@@ -541,12 +542,8 @@ When adding a new issue, use this format:
 - **Detail:** `get_lesson_resource` (service:539) and `export_lesson_resource` (router:192) fetch without owner filter then return 404/403 differently, revealing whether a resource_id exists. Fix: add `user_id` scope to the query before the 404 check.
 - **Files:** `apps/backend/services/lesson_plan_service.py:539`, `apps/backend/routers/lesson_plans.py:192`
 
-### AWD-H-59 — Wrong variable name for JWT expiry in .env.example
-- **Stage:** ready
-- **Priority:** High
-- **Source:** code-review-agent 2026-04-30
-- **Detail:** `.env.example` documents `JWT_EXPIRATION_HOURS=24` but `apps/backend/services/auth_service.py:56` reads `JWT_EXPIRES_MINUTES` (default 60). Any developer setting `JWT_EXPIRATION_HOURS` in production is silently ignored — runtime falls back to 60-minute tokens. Fix: replace `JWT_EXPIRATION_HOURS=24` with `JWT_EXPIRES_MINUTES=60` in `.env.example` and add a comment clarifying the unit.
-- **Files:** `.env.example` (line 9), `apps/backend/services/auth_service.py` (line 56)
+~~### AWD-H-59 — Wrong variable name for JWT expiry in .env.example~~ ✅ 2026-04-30
+- ~~**Stage:** ready~~ ✅ fixed in commit f054da5
 
 ### AWD-M-68 — env.production.template still contains stale SECRET_KEY variable
 - **Stage:** define
@@ -554,3 +551,17 @@ When adding a new issue, use this format:
 - **Source:** code-review-agent 2026-04-30
 - **Detail:** `SECRET_KEY` was removed from `.env.example` (AWD-M-66) because the backend uses `JWT_SECRET_KEY`. However `env.production.template` still has `SECRET_KEY=your-super-secret-key-change-this`. Templates are out of sync. Also audit `env.test.template` for the same stale entry. Fix: remove `SECRET_KEY` from all env templates that don't need it and verify no backend path reads it.
 - **Files:** `env.production.template`, `env.test.template`
+
+### AWD-H-60 — .env.example working tree diverges from HEAD after H-59 fix — risk of silent reversion
+- **Stage:** ready
+- **Priority:** High
+- **Source:** code-review-agent 2026-04-30
+- **Detail:** After commit `f054da5` (AWD-H-59) renamed `JWT_EXPIRATION_HOURS` → `JWT_EXPIRES_MINUTES` in `.env.example`, the on-disk file still contains the old value. `git diff HEAD -- .env.example` confirms the mismatch. This is the exact pattern that triggered AWD-C-07 through AWD-C-11 (five silent reversions). If any agent or developer stages `.env.example` without reviewing the diff, the H-59 fix will be silently reverted. **Fix (Tolu runs locally)**: `git checkout HEAD -- .env.example` to restore the committed version on disk.
+- **Files:** `.env.example`
+
+### AWD-M-69 — JWT token lifetime default reduced 24× without explicit callout — verify Render env var
+- **Stage:** define
+- **Priority:** Medium
+- **Source:** code-review-agent 2026-04-30
+- **Detail:** The H-59 fix changed the example value from `JWT_EXPIRATION_HOURS=24` (≈1440 min) to `JWT_EXPIRES_MINUTES=60` (1 hour). The service-layer default (when the var is absent) is also 60 minutes. Any deployment that omitted the var or copied the old example will now issue tokens expiring 24× sooner. No changelog or dev-log entry calls this out. **Fix**: (1) Verify Render's `JWT_EXPIRES_MINUTES` env var is explicitly set to the intended lifetime. (2) Add a note to `docs/agentic/sprints/dev-log.md` documenting the lifetime change. (3) If 60 min is intentional for security, add a comment to the H-59 completed_backlog entry.
+- **Files:** `.env.example`, Render env vars, `docs/agentic/sprints/dev-log.md`

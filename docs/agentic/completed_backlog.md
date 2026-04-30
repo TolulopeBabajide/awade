@@ -765,3 +765,8 @@
 - **Completed**: 2026-04-30
 - **Commit**: `779881a` (chore(config): AWD-M-66 remove duplicate JWT vars and merge artifact from .env.example)
 - **Summary**: `.env.example` had a duplicate `# Security Configuration` block (JWT_SECRET_KEY, JWT_ALGORITHM, JWT_EXPIRATION_HOURS defined twice), a stray `->` merge-conflict artifact, and two stale variables (`SECRET_KEY`, `JWT_SECRET`) not read by any application code. Removed all redundant entries; single canonical `JWT_SECRET_KEY` block remains. No app code changed.
+
+## AWD-H-59 — Wrong variable name for JWT expiry in .env.example
+- **Completed:** 2026-04-30
+- **Commit:** f054da5 (merge: 1fabdfa)
+- **Fix:** Replaced JWT_EXPIRATION_HOURS=24 with JWT_EXPIRES_MINUTES=60 in .env.example; added unit comment. Production/test templates were already correct.

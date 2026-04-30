@@ -134,3 +134,22 @@ Full review: `docs/code-reviews/review-2026-04-30-359b4a5.md`
 
 Verdict: Ship ✅
 
+
+---
+
+## ⚠️ QA Alert — 2026-04-30T11:35:00Z
+
+**QA auto-filed AWD-H-60 (already in unstaged backlog) — NEEDS HUMAN ACTION before next dev run.**
+
+**Issue**: `.env.example` is currently STAGED with `JWT_EXPIRATION_HOURS=24`, directly reverting the AWD-H-59 fix committed in `f054da5`. If the next dev-agent cycle commits this staged file, the JWT variable name fix will be silently undone for the third time.
+
+**Tolu — action required (run locally)**:
+```bash
+git restore --staged .env.example
+git checkout HEAD -- .env.example
+```
+
+Then commit the pending unstaged doc changes (backlog.md, completed_backlog.md, dev-log.md) which contain AWD-H-60 and AWD-M-69.
+
+Also note: AWD-M-69 flags that the H-59 fix silently reduced the JWT token lifetime from 24 hours to 60 minutes. Verify `JWT_EXPIRES_MINUTES` is explicitly set in Render env vars.
+
