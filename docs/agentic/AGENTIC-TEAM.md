@@ -1,7 +1,7 @@
 # Awade Agentic Team — Control Center
 
-> **Last updated**: 2026-04-20
-> **Status**: 12 scheduled tasks defined · 16 agent skills available · CI-aligned dev loop
+> **Last updated**: 2026-04-29
+> **Status**: 19 scheduled tasks defined · 18 agent skills available · CI-aligned dev loop
 
 ---
 
@@ -19,6 +19,14 @@
 | Handle a support question | "How should I respond to this parent: [message]" |
 | Security audit | "Run a security audit" |
 | Plan a growth experiment | "Design an experiment to increase parent signups" |
+| Review code quality | "Run a code review on the latest commits" |
+| Audit tech debt | "Run a tech debt audit" |
+| Check dependency CVEs | "Run a dependency security scan" |
+| Architecture drift check | "Run an architecture review" |
+| Access control audit | "Run an access review" |
+| Compliance check | "Run a compliance audit" |
+| Incident triage | "We have an incident: [description]" |
+| Deploy to main | "Run devops agent — promote develop to main" |
 | Inspect DB schema | Use the `db` MCP (Postgres introspect) |
 | Check OpenAPI spec | Use the `openapi` MCP (`apps/backend/app/openapi.json`) |
 
@@ -27,11 +35,13 @@
 ## Hourly Dev + QA Loop
 
 ```
-:00  dev-execution  →  picks top backlog issue  →  implements  →  mirrors CI locally  →  merges to develop  →  push triggers CI
-:30  qa-validation  →  validates  →  cross-references CI  →  if fail: auto-files H-## into backlog  →  dev picks up next :00
+:00  dev-execution   →  picks top backlog issue (stage=ready)  →  implements  →  mirrors CI locally  →  merges to develop  →  push triggers CI
+:15  code-review     →  structural review of every commit (SOLID, complexity, coupling)  →  files H-## for violations
+:30  qa-validation   →  validates  →  cross-references CI  →  if fail: auto-files H-## into backlog  →  dev picks up next :00
+:45  dashboard-refresh  →  regenerates agentic dashboard from latest logs
 ```
 
-Both self-gate: dev skips if commit within 50 min, QA skips if no new commits within 40 min.
+All self-gate: dev skips if commit within 50 min, QA skips if no new commits within 40 min.
 
 ---
 
@@ -40,14 +50,22 @@ Both self-gate: dev skips if commit within 50 min, QA skips if no new commits wi
 | Time | Mon | Tue | Wed | Thu | Fri | Sat | Sun |
 |------|-----|-----|-----|-----|-----|-----|-----|
 | 6am | security-scan | security-scan | security-scan | security-scan | security-scan | security-scan | security-scan |
+| 6:30am | compliance-audit† | access-review† | dependency-security | — | — | — | — |
+| 7am | performance-audit | architecture-review‡ | — | — | tech-debt | — | — |
 | 8am | health-check | health-check | health-check | health-check | health-check | — | — |
 | 9am | weekly-review | — | content-calendar | — | — | — | — |
 | 9:30am | sprint-planning | — | — | — | — | — | — |
-| Hourly | dev loop | dev loop | dev loop | dev loop | dev loop | dev loop | dev loop |
+| Hourly :00 | dev-execution | dev-execution | dev-execution | dev-execution | dev-execution | dev-execution | dev-execution |
+| Hourly :15 | code-review | code-review | code-review | code-review | code-review | code-review | code-review |
+| Hourly :30 | qa-validation | qa-validation | qa-validation | qa-validation | qa-validation | qa-validation | qa-validation |
+| Hourly :45 | dashboard-refresh | dashboard-refresh | dashboard-refresh | dashboard-refresh | dashboard-refresh | dashboard-refresh | dashboard-refresh |
 | 3pm | growth-daily | growth-daily | growth-daily | growth-daily | growth-daily | — | — |
 | 5pm | — | — | — | — | friday-finance | — | — |
 | 10am | — | — | — | — | — | weekend-ops | — |
 | 11pm | nightly-monitor | nightly-monitor | nightly-monitor | nightly-monitor | nightly-monitor | nightly-monitor | nightly-monitor |
+
+† First occurrence of that weekday in the month only.
+‡ Scheduled weekly but agent's 20160-min idempotency gate enforces biweekly cadence.
 
 ---
 
@@ -55,9 +73,10 @@ Both self-gate: dev skips if commit within 50 min, QA skips if no new commits wi
 
 | Department | Agents | Auto-runs? |
 |------------|--------|------------|
-| Engineering | dev-agent, qa-agent, devops-agent | ✅ Hourly dev+QA loop |
+| Engineering | dev-agent, qa-agent, code-review-agent, devops-agent, incident-response-agent | ✅ Hourly (:00 / :15 / :30); devops + incident on demand |
+| Architecture | architecture-agent, performance-agent, tech-debt-agent | ✅ Biweekly Tue 7am / Mon 7am / Fri 7am |
 | Product | pm-agent, sprint-planning, weekly-review | ✅ Mon 9am + 9:30am |
-| Security & Compliance | security-agent, legal-agent | ✅ Daily 6am (security-scan) |
+| Security & Compliance | security-agent, access-review-agent, compliance-agent, dependency-security-agent | ✅ Daily 6am + Wed 6:30am + monthly |
 | Marketing | marketing-agent, seo-agent, growth-agent | ✅ Daily 3pm + Wed 9am |
 | Content | content-agent | On demand |
 | Operations | finance-agent, analytics-agent, ops-agent | ✅ Fri 5pm + Sat 10am |
@@ -73,13 +92,18 @@ All under `docs/agentic/` (kept separate from `docs/public/` and `docs/private/`
 |------|-----------|---------|
 | `docs/agentic/daily-briefs/morning-brief.md` | nightly-monitor | You, every morning |
 | `docs/agentic/daily-briefs/monday-prep.md` | weekend-ops | You, every Monday |
-| `docs/agentic/backlog.md` | pm-agent, qa-validation (auto-files failures) | dev-execution |
+| `docs/agentic/backlog.md` | pm-agent, qa-validation (auto-files failures), code-review-agent | dev-execution |
 | `docs/agentic/sprints/dev-log.md` | dev-execution | weekly-review, weekend-ops |
 | `docs/agentic/sprints/qa-log.md` | qa-validation | nightly-monitor, weekly-review |
 | `docs/agentic/audits/security-report-[date].md` | security-scan | weekly-review |
 | `docs/agentic/content/drafts/` | growth-daily | You (approve before posting) |
 | `docs/agentic/weekly-reviews/` | weekly-review, weekend-ops | You |
 | `docs/agentic/finance/` | friday-finance, you (balance.md) | You, weekly-review |
+| `docs/performance/` | performance-agent | You, weekly-review |
+| `docs/tech-debt/` | tech-debt-agent | You, architecture-agent |
+| `docs/audits/` | access-review-agent, compliance-agent, dependency-security-agent | You, security-scan |
+| `docs/agentic/feedback-log.md` | All on-demand agents | You (improvement tracking) |
+| `.agent-health/` | All scheduled agents (heartbeats + MCP failures) | nightly-monitor |
 
 ---
 
@@ -147,9 +171,9 @@ Use these before reaching for raw grep — they're faster and scoped.
 ---
 
 ## First-week checklist (for the agentic framework)
-- [ ] Copy `.claude/`, `CLAUDE.md`, `project-config.md`, and `docs/agentic/` into the real repo (`/Users/tolulopebabajide/Desktop/Projects/awade/awade`)
-- [ ] Create all 12 scheduled tasks from `docs/agentic/SCHEDULED-TASKS.md`
+- [ ] Create all 19 scheduled tasks from `docs/agentic/SCHEDULED-TASKS.md`
 - [ ] Click "Run now" on each scheduled task once to pre-approve tools
 - [ ] Read the first `morning-brief.md` — you're live
 - [ ] Connect GitHub MCP so the dev+QA loop can read real CI status
-- [ ] Pick the top High issue from the backlog (AWD-H-01 Sentry or AWD-H-02 Parent signup) and let the dev loop take it
+- [ ] Pick the top High issue from the backlog and let the dev loop take it
+- [ ] Run access-review-agent and compliance-agent once manually to get baseline reports

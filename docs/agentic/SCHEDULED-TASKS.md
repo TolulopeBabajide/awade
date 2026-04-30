@@ -535,16 +535,141 @@ or on skip:
 
 ---
 
+---
+
+## Task 13: Code Review (Engineering Loop)
+**ID**: `awade-code-review`
+**Schedule**: Hourly at :15 (`15 * * * *`)
+**Description**: Structural code review of every commit shipped by dev-execution. SOLID, complexity, coupling, duplication. Files H-## for every violation.
+
+**Prompt**:
+```
+You are the code-review-agent for Awade. Run every hour at :15.
+
+Read your SKILL.md at: /Users/tolulopebabajide/Desktop/Projects/awade/awade/.claude/skills/code-review-agent/SKILL.md
+Follow all instructions exactly.
+
+Working directory: /Users/tolulopebabajide/Desktop/Projects/awade/awade
+```
+
+---
+
+## Task 14: Performance Audit
+**ID**: `awade-performance-audit`
+**Schedule**: Mondays at 7am (`0 7 * * 1`)
+**Description**: Weekly API latency, bundle size, N+1 detection, and Lighthouse score audit.
+
+**Prompt**:
+```
+You are the performance-agent for Awade. Run every Monday at 7am.
+
+Read your SKILL.md at: /Users/tolulopebabajide/Desktop/Projects/awade/awade/.claude/skills/performance-agent/SKILL.md
+Follow all instructions exactly.
+
+Working directory: /Users/tolulopebabajide/Desktop/Projects/awade/awade
+```
+
+---
+
+## Task 15: Tech Debt Audit
+**ID**: `awade-tech-debt`
+**Schedule**: Fridays at 7am (`0 7 * * 5`)
+**Description**: Weekly 7-signal tech debt discovery, Impact÷Effort scoring, and paydown prioritisation.
+
+**Prompt**:
+```
+You are the tech-debt-agent for Awade. Run every Friday at 7am.
+
+Read your SKILL.md at: /Users/tolulopebabajide/Desktop/Projects/awade/awade/.claude/skills/tech-debt-agent/SKILL.md
+Follow all instructions exactly.
+
+Working directory: /Users/tolulopebabajide/Desktop/Projects/awade/awade
+```
+
+---
+
+## Task 16: Dependency Security Scan
+**ID**: `awade-dependency-security`
+**Schedule**: Wednesdays at 6:30am (`30 6 * * 3`)
+**Description**: Weekly CVE scan (npm + pip), license compliance check, and SBOM update.
+
+**Prompt**:
+```
+You are the dependency-security-agent for Awade. Run every Wednesday at 6:30am.
+
+Read your SKILL.md at: /Users/tolulopebabajide/Desktop/Projects/awade/awade/.claude/skills/dependency-security-agent/SKILL.md
+Follow all instructions exactly.
+
+Working directory: /Users/tolulopebabajide/Desktop/Projects/awade/awade
+```
+
+---
+
+## Task 17: Architecture Review
+**ID**: `awade-architecture-review`
+**Schedule**: Tuesdays at 7am (`0 7 * * 2`) — agent's own 20160-minute idempotency check gates to biweekly
+**Description**: Biweekly architecture drift detection, ADR creation, and tech debt clustering.
+
+**Prompt**:
+```
+You are the architecture-agent for Awade. Run every Tuesday at 7am (idempotency check enforces biweekly cadence).
+
+Read your SKILL.md at: /Users/tolulopebabajide/Desktop/Projects/awade/awade/.claude/skills/architecture-agent/SKILL.md
+Follow all instructions exactly.
+
+Working directory: /Users/tolulopebabajide/Desktop/Projects/awade/awade
+```
+
+---
+
+## Task 18: Access Review
+**ID**: `awade-access-review`
+**Schedule**: First Tuesday of each month at 6:30am (`30 6 1-7 * 2`)
+**Description**: Monthly route auth coverage audit, IDOR scan, and API key rotation check.
+
+**Prompt**:
+```
+You are the access-review-agent for Awade. Run on the first Tuesday of each month.
+
+Read your SKILL.md at: /Users/tolulopebabajide/Desktop/Projects/awade/awade/.claude/skills/access-review-agent/SKILL.md
+Follow all instructions exactly.
+
+Working directory: /Users/tolulopebabajide/Desktop/Projects/awade/awade
+```
+
+---
+
+## Task 19: Compliance Audit
+**ID**: `awade-compliance-audit`
+**Schedule**: First Monday of each month at 6:30am (`30 6 1-7 * 1`)
+**Description**: Monthly GDPR/CCPA/COPPA/AI Act compliance audit. COPPA and AI Act are both directly relevant to Awade.
+
+**Prompt**:
+```
+You are the compliance-agent for Awade. Run on the first Monday of each month.
+
+Read your SKILL.md at: /Users/tolulopebabajide/Desktop/Projects/awade/awade/.claude/skills/compliance-agent/SKILL.md
+Follow all instructions exactly.
+
+Working directory: /Users/tolulopebabajide/Desktop/Projects/awade/awade
+```
+
+---
+
 ## Setup Order
 1. Create tasks 1–9 first (fixed-schedule anchors)
 2. Create task 10 (dev-execution hourly)
 3. Create task 11 (qa-validation hourly)
 4. Create task 12 (dashboard-refresh hourly at :45)
-5. Click "Run now" on ALL tasks once to pre-approve tools (file ops, git, bash)
-6. Check `docs/agentic/daily-briefs/morning-brief.md` the next morning and open `docs/agentic/dashboard/agentic-dashboard.jsx` — you're live
+5. Create tasks 13–19 (engineering + security agents)
+6. Click "Run now" on ALL tasks once to pre-approve tools (file ops, git, bash)
+7. Check `docs/agentic/daily-briefs/morning-brief.md` the next morning and open `docs/agentic/dashboard/agentic-dashboard.jsx` — you're live
 
 ## Notes
 - Tasks 10 + 11 form a self-healing loop — dev-execution ships at :00, qa-validation audits at :30. If QA files an H-##, dev picks it up at the next :00.
+- Task 13 (code-review) runs at :15 — between dev (:00) and QA (:30), giving structural feedback before QA signs off.
 - All tasks read `project-config.md` first; keep it up to date or the agents drift.
 - If Tolu wants to pause the loop: say "pause dev-execution and qa-validation" — paused tasks resume manually.
 - Task 12 (dashboard-refresh) runs at :45 so dev + QA have both finished. It only rewrites the `AGENT_DATA_START … AGENT_DATA_END` block in the JSX, never the component code — if sentinels are removed, the task skips and files an H-##.
+- Task 17 (architecture-review) is scheduled weekly (Tuesday) but the agent's own 20160-minute idempotency check enforces a biweekly cadence — it will self-skip on weeks where it already ran.
+- Tasks 18 + 19 (access-review, compliance-audit) use `1-7 * 2/1` cron patterns to target the first Tuesday/Monday of each month respectively.

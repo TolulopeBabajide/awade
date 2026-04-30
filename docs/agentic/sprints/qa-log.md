@@ -3605,3 +3605,90 @@ Commits: none in last 40 minutes (last commit: d9c4b60, 83 min ago — "chore(op
 | CI on develop     | — |
 Issues: None
 Verdict: ⏭ Skipped — no new commits on develop within the 40-minute window
+
+---
+## QA — 2026-04-29T22:34:49Z
+Result: ⏭ SKIPPED — no new commits on develop in the last 40 minutes
+Commits: none
+Verdict: No action required
+
+---
+## QA — 2026-04-29T23:36:01Z
+Result: ✅ PASS
+Commits: aa4dd2d | Files: .gitignore, apps/frontend/public/assets/ChatGPT* (×4 deleted), apps/frontend/src/assets/ChatGPT* (×4 deleted)
+| TypeScript        | ✅ 0 errors |
+| Lint              | ✅ 0 errors |
+| Frontend tests    | ✅ 148 passing, 0 failing (13 test files) |
+| Backend tests     | ⚠️ SKIPPED — venv python3.13 is broken symlink in sandbox; disk full prevented pip install. Sandbox limitation only — CI uses its own env |
+| OpenAPI valid     | ✅ |
+| Spot-check        | ✅ — chore-only commit (8 binary PNGs deleted, 4 .gitignore lines added). No source code touched. No secrets, console.log, @ts-ignore, TODOs, role-check gaps, or prompt changes detected |
+| CI on develop     | unknown — gh CLI not available in sandbox |
+Issues: None
+Verdict: Ship — all source-code checks clean; backend test skip is a sandbox infra limitation, not a code issue
+
+---
+## QA — 2026-04-30T00:34:47Z
+Result: ✅ PASS
+Commits: 359b4a5 | Files: apps/frontend/src/App.tsx, apps/frontend/src/pages/TestPage.tsx
+| TypeScript        | ✅ 0 errors |
+| Lint              | ✅ 0 errors |
+| Frontend tests    | ✅ 148 passing, 0 failing (13 test files) |
+| Backend tests     | ⚠️ SKIPPED — venv python3.13 is a broken symlink in sandbox (macOS venv cannot run on Linux sandbox). CI uses its own env — not a code issue |
+| OpenAPI valid     | ✅ |
+| Spot-check        | ✅ — TestPage.tsx removed, App.tsx /test route + import removed. No secrets, console.log, @ts-ignore, TODO/FIXME, or role-check gaps found. TestPage was debug-only and not protected by any route guard; removal is correct and safe |
+| CI on develop     | unknown — gh CLI not available in sandbox |
+Issues: None
+Verdict: Ship — AWD-M-65 cleanly closes the debug-page exposure. All source-code checks green
+
+---
+## QA — 2026-04-30T07:30:00Z
+Result: ⏭ SKIPPED — no new commits on develop in the last 40 minutes
+Commits: none (last commit: 631e45b at 2026-04-30T00:15:27Z — already validated in QA run at 00:34:47Z)
+| TypeScript        | — |
+| Lint              | — |
+| Frontend tests    | — |
+| Backend tests     | — |
+| OpenAPI valid     | — |
+| Spot-check        | — |
+| CI on develop     | — |
+Issues: None
+Verdict: ⏭ Skipped — no new commits on develop within the 40-minute window
+
+---
+
+## QA — 2026-04-30T09:41:10Z
+Result: ✅ PASS
+Commits: `77d0c6c` | Files: `docs/agentic/backlog.md`, `docs/agentic/completed_backlog.md`, `docs/agentic/sprints/dev-log.md`
+| TypeScript       | ✅ 0 errors |
+| Lint             | ✅ 0 errors, 0 warnings |
+| Frontend tests   | ✅ 148 passing, 0 failing (13 test files) |
+| Backend tests    | ⚠️ SKIPPED — venv symlink broken (python3.13 missing on sandbox, existing issue AWD-M-46); sandbox has no disk space for pip install |
+| OpenAPI valid    | ✅ |
+| Spot-check       | ✅ No app code changed — commit is docs-only (backlog + dev-log housekeeping for AWD-H-58) |
+| CI on develop    | ⚠️ unknown — gh CLI not available; git status shows develop is ahead of origin (push pending, Tolu action required) |
+Issues:
+- ⚠️ `apps/frontend/src/pages/TestPage.tsx` still exists as untracked on disk (noted in dev-log); Tolu must run `rm apps/frontend/src/pages/TestPage.tsx` locally to fully close AWD-H-58.
+- ⚠️ Multiple modified docs files with unstaged/uncommitted changes on working tree (AGENTIC-TEAM.md, SCHEDULED-TASKS.md, morning-brief.md, manual_to_do.md etc.) — these are agent-generated docs not yet committed; dev agent should batch-commit on next cycle.
+- ⚠️ Backend tests not validated this cycle (AWD-M-46 persistent — venv broken). No new backend code was introduced in this commit, so risk is low.
+Verdict: Ship
+
+---
+
+## QA — 2026-04-30T10:35:41Z
+Result: ✅ PASS
+Commits: `e0a633e`, `779881a` | Files: `.env.example`
+
+| Check | Result |
+|-------|--------|
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 148 passing, 0 failing (13 test files) |
+| Backend tests | ⚠️ skipped — venv not found in sandbox |
+| OpenAPI valid | ✅ valid JSON |
+| Spot-check | ✅ only .env.example changed; all values are placeholders; no secrets, debug statements, ts-ignore, or TODOs introduced |
+| CI on develop | unknown — gh CLI not available |
+
+Issues: Pre-existing AWD-H-59 (JWT_EXPIRATION_HOURS vs JWT_EXPIRES_MINUTES mismatch in .env.example) and AWD-M-68 (stale SECRET_KEY in env.production.template) are already in backlog — not introduced by this commit.
+
+Verdict: Ship ✅
+

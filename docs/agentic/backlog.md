@@ -1,7 +1,7 @@
 # Awade — Backlog
 
-> Last updated: 2026-04-30 (Lead Dev Agent — AWD-H-58 resolved: staging area cleared; TestPage.tsx no longer staged; residual untracked file on disk — Tolu to `rm apps/frontend/src/pages/TestPage.tsx` locally)
-> Prev update: 2026-04-29 (Lead Dev Agent — AWD-C-05 closed: git corruption resolved, develop branch functional at d9c4b60; all remaining open items require Tolu decision or hardware access)
+> Last updated: 2026-04-30 (Lead Dev Agent — AWD-M-66 resolved: duplicate JWT vars and merge artifact removed from .env.example)
+> Prev update: 2026-04-30 (Lead Dev Agent — AWD-H-58 resolved: staging area cleared; TestPage.tsx no longer staged; residual untracked file on disk — Tolu to `rm apps/frontend/src/pages/TestPage.tsx` locally)
 > Last groomed: 2026-04-25 (weekend-ops / Ops Agent) — see notes below. Removed stale items, updated priorities for post-security-sprint phase. Parent pivot code is feature-complete; focus shifts to launch prep + compliance.
 > Source of truth for active work. Completed items move to [`completed_backlog.md`](completed_backlog.md).
 > Issue prefix: `AWD` — e.g., reference as `AWD-H-03` in commits.
@@ -529,12 +529,10 @@ When adding a new issue, use this format:
 - **Detail:** `agent-permissions.json` does not exist. Create at repo root enumerating each scheduled agent's read/write paths. 11 agents confirmed active via `.agent-health/`. Enables systematic scope-creep auditing in future runs.
 - **Files:** `agent-permissions.json` (create)
 
-### AWD-M-66 — Clean up duplicate/stale JWT secret variables in .env.example
-- **Stage:** ready
-- **Priority:** Medium
+~~### AWD-M-66 — Clean up duplicate/stale JWT secret variables in .env.example~~
+- ~~**Stage:** ready~~ ✅ 2026-04-30
 - **Source:** access-review-agent 2026-04-29
-- **Detail:** `.env.example` defines `JWT_SECRET_KEY` twice (lines 6 and 13) and also has unused `SECRET_KEY` and `JWT_SECRET` entries. Only `JWT_SECRET_KEY` is read by the application. Remove duplicates and stale entries to avoid silent misconfiguration in new environments.
-- **Files:** `.env.example`
+- **Detail:** Removed duplicate `JWT_SECRET_KEY`/`JWT_ALGORITHM`/`JWT_EXPIRATION_HOURS` block, stray `->` merge artifact, and stale `SECRET_KEY`/`JWT_SECRET` entries. Commit: `779881a`.
 
 ### AWD-M-67 — Lesson resource routes: uniform 404 for unauthorized IDs (existence leakage)
 - **Stage:** ready
@@ -542,3 +540,17 @@ When adding a new issue, use this format:
 - **Source:** access-review-agent 2026-04-29
 - **Detail:** `get_lesson_resource` (service:539) and `export_lesson_resource` (router:192) fetch without owner filter then return 404/403 differently, revealing whether a resource_id exists. Fix: add `user_id` scope to the query before the 404 check.
 - **Files:** `apps/backend/services/lesson_plan_service.py:539`, `apps/backend/routers/lesson_plans.py:192`
+
+### AWD-H-59 — Wrong variable name for JWT expiry in .env.example
+- **Stage:** ready
+- **Priority:** High
+- **Source:** code-review-agent 2026-04-30
+- **Detail:** `.env.example` documents `JWT_EXPIRATION_HOURS=24` but `apps/backend/services/auth_service.py:56` reads `JWT_EXPIRES_MINUTES` (default 60). Any developer setting `JWT_EXPIRATION_HOURS` in production is silently ignored — runtime falls back to 60-minute tokens. Fix: replace `JWT_EXPIRATION_HOURS=24` with `JWT_EXPIRES_MINUTES=60` in `.env.example` and add a comment clarifying the unit.
+- **Files:** `.env.example` (line 9), `apps/backend/services/auth_service.py` (line 56)
+
+### AWD-M-68 — env.production.template still contains stale SECRET_KEY variable
+- **Stage:** define
+- **Priority:** Medium
+- **Source:** code-review-agent 2026-04-30
+- **Detail:** `SECRET_KEY` was removed from `.env.example` (AWD-M-66) because the backend uses `JWT_SECRET_KEY`. However `env.production.template` still has `SECRET_KEY=your-super-secret-key-change-this`. Templates are out of sync. Also audit `env.test.template` for the same stale entry. Fix: remove `SECRET_KEY` from all env templates that don't need it and verify no backend path reads it.
+- **Files:** `env.production.template`, `env.test.template`

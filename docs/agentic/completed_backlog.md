@@ -757,3 +757,11 @@
 - **Completed**: 2026-04-30
 - **Commit**: N/A (staging-area cleanup only — no app code change; no new commit object needed)
 - **Summary**: After commit `359b4a5` (AWD-M-65) correctly deleted `TestPage.tsx`, the git index had been re-populated with (1) `import TestPage` in `App.tsx`, (2) the `/test` route block in `App.tsx`, and (3) `TestPage.tsx` as a staged new file. This would have silently re-introduced the debug page on the next `git commit`. Fixed by running `git restore --staged apps/frontend/src/App.tsx apps/frontend/src/pages/TestPage.tsx` — staging area is now clean. **Residual**: `TestPage.tsx` still exists on disk as an untracked file; the sandbox cannot delete it (virtiofs FUSE permission). Tolu must run `rm apps/frontend/src/pages/TestPage.tsx` locally. The untracked file poses no commit risk — it will not be staged unless explicitly `git add`ed.
+
+---
+
+**AWD-M-66 — Medium / Config: Clean up duplicate/stale JWT secret variables in .env.example**
+- **Area**: Config / Security
+- **Completed**: 2026-04-30
+- **Commit**: `779881a` (chore(config): AWD-M-66 remove duplicate JWT vars and merge artifact from .env.example)
+- **Summary**: `.env.example` had a duplicate `# Security Configuration` block (JWT_SECRET_KEY, JWT_ALGORITHM, JWT_EXPIRATION_HOURS defined twice), a stray `->` merge-conflict artifact, and two stale variables (`SECRET_KEY`, `JWT_SECRET`) not read by any application code. Removed all redundant entries; single canonical `JWT_SECRET_KEY` block remains. No app code changed.
