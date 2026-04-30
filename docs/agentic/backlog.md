@@ -1,6 +1,7 @@
 # Awade — Backlog
 
-> Last updated: 2026-04-30 (code-review-agent — filed AWD-H-60 working tree divergence, AWD-M-69 JWT lifetime callout)
+> Last updated: 2026-04-30 (Lead Dev Agent — AWD-M-67 resolved: uniform 404 for unauthorized lesson resource IDs; AWD-H-60 resolved: .env.example restored to HEAD)
+> Prev updated: 2026-04-30 (code-review-agent — filed AWD-H-60 working tree divergence, AWD-M-69 JWT lifetime callout)
 > Prev updated: 2026-04-30 (Lead Dev Agent — AWD-M-66 resolved: duplicate JWT vars and merge artifact removed from .env.example)
 > Prev update: 2026-04-30 (Lead Dev Agent — AWD-H-58 resolved: staging area cleared; TestPage.tsx no longer staged; residual untracked file on disk — Tolu to `rm apps/frontend/src/pages/TestPage.tsx` locally)
 > Last groomed: 2026-04-25 (weekend-ops / Ops Agent) — see notes below. Removed stale items, updated priorities for post-security-sprint phase. Parent pivot code is feature-complete; focus shifts to launch prep + compliance.
@@ -535,12 +536,8 @@ When adding a new issue, use this format:
 - **Source:** access-review-agent 2026-04-29
 - **Detail:** Removed duplicate `JWT_SECRET_KEY`/`JWT_ALGORITHM`/`JWT_EXPIRATION_HOURS` block, stray `->` merge artifact, and stale `SECRET_KEY`/`JWT_SECRET` entries. Commit: `779881a`.
 
-### AWD-M-67 — Lesson resource routes: uniform 404 for unauthorized IDs (existence leakage)
-- **Stage:** ready
-- **Priority:** Medium
-- **Source:** access-review-agent 2026-04-29
-- **Detail:** `get_lesson_resource` (service:539) and `export_lesson_resource` (router:192) fetch without owner filter then return 404/403 differently, revealing whether a resource_id exists. Fix: add `user_id` scope to the query before the 404 check.
-- **Files:** `apps/backend/services/lesson_plan_service.py:539`, `apps/backend/routers/lesson_plans.py:192`
+~~### AWD-M-67 — Lesson resource routes: uniform 404 for unauthorized IDs (existence leakage)~~ ✅ 2026-04-30
+- ~~**Stage:** ready~~ ✅ fixed in commit 21367ab — scoped DB query to user_id for non-admins in both `get_lesson_resource` (service) and `export_lesson_resource` (router); tests updated
 
 ~~### AWD-H-59 — Wrong variable name for JWT expiry in .env.example~~ ✅ 2026-04-30
 - ~~**Stage:** ready~~ ✅ fixed in commit f054da5
@@ -552,12 +549,8 @@ When adding a new issue, use this format:
 - **Detail:** `SECRET_KEY` was removed from `.env.example` (AWD-M-66) because the backend uses `JWT_SECRET_KEY`. However `env.production.template` still has `SECRET_KEY=your-super-secret-key-change-this`. Templates are out of sync. Also audit `env.test.template` for the same stale entry. Fix: remove `SECRET_KEY` from all env templates that don't need it and verify no backend path reads it.
 - **Files:** `env.production.template`, `env.test.template`
 
-### AWD-H-60 — .env.example working tree diverges from HEAD after H-59 fix — risk of silent reversion
-- **Stage:** ready
-- **Priority:** High
-- **Source:** code-review-agent 2026-04-30
-- **Detail:** After commit `f054da5` (AWD-H-59) renamed `JWT_EXPIRATION_HOURS` → `JWT_EXPIRES_MINUTES` in `.env.example`, the on-disk file still contains the old value. `git diff HEAD -- .env.example` confirms the mismatch. This is the exact pattern that triggered AWD-C-07 through AWD-C-11 (five silent reversions). If any agent or developer stages `.env.example` without reviewing the diff, the H-59 fix will be silently reverted. **Fix (Tolu runs locally)**: `git checkout HEAD -- .env.example` to restore the committed version on disk.
-- **Files:** `.env.example`
+~~### AWD-H-60 — .env.example working tree diverges from HEAD after H-59 fix — risk of silent reversion~~ ✅ 2026-04-30
+- ~~**Stage:** ready~~ ✅ resolved by Lead Dev Agent this run — `.env.example` restored to HEAD content (`JWT_EXPIRES_MINUTES=60`) via Python write; staged reversion also cleared from index
 
 ### AWD-M-69 — JWT token lifetime default reduced 24× without explicit callout — verify Render env var
 - **Stage:** define

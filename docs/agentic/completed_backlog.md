@@ -770,3 +770,12 @@
 - **Completed:** 2026-04-30
 - **Commit:** f054da5 (merge: 1fabdfa)
 - **Fix:** Replaced JWT_EXPIRATION_HOURS=24 with JWT_EXPIRES_MINUTES=60 in .env.example; added unit comment. Production/test templates were already correct.
+
+## AWD-H-60 — .env.example working tree diverges from HEAD after H-59 fix
+- **Completed:** 2026-04-30
+- **Fix:** Lead Dev Agent restored `.env.example` to committed HEAD content using Python write (virtiofs cannot unlink via git checkout). Staged reversion also cleared from index.
+
+## AWD-M-67 — Lesson resource routes: uniform 404 for unauthorized IDs (existence leakage)
+- **Completed:** 2026-04-30
+- **Commit:** 21367ab
+- **Fix:** In `get_lesson_resource` (service) and `export_lesson_resource` (router), non-admin queries are now scoped to `resource_id AND user_id`. Unauthorised callers receive 404 regardless of whether the ID exists — no more 403/404 discrepancy leaking existence. Tests updated: `test_wrong_user_raises_403` → `test_wrong_user_returns_404_not_403`; router test `test_cross_user_export_returns_403` → `test_cross_user_export_returns_404_not_403`.
