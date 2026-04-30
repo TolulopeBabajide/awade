@@ -732,3 +732,28 @@
 - **Completed**: 2026-04-29
 - **Commit**: N/A (git was already functional; no app code change required)
 - **Summary**: Filed as a Critical issue after `refs/heads/develop` pointed to a missing commit SHA (`187bd80b...`), blocking all git operations. The corruption was resolved at some earlier point (either Tolu ran `git update-ref` directly, or the local-clone workaround was used by a prior agent run). Verified 2026-04-29: `refs/heads/develop` = `d9c4b60e...` (valid commit object), develop branch has 57+ commits since the issue was filed, and all git operations (log, status, commit) work normally. Closing as resolved with verification only — no code change needed.
+
+---
+
+**AWD-H-56 — High / Performance / Build: ChatGPT prototype images blocking Vite build**
+- **Area**: Frontend / Build
+- **Completed**: 2026-04-30
+- **Commit**: aa4dd2d
+- **Summary**: Removed 8 ChatGPT-exported `.png` files (~11MB total) from `apps/frontend/src/assets/` and `apps/frontend/public/assets/` that were blocking `npm run build` with `EPERM: operation not permitted, unlink`. Added `ChatGPT*` patterns to `.gitignore` for both asset directories to prevent recurrence. Vite build is now unblocked. M-62 (vendor chunk split) prerequisite is resolved.
+
+---
+
+**AWD-M-65 — Medium / Code Hygiene: TestPage.tsx debug page in production src**
+- **Area**: Frontend / Code Hygiene
+- **Completed**: 2026-04-30
+- **Commit**: 359b4a5 (merge: 631e45b)
+- **Summary**: Removed the `TestPage.tsx` API integration debug page from production routing. Deleted the file from git tracking (`apps/frontend/src/pages/TestPage.tsx`) and removed its import and `/test` route from `apps/frontend/src/App.tsx`. The page was behind a `ProtectedRoute` but not a real feature — it called `checkAiHealth()` and `getCountries()` with `console.error` and `any` types. All 148 frontend tests still pass; TSC and lint clean.
+- **Note**: Physical file could not be deleted from virtiofs sandbox (rm: Operation not permitted) — deleted from git index only via `git update-index --force-remove`. File exists as untracked on local disk; Tolu should run `rm apps/frontend/src/pages/TestPage.tsx` locally then push develop.
+
+---
+
+**AWD-H-58 — High / Code Hygiene / Git: Staged index reverts AWD-M-65 fix**
+- **Area**: Git Hygiene
+- **Completed**: 2026-04-30
+- **Commit**: N/A (staging-area cleanup only — no app code change; no new commit object needed)
+- **Summary**: After commit `359b4a5` (AWD-M-65) correctly deleted `TestPage.tsx`, the git index had been re-populated with (1) `import TestPage` in `App.tsx`, (2) the `/test` route block in `App.tsx`, and (3) `TestPage.tsx` as a staged new file. This would have silently re-introduced the debug page on the next `git commit`. Fixed by running `git restore --staged apps/frontend/src/App.tsx apps/frontend/src/pages/TestPage.tsx` — staging area is now clean. **Residual**: `TestPage.tsx` still exists on disk as an untracked file; the sandbox cannot delete it (virtiofs FUSE permission). Tolu must run `rm apps/frontend/src/pages/TestPage.tsx` locally. The untracked file poses no commit risk — it will not be staged unless explicitly `git add`ed.

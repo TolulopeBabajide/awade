@@ -1,7 +1,7 @@
 # Awade — Backlog
 
-> Last updated: 2026-04-29 (Lead Dev Agent — AWD-C-05 closed: git corruption resolved, develop branch functional at d9c4b60; all remaining open items require Tolu decision or hardware access)
-> Prev update: 2026-04-29 (Lead Dev Agent — AWD-C-11 resolved: chore commit `e28dedb` silently reverted AWD-M-61 ConsentModal.test.tsx fix; fix re-applied, 148 tests passing)
+> Last updated: 2026-04-30 (Lead Dev Agent — AWD-H-58 resolved: staging area cleared; TestPage.tsx no longer staged; residual untracked file on disk — Tolu to `rm apps/frontend/src/pages/TestPage.tsx` locally)
+> Prev update: 2026-04-29 (Lead Dev Agent — AWD-C-05 closed: git corruption resolved, develop branch functional at d9c4b60; all remaining open items require Tolu decision or hardware access)
 > Last groomed: 2026-04-25 (weekend-ops / Ops Agent) — see notes below. Removed stale items, updated priorities for post-security-sprint phase. Parent pivot code is feature-complete; focus shifts to launch prep + compliance.
 > Source of truth for active work. Completed items move to [`completed_backlog.md`](completed_backlog.md).
 > Issue prefix: `AWD` — e.g., reference as `AWD-H-03` in commits.
@@ -51,6 +51,8 @@
 
 | # | Area | Issue | File(s) | Effort |
 |---|------|-------|---------|--------|
+~~| H-58 | Code Hygiene / Git | **Staged index reverts AWD-M-65 fix — TestPage.tsx persists on disk and is staged for re-commit.** After commit `359b4a5` (AWD-M-65) correctly deleted `TestPage.tsx` and removed the `/test` route, the git staging area (index) has been populated with changes that undo the commit: (1) `import TestPage` re-added to `App.tsx`, (2) the `/test` route block re-added to `App.tsx`, (3) `TestPage.tsx` staged as a new file (120 lines). `TestPage.tsx` also physically exists on disk. If any agent or developer runs `git commit` without reviewing `git diff --cached`, AWD-M-65 will silently regress. **Fix**: `git restore --staged apps/frontend/src/App.tsx apps/frontend/src/pages/TestPage.tsx && rm apps/frontend/src/pages/TestPage.tsx` — confirm with `git status` before next commit. Filed: 2026-04-30 code-review-agent. | `apps/frontend/src/App.tsx` (staged), `apps/frontend/src/pages/TestPage.tsx` (staged + on disk) | S | Stage: ready |~~ ✅ 2026-04-30
+~~| H-56 | Performance / Build | **ChatGPT prototype images blocking Vite build and adding 7.4MB to dist.** 4 ChatGPT-exported `.png` files (`ChatGPT Image Aug 12, 2025, 12_14_13 PM.png`, `12_14_16 PM.png`, `12_19_01 PM.png`, `12_54_32 AM.png`) are present in `apps/frontend/src/assets/` and `apps/frontend/public/assets/`. They are not imported or referenced in any component (confirmed via grep). Impact: (1) `npm run build` fails with `EPERM: operation not permitted, unlink` on any machine with a prior dist/ — CI and local rebuilds are broken. (2) ~7.4MB of dead weight in the deployment artifact. Fix: `git rm "apps/frontend/src/assets/ChatGPT Image"* "apps/frontend/public/assets/ChatGPT Image"*`, add `ChatGPT*` to `.gitignore` under those dirs, commit: `chore(frontend): AWD-H-56 remove ChatGPT prototype images blocking build`. Filed: 2026-04-29 performance-agent. | `apps/frontend/src/assets/ChatGPT Image*.png` (×4), `apps/frontend/public/assets/ChatGPT Image*.png` (×4), `.gitignore` | S |~~ ✅ 2026-04-30
 ~~| H-42 | Compliance / GRC-02 | **Commit `5d9af8e` (AWD-H-03) accidentally deleted the GRC-02 GDPR data-export endpoint.** `GET /api/users/me/data-export`, `UserService.get_data_export()`, its imports (`ChildProfile`, `ParentGuide`, `Topic`), and the GRC-02 tests in `test_users_router.py` were all removed as a side-effect of the admin panel commit. The backend will return 500 for any data-export request. **The fix already exists as uncommitted local changes on disk** — the dev agent wrote the restore but never staged it. **Fix (copy-paste ready)**: `git add apps/backend/routers/users.py apps/backend/services/user_service.py apps/backend/tests/test_users_router.py && git commit -m "fix(users): AWD-H-42 restore GRC-02 data-export endpoint deleted in H-03 commit"`. Verify: `GET /api/users/me/data-export` returns 200 with user + children payload; unauthenticated returns 401. Filed: 2026-04-26 QA Agent. | `apps/backend/routers/users.py` (add `/me/data-export` endpoint), `apps/backend/services/user_service.py` (add `get_data_export()` + imports), `apps/backend/tests/test_users_router.py` (GRC-02 test cases) | S |~~ ✅ 2026-04-26
 ~~| H-41 | Testing / TypeScript | `GuideViewPage.test.tsx` (introduced by AWD-M-05 commit f4ebdb3) has 6 TypeScript errors and 1 failing test. **TS errors**: (1) `React` imported but never used (TS6133, line 1); (2) 5× `null` not assignable to `string \| undefined` (TS2322, lines 116, 125, 134, 146, 155) — `generateGuide` mock args use `null` for optional string params but the function signature expects `string \| undefined`. Fix: remove the `React` import; change the 5× `null` literals to `undefined`. **Test failure**: `renders guide via generateGuide when child+topic params are supplied (no guide ID)` — component renders an empty `<main>` instead of the expected `Fractions` heading, suggesting the `generateGuide` mock is not resolving (missing `await waitFor(...)` wrapper or mock data mismatch). Fix: wrap the assertion in `await waitFor(() => expect(screen.getByRole(...)).toBeInTheDocument())` and verify the mock return value shape matches what the component renders. Blocks CI `frontend-test` and `validate` jobs once Tolu pushes. Filed: 2026-04-25 QA Agent. | `apps/frontend/src/pages/GuideViewPage.test.tsx` (lines 1, 116, 125, 134, 146, 155, ~140) | S |~~ ✅ 2026-04-25
 ~~| H-40 | Security / Error Handling | `lesson_plans.py` export endpoint leaks internal error details via `str(e)` in HTTPException detail (OWASP A09 information disclosure). `export_lesson_resource` lines 219–223: `detail=f"An error occurred while exporting the resource: {str(e)}"` — can expose WeasyPrint stack traces, file paths, or SQL errors to the client. Same class as AWD-H-18 (fixed service files) but missed this router-level handler. Fix: add `logger = logging.getLogger(__name__)` to imports and replace the except block with a static detail string + `logger.error(..., exc_info=True)`. | `apps/backend/routers/lesson_plans.py` (lines 219–223) | S |~~ ✅ 2026-04-25
@@ -281,6 +283,8 @@ Or: accept the full working-tree version of `children_service.py` (which has bot
 
 | # | Area | Issue | File(s) | Effort |
 |---|------|-------|---------|--------|
+| M-62 | Performance / Build | **Expand Vite vendor chunk split to reduce initial JS parse cost.** Current `manualChunks` only splits `react-router-dom` (160.5KB) and `@tanstack/react-query` (35.5KB). The main app chunk (282.5KB) bundles `@react-oauth/google`, `@sentry/react`, `@heroicons/react`, `react-icons`, and `react`+`react-dom` together. These stable vendor deps should be in long-lived cached chunks. Proposed split: `vendor-react` (react+react-dom), `vendor-auth` (@react-oauth/google), `vendor-sentry` (@sentry/react), `vendor-icons` (@heroicons/react + react-icons). This will reduce cache-busting surface area on feature deploys and allow browsers to parallelise chunk fetches. **Prerequisite: resolve AWD-H-56 first so the build is unblocked.** Filed: 2026-04-29 performance-agent. | `apps/frontend/vite.config.ts` (build.rollupOptions.output.manualChunks) | S |
+| M-63 | Performance / DB | **`curriculum_structure.py` create/update issue 3 sequential FK queries per request.** `POST /curriculum-structures/` (lines 51–66) and `PUT /curriculum-structures/{id}` (lines 111–126) each fire 3 individual `db.query()` calls to validate the related Curriculum, GradeLevel, and Subject records after the write. These should be replaced with a single `joinedload` query or pre-write bulk validation. Fix: refetch the new/updated structure with `joinedload(CurriculumStructure.curriculum).joinedload(CurriculumStructure.grade_level).joinedload(CurriculumStructure.subject)` in one query, eliminating the 3 post-write lookups. Low traffic route currently; worth fixing before parent-scale launch. Filed: 2026-04-29 performance-agent. | `apps/backend/routers/curriculum_structure.py` (lines 51–66, 111–126) | S |
 ~~| M-45 | Frontend / Compat | `fetchPriority` React prop warning in tests — `HeroSection.tsx` (line 74) and `HeroSectionParent.tsx` (line 84) use `fetchPriority="high"` on `<img>` elements. React 18.2.0 does not recognise the camelCase prop, generating `Warning: React does not recognize the 'fetchPriority' prop` in the test suite (visible in App.test.tsx output). React 18.3.0+ added official camelCase support. Fix: either (a) bump `react` and `react-dom` to `^18.3.0` in `apps/frontend/package.json` (also resolves L-09 future-flag warnings which were fixed in 18.3) or (b) as a backward-compatible short-term fix, replace `fetchPriority` with lowercase `fetchpriority` (valid HTML attribute accepted by React for unknown props). Option (a) is preferred. Ensure `@types/react` and `@types/react-dom` are bumped to match. Run `npm run test:run` and `npx tsc --noEmit` after to confirm no regressions. Discovered: 2026-04-25 QA Agent (App.test.tsx stderr). | `apps/frontend/src/components/HeroSection.tsx` (line 74), `apps/frontend/src/components/HeroSectionParent.tsx` (line 84), `apps/frontend/package.json` | S |~~ ✅ 2026-04-26
 ~~| M-42 | Code Hygiene | `pdf_service.py:19` — bare `print()` at module level (import-time). When WeasyPrint is not installed the line `print("Warning: WeasyPrint not available. PDF generation will be disabled.")` fires on every import, writing directly to stdout in production. Violates CLAUDE.md hygiene rule and code-quality checklist. Fix: (1) add `logger = logging.getLogger(__name__)` near the top of the file (or reuse the existing import if one is added later); (2) replace the `print(...)` with `logger.warning("WeasyPrint not available — PDF generation will be disabled.")`. Discovered during spot-check of AWD-M-21 (2026-04-25 QA Agent). | `apps/backend/services/pdf_service.py` (line 19) | S |~~ ✅ 2026-04-25
 ~~| M-26 | Testing | No pytest coverage for `_init_sentry()` in `apps/backend/main.py` (added in AWD-H-01, commit 364762f). Three branches are untested: (a) `SENTRY_DSN` blank → returns early; (b) `ENVIRONMENT=testing` → returns early; (c) `ImportError` → logs warning and returns. Risk is low — all branches are safe no-ops — but testing standards require at least a smoke test. Fix: add `tests/test_sentry_init.py` (or a section in `test_api_endpoints.py`) with three parametrised cases, monkeypatching `os.getenv` and `sentry_sdk.init`. Filed: 2026-04-23 QA. | `apps/backend/main.py` (`_init_sentry`), `apps/backend/tests/` | S |~~ ✅ 2026-04-23
@@ -381,6 +385,56 @@ Or: accept the full working-tree version of `children_service.py` (which has bot
 
 ---
 
+## 🔐 Dependency Security — 2026-04-29 (dependency-security-agent)
+
+**AWD-M-62 — DepSec: bcrypt@4.0.0 → 4.3.0 (CVE-2024-52400 — DoS via large password)**
+**Problem**: `bcrypt==4.0.0` in `apps/backend/requirements.txt` is vulnerable to CVE-2024-52400 (CVSS: moderate). An attacker who can reach any auth endpoint can submit an extremely large password to cause CPU exhaustion. bcrypt is used in the auth path — `apps/backend/services/auth_service.py`.
+**Acceptance criteria**:
+- [ ] `bcrypt==4.3.0` (or latest stable 4.x) set in `apps/backend/requirements.txt`
+- [ ] Backend tests pass: `cd apps/backend && python -m pytest tests/ -v`
+- [ ] Commit: `fix(deps): AWD-M-62 upgrade bcrypt 4.0.0→4.3.0 (CVE-2024-52400)`
+**Patch command**: `pip install bcrypt==4.3.0 --break-system-packages`
+**Files**: `apps/backend/requirements.txt`
+**Effort**: S (minutes)
+**Audience**: all (auth surface)
+**Stage**: ready
+**Filed**: 2026-04-29 dependency-security-agent (CVE-2024-52400, CVSS moderate, auth-path dep)
+
+---
+
+**AWD-M-63 — DepSec: weasyprint@60.0 → 62.x (2 major versions behind, SSRF/parsing risk)**
+**Problem**: `weasyprint==60.0` is 2 major versions behind the current 62.x release. WeasyPrint handles HTML→PDF rendering for the guide export and lesson-plan export features, parsing untrusted HTML content. The 60→62 jump includes patches for HTML/SVG parsing edge cases and SSRF-adjacent risk from external resource loading (CVE-2023-27043 class). Older versions also pull in older `cairocffi` and `tinycss2` with unfixed bugs.
+**Acceptance criteria**:
+- [ ] `weasyprint==62.0` (or latest stable) set in `apps/backend/requirements.txt`
+- [ ] Review WeasyPrint 61 and 62 changelogs for breaking changes in `HTML()` / `render_to_pdf()` usage in `apps/backend/services/pdf_service.py`
+- [ ] PDF export smoke test: generate a parent guide PDF and confirm valid output
+- [ ] Backend tests pass: `cd apps/backend && python -m pytest tests/ -v`
+- [ ] Commit: `fix(deps): AWD-M-63 upgrade weasyprint 60.0→62.x (SSRF/parsing fixes)`
+**Patch command**: `pip install weasyprint==62.0 --break-system-packages` (verify API compat first)
+**Files**: `apps/backend/requirements.txt`, `apps/backend/services/pdf_service.py` (review only)
+**Effort**: S–M (depends on API compat)
+**Audience**: parent (guide PDF), educator (lesson plan PDF)
+**Stage**: ready
+**Filed**: 2026-04-29 dependency-security-agent (2 major versions behind, HTML/PDF rendering surface)
+
+---
+
+**AWD-M-64 — DepSec: fastapi@0.109.2 + uvicorn@0.27.1 — minor security patches missed**
+**Problem**: `fastapi==0.109.2` is 6 minor versions behind 0.115.x (current stable). FastAPI 0.109.1 patched CVE-2024-24762 (DoS via multipart form parsing). `uvicorn==0.27.1` is 7 minor versions behind 0.34.x. Both are core request-handling dependencies; missed minor releases include security hardening for HTTP/1.1 pipelining and multipart boundary handling. Pydantic v2 (already at 2.6.4) is required by FastAPI 0.115 ✅.
+**Acceptance criteria**:
+- [ ] `fastapi==0.115.12` (latest stable 0.115.x) set in `apps/backend/requirements.txt`
+- [ ] `uvicorn[standard]==0.34.0` (latest stable) set in `apps/backend/requirements.txt`
+- [ ] Backend tests pass: `cd apps/backend && python -m pytest tests/ -v`
+- [ ] Commit: `fix(deps): AWD-M-64 upgrade fastapi 0.109.2→0.115.x, uvicorn 0.27.1→0.34.x`
+**Patch command**: `pip install fastapi==0.115.12 "uvicorn[standard]==0.34.0" --break-system-packages`
+**Files**: `apps/backend/requirements.txt`
+**Effort**: S (minutes)
+**Audience**: all (request handling surface)
+**Stage**: ready
+**Filed**: 2026-04-29 dependency-security-agent (CVE-2024-24762 in fastapi<0.109.1, 6 minor versions behind)
+
+---
+
 ## 🟣 Compliance (GRC)
 
 | # | Area | Issue | File(s) | Effort |
@@ -390,6 +444,8 @@ Or: accept the full working-tree version of `children_service.py` (which has bot
 ~~| GRC-03 | GDPR | Account deletion endpoint with cascade for ChildProfile + ParentGuide | `apps/backend/routers/users.py`, migrations (cascade rules) | M |~~ ✅ 2026-04-27
 ~~| GRC-04 | NDPR/POPIA | Data-residency note in privacy policy — document where Awade stores African parent/child data | `docs/public/external/`, privacy policy file | S |~~ ✅ 2026-04-26
 ~~| GRC-05 | COPPA | Audit logs for any admin access to a ChildProfile | `apps/backend/models.py` (AdminAuditLog — verify coverage), `apps/backend/routers/admin.py` | S |~~ ✅ 2026-04-26
+| GRC-06 | GDPR Art. 13/14 · NDPR · POPIA | **Vercel Analytics not disclosed as analytics sub-processor.** `@vercel/analytics` is loaded unconditionally in `apps/frontend/src/main.tsx` and collects page URL, referrer, device type, and IP-derived country — but privacy policy §4c lists Vercel as "None (static assets only; no PII in CDN layer)" (incorrect), and §9 implies no analytics data is collected. Required fixes: (1) update privacy policy §2d to name Vercel Analytics and list collected fields; (2) update §3 to add analytics purpose + legitimate interest basis; (3) update §4c Vercel row to accurately describe analytics data collection; (4) update §9 to note cookieless analytics and DNT signal support. No consent banner required (no cookies used), but the transparency gap violates GDPR Art. 13/14, NDPR Art. 2.5, and POPIA §18. Filed: 2026-04-29 compliance-agent. | `docs/public/external/privacy-policy.md` | S |
+| GRC-07 | EU AI Act Art. 52 · GDPR Art. 5(1)(a) | **AI-generated content disclosure absent from parent guide flow; `/disclaimer` page missing.** `GuideViewPage.tsx` shows only an italic footer `'_Guide generated by Awade — awade.app_'` — insufficient as an EU AI Act Art. 52 disclosure. `ParentDashboardPage.tsx` has no pre-generation notice. The educator flow (`EditLessonResourcePage.tsx`) has an adequate inline notice and links to `/disclaimer`, but no DisclaimerPage component or route exists in the codebase. Required fixes: (1) add prominent AI-disclosure banner in `GuideViewPage.tsx` (e.g. "This guide was created by Awade's AI. It may contain inaccuracies — use your own judgement."); (2) add brief pre-generation notice in the guide generation trigger; (3) create `DisclaimerPage.tsx` and register `/disclaimer` in `App.tsx`; (4) link both educator and parent flows to the disclaimer page. **Must be implemented before June 2026 parent pivot launch** (EU AI Act Art. 52 enforcement window). Filed: 2026-04-29 compliance-agent. | `apps/frontend/src/pages/GuideViewPage.tsx`, `apps/frontend/src/pages/ParentDashboardPage.tsx`, new `apps/frontend/src/pages/DisclaimerPage.tsx`, `apps/frontend/src/App.tsx` | M |
 
 ---
 
@@ -450,3 +506,39 @@ When adding a new issue, use this format:
 ~~| H-51 | Code Hygiene / Privacy / Regression | Commit `ad60f1c` (AWD-M-50) accidentally reverted AWD-M-51's console.log fixes. The COMMITTED state of `develop` now has: **(A)** `apps/frontend/src/components/Footer.tsx` line 10 — `console.log('Subscribing email:', email)` logs user email to browser console on every newsletter subscription attempt (**PII leak**); **(B)** `apps/frontend/src/components/AIGenerationLoadingRealtime.tsx` line ~145 — `console.log('Generation session started:', data)` logs WebSocket session payload; **(C)** `apps/frontend/src/services/websocket.ts` lines 51,62,67,73,78,86,91,116 — 8 bare `console.log/error/warn` calls without `import.meta.env.DEV` guard. **The correct fix already exists as uncommitted working-tree changes.** Fix: `git add apps/frontend/src/components/Footer.tsx apps/frontend/src/components/AIGenerationLoadingRealtime.tsx apps/frontend/src/services/websocket.ts && git commit -m "fix(frontend): AWD-H-51 re-apply M-51 DEV guards reverted by ad60f1c"`. Verify with `git diff HEAD~1 HEAD -- apps/frontend/src/components/Footer.tsx` that console.log('Subscribing email:') is absent. Filed: 2026-04-27 QA Agent. | `apps/frontend/src/components/Footer.tsx`, `apps/frontend/src/components/AIGenerationLoadingRealtime.tsx`, `apps/frontend/src/services/websocket.ts` | S — fix is already in working tree, just needs commit |~~ ✅ 2026-04-27
 
 ~~| M-52 | Config / Security | `apps/frontend/src/services/websocket.ts` line 43–45 hardcodes the production WebSocket URL as the literal placeholder `'wss://your-production-domain.com/ws'`. In production builds (`import.meta.env.MODE === 'production'`), the service will silently attempt to connect to this non-existent host, causing all real-time AI generation progress updates to fail silently for every production user. **Fix**: (1) Add `VITE_WS_URL=wss://<your-actual-domain>/ws` to `.env.example` and `env.production.template`; (2) Replace the hardcoded string with `import.meta.env.VITE_WS_URL ?? 'ws://localhost:8000/ws'` in `websocket.ts`; (3) Document the variable in `.env.example`. This is pre-existing (not introduced by AWD-M-50) but newly filed after spot-check. Filed: 2026-04-27 QA Agent. | `apps/frontend/src/services/websocket.ts` (lines 43–45), `.env.example`, `env.production.template` | M |~~ ✅ 2026-04-27
+
+| H-57 | Security / Architecture | **Vercel serverless proxy (`apps/frontend/api/[...path].js`) sets `Access-Control-Allow-Origin: *`**. This catch-all proxy forwards all requests to `awade-backend-test.onrender.com` and applies a CORS wildcard. If active in production deployment, it bypasses FastAPI CORS middleware. Fix: (a) Confirm whether this proxy is included in the Vercel production build (check `vercel.json` routing). (b) If dev-only: add a comment and exclude via vercel.json. (c) If production-active: restrict CORS to the frontend domain only. Filed: 2026-04-29 architecture-agent. | `apps/frontend/api/[...path].js`, `apps/frontend/vercel.json` | S | Stage: define |
+~~| M-65 | Code Hygiene | **`TestPage.tsx` present in frontend src** — a debug/test page at `apps/frontend/src/pages/TestPage.tsx` is included in the production build. Verify it has an auth guard or is excluded from production routing in `App.tsx`. If neither: remove it. Filed: 2026-04-29 architecture-agent. | `apps/frontend/src/pages/TestPage.tsx`, `apps/frontend/src/App.tsx` | S | Stage: ready |~~ ✅ 2026-04-30
+| M-66 | Code / Design | **Consolidate 5 `AIGenerationLoading*` component variants** into one canonical component. Current files: `AIGenerationLoading.tsx`, `AIGenerationLoadingActual.tsx`, `AIGenerationLoadingReal.tsx`, `AIGenerationLoadingRealtime.tsx`, `AIGenerationLoadingSimple.tsx`. Identify which variant is used in production; remove the others. Filed: 2026-04-29 architecture-agent. | `apps/frontend/src/components/AIGenerationLoading*.tsx` | S | Stage: ready |
+| M-67 | Architecture | **Dual caching layer — determine authoritative cache**. `apps/backend/services/data_structures.py` (728 lines) implements in-process LRU/LFU caches. `packages/ai/cache.py` implements a Redis-backed `ContentCache` for AI generation results. Their responsibilities may overlap. Decision needed: is in-process caching intentional (for DB query results) while Redis is for AI content? If so, document the split. If there is redundancy, remove the in-process cache in favour of Redis. Filed: 2026-04-29 architecture-agent. | `apps/backend/services/data_structures.py`, `packages/ai/cache.py` | M | Stage: define |
+
+---
+<!-- access-review-agent 2026-04-29 -->
+
+### AWD-H-57 — Rotate AI API keys (Gemini, OpenAI, Google)
+- **Stage:** define
+- **Priority:** High
+- **Source:** access-review-agent 2026-04-29
+- **Detail:** GEMINI_API_KEY, OPENAI_API_KEY, and GOOGLE_API_KEY have no recorded rotation date. Recommend treating as overdue. Rotate in provider dashboards, update Render env vars, log date in `.env.example`.
+- **Files:** `.env.example`, Render environment settings
+
+### AWD-M-65 — Create agent-permissions.json manifest
+- **Stage:** ready
+- **Priority:** Medium
+- **Source:** access-review-agent 2026-04-29
+- **Detail:** `agent-permissions.json` does not exist. Create at repo root enumerating each scheduled agent's read/write paths. 11 agents confirmed active via `.agent-health/`. Enables systematic scope-creep auditing in future runs.
+- **Files:** `agent-permissions.json` (create)
+
+### AWD-M-66 — Clean up duplicate/stale JWT secret variables in .env.example
+- **Stage:** ready
+- **Priority:** Medium
+- **Source:** access-review-agent 2026-04-29
+- **Detail:** `.env.example` defines `JWT_SECRET_KEY` twice (lines 6 and 13) and also has unused `SECRET_KEY` and `JWT_SECRET` entries. Only `JWT_SECRET_KEY` is read by the application. Remove duplicates and stale entries to avoid silent misconfiguration in new environments.
+- **Files:** `.env.example`
+
+### AWD-M-67 — Lesson resource routes: uniform 404 for unauthorized IDs (existence leakage)
+- **Stage:** ready
+- **Priority:** Medium
+- **Source:** access-review-agent 2026-04-29
+- **Detail:** `get_lesson_resource` (service:539) and `export_lesson_resource` (router:192) fetch without owner filter then return 404/403 differently, revealing whether a resource_id exists. Fix: add `user_id` scope to the query before the 404 check.
+- **Files:** `apps/backend/services/lesson_plan_service.py:539`, `apps/backend/routers/lesson_plans.py:192`
