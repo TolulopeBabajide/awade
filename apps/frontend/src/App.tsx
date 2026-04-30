@@ -12,7 +12,6 @@ import EditLessonPlanPage from './pages/EditLessonPlanPage'
 import EditLessonResourcePage from './pages/EditLessonResourcePage'
 import LessonResourcesPage from './pages/LessonResourcesPage'
 import SettingsPage from './pages/SettingsPage'
-import TestPage from './pages/TestPage'
 import GuideViewPage from './pages/GuideViewPage'
 import SavedGuidesPage from './pages/SavedGuidesPage'
 import ChildrenPage from './pages/ChildrenPage'
@@ -100,12 +99,6 @@ function App() {
               <SettingsPage />
             </ProtectedRoute>
           } />
-          <Route path="/test" element={
-            <ProtectedRoute>
-              <TestPage />
-            </ProtectedRoute>
-          } />
-
           {/* Admin routes */}
           <Route path="/admin" element={
             <AdminRoute>
