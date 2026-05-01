@@ -67,6 +67,11 @@ def admin_user():
 
 
 @pytest.fixture()
+def super_admin_user():
+    return _make_user(user_id=100, role=UserRole.SUPER_ADMIN)
+
+
+@pytest.fixture()
 def resource(educator):
     return _make_resource(resource_id=42, owner_user_id=educator.user_id)
 
@@ -122,6 +127,20 @@ class TestExportLessonResource:
     def test_admin_can_export_any_resource(self, admin_user, resource):
         db = self._db_with_resource(resource)
         client = _client_for_user(admin_user, db)
+        with patch(
+            "apps.backend.services.pdf_service.PDFService.generate_lesson_resource_pdf",
+            return_value=b"%PDF-1.4 fake",
+        ):
+            resp = client.post(
+                f"/api/lesson-plans/resources/{resource.lesson_resources_id}/export",
+                json={"format": "pdf"},
+            )
+        assert resp.status_code == 200
+
+    def test_super_admin_can_export_any_resource(self, super_admin_user, resource):
+        """AWD-H-61: SUPER_ADMIN must bypass ownership scoping like ADMIN."""
+        db = self._db_with_resource(resource)
+        client = _client_for_user(super_admin_user, db)
         with patch(
             "apps.backend.services.pdf_service.PDFService.generate_lesson_resource_pdf",
             return_value=b"%PDF-1.4 fake",

@@ -186,7 +186,8 @@ async def export_lesson_resource(
     
     # AWD-M-67: scope query to user_id for non-admins to prevent existence leakage
     # via 403/404 discrepancy — unauthorised callers receive a uniform 404.
-    if current_user.role == UserRole.ADMIN:
+    # AWD-H-61: SUPER_ADMIN has the same elevated access as ADMIN.
+    if current_user.role in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
         lesson_resource = db.query(LessonResource).filter(
             LessonResource.lesson_resources_id == resource_id
         ).first()

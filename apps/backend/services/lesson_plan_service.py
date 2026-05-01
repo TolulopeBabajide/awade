@@ -539,7 +539,8 @@ class LessonPlanService:
             # AWD-M-67: scope query to user_id for non-admins so unauthorized IDs
             # return 404 regardless of whether the resource exists, preventing
             # existence leakage via 403/404 discrepancy.
-            if current_user.role == UserRole.ADMIN:
+            # AWD-H-61: SUPER_ADMIN has the same elevated access as ADMIN.
+            if current_user.role in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
                 lesson_resource = self.db.query(LessonResource).filter(
                     LessonResource.lesson_resources_id == resource_id
                 ).first()

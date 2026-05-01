@@ -70,6 +70,10 @@ def _admin(user_id: int = 99) -> User:
     return _make_user(user_id, UserRole.ADMIN)
 
 
+def _super_admin(user_id: int = 100) -> User:
+    return _make_user(user_id, UserRole.SUPER_ADMIN)
+
+
 def _make_topic(topic_id: int = 1, title: str = "Fractions") -> Topic:
     t = Topic()
     t.topic_id = topic_id
@@ -482,6 +486,18 @@ class TestGetLessonResource:
         db.query.return_value = q
         svc = LessonPlanService(db=db)
         result = svc.get_lesson_resource(resource_id=1, current_user=admin)
+        assert result.lesson_resources_id == 1
+
+    def test_super_admin_can_access_any_resource(self):
+        """AWD-H-61: SUPER_ADMIN must bypass ownership scoping like ADMIN."""
+        super_admin = _super_admin(user_id=100)
+        resource = _make_resource(resource_id=1, user_id=1)  # owned by user 1
+        db = MagicMock()
+        q = MagicMock()
+        q.filter.return_value.first.return_value = resource
+        db.query.return_value = q
+        svc = LessonPlanService(db=db)
+        result = svc.get_lesson_resource(resource_id=1, current_user=super_admin)
         assert result.lesson_resources_id == 1
 
     def test_resource_fields_mapped_correctly(self):
