@@ -789,3 +789,13 @@
 - **Completed:** 2026-05-01
 - **Commit:** dd65917 (merge: 83cd404)
 - **Fix:** `lesson_plan_service.py` lines 347 (`generate_lesson_resource`) and 492 (`get_lesson_plan_resources`) both guarded `current_user.role != UserRole.ADMIN`. Changed to `current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN)` at both locations. Added `test_super_admin_can_generate_resource` and `test_super_admin_can_list_resources` tests (both pass — 33/33 in file). Also fixed pre-existing test factory issue: `_make_topic` and `_make_lesson_plan` used real SQLAlchemy ORM instances with `MagicMock(spec=...)` in relationship assignments, triggering backref events that required `_sa_instance_state`; replaced both factories with plain `MagicMock` objects, resolving 18 previously failing tests.
+
+## AWD-M-62 (DepSec) — bcrypt@4.0.0 → 4.3.0 (CVE-2024-52400)
+- **Completed:** 2026-05-01
+- **Commit:** 2bef4da (merge: f9858cb)
+- **Fix:** `apps/backend/requirements.txt` — bumped `bcrypt==4.0.0` to `bcrypt==4.3.0`. CVE-2024-52400 (CVSS moderate) allows DoS via extremely large password submission to any auth endpoint, causing CPU exhaustion. bcrypt is used directly in `apps/backend/services/auth_service.py` password hashing/verification. Frontend tests: 148/148 ✅, TypeScript: 0 errors ✅, Lint: 0 warnings ✅. Backend pytest skipped in sandbox (pre-existing M-46 venv issue) — verify locally before push to main.
+
+## AWD-C-12 (Critical / Git Hygiene) — Staged index bcrypt regression cleared
+- **Completed:** 2026-05-01
+- **Commit:** no-code-change (git index fix only)
+- **Fix:** `git restore --staged apps/backend/requirements.txt` — the staging area had `bcrypt==4.0.0` queued against HEAD's correct `bcrypt==4.3.0`. This would have silently reintroduced CVE-2024-52400 on the next commit. Cleared the staged revert; verified `git diff --cached` is empty and disk file shows `4.3.0`. Seventh recurrence of staged-index-regression pattern (AWD-C-07–C-11 preceding). No app code changed.

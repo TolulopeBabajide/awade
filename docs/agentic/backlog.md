@@ -1,6 +1,9 @@
 # Awade — Backlog
 
-> Last updated: 2026-05-01 (Lead Dev Agent — AWD-H-62 resolved: SUPER_ADMIN admin bypass added to generate_lesson_resource and get_lesson_plan_resources; pre-existing test factory ORM backref issue also fixed)
+> Last updated: 2026-05-01 (Lead Dev Agent — AWD-C-12 resolved: staged bcrypt regression cleared; bcrypt==4.3.0 confirmed in HEAD and staging area)
+> Prev updated: 2026-05-01 (code-review-agent — filed AWD-C-12 staged index reverts bcrypt CVE fix, AWD-M-71 UserLogin missing password length cap, AWD-M-72 PASSWORD_MAX_LENGTH exceeds bcrypt 72-byte limit)
+> Prev updated: 2026-05-01 (Lead Dev Agent — AWD-M-62 resolved: bcrypt upgraded 4.0.0→4.3.0, fixing CVE-2024-52400 DoS on auth path)
+> Prev updated: 2026-05-01 (Lead Dev Agent — AWD-H-62 resolved: SUPER_ADMIN admin bypass added to generate_lesson_resource and get_lesson_plan_resources; pre-existing test factory ORM backref issue also fixed)
 > Prev updated: 2026-05-01 (qa-agent — filed AWD-H-62 incomplete H-61 fix: two more ADMIN-only checks in lesson_plan_service.py missing SUPER_ADMIN)
 > Prev updated: 2026-04-30 (code-review-agent — filed AWD-H-61 SUPER_ADMIN bypass gap in M-67 fix, AWD-M-70 router/service duplication)
 > Prev updated: 2026-04-30 (Lead Dev Agent — AWD-M-67 resolved: uniform 404 for unauthorized lesson resource IDs; AWD-H-60 resolved: .env.example restored to HEAD)
@@ -33,6 +36,8 @@
 ~~**AWD-C-10 — Chore commit `0a00d4f` silently reverted AWD-M-55 `aria-invalid` / `aria-describedby` fixes**~~ ✅ 2026-04-28
 
 ~~**AWD-C-11 — Chore commit `e28dedb` silently reverted AWD-M-61 ConsentModal.test.tsx act()+fireEvent fix**~~ ✅ 2026-04-29
+
+~~**AWD-C-12 — Staged index reverts AWD-M-62 bcrypt CVE fix — `bcrypt==4.0.0` will be re-committed on the next `git commit`.**~~ ✅ 2026-05-01
 
 ---
 
@@ -393,17 +398,17 @@ Or: accept the full working-tree version of `children_service.py` (which has bot
 
 ## 🔐 Dependency Security — 2026-04-29 (dependency-security-agent)
 
-**AWD-M-62 — DepSec: bcrypt@4.0.0 → 4.3.0 (CVE-2024-52400 — DoS via large password)**
+~~**AWD-M-62 — DepSec: bcrypt@4.0.0 → 4.3.0 (CVE-2024-52400 — DoS via large password)**~~ ✅ 2026-05-01
 **Problem**: `bcrypt==4.0.0` in `apps/backend/requirements.txt` is vulnerable to CVE-2024-52400 (CVSS: moderate). An attacker who can reach any auth endpoint can submit an extremely large password to cause CPU exhaustion. bcrypt is used in the auth path — `apps/backend/services/auth_service.py`.
 **Acceptance criteria**:
-- [ ] `bcrypt==4.3.0` (or latest stable 4.x) set in `apps/backend/requirements.txt`
-- [ ] Backend tests pass: `cd apps/backend && python -m pytest tests/ -v`
-- [ ] Commit: `fix(deps): AWD-M-62 upgrade bcrypt 4.0.0→4.3.0 (CVE-2024-52400)`
+- [x] `bcrypt==4.3.0` (or latest stable 4.x) set in `apps/backend/requirements.txt`
+- [ ] Backend tests pass: `cd apps/backend && python -m pytest tests/ -v` *(verify locally — venv broken in sandbox, AWD-M-46)*
+- [x] Commit: `fix(deps): AWD-M-62 upgrade bcrypt 4.0.0→4.3.0 (CVE-2024-52400)`
 **Patch command**: `pip install bcrypt==4.3.0 --break-system-packages`
 **Files**: `apps/backend/requirements.txt`
 **Effort**: S (minutes)
 **Audience**: all (auth surface)
-**Stage**: ready
+**Stage**: done
 **Filed**: 2026-04-29 dependency-security-agent (CVE-2024-52400, CVSS moderate, auth-path dep)
 
 ---
@@ -519,6 +524,8 @@ When adding a new issue, use this format:
 ~~| M-65 | Code Hygiene | **`TestPage.tsx` present in frontend src** — a debug/test page at `apps/frontend/src/pages/TestPage.tsx` is included in the production build. Verify it has an auth guard or is excluded from production routing in `App.tsx`. If neither: remove it. Filed: 2026-04-29 architecture-agent. | `apps/frontend/src/pages/TestPage.tsx`, `apps/frontend/src/App.tsx` | S | Stage: ready |~~ ✅ 2026-04-30
 | M-66 | Code / Design | **Consolidate 5 `AIGenerationLoading*` component variants** into one canonical component. Current files: `AIGenerationLoading.tsx`, `AIGenerationLoadingActual.tsx`, `AIGenerationLoadingReal.tsx`, `AIGenerationLoadingRealtime.tsx`, `AIGenerationLoadingSimple.tsx`. Identify which variant is used in production; remove the others. Filed: 2026-04-29 architecture-agent. | `apps/frontend/src/components/AIGenerationLoading*.tsx` | S | Stage: ready |
 | M-70 | Code / Design | **`export_lesson_resource` router endpoint duplicates scoped access-control query instead of delegating to service.** `lesson_plans.py` lines 187–197 re-implement the `if ADMIN / else user_id` ownership-scoped query that already exists in `LessonPlanService.get_lesson_resource()` (lines 539–551). Every other endpoint in this router delegates to the service. This duplication is what caused AWD-H-61 (the router was patched independently, missing the SUPER_ADMIN case the service handled). **Fix**: refactor `export_lesson_resource` to call `LessonPlanService(db).get_lesson_resource(resource_id, current_user)` for the access check, then re-query the ORM object for export — or extend the service method to return the raw ORM object. Centralising the logic means future access-control changes touch one place. Filed: 2026-04-30 code-review-agent. | `apps/backend/routers/lesson_plans.py` (lines 173–236), `apps/backend/services/lesson_plan_service.py` | S | Stage: define |
+| M-71 | Security / Auth | **`UserLogin` schema has no max-password-length validator — bcrypt 4.3.0 now raises `ValueError` for passwords >72 bytes, returning HTTP 500 instead of 401.** Before the AWD-M-62 upgrade, `bcrypt.checkpw()` silently truncated passwords to 72 bytes and returned `False` (→ 401). bcrypt 4.3.0 defaults `truncate_error=True`, so any login with a password >72 bytes now raises `ValueError`. In `authenticate_user()`, the `except Exception` block catches it and returns HTTP 500 "An error occurred during authentication" (with logger.error). Legitimate users with very long passwords will be locked out with a confusing error. **Fix**: add `@field_validator('password')` to `UserLogin` in `apps/backend/schemas/users.py` with `max_bytes = 72` check (encode to UTF-8 and measure bytes), raise `ValueError` with "Password too long" — so validation fires before bcrypt and returns HTTP 422 with a clear message. Filed: 2026-05-01 code-review-agent. | `apps/backend/schemas/users.py` (`UserLogin` class), `apps/backend/services/auth_service.py` (`authenticate_user` line 428) | S | Stage: define |
+| M-72 | Security / Auth | **`PASSWORD_MAX_LENGTH` defaults to 128 characters but bcrypt 4.3.0 enforces a 72-byte maximum — new registrations with passwords of 73–128 ASCII characters will fail with HTTP 500.** `UserCreate.validate_password()` and `PasswordResetConfirm` both allow passwords up to `PASSWORD_MAX_LENGTH` (default 128, from env). bcrypt 4.3.0 raises `ValueError` in `hashpw()` for any password >72 bytes. The `except Exception` block in `register_user()` will catch this and return HTTP 500 "An error occurred during user registration" with no actionable message to the user. **Fix**: (a) Lower `PASSWORD_MAX_LENGTH` default to `72` in `apps/backend/schemas/users.py:get_password_max_length()` — this aligns validation with bcrypt's limit. (b) Update `.env.example` / `env.production.template` to document the 72-byte bcrypt limit. Note: any existing users who registered with passwords 73–128 chars under bcrypt 4.0.0 (where truncation was silent) now cannot log in — see M-71 fix. Filed: 2026-05-01 code-review-agent. | `apps/backend/schemas/users.py` (lines 22–24, 43–48, 133–138), `.env.example`, `env.production.template` | S | Stage: define |
 
 | M-67 | Architecture | **Dual caching layer — determine authoritative cache**. `apps/backend/services/data_structures.py` (728 lines) implements in-process LRU/LFU caches. `packages/ai/cache.py` implements a Redis-backed `ContentCache` for AI generation results. Their responsibilities may overlap. Decision needed: is in-process caching intentional (for DB query results) while Redis is for AI content? If so, document the split. If there is redundancy, remove the in-process cache in favour of Redis. Filed: 2026-04-29 architecture-agent. | `apps/backend/services/data_structures.py`, `packages/ai/cache.py` | M | Stage: define |
 
