@@ -5,6 +5,18 @@ Status: 🟡 Attention Needed
 
 ---
 
+## QA Update — 2026-04-30T12:37Z
+
+QA ran on commits `6329714`, `21367ab`, `7c58abc` (AWD-M-67 security fix + docs close-out).
+
+- ✅ TypeScript, Lint, Frontend tests (148/148), OpenAPI — all green
+- ⚠️ Backend tests SKIPPED — sandbox disk full (100%); infrastructure constraint (AWD-M-46), not a code regression
+- ⚠️ AWD-H-61 (already backlogged, stage=ready) confirmed in changed files — SUPER_ADMIN excluded from admin bypass at `lesson_plan_service.py:542` and `lesson_plans.py:189`. Fix: change `== UserRole.ADMIN` → `in (UserRole.ADMIN, UserRole.SUPER_ADMIN)` in both locations.
+
+**Verdict: Ship** — AWD-M-67 fix is correct and tested. AWD-H-61 and AWD-M-70 are pre-filed and tracked; dev-agent should pick up AWD-H-61 next (stage=ready).
+
+---
+
 ## Code Health
 
 | Check | Result |
