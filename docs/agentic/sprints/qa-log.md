@@ -3743,3 +3743,30 @@ Issues:
 
 Verdict: Needs fix — Tolu must clear staged .env.example reversion before next dev run. ⚠️ DO NOT let dev-agent commit while .env.example is in staging area.
 
+
+---
+
+## QA — 2026-05-01T00:37:34Z
+Result: ❌ FAIL
+Commits: `e26ed2c` `aaa777b` `9628107` | Files: `apps/backend/routers/lesson_plans.py`, `apps/backend/services/lesson_plan_service.py`, `apps/backend/tests/test_lesson_plan_service.py`, `apps/backend/tests/test_lesson_plans_router.py`, `docs/agentic/backlog.md`, `docs/agentic/completed_backlog.md`, `docs/agentic/sprints/dev-log.md`, `.agent-health/dev-agent.last-run`
+
+| Check | Result |
+|---|---|
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 148 passing, 0 failing (13 test files) |
+| Backend tests | ⚠️ SKIPPED — venv/bin/python is a broken symlink (points to python3.13, not installed in sandbox). Run: `cd apps/backend && python3 -m venv ../../venv && source ../../venv/bin/activate && pip install -r requirements.txt` to rebuild |
+| OpenAPI valid | ✅ apps/backend/app/openapi.json is valid JSON |
+| Spot-check | ❌ FAIL — see Issues below |
+| CI on develop | unknown (gh CLI not available in sandbox) |
+
+**Issues:**
+
+1. **AWD-H-62 (auto-filed)** — `lesson_plan_service.py` lines 347 and 492 still check `current_user.role != UserRole.ADMIN` without `SUPER_ADMIN`. AWD-H-61 fixed line 542 (`get_lesson_resource`) but missed two other service methods:
+   - Line 347: `generate_lesson_resource` — SUPER_ADMIN is denied with HTTP 403 when generating a resource for a plan they don't own
+   - Line 492: `list_lesson_resources` — SUPER_ADMIN is denied with HTTP 403 when listing resources for a plan they don't own
+   This is the same class of bug as AWD-M-48 (user_service.py) and AWD-H-61. SUPER_ADMIN passes the router-level `require_admin` guard then hits a service-level 403.
+
+2. ⚠️ **venv broken** — `venv/bin/python` symlinks to `python3.13` which is not installed. Backend tests cannot be run in the sandbox until the venv is rebuilt. No action taken on app code.
+
+**Verdict: Needs fix** — AWD-H-62 is a security/access-control regression; file it and pick it up in the next dev cycle. Frontend CI (TS, lint, 148 tests) is clean. Backend test infrastructure needs rebuilding.

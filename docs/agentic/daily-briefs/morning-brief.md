@@ -165,3 +165,17 @@ Then commit the pending unstaged doc changes (backlog.md, completed_backlog.md, 
 
 Also note: AWD-M-69 flags that the H-59 fix silently reduced the JWT token lifetime from 24 hours to 60 minutes. Verify `JWT_EXPIRES_MINUTES` is explicitly set in Render env vars.
 
+
+---
+
+## QA Auto-Filed — 2026-05-01T00:37:34Z
+
+⚠️ QA auto-filed **AWD-H-62** — will be picked up next dev run.
+
+**Summary**: AWD-H-61 fix was incomplete. `lesson_plan_service.py` lines 347 and 492 still use bare `UserRole.ADMIN` without `SUPER_ADMIN` in `generate_lesson_resource` and `list_lesson_resources`. SUPER_ADMIN is denied HTTP 403 on both paths despite passing the router-level `require_admin` guard. Fix is S-effort: change `!= UserRole.ADMIN` → `not in (UserRole.ADMIN, UserRole.SUPER_ADMIN)` at those two lines and add two tests. Stage: ready.
+
+**Other notes**:
+- Frontend: TS ✅, Lint ✅, 148 tests ✅ — clean
+- OpenAPI JSON ✅ valid
+- Backend tests: ⚠️ skipped — `venv/bin/python` is a broken symlink (points to python3.13, not installed in sandbox). Rebuild with: `cd apps/backend && python3 -m venv ../../venv && source ../../venv/bin/activate && pip install -r requirements.txt`
+- CI status: unknown (gh CLI not available in QA sandbox)
