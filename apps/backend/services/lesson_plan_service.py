@@ -344,7 +344,8 @@ class LessonPlanService:
                 raise HTTPException(status_code=404, detail="Lesson plan not found")
             
             # Check if user owns the lesson plan or is admin
-            if lesson_plan.user_id != current_user.user_id and current_user.role != UserRole.ADMIN:
+            # AWD-H-62: SUPER_ADMIN has the same elevated access as ADMIN.
+            if lesson_plan.user_id != current_user.user_id and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
                 raise HTTPException(status_code=403, detail="You can only generate resources for your own lesson plans")
             
             # Get topic and curriculum data
@@ -489,7 +490,8 @@ class LessonPlanService:
                 raise HTTPException(status_code=404, detail="Lesson plan not found")
             
             # Check if user is the lesson plan author or admin
-            if current_user.user_id != lesson_plan.user_id and current_user.role != UserRole.ADMIN:
+            # AWD-H-62: SUPER_ADMIN has the same elevated access as ADMIN.
+            if current_user.user_id != lesson_plan.user_id and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
                 raise HTTPException(status_code=403, detail="You can only view resources for your own lesson plans")
             
             # Get all resources for this lesson plan

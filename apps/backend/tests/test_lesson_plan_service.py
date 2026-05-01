@@ -74,33 +74,45 @@ def _super_admin(user_id: int = 100) -> User:
     return _make_user(user_id, UserRole.SUPER_ADMIN)
 
 
-def _make_topic(topic_id: int = 1, title: str = "Fractions") -> Topic:
-    t = Topic()
+def _make_topic(topic_id: int = 1, title: str = "Fractions") -> MagicMock:
+    """Return a plain MagicMock standing in for a Topic ORM object.
+
+    Using real SQLAlchemy ORM instances here triggers backref event processing
+    (``emit_backref_from_collection_append_event``) when relationship lists are
+    assigned, which requires every item to have ``_sa_instance_state``.
+    MagicMock objects don't satisfy that constraint, so we use a plain MagicMock
+    for the whole topic and populate only the attributes the service layer reads.
+    """
+    t = MagicMock()
     t.topic_id = topic_id
     t.topic_title = title
-    cs = CurriculumStructure()
-    subj = Subject()
-    subj.name = "Mathematics"
-    gl = GradeLevel()
-    gl.name = "Grade 5"
-    cs.subject = subj
-    cs.grade_level = gl
-    t.curriculum_structure = cs
-    lo = MagicMock(spec=LearningObjective)
+    t.curriculum_structure_id = 1
+    # Attribute chains read by create_lesson_plan_response and generate_lesson_resource
+    t.curriculum_structure.subject.name = "Mathematics"
+    t.curriculum_structure.subject_id = 1
+    t.curriculum_structure.grade_level.name = "Grade 5"
+    t.curriculum_structure.grade_level_id = 1
+    lo = MagicMock()
     lo.objective = "Understand fractions"
-    tc = MagicMock(spec=TopicContent)
+    tc = MagicMock()
     tc.content_area = "Fraction basics"
     t.learning_objectives = [lo]
     t.topic_contents = [tc]
     return t
 
 
-def _make_lesson_plan(plan_id: int = 1, user_id: int = 1, topic: Topic = None) -> LessonPlan:
-    lp = LessonPlan()
+def _make_lesson_plan(plan_id: int = 1, user_id: int = 1, topic=None) -> MagicMock:
+    """Return a plain MagicMock standing in for a LessonPlan ORM object.
+
+    Assigning a non-ORM object to ``LessonPlan.topic`` via the instrumented
+    setter also fires SQLAlchemy backref events, so we use a MagicMock here too.
+    """
+    lp = MagicMock()
     lp.lesson_plan_id = plan_id
     lp.user_id = user_id
     lp.created_at = _now()
-    lp.topic = topic or _make_topic()
+    lp.topic_id = 1
+    lp.topic = topic if topic is not None else _make_topic()
     return lp
 
 
@@ -422,6 +434,16 @@ class TestGetLessonPlanResources:
         result = svc.get_lesson_plan_resources(lesson_id=1, current_user=admin)
         assert len(result) == 1
 
+    def test_super_admin_can_list_resources(self):
+        """AWD-H-62: SUPER_ADMIN must bypass ownership check in get_lesson_plan_resources."""
+        super_admin = _super_admin(user_id=100)
+        lp = _make_lesson_plan(plan_id=1, user_id=1)  # owned by user 1
+        r1 = _make_resource(resource_id=10, lesson_plan_id=1, user_id=1)
+        db = self._db_for_plan_resources(lp, [r1])
+        svc = LessonPlanService(db=db)
+        result = svc.get_lesson_plan_resources(lesson_id=1, current_user=super_admin)
+        assert len(result) == 1
+
     def test_empty_resources_returns_empty_list(self):
         user = _educator(user_id=1)
         lp = _make_lesson_plan(plan_id=1, user_id=1)
@@ -517,3 +539,94 @@ class TestGetLessonResource:
         assert result.user_edited_content == "Edited by teacher"
         assert result.export_format == "pdf"
         assert result.status == "complete"
+
+
+# ==========================================================================
+# TestGenerateLessonResource
+# ==========================================================================
+
+class TestGenerateLessonResource:
+    """generate_lesson_resource — 403 wrong user, SUPER_ADMIN bypass."""
+
+    def _db_for_generate(self, plan_obj) -> MagicMock:
+        """DB mock that drives the full generate_lesson_resource query sequence.
+
+        Query order inside generate_lesson_resource:
+          1. LessonPlan  .filter().first()
+          2. Topic       .filter().first()
+          3. CurriculumStructure .filter().first()
+          4. Subject     .filter().first()
+          5. GradeLevel  .filter().first()
+          6. Context     .filter().all()
+        Then: db.add / db.commit / db.refresh
+        """
+        db = MagicMock()
+        call_count = [0]
+
+        topic = MagicMock()
+        topic.topic_id = 1
+        topic.curriculum_structure_id = 1
+        topic.learning_objectives = []
+        topic.topic_contents = []
+
+        cs = MagicMock()
+        cs.subject_id = 1
+        cs.grade_level_id = 1
+
+        subject = MagicMock()
+        subject.name = "Mathematics"
+
+        grade_level = MagicMock()
+        grade_level.name = "Grade 5"
+
+        def query_side(_model):
+            q = MagicMock()
+            call_count[0] += 1
+            n = call_count[0]
+            if n == 1:
+                q.filter.return_value.first.return_value = plan_obj
+            elif n == 2:
+                q.filter.return_value.first.return_value = topic
+            elif n == 3:
+                q.filter.return_value.first.return_value = cs
+            elif n == 4:
+                q.filter.return_value.first.return_value = subject
+            elif n == 5:
+                q.filter.return_value.first.return_value = grade_level
+            else:
+                q.filter.return_value.all.return_value = []
+            return q
+
+        db.query.side_effect = query_side
+
+        def _refresh(obj):
+            obj.lesson_resources_id = 99
+
+        db.refresh.side_effect = _refresh
+        return db
+
+    def test_wrong_user_raises_403(self):
+        import asyncio
+        user = _educator(user_id=2)
+        lp = _make_lesson_plan(plan_id=1, user_id=1)  # owned by user 1
+        lp.topic_id = 1
+        db = self._db_for_generate(lp)
+        svc = LessonPlanService(db=db)
+        from apps.backend.schemas.lesson_plans import LessonResourceCreate
+        data = LessonResourceCreate(lesson_plan_id=1)
+        with pytest.raises(HTTPException) as exc_info:
+            asyncio.run(svc.generate_lesson_resource(lesson_id=1, data=data, current_user=user))
+        assert exc_info.value.status_code == 403
+
+    def test_super_admin_can_generate_resource(self):
+        """AWD-H-62: SUPER_ADMIN must bypass ownership check in generate_lesson_resource."""
+        import asyncio
+        super_admin = _super_admin(user_id=100)
+        lp = _make_lesson_plan(plan_id=1, user_id=1)  # owned by user 1, not super_admin
+        lp.topic_id = 1
+        db = self._db_for_generate(lp)
+        svc = LessonPlanService(db=db)
+        from apps.backend.schemas.lesson_plans import LessonResourceCreate
+        data = LessonResourceCreate(lesson_plan_id=1)
+        result = asyncio.run(svc.generate_lesson_resource(lesson_id=1, data=data, current_user=super_admin))
+        assert result.status == "processing"
