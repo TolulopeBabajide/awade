@@ -784,3 +784,8 @@
 - **Completed:** 2026-05-01
 - **Commit:** e26ed2c
 - **Fix:** `lesson_plan_service.py` and `lesson_plans.py` both had `if current_user.role == UserRole.ADMIN:` for the unscoped resource query. Changed to `if current_user.role in (UserRole.ADMIN, UserRole.SUPER_ADMIN):` in both locations. Added `test_super_admin_can_access_any_resource` (service) and `test_super_admin_can_export_any_resource` (router) tests — service tests pass; router tests blocked by pre-existing starlette version mismatch in sandbox (M-46).
+
+## AWD-H-62 — AWD-H-61 fix incomplete: two more ADMIN-only checks in lesson_plan_service.py missing SUPER_ADMIN
+- **Completed:** 2026-05-01
+- **Commit:** dd65917 (merge: 83cd404)
+- **Fix:** `lesson_plan_service.py` lines 347 (`generate_lesson_resource`) and 492 (`get_lesson_plan_resources`) both guarded `current_user.role != UserRole.ADMIN`. Changed to `current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN)` at both locations. Added `test_super_admin_can_generate_resource` and `test_super_admin_can_list_resources` tests (both pass — 33/33 in file). Also fixed pre-existing test factory issue: `_make_topic` and `_make_lesson_plan` used real SQLAlchemy ORM instances with `MagicMock(spec=...)` in relationship assignments, triggering backref events that required `_sa_instance_state`; replaced both factories with plain `MagicMock` objects, resolving 18 previously failing tests.
