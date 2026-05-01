@@ -478,3 +478,4 @@ After removing it, the next hourly run will:
 2026-04-30T11:14:08Z | AWD-H-59 | Correct JWT expiry var name in .env.example (EXPIRATION_HOURS→EXPIRES_MINUTES) | f054da5 (merge: 1fabdfa) | ✅ Done | CI:pending (push blocked in sandbox — Tolu to push develop)
 2026-04-30T12:14:00Z | AWD-H-60 | .env.example divergence cleared (staged reversion removed, file restored to HEAD) | 7c58abc | ✅ Done | CI:pending (push blocked — no HTTPS creds in sandbox)
 2026-04-30T12:14:00Z | AWD-M-67 | Lesson resource routes: uniform 404 for unauthorized IDs — existence leakage fixed | 21367ab | ✅ Done | CI:pending (push blocked — no HTTPS creds in sandbox)
+| 2026-05-01T00:10:00Z | AWD-H-61 | SUPER_ADMIN excluded from lesson resource admin bypass | e26ed2c | ✅ Done | CI:pending |

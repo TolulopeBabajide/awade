@@ -779,3 +779,8 @@
 - **Completed:** 2026-04-30
 - **Commit:** 21367ab
 - **Fix:** In `get_lesson_resource` (service) and `export_lesson_resource` (router), non-admin queries are now scoped to `resource_id AND user_id`. Unauthorised callers receive 404 regardless of whether the ID exists — no more 403/404 discrepancy leaking existence. Tests updated: `test_wrong_user_raises_403` → `test_wrong_user_returns_404_not_403`; router test `test_cross_user_export_returns_403` → `test_cross_user_export_returns_404_not_403`.
+
+## AWD-H-61 — SUPER_ADMIN excluded from lesson resource admin bypass
+- **Completed:** 2026-05-01
+- **Commit:** e26ed2c
+- **Fix:** `lesson_plan_service.py` and `lesson_plans.py` both had `if current_user.role == UserRole.ADMIN:` for the unscoped resource query. Changed to `if current_user.role in (UserRole.ADMIN, UserRole.SUPER_ADMIN):` in both locations. Added `test_super_admin_can_access_any_resource` (service) and `test_super_admin_can_export_any_resource` (router) tests — service tests pass; router tests blocked by pre-existing starlette version mismatch in sandbox (M-46).
