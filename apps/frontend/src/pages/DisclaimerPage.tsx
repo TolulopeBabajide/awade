@@ -22,7 +22,7 @@ const DisclaimerPage: React.FC = () => {
       <div className="max-w-2xl mx-auto">
         {/* Back navigation */}
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
           className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-primary-600 transition-colors mb-8"
         >
           <FaArrowLeft className="w-3 h-3" />
