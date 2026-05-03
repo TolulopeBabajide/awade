@@ -12,7 +12,7 @@ openai==1.109.1  # Upgraded from 1.12.0 — latest 1.x, stays below 2.x (breakin
 python-multipart==0.0.18  # Fix CVE-2024-53981, PVE-2024-99762
 jinja2==3.1.6  # Fix CVE-2025-27516, CVE-2024-34064, CVE-2024-56326, CVE-2024-56201, CVE-2024-22195
 bcrypt==4.3.0  # Upgraded from 4.0.0 — fix CVE-2024-52400 (DoS via large password in auth path) (AWD-M-62)
-weasyprint==60.0
+weasyprint==62.3  # Upgraded from 60.0 — 2 major versions behind; patches HTML/SVG parsing edge cases and SSRF-adjacent risk from external resource loading; API (HTML/CSS/write_pdf) unchanged (AWD-M-63)
 PyJWT==2.12.1  # Pin exact version — large CVE surface between 2.3.0 and 2.12.1 (AWD-H-23)
 email-validator==2.1.0
 requests==2.32.4  # Fix CVE-2024-47081
