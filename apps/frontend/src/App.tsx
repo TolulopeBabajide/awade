@@ -27,6 +27,7 @@ import CurriculumManager from './pages/admin/CurriculumManager'
 import TemplateManager from './pages/admin/TemplateManager'
 import AdminSettings from './pages/admin/Settings'
 import ChildProfileList from './pages/admin/ChildProfileList'
+import DisclaimerPage from './pages/DisclaimerPage'
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/disclaimer" element={<DisclaimerPage />} />
 
           {/* Protected routes — role-aware dashboard */}
           <Route path="/dashboard" element={

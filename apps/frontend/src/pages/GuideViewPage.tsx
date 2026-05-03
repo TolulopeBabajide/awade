@@ -13,6 +13,7 @@ import {
   FaHome,
   FaWhatsapp,
   FaDownload,
+  FaRobot,
 } from 'react-icons/fa'
 import apiService from '../services/api'
 import Sidebar from '../components/Sidebar'
@@ -224,6 +225,26 @@ const GuideViewPage: React.FC = () => {
             <h1 className="text-2xl lg:text-3xl font-bold text-primary-800">
               {content.topic_header.topic}
             </h1>
+          </div>
+
+          {/* AI disclosure banner — EU AI Act Art. 52 / GDPR Art. 5(1)(a) — AWD-GRC-07 */}
+          <div className="bg-accent-50 border border-accent-200 rounded-xl px-4 py-3 flex items-start gap-3">
+            <div className="w-7 h-7 bg-accent-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <FaRobot className="w-3.5 h-3.5 text-accent-700" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-accent-800 leading-relaxed">
+                <span className="font-semibold">This guide was created by Awade's AI.</span>{' '}
+                It may contain inaccuracies — please use your own judgement and speak to your
+                child's teacher if you have concerns.{' '}
+                <a
+                  href="/disclaimer"
+                  className="underline hover:text-accent-900 font-medium transition-colors"
+                >
+                  Read full disclaimer
+                </a>
+              </p>
+            </div>
           </div>
 
           {/* Simple Explanation */}
