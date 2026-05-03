@@ -10,6 +10,38 @@ import AddChildModal from '../components/AddChildModal'
 import ConsentModal from '../components/ConsentModal'
 import type { ChildProfile, ChildTopic } from '../types/children'
 
+// ── File-scope subcomponent ───────────────────────────────────────────────
+// Defined outside ParentDashboardPage so React sees a stable component
+// reference across renders, preventing unnecessary unmount/remount cycles.
+// AWD-H-66
+interface EmptyStateProps {
+  firstName?: string
+  onAddChild: () => void
+}
+
+const EmptyState: React.FC<EmptyStateProps> = ({ firstName, onAddChild }) => (
+  <div className="flex-1 flex items-center justify-center">
+    <div className="text-center max-w-md px-4">
+      <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <FaGraduationCap className="w-10 h-10 text-primary-600" />
+      </div>
+      <h2 className="text-2xl font-bold text-primary-800 mb-3">
+        Welcome to Awade, {firstName}!
+      </h2>
+      <p className="text-gray-600 mb-6">
+        Add your first child to start exploring their curriculum and get personalised guides for helping them at home.
+      </p>
+      <button
+        onClick={onAddChild}
+        className="bg-accent-700 hover:bg-accent-800 text-white font-semibold py-3 px-8 rounded-xl transition-colors inline-flex items-center gap-2 shadow-md"
+      >
+        <FaPlus className="w-4 h-4" />
+        Add Your Child
+      </button>
+    </div>
+  </div>
+)
+
 const ParentDashboardPage: React.FC = () => {
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -144,30 +176,6 @@ const ParentDashboardPage: React.FC = () => {
     }
   }
 
-  // ── Empty state: no children yet ─────────────────────────────────
-  const EmptyState = () => (
-    <div className="flex-1 flex items-center justify-center">
-      <div className="text-center max-w-md px-4">
-        <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <FaGraduationCap className="w-10 h-10 text-primary-600" />
-        </div>
-        <h2 className="text-2xl font-bold text-primary-800 mb-3">
-          Welcome to Awade, {user?.full_name?.split(' ')[0]}!
-        </h2>
-        <p className="text-gray-600 mb-6">
-          Add your first child to start exploring their curriculum and get personalised guides for helping them at home.
-        </p>
-        <button
-          onClick={() => handleAddChildIntent(null)}
-          className="bg-accent-700 hover:bg-accent-800 text-white font-semibold py-3 px-8 rounded-xl transition-colors inline-flex items-center gap-2 shadow-md"
-        >
-          <FaPlus className="w-4 h-4" />
-          Add Your Child
-        </button>
-      </div>
-    </div>
-  )
-
   return (
     <div className="flex min-h-screen bg-background-50">
       <Sidebar currentPage="dashboard" />
@@ -213,7 +221,10 @@ const ParentDashboardPage: React.FC = () => {
             </div>
           </div>
         ) : children.length === 0 ? (
-          <EmptyState />
+          <EmptyState
+            firstName={user?.full_name?.split(' ')[0]}
+            onAddChild={() => handleAddChildIntent(null)}
+          />
         ) : (
           <div className="px-4 sm:px-6 lg:px-8 py-6">
             {/* Child selector cards */}

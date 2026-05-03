@@ -206,6 +206,29 @@ describe('ParentDashboardPage', () => {
         expect(screen.getByText(/Welcome to Awade/i)).toBeTruthy()
       })
     })
+
+    // AWD-H-66: EmptyState is now a file-scope component; verify the onAddChild
+    // prop wiring still triggers the add-child flow when "Add Your Child" is clicked.
+    it('empty state Add Your Child button opens the add child modal', async () => {
+      mockApiService.getChildren.mockResolvedValue({
+        error: undefined,
+        data: { children: [], total: 0 },
+      })
+      // Consent already given so the AddChildModal opens directly.
+      mockApiService.getConsentStatus = vi.fn().mockResolvedValue({
+        error: undefined,
+        data: { has_consented: true },
+      })
+
+      renderWithProviders(<ParentDashboardPage />)
+
+      await waitFor(() => expect(screen.getByText(/Add Your Child/i)).toBeTruthy())
+      fireEvent.click(screen.getByText(/Add Your Child/i))
+
+      await waitFor(() => {
+        expect(screen.getByTestId('add-child-modal')).toBeTruthy()
+      })
+    })
   })
 
   describe('success state', () => {
