@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 interface AIGenerationLoadingProps {
   isVisible: boolean;
   onComplete?: () => void;
-  onError?: (error: string) => void;
   generationType: 'lesson-plan' | 'lesson-resource';
   topic?: string;
   subject?: string;
