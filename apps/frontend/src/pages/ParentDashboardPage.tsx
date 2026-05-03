@@ -311,6 +311,17 @@ const ParentDashboardPage: React.FC = () => {
                   </div>
                 ) : (
                   <div className="space-y-8">
+                    {/* AI pre-generation notice — EU AI Act Art. 52 / AWD-GRC-07 */}
+                    <p className="text-xs text-gray-400 leading-relaxed">
+                      Tap a topic to generate an AI-powered "How to Help" guide. Guides are
+                      created by AI and may contain inaccuracies.{' '}
+                      <a
+                        href="/disclaimer"
+                        className="underline hover:text-gray-600 transition-colors"
+                      >
+                        Learn more
+                      </a>
+                    </p>
                     {Object.entries(topicsBySubject).map(([subjectName, subjectTopics]) => (
                       <div key={subjectName}>
                         <h2 className="text-lg font-semibold text-primary-800 mb-3 flex items-center gap-2">
