@@ -3,7 +3,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import Sidebar from '../components/Sidebar';
 import MobileNavigation from '../components/MobileNavigation';
-import AIGenerationLoadingActual from '../components/AIGenerationLoadingActual';
+import AIGenerationLoading from '../components/AIGenerationLoading';
 
 import apiService from '../services/api';
 import { sanitizeInput } from '../utils/sanitizer';
@@ -335,7 +335,7 @@ const LessonPlanDetailPage: React.FC = () => {
       <MobileNavigation />
 
       {/* AI Generation Loading Modal */}
-      <AIGenerationLoadingActual
+      <AIGenerationLoading
         isVisible={isGeneratingLessonResource}
         onComplete={() => setIsGeneratingLessonResource(false)}
         onError={(error) => {
