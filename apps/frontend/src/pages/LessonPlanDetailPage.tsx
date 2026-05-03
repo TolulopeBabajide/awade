@@ -132,7 +132,9 @@ const LessonPlanDetailPage: React.FC = () => {
 
           const pollResponse = await apiService.getLessonResource(resourceId.toString());
           if (pollResponse.error || !pollResponse.data) {
-            console.warn("Polling failed temporarily", pollResponse.error);
+            if (import.meta.env.DEV) {
+              console.warn("Polling failed temporarily", pollResponse.error);
+            }
             continue; // Retry polling
           }
 
