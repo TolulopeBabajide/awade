@@ -338,13 +338,6 @@ const LessonPlanDetailPage: React.FC = () => {
       <AIGenerationLoading
         isVisible={isGeneratingLessonResource}
         onComplete={() => setIsGeneratingLessonResource(false)}
-        onError={(error) => {
-          setContextFeedback({
-            type: 'error',
-            message: error
-          });
-          setIsGeneratingLessonResource(false);
-        }}
         generationType="lesson-resource"
         topic={lessonPlan?.topic}
         subject={lessonPlan?.subject}
