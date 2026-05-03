@@ -1,7 +1,7 @@
 
 # Core FastAPI dependencies - Updated for security
-fastapi==0.109.2
-uvicorn[standard]==0.27.1
+fastapi==0.115.12  # Upgraded from 0.109.2 — patches CVE-2024-24762 (DoS via multipart) and 6 minor security releases (AWD-M-64)
+uvicorn[standard]==0.34.0  # Upgraded from 0.27.1 — 7 minor security hardening releases (AWD-M-64)
 pydantic==2.6.4
 sqlalchemy==2.0.29
 psycopg2-binary==2.9.9
