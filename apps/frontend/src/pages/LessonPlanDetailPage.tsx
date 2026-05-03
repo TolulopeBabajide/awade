@@ -55,14 +55,17 @@ const LessonPlanDetailPage: React.FC = () => {
         } else {
           throw new Error('No data received from lesson plan request');
         }
-      } catch (err: any) {
-        console.error('Error loading lesson plan:', err);
-        if (err.message?.includes('403')) {
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.error('Error loading lesson plan:', err);
+        }
+        const message = err instanceof Error ? err.message : String(err);
+        if (message.includes('403')) {
           setError('You do not have permission to access this lesson plan. It may belong to another user.');
-        } else if (err.message?.includes('404')) {
+        } else if (message.includes('404')) {
           setError('Lesson plan not found. It may have been deleted or moved.');
         } else {
-          setError(err.message || 'Failed to load lesson plan. Please try again.');
+          setError(message || 'Failed to load lesson plan. Please try again.');
         }
       } finally {
         setLoading(false);
@@ -161,10 +164,11 @@ const LessonPlanDetailPage: React.FC = () => {
 
       // Navigate to the edit page after successful generation
       navigate(`/lesson-plans/${lessonPlan.lesson_id}/resources/edit`);
-    } catch (err: any) {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
       setContextFeedback({
         type: 'error',
-        message: err.message || 'Failed to generate lesson resource. Please try again.'
+        message: message || 'Failed to generate lesson resource. Please try again.'
       });
     } finally {
       setIsGeneratingLessonResource(false);
