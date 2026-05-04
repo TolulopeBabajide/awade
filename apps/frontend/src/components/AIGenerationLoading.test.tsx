@@ -119,4 +119,34 @@ describe('AIGenerationLoading', () => {
     );
     expect(screen.getByText('AI Generation in Progress')).toBeInTheDocument();
   });
+
+  // AWD-M-73: lesson-plan generationType must render steps (was empty before fix)
+  it('renders 4 steps for lesson-plan generationType', () => {
+    render(
+      <AIGenerationLoading isVisible={true} generationType="lesson-plan" />
+    );
+    expect(screen.getByText('Fetching Curriculum Data')).toBeInTheDocument();
+    expect(screen.getByText('AI Content Generation')).toBeInTheDocument();
+    expect(screen.getByText('Saving Lesson Plan')).toBeInTheDocument();
+    expect(screen.getByText('Generation Complete')).toBeInTheDocument();
+  });
+
+  it('shows "Step 0 of 4" counter for lesson-plan before any step is active', () => {
+    render(
+      <AIGenerationLoading isVisible={true} generationType="lesson-plan" />
+    );
+    expect(screen.getByText('Step 0 of 4')).toBeInTheDocument();
+  });
+
+  it('lesson-plan ai-generation step becomes in-progress when currentStep matches', () => {
+    render(
+      <AIGenerationLoading
+        isVisible={true}
+        generationType="lesson-plan"
+        currentStep="ai-generation"
+      />
+    );
+    const stepTitle = screen.getByText('AI Content Generation');
+    expect(stepTitle).toHaveClass('text-orange-700');
+  });
 });
