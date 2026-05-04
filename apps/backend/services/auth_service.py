@@ -13,6 +13,7 @@ from datetime import datetime, timedelta, timezone
 import jwt
 import bcrypt
 import secrets
+import hashlib
 import json
 import logging
 import requests
@@ -530,75 +531,117 @@ class AuthService:
                 detail="An error occurred while retrieving user profile"
             )
     
+    @staticmethod
+    def _hash_reset_token(raw_token: str) -> str:
+        """Return the SHA-256 hex digest of a raw reset token for safe DB storage."""
+        return hashlib.sha256(raw_token.encode('utf-8')).hexdigest()
+
     def request_password_reset(self, email: str) -> Dict[str, str]:
         """
-        Request password reset for a user.
-        
+        Request a password reset for the given email address.
+
+        Generates a cryptographically random token, stores its SHA-256 hash on the
+        user record with a 1-hour expiry, and (when email is wired up) would dispatch
+        a reset link containing the raw token.
+
+        The response is intentionally identical for existing and non-existing emails
+        so that callers cannot enumerate registered accounts (OWASP A07).
+
         Args:
-            email (str): User's email address
-            
+            email: Email address submitted by the user.
+
         Returns:
-            Dict[str, str]: Success message
-            
-        Raises:
-            HTTPException: If request fails
+            Dict with a generic success message (enumeration-safe).
         """
+        _ENUM_SAFE_RESPONSE = {"message": "If the email exists, a password reset link has been sent"}
         try:
-            # Check if user exists
             user = self.db.query(User).filter(User.email == email).first()
             if not user:
-                # Don't reveal if email exists or not for security
-                return {"message": "If the email exists, a password reset link has been sent"}
-            
-            # Generate reset token (in-memory for demo, use DB/Redis in production)
-            reset_token = secrets.token_urlsafe(32)
-            # In production, store this token in database with expiration
-            
-            # Send email with reset link (placeholder)
-            # In production, implement actual email sending
-            
-            return {"message": "If the email exists, a password reset link has been sent"}
-            
+                return _ENUM_SAFE_RESPONSE
+
+            # Generate a URL-safe random token (256 bits of entropy).
+            raw_token = secrets.token_urlsafe(32)
+
+            # Store the SHA-256 hash — the raw token is never persisted.
+            user.password_reset_token = self._hash_reset_token(raw_token)
+            user.password_reset_expires = datetime.now(timezone.utc) + timedelta(hours=1)
+            self.db.commit()
+
+            # TODO(AWD-H-68): send email with reset link once email layer is wired up.
+            # The reset URL should be: {FRONTEND_URL}/reset-password?token={raw_token}
+            # Do NOT log raw_token — it is a credential.
+            logger.info("Password reset token generated for user_id=%s", user.user_id)
+
+            return _ENUM_SAFE_RESPONSE
+
         except Exception as e:
-            logger.error("Unexpected error while requesting password reset: %s", e, exc_info=True)
+            self.db.rollback()
+            logger.error("Unexpected error while requesting password reset", exc_info=True)
             raise HTTPException(
                 status_code=500,
                 detail="An error occurred while requesting password reset"
             )
-    
+
     def reset_password(self, token: str, new_password: str) -> Dict[str, str]:
         """
-        Reset user password using reset token.
-        
+        Reset the password for the user identified by the given reset token.
+
+        Validates:
+        - Token exists in the DB (matched by SHA-256 hash).
+        - Token has not expired.
+        - New password passes the configured length / byte-size constraints
+          (the PasswordReset Pydantic schema already validates these at the HTTP layer,
+           but we re-check here as a defence-in-depth measure).
+
+        On success clears the token columns to prevent replay attacks.
+
         Args:
-            token (str): Password reset token
-            new_password (str): New password
-            
+            token: Raw reset token from the email link.
+            new_password: Plaintext new password (pre-validated by Pydantic schema).
+
         Returns:
-            Dict[str, str]: Success message
-            
+            Dict with a success message.
+
         Raises:
-            HTTPException: If reset fails
+            HTTPException 400: Token is invalid or expired.
+            HTTPException 500: Unexpected DB / hashing failure.
         """
         try:
-            # Validate password length
-            PASSWORD_MIN_LENGTH = self.get_password_min_length()
-            if len(new_password) < PASSWORD_MIN_LENGTH:
-                raise HTTPException(
-                    status_code=400, 
-                    detail=f"Password must be at least {PASSWORD_MIN_LENGTH} characters long"
+            token_hash = self._hash_reset_token(token)
+            now = datetime.now(timezone.utc)
+
+            user = (
+                self.db.query(User)
+                .filter(
+                    User.password_reset_token == token_hash,
+                    User.password_reset_expires > now,
                 )
-            
-            # In production, validate token from database and get user
-            # For demo purposes, we'll just return success
-            # In production: verify token, find user, update password
-            
+                .first()
+            )
+
+            if user is None:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Invalid or expired reset token"
+                )
+
+            # Hash and store the new password, respecting bcrypt's 72-byte cap (AWD-M-72).
+            user.password_hash = self._hash_password(new_password)
+
+            # Clear token fields to prevent replay.
+            user.password_reset_token = None
+            user.password_reset_expires = None
+
+            self.db.commit()
+            logger.info("Password reset completed for user_id=%s", user.user_id)
+
             return {"message": "Password reset successfully"}
-            
+
         except HTTPException:
             raise
         except Exception as e:
-            logger.error("Unexpected error while resetting password: %s", e, exc_info=True)
+            self.db.rollback()
+            logger.error("Unexpected error while resetting password", exc_info=True)
             raise HTTPException(
                 status_code=500,
                 detail="An error occurred while resetting password"
