@@ -48,17 +48,14 @@ class AuthService:
     
     def get_google_client_id(self) -> str:
         """Get Google OAuth client ID from environment variables."""
-        import os
         return os.getenv("GOOGLE_CLIENT_ID", "")
-    
+
     def get_jwt_expires_minutes(self) -> int:
         """Get JWT expiration time from environment variables."""
-        import os
         return int(os.getenv("JWT_EXPIRES_MINUTES", "60"))
-    
+
     def get_password_min_length(self) -> int:
         """Get minimum password length from environment variables."""
-        import os
         return int(os.getenv("PASSWORD_MIN_LENGTH", "8"))
     
     def _hash_password(self, password: str) -> str:
