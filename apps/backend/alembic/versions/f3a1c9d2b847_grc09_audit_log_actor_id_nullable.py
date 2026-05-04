@@ -29,7 +29,17 @@ def upgrade() -> None:
     #
     # SQLite (used in tests) does not support ALTER COLUMN, so we use batch mode
     # which rewrites the table.  PostgreSQL supports it natively via batch as well.
-    with op.batch_alter_table('admin_audit_logs', schema=None) as batch_op:
+    #
+    # recreate='always' forces the CREATE TABLE / INSERT / DROP TABLE rewrite
+    # strategy on ALL backends (including PostgreSQL).  This avoids
+    # batch_op.drop_constraint() issuing a literal
+    #   ALTER TABLE admin_audit_logs DROP CONSTRAINT fk_audit_log_actor
+    # which would fail on production PostgreSQL because the original migration
+    # (160b496e36e6) created the FK without an explicit name, so PostgreSQL
+    # auto-named it 'admin_audit_logs_actor_id_fkey' rather than
+    # 'fk_audit_log_actor'.  With recreate='always' the table is rebuilt
+    # wholesale, so no constraint-name lookup ever occurs.
+    with op.batch_alter_table('admin_audit_logs', schema=None, recreate='always') as batch_op:
         batch_op.alter_column(
             'actor_id',
             existing_type=sa.Integer(),
@@ -51,7 +61,7 @@ def downgrade() -> None:
     # NOTE: rows where actor_id IS NULL (from a prior user deletion) cannot be
     # reverted to NOT NULL — a downgrade on a live database with NULL actor_ids
     # will fail.  Run only on a clean database or after back-filling actor_id.
-    with op.batch_alter_table('admin_audit_logs', schema=None) as batch_op:
+    with op.batch_alter_table('admin_audit_logs', schema=None, recreate='always') as batch_op:
         batch_op.drop_constraint('fk_audit_log_actor', type_='foreignkey')
         batch_op.create_foreign_key(
             'fk_audit_log_actor',
