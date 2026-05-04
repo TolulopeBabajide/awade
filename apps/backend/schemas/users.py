@@ -19,17 +19,22 @@ def get_password_min_length() -> int:
     """Get minimum password length from environment variables."""
     return int(os.getenv("PASSWORD_MIN_LENGTH", "8"))
 
+_BCRYPT_MAX_BYTES = 72  # bcrypt 4.3.0 hard limit (truncate_error=True)
+
 def get_password_max_length() -> int:
     """Get maximum password length from environment variables.
 
-    Default is 72 — the maximum byte length accepted by bcrypt 4.3.0.
-    bcrypt raises ValueError for inputs > 72 bytes (truncate_error=True by
-    default).  Allowing values above 72 via PASSWORD_MAX_LENGTH would permit
-    passwords that pass character-length validation but crash hashpw() with
-    HTTP 500.  Set PASSWORD_MAX_LENGTH in your environment only if you need a
-    stricter (lower) cap; values above 72 are not recommended.
+    The return value is hard-capped at 72 — the maximum byte length accepted by
+    bcrypt 4.3.0 (truncate_error=True by default).  Even if PASSWORD_MAX_LENGTH
+    is set above 72 (e.g. 128), this function returns 72 so that validators
+    never pass a password that would crash hashpw()/checkpw() with ValueError
+    (which previously bubbled up as HTTP 500 before AWD-M-72 was fixed).
+
+    Use PASSWORD_MAX_LENGTH only to enforce a *stricter* (lower) cap; values
+    above 72 are silently clamped to 72 (AWD-H-70).
     """
-    return int(os.getenv("PASSWORD_MAX_LENGTH", "72"))
+    configured = int(os.getenv("PASSWORD_MAX_LENGTH", str(_BCRYPT_MAX_BYTES)))
+    return min(configured, _BCRYPT_MAX_BYTES)
 
 # Request schemas
 class UserCreate(BaseModel):
