@@ -342,15 +342,16 @@ class AdminAuditLog(Base):
     __tablename__ = 'admin_audit_logs'
     
     log_id = Column(Integer, primary_key=True, autoincrement=True)
-    actor_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
+    actor_id = Column(Integer, ForeignKey('users.user_id', ondelete='SET NULL'), nullable=True)
     action = Column(String(100), nullable=False)  # e.g., 'suspend_user', 'change_role', 'delete_resource'
     target_type = Column(String(50), nullable=False)  # e.g., 'user', 'lesson_resource', 'curriculum'
     target_id = Column(Integer, nullable=True)
     metadata_json = Column(Text, nullable=True)  # Detailed info about the change (JSON string)
     ip_address = Column(String(45), nullable=True)
     created_at = Column(DateTime, default=func.now(), nullable=False)
-    
+
     # Relationships
+    # actor may be NULL when the admin user account has been deleted (ondelete='SET NULL')
     actor = relationship("User")
 
 class ResourceModeration(Base):

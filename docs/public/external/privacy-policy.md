@@ -1,7 +1,7 @@
 # Privacy Policy — Awade
 
 **Effective date:** 1 May 2026
-**Last updated:** 4 May 2026
+**Last updated:** 4 May 2026 (GRC-09: admin audit log retention added)
 
 Awade ("we", "us", "our") is committed to protecting the privacy of everyone who uses our platform — parents, educators, and the children whose learning we support. This policy explains what data we collect, how we use it, where we store it, and the rights you have over it.
 
@@ -127,6 +127,7 @@ Awade supports learning for children but does **not** collect data directly from
 | Child profiles and guides | Duration of parent account + 30 days after deletion request |
 | Server access logs | 90 days |
 | Error logs (Sentry) | 90 days |
+| Admin audit logs (administrator action records containing actor IP address) | 1 year from creation |
 | Anonymised, aggregated usage statistics | Indefinitely (no PII retained) |
 
 ---
