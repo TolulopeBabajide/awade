@@ -1,7 +1,7 @@
 # Privacy Policy — Awade
 
 **Effective date:** 1 May 2026
-**Last updated:** 26 April 2026
+**Last updated:** 4 May 2026
 
 Awade ("we", "us", "our") is committed to protecting the privacy of everyone who uses our platform — parents, educators, and the children whose learning we support. This policy explains what data we collect, how we use it, where we store it, and the rights you have over it.
 
@@ -21,6 +21,7 @@ Awade is an AI-powered learning platform that helps African parents support thei
 - Name, email address, and password (hashed — we never store plaintext passwords).
 - Role (parent or educator) and registration date.
 - Google account ID and profile picture if you sign in with Google.
+- Phone number (optional — only stored if you add it in Settings).
 
 ### 2b. Child profile data (parents only)
 - Child's first name, country, curriculum, grade level, and selected subjects.
@@ -34,6 +35,7 @@ Awade is an AI-powered learning platform that helps African parents support thei
 - Log data (timestamps, API endpoints called, HTTP status codes) — no personally identifying request bodies are logged.
 - Error events forwarded to our error-monitoring service (Sentry) — stack traces and request metadata only; no passwords or child names are included in error payloads.
 - Browser and device type, inferred from your User-Agent header.
+- **Page analytics collected by Vercel Analytics** (our frontend hosting provider): page URL visited, referrer URL, device type (mobile / desktop / tablet), and country inferred from your IP address. Vercel Analytics operates **without cookies** and does not fingerprint individual users. Raw IP addresses are not stored by Vercel; only the derived country is retained. You can opt out by sending a `DNT: 1` (Do Not Track) header in your browser.
 
 ### 2e. What we do NOT collect
 - Payment card or bank details (we do not yet process payments).
@@ -47,10 +49,11 @@ Awade is an AI-powered learning platform that helps African parents support thei
 
 | Purpose | Legal basis |
 |---------|------------|
-| Deliver the service (generate guides, lesson plans, save content) | Contract performance |
+| Deliver the service (generate guides, lesson plans, save content; store optional profile fields such as phone number if provided) | Contract performance |
 | Authenticate your account and maintain session security | Contract performance / legitimate interest |
 | Monitor platform health and debug errors (Sentry) | Legitimate interest |
 | Improve AI prompt quality using aggregated, anonymised interaction data | Legitimate interest |
+| Measure platform usage (page views, device type, country) via Vercel Analytics — cookieless, no individual-user tracking | Legitimate interest |
 | Comply with legal obligations (tax, audit, court orders) | Legal obligation |
 | Send product and service updates you have opted into | Consent |
 
@@ -89,7 +92,7 @@ Awade's primary users are in Africa, but our infrastructure currently resides in
 | Sub-processor | Purpose | Location | Data shared |
 |---------------|---------|----------|------------|
 | Render (Render Services, Inc.) | Application hosting and managed PostgreSQL | United States | All user and child profile data |
-| Vercel, Inc. | Frontend hosting and CDN | United States | None (static assets only; no PII in CDN layer) |
+| Vercel, Inc. | Frontend hosting, CDN, and cookieless page analytics (Vercel Analytics) | United States | Page URL, referrer URL, device type, IP-derived country (raw IPs not stored by Vercel) |
 | OpenAI, LLC | AI guide and lesson plan generation | United States | Child grade level, subject, and topic (no names or identifying data sent to OpenAI) |
 | Sentry (Functional Software, Inc.) | Error monitoring | United States | Stack traces, request metadata (no passwords, no child names) |
 
@@ -160,7 +163,7 @@ We implement the following technical and organisational measures:
 
 ---
 
-## 9. Cookies
+## 9. Cookies and Analytics
 
 We use the following cookies:
 
@@ -169,7 +172,11 @@ We use the following cookies:
 | `access_token` | Authentication (HttpOnly, Secure) | Session / JWT expiry |
 | `refresh_token` | Session renewal (HttpOnly, Secure) | 7 days |
 
-We do not use analytics cookies or advertising cookies. If we add any in future, we will update this policy and request fresh consent.
+We do not use advertising cookies. We do not use analytics cookies.
+
+**Vercel Analytics** — our hosting provider collects basic page-view statistics (page URL, referrer, device type, IP-derived country) to help us understand how the platform is used. Vercel Analytics does **not** use cookies and does not build individual user profiles. Raw IP addresses are processed transiently to derive country and are not retained. You can signal opt-out by enabling the **Do Not Track (DNT)** setting in your browser; Vercel Analytics respects the `DNT: 1` header.
+
+If we add any advertising or cookie-based analytics in future, we will update this policy and request fresh consent before enabling them.
 
 ---
 
