@@ -193,7 +193,7 @@ class User(Base):
     last_login = Column(DateTime, nullable=True)
     is_suspended = Column(Integer, default=0, nullable=False) # 0 = active, 1 = suspended
     password_reset_token = Column(String(64), nullable=True)  # SHA-256 hex digest of raw reset token
-    password_reset_expires = Column(DateTime, nullable=True)  # UTC expiry for the reset token (1hr window)
+    password_reset_expires = Column(DateTime(timezone=True), nullable=True)  # UTC expiry for the reset token (1hr window)
     created_at = Column(DateTime, default=func.now(), nullable=False)
     
     # Relationships
