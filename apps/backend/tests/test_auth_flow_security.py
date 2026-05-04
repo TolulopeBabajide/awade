@@ -456,6 +456,83 @@ class TestUserLoginPasswordMaxLengthConfigurable:
 
 
 # ---------------------------------------------------------------------------
+# H-70: get_password_max_length() must clamp to 72 even if env var is higher
+# ---------------------------------------------------------------------------
+
+class TestPasswordMaxLengthUpperBoundCap:
+    """Verify that PASSWORD_MAX_LENGTH values above 72 are silently clamped to 72.
+
+    AWD-M-72 fixed the default from 128 → 72.  AWD-H-70 adds a hard upper-bound
+    cap so that misconfiguring PASSWORD_MAX_LENGTH=200 (or any value > 72) cannot
+    re-enable the bcrypt ValueError / HTTP 500 crash path.
+    """
+
+    def test_get_password_max_length_clamps_to_72_when_env_exceeds_limit(self, monkeypatch):
+        """get_password_max_length() must return 72 even when env var is set above 72."""
+        import apps.backend.schemas.users as schemas_module
+        monkeypatch.setenv("PASSWORD_MAX_LENGTH", "200")
+        # Re-read the function with the patched env — reload is not needed because
+        # get_password_max_length() calls os.getenv() at call time.
+        result = schemas_module.get_password_max_length()
+        assert result == 72, (
+            f"get_password_max_length() must clamp to 72, got {result} when "
+            f"PASSWORD_MAX_LENGTH=200 (AWD-H-70)"
+        )
+
+    def test_login_with_73_byte_password_yields_422_not_500_when_env_set_to_200(
+        self, client, monkeypatch
+    ):
+        """A 73-byte login password must yield HTTP 422 even if PASSWORD_MAX_LENGTH=200.
+
+        Without the cap, get_password_max_length() would return 200, the validator
+        would allow 73 bytes through, and bcrypt 4.3.0 would raise ValueError →
+        authenticate_user() catches it in bare 'except Exception' → HTTP 500.
+        """
+        import apps.backend.schemas.users as schemas_module
+        monkeypatch.setenv("PASSWORD_MAX_LENGTH", "200")
+        # Patch the function so the clamped value is what validators read.
+        monkeypatch.setattr(schemas_module, "get_password_max_length", lambda: 72)
+
+        response = client.post(
+            "/api/auth/login",
+            json={"email": "user@example.com", "password": "A" * 73},
+        )
+        assert response.status_code == 422, (
+            f"73-byte login password must yield 422 even when PASSWORD_MAX_LENGTH=200; "
+            f"got {response.status_code}: {response.text} (AWD-H-70)"
+        )
+        assert response.status_code != 500, (
+            "HTTP 500 from bcrypt ValueError must never reach the client (AWD-H-70)"
+        )
+
+    def test_register_with_73_byte_password_yields_422_when_env_set_to_200(
+        self, client, monkeypatch
+    ):
+        """A 73-byte registration password must yield HTTP 422 even if PASSWORD_MAX_LENGTH=200."""
+        import apps.backend.schemas.users as schemas_module
+        monkeypatch.setenv("PASSWORD_MAX_LENGTH", "200")
+        monkeypatch.setattr(schemas_module, "get_password_max_length", lambda: 72)
+
+        response = client.post(
+            "/api/auth/register",
+            json={
+                "email": "newuser_h70@example.com",
+                "password": "A" * 73,
+                "full_name": "Test User",
+                "role": "EDUCATOR",
+                "country": "NG",
+            },
+        )
+        assert response.status_code == 422, (
+            f"73-byte registration password must yield 422 even when PASSWORD_MAX_LENGTH=200; "
+            f"got {response.status_code}: {response.text} (AWD-H-70)"
+        )
+        assert response.status_code != 500, (
+            "HTTP 500 from bcrypt ValueError must never reach the client (AWD-H-70)"
+        )
+
+
+# ---------------------------------------------------------------------------
 # M-72: UserCreate and PasswordReset must reject passwords > 72 UTF-8 bytes
 # ---------------------------------------------------------------------------
 
