@@ -406,6 +406,56 @@ class TestUserLoginPasswordBytesValidator:
 
 
 # ---------------------------------------------------------------------------
+# M-91: UserLogin.validate_password_bytes must use get_password_max_length()
+# ---------------------------------------------------------------------------
+
+class TestUserLoginPasswordMaxLengthConfigurable:
+    """Verify that UserLogin.validate_password_bytes respects the configured
+    PASSWORD_MAX_LENGTH env var rather than hardcoding 72 (AWD-M-91).
+
+    If PASSWORD_MAX_LENGTH is set to a value lower than 72 (e.g. 64), login
+    must reject passwords exceeding that lower limit with HTTP 422, not accept
+    them up to the old hardcoded 72."""
+
+    def test_login_validator_respects_custom_lower_max_length(self, client, monkeypatch):
+        """A password within the default 72-byte limit but exceeding a stricter
+        configured limit (64 bytes) must be rejected with HTTP 422."""
+        import apps.backend.schemas.users as schemas_module
+        monkeypatch.setenv("PASSWORD_MAX_LENGTH", "64")
+        # Reload the env-reading function so the patched env takes effect
+        monkeypatch.setattr(schemas_module, "get_password_max_length", lambda: 64)
+
+        # 65 ASCII bytes: over the patched limit of 64, under the default 72
+        response = client.post(
+            "/api/auth/login",
+            json={"email": "user@example.com", "password": "A" * 65},
+        )
+        assert response.status_code == 422, (
+            f"Login with 65-byte password must yield 422 when PASSWORD_MAX_LENGTH=64, "
+            f"got {response.status_code}: {response.text} (AWD-M-91)"
+        )
+
+    def test_login_validator_accepts_password_at_custom_boundary(self, client, monkeypatch):
+        """A password exactly at the custom configured limit must pass schema
+        validation (64-byte password when PASSWORD_MAX_LENGTH=64)."""
+        import apps.backend.schemas.users as schemas_module
+        monkeypatch.setattr(schemas_module, "get_password_max_length", lambda: 64)
+
+        # 64 ASCII bytes: exactly at the patched limit — must not be rejected by schema
+        response = client.post(
+            "/api/auth/login",
+            json={"email": "nonexistent@example.com", "password": "A" * 64},
+        )
+        # Schema passes → auth layer runs → 401 (wrong user) or 200; never 422 or 500
+        assert response.status_code != 422, (
+            "64-byte password must not be rejected when PASSWORD_MAX_LENGTH=64 (AWD-M-91)"
+        )
+        assert response.status_code != 500, (
+            "64-byte password must not cause HTTP 500 (AWD-M-91)"
+        )
+
+
+# ---------------------------------------------------------------------------
 # M-72: UserCreate and PasswordReset must reject passwords > 72 UTF-8 bytes
 # ---------------------------------------------------------------------------
 
