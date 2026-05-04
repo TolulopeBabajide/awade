@@ -88,16 +88,20 @@ class UserLogin(BaseModel):
     @field_validator('password')
     @classmethod
     def validate_password_bytes(cls, v: str) -> str:
-        """Reject passwords that exceed bcrypt's 72-byte input limit.
+        """Reject passwords that exceed the configured byte limit.
 
         bcrypt 4.3.0 raises ValueError for passwords > 72 bytes (truncate_error=True
         by default).  Without this guard, authenticate_user() would catch the
         ValueError in its bare ``except Exception`` block and return HTTP 500
         instead of a user-friendly 422.
+
+        Uses get_password_max_length() so that a lower PASSWORD_MAX_LENGTH env var
+        (e.g. 64) is enforced consistently at login as well as registration (AWD-M-91).
         """
-        if len(v.encode('utf-8')) > 72:
+        max_bytes = get_password_max_length()
+        if len(v.encode('utf-8')) > max_bytes:
             raise ValueError(
-                'Password is too long (exceeds the 72-byte limit). '
+                f'Password is too long (exceeds the {max_bytes}-byte limit). '
                 'Please use a shorter password.'
             )
         return v
@@ -120,7 +124,7 @@ class UserResponse(BaseModel):
     profile_image_url: Optional[str] = None
     created_at: datetime
     last_login: Optional[datetime] = None
-    
+
     model_config = ConfigDict(from_attributes=True)
 
 class UserProfileResponse(BaseModel):
@@ -132,7 +136,7 @@ class UserProfileResponse(BaseModel):
     school_name: Optional[str] = None
     subjects: Optional[List[str]] = None
     grade_levels: Optional[List[str]] = None
-    
+
     model_config = ConfigDict(from_attributes=True)
 
 class AuthResponse(BaseModel):
@@ -180,4 +184,4 @@ class PasswordReset(BaseModel):
         if v.lower() in weak_passwords:
             raise ValueError('Password is too common. Please choose a stronger password.')
 
-        return v 
+        return v
