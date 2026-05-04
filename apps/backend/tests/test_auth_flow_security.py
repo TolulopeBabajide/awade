@@ -484,14 +484,12 @@ class TestPasswordMaxLengthUpperBoundCap:
     ):
         """A 73-byte login password must yield HTTP 422 even if PASSWORD_MAX_LENGTH=200.
 
-        Without the cap, get_password_max_length() would return 200, the validator
-        would allow 73 bytes through, and bcrypt 4.3.0 would raise ValueError →
-        authenticate_user() catches it in bare 'except Exception' → HTTP 500.
+        With PASSWORD_MAX_LENGTH=200 set, the real get_password_max_length() must
+        return min(200, 72) = 72 (AWD-H-70 cap), so the validator still rejects 73
+        bytes with HTTP 422 rather than letting bcrypt raise ValueError → HTTP 500.
+        This test exercises the full stack without mocking the cap function (AWD-M-95).
         """
-        import apps.backend.schemas.users as schemas_module
         monkeypatch.setenv("PASSWORD_MAX_LENGTH", "200")
-        # Patch the function so the clamped value is what validators read.
-        monkeypatch.setattr(schemas_module, "get_password_max_length", lambda: 72)
 
         response = client.post(
             "/api/auth/login",
@@ -499,19 +497,19 @@ class TestPasswordMaxLengthUpperBoundCap:
         )
         assert response.status_code == 422, (
             f"73-byte login password must yield 422 even when PASSWORD_MAX_LENGTH=200; "
-            f"got {response.status_code}: {response.text} (AWD-H-70)"
-        )
-        assert response.status_code != 500, (
-            "HTTP 500 from bcrypt ValueError must never reach the client (AWD-H-70)"
+            f"got {response.status_code}: {response.text} (AWD-H-70, AWD-M-95)"
         )
 
     def test_register_with_73_byte_password_yields_422_when_env_set_to_200(
         self, client, monkeypatch
     ):
-        """A 73-byte registration password must yield HTTP 422 even if PASSWORD_MAX_LENGTH=200."""
-        import apps.backend.schemas.users as schemas_module
+        """A 73-byte registration password must yield HTTP 422 even if PASSWORD_MAX_LENGTH=200.
+
+        With PASSWORD_MAX_LENGTH=200 set, the real get_password_max_length() must
+        return min(200, 72) = 72 (AWD-H-70 cap), so the validator still rejects 73
+        bytes with HTTP 422. Tests the full stack without mocking the cap (AWD-M-95).
+        """
         monkeypatch.setenv("PASSWORD_MAX_LENGTH", "200")
-        monkeypatch.setattr(schemas_module, "get_password_max_length", lambda: 72)
 
         response = client.post(
             "/api/auth/register",
@@ -525,10 +523,7 @@ class TestPasswordMaxLengthUpperBoundCap:
         )
         assert response.status_code == 422, (
             f"73-byte registration password must yield 422 even when PASSWORD_MAX_LENGTH=200; "
-            f"got {response.status_code}: {response.text} (AWD-H-70)"
-        )
-        assert response.status_code != 500, (
-            "HTTP 500 from bcrypt ValueError must never reach the client (AWD-H-70)"
+            f"got {response.status_code}: {response.text} (AWD-H-70, AWD-M-95)"
         )
 
 
