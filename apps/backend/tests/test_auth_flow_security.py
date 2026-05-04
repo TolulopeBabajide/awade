@@ -403,3 +403,76 @@ class TestUserLoginPasswordBytesValidator:
             f"Overlong password must yield 422, not {response.status_code} (AWD-M-71 regression guard)"
         )
         assert response.status_code != 500, "HTTP 500 from bcrypt ValueError must not occur (AWD-M-71)"
+
+
+# ---------------------------------------------------------------------------
+# M-72: UserCreate and PasswordReset must reject passwords > 72 UTF-8 bytes
+# ---------------------------------------------------------------------------
+
+class TestUserCreatePasswordBytesValidator:
+    """Verify that UserCreate.validate_password rejects passwords exceeding
+    bcrypt's 72-byte input limit with HTTP 422 during registration (AWD-M-72).
+
+    UserCreate previously checked character count against PASSWORD_MAX_LENGTH
+    (default 128).  With a default of 72 bytes now enforced, a password of 73
+    ASCII chars would pass character-length validation (73 <= 128) yet crash
+    bcrypt.hashpw() with ValueError → HTTP 500.  The fix lowers the default
+    to 72 and switches to byte-length comparison.
+    """
+
+    _OVERLONG_ASCII = "A" * 73           # 73 bytes — just over limit
+    _OVERLONG_UNICODE = "é" * 37         # 74 bytes (é = 2 bytes) — multi-byte edge case
+    _BOUNDARY_ASCII = "A" * 72           # exactly 72 bytes — must be accepted by schema
+    _SHORT = "ValidPwd1"                 # 9 chars / 9 bytes — always passes
+
+    _BASE_PAYLOAD = {
+        "email": "newuser@example.com",
+        "full_name": "Test User",
+        "role": "EDUCATOR",
+        "country": "NG",
+    }
+
+    def test_register_with_password_over_72_ascii_bytes_returns_422(self, client):
+        """Registration with a 73-ASCII-byte password must return 422 (schema
+        rejection) rather than reaching bcrypt and returning 500."""
+        payload = {**self._BASE_PAYLOAD, "password": self._OVERLONG_ASCII}
+        response = client.post("/api/auth/register", json=payload)
+        assert response.status_code == 422, (
+            f"Expected 422 for overlong ASCII password at /register, "
+            f"got {response.status_code}: {response.text}"
+        )
+        assert response.status_code != 500, (
+            "HTTP 500 from bcrypt ValueError must not occur (AWD-M-72)"
+        )
+
+    def test_register_with_password_over_72_utf8_bytes_returns_422(self, client):
+        """Registration with a multi-byte password whose UTF-8 encoding exceeds
+        72 bytes must be rejected at schema validation (HTTP 422)."""
+        payload = {**self._BASE_PAYLOAD, "password": self._OVERLONG_UNICODE}
+        response = client.post("/api/auth/register", json=payload)
+        assert response.status_code == 422, (
+            f"Expected 422 for overlong unicode password at /register, "
+            f"got {response.status_code}: {response.text}"
+        )
+
+    def test_register_with_exactly_72_byte_password_passes_schema_validation(self, client):
+        """A password of exactly 72 ASCII bytes is within bcrypt's limit and must
+        pass schema validation — response should be 200 or 409 (duplicate email),
+        never 422 or 500."""
+        payload = {**self._BASE_PAYLOAD, "password": self._BOUNDARY_ASCII}
+        response = client.post("/api/auth/register", json=payload)
+        assert response.status_code not in (422, 500), (
+            f"72-byte password must not be rejected by schema or crash bcrypt "
+            f"(AWD-M-72), got {response.status_code}: {response.text}"
+        )
+
+    def test_register_overlong_password_returns_422_not_500(self, client):
+        """Regression guard: a password > 72 bytes must yield 422, not 500."""
+        payload = {**self._BASE_PAYLOAD, "password": "X" * 100}
+        response = client.post("/api/auth/register", json=payload)
+        assert response.status_code == 422, (
+            f"Overlong password must yield 422, not {response.status_code} (AWD-M-72 regression guard)"
+        )
+        assert response.status_code != 500, (
+            "HTTP 500 from bcrypt ValueError must not reach the client (AWD-M-72)"
+        )
