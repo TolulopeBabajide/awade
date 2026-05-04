@@ -325,3 +325,81 @@ class TestRefreshTokenEnumeration:
         assert "Invalid token" in detail or "invalid" in detail.lower() or "authentication" in detail.lower(), (
             f"Expected a generic auth error, got: {detail!r}"
         )
+
+
+# ---------------------------------------------------------------------------
+# M-71: UserLogin must reject passwords > 72 bytes before reaching bcrypt
+# ---------------------------------------------------------------------------
+
+class TestUserLoginPasswordBytesValidator:
+    """Verify that UserLogin.validate_password_bytes rejects passwords exceeding
+    bcrypt's 72-byte input limit with HTTP 422, not HTTP 500 (AWD-M-71)."""
+
+    # 73 ASCII chars = 73 UTF-8 bytes — just over the limit
+    _OVERLONG_ASCII = "A" * 73
+
+    # 37 two-byte UTF-8 chars = 74 bytes — multi-byte edge case
+    _OVERLONG_UNICODE = "é" * 37  # é = 2 bytes each → 74 bytes total
+
+    # 72 ASCII chars = exactly 72 bytes — boundary must be accepted
+    _BOUNDARY_ASCII = "A" * 72
+
+    def test_login_with_password_over_72_ascii_bytes_returns_422(self, client):
+        """A password that is 73 ASCII bytes must be rejected at schema validation
+        (HTTP 422) before the request reaches authenticate_user / bcrypt."""
+        response = client.post(
+            "/api/auth/login",
+            json={"email": "user@example.com", "password": self._OVERLONG_ASCII},
+        )
+        assert response.status_code == 422, (
+            f"Expected 422 for overlong ASCII password, got {response.status_code}: {response.text}"
+        )
+        body = response.json()
+        assert "detail" in body, "422 response must include a 'detail' field"
+
+    def test_login_with_password_over_72_utf8_bytes_returns_422(self, client):
+        """A password whose UTF-8 encoding exceeds 72 bytes (multi-byte chars) must
+        also be rejected with HTTP 422."""
+        response = client.post(
+            "/api/auth/login",
+            json={"email": "user@example.com", "password": self._OVERLONG_UNICODE},
+        )
+        assert response.status_code == 422, (
+            f"Expected 422 for overlong unicode password, got {response.status_code}: {response.text}"
+        )
+
+    def test_login_with_exactly_72_byte_password_passes_schema_validation(self, client, sample_user, test_db):
+        """A password of exactly 72 ASCII bytes is within bcrypt's limit and must
+        pass schema validation (the response should be 200 or 401, not 422/500)."""
+        import bcrypt as _bcrypt
+        salt = _bcrypt.gensalt()
+        pw_hash = _bcrypt.hashpw(self._BOUNDARY_ASCII.encode("utf-8"), salt).decode("utf-8")
+        sample_user.password_hash = pw_hash
+        test_db.commit()
+
+        response = client.post(
+            "/api/auth/login",
+            json={"email": sample_user.email, "password": self._BOUNDARY_ASCII},
+        )
+        # Schema validation passes — should reach the auth layer (200 on success)
+        assert response.status_code != 422, (
+            "72-byte password must not be rejected by schema validation (AWD-M-71)"
+        )
+        assert response.status_code != 500, (
+            "72-byte password must not trigger a bcrypt ValueError (HTTP 500)"
+        )
+        assert response.status_code == 200, (
+            f"Expected 200 for valid 72-byte password, got {response.status_code}: {response.text}"
+        )
+
+    def test_login_overlong_password_returns_422_not_500(self, client):
+        """Regression guard: the response for an overlong password must be 422, not
+        500 — confirming bcrypt.checkpw is never reached with an invalid input."""
+        response = client.post(
+            "/api/auth/login",
+            json={"email": "any@example.com", "password": "X" * 100},
+        )
+        assert response.status_code == 422, (
+            f"Overlong password must yield 422, not {response.status_code} (AWD-M-71 regression guard)"
+        )
+        assert response.status_code != 500, "HTTP 500 from bcrypt ValueError must not occur (AWD-M-71)"

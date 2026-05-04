@@ -72,6 +72,23 @@ class UserLogin(BaseModel):
     email: EmailStr = Field(..., description="User email address")
     password: str = Field(..., description="User password")
 
+    @field_validator('password')
+    @classmethod
+    def validate_password_bytes(cls, v: str) -> str:
+        """Reject passwords that exceed bcrypt's 72-byte input limit.
+
+        bcrypt 4.3.0 raises ValueError for passwords > 72 bytes (truncate_error=True
+        by default).  Without this guard, authenticate_user() would catch the
+        ValueError in its bare ``except Exception`` block and return HTTP 500
+        instead of a user-friendly 422.
+        """
+        if len(v.encode('utf-8')) > 72:
+            raise ValueError(
+                'Password is too long (exceeds the 72-byte limit). '
+                'Please use a shorter password.'
+            )
+        return v
+
 # Response schemas
 class UserResponse(BaseModel):
     """Schema for user response data."""
