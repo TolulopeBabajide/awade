@@ -81,6 +81,33 @@ const AIGenerationLoading: React.FC<AIGenerationLoadingProps> = ({
       );
 
       setSteps(baseSteps);
+    } else if (generationType === 'lesson-plan') {
+      setSteps([
+        {
+          id: 'fetch-curriculum-data',
+          title: 'Fetching Curriculum Data',
+          description: 'Looking up topic, grade level, and learning objectives',
+          status: 'pending'
+        },
+        {
+          id: 'ai-generation',
+          title: 'AI Content Generation',
+          description: 'Generating lesson plan content using AI',
+          status: 'pending'
+        },
+        {
+          id: 'save-lesson-plan',
+          title: 'Saving Lesson Plan',
+          description: 'Storing generated content in database',
+          status: 'pending'
+        },
+        {
+          id: 'complete',
+          title: 'Generation Complete',
+          description: 'Lesson plan ready for review',
+          status: 'pending'
+        }
+      ]);
     }
   }, [generationType, hasContext]);
 
