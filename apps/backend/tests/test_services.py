@@ -111,6 +111,26 @@ class TestAuthService:
         assert "environment variable" not in detail
         assert "Please contact support" in detail
 
+    def test_register_user_cannot_self_elevate_to_admin(self, test_db):
+        """AWD-H-74: register_user must coerce ADMIN/SUPER_ADMIN roles to PARENT."""
+        from schemas.users import UserCreate
+
+        service = AuthService(test_db)
+
+        for elevated_role in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
+            payload = UserCreate(
+                email=f"attacker_{elevated_role.value}@example.com",
+                password="ValidPassword123!",
+                full_name="Attacker",
+                role=elevated_role,
+                country="NG",
+            )
+            auth_response, _refresh = service.register_user(payload)
+            assert auth_response.user.role == UserRole.PARENT.value, (
+                f"register_user must coerce role={elevated_role.value} to PARENT, "
+                f"got {auth_response.user.role}"
+            )
+
 
 class TestUserService:
     """Test user service."""
