@@ -656,5 +656,6 @@ class AuthService:
                 
             key = f"blacklist:{jti}"
             return await redis_pool.exists(key)
-        except Exception:
+        except Exception as e:
+            logger.warning("Error checking refresh token blacklist: %s", e, exc_info=True)
             return False
