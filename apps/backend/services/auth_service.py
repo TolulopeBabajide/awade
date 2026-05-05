@@ -432,8 +432,8 @@ class AuthService:
                     headers={"WWW-Authenticate": "Bearer"},
                 )
             
-            # Verify password with bcrypt
-            if not bcrypt.checkpw(user_data.password.encode('utf-8'), user.password_hash.encode('utf-8')):
+            # Verify password — delegate to _verify_password() to keep a single bcrypt path (AWD-M-107)
+            if not self._verify_password(user_data.password, user.password_hash):
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Invalid email or password",
