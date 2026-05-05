@@ -210,31 +210,16 @@ class AuthService:
             token = self.create_access_token(token_payload)
             refresh_token = self.create_refresh_token(token_payload)
             
-            # Parse JSON strings back to lists for response
-            subjects_list = json.loads(user.subjects) if user.subjects else None
-            grade_levels_list = json.loads(user.grade_levels) if user.grade_levels else None
-            
-            user_response = UserResponse(
-                user_id=user.user_id,
-                email=user.email,
-                full_name=user.full_name,
-                role=user.role.value,
-                country=user.country,
-                region=user.region,
-                school_name=user.school_name,
-                subjects=subjects_list,
-                grade_levels=grade_levels_list,
-                languages_spoken=user.languages_spoken,
-                created_at=user.created_at,
-                last_login=user.last_login
-            )
-            
+            # Delegate UserResponse construction to get_current_user_profile() — single
+            # source of truth for JSON parsing (AWD-M-98)
+            user_response = self.get_current_user_profile(user)
+
             return AuthResponse(
                 access_token=token,
                 token_type="bearer",
                 user=user_response
             ), refresh_token
-            
+
         except HTTPException:
             raise
         except Exception as e:
@@ -304,31 +289,16 @@ class AuthService:
             token = self.create_access_token(token_payload)
             refresh_token = self.create_refresh_token(token_payload)
             
-            # Parse JSON strings back to lists for response
-            subjects_list = json.loads(user.subjects) if user.subjects else None
-            grade_levels_list = json.loads(user.grade_levels) if user.grade_levels else None
-            
-            user_response = UserResponse(
-                user_id=user.user_id,
-                email=user.email,
-                full_name=user.full_name,
-                role=user.role.value,
-                country=user.country,
-                region=user.region,
-                school_name=user.school_name,
-                subjects=subjects_list,
-                grade_levels=grade_levels_list,
-                languages_spoken=user.languages_spoken,
-                created_at=user.created_at,
-                last_login=user.last_login
-            )
-            
+            # Delegate UserResponse construction to get_current_user_profile() — single
+            # source of truth for JSON parsing (AWD-M-98)
+            user_response = self.get_current_user_profile(user)
+
             return AuthResponse(
                 access_token=token,
                 token_type="bearer",
                 user=user_response
             ), refresh_token
-            
+
         except HTTPException:
             raise
         except Exception as e:
@@ -453,38 +423,16 @@ class AuthService:
             token = self.create_access_token(token_payload)
             refresh_token = self.create_refresh_token(token_payload)
             
-            # Parse JSON strings back to lists for response
-            try:
-                subjects_list = json.loads(user.subjects) if user.subjects else None
-            except (json.JSONDecodeError, TypeError):
-                subjects_list = None
-            
-            try:
-                grade_levels_list = json.loads(user.grade_levels) if user.grade_levels else None
-            except (json.JSONDecodeError, TypeError):
-                grade_levels_list = None
-            
-            user_response = UserResponse(
-                user_id=user.user_id,
-                email=user.email,
-                full_name=user.full_name,
-                role=user.role.value,
-                country=user.country,
-                region=user.region,
-                school_name=user.school_name,
-                subjects=subjects_list,
-                grade_levels=grade_levels_list,
-                languages_spoken=user.languages_spoken,
-                created_at=user.created_at,
-                last_login=user.last_login
-            )
-            
+            # Delegate UserResponse construction to get_current_user_profile() — single
+            # source of truth for JSON parsing (AWD-M-98)
+            user_response = self.get_current_user_profile(user)
+
             return AuthResponse(
                 access_token=token,
                 token_type="bearer",
                 user=user_response
             ), refresh_token
-            
+
         except HTTPException:
             raise
         except Exception as e:
