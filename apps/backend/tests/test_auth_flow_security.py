@@ -446,12 +446,10 @@ class TestUserLoginPasswordMaxLengthConfigurable:
             "/api/auth/login",
             json={"email": "nonexistent@example.com", "password": "A" * 64},
         )
-        # Schema passes → auth layer runs → 401 (wrong user) or 200; never 422 or 500
-        assert response.status_code != 422, (
-            "64-byte password must not be rejected when PASSWORD_MAX_LENGTH=64 (AWD-M-91)"
-        )
-        assert response.status_code != 500, (
-            "64-byte password must not cause HTTP 500 (AWD-M-91)"
+        # Schema passes → auth layer runs → 401 (wrong user); never 422 (schema reject) or 500
+        assert response.status_code == 401, (
+            f"Expected 401 (schema passes, auth rejects unknown user), "
+            f"got {response.status_code}: {response.text} (AWD-M-93)"
         )
 
 
