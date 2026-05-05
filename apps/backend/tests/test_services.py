@@ -214,6 +214,68 @@ class TestAuthService:
 
         assert auth_response.user.email == "verify_delegation_test@example.com"
 
+    def test_register_user_delegates_user_response_to_get_current_user_profile(self, test_db):
+        """AWD-M-98: register_user must build UserResponse via get_current_user_profile().
+
+        Ensures a single JSON-parsing path with try/except guards — malformed subjects/
+        grade_levels JSON in the DB cannot cause an unhandled JSONDecodeError at
+        registration time.
+        """
+        from schemas.users import UserCreate
+        from unittest.mock import patch
+
+        service = AuthService(test_db)
+        payload = UserCreate(
+            email="profile_delegation_register@example.com",
+            password="SecureProf999!",
+            full_name="Profile Reg Test",
+            role=UserRole.PARENT,
+            country="NG",
+        )
+
+        with patch.object(
+            service, "get_current_user_profile", wraps=service.get_current_user_profile
+        ) as mock_profile:
+            auth_response, _ = service.register_user(payload)
+            mock_profile.assert_called_once()
+
+        assert auth_response.user.email == "profile_delegation_register@example.com"
+
+    def test_authenticate_user_delegates_user_response_to_get_current_user_profile(self, test_db):
+        """AWD-M-98: authenticate_user must build UserResponse via get_current_user_profile().
+
+        Ensures a single JSON-parsing path with try/except guards — malformed subjects/
+        grade_levels JSON in the DB cannot cause an unhandled JSONDecodeError at
+        login time.
+        """
+        from schemas.users import UserCreate, UserLogin
+        from unittest.mock import patch
+
+        service = AuthService(test_db)
+
+        # Register first so there is a real user in the DB
+        register_payload = UserCreate(
+            email="profile_delegation_login@example.com",
+            password="SecureProf888!",
+            full_name="Profile Login Test",
+            role=UserRole.PARENT,
+            country="NG",
+        )
+        service.register_user(register_payload)
+
+        login_payload = UserLogin(
+            email="profile_delegation_login@example.com",
+            password="SecureProf888!",
+        )
+
+        with patch.object(
+            service, "get_current_user_profile", wraps=service.get_current_user_profile
+        ) as mock_profile:
+            auth_response, _ = service.authenticate_user(login_payload)
+            mock_profile.assert_called_once()
+
+        assert auth_response.user.email == "profile_delegation_login@example.com"
+
 
 class TestUserService:
     """Test user service."""
