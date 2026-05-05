@@ -326,6 +326,32 @@ class TestAuthService:
 
         assert auth_response.user.email == "profile_delegation_login@example.com"
 
+    def test_is_refresh_token_blacklisted_redis_error_logs_warning(self, test_db):
+        """is_refresh_token_blacklisted returns False and logs a warning when
+        the connected Redis pool raises an exception (AWD-L-19)."""
+        import asyncio
+        from unittest.mock import AsyncMock, MagicMock, patch
+
+        service = AuthService(test_db)
+
+        # Redis pool that is present but raises on .exists()
+        mock_redis = MagicMock()
+        mock_redis.exists = AsyncMock(side_effect=Exception("Redis connection lost"))
+
+        # Patch jwt.decode to return a payload with a jti so the error branch is reached
+        fake_payload = {"sub": "1", "email": "u@example.com", "jti": "test-jti-abc"}
+
+        with patch("services.auth_service.jwt.decode", return_value=fake_payload), \
+             patch("services.auth_service.logger") as mock_logger:
+            result = asyncio.run(
+                service.is_refresh_token_blacklisted("fake.jwt.token", mock_redis)
+            )
+
+        assert result is False
+        mock_logger.warning.assert_called_once()
+        warning_msg = mock_logger.warning.call_args[0][0]
+        assert "Error checking refresh token blacklist" in warning_msg
+
 
 class TestUserService:
     """Test user service."""
