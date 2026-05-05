@@ -273,12 +273,17 @@ class AuthService:
             salt = bcrypt.gensalt()
             password_hash = bcrypt.hashpw(user_data.password.encode('utf-8'), salt).decode('utf-8')
             
+            # Whitelist only PARENT and EDUCATOR — coerce anything else (including
+            # ADMIN / SUPER_ADMIN) to PARENT so clients cannot self-elevate at registration.
+            _ALLOWED_REGISTRATION_ROLES = {UserRole.PARENT, UserRole.EDUCATOR}
+            safe_role = user_data.role if user_data.role in _ALLOWED_REGISTRATION_ROLES else UserRole.PARENT
+
             # Create user
             user = User(
                 email=user_data.email,
                 password_hash=password_hash,
                 full_name=user_data.full_name,
-                role=user_data.role,
+                role=safe_role,
                 country=user_data.country,
                 region=user_data.region,
                 school_name=user_data.school_name,
