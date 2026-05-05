@@ -149,4 +149,49 @@ describe('AIGenerationLoading', () => {
     const stepTitle = screen.getByText('AI Content Generation');
     expect(stepTitle).toHaveClass('text-orange-700');
   });
+
+  // AWD-M-74: progress must be non-zero on first render when currentStep is provided
+  // (stale closure bug caused `steps` to read as [] on mount → NaN/0%)
+  it('shows non-zero progress when currentStep is provided on mount (AWD-M-74)', () => {
+    render(
+      <AIGenerationLoading
+        isVisible={true}
+        generationType="lesson-plan"
+        currentStep="fetch-curriculum-data"
+      />
+    );
+    // fetch-curriculum-data is step 1 of 4 → 25%
+    expect(screen.getByText('25%')).toBeInTheDocument();
+  });
+
+  it('shows 50% progress when currentStep is ai-generation for lesson-plan (AWD-M-74)', () => {
+    render(
+      <AIGenerationLoading
+        isVisible={true}
+        generationType="lesson-plan"
+        currentStep="ai-generation"
+      />
+    );
+    // ai-generation is step 2 of 4 → 50%
+    expect(screen.getByText('50%')).toBeInTheDocument();
+  });
+
+  // AWD-M-75: onComplete must NOT fire if the component unmounts before the 1s delay
+  it('does not call onComplete after unmount before timer fires (AWD-M-75)', () => {
+    const onComplete = vi.fn();
+    const { unmount } = render(
+      <AIGenerationLoading
+        isVisible={true}
+        generationType="lesson-resource"
+        currentStep="complete"
+        onComplete={onComplete}
+      />
+    );
+    // Unmount before the 1000 ms delay elapses
+    unmount();
+    act(() => {
+      vi.advanceTimersByTime(1100);
+    });
+    expect(onComplete).not.toHaveBeenCalled();
+  });
 });
