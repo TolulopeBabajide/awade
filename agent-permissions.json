@@ -179,6 +179,8 @@
       ],
       "writes": [
         "docs/agentic/backlog.md",
+        "docs/code-reviews/**",
+        "docs/agentic/daily-briefs/morning-brief.md",
         ".agent-health/code-review-agent.last-run"
       ],
       "forbidden": [
