@@ -77,6 +77,23 @@ class TestAuthService:
                     service.verify_google_token("invalid_token")
                 assert exc_info.value.status_code == 401
 
+    def test_google_token_request_timeout_returns_503(self, test_db):
+        """AWD-M-103: requests.get timeout must return 503, not stall worker."""
+        import requests as requests_lib
+        service = AuthService(test_db)
+
+        with patch.dict('os.environ', {'GOOGLE_CLIENT_ID': 'test_client_id'}):
+            with patch('services.auth_service.requests.get') as mock_get:
+                mock_get.side_effect = requests_lib.exceptions.Timeout()
+
+                with pytest.raises(HTTPException) as exc_info:
+                    service.verify_google_token("any_token")
+
+        assert exc_info.value.status_code == 503
+        assert "temporarily unavailable" in exc_info.value.detail.lower()
+        # Must not leak internal details
+        assert "timeout" not in exc_info.value.detail.lower()
+
     def test_google_token_unconfigured_does_not_leak_env_var_name(self, test_db):
         """AWD-H-72: 500 response must not reveal GOOGLE_CLIENT_ID env var name."""
         service = AuthService(test_db)

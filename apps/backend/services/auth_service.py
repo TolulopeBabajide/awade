@@ -128,7 +128,14 @@ class AuthService:
         
         # Verify the token with Google
         google_verify_url = f"https://oauth2.googleapis.com/tokeninfo?id_token={id_token}"
-        resp = requests.get(google_verify_url)
+        try:
+            resp = requests.get(google_verify_url, timeout=10)
+        except requests.exceptions.Timeout:
+            logger.warning("Google tokeninfo request timed out")
+            raise HTTPException(
+                status_code=503,
+                detail="Google OAuth temporarily unavailable. Please try again."
+            )
         if resp.status_code != 200:
             raise HTTPException(status_code=401, detail="Invalid Google token")
         
