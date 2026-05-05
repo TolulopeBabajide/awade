@@ -7,6 +7,7 @@ user management, lesson planning, and context management.
 Author: Tolulope Babajide
 """
 
+import os
 import pytest
 from unittest.mock import Mock, patch
 from fastapi import HTTPException
@@ -65,16 +66,33 @@ class TestAuthService:
     def test_google_token_verification_failure(self, test_db):
         """Test Google OAuth token verification failure."""
         service = AuthService(test_db)
-        
+
         with patch.dict('os.environ', {'GOOGLE_CLIENT_ID': 'test_client_id'}):
             with patch('services.auth_service.requests.get') as mock_get:
                 mock_response = Mock()
                 mock_response.status_code = 401
                 mock_get.return_value = mock_response
-                
+
                 with pytest.raises(HTTPException) as exc_info:
                     service.verify_google_token("invalid_token")
                 assert exc_info.value.status_code == 401
+
+    def test_google_token_unconfigured_does_not_leak_env_var_name(self, test_db):
+        """AWD-H-72: 500 response must not reveal GOOGLE_CLIENT_ID env var name."""
+        service = AuthService(test_db)
+
+        # Ensure the env var is absent so get_google_client_id() returns ""
+        with patch.dict('os.environ', {}, clear=False):
+            os.environ.pop('GOOGLE_CLIENT_ID', None)
+            with pytest.raises(HTTPException) as exc_info:
+                service.verify_google_token("any_token")
+
+        assert exc_info.value.status_code == 500
+        detail = exc_info.value.detail
+        # Generic message — must not reveal the internal env var name
+        assert "GOOGLE_CLIENT_ID" not in detail
+        assert "environment variable" not in detail
+        assert "Please contact support" in detail
 
 
 class TestUserService:
