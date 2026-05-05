@@ -115,30 +115,36 @@ const AIGenerationLoading: React.FC<AIGenerationLoadingProps> = ({
   useEffect(() => {
     if (!isVisible || !currentStep) return;
 
-    setSteps(prev => prev.map(step => {
-      if (step.id === currentStep) {
-        return { ...step, status: 'in-progress' };
-      } else if (prev.findIndex(s => s.id === step.id) < prev.findIndex(s => s.id === currentStep)) {
-        return { ...step, status: 'completed' };
-      }
-      return step;
-    }));
+    // AWD-M-74: compute progress inside the functional updater so `prev` is always
+    // the freshly-committed steps array — reading outer `steps` was a stale closure
+    // that returned [] on the first render, producing NaN/0% progress.
+    setSteps(prev => {
+      const currentIdx = prev.findIndex(s => s.id === currentStep);
+      const pct =
+        prev.length > 0 && currentIdx >= 0
+          ? ((currentIdx + 1) / prev.length) * 100
+          : 0;
+      setProgress(pct); // batched with setSteps by React 18 automatic batching
 
-    // Calculate progress
-    const currentStepIndex = steps.findIndex(step => step.id === currentStep);
-    const totalSteps = steps.length;
-    const progressPercentage = ((currentStepIndex + 1) / totalSteps) * 100;
-    setProgress(progressPercentage);
-  }, [currentStep, isVisible, steps.length]);
+      return prev.map((step, idx) => {
+        if (step.id === currentStep) return { ...step, status: 'in-progress' };
+        if (idx < currentIdx) return { ...step, status: 'completed' };
+        return step;
+      });
+    });
+  }, [currentStep, isVisible]); // steps.length removed — prev inside updater is always fresh
 
   // Handle completion
   useEffect(() => {
     if (isVisible && currentStep === 'complete') {
       setSteps(prev => prev.map(step => ({ ...step, status: 'completed' })));
       setProgress(100);
-      setTimeout(() => {
+      // AWD-M-75: capture timer ID and return cleanup so onComplete is not fired
+      // if the component unmounts before the 1-second delay elapses.
+      const timer = setTimeout(() => {
         onComplete?.();
       }, 1000);
+      return () => clearTimeout(timer);
     }
   }, [currentStep, isVisible, onComplete]);
 
