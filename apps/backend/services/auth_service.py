@@ -258,24 +258,21 @@ class AuthService:
             HTTPException: If registration fails
         """
         try:
-            JWT_SECRET_KEY = get_jwt_secret_key()
-            JWT_EXPIRES_MINUTES = self.get_jwt_expires_minutes()
             PASSWORD_MIN_LENGTH = self.get_password_min_length()
-            
+
             # Validate password length
             if len(user_data.password) < PASSWORD_MIN_LENGTH:
                 raise HTTPException(
-                    status_code=400, 
+                    status_code=400,
                     detail=f"Password must be at least {PASSWORD_MIN_LENGTH} characters long"
                 )
-            
+
             # Check if user already exists
             if self.db.query(User).filter(User.email == user_data.email).first():
                 raise HTTPException(status_code=400, detail="Email already registered")
-            
-            # Hash password
-            salt = bcrypt.gensalt()
-            password_hash = bcrypt.hashpw(user_data.password.encode('utf-8'), salt).decode('utf-8')
+
+            # Hash password — delegate to _hash_password() to avoid divergent bcrypt paths
+            password_hash = self._hash_password(user_data.password)
             
             # Whitelist only PARENT and EDUCATOR — coerce anything else (including
             # ADMIN / SUPER_ADMIN) to PARENT so clients cannot self-elevate at registration.
@@ -417,9 +414,6 @@ class AuthService:
             HTTPException: If authentication fails
         """
         try:
-            JWT_SECRET_KEY = get_jwt_secret_key()
-            JWT_EXPIRES_MINUTES = self.get_jwt_expires_minutes()
-            
             # Find user by email
             user = self.db.query(User).filter(User.email == user_data.email).first()
             if not user:
