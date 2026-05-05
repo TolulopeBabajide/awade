@@ -12,7 +12,7 @@ import pytest
 from unittest.mock import Mock, patch
 from fastapi import HTTPException
 
-from services.auth_service import AuthService
+from services.auth_service import AuthService, _SELF_REGISTERABLE_ROLES
 from services.user_service import UserService
 from services.lesson_plan_service import LessonPlanService
 from services.context_service import ContextService
@@ -28,7 +28,26 @@ class TestAuthService:
         """Test AuthService initialization."""
         service = AuthService(test_db)
         assert service.db == test_db
-    
+
+    def test_self_registerable_roles_constant(self):
+        """AWD-M-105: _SELF_REGISTERABLE_ROLES is a single module-level frozenset
+        containing exactly PARENT and EDUCATOR — no more, no less."""
+        from models import UserRole
+
+        # Must be a frozenset (immutable — cannot be mutated by accident)
+        assert isinstance(_SELF_REGISTERABLE_ROLES, frozenset), (
+            "_SELF_REGISTERABLE_ROLES must be a frozenset to prevent accidental mutation"
+        )
+
+        # Must contain exactly the two self-registerable roles
+        assert _SELF_REGISTERABLE_ROLES == frozenset({UserRole.PARENT, UserRole.EDUCATOR}), (
+            "_SELF_REGISTERABLE_ROLES must contain exactly PARENT and EDUCATOR"
+        )
+
+        # ADMIN and SUPER_ADMIN must NOT be in the set
+        assert UserRole.ADMIN not in _SELF_REGISTERABLE_ROLES
+        assert UserRole.SUPER_ADMIN not in _SELF_REGISTERABLE_ROLES
+
     def test_password_validation(self, test_db):
         """Test password validation."""
         service = AuthService(test_db)

@@ -34,6 +34,11 @@ from apps.backend.models import User, UserRole
 from apps.backend.schemas.users import AuthResponse, UserResponse, UserCreate, UserLogin, PasswordResetRequest, PasswordReset
 from apps.backend.dependencies import get_jwt_secret_key, get_jwt_algorithm
 
+# Roles that users may request at self-registration (email/password or OAuth).
+# ADMIN and SUPER_ADMIN are excluded — those roles must be assigned by an admin.
+# Using frozenset to prevent accidental mutation.
+_SELF_REGISTERABLE_ROLES: frozenset = frozenset({UserRole.PARENT, UserRole.EDUCATOR})
+
 class AuthService:
     """Service class for authentication operations."""
     
@@ -175,10 +180,9 @@ class AuthService:
             if not user:
                 # Whitelist only PARENT and EDUCATOR — coerce anything else (including
                 # ADMIN / SUPER_ADMIN) to PARENT so clients cannot self-elevate via OAuth.
-                _ALLOWED_GOOGLE_ROLES = {UserRole.PARENT, UserRole.EDUCATOR}
                 try:
                     candidate = UserRole(requested_role)
-                    new_role = candidate if candidate in _ALLOWED_GOOGLE_ROLES else UserRole.PARENT
+                    new_role = candidate if candidate in _SELF_REGISTERABLE_ROLES else UserRole.PARENT
                 except (ValueError, KeyError):
                     new_role = UserRole.PARENT
 
@@ -275,8 +279,7 @@ class AuthService:
             
             # Whitelist only PARENT and EDUCATOR — coerce anything else (including
             # ADMIN / SUPER_ADMIN) to PARENT so clients cannot self-elevate at registration.
-            _ALLOWED_REGISTRATION_ROLES = {UserRole.PARENT, UserRole.EDUCATOR}
-            safe_role = user_data.role if user_data.role in _ALLOWED_REGISTRATION_ROLES else UserRole.PARENT
+            safe_role = user_data.role if user_data.role in _SELF_REGISTERABLE_ROLES else UserRole.PARENT
 
             # Create user
             user = User(
