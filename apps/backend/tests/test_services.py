@@ -150,6 +150,35 @@ class TestAuthService:
                 f"got {auth_response.user.role}"
             )
 
+    def test_register_user_delegates_hashing_to_hash_password(self, test_db):
+        """AWD-M-106: register_user must call self._hash_password() — not inline bcrypt.
+
+        Verifies that there is a single hashing path: any change to bcrypt work factor
+        or encoding in _hash_password() automatically applies to registration too.
+        """
+        from schemas.users import UserCreate
+        from unittest.mock import patch
+
+        service = AuthService(test_db)
+        payload = UserCreate(
+            email="hash_delegation_test@example.com",
+            password="SecurePass999!",
+            full_name="Hash Test",
+            role=UserRole.PARENT,
+            country="NG",
+        )
+
+        with patch.object(service, "_hash_password", wraps=service._hash_password) as mock_hash:
+            auth_response, _ = service.register_user(payload)
+            mock_hash.assert_called_once_with(payload.password)
+
+        # The stored hash must be verifiable — confirms the delegation produced a real hash
+        db_user = test_db.query(__import__("models", fromlist=["User"]).User).filter_by(
+            email="hash_delegation_test@example.com"
+        ).first()
+        assert db_user is not None
+        assert service._verify_password(payload.password, db_user.password_hash)
+
 
 class TestUserService:
     """Test user service."""
