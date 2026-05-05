@@ -179,6 +179,41 @@ class TestAuthService:
         assert db_user is not None
         assert service._verify_password(payload.password, db_user.password_hash)
 
+    def test_authenticate_user_delegates_verification_to_verify_password(self, test_db):
+        """AWD-M-107: authenticate_user must call self._verify_password() — not inline bcrypt.
+
+        Verifies that there is a single verification path: any change to bcrypt work factor
+        or encoding in _verify_password() automatically applies to authentication too.
+        """
+        from schemas.users import UserCreate, UserLogin
+        from unittest.mock import patch
+
+        service = AuthService(test_db)
+
+        # First register a user so there is a real hashed password in the DB
+        register_payload = UserCreate(
+            email="verify_delegation_test@example.com",
+            password="SecureVerify999!",
+            full_name="Verify Test",
+            role=UserRole.PARENT,
+            country="NG",
+        )
+        service.register_user(register_payload)
+
+        login_payload = UserLogin(
+            email="verify_delegation_test@example.com",
+            password="SecureVerify999!",
+        )
+
+        with patch.object(service, "_verify_password", wraps=service._verify_password) as mock_verify:
+            auth_response, _ = service.authenticate_user(login_payload)
+            mock_verify.assert_called_once_with(
+                login_payload.password,
+                mock_verify.call_args[0][1],  # hashed_password arg — value from DB
+            )
+
+        assert auth_response.user.email == "verify_delegation_test@example.com"
+
 
 class TestUserService:
     """Test user service."""
