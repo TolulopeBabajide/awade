@@ -110,6 +110,23 @@ class AuthService:
             bool: True if password matches hash
         """
         return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
+
+    def _build_token_payload(self, user: "User") -> dict:
+        """Build the JWT token payload for a given user.
+
+        Centralises the ``sub`` + ``email`` payload construction so that
+        adding a new claim (e.g. ``role``) requires a single edit here
+        instead of four scattered inline dicts.
+
+        Args:
+            user: The authenticated :class:`User` ORM instance.
+
+        Returns:
+            dict: Payload dict ready to pass to :meth:`create_access_token`
+                  or :meth:`create_refresh_token`.
+        """
+        return {"sub": str(user.user_id), "email": user.email}
+
     def verify_google_token(self, id_token: str) -> Dict[str, Any]:
         """
         Verify Google OAuth ID token.
@@ -203,10 +220,7 @@ class AuthService:
                 self.db.refresh(user)
             
             # Generate JWT tokens
-            token_payload = {
-                "sub": str(user.user_id),
-                "email": user.email
-            }
+            token_payload = self._build_token_payload(user)
             token = self.create_access_token(token_payload)
             refresh_token = self.create_refresh_token(token_payload)
             
@@ -282,10 +296,7 @@ class AuthService:
             self.db.refresh(user)
             
             # Generate JWT tokens
-            token_payload = {
-                "sub": str(user.user_id),
-                "email": user.email
-            }
+            token_payload = self._build_token_payload(user)
             token = self.create_access_token(token_payload)
             refresh_token = self.create_refresh_token(token_payload)
             
@@ -341,10 +352,7 @@ class AuthService:
                 raise HTTPException(status_code=401, detail="Invalid token")
                 
             # Generate new tokens
-            token_payload = {
-                "sub": str(user.user_id),
-                "email": user.email
-            }
+            token_payload = self._build_token_payload(user)
             new_access_token = self.create_access_token(token_payload)
             new_refresh_token = self.create_refresh_token(token_payload)
             
@@ -416,10 +424,7 @@ class AuthService:
             self.db.refresh(user)
             
             # Generate JWT tokens
-            token_payload = {
-                "sub": str(user.user_id),
-                "email": user.email
-            }
+            token_payload = self._build_token_payload(user)
             token = self.create_access_token(token_payload)
             refresh_token = self.create_refresh_token(token_payload)
             

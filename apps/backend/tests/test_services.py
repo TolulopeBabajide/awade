@@ -48,6 +48,56 @@ class TestAuthService:
         assert UserRole.ADMIN not in _SELF_REGISTERABLE_ROLES
         assert UserRole.SUPER_ADMIN not in _SELF_REGISTERABLE_ROLES
 
+    def test_build_token_payload_returns_sub_and_email(self, test_db):
+        """AWD-M-109: _build_token_payload must return a dict with 'sub' and 'email'."""
+        service = AuthService(test_db)
+        user = Mock(spec=["user_id", "email"])
+        user.user_id = 42
+        user.email = "tolu@example.com"
+
+        payload = service._build_token_payload(user)
+
+        assert payload == {"sub": "42", "email": "tolu@example.com"}, (
+            "_build_token_payload must return {'sub': str(user.user_id), 'email': user.email}"
+        )
+
+    def test_build_token_payload_sub_is_string(self, test_db):
+        """AWD-M-109: 'sub' claim must always be a str, not an int — JWT spec requires string."""
+        service = AuthService(test_db)
+        user = Mock(spec=["user_id", "email"])
+        user.user_id = 99
+        user.email = "test@awade.ng"
+
+        payload = service._build_token_payload(user)
+
+        assert isinstance(payload["sub"], str), (
+            "'sub' must be str(user.user_id) — integers are not valid JWT subject claims"
+        )
+        assert payload["sub"] == "99"
+
+    def test_build_token_payload_called_by_authenticate_user(self, test_db):
+        """AWD-M-109: authenticate_user must delegate payload construction to _build_token_payload."""
+        service = AuthService(test_db)
+
+        # Register a real user first so authenticate_user can find one
+        from schemas.users import UserCreate
+        user_data = UserCreate(
+            email="payload_delegate@example.com",
+            password="ValidPass1!",
+            full_name="Payload Test",
+            role=UserRole.EDUCATOR,
+        )
+        service.register_user(user_data)
+
+        with patch.object(service, "_build_token_payload", wraps=service._build_token_payload) as mock_build:
+            from schemas.users import UserLogin
+            login_data = UserLogin(email="payload_delegate@example.com", password="ValidPass1!")
+            service.authenticate_user(login_data)
+
+        assert mock_build.call_count == 1, (
+            "authenticate_user must call _build_token_payload exactly once"
+        )
+
     def test_password_validation(self, test_db):
         """Test password validation."""
         service = AuthService(test_db)
