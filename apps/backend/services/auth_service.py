@@ -120,9 +120,10 @@ class AuthService:
         """
         GOOGLE_CLIENT_ID = self.get_google_client_id()
         if not GOOGLE_CLIENT_ID:
+            logger.warning("Google OAuth is not available: GOOGLE_CLIENT_ID is not set")
             raise HTTPException(
-                status_code=500, 
-                detail="Google OAuth is not configured. Please set GOOGLE_CLIENT_ID environment variable."
+                status_code=500,
+                detail="Google OAuth is not available. Please contact support."
             )
         
         # Verify the token with Google
