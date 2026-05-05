@@ -681,8 +681,17 @@ class AuthService:
     async def is_refresh_token_blacklisted(self, refresh_token: str, redis_pool: Any) -> bool:
         """
         Check if a refresh token's JTI is blacklisted in Redis.
+
+        Degraded mode: when redis_pool is None (Redis unavailable), the blacklist check
+        is skipped and the token is treated as valid.  This is a fail-open trade-off —
+        logged as a WARNING so the nightly-monitor surfaces the outage.  See
+        docs/agentic/mcp-circuit-breaker-policy.md §auth-service for the policy rationale.
         """
         if not redis_pool:
+            logger.warning(
+                "Redis unavailable — refresh token blacklist check skipped; "
+                "revoked tokens may be reusable until Redis recovers (AWD-M-102)"
+            )
             return False
             
         try:
