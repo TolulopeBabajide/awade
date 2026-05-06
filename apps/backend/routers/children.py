@@ -84,12 +84,17 @@ def record_consent(
 # ── Child Profile CRUD ────────────────────────────────────────────────
 
 @router.post("/children", response_model=ChildProfileResponse, status_code=201)
+@limiter.limit("20/minute")
 def create_child(
+    request: Request,
     data: ChildProfileCreate,
     current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
 ):
-    """Create a new child profile for the current parent."""
+    """Create a new child profile for the current parent.
+
+    Rate-limited to 20 requests/minute per IP to prevent profile-spam abuse.
+    """
     service = ChildrenService(db)
     return service.create_child(current_user, data)
 
@@ -199,18 +204,25 @@ def get_guide(
 
 
 @router.post("/guides/{guide_id}/bookmark", response_model=ParentGuideResponse)
+@limiter.limit("30/minute")
 def toggle_bookmark(
+    request: Request,
     guide_id: int,
     current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
 ):
-    """Toggle the bookmark status of a guide."""
+    """Toggle the bookmark status of a guide.
+
+    Rate-limited to 30 requests/minute per IP to prevent rapid-fire toggle abuse.
+    """
     service = ChildrenService(db)
     return service.toggle_bookmark(current_user, guide_id)
 
 
 @router.get("/guides/{guide_id}/export")
+@limiter.limit("5/minute")
 def export_guide_pdf(
+    request: Request,
     guide_id: int,
     current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
@@ -220,6 +232,8 @@ def export_guide_pdf(
 
     Returns a PDF binary with Content-Disposition: attachment.
     Requires the guide to belong to the current parent (404 otherwise).
+    Rate-limited to 5 requests/minute per IP — WeasyPrint is CPU-intensive
+    and unbounded export requests can degrade the worker process.
     """
     from apps.backend.services.pdf_service import PDFService
 
