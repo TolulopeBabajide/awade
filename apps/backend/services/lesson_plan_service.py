@@ -37,6 +37,36 @@ from apps.backend.schemas.lesson_plans import (
 )
 from packages.ai.gpt_service import AwadeGPTService
 
+
+def _to_lesson_resource_response(resource: LessonResource) -> LessonResourceResponse:
+    """AWD-M-118: Single source of truth for ORM → response-DTO mapping.
+
+    The same 9-kwarg constructor was previously duplicated 4× across
+    ``generate_lesson_resource``, ``get_all_lesson_resources``,
+    ``get_lesson_plan_resources``, and ``get_lesson_resource``. Adding a new
+    field to ``LessonResource`` would require updating every call site (classic
+    shotgun surgery). This helper centralises the mapping so the change lands
+    in one place.
+
+    Args:
+        resource (LessonResource): ORM object to convert.
+
+    Returns:
+        LessonResourceResponse: Pydantic response schema instance.
+    """
+    return LessonResourceResponse(
+        lesson_resources_id=resource.lesson_resources_id,
+        lesson_plan_id=resource.lesson_plan_id,
+        user_id=resource.user_id,
+        context_input=resource.context_input,
+        ai_generated_content=resource.ai_generated_content,
+        user_edited_content=resource.user_edited_content,
+        export_format=resource.export_format,
+        status=resource.status,
+        created_at=resource.created_at,
+    )
+
+
 class LessonPlanService:
     """Service class for lesson plan operations."""
     
@@ -406,20 +436,10 @@ class LessonPlanService:
                 # Or just raise warning. For this sprint, we assume Redis is available if configured.
                 # However, to keep existing tests passing we might want fallback logic?
                 # Better to just return processing and rely on worker. But if no worker running, it stays processing.
-                pass 
-                
-            return LessonResourceResponse(
-                lesson_resources_id=lesson_resource.lesson_resources_id,
-                lesson_plan_id=lesson_resource.lesson_plan_id,
-                user_id=lesson_resource.user_id,
-                context_input=lesson_resource.context_input,
-                ai_generated_content=lesson_resource.ai_generated_content,
-                user_edited_content=lesson_resource.user_edited_content,
-                export_format=lesson_resource.export_format,
-                status=lesson_resource.status,
-                created_at=lesson_resource.created_at
-            )
-            
+                pass
+
+            return _to_lesson_resource_response(lesson_resource)
+
         except HTTPException:
             raise
         except Exception:
@@ -446,22 +466,9 @@ class LessonPlanService:
             lesson_resources = self.db.query(LessonResource).filter(
                 LessonResource.user_id == current_user.user_id
             ).order_by(LessonResource.created_at.desc()).all()
-            
-            return [
-                LessonResourceResponse(
-                    lesson_resources_id=resource.lesson_resources_id,
-                    lesson_plan_id=resource.lesson_plan_id,
-                    user_id=resource.user_id,
-                    context_input=resource.context_input,
-                    ai_generated_content=resource.ai_generated_content,
-                    user_edited_content=resource.user_edited_content,
-                    export_format=resource.export_format,
-                    status=resource.status,
-                    created_at=resource.created_at
-                )
-                for resource in lesson_resources
-            ]
-            
+
+            return [_to_lesson_resource_response(resource) for resource in lesson_resources]
+
         except Exception:
             logger.error("Failed to retrieve lesson resources for user", exc_info=True)
             raise HTTPException(
@@ -498,22 +505,9 @@ class LessonPlanService:
             lesson_resources = self.db.query(LessonResource).filter(
                 LessonResource.lesson_plan_id == lesson_id
             ).order_by(LessonResource.created_at.desc()).all()
-            
-            return [
-                LessonResourceResponse(
-                    lesson_resources_id=resource.lesson_resources_id,
-                    lesson_plan_id=resource.lesson_plan_id,
-                    user_id=resource.user_id,
-                    context_input=resource.context_input,
-                    ai_generated_content=resource.ai_generated_content,
-                    user_edited_content=resource.user_edited_content,
-                    export_format=resource.export_format,
-                    status=resource.status,
-                    created_at=resource.created_at
-                )
-                for resource in lesson_resources
-            ]
-            
+
+            return [_to_lesson_resource_response(resource) for resource in lesson_resources]
+
         except HTTPException:
             raise
         except Exception:
@@ -576,17 +570,7 @@ class LessonPlanService:
             # the ADMIN/SUPER_ADMIN/owner-scoped query lives in one place.
             lesson_resource = self.get_lesson_resource_orm(resource_id, current_user)
 
-            return LessonResourceResponse(
-                lesson_resources_id=lesson_resource.lesson_resources_id,
-                lesson_plan_id=lesson_resource.lesson_plan_id,
-                user_id=lesson_resource.user_id,
-                context_input=lesson_resource.context_input,
-                ai_generated_content=lesson_resource.ai_generated_content,
-                user_edited_content=lesson_resource.user_edited_content,
-                export_format=lesson_resource.export_format,
-                status=lesson_resource.status,
-                created_at=lesson_resource.created_at
-            )
+            return _to_lesson_resource_response(lesson_resource)
 
         except HTTPException:
             raise

@@ -41,7 +41,10 @@ from apps.backend.models import (
 from apps.backend.schemas.lesson_plans import (
     LessonPlanCreate, LessonPlanUpdate, LessonResourceResponse,
 )
-from apps.backend.services.lesson_plan_service import LessonPlanService
+from apps.backend.services.lesson_plan_service import (
+    LessonPlanService,
+    _to_lesson_resource_response,
+)
 
 
 # --------------------------------------------------------------------------
@@ -615,6 +618,77 @@ class TestGetLessonResourceOrm:
         svc = LessonPlanService(db=db)
         result = svc.get_lesson_resource_orm(resource_id=1, current_user=super_admin)
         assert result is resource
+
+
+# ==========================================================================
+# TestToLessonResourceResponse — AWD-M-118
+# ==========================================================================
+
+
+class TestToLessonResourceResponse:
+    """_to_lesson_resource_response — single source of truth for ORM → DTO mapping.
+
+    AWD-M-118 extracted the duplicated 9-kwarg ``LessonResourceResponse(...)``
+    constructor into one private helper. These tests pin the field-by-field
+    mapping so any future change to ``LessonResource`` or the response schema
+    is caught here rather than at four divergent call sites.
+    """
+
+    def test_all_fields_mapped(self):
+        resource = _make_resource(resource_id=42, lesson_plan_id=7, user_id=3)
+        resource.context_input = "rural primary classroom"
+        resource.ai_generated_content = "AI body"
+        resource.user_edited_content = "teacher edits"
+        resource.export_format = "pdf"
+        resource.status = "complete"
+
+        result = _to_lesson_resource_response(resource)
+
+        assert isinstance(result, LessonResourceResponse)
+        assert result.lesson_resources_id == 42
+        assert result.lesson_plan_id == 7
+        assert result.user_id == 3
+        assert result.context_input == "rural primary classroom"
+        assert result.ai_generated_content == "AI body"
+        assert result.user_edited_content == "teacher edits"
+        assert result.export_format == "pdf"
+        assert result.status == "complete"
+        assert result.created_at == resource.created_at
+
+    def test_optional_fields_pass_through_as_none(self):
+        """``user_edited_content`` and ``export_format`` are nullable on the ORM
+        and the response — verify ``None`` round-trips cleanly."""
+        resource = _make_resource(resource_id=1, lesson_plan_id=1, user_id=1)
+        resource.user_edited_content = None
+        resource.export_format = None
+        resource.context_input = None
+        resource.ai_generated_content = None
+
+        result = _to_lesson_resource_response(resource)
+
+        assert result.user_edited_content is None
+        assert result.export_format is None
+        assert result.context_input is None
+        assert result.ai_generated_content is None
+        assert result.status == "draft"
+
+    def test_helper_used_by_get_lesson_resource(self):
+        """End-to-end: get_lesson_resource must produce the same response the
+        helper would. This is the safety-net that keeps the four converted
+        call sites tied to ``_to_lesson_resource_response``."""
+        user = _educator(user_id=1)
+        resource = _make_resource(resource_id=5, lesson_plan_id=2, user_id=1)
+        resource.context_input = "urban context"
+        db = MagicMock()
+        q = MagicMock()
+        q.filter.return_value.first.return_value = resource
+        db.query.return_value = q
+        svc = LessonPlanService(db=db)
+
+        from_service = svc.get_lesson_resource(resource_id=5, current_user=user)
+        from_helper = _to_lesson_resource_response(resource)
+
+        assert from_service.model_dump() == from_helper.model_dump()
 
 
 # ==========================================================================
