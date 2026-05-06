@@ -523,37 +523,59 @@ class LessonPlanService:
                 detail="An error occurred while retrieving lesson plan resources"
             )
 
-    def get_lesson_resource(self, resource_id: int, current_user: User) -> LessonResourceResponse:
+    def get_lesson_resource_orm(self, resource_id: int, current_user: User) -> LessonResource:
         """
-        Get a specific lesson resource.
-        
+        Get a specific lesson resource as the raw ORM object, scoped to the
+        current user's role. Centralises access control so callers (router
+        endpoints, exports, etc.) cannot drift from the canonical rules.
+
+        AWD-M-67: scope query to user_id for non-admins so unauthorized IDs
+        return 404 regardless of whether the resource exists, preventing
+        existence leakage via 403/404 discrepancy.
+        AWD-H-61: SUPER_ADMIN has the same elevated access as ADMIN.
+
         Args:
             resource_id (int): Resource ID
             current_user (User): Current authenticated user
-            
+
+        Returns:
+            LessonResource: ORM object for the requested resource.
+
+        Raises:
+            HTTPException: 404 if resource not found or not accessible to user.
+        """
+        if current_user.role in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
+            lesson_resource = self.db.query(LessonResource).filter(
+                LessonResource.lesson_resources_id == resource_id
+            ).first()
+        else:
+            lesson_resource = self.db.query(LessonResource).filter(
+                LessonResource.lesson_resources_id == resource_id,
+                LessonResource.user_id == current_user.user_id
+            ).first()
+        if not lesson_resource:
+            raise HTTPException(status_code=404, detail="Lesson resource not found")
+        return lesson_resource
+
+    def get_lesson_resource(self, resource_id: int, current_user: User) -> LessonResourceResponse:
+        """
+        Get a specific lesson resource.
+
+        Args:
+            resource_id (int): Resource ID
+            current_user (User): Current authenticated user
+
         Returns:
             LessonResourceResponse: Lesson resource response
-            
+
         Raises:
             HTTPException: If resource not found or access denied
         """
         try:
-            # AWD-M-67: scope query to user_id for non-admins so unauthorized IDs
-            # return 404 regardless of whether the resource exists, preventing
-            # existence leakage via 403/404 discrepancy.
-            # AWD-H-61: SUPER_ADMIN has the same elevated access as ADMIN.
-            if current_user.role in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
-                lesson_resource = self.db.query(LessonResource).filter(
-                    LessonResource.lesson_resources_id == resource_id
-                ).first()
-            else:
-                lesson_resource = self.db.query(LessonResource).filter(
-                    LessonResource.lesson_resources_id == resource_id,
-                    LessonResource.user_id == current_user.user_id
-                ).first()
-            if not lesson_resource:
-                raise HTTPException(status_code=404, detail="Lesson resource not found")
-            
+            # AWD-M-70: delegate access-control to get_lesson_resource_orm so
+            # the ADMIN/SUPER_ADMIN/owner-scoped query lives in one place.
+            lesson_resource = self.get_lesson_resource_orm(resource_id, current_user)
+
             return LessonResourceResponse(
                 lesson_resources_id=lesson_resource.lesson_resources_id,
                 lesson_plan_id=lesson_resource.lesson_plan_id,
@@ -565,7 +587,7 @@ class LessonPlanService:
                 status=lesson_resource.status,
                 created_at=lesson_resource.created_at
             )
-            
+
         except HTTPException:
             raise
         except Exception:
