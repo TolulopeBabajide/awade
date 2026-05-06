@@ -16,7 +16,7 @@ weasyprint==62.3  # Upgraded from 60.0 — 2 major versions behind; patches HTML
 PyJWT==2.12.1  # Pin exact version — large CVE surface between 2.3.0 and 2.12.1 (AWD-H-23)
 email-validator==2.1.0
 requests==2.32.4  # Fix CVE-2024-47081
-urllib3==2.5.0  # Fix CVE-2025-50181, CVE-2025-50182
+urllib3==2.6.3  # Fix CVE-2025-50181, CVE-2025-50182, CVE-2025-66471, CVE-2026-21441, CVE-2026-66418 (AWD-H-75)
 Pillow==10.4.0  # Upgraded from 10.0.0 — fixes CVE-2024-28219 (heap buffer overflow in ImagingResampleHorizontal); latest stable 10.x, avoids 11.x breaking changes (AWD-L-11)
 alembic==1.13.3
 
