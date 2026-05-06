@@ -106,9 +106,8 @@ class TestAccountEnumerationProtection:
 
     def test_wrong_password_returns_generic_error(self, client, sample_user, test_db):
         """Attempting login with wrong password returns 401 with same generic message."""
-        import bcrypt as _bcrypt
-        salt = _bcrypt.gensalt()
-        sample_user.password_hash = _bcrypt.hashpw(b"CorrectPass1!", salt).decode("utf-8")
+        salt = bcrypt.gensalt()
+        sample_user.password_hash = bcrypt.hashpw(b"CorrectPass1!", salt).decode("utf-8")
         test_db.commit()
 
         response = client.post("/api/auth/login", json={
@@ -291,12 +290,10 @@ class TestRefreshTokenEnumeration:
     def test_deleted_user_refresh_returns_generic_error(self, client, sample_user, test_db):
         """A valid refresh token whose user has been deleted must return 401 with
         a generic 'Invalid token' message — not 'User not found'."""
-        import bcrypt as _bcrypt
-
         # 1. Give sample_user a known password and log in to get a real refresh token.
         password = "TestPassword1!"
-        salt = _bcrypt.gensalt()
-        sample_user.password_hash = _bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
+        salt = bcrypt.gensalt()
+        sample_user.password_hash = bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
         test_db.commit()
 
         login_resp = client.post(
@@ -371,9 +368,8 @@ class TestUserLoginPasswordBytesValidator:
     def test_login_with_exactly_72_byte_password_passes_schema_validation(self, client, sample_user, test_db):
         """A password of exactly 72 ASCII bytes is within bcrypt's limit and must
         pass schema validation (the response should be 200 or 401, not 422/500)."""
-        import bcrypt as _bcrypt
-        salt = _bcrypt.gensalt()
-        pw_hash = _bcrypt.hashpw(self._BOUNDARY_ASCII.encode("utf-8"), salt).decode("utf-8")
+        salt = bcrypt.gensalt()
+        pw_hash = bcrypt.hashpw(self._BOUNDARY_ASCII.encode("utf-8"), salt).decode("utf-8")
         sample_user.password_hash = pw_hash
         test_db.commit()
 
