@@ -10,7 +10,7 @@ Covers:
 """
 
 import pytest
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 
 from apps.backend.models import Base, AdminAuditLog, User, UserRole
@@ -22,8 +22,22 @@ from apps.backend.utils.admin_logs import log_admin_action
 # ---------------------------------------------------------------------------
 
 def _make_engine():
-    """In-process SQLite engine — no filesystem required."""
+    """In-process SQLite engine — no filesystem required.
+
+    Registers a per-engine ``connect`` listener that runs ``PRAGMA foreign_keys=ON``
+    so SQLite enforces the FK constraints declared in models.py — without it,
+    the GRC-09 ``ondelete='SET NULL'`` clause on ``admin_audit_logs.actor_id``
+    would not actually fire when the parent ``User`` row is deleted, and the
+    compliance guarantee would be unverified at the test layer (AWD-L-08).
+    """
     engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False})
+
+    @event.listens_for(engine, "connect")
+    def _enable_sqlite_fks(dbapi_connection, connection_record):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+
     Base.metadata.create_all(bind=engine)
     return engine
 
@@ -127,10 +141,13 @@ class TestAuditLogActorIdNullable:
 
             surviving_log = db.query(AdminAuditLog).filter_by(log_id=log_id).first()
             assert surviving_log is not None, "Audit log row must not be deleted when actor is removed"
-            # SQLite supports SET NULL via batch migration; the value should be NULL
-            # In the test DB (created from models directly) SQLite may not enforce FK
-            # constraints unless PRAGMA foreign_keys=ON — the important assertion is
-            # that the row persists and is queryable.
+            # _make_engine enables PRAGMA foreign_keys=ON, so SQLite executes the
+            # FK ``ondelete='SET NULL'`` action declared on ``admin_audit_logs.actor_id``
+            # when the parent ``User`` row is deleted. This is the GRC-09 compliance
+            # guarantee — the audit trail row persists with actor_id=NULL.
+            assert surviving_log.actor_id is None, (
+                "actor_id must be NULL after parent user deletion (GRC-09 SET NULL semantics)"
+            )
             assert surviving_log.action == "change_role"
             assert surviving_log.target_id == 7
         finally:
