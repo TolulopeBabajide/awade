@@ -135,3 +135,18 @@ CLAUDE.md
 project-config.md
 .claude/
 docs/agentic/
+.agent-health/
+.agent-health/**/*.last-run
+
+# Generated agent documentation (local only)
+docs/architecture/
+docs/audits/
+docs/code-reviews/
+docs/legal/
+docs/performance/
+docs/security/
+docs/tech-debt/
+
+# Sandbox/temp artifacts
+.sandbox_*/
+.sandbox_work_*/
