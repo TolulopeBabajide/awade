@@ -23,7 +23,7 @@ from typing import List, Optional
 from datetime import datetime
 
 from apps.backend.database import get_db
-from apps.backend.models import User, LessonResource, UserRole
+from apps.backend.models import User
 from apps.backend.dependencies import get_current_user, require_educator, require_admin_or_educator, get_optional_current_user
 from apps.backend.limiter import limiter
 from apps.backend.services.lesson_plan_service import LessonPlanService
@@ -183,22 +183,14 @@ async def export_lesson_resource(
     Requires authentication and ownership.
     """
     from apps.backend.services.pdf_service import PDFService
-    
-    # AWD-M-67: scope query to user_id for non-admins to prevent existence leakage
-    # via 403/404 discrepancy — unauthorised callers receive a uniform 404.
-    # AWD-H-61: SUPER_ADMIN has the same elevated access as ADMIN.
-    if current_user.role in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
-        lesson_resource = db.query(LessonResource).filter(
-            LessonResource.lesson_resources_id == resource_id
-        ).first()
-    else:
-        lesson_resource = db.query(LessonResource).filter(
-            LessonResource.lesson_resources_id == resource_id,
-            LessonResource.user_id == current_user.user_id
-        ).first()
 
-    if not lesson_resource:
-        raise HTTPException(status_code=404, detail="Lesson resource not found")
+    # AWD-M-70: delegate access-control to LessonPlanService so the
+    # ADMIN/SUPER_ADMIN/owner-scoped query lives in one place. AWD-M-67
+    # (uniform 404 for unauthorised callers) and AWD-H-61 (SUPER_ADMIN bypass)
+    # are enforced inside the service helper — see get_lesson_resource_orm().
+    lesson_resource = LessonPlanService(db).get_lesson_resource_orm(
+        resource_id, current_user
+    )
     
     # Get export format
     export_format = format_data.get("format", "pdf").lower()

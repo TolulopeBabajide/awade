@@ -542,6 +542,82 @@ class TestGetLessonResource:
 
 
 # ==========================================================================
+# TestGetLessonResourceOrm — AWD-M-70
+# ==========================================================================
+
+
+class TestGetLessonResourceOrm:
+    """get_lesson_resource_orm — single source of truth for export access control.
+
+    AWD-M-70 extracted the ADMIN/SUPER_ADMIN/owner-scoped query into one helper
+    so the export router can delegate. These tests cover the same behaviours as
+    TestGetLessonResource but against the ORM-returning entry point used by
+    routers/lesson_plans.py::export_lesson_resource.
+    """
+
+    def test_resource_not_found_raises_404(self):
+        user = _educator(user_id=1)
+        db = MagicMock()
+        q = MagicMock()
+        q.filter.return_value.first.return_value = None
+        db.query.return_value = q
+        svc = LessonPlanService(db=db)
+        with pytest.raises(HTTPException) as exc_info:
+            svc.get_lesson_resource_orm(resource_id=99, current_user=user)
+        assert exc_info.value.status_code == 404
+
+    def test_wrong_user_returns_404_not_403(self):
+        # AWD-M-67: non-admin querying another user's resource gets 404, not 403.
+        # The scoped query returns None for the foreign user_id.
+        user = _educator(user_id=2)
+        db = MagicMock()
+        q = MagicMock()
+        q.filter.return_value.first.return_value = None
+        db.query.return_value = q
+        svc = LessonPlanService(db=db)
+        with pytest.raises(HTTPException) as exc_info:
+            svc.get_lesson_resource_orm(resource_id=1, current_user=user)
+        assert exc_info.value.status_code == 404
+
+    def test_owner_gets_orm_object(self):
+        user = _educator(user_id=1)
+        resource = _make_resource(resource_id=1, lesson_plan_id=5, user_id=1)
+        resource.ai_generated_content = "Detailed lesson content"
+        db = MagicMock()
+        q = MagicMock()
+        q.filter.return_value.first.return_value = resource
+        db.query.return_value = q
+        svc = LessonPlanService(db=db)
+        result = svc.get_lesson_resource_orm(resource_id=1, current_user=user)
+        # Returns the raw ORM object, not a response schema (export needs ORM)
+        assert result is resource
+        assert isinstance(result, LessonResource)
+
+    def test_admin_can_access_any_resource(self):
+        admin = _admin(user_id=99)
+        resource = _make_resource(resource_id=1, user_id=1)  # owned by user 1
+        db = MagicMock()
+        q = MagicMock()
+        q.filter.return_value.first.return_value = resource
+        db.query.return_value = q
+        svc = LessonPlanService(db=db)
+        result = svc.get_lesson_resource_orm(resource_id=1, current_user=admin)
+        assert result is resource
+
+    def test_super_admin_can_access_any_resource(self):
+        """AWD-H-61: SUPER_ADMIN must bypass ownership scoping like ADMIN."""
+        super_admin = _super_admin(user_id=100)
+        resource = _make_resource(resource_id=1, user_id=1)  # owned by user 1
+        db = MagicMock()
+        q = MagicMock()
+        q.filter.return_value.first.return_value = resource
+        db.query.return_value = q
+        svc = LessonPlanService(db=db)
+        result = svc.get_lesson_resource_orm(resource_id=1, current_user=super_admin)
+        assert result is resource
+
+
+# ==========================================================================
 # TestGenerateLessonResource
 # ==========================================================================
 
