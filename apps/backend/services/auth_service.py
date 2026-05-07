@@ -17,18 +17,11 @@ import hashlib
 import json
 import logging
 import requests
-import sys
 import os
 from fastapi import HTTPException, status
 from typing import Tuple, Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
-
-# Add parent directories to Python path for imports
-current_dir = os.path.dirname(__file__)
-parent_dir = os.path.dirname(current_dir)
-root_dir = os.path.dirname(parent_dir)
-sys.path.extend([parent_dir, root_dir])
 
 from apps.backend.models import User, UserRole
 from apps.backend.schemas.users import AuthResponse, UserResponse, UserCreate, UserLogin, PasswordResetRequest, PasswordReset
