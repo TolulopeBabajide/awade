@@ -24,7 +24,7 @@ async def test_refresh_token_rotation(client, sample_user, test_db):
 
     # 2. Refresh to get rotated token
     # Mock redis check
-    with patch("apps.backend.services.auth_service.AuthService.is_refresh_token_blacklisted", new_callable=AsyncMock) as mock_blacklist:
+    with patch("apps.backend.services.token_service.TokenService.is_refresh_token_blacklisted", new_callable=AsyncMock) as mock_blacklist:
         mock_blacklist.return_value = False
         
         refresh_response = client.post("/api/auth/refresh")
@@ -51,7 +51,7 @@ async def test_token_revocation_on_logout(client, sample_user, test_db):
     assert refresh_token is not None
 
     # 2. Logout (should trigger blacklisting)
-    with patch("apps.backend.services.auth_service.AuthService.blacklist_refresh_token", new_callable=AsyncMock) as mock_blacklist:
+    with patch("apps.backend.services.token_service.TokenService.blacklist_refresh_token", new_callable=AsyncMock) as mock_blacklist:
         # Mock app.state.redis so the router calls blacklist_refresh_token
         old_redis = getattr(app.state, "redis", None)
         app.state.redis = MagicMock()
@@ -63,7 +63,7 @@ async def test_token_revocation_on_logout(client, sample_user, test_db):
             app.state.redis = old_redis
 
     # 3. Try to refresh using the "revoked" token (simulated by mock)
-    with patch("apps.backend.services.auth_service.AuthService.is_refresh_token_blacklisted", new_callable=AsyncMock) as mock_is_blacklisted:
+    with patch("apps.backend.services.token_service.TokenService.is_refresh_token_blacklisted", new_callable=AsyncMock) as mock_is_blacklisted:
         mock_is_blacklisted.return_value = True
         # Manually set the revoked cookie back because logout cleared it
         client.cookies.set("refresh_token", refresh_token)
