@@ -169,8 +169,10 @@ const ParentDashboardPage: React.FC = () => {
       await refetchConsent()
       setShowConsentModal(false)
       setShowAddChild(true)
-    } catch {
-      setConsentError('Something went wrong. Please try again.')
+    } catch (err) {
+      // AWD-M-81: surface the underlying error message when available
+      // instead of collapsing every failure into a generic string.
+      setConsentError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     } finally {
       setConsentSubmitting(false)
     }
