@@ -1278,3 +1278,4 @@ Commit: 539d77e | Merge: c624c33
 - **Gates**: TS 0 errors · lint 0 errors · frontend vitest SKIP (ENOSPC AWD-H-77) · backend pytest SKIP (venv broken M-46) · openapi.json ✅ · mcp.json ✅
 
 | AWD-M-112 | 2026-05-08 | DepSec: Pillow 10.4.0→12.2.0 — patched CVE-2026-40192 (FITS GZIP decompression bomb, AV:N), CVE-2026-25990, CVE-2026-42311, CVE-2026-42310, CVE-2026-42308. API compat confirmed: all Pillow APIs used (Image.open/.convert/.thumbnail/.save + Image.Resampling.LANCZOS) are stable across 10→12. Commit 2f5bf84, merge d551c02. |
+| AWD-M-116 | 2026-05-08 | Testing/Code Quality: split test_children_router.py (759 lines) into test_children_auth.py (78), test_children_crud.py (224), test_children_guides.py (234), test_children_export.py (200), test_children_rate_limits.py (85); shared factories in children_factories.py (120 lines). All files under 400-line threshold. No logic change. Commit c6dc026, merge 2658451. |
