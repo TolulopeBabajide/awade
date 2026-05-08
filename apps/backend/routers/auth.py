@@ -25,6 +25,7 @@ from apps.backend.schemas.users import AuthResponse, CookieAuthResponse, UserRes
 from apps.backend.models import User
 from apps.backend.dependencies import get_current_user
 from apps.backend.services.auth_service import AuthService
+from apps.backend.services.token_service import TokenService
 from apps.backend.limiter import limiter
 
 from slowapi import _rate_limit_exceeded_handler
@@ -181,7 +182,7 @@ async def refresh_token(request: Request, response: Response, db: Session = Depe
             detail="Refresh token missing"
         )
 
-    service = AuthService(db)
+    service = TokenService(db)
     redis_pool = getattr(request.app.state, "redis", None)
     auth_response, new_refresh_token = await service.refresh_access_token(stored_refresh_token, redis_pool)
 
@@ -195,7 +196,7 @@ async def logout(request: Request, response: Response, db: Session = Depends(get
     """
     refresh_token = request.cookies.get("refresh_token")
     if refresh_token:
-        service = AuthService(db)
+        service = TokenService(db)
         redis_pool = getattr(request.app.state, "redis", None)
         if redis_pool:
             await service.blacklist_refresh_token(refresh_token, redis_pool)
