@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch, AsyncMock, call
 from datetime import datetime, timezone
 from apps.backend.worker import generate_lesson_resource_task
 from apps.backend.models import LessonResource, User, LessonPlan, Topic, CurriculumStructure, Subject, GradeLevel, Context, Curriculum
-from apps.backend.services.lesson_plan_service import LessonPlanService
+from apps.backend.services.lesson_resource_service import LessonResourceService
 
 # ---------------------------------------------------------------------------
 # Minimal valid AI-output JSON that satisfies LessonResourceAIContent schema
@@ -198,7 +198,7 @@ async def test_service_enqueues_job():
     mock_db = MagicMock()
     mock_redis = AsyncMock()
     
-    service = LessonPlanService(mock_db, mock_redis)
+    service = LessonResourceService(mock_db, mock_redis)
     
     # Mock refresh side effect to simulate ID generation
     def refresh_side_effect(obj):
