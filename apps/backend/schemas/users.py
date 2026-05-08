@@ -21,6 +21,47 @@ def get_password_min_length() -> int:
 
 _BCRYPT_MAX_BYTES = 72  # bcrypt 4.3.0 hard limit (truncate_error=True)
 
+# Common passwords rejected at registration and reset time (AWD-M-92).
+# Single source of truth — do not duplicate in validators.
+_WEAK_PASSWORDS: frozenset = frozenset(
+    {'password', '123456', 'qwerty', 'admin', 'letmein'}
+)
+
+
+def _validate_password_byte_length(v: str, max_bytes: int) -> None:
+    """Raise ValueError if *v* exceeds *max_bytes* UTF-8 bytes.
+
+    bcrypt 4.3.0 raises ValueError for passwords > 72 bytes
+    (truncate_error=True by default).  Calling this helper before hashpw /
+    checkpw converts that crash into a clean HTTP 422 for the caller.
+
+    Args:
+        v:         The raw password string.
+        max_bytes: Byte ceiling (typically from get_password_max_length()).
+
+    Raises:
+        ValueError: When the encoded length exceeds *max_bytes*.
+    """
+    if len(v.encode('utf-8')) > max_bytes:
+        raise ValueError(
+            f'Password is too long (exceeds the {max_bytes}-byte limit). '
+            'Please use a shorter password.'
+        )
+
+
+def _validate_weak_password(v: str) -> None:
+    """Raise ValueError if *v* appears in the common-password denylist.
+
+    Args:
+        v: The raw password string (case-insensitive comparison).
+
+    Raises:
+        ValueError: When the password is on the denylist.
+    """
+    if v.lower() in _WEAK_PASSWORDS:
+        raise ValueError('Password is too common. Please choose a stronger password.')
+
+
 def get_password_max_length() -> int:
     """Get maximum password length from environment variables.
 
@@ -60,16 +101,8 @@ class UserCreate(BaseModel):
             raise ValueError(f'Password must be at least {min_length} characters long')
         # Use UTF-8 byte length to match bcrypt's hard limit (AWD-M-72).
         # A multi-byte password can exceed 72 bytes with far fewer than 72 chars.
-        if len(v.encode('utf-8')) > max_bytes:
-            raise ValueError(
-                f'Password is too long (exceeds the {max_bytes}-byte limit). '
-                'Please use a shorter password.'
-            )
-
-        # Check for common weak passwords
-        weak_passwords = ['password', '123456', 'qwerty', 'admin', 'letmein']
-        if v.lower() in weak_passwords:
-            raise ValueError('Password is too common. Please choose a stronger password.')
+        _validate_password_byte_length(v, max_bytes)
+        _validate_weak_password(v)
 
         return v
 
@@ -104,11 +137,7 @@ class UserLogin(BaseModel):
         (e.g. 64) is enforced consistently at login as well as registration (AWD-M-91).
         """
         max_bytes = get_password_max_length()
-        if len(v.encode('utf-8')) > max_bytes:
-            raise ValueError(
-                f'Password is too long (exceeds the {max_bytes}-byte limit). '
-                'Please use a shorter password.'
-            )
+        _validate_password_byte_length(v, max_bytes)
         return v
 
 # Response schemas
@@ -178,15 +207,7 @@ class PasswordReset(BaseModel):
         if len(v) < min_length:
             raise ValueError(f'Password must be at least {min_length} characters long')
         # Use UTF-8 byte length to match bcrypt's hard limit (AWD-M-72).
-        if len(v.encode('utf-8')) > max_bytes:
-            raise ValueError(
-                f'Password is too long (exceeds the {max_bytes}-byte limit). '
-                'Please use a shorter password.'
-            )
-
-        # Check for common weak passwords
-        weak_passwords = ['password', '123456', 'qwerty', 'admin', 'letmein']
-        if v.lower() in weak_passwords:
-            raise ValueError('Password is too common. Please choose a stronger password.')
+        _validate_password_byte_length(v, max_bytes)
+        _validate_weak_password(v)
 
         return v
