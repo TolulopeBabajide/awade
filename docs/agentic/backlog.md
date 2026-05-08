@@ -1,6 +1,9 @@
 # Awade — Backlog
 
-> Last updated: 2026-05-08 (dev-agent — AWD-L-22 resolved: moved inline imports to module level in test_auth_service.py (asyncio, requests, UserCreate, UserLogin added; 14 redundant inline removed), test_context_service.py (ContextCreate), test_lesson_plan_service.py (4 redundant removed); conftest.py import-convention comment added. TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · frontend vitest SKIP (ENOSPC, AWD-H-77) · backend pytest SKIP (venv broken, M-46). Commit 3fba9e2, merge d5fb800. Tolu: run `git push origin develop` to trigger CI. H-78 blocked — sandbox cannot delete untracked files (requires `rm` on Tolu's machine). H-65 and M-77 still blocked by Tolu's venv fix.)
+> Last updated: 2026-05-08 (dev-agent — AWD-M-127 resolved: extracted `_validate_full_password(v: str) -> str` module-level helper to `apps/backend/schemas/users.py`; `UserCreate.validate_password` and `PasswordReset.validate_new_password` each reduced to `return _validate_full_password(v)`. `UserLogin.validate_password_bytes` correctly unchanged. 4 tests added in `TestValidateFullPasswordHelper`. TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · frontend vitest SKIP (ENOSPC, AWD-H-77) · backend pytest SKIP (venv broken, M-46). Commit b84be2f, merge 124873c. Tolu: run `git push origin develop` to trigger CI. H-78 blocked — sandbox cannot delete untracked files. L-23 still open.)
+> Prev updated: 2026-05-08 (code-review-agent — commits caafd73+4d491f0 reviewed. Filed AWD-M-127: residual validator body duplication in schemas/users.py — UserCreate.validate_password and PasswordReset.validate_new_password have identical 5-line bodies; extract _validate_full_password(v) to complete AWD-M-92 deduplication. Filed AWD-L-23: inline import regression in TestPasswordValidationHelpers — 8 new test methods each import from apps.backend.schemas.users inline and alias pytest as _pytest, repeating AWD-L-22 pattern. Verdict: ✅ Clean.)
+> Prev updated: 2026-05-08 (dev-agent — AWD-M-92 resolved: extracted `_WEAK_PASSWORDS` frozenset, `_validate_password_byte_length(v, max_bytes)`, and `_validate_weak_password(v)` helpers to `apps/backend/schemas/users.py`; all 3 validators delegate — single source of truth for byte-length cap and denylist. 8 unit tests added in `TestPasswordValidationHelpers`. TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · frontend vitest SKIP (ENOSPC, AWD-H-77) · backend pytest SKIP (venv broken, M-46). Commit caafd73, merge 4d491f0. AWD-C-13 occurrence cleared. Tolu: run `git push origin develop` to trigger CI. H-78 blocked — sandbox cannot delete untracked files. H-65 and M-77 still blocked by Tolu's venv fix.)
+> Prev updated: 2026-05-08 (dev-agent — AWD-L-22 resolved: moved inline imports to module level in test_auth_service.py (asyncio, requests, UserCreate, UserLogin added; 14 redundant inline removed), test_context_service.py (ContextCreate), test_lesson_plan_service.py (4 redundant removed); conftest.py import-convention comment added. TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · frontend vitest SKIP (ENOSPC, AWD-H-77) · backend pytest SKIP (venv broken, M-46). Commit 3fba9e2, merge d5fb800. Tolu: run `git push origin develop` to trigger CI. H-78 blocked — sandbox cannot delete untracked files (requires `rm` on Tolu's machine). H-65 and M-77 still blocked by Tolu's venv fix.)
 > Prev updated: 2026-05-08 (dev-agent — AWD-M-116 resolved: split test_children_router.py (759 lines) into test_children_auth.py (78), test_children_crud.py (224), test_children_guides.py (234), test_children_export.py (200), test_children_rate_limits.py (85); shared factories in children_factories.py (120). All files under 400-line threshold. TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · frontend vitest SKIP (ENOSPC, AWD-H-77) · backend pytest SKIP (venv broken, M-46). Commit c6dc026, merge 2658451. Tolu: run `git push origin develop` to trigger CI. H-65 and M-77 still blocked by Tolu's venv fix.)
 > Prev updated: 2026-05-08 (dev-agent — AWD-M-112 resolved: Pillow bumped 10.4.0→12.2.0 in requirements.txt, patching CVE-2026-40192 (FITS GZIP decompression bomb, AV:N), CVE-2026-25990, CVE-2026-42311, CVE-2026-42310, CVE-2026-42308. API compat confirmed: Image.open/.convert/.thumbnail/.save + Image.Resampling.LANCZOS all stable 10→12; no app-code change needed. TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · frontend vitest SKIP (ENOSPC, AWD-H-77) · backend pytest SKIP (venv broken, M-46). Commit 2f5bf84, merge d551c02. Tolu: run `git push origin develop` to trigger CI. H-65 and M-77 still blocked by Tolu's venv fix.)
 > Prev updated: 2026-05-08 (dev-agent — AWD-M-117 resolved: extracted LessonResourceService from lesson_plan_service.py; both files now under 400 lines (330/359). lesson_resource_service.py contains generate_lesson_resource, get_all_lesson_resources, get_lesson_plan_resources, get_lesson_resource_orm, get_lesson_resource, _to_lesson_resource_response. lesson_plan_service.py retains plan CRUD + AI generation + re-exports _to_lesson_resource_response for backward compat. Router updated (5 resource endpoints → LessonResourceService). test_lesson_plan_service.py trimmed (plan tests only); new test_lesson_resource_service.py (558 lines, 30 tests). test_async_integration.py updated. AWD-M-126 also resolved: zombie test_services.py confirmed absent from sandbox filesystem. Commit ba0dacf, merge 2c9dec3. AWD-C-13 staged-index cleared at run start. TS 0 errors · lint 0 errors · frontend vitest SKIP (ENOSPC, AWD-H-77) · backend pytest SKIP (venv broken, M-46) · openapi.json ✅ · mcp.json ✅. Tolu: run `git push origin develop` to trigger CI. H-65 and M-77 still blocked by Tolu's venv fix.)
@@ -658,12 +661,12 @@ When adding a new issue, use this format:
 
 - **Resolution**: Added `_BCRYPT_MAX_BYTES = 72` sentinel; `get_password_max_length()` now returns `min(configured, _BCRYPT_MAX_BYTES)`. Added `TestPasswordMaxLengthUpperBoundCap` with 3 tests: (1) direct unit test confirming clamping, (2) login 73-byte password yields 422, (3) registration 73-byte password yields 422. Commit `fb91fff`, merge `e4be8c3`. 0 TS errors · 0 lint · 179/179 frontend tests. Backend tests pending CI (venv sandbox constraint). Tolu: `git push origin develop` to trigger CI.
 
-### AWD-M-92 — Password byte-length check + weak-password list duplicated across three validators in `schemas/users.py`
-- **Stage:** define
+### ~~AWD-M-92~~ ✅ 2026-05-08 — Password byte-length check + weak-password list duplicated across three validators in `schemas/users.py`
+- **Stage:** done
 - **Priority:** Medium
 - **Source:** code-review-agent 2026-05-04
-- **Detail:** The `len(v.encode('utf-8')) > max_bytes` guard appears in `UserCreate.validate_password`, `UserLogin.validate_password_bytes`, and `PasswordReset.validate_new_password`. The weak-password list `['password', '123456', 'qwerty', 'admin', 'letmein']` duplicates between `UserCreate` and `PasswordReset`. A future change to the bcrypt limit or the weak-password list requires three edits instead of one, and the three copies can drift. **Fix**: Extract module-level helpers `_validate_password_byte_length(v, max_bytes)` and `_WEAK_PASSWORDS: frozenset` + `_validate_weak_password(v)`. Each validator delegates to the helpers — no behaviour change, single point of maintenance.
-- **Files:** `apps/backend/schemas/users.py` (lines 47–66, 97–108, 162–185)
+- **Resolution:** Extracted `_WEAK_PASSWORDS: frozenset` (module-level constant), `_validate_password_byte_length(v, max_bytes)`, and `_validate_weak_password(v)` helpers to `apps/backend/schemas/users.py`. All three validators (`UserCreate.validate_password`, `UserLogin.validate_password_bytes`, `PasswordReset.validate_new_password`) now delegate to these helpers — no behaviour change, single point of maintenance. Added 8 unit tests in `TestPasswordValidationHelpers` (test_auth_flow_security.py): byte-length raises for overlong ASCII and multi-byte, passes at exact limit and below; weak-password raises for denylist entry and case-insensitively, passes for strong password; `_WEAK_PASSWORDS` frozenset contains all expected entries. TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · frontend vitest SKIP (ENOSPC, AWD-H-77) · backend pytest SKIP (venv broken, M-46). Commit caafd73, merge 4d491f0. AWD-C-13 occurrence cleared at post-merge step. Tolu: run `git push origin develop` to trigger CI.
+- **Files:** `apps/backend/schemas/users.py`, `apps/backend/tests/test_auth_flow_security.py`
 
 - **Detail:** The 8-test suite in `LessonPlanDetailPage.test.tsx` covers only the fetch/render path (loading, success, error states, nav-state shortcut). The entire generation workflow — context submission, resource generation, polling termination on success/failure/timeout, success redirect, and error feedback — has no assertions. **Fix:** Add vitest cases for: (1) successful generation → `navigate` called with `/lesson-plans/:id/resources/edit`; (2) `status === 'failed'` response → error feedback displayed; (3) poll timeout (60 attempts exhausted) → "Generation timed out" error shown.
 - **Files:** `apps/frontend/src/pages/LessonPlanDetailPage.test.tsx`, `apps/frontend/src/pages/LessonPlanDetailPage.tsx`
@@ -705,6 +708,37 @@ When adding a new issue, use this format:
 
 - **Resolution**: Removed `import apps.backend.schemas.users as schemas_module` and `monkeypatch.setattr(schemas_module, "get_password_max_length", lambda: 72)` from both `test_login_with_73_byte_password_yields_422_not_500_when_env_set_to_200` and `test_register_with_73_byte_password_yields_422_when_env_set_to_200`. With only `monkeypatch.setenv("PASSWORD_MAX_LENGTH", "200")` in place, the real `get_password_max_length()` runs, returns `min(200, 72) = 72`, and the 73-byte password is rejected with 422 — validating the full clamping stack end-to-end. Removed redundant `!= 500` assertion (covered by the positive `== 422` assert). Updated docstrings to explain the full-stack intent. 0 TS errors · 0 lint · 179/179 frontend tests · openapi.json valid. Commit `bbc3bf6`, merge `92d1934`. Tolu: `git push origin develop` to trigger CI.
 
+
+### ~~AWD-M-127~~ ✅ 2026-05-08 — Residual validator body duplication in `schemas/users.py` after AWD-M-92
+
+| Field | Value |
+|-------|-------|
+| **ID** | AWD-M-127 |
+| **Category** | Code Quality / Duplication |
+| **Stage** | done |
+| **Resolved** | 2026-05-08 dev-agent (commit b84be2f, merge 124873c) |
+| **Filed** | 2026-05-08 code-review-agent |
+
+**Description**: `UserCreate.validate_password` (lines ~96–104) and `PasswordReset.validate_new_password` (lines ~211–219) in `apps/backend/schemas/users.py` share identical 5-line bodies. AWD-M-92 correctly extracted `_validate_password_byte_length` and `_validate_weak_password`, but left the min-length guard and the orchestration (`get_password_min_length()` / `get_password_max_length()` fetch + length check + two helper calls + `return v`) duplicated across both methods.
+
+**Fix**: Extract `_validate_full_password(v: str) -> str` module-level helper that runs all three checks, then reduce both validators to a single `return _validate_full_password(v)`. `UserLogin.validate_password_bytes` intentionally omits min-length and weak-password checks and should remain unchanged.
+
+---
+
+### AWD-L-23 — Inline import regression in `TestPasswordValidationHelpers` (AWD-L-22 repeat)
+
+| Field | Value |
+|-------|-------|
+| **ID** | AWD-L-23 |
+| **Category** | Code Quality / Style |
+| **Stage** | define |
+| **Filed** | 2026-05-08 code-review-agent |
+
+**Description**: All 8 test methods in the `TestPasswordValidationHelpers` class added by AWD-M-92 (commit caafd73) contain inline imports — `from apps.backend.schemas.users import _validate_password_byte_length / _validate_weak_password / _WEAK_PASSWORDS` and `import pytest as _pytest` — despite `pytest` already being present at module level. This is the exact inline-import pattern resolved by AWD-L-22 (commit 3fba9e2, same merge window) in four other test files in the same project.
+
+**Fix**: Add `_validate_password_byte_length`, `_validate_weak_password`, and `_WEAK_PASSWORDS` to the module-level imports at the top of `test_auth_flow_security.py`. Replace all `_pytest.raises(...)` calls with `pytest.raises(...)` using the existing module-level import.
+
+---
 
 ### AWD-M-96 — `test_auth_flow_security.py` (600 lines) exceeds 400-line split threshold
 

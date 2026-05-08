@@ -589,3 +589,5 @@ After removing it, the next hourly run will:
 2026-05-08T$(date -u +"%H:%M:%SZ") | AWD-M-112 | DepSec: Pillow 10.4.0→12.2.0 (CVE-2026-40192 AV:N + 4 others) | 2f5bf84 / merge d551c02 | ✅ Done | CI:pending
 2026-05-08T18:15:00Z | AWD-M-116 | split test_children_router.py 759→5 files + children_factories.py | c6dc026 | ✅ Done | CI:pending
 | 2026-05-08T19:16:11Z | AWD-L-22 | Move inline imports to module level in test files | 3fba9e2 | ✅ Done | CI:pending |
+2026-05-08T20:15:09Z | AWD-M-92 | Extract password validation helpers (schemas/users.py) | caafd73 | ✅ Done | CI:pending
+2026-05-08T21:17:43Z | AWD-M-127 | Extract _validate_full_password helper (schemas/users.py) | b84be2f | ✅ Done | CI:pending
