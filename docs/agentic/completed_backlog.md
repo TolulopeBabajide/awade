@@ -1243,3 +1243,36 @@ Commit: 539d77e | Merge: c624c33
 **[AWD-M-118]** ✅ 2026-05-06 — Code Quality / Duplication: `LessonResourceResponse(...)` 9-kwarg constructor was duplicated 4× across `generate_lesson_resource`, `get_all_lesson_resources`, `get_lesson_plan_resources`, and `get_lesson_resource` in `apps/backend/services/lesson_plan_service.py`. Extracted module-level `_to_lesson_resource_response(resource)` helper; all 4 sites now delegate to it. File 598→582 lines. 3 new tests in `TestToLessonResourceResponse` (all-fields-mapped, optional-None pass-through, end-to-end equivalence with `get_lesson_resource`). No behaviour change. Commit 86b9ff8, merge bcc900e. | Stage: done
 | M-99 | Packaging: Module-level `sys.path.extend()` in `auth_service.py` mutates Python import system — removed 4-line sys.path block (lines 26–29) and "import sys" statement. Works because PYTHONPATH=/app is set in Dockerfile. Commit `173ad59`, merged to develop. | 2026-05-07 |
 | AWD-M-108 | 2026-05-08 | Code Quality / Architecture | Extracted `TokenService` from `auth_service.py` into `apps/backend/services/token_service.py`. All token lifecycle methods (create/refresh/blacklist) delegated; `AuthService` retains user-identity operations. `routers/auth.py` and 2 test files updated. Commit 861a568, merge a03deae. |
+
+## AWD-M-110 — Split test_services.py into focused modules
+- **Resolved**: 2026-05-08
+- **Commit**: 8c45330 (merge db34e46)
+- **Branch**: fix/testing/AWD-M-110-split-test-services → develop
+- **What**: Split 656-line monolithic test_services.py into:
+  - test_auth_service.py (16 tests — TestAuthService)
+  - test_user_service.py (4 tests — TestUserService)
+  - test_context_service.py (3 tests — TestContextService)
+  - TestLessonPlanServiceSmoke appended to existing test_lesson_plan_service.py (3 smoke tests)
+  - test_services.py deleted
+  - test_data_structures.py already existed in HEAD (38 tests) — no change needed
+- **Note**: AWD-C-13 occurrence cleared at run start (M-108 TokenService changes staged for reversion).
+
+## AWD-M-126 — test_services.py zombie file (resolved 2026-05-08)
+- **Fix**: Confirmed `apps/backend/tests/test_services.py` absent from filesystem (no git operation required).
+- **Cycle**: Zombie file confirmed gone; no code committed for this item.
+
+## AWD-M-117 — lesson_plan_service.py 598 lines → split (resolved 2026-05-08)
+- **Commit**: ba0dacf | **Merge**: 2c9dec3 (git commit-tree workaround — virtiofs FUSE blocks git checkout)
+- **New file**: `apps/backend/services/lesson_resource_service.py` (359 lines) — LessonResourceService with:
+  - `generate_lesson_resource` (async)
+  - `get_all_lesson_resources`
+  - `get_lesson_plan_resources`
+  - `get_lesson_resource_orm`
+  - `get_lesson_resource`
+  - `_to_lesson_resource_response` helper (moved from lesson_plan_service, re-exported for compat)
+- **Updated**: `apps/backend/services/lesson_plan_service.py` (598 → 330 lines) — plan CRUD + AI generation only
+- **Updated**: `apps/backend/routers/lesson_plans.py` — 5 resource endpoints now use LessonResourceService
+- **Updated**: `apps/backend/tests/test_async_integration.py` — imports LessonResourceService
+- **Updated**: `apps/backend/tests/test_lesson_plan_service.py` (832 → 354 lines) — plan tests only
+- **New file**: `apps/backend/tests/test_lesson_resource_service.py` (558 lines, 30 tests) — all resource tests
+- **Gates**: TS 0 errors · lint 0 errors · frontend vitest SKIP (ENOSPC AWD-H-77) · backend pytest SKIP (venv broken M-46) · openapi.json ✅ · mcp.json ✅
