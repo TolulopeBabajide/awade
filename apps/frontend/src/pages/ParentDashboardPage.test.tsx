@@ -365,6 +365,66 @@ describe('ParentDashboardPage', () => {
     })
   })
 
+  describe('handleConsentConfirmed error narrowing (AWD-M-81)', () => {
+    /**
+     * AWD-M-81: the catch block in handleConsentConfirmed previously discarded
+     * the thrown error and always set a generic "Something went wrong" message.
+     * It must now surface `err.message` when the thrown value is an Error
+     * instance so network/API failures bubble up to the parent.
+     */
+    const setupConsentFlow = (recordConsentImpl: () => Promise<unknown>) => {
+      mockApiService.getChildren.mockResolvedValue({
+        error: undefined,
+        data: { children: [], total: 0 },
+      })
+      // Consent NOT yet given so ConsentModal opens on Add click.
+      mockApiService.getConsentStatus = vi.fn().mockResolvedValue({
+        error: undefined,
+        data: { has_consented: false },
+      })
+      mockApiService.recordConsent = vi.fn().mockImplementation(recordConsentImpl)
+    }
+
+    const triggerConsentSubmit = async () => {
+      // Open ConsentModal via the empty-state "Add Your Child" button.
+      await waitFor(() => expect(screen.getByText(/Add Your Child/i)).toBeTruthy())
+      fireEvent.click(screen.getByText(/Add Your Child/i))
+
+      // Tick the consent checkbox so "I Agree" becomes enabled.
+      const checkbox = await screen.findByRole('checkbox')
+      fireEvent.click(checkbox)
+
+      // Click the "I Agree" submit button.
+      const submitBtn = screen.getByRole('button', { name: /I Agree — Add a Child/i })
+      fireEvent.click(submitBtn)
+    }
+
+    it('surfaces err.message when recordConsent rejects with an Error instance', async () => {
+      setupConsentFlow(() => Promise.reject(new Error('Network down')))
+
+      renderWithProviders(<ParentDashboardPage />)
+      await triggerConsentSubmit()
+
+      await waitFor(() => {
+        // The error string lives in the modal's <p role="alert"> slot.
+        const alert = screen.getByRole('alert')
+        expect(alert.textContent).toContain('Network down')
+      })
+    })
+
+    it('falls back to the generic message when a non-Error value is thrown', async () => {
+      setupConsentFlow(() => Promise.reject('plain-string-error'))
+
+      renderWithProviders(<ParentDashboardPage />)
+      await triggerConsentSubmit()
+
+      await waitFor(() => {
+        const alert = screen.getByRole('alert')
+        expect(alert.textContent).toContain('Something went wrong. Please try again.')
+      })
+    })
+  })
+
   describe('edit/delete button touch targets (AWD-L-15)', () => {
     const setupWithChild = () => {
       mockApiService.getChildren.mockResolvedValue({
