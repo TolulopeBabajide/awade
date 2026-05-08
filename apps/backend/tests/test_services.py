@@ -13,7 +13,6 @@ from unittest.mock import Mock, patch
 from fastapi import HTTPException
 
 from services.auth_service import AuthService, _SELF_REGISTERABLE_ROLES
-from services.token_service import TokenService
 from services.user_service import UserService
 from services.lesson_plan_service import LessonPlanService
 from services.context_service import ContextService
@@ -50,9 +49,8 @@ class TestAuthService:
         assert UserRole.SUPER_ADMIN not in _SELF_REGISTERABLE_ROLES
 
     def test_build_token_payload_returns_sub_and_email(self, test_db):
-        """AWD-M-109 / AWD-M-108: _build_token_payload must return a dict with 'sub' and 'email'.
-        Delegated to TokenService as part of the auth/token split."""
-        service = TokenService(test_db)
+        """AWD-M-109: _build_token_payload must return a dict with 'sub' and 'email'."""
+        service = AuthService(test_db)
         user = Mock(spec=["user_id", "email"])
         user.user_id = 42
         user.email = "tolu@example.com"
@@ -64,8 +62,8 @@ class TestAuthService:
         )
 
     def test_build_token_payload_sub_is_string(self, test_db):
-        """AWD-M-109 / AWD-M-108: 'sub' claim must always be a str, not an int — JWT spec requires string."""
-        service = TokenService(test_db)
+        """AWD-M-109: 'sub' claim must always be a str, not an int — JWT spec requires string."""
+        service = AuthService(test_db)
         user = Mock(spec=["user_id", "email"])
         user.user_id = 99
         user.email = "test@awade.ng"
@@ -91,14 +89,13 @@ class TestAuthService:
         )
         service.register_user(user_data)
 
-        # AWD-M-108: _build_token_payload is now on service.token_service (TokenService)
-        with patch.object(service.token_service, "_build_token_payload", wraps=service.token_service._build_token_payload) as mock_build:
+        with patch.object(service, "_build_token_payload", wraps=service._build_token_payload) as mock_build:
             from schemas.users import UserLogin
             login_data = UserLogin(email="payload_delegate@example.com", password="ValidPass1!")
             service.authenticate_user(login_data)
 
         assert mock_build.call_count == 1, (
-            "authenticate_user must call token_service._build_token_payload exactly once"
+            "authenticate_user must call _build_token_payload exactly once"
         )
 
     def test_password_validation(self, test_db):
@@ -331,12 +328,11 @@ class TestAuthService:
 
     def test_is_refresh_token_blacklisted_redis_error_logs_warning(self, test_db):
         """is_refresh_token_blacklisted returns False and logs a warning when
-        the connected Redis pool raises an exception (AWD-L-19).
-        AWD-M-108: method now lives on TokenService."""
+        the connected Redis pool raises an exception (AWD-L-19)."""
         import asyncio
         from unittest.mock import AsyncMock, MagicMock, patch
 
-        service = TokenService(test_db)
+        service = AuthService(test_db)
 
         # Redis pool that is present but raises on .exists()
         mock_redis = MagicMock()
@@ -345,8 +341,8 @@ class TestAuthService:
         # Patch jwt.decode to return a payload with a jti so the error branch is reached
         fake_payload = {"sub": "1", "email": "u@example.com", "jti": "test-jti-abc"}
 
-        with patch("services.token_service.jwt.decode", return_value=fake_payload), \
-             patch("services.token_service.logger") as mock_logger:
+        with patch("services.auth_service.jwt.decode", return_value=fake_payload), \
+             patch("services.auth_service.logger") as mock_logger:
             result = asyncio.run(
                 service.is_refresh_token_blacklisted("fake.jwt.token", mock_redis)
             )

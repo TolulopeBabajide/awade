@@ -581,3 +581,4 @@ After removing it, the next hourly run will:
 > 📝 **Feedback prompt**: If you revise this output significantly before using it, please log it —
 > `"Log feedback: awade-dev-execution output was [approved / revised / rejected] — [what changed]"`
 > Logs go to `docs/agentic/feedback-log.md` and improve future prompts.
+| 2026-05-08 | AWD-M-108 | Extract TokenService from AuthService | 861a568 | CI pending (push to trigger) |
