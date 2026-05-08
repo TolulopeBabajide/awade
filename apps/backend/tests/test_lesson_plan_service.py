@@ -780,3 +780,53 @@ class TestGenerateLessonResource:
         data = LessonResourceCreate(lesson_plan_id=1)
         result = asyncio.run(svc.generate_lesson_resource(lesson_id=1, data=data, current_user=super_admin))
         assert result.status == "processing"
+
+
+# ---------------------------------------------------------------------------
+# Basic smoke tests migrated from test_services.py (AWD-M-110 split)
+# These cover the top-level generate + list paths not already tested above.
+# ---------------------------------------------------------------------------
+
+class TestLessonPlanServiceSmoke:
+    """Smoke tests for LessonPlanService initialization, plan generation, and retrieval.
+
+    Migrated from test_services.py as part of AWD-M-110 (split monolith test file).
+    The detailed unit tests for individual methods live in the classes above.
+    """
+
+    def test_lesson_plan_service_initialization(self, test_db):
+        """Test LessonPlanService initialization."""
+        from apps.backend.services.lesson_plan_service import LessonPlanService
+        service = LessonPlanService(test_db)
+        assert service.db == test_db
+
+    def test_generate_lesson_plan(self, test_db, sample_user, sample_topic):
+        """Test lesson plan generation via mocked topic query."""
+        from apps.backend.services.lesson_plan_service import LessonPlanService
+        from apps.backend.schemas.lesson_plans import LessonPlanCreate
+        from unittest.mock import patch
+
+        service = LessonPlanService(test_db)
+
+        request = LessonPlanCreate(
+            subject="Mathematics",
+            grade_level="Grade 5",
+            topic="Basic Algebra",
+            user_id=sample_user.user_id
+        )
+
+        with patch.object(service.db, 'query') as mock_query:
+            mock_query.return_value.join.return_value.join.return_value.join.return_value.filter.return_value.first.return_value = sample_topic
+
+            result = service.generate_lesson_plan(request, sample_user)
+            assert result is not None
+            assert result.subject == "Mathematics"
+
+    def test_get_lesson_plans(self, test_db, sample_user, sample_lesson_plan):
+        """Test lesson plan list retrieval."""
+        from apps.backend.services.lesson_plan_service import LessonPlanService
+
+        service = LessonPlanService(test_db)
+
+        lesson_plans = service.get_lesson_plans(sample_user)
+        assert len(lesson_plans) >= 1
