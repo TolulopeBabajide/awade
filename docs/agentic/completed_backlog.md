@@ -1279,3 +1279,4 @@ Commit: 539d77e | Merge: c624c33
 
 | AWD-M-112 | 2026-05-08 | DepSec: Pillow 10.4.0→12.2.0 — patched CVE-2026-40192 (FITS GZIP decompression bomb, AV:N), CVE-2026-25990, CVE-2026-42311, CVE-2026-42310, CVE-2026-42308. API compat confirmed: all Pillow APIs used (Image.open/.convert/.thumbnail/.save + Image.Resampling.LANCZOS) are stable across 10→12. Commit 2f5bf84, merge d551c02. |
 | AWD-M-116 | 2026-05-08 | Testing/Code Quality: split test_children_router.py (759 lines) into test_children_auth.py (78), test_children_crud.py (224), test_children_guides.py (234), test_children_export.py (200), test_children_rate_limits.py (85); shared factories in children_factories.py (120 lines). All files under 400-line threshold. No logic change. Commit c6dc026, merge 2658451. |
+| AWD-L-22 | Code Quality / Style | Inline imports and import-style inconsistency in test files | 2026-05-08 | commit 3fba9e2 |
