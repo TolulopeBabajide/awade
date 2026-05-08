@@ -1276,3 +1276,5 @@ Commit: 539d77e | Merge: c624c33
 - **Updated**: `apps/backend/tests/test_lesson_plan_service.py` (832 → 354 lines) — plan tests only
 - **New file**: `apps/backend/tests/test_lesson_resource_service.py` (558 lines, 30 tests) — all resource tests
 - **Gates**: TS 0 errors · lint 0 errors · frontend vitest SKIP (ENOSPC AWD-H-77) · backend pytest SKIP (venv broken M-46) · openapi.json ✅ · mcp.json ✅
+
+| AWD-M-112 | 2026-05-08 | DepSec: Pillow 10.4.0→12.2.0 — patched CVE-2026-40192 (FITS GZIP decompression bomb, AV:N), CVE-2026-25990, CVE-2026-42311, CVE-2026-42310, CVE-2026-42308. API compat confirmed: all Pillow APIs used (Image.open/.convert/.thumbnail/.save + Image.Resampling.LANCZOS) are stable across 10→12. Commit 2f5bf84, merge d551c02. |

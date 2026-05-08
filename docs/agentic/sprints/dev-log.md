@@ -586,3 +586,4 @@ After removing it, the next hourly run will:
 | 2026-05-08T13:12:56Z | AWD-M-126 | Zombie test_services.py rm | BLOCKED | virtiofs EPERM — Tolu: run `rm apps/backend/tests/test_services.py` locally |
 2026-05-08T14:20:00Z | AWD-M-126 | test_services.py zombie file | (no commit — file absent) | ✅ Done | CI:n/a
 2026-05-08T14:20:00Z | AWD-M-117 | Extract LessonResourceService from lesson_plan_service.py | ba0dacf / merge 2c9dec3 | ✅ Done | CI:pending
+2026-05-08T$(date -u +"%H:%M:%SZ") | AWD-M-112 | DepSec: Pillow 10.4.0→12.2.0 (CVE-2026-40192 AV:N + 4 others) | 2f5bf84 / merge d551c02 | ✅ Done | CI:pending
