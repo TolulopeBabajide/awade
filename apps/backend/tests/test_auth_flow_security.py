@@ -592,3 +592,68 @@ class TestUserCreatePasswordBytesValidator:
         assert response.status_code != 500, (
             "HTTP 500 from bcrypt ValueError must not reach the client (AWD-M-72)"
         )
+
+
+class TestPasswordValidationHelpers:
+    """Unit tests for the module-level helpers extracted in AWD-M-92.
+
+    These tests exercise the helpers directly, ensuring the single source of
+    truth for byte-length enforcement and the weak-password denylist is correct.
+    The HTTP-layer behaviour is already covered by TestUserLoginPasswordBytesValidator
+    and TestUserCreatePasswordBytesValidator above.
+    """
+
+    def test_byte_length_helper_raises_for_overlong_ascii(self):
+        """Helper raises ValueError when ASCII password exceeds max_bytes."""
+        from apps.backend.schemas.users import _validate_password_byte_length
+        import pytest as _pytest
+        with _pytest.raises(ValueError, match="too long"):
+            _validate_password_byte_length("A" * 73, 72)
+
+    def test_byte_length_helper_raises_for_overlong_multibyte(self):
+        """Helper raises ValueError when multi-byte chars push encoding over the limit."""
+        from apps.backend.schemas.users import _validate_password_byte_length
+        import pytest as _pytest
+        # "é" encodes to 2 UTF-8 bytes; 37 copies → 74 bytes > 72
+        with _pytest.raises(ValueError, match="too long"):
+            _validate_password_byte_length("é" * 37, 72)
+
+    def test_byte_length_helper_passes_at_exact_limit(self):
+        """Helper does not raise when byte length equals max_bytes exactly."""
+        from apps.backend.schemas.users import _validate_password_byte_length
+        _validate_password_byte_length("A" * 72, 72)  # must not raise
+
+    def test_byte_length_helper_passes_below_limit(self):
+        """Helper does not raise for a short password."""
+        from apps.backend.schemas.users import _validate_password_byte_length
+        _validate_password_byte_length("SecurePass1!", 72)  # must not raise
+
+    def test_weak_password_helper_raises_for_denylist_entry(self):
+        """Helper raises ValueError for each password on the denylist."""
+        from apps.backend.schemas.users import _WEAK_PASSWORDS, _validate_weak_password
+        import pytest as _pytest
+        for pw in _WEAK_PASSWORDS:
+            with _pytest.raises(ValueError, match="too common"):
+                _validate_weak_password(pw)
+
+    def test_weak_password_helper_raises_case_insensitive(self):
+        """Denylist check is case-insensitive."""
+        from apps.backend.schemas.users import _validate_weak_password
+        import pytest as _pytest
+        with _pytest.raises(ValueError, match="too common"):
+            _validate_weak_password("PASSWORD")
+        with _pytest.raises(ValueError, match="too common"):
+            _validate_weak_password("Admin")
+
+    def test_weak_password_helper_passes_for_strong_password(self):
+        """Helper does not raise for a strong, non-denylist password."""
+        from apps.backend.schemas.users import _validate_weak_password
+        _validate_weak_password("Tr0ub4dor&3")  # must not raise
+
+    def test_weak_passwords_constant_contains_expected_entries(self):
+        """_WEAK_PASSWORDS frozenset contains all originally hardcoded values."""
+        from apps.backend.schemas.users import _WEAK_PASSWORDS
+        expected = {"password", "123456", "qwerty", "admin", "letmein"}
+        assert expected <= _WEAK_PASSWORDS, (
+            f"Missing entries from _WEAK_PASSWORDS: {expected - _WEAK_PASSWORDS}"
+        )
