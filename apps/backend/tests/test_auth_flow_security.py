@@ -4,6 +4,7 @@ import bcrypt
 import jwt as pyjwt
 from datetime import datetime, timedelta, timezone
 from fastapi.testclient import TestClient
+from apps.backend.schemas.users import _validate_full_password
 
 def test_login_sets_httponly_cookies(client, sample_user, test_db):
     """Test that login sets both access_token and refresh_token as HttpOnly cookies."""
@@ -657,3 +658,39 @@ class TestPasswordValidationHelpers:
         assert expected <= _WEAK_PASSWORDS, (
             f"Missing entries from _WEAK_PASSWORDS: {expected - _WEAK_PASSWORDS}"
         )
+
+
+class TestValidateFullPasswordHelper:
+    """Unit tests for _validate_full_password — the unified orchestrator (AWD-M-127).
+
+    Verifies that the helper enforces all three checks (min-length, byte-ceiling,
+    denylist) and returns the original string on success.  HTTP-layer coverage
+    for UserCreate and PasswordReset is already present in
+    TestUserCreatePasswordBytesValidator; these tests target the helper directly.
+    """
+
+    def test_raises_for_password_below_min_length(self, monkeypatch):
+        """Helper raises ValueError when password is shorter than PASSWORD_MIN_LENGTH."""
+        monkeypatch.setenv("PASSWORD_MIN_LENGTH", "8")
+        with pytest.raises(ValueError, match="at least 8 characters"):
+            _validate_full_password("short")
+
+    def test_raises_for_password_exceeding_byte_ceiling(self, monkeypatch):
+        """Helper raises ValueError when UTF-8 byte length exceeds the configured cap."""
+        monkeypatch.setenv("PASSWORD_MIN_LENGTH", "8")
+        monkeypatch.setenv("PASSWORD_MAX_LENGTH", "72")
+        # "é" = 2 UTF-8 bytes; 37 copies → 74 bytes > 72
+        with pytest.raises(ValueError, match="too long"):
+            _validate_full_password("é" * 37)
+
+    def test_raises_for_weak_password(self, monkeypatch):
+        """Helper raises ValueError for a denylist entry."""
+        monkeypatch.setenv("PASSWORD_MIN_LENGTH", "8")
+        with pytest.raises(ValueError, match="too common"):
+            _validate_full_password("password")
+
+    def test_returns_value_for_strong_password(self, monkeypatch):
+        """Helper returns the original string unchanged for a valid password."""
+        monkeypatch.setenv("PASSWORD_MIN_LENGTH", "8")
+        result = _validate_full_password("Tr0ub4dor&3")
+        assert result == "Tr0ub4dor&3"
