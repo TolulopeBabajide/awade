@@ -77,6 +77,41 @@ def get_password_max_length() -> int:
     configured = int(os.getenv("PASSWORD_MAX_LENGTH", str(_BCRYPT_MAX_BYTES)))
     return min(configured, _BCRYPT_MAX_BYTES)
 
+
+def _validate_full_password(v: str) -> str:
+    """Run all three registration/reset password checks in a single call.
+
+    Enforces minimum character length, the bcrypt byte-ceiling, and the
+    common-password denylist.  Used by UserCreate.validate_password and
+    PasswordReset.validate_new_password to eliminate body duplication
+    (AWD-M-127).
+
+    UserLogin.validate_password_bytes intentionally skips the min-length and
+    weak-password checks (login must accept any password the user *claims* to
+    have, then let bcrypt decide) and is NOT a caller of this helper.
+
+    Args:
+        v: The raw password string.
+
+    Returns:
+        The original string unchanged if all checks pass.
+
+    Raises:
+        ValueError: If the password fails any check.
+    """
+    min_length = get_password_min_length()
+    max_bytes = get_password_max_length()
+
+    if len(v) < min_length:
+        raise ValueError(f'Password must be at least {min_length} characters long')
+    # Use UTF-8 byte length to match bcrypt's hard limit (AWD-M-72).
+    # A multi-byte password can exceed 72 bytes with far fewer than 72 chars.
+    _validate_password_byte_length(v, max_bytes)
+    _validate_weak_password(v)
+
+    return v
+
+
 # Request schemas
 class UserCreate(BaseModel):
     """Schema for creating a new user account."""
@@ -94,17 +129,7 @@ class UserCreate(BaseModel):
     @field_validator('password')
     @classmethod
     def validate_password(cls, v: str) -> str:
-        min_length = get_password_min_length()
-        max_bytes = get_password_max_length()
-
-        if len(v) < min_length:
-            raise ValueError(f'Password must be at least {min_length} characters long')
-        # Use UTF-8 byte length to match bcrypt's hard limit (AWD-M-72).
-        # A multi-byte password can exceed 72 bytes with far fewer than 72 chars.
-        _validate_password_byte_length(v, max_bytes)
-        _validate_weak_password(v)
-
-        return v
+        return _validate_full_password(v)
 
 class UserUpdate(BaseModel):
     """Schema for updating user profile information."""
@@ -201,13 +226,4 @@ class PasswordReset(BaseModel):
     @field_validator('new_password')
     @classmethod
     def validate_new_password(cls, v: str) -> str:
-        min_length = get_password_min_length()
-        max_bytes = get_password_max_length()
-
-        if len(v) < min_length:
-            raise ValueError(f'Password must be at least {min_length} characters long')
-        # Use UTF-8 byte length to match bcrypt's hard limit (AWD-M-72).
-        _validate_password_byte_length(v, max_bytes)
-        _validate_weak_password(v)
-
-        return v
+        return _validate_full_password(v)
