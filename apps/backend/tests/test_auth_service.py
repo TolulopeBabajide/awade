@@ -13,9 +13,13 @@ import pytest
 from unittest.mock import Mock, patch, AsyncMock, MagicMock
 from fastapi import HTTPException
 
+import asyncio
+import requests as requests_lib
+
 from services.auth_service import AuthService, _SELF_REGISTERABLE_ROLES
 from services.token_service import TokenService
 from models import UserRole
+from schemas.users import UserCreate, UserLogin
 
 
 class TestAuthService:
@@ -29,7 +33,6 @@ class TestAuthService:
     def test_self_registerable_roles_constant(self):
         """AWD-M-105: _SELF_REGISTERABLE_ROLES is a single module-level frozenset
         containing exactly PARENT and EDUCATOR — no more, no less."""
-        from models import UserRole
 
         # Must be a frozenset (immutable — cannot be mutated by accident)
         assert isinstance(_SELF_REGISTERABLE_ROLES, frozenset), (
@@ -78,7 +81,6 @@ class TestAuthService:
         service = AuthService(test_db)
 
         # Register a real user first so authenticate_user can find one
-        from schemas.users import UserCreate
         user_data = UserCreate(
             email="payload_delegate@example.com",
             password="ValidPass1!",
@@ -89,7 +91,6 @@ class TestAuthService:
 
         # AWD-M-108: _build_token_payload is now on service.token_service (TokenService)
         with patch.object(service.token_service, "_build_token_payload", wraps=service.token_service._build_token_payload) as mock_build:
-            from schemas.users import UserLogin
             login_data = UserLogin(email="payload_delegate@example.com", password="ValidPass1!")
             service.authenticate_user(login_data)
 
@@ -147,7 +148,6 @@ class TestAuthService:
 
     def test_google_token_request_timeout_returns_503(self, test_db):
         """AWD-M-103: requests.get timeout must return 503, not stall worker."""
-        import requests as requests_lib
         service = AuthService(test_db)
 
         with patch.dict('os.environ', {'GOOGLE_CLIENT_ID': 'test_client_id'}):
@@ -181,7 +181,6 @@ class TestAuthService:
 
     def test_register_user_cannot_self_elevate_to_admin(self, test_db):
         """AWD-H-74: register_user must coerce ADMIN/SUPER_ADMIN roles to PARENT."""
-        from schemas.users import UserCreate
 
         service = AuthService(test_db)
 
@@ -205,8 +204,6 @@ class TestAuthService:
         Verifies that there is a single hashing path: any change to bcrypt work factor
         or encoding in _hash_password() automatically applies to registration too.
         """
-        from schemas.users import UserCreate
-        from unittest.mock import patch
 
         service = AuthService(test_db)
         payload = UserCreate(
@@ -234,8 +231,6 @@ class TestAuthService:
         Verifies that there is a single verification path: any change to bcrypt work factor
         or encoding in _verify_password() automatically applies to authentication too.
         """
-        from schemas.users import UserCreate, UserLogin
-        from unittest.mock import patch
 
         service = AuthService(test_db)
 
@@ -270,8 +265,6 @@ class TestAuthService:
         grade_levels JSON in the DB cannot cause an unhandled JSONDecodeError at
         registration time.
         """
-        from schemas.users import UserCreate
-        from unittest.mock import patch
 
         service = AuthService(test_db)
         payload = UserCreate(
@@ -297,8 +290,6 @@ class TestAuthService:
         grade_levels JSON in the DB cannot cause an unhandled JSONDecodeError at
         login time.
         """
-        from schemas.users import UserCreate, UserLogin
-        from unittest.mock import patch
 
         service = AuthService(test_db)
 
@@ -329,8 +320,6 @@ class TestAuthService:
         """is_refresh_token_blacklisted returns False and logs a warning when
         the connected Redis pool raises an exception (AWD-L-19).
         AWD-M-108: method now lives on TokenService."""
-        import asyncio
-        from unittest.mock import AsyncMock, MagicMock, patch
 
         service = TokenService(test_db)
 

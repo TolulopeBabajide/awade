@@ -8,6 +8,7 @@ Author: Tolulope Babajide
 """
 
 from services.context_service import ContextService
+from schemas.contexts import ContextCreate
 
 
 class TestContextService:
@@ -21,8 +22,6 @@ class TestContextService:
     def test_create_context(self, test_db, sample_lesson_plan):
         """Test context creation."""
         service = ContextService(test_db)
-
-        from schemas.contexts import ContextCreate
 
         context_data = ContextCreate(
             lesson_plan_id=sample_lesson_plan.lesson_plan_id,
@@ -39,7 +38,6 @@ class TestContextService:
         service = ContextService(test_db)
 
         # Create a context first
-        from schemas.contexts import ContextCreate
         context_data = ContextCreate(
             lesson_plan_id=sample_lesson_plan.lesson_plan_id,
             context_text="Test context",

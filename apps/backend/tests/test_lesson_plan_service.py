@@ -318,15 +318,11 @@ class TestLessonPlanServiceSmoke:
 
     def test_lesson_plan_service_initialization(self, test_db):
         """Test LessonPlanService initialization."""
-        from apps.backend.services.lesson_plan_service import LessonPlanService
         service = LessonPlanService(test_db)
         assert service.db == test_db
 
     def test_generate_lesson_plan(self, test_db, sample_user, sample_topic):
         """Test lesson plan generation via mocked topic query."""
-        from apps.backend.services.lesson_plan_service import LessonPlanService
-        from apps.backend.schemas.lesson_plans import LessonPlanCreate
-        from unittest.mock import patch
 
         service = LessonPlanService(test_db)
 
@@ -346,7 +342,6 @@ class TestLessonPlanServiceSmoke:
 
     def test_get_lesson_plans(self, test_db, sample_user, sample_lesson_plan):
         """Test lesson plan list retrieval."""
-        from apps.backend.services.lesson_plan_service import LessonPlanService
 
         service = LessonPlanService(test_db)
 
