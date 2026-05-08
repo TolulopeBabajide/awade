@@ -27,6 +27,7 @@ from apps.backend.models import User
 from apps.backend.dependencies import get_current_user, require_educator, require_admin_or_educator, get_optional_current_user
 from apps.backend.limiter import limiter
 from apps.backend.services.lesson_plan_service import LessonPlanService
+from apps.backend.services.lesson_resource_service import LessonResourceService
 from apps.backend.schemas.lesson_plans import (
     LessonPlanCreate,
     LessonPlanResponse,
@@ -64,7 +65,7 @@ async def get_all_lesson_resources(
     Get all lesson resources for the current user.
     Requires authentication.
     """
-    service = LessonPlanService(db)
+    service = LessonResourceService(db)
     return service.get_all_lesson_resources(current_user)
 
 @router.get("/resources/{resource_id}", response_model=LessonResourceResponse)
@@ -81,8 +82,8 @@ async def get_lesson_resource(
     # Prevent caching of polling results
     response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
     response.headers["Pragma"] = "no-cache"
-    
-    service = LessonPlanService(db)
+
+    service = LessonResourceService(db)
     return service.get_lesson_resource(resource_id, current_user)
 
 @router.get("/", response_model=List[LessonPlanResponse])
@@ -151,7 +152,7 @@ async def get_lesson_plan_resources(
     Get all resources for a specific lesson plan.
     Requires authentication and ownership.
     """
-    service = LessonPlanService(db)
+    service = LessonResourceService(db)
     return service.get_lesson_plan_resources(lesson_id, current_user)
 
 @router.post("/{lesson_id}/resources/generate", response_model=LessonResourceResponse)
@@ -168,7 +169,7 @@ async def generate_lesson_resource(
     Requires educator authentication.
     """
     redis_pool = getattr(request.app.state, "redis", None)
-    service = LessonPlanService(db, redis_pool)
+    service = LessonResourceService(db, redis_pool)
     return await service.generate_lesson_resource(lesson_id, data, current_user)
 
 @router.post("/resources/{resource_id}/export")
@@ -184,11 +185,11 @@ async def export_lesson_resource(
     """
     from apps.backend.services.pdf_service import PDFService
 
-    # AWD-M-70: delegate access-control to LessonPlanService so the
+    # AWD-M-70: delegate access-control to LessonResourceService so the
     # ADMIN/SUPER_ADMIN/owner-scoped query lives in one place. AWD-M-67
     # (uniform 404 for unauthorised callers) and AWD-H-61 (SUPER_ADMIN bypass)
     # are enforced inside the service helper — see get_lesson_resource_orm().
-    lesson_resource = LessonPlanService(db).get_lesson_resource_orm(
+    lesson_resource = LessonResourceService(db).get_lesson_resource_orm(
         resource_id, current_user
     )
     

@@ -582,5 +582,3 @@ After removing it, the next hourly run will:
 > `"Log feedback: awade-dev-execution output was [approved / revised / rejected] — [what changed]"`
 > Logs go to `docs/agentic/feedback-log.md` and improve future prompts.
 | 2026-05-08 | AWD-M-108 | Extract TokenService from AuthService | 861a568 | CI pending (push to trigger) |
-| 2026-05-08T12:20:52Z | AWD-M-110 | Split test_services.py into focused modules | 8c45330 | CI pending (push to trigger) |
-| 2026-05-08T13:12:56Z | AWD-M-126 | Zombie test_services.py rm | BLOCKED | virtiofs EPERM — Tolu: run `rm apps/backend/tests/test_services.py` locally |
