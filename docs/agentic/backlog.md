@@ -1,8 +1,17 @@
 # Awade — Backlog
 
-> Last updated: 2026-05-09 (dev-agent — AWD-L-23 resolved: moved `_validate_password_byte_length`, `_validate_weak_password`, `_WEAK_PASSWORDS` to module-level imports in `test_auth_flow_security.py`; removed 13 inline imports across 8 test methods; replaced `_pytest.raises(...)` with `pytest.raises(...)`. AST verified: 0 inline imports in TestPasswordValidationHelpers, 10 classes / 38 test functions intact. TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · frontend vitest SKIP (ENOSPC, AWD-H-77) · backend pytest SKIP (venv broken, M-46). Commit b8be7f9, merge 7a86c46. Tolu: run `git push origin develop` to trigger CI. H-78 blocked — sandbox cannot delete untracked files. M-96 still open.)
+> Last groomed: 2026-05-09 (weekend-ops — M-129/L-24/M-130/M-131 promoted to ready; M-96 superseded by M-129)
+> Last updated: 2026-05-09 (dev-agent — AWD-M-89 resolved: added `isMountedRef = useRef(true)` + unmount `useEffect` cleanup to `LessonPlanDetailPage`; added 7 guards (`if (!isMountedRef.current) return`) before every post-await state call in `handleGenerateLessonResource` (after submitContext, 500ms pause, generateLessonResource, each poll delay+response, post-loop, 500ms complete pause); guarded `setTimeout` callback and `catch`/`finally` blocks. AWD-M-96 also closed — superseded by AWD-M-129 (split already done). 2 new tests in `LessonPlanDetailPage.test.tsx` (`describe('handleGenerateLessonResource unmount guard (AWD-M-89)')`): (1) no state update after unmount during polling delay; (2) catch block bails via guard on error after unmount. TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · frontend vitest SKIP (ENOSPC, AWD-H-77) · backend N/A. Commit 3a2d076, merge 9b72d4f. Tolu: run `git push origin develop` to trigger CI. H-78 blocked — sandbox cannot delete untracked files.)
+> Prev updated: 2026-05-09 (dev-agent — AWD-M-129 + AWD-L-24 resolved: split `test_auth_flow_security.py` (689 lines) into 6 focused files: `test_auth_cookies.py` (90), `test_auth_enumeration.py` (112), `test_auth_exception_sanitization.py` (76), `test_auth_suspension.py` (67), `test_auth_password_bytes.py` (266), `test_auth_password_config.py` (126). All 7 inline imports promoted to module level (L-24: removed `import datetime, pytz`, `from apps.backend.models import User, UserRole`, `from unittest.mock import patch`, `import apps.backend.schemas.users as schemas_module` from method bodies; dropped unused `MagicMock`). 10 classes / 38 test functions fully preserved (AST verified). TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · backend pytest SKIP (venv broken, M-46). Commit ae9c7aa, merge 2df70c0. Tolu: run `git push origin develop` to trigger CI. H-78 blocked — sandbox cannot delete untracked files. AWD-C-13 occurrence cleared: ParentDashboardPage.tsx + ParentDashboardPage.test.tsx staged to revert AWD-M-131 — cleared with git restore --staged.)
+> Prev updated: 2026-05-09 (dev-agent — AWD-M-131 resolved: used functional-updater form `setSelectedChild(prev => prev ?? children[0])` in auto-select useEffect in ParentDashboardPage.tsx; 2 tests added. TS 0 errors · lint 0 errors · vitest SKIP (ENOSPC AWD-H-77). Commit 804e715, merge b6306da. Tolu: run `git push origin develop` to trigger CI. AWD-C-13 occurrence cleared: ParentDashboardPage.tsx + ParentDashboardPage.test.tsx staged to revert AWD-H-80 additions — cleared with git restore --staged.)
+> Last updated: 2026-05-09 (dev-agent — AWD-H-79 resolved: added `catch (err: unknown)` block to `handleDownloadPdf` in `GuideViewPage.tsx`; 2 tests added. TS 0 errors · lint 0 errors · 191 frontend vitest passing. Commit db5bbaf, merge 405462f. Tolu: run `git push origin develop` to trigger CI. AWD-C-13 occurrence cleared: staged index reverted H-79 additions — cleared with git restore --staged.)
+> Last updated: 2026-05-09 (dev-agent — AWD-M-83 resolved: added `onError` handler to `bookmarkMutation` in `GuideViewPage.tsx` invalidating `['parentGuide']` and `['childGuides']` on failure; 2 tests added in `GuideViewPage.test.tsx`. TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · frontend vitest SKIP (ENOSPC, AWD-H-77). Commit b7d65c7, merge a432dc7. Tolu: run `git push origin develop` to trigger CI. AWD-C-13 occurrence cleared: ParentDashboardPage.tsx staged to revert AWD-M-82 explicit generics — cleared with git restore --staged.)
+> Prev updated: 2026-05-09 (code-review-agent — commits b8be7f9+7a86c46+544f78e reviewed. AWD-L-23 fix is clean: module-level imports correctly promoted, inline imports removed, TestPasswordValidationHelpers intact. Filed AWD-L-24: inline import regression remaining in 7 methods outside TestPasswordValidationHelpers (including unused MagicMock at line 163). Filed AWD-M-129: test_auth_flow_security.py at 689 lines exceeds 400-line threshold — split into 6 files recommended. Verdict: ✅ Clean.)
+> Prev updated: 2026-05-09 (dev-agent — AWD-L-23 resolved: moved `_validate_password_byte_length`, `_validate_weak_password`, `_WEAK_PASSWORDS` to module-level imports in `test_auth_flow_security.py`; removed 13 inline imports across 8 test methods; replaced `_pytest.raises(...)` with `pytest.raises(...)`. AST verified: 0 inline imports in TestPasswordValidationHelpers, 10 classes / 38 test functions intact. TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · frontend vitest SKIP (ENOSPC, AWD-H-77) · backend pytest SKIP (venv broken, M-46). Commit b8be7f9, merge 7a86c46. Tolu: run `git push origin develop` to trigger CI. H-78 blocked — sandbox cannot delete untracked files. M-96 still open.)
 > Prev updated: 2026-05-09 (security-agent — AWD-M-128 filed: PARENT_HELPER_PROMPT lacks `<curriculum_data>` injection delimiter sandboxing on 7 template fields (topic, subject, grade_level, country, curriculum, learning_objectives, contents). All fields come from admin-controlled DB so risk is currently low, but pattern is inconsistent with COMPREHENSIVE_LESSON_RESOURCE_PROMPT which correctly sandboxes local_context. CI mirror, secret scan, frontend npm audit, OWASP Web, and all other LLM checks pass. Report: docs/agentic/audits/security-report-2026-05-09.md)
-> Prev updated: 2026-05-08 (code-review-agent — commits b84be2f+124873c+10ed61c reviewed. AWD-M-127 resolution is clean: `_validate_full_password` correctly extracted; `UserLogin` correctly excluded; tests well-scoped. No new issues filed. AWD-L-23 and AWD-M-96 remain open. Verdict: ✅ Clean.)
+> Prev updated: 2026-05-08 (code-review-agent — commits b84be2f+124873c+10ed61c reviewed. AWD-M-127 resolution is clean: `_validate_full_password` correctly extracted; `UserLogin` correctly excluded; tests well-scoped. No new issues filed. AWD-L-23 and > ⚠️ **Grooming note (2026-05-09)**: Superseded by AWD-M-129 which reflects the current line count (689 lines). Schedule M-129 instead; close M-96.
+
+AWD-M-96 remain open. Verdict: ✅ Clean.)
 > Prev updated: 2026-05-08 (dev-agent — AWD-M-127 resolved: extracted `_validate_full_password(v: str) -> str` module-level helper to `apps/backend/schemas/users.py`; `UserCreate.validate_password` and `PasswordReset.validate_new_password` each reduced to `return _validate_full_password(v)`. `UserLogin.validate_password_bytes` correctly unchanged. 4 tests added in `TestValidateFullPasswordHelper`. TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · frontend vitest SKIP (ENOSPC, AWD-H-77) · backend pytest SKIP (venv broken, M-46). Commit b84be2f, merge 124873c. Tolu: run `git push origin develop` to trigger CI. H-78 blocked — sandbox cannot delete untracked files. L-23 still open.)
 > Prev updated: 2026-05-08 (code-review-agent — commits caafd73+4d491f0 reviewed. Filed AWD-M-127: residual validator body duplication in schemas/users.py — UserCreate.validate_password and PasswordReset.validate_new_password have identical 5-line bodies; extract _validate_full_password(v) to complete AWD-M-92 deduplication. Filed AWD-L-23: inline import regression in TestPasswordValidationHelpers — 8 new test methods each import from apps.backend.schemas.users inline and alias pytest as _pytest, repeating AWD-L-22 pattern. Verdict: ✅ Clean.)
 > Prev updated: 2026-05-08 (dev-agent — AWD-M-92 resolved: extracted `_WEAK_PASSWORDS` frozenset, `_validate_password_byte_length(v, max_bytes)`, and `_validate_weak_password(v)` helpers to `apps/backend/schemas/users.py`; all 3 validators delegate — single source of truth for byte-length cap and denylist. 8 unit tests added in `TestPasswordValidationHelpers`. TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · frontend vitest SKIP (ENOSPC, AWD-H-77) · backend pytest SKIP (venv broken, M-46). Commit caafd73, merge 4d491f0. AWD-C-13 occurrence cleared. Tolu: run `git push origin develop` to trigger CI. H-78 blocked — sandbox cannot delete untracked files. H-65 and M-77 still blocked by Tolu's venv fix.)
@@ -153,6 +162,7 @@
 |---|------|-------|---------|--------|
 | H-73 | Security / Secrets | **AI API key rotation date unknown — GEMINI_API_KEY, OPENAI_API_KEY, GOOGLE_API_KEY have no recorded rotation date and may not have been rotated since project inception.** Git log on `.env.example` shows no key-rotation commit; the most recent change was the CORS fix (AWD-H-57). Standard rotation interval for AI provider keys is 180 days. Without a rotation log, any prior accidental exposure (CI logs, shared shell history) leaves stale keys active indefinitely. **Fix**: (1) Rotate all three keys in their respective provider dashboards. (2) Update Render environment variables. (3) Add a `# Last rotated: YYYY-MM-DD` comment to `.env.example` per key type. (4) Create `docs/agentic/key-rotation-log.md` to track future rotations. Filed: 2026-05-05 access-review-agent. | `.env.example`, Render env settings (external) | S | Stage: define |
 | H-78 | Testing / Code Quality | **`test_children_router.py` zombie on disk — untracked file not deleted after AWD-M-116 split.** git status shows the original 759-line file present as an untracked file. Pytest discovery (`testpaths = tests`, `python_files = test_*.py`) picks it up on any local or sandbox invocation alongside the five new split files, causing duplicate test IDs for all ~40 tests, potential `app.dependency_overrides` race between teardown calls, and inflated coverage numbers. CI unaffected (clean checkout). **Fix**: `rm apps/backend/tests/test_children_router.py` on Tolu's machine (sandbox cannot delete it). Filed: 2026-05-08 code-review-agent. | `apps/backend/tests/test_children_router.py` | H | Stage: ready |
+| ~~H-79~~ | ~~Error Handling~~ | ~~**`handleDownloadPdf` in `GuideViewPage.tsx` has no `catch` clause — only `try`/`finally`.**~~ — ✅ resolved 2026-05-09 (commit db5bbaf, merge 405462f). Added `catch (err: unknown)` block before `finally` that calls `alert()` with the error message. 2 tests added in `GuideViewPage.test.tsx` (`describe('handleDownloadPdf catch (AWD-H-79)')`): alerts on unexpected throw + resets `isDownloading` to false. TS 0 errors · lint 0 errors · 191 frontend vitest passing. | ~~`apps/frontend/src/pages/GuideViewPage.tsx:85`~~ | ~~S~~ | Stage: done |
 
 **Problem**: `apps/backend/dependencies.py` — `get_current_user` was correctly updated in AWD-H-25 to read the `access_token` from either the `Authorization` header OR the HttpOnly cookie. However, `get_optional_current_user` was **not** updated: it still reads only the `Authorization` header. If the header is absent it returns `None` immediately, bypassing the cookie. Browser clients (which now carry the token only in the cookie) will appear unauthenticated to any endpoint that uses this dependency.
 **Affected routes**: `apps/backend/routers/curriculum.py` (imports `get_optional_current_user`), `apps/backend/routers/curriculum_structure.py` (imports `get_optional_current_user`), `apps/backend/routers/lesson_plans.py` (imports `get_optional_current_user`).
@@ -352,6 +362,9 @@ Or: accept the full working-tree version of `children_service.py` (which has bot
 
 | # | Area | Issue | File(s) | Effort |
 |---|------|-------|---------|--------|
+| ~~M-130~~ | ~~Code Quality / Duplication~~ | ~~**`bookmarkMutation` `onSuccess` and `onError` bodies are identical**~~ — ✅ resolved 2026-05-09 (commit 04546d0, merge 89da8ba). Extracted `useCallback`-wrapped `invalidateBookmarkQueries`; `onSuccess` and `onError` both delegate to it. 2 tests added. TS 0 errors · lint 0 errors · 193 vitest passing. | ~~`apps/frontend/src/pages/GuideViewPage.tsx:68`~~ | ~~XS~~ | Stage: done |
+| M-132 | Code Quality / File Length | **`GuideViewPage.tsx` at 407 lines** — extract `Section`/`InfoCard` sub-components to `GuideViewPage.components.tsx`. Filed: 2026-05-09 code-review-agent. | `apps/frontend/src/pages/GuideViewPage.tsx` (~lines 358–407) | S | Stage: define |
+| ~~M-131~~ | ~~Code Quality / React~~ | ~~**`useEffect` in `ParentDashboardPage.tsx` (line 89) reads `selectedChild` inside the callback but omits it from the dependency array `[children]`.**~~ — ✅ resolved 2026-05-09 (commit 804e715, merge b6306da). Used functional-updater form `setSelectedChild(prev => prev ?? children[0])`; 2 tests added. TS 0 errors · lint 0 errors · vitest SKIP (ENOSPC AWD-H-77). Tolu: run `git push origin develop` to trigger CI. | ~~`apps/frontend/src/pages/ParentDashboardPage.tsx:89`~~ | ~~XS~~ | Stage: done |
 | M-16 | Data model | `child_profiles.subjects` stored as JSON-in-`Text` forecloses subject-level analytics (e.g. "which subjects do parents request most?") and makes filtering/joining impossible. Migrate to a proper `child_subjects` join table | `apps/backend/models.py` (`ChildProfile.subjects`), `apps/backend/alembic/versions/` (new migration), `apps/backend/services/children_service.py` | M |
 | M-17 | DX / Migrations | **⚠️ Grooming note (2026-04-25): requires Tolu decision — pick one migration system before M-16 (join table) can land. Recommend scheduling this as the first M-effort item in the June prep sprint.** Three overlapping migration systems, none coherent: (a) `codebase-map.md` claims `apps/backend/alembic/versions/` "latest head includes ChildProfile + ParentGuide tables" — false; Alembic head is `a8a7efde9d3c_add_user_suspension` and the chain doesn't touch the parent tables. (b) `apps/backend/migrations/008_add_parent_role_and_child_profiles.py` is written as an Alembic migration (`revision='008'`, `down_revision='007'`) but lives outside `alembic/versions/` and its down_revision references a non-existent revision — unreachable via `alembic upgrade head`. (c) `migrate_database.py` actually provisions schema by calling `Base.metadata.create_all()`, which reflects `models.py` directly and silently ignores both migration folders — meaning schema drift (ALTER/DROP) is invisible and rollbacks are impossible. Fix: pick one system (recommend Alembic), port `001–008` into `alembic/versions/` chained from the current head, delete the sequential `migrations/` dir, update `migrate_database.py` to run `alembic upgrade head`, and correct `codebase-map.md` to match. Unblocks M-16 (which assumes Alembic is the active system) | `.claude/rules/codebase-map.md` (line 62), `apps/backend/migrations/*.py`, `apps/backend/alembic/versions/`, `apps/backend/migrate_database.py`, `run_migrations.py` | M |
 | M-19 | UX / Mobile | Mobile responsiveness audit on mid-range Android devices — rebranding doc §7 Phase 5 calls for testing on actual hardware, not just browser dev tools. Covers parent flow pages + landing page | `apps/frontend/src/pages/ParentDashboardPage.tsx`, `GuideViewPage.tsx`, `SavedGuidesPage.tsx`, `LandingPage.tsx` | M |
@@ -462,6 +475,17 @@ Or: accept the full working-tree version of `children_service.py` (which has bot
 ---
 
 ## Issue Template
+### ~~AWD-L-24~~ — ~~Inline import regression in 7 test methods outside `TestPasswordValidationHelpers`~~
+
+✅ resolved 2026-05-09 (commit ae9c7aa, merge 2df70c0). All 7 inline imports promoted to module level during M-129 split: `import datetime`, `import pytz`, `from apps.backend.models import User, UserRole`, `from unittest.mock import patch`, `import apps.backend.schemas.users as schemas_module` moved to file-level in their respective split files; unused `MagicMock` dropped. Stage: done
+
+---
+
+### ~~AWD-M-129~~ — ~~`test_auth_flow_security.py` at 689 lines exceeds 400-line threshold~~
+
+✅ resolved 2026-05-09 (commit ae9c7aa, merge 2df70c0). Split into 6 files: `test_auth_cookies.py` (90), `test_auth_enumeration.py` (112), `test_auth_exception_sanitization.py` (76), `test_auth_suspension.py` (67), `test_auth_password_bytes.py` (266), `test_auth_password_config.py` (126). 10 classes / 38 test functions preserved (AST verified). Stage: done
+
+---
 When adding a new issue, use this format:
 
 ```
@@ -587,6 +611,13 @@ When adding a new issue, use this format:
 - **Detail:** `handleDownloadPdf` calls `alert(\`Could not download PDF: ...\`)` on error. The native `alert()` blocks the main thread, cannot be styled, is not accessible, and is suppressed in some mobile/embedded contexts. **Fix:** Replace with an inline error banner or toast notification consistent with the existing error-state pattern in the page (e.g., the error block already rendered for the guide query).
 - **Files:** `apps/frontend/src/pages/GuideViewPage.tsx` (~line 70)
 
+### ~~AWD-H-80~~ ✅ 2026-05-09 — ParentDashboardPage: `handleDeleteChild` silently swallows API errors — no user feedback on delete failure
+- **Stage:** done
+- **Priority:** High
+- **Source:** code-review-agent 2026-05-09 (review-2026-05-09-89da8ba.md)
+- **Resolution:** Added `deleteError` state (`useState<string | null>(null)`); added `catch (err)` block to `handleDeleteChild` that narrows to `err instanceof Error ? err.message : 'Failed to remove child profile. Please try again.'`; clears error at start of each attempt (`setDeleteError(null)`); renders `<p role="alert">` inline above the child selector cards when set. 3 tests added in `ParentDashboardPage.test.tsx` (Error-instance rejection surfaces message, non-Error rejection shows generic fallback, second attempt clears prior error). TS 0 errors · lint 0 warnings · openapi.json ✅ · mcp.json ✅ · frontend vitest SKIP (ENOSPC, AWD-H-77) · backend N/A. Commit a960c6d, merge b900b39. Tolu: run `git push origin develop` to trigger CI.
+- **Files:** `apps/frontend/src/pages/ParentDashboardPage.tsx`, `apps/frontend/src/pages/ParentDashboardPage.test.tsx`
+
 ### AWD-M-80 — ParentDashboardPage: `confirm()` used for child-profile deletion — inaccessible, blocks thread
 - **Stage:** define
 - **Priority:** Medium
@@ -601,19 +632,19 @@ When adding a new issue, use this format:
 - **Resolution:** Replaced bare `} catch {` with `} catch (err) {` and `setConsentError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')` in `handleConsentConfirmed`. 2 new tests in `ParentDashboardPage.test.tsx` (`describe('handleConsentConfirmed error narrowing (AWD-M-81)')`): (1) Error-instance rejection surfaces `err.message` ("Network down") in the modal `<p role="alert">`; (2) non-Error rejection (plain string) falls back to the generic message. Commit `c34ba38`, merge `987d89a` (via `git commit-tree` + ref-file overwrite because virtiofs FUSE mount keeps `.git/index.lock` undeletable). Frontend `tsc --noEmit` 0 errors · `eslint --max-warnings 0` 0 errors. Vitest could not run in sandbox (ENOSPC tmp-dir); Render CI will validate. JSON validity (`openapi.json`, `.cursor/mcp.json`) ✅. Tolu: run `git push origin develop` to trigger CI.
 - **Files:** `apps/frontend/src/pages/ParentDashboardPage.tsx` (`handleConsentConfirmed`), `apps/frontend/src/pages/ParentDashboardPage.test.tsx`
 
-### AWD-M-82 — ParentDashboardPage: `useQuery` calls missing explicit generic types
-- **Stage:** define
+### ~~AWD-M-82~~ ✅ 2026-05-09 — ParentDashboardPage: `useQuery` calls missing explicit generic types
+- **Stage:** done
 - **Priority:** Medium
 - **Source:** code-review-agent 2026-05-03
-- **Detail:** Both `consentStatus` and `childrenData` query calls omit explicit type parameters. Per `.claude/rules/code-quality.md`, React Query hooks must have explicit generics and typed error handling. Neither query narrows its error type, risking silent `unknown` propagation. **Fix:** Add generics — e.g. `useQuery<ConsentStatus, Error>({...})` and `useQuery<{ children: ChildProfile[] }, Error>({...})`.
-- **Files:** `apps/frontend/src/pages/ParentDashboardPage.tsx` (lines ~26–47)
+- **Resolution:** Added explicit generics to all three `useQuery` calls in `ParentDashboardPage.tsx`: `useQuery<ConsentStatusResponse, Error>`, `useQuery<ChildProfileListResponse, Error>`, and `useQuery<ChildTopic[], Error>`. Imported `ConsentStatusResponse` and `ChildProfileListResponse` from `../types/children`. Added non-null assertions (`res.data!`) on the two queryFns narrowed away from `T | undefined` — the `res.error` guard above each ensures data is present. TypeScript 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. Frontend vitest skipped (ENOSPC, AWD-H-77); backend pytest N/A (frontend-only). Commit `4acf825`, merge `1ca3597`. Tolu: run `git push origin develop` to trigger CI.
+- **Files:** `apps/frontend/src/pages/ParentDashboardPage.tsx`
 
-### AWD-M-83 — GuideViewPage: `bookmarkMutation` has no `onError` handler — UI state diverges on failure
-- **Stage:** define
+### ~~AWD-M-83~~ ✅ 2026-05-09 — GuideViewPage: `bookmarkMutation` has no `onError` handler — UI state diverges on failure
+- **Stage:** done
 - **Priority:** Medium
 - **Source:** code-review-agent 2026-05-03
-- **Detail:** `bookmarkMutation` (`useMutation`) has no `onError` callback. If the toggle request fails, the query cache is not invalidated and the optimistic bookmark icon stays in the wrong state until the next natural refetch. **Fix:** Add `onError: () => queryClient.invalidateQueries({ queryKey: ['parentGuide'] })` to roll back the UI state. Optionally surface a brief toast on failure.
-- **Files:** `apps/frontend/src/pages/GuideViewPage.tsx` (~lines 57–60)
+- **Resolution:** Added `onError: () => { queryClient.invalidateQueries({ queryKey: ['parentGuide'] }); queryClient.invalidateQueries({ queryKey: ['childGuides'] }) }` to `bookmarkMutation` in `GuideViewPage.tsx` — mirrors `onSuccess` so any failed toggle refetches truth from server and rolls back the bookmark icon. Updated `renderPage` in `GuideViewPage.test.tsx` to return `queryClient` + set `mutations: { retry: false }`; added `mockToggleBookmark` reference; added `describe('bookmarkMutation onError (AWD-M-83)')` with 2 tests (parentGuide invalidated on failure, childGuides invalidated on failure). TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · frontend vitest SKIP (ENOSPC, AWD-H-77) · backend N/A. Commit b7d65c7, merge a432dc7. Tolu: run `git push origin develop` to trigger CI.
+- **Files:** `apps/frontend/src/pages/GuideViewPage.tsx`, `apps/frontend/src/pages/GuideViewPage.test.tsx`
 
 ### AWD-M-85 — QA/Dev sandbox repeatedly OOM: bash workspace boot fails with "No space left on device"
 - **Stage:** define
@@ -634,12 +665,12 @@ When adding a new issue, use this format:
 - **Stage:** done
 - **Resolution:** Created `apps/frontend/src/pages/DisclaimerPage.test.tsx` with 11 assertions covering all 4 requirements: (1) all four card headings render; (2) Back button calls `navigate(-1)`; (3) Privacy Policy link (`/privacy-policy`) and contact link (`mailto:hello@awade.app`) present with correct hrefs; (4) page renders without auth wrapper and does not redirect unauthenticated users. Bash sandbox OOM — commit pending Tolu git action.
 
-### AWD-M-89 — LessonPlanDetailPage: polling loop has no unmount cleanup
-- **Stage:** define
+### ~~AWD-M-89~~ ✅ 2026-05-09 — LessonPlanDetailPage: polling loop has no unmount cleanup
+- **Stage:** done
 - **Priority:** Medium
 - **Source:** code-review-agent 2026-05-03
-- **Detail:** `handleGenerateLessonResource` polls in a `while` loop without an abort/cleanup guard. If the component unmounts during polling (user navigates away mid-generation), the loop continues and calls `setIsGeneratingLessonResource`, `setCurrentGenerationStep`, `setContextFeedback` on the unmounted component — triggering React "Can't perform state update on unmounted component" warnings and leaving timer handles open. **Fix:** Add a `useRef<boolean>(false)` isMounted guard initialised to `true` at handler start, set to `false` on cleanup; check `if (!isMountedRef.current) return;` before every post-`await` state call. Alternatively use `AbortController` threaded through the polling loop.
-- **Files:** `apps/frontend/src/pages/LessonPlanDetailPage.tsx` (lines ~107–154, `handleGenerateLessonResource`)
+- **Resolution:** Added `isMountedRef = useRef(true)` + cleanup `useEffect` (`return () => { isMountedRef.current = false; }`). Added 7 `if (!isMountedRef.current) return` guards in `handleGenerateLessonResource` — after `submitContext`, 500ms pause, `generateLessonResource`, each poll delay+response, post-loop timeout check, 500ms complete pause; `setTimeout` callback also guards; `catch` and `finally` blocks guarded. 2 new tests (unmount during poll, unmount before error catch). Commit 3a2d076, merge 9b72d4f.
+- **Files:** `apps/frontend/src/pages/LessonPlanDetailPage.tsx`, `apps/frontend/src/pages/LessonPlanDetailPage.test.tsx`
 
 ### AWD-M-90 — LessonPlanDetailPage: `handleGenerateLessonResource` has zero test coverage
 - **Stage:** define
@@ -766,14 +797,15 @@ When adding a new issue, use this format:
 
 ---
 
-### AWD-M-96 — `test_auth_flow_security.py` (600 lines) exceeds 400-line split threshold
+### ~~AWD-M-96~~ ✅ 2026-05-09 — `test_auth_flow_security.py` (600 lines) exceeds 400-line split threshold
 
 | Field | Value |
 |-------|-------|
 | **ID** | AWD-M-96 |
 | **Category** | Testing / Code Hygiene |
-| **Stage** | define |
+| **Stage** | done |
 | **Filed** | 2026-05-04 code-review-agent |
+| **Resolution** | Superseded by AWD-M-129 (filed when file grew to 689 lines). Split executed in commit ae9c7aa, merge 2df70c0. All 6 thematic files created; `test_auth_flow_security.py` emptied. |
 
 **Description**: `apps/backend/tests/test_auth_flow_security.py` is 600 lines, exceeding the 400-line module-split threshold. It covers seven distinct security concern areas in one file (cookie auth, account enumeration, exception sanitization, suspension bypass, refresh-token enumeration, password byte validators, configurable max-length), increasing merge-conflict risk and making navigation harder.
 
@@ -844,3 +876,31 @@ One-line change, no behaviour change. Remove the now-unused `salt` local variabl
 - Tolu: run `df -h` on the machine hosting the Cowork sandbox and free disk space, OR
 - Rebuild the project venv against python3.10: `cd /path/to/awade && rm -rf venv && python3 -m venv venv && source venv/bin/activate && pip install -r apps/backend/requirements.txt`
 - Consider pointing QA agent at the host machine's python/venv rather than sandbox-only paths
+
+
+### AWD-M-132 — ParentDashboardPage: COPPA consent gate logic should be extracted into a `useConsentGate` hook
+- **Stage:** define
+- **Priority:** Medium
+- **File:** `apps/frontend/src/pages/ParentDashboardPage.tsx`
+- **Summary:** The component now carries 8 `useState` calls. Four of them (`showConsentModal`, `consentSubmitting`, `consentError`, `handleAddChildIntent`, `handleConsentConfirmed`) exclusively serve the COPPA consent gate flow. Extracting these into a `useConsentGate(consentStatus, refetchConsent)` hook would reduce the page's state footprint and make the consent logic independently testable.
+- **Suggested fix:** Create `apps/frontend/src/hooks/useConsentGate.ts` returning `{ showConsentModal, openConsentGate, handleConsentConfirmed, handleCancel, consentSubmitting, consentError }`. ParentDashboardPage calls `const consentGate = useConsentGate(consentStatus, refetchConsent)` and replaces inline handlers with `consentGate.*`.
+- **Acceptance criteria:** `ParentDashboardPage` has ≤5 `useState` calls; `useConsentGate.test.ts` covers confirm + reject + network-error paths.
+- **Filed by:** code-review-agent 2026-05-09
+
+### AWD-L-25 — Frontend: extract `err instanceof Error ? err.message : fallback` into a shared `getErrorMessage` utility
+- **Stage:** define
+- **Priority:** Low
+- **Files:** `apps/frontend/src/pages/ParentDashboardPage.tsx` (×2), likely other pages
+- **Summary:** The pattern `err instanceof Error ? err.message : 'Something went wrong…'` is duplicated in `handleDeleteChild` and `handleConsentConfirmed` in `ParentDashboardPage.tsx`, and likely recurs in other pages as error handling coverage grows. A tiny utility prevents further divergence.
+- **Suggested fix:** Add `export function getErrorMessage(err: unknown, fallback = 'Something went wrong. Please try again.'): string { return err instanceof Error ? err.message : fallback }` to `apps/frontend/src/utils/errors.ts` and replace the inline ternaries.
+- **Acceptance criteria:** Utility exists in `src/utils/errors.ts` with a unit test; all existing call sites updated; no new inline copies added.
+- **Filed by:** code-review-agent 2026-05-09
+
+### AWD-L-26 — ParentDashboardPage: `deleteError` banner not cleared when switching the selected child card
+- **Stage:** define
+- **Priority:** Low
+- **File:** `apps/frontend/src/pages/ParentDashboardPage.tsx`
+- **Summary:** `deleteError` is cleared at the start of a new delete attempt (`setDeleteError(null)`) and reset when the delete succeeds, but it is NOT cleared when the user clicks a different child selector card. This means a stale error banner from Child A can persist while the user is now viewing Child B.
+- **Suggested fix:** Add `setDeleteError(null)` inside the `onClick` / `onKeyDown` handlers on the child selector card, alongside the existing `setSelectedChild(child)` and `setSelectedSubjectId(null)` calls.
+- **Acceptance criteria:** A vitest test confirms that switching child cards clears a pre-existing `deleteError` (no `role="alert"` after card switch).
+- **Filed by:** code-review-agent 2026-05-09

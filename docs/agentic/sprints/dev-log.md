@@ -592,3 +592,11 @@ After removing it, the next hourly run will:
 2026-05-08T20:15:09Z | AWD-M-92 | Extract password validation helpers (schemas/users.py) | caafd73 | ✅ Done | CI:pending
 2026-05-08T21:17:43Z | AWD-M-127 | Extract _validate_full_password helper (schemas/users.py) | b84be2f | ✅ Done | CI:pending
 2026-05-09T06:12:47Z | AWD-L-23 | style(auth): move TestPasswordValidationHelpers imports to module level | b8be7f9 | ✅ Done | CI:pending
+| 2026-05-09T07:15:31Z | AWD-M-82 | Add explicit useQuery generics to ParentDashboardPage | 4acf825 / merge 1ca3597 | ✅ Done | CI:pending |
+2026-05-09T08:13:31Z | AWD-M-83 | GuideViewPage: add onError handler to bookmarkMutation | b7d65c7 | ✅ Done | CI:pending
+| 2026-05-09T09:10Z | AWD-H-79 | handleDownloadPdf missing catch clause in GuideViewPage.tsx | db5bbaf / merge 405462f | ✅ Done | CI:pending |
+2026-05-09T10:10Z | AWD-M-130 | Extract invalidateBookmarkQueries callback in GuideViewPage | 04546d0 | ✅ Done | CI:pending
+2026-05-09T11:20Z | AWD-H-80 | ParentDashboardPage: handleDeleteChild silently swallows API errors — add catch + inline error | a960c6d (merge b900b39) | ✅ Done | CI:pending
+2026-05-09T12:14:16Z | AWD-M-131 | useEffect functional-updater in ParentDashboardPage auto-select | 804e715 | ✅ Done | CI:pending (Tolu push)
+2026-05-09T09:45:00Z | AWD-M-129 + AWD-L-24 | Split test_auth_flow_security.py into 6 files + fix inline imports | ae9c7aa / merge 2df70c0 | ✅ Done | CI:pending
+2026-05-09T14:17:00Z | AWD-M-89 | LessonPlanDetailPage polling loop unmount guard | 3a2d076 | ✅ Done | CI:pending
