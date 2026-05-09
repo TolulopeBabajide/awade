@@ -23,6 +23,49 @@ interface LessonPlanData {
   curriculum_contents: string[];
 }
 
+/**
+ * Polls `getLessonResource` every 2 s until the resource leaves the
+ * "processing" state.  Guards every async suspension point with `isMountedRef`
+ * so the caller can bail early after unmount.
+ *
+ * Throws on timeout (60 polls ≈ 2 minutes) or AI failure.
+ * Returns cleanly when the resource completes successfully.
+ *
+ * Extracted from `handleGenerateLessonResource` (AWD-M-133).
+ */
+async function pollUntilComplete(
+  resourceId: string,
+  isMountedRef: React.MutableRefObject<boolean>
+): Promise<void> {
+  let status = 'processing';
+  let attempts = 0;
+  const maxAttempts = 60;
+
+  while (status === 'processing' && attempts < maxAttempts) {
+    await new Promise<void>(resolve => setTimeout(resolve, 2000));
+    if (!isMountedRef.current) return;
+    attempts++;
+
+    const pollResponse = await apiService.getLessonResource(resourceId);
+    if (!isMountedRef.current) return;
+    if (pollResponse.error || !pollResponse.data) {
+      if (import.meta.env.DEV) {
+        console.warn('Polling failed temporarily', pollResponse.error);
+      }
+      continue;
+    }
+    status = pollResponse.data.status as string;
+  }
+
+  if (!isMountedRef.current) return;
+  if (status === 'processing') {
+    throw new Error('Generation timed out. Please check back later.');
+  }
+  if (status === 'failed') {
+    throw new Error('AI generation failed. Please try again.');
+  }
+}
+
 const LessonPlanDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
@@ -41,6 +84,22 @@ const LessonPlanDetailPage: React.FC = () => {
     isMountedRef.current = true;
     return () => { isMountedRef.current = false; };
   }, []);
+
+  /**
+   * Handles post-generation success: sets success feedback, clears the context
+   * input, schedules feedback dismissal, and navigates to the edit page.
+   * Extracted from `handleGenerateLessonResource` (AWD-M-133).
+   */
+  const handleGenerationSuccess = () => {
+    setContextFeedback({
+      type: 'success',
+      message: 'Lesson resource generated successfully! You can now view and edit the generated content.',
+    });
+    setContext('');
+    // Clear feedback after 5 seconds — guard inside callback so unmount after timeout is safe
+    setTimeout(() => { if (isMountedRef.current) setContextFeedback(null); }, 5000);
+    navigate(`/lesson-plans/${lessonPlan!.lesson_id}/resources/edit`);
+  };
 
   useEffect(() => {
     const fetchLessonPlan = async () => {
@@ -101,90 +160,45 @@ const LessonPlanDetailPage: React.FC = () => {
           sanitizedContext
         );
         if (!isMountedRef.current) return;
-
         if (contextResponse.error) {
           throw new Error(contextResponse.error);
         }
       }
 
-      // Step 2: Fetch curriculum data (simulated)
+      // Step 2: Fetch curriculum data (simulated pause to show step)
       setCurrentGenerationStep('fetch-curriculum-data');
-      await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause to show step
+      await new Promise<void>(resolve => setTimeout(resolve, 500));
       if (!isMountedRef.current) return;
 
-      // Step 3: Generate lesson resource (starts async process)
+      // Step 3: Initiate AI generation
       setCurrentGenerationStep('ai-generation');
       const response = await apiService.generateLessonResource(
         lessonPlan.lesson_id.toString(),
         sanitizedContext || 'Generate a comprehensive lesson resource for this lesson plan'
       );
       if (!isMountedRef.current) return;
-
       if (response.error || !response.data) {
         throw new Error(response.error || 'Failed to initiate resource generation');
       }
 
-      let resource = response.data;
-      const resourceId = resource.lesson_resources_id;
-
-      // Step 4: Poll for completion if status is processing
-      if (resource.status === 'processing') {
-        setCurrentGenerationStep('ai-generation'); // Keep showing generation step
-
-        let attempts = 0;
-        const maxAttempts = 60; // 2 minutes timeout (2s * 60)
-
-        while (resource.status === 'processing' && attempts < maxAttempts) {
-          await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s
-          if (!isMountedRef.current) return;
-          attempts++;
-
-          const pollResponse = await apiService.getLessonResource(resourceId.toString());
-          if (!isMountedRef.current) return;
-          if (pollResponse.error || !pollResponse.data) {
-            if (import.meta.env.DEV) {
-              console.warn("Polling failed temporarily", pollResponse.error);
-            }
-            continue; // Retry polling
-          }
-
-          resource = pollResponse.data;
-        }
-
+      // Step 4: Poll until complete (only when initially processing)
+      if (response.data.status === 'processing') {
+        await pollUntilComplete(response.data.lesson_resources_id.toString(), isMountedRef);
         if (!isMountedRef.current) return;
-
-        if (resource.status === 'processing') {
-          throw new Error('Generation timed out. Please check back later.');
-        }
-
-        if (resource.status === 'failed') {
-          throw new Error('AI generation failed. Please try again.');
-        }
       }
 
-      // Step 5: Complete
+      // Step 5: Brief completion pause, then navigate
       setCurrentGenerationStep('complete');
-      await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause before redirect
+      await new Promise<void>(resolve => setTimeout(resolve, 500));
       if (!isMountedRef.current) return;
 
-      // Show success feedback
-      setContextFeedback({
-        type: 'success',
-        message: 'Lesson resource generated successfully! You can now view and edit the generated content.'
-      });
-      setContext('');
-
-      // Clear feedback after 5 seconds — guard inside callback so unmount after timeout is safe
-      setTimeout(() => { if (isMountedRef.current) setContextFeedback(null); }, 5000);
-
-      // Navigate to the edit page after successful generation
-      navigate(`/lesson-plans/${lessonPlan.lesson_id}/resources/edit`);
+      handleGenerationSuccess();
     } catch (err) {
       if (!isMountedRef.current) return;
       const message = err instanceof Error ? err.message : String(err);
       setContextFeedback({
         type: 'error',
-        message: message || 'Failed to generate lesson resource. Please try again.'
+        message: message || 'Failed to generate lesson resource. Please try again.',
       });
     } finally {
       if (isMountedRef.current) {

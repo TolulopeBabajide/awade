@@ -235,4 +235,80 @@ describe('LessonPlanDetailPage', () => {
       // Test passes cleanly if no React unmounted-component warning is emitted
     })
   })
+
+  // ---------------------------------------------------------------------------
+  // AWD-M-133 — pollUntilComplete and handleGenerationSuccess coverage
+  // ---------------------------------------------------------------------------
+
+  describe('pollUntilComplete and handleGenerationSuccess (AWD-M-133)', () => {
+    it('shows "AI generation failed" error when poll returns failed status', async () => {
+      vi.useFakeTimers()
+      try {
+        mockGetLessonPlan.mockResolvedValue({ data: MOCK_LESSON_PLAN })
+        // Initial generate call returns processing — triggers pollUntilComplete
+        mockGenerateLessonResource.mockResolvedValue({
+          data: { lesson_resources_id: 99, status: 'processing' },
+        })
+        // First poll returns failed — pollUntilComplete should throw "AI generation failed"
+        mockGetLessonResource.mockResolvedValue({
+          data: { lesson_resources_id: 99, status: 'failed' },
+        })
+
+        renderPage()
+        // Resolve the initial getLessonPlan (microtask) and any setup timers
+        await act(async () => { await vi.runAllTimersAsync() })
+        await waitFor(() =>
+          expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+        )
+
+        const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+        await user.click(screen.getByRole('button', { name: /Generate Lesson Resource/i }))
+
+        // Advance past: 500ms fetch-curriculum pause + 2000ms first poll delay
+        await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+
+        await waitFor(() =>
+          expect(
+            screen.getByText('AI generation failed. Please try again.')
+          ).toBeInTheDocument()
+        )
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('shows "Generation timed out" after 60 failed polls', async () => {
+      vi.useFakeTimers()
+      try {
+        mockGetLessonPlan.mockResolvedValue({ data: MOCK_LESSON_PLAN })
+        mockGenerateLessonResource.mockResolvedValue({
+          data: { lesson_resources_id: 99, status: 'processing' },
+        })
+        // Always returns processing — loop exhausts maxAttempts (60)
+        mockGetLessonResource.mockResolvedValue({
+          data: { lesson_resources_id: 99, status: 'processing' },
+        })
+
+        renderPage()
+        await act(async () => { await vi.runAllTimersAsync() })
+        await waitFor(() =>
+          expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+        )
+
+        const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+        await user.click(screen.getByRole('button', { name: /Generate Lesson Resource/i }))
+
+        // 500ms pause + 60 polls × 2000ms = 120500ms; advance past that
+        await act(async () => { await vi.advanceTimersByTimeAsync(125000) })
+
+        await waitFor(() =>
+          expect(
+            screen.getByText('Generation timed out. Please check back later.')
+          ).toBeInTheDocument()
+        )
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+  })
 })
