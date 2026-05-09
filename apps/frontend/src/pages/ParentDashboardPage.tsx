@@ -8,7 +8,7 @@ import Sidebar from '../components/Sidebar'
 import MobileNavigation from '../components/MobileNavigation'
 import AddChildModal from '../components/AddChildModal'
 import ConsentModal from '../components/ConsentModal'
-import type { ChildProfile, ChildTopic } from '../types/children'
+import type { ChildProfile, ChildTopic, ConsentStatusResponse, ChildProfileListResponse } from '../types/children'
 
 // ── File-scope subcomponent ───────────────────────────────────────────────
 // Defined outside ParentDashboardPage so React sees a stable component
@@ -59,12 +59,12 @@ const ParentDashboardPage: React.FC = () => {
   const [consentError, setConsentError] = useState<string | null>(null)
 
   // Fetch consent status once on mount so we know whether to gate "Add Child"
-  const { data: consentStatus, refetch: refetchConsent } = useQuery({
+  const { data: consentStatus, refetch: refetchConsent } = useQuery<ConsentStatusResponse, Error>({
     queryKey: ['consentStatus'],
     queryFn: async () => {
       const res = await apiService.getConsentStatus()
       if (res.error) throw new Error(res.error)
-      return res.data
+      return res.data!
     },
   })
 
@@ -74,12 +74,12 @@ const ParentDashboardPage: React.FC = () => {
     isLoading: loadingChildren,
     isError: childrenFetchFailed,
     refetch: refetchChildren,
-  } = useQuery({
+  } = useQuery<ChildProfileListResponse, Error>({
     queryKey: ['children'],
     queryFn: async () => {
       const res = await apiService.getChildren()
       if (res.error) throw new Error(res.error)
-      return res.data
+      return res.data!
     },
   })
 
@@ -98,7 +98,7 @@ const ParentDashboardPage: React.FC = () => {
     isLoading: loadingTopics,
     isError: topicsFetchFailed,
     refetch: refetchTopics,
-  } = useQuery({
+  } = useQuery<ChildTopic[], Error>({
     queryKey: ['childTopics', selectedChild?.child_id, selectedSubjectId],
     queryFn: async () => {
       if (!selectedChild) return []
