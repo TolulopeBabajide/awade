@@ -562,18 +562,21 @@ class AwadeGPTService:
                 else "General topic content"
             )
 
+            # Pre-format: sanitise each curriculum field individually before
+            # template substitution so PII / key-like strings are stripped
+            # prior to being embedded in the prompt (AWD-M-128 defence-in-depth).
             prompt_params = {
-                "topic": topic,
-                "subject": subject,
-                "grade_level": grade,
-                "country": country,
-                "curriculum": curriculum,
-                "learning_objectives": objectives_str,
-                "contents": contents_str,
+                "topic": self._sanitize_input(topic),
+                "subject": self._sanitize_input(subject),
+                "grade_level": self._sanitize_input(grade),
+                "country": self._sanitize_input(country),
+                "curriculum": self._sanitize_input(curriculum),
+                "learning_objectives": self._sanitize_input(objectives_str),
+                "contents": self._sanitize_input(contents_str),
             }
 
             prompt = PARENT_HELPER_PROMPT.format(**prompt_params)
-            prompt = self._sanitize_input(prompt)
+            prompt = self._sanitize_input(prompt)  # post-format pass retained
 
             prompt_metadata = {
                 "type": "parent_guide",
