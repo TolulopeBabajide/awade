@@ -19,6 +19,7 @@ import apiService from '../services/api'
 import Sidebar from '../components/Sidebar'
 import MobileNavigation from '../components/MobileNavigation'
 import type { ParentGuide, ParentGuideContent } from '../types/children'
+import { Section, InfoCard } from './GuideViewPage.components'
 
 const GuideViewPage: React.FC = () => {
   const [searchParams] = useSearchParams()
@@ -374,34 +375,5 @@ const GuideViewPage: React.FC = () => {
     </div>
   )
 }
-
-// ── Reusable sub-components ─────────────────────────────────────────
-
-interface SectionProps {
-  icon: React.ReactNode
-  title: string
-  subtitle?: string
-  children: React.ReactNode
-}
-
-const Section: React.FC<SectionProps> = ({ icon, title, subtitle, children }) => (
-  <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-    <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-3">
-      {icon}
-      <div>
-        <h2 className="font-semibold text-gray-800">{title}</h2>
-        {subtitle && <p className="text-xs text-gray-400">{subtitle}</p>}
-      </div>
-    </div>
-    <div className="px-5 py-4">{children}</div>
-  </div>
-)
-
-const InfoCard: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-  <div className="bg-background-50 rounded-xl p-3">
-    <p className="text-xs font-medium text-gray-500 mb-1">{label}</p>
-    <p className="text-gray-700 text-sm leading-relaxed">{value}</p>
-  </div>
-)
 
 export default GuideViewPage
