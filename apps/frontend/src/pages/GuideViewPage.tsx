@@ -95,6 +95,12 @@ const GuideViewPage: React.FC = () => {
       anchor.download = result.filename
       anchor.click()
       URL.revokeObjectURL(url)
+    } catch (err: unknown) {
+      // AWD-H-79: surface unexpected throws (e.g. network abort before apiService
+      // internal catch, or runtime errors in blob/URL handling) to the user
+      alert(
+        `Could not download PDF: ${err instanceof Error ? err.message : 'Unexpected error'}`,
+      )
     } finally {
       setIsDownloading(false)
     }

@@ -17,6 +17,7 @@ vi.mock('../services/api', () => ({
     getGuide: vi.fn(),
     generateGuide: vi.fn(),
     toggleGuideBookmark: vi.fn(),
+    exportGuidePdf: vi.fn(),
   },
 }))
 
@@ -24,6 +25,7 @@ import apiService from '../services/api'
 const mockGetGuide = vi.mocked(apiService.getGuide)
 const mockGenerateGuide = vi.mocked(apiService.generateGuide)
 const mockToggleBookmark = vi.mocked(apiService.toggleGuideBookmark)
+const mockExportGuidePdf = vi.mocked(apiService.exportGuidePdf)
 
 // ── Test fixtures ─────────────────────────────────────────────────────────
 const GUIDE_CONTENT = {
@@ -200,6 +202,40 @@ describe('GuideViewPage', () => {
     renderPage('/guides')
     expect(mockGetGuide).not.toHaveBeenCalled()
     expect(mockGenerateGuide).not.toHaveBeenCalled()
+  })
+
+  // ── AWD-H-79: handleDownloadPdf catch block ──────────────────────────────
+  describe('handleDownloadPdf catch (AWD-H-79)', () => {
+    it('alerts the user when exportGuidePdf throws unexpectedly', async () => {
+      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
+      mockExportGuidePdf.mockRejectedValue(new Error('Network abort'))
+      const alertSpy = vi.spyOn(window, 'alert').mockReturnValue()
+
+      renderPage()
+      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+      await userEvent.click(downloadBtn)
+
+      await waitFor(() => {
+        expect(alertSpy).toHaveBeenCalledWith('Could not download PDF: Network abort')
+      })
+      alertSpy.mockRestore()
+    })
+
+    it('resets isDownloading to false after an unexpected throw', async () => {
+      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
+      mockExportGuidePdf.mockRejectedValue(new Error('Timeout'))
+      const alertSpy = vi.spyOn(window, 'alert').mockReturnValue()
+
+      renderPage()
+      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+      await userEvent.click(downloadBtn)
+
+      // After catch + finally the button must be re-enabled (not stuck in disabled state)
+      await waitFor(() => {
+        expect(downloadBtn).not.toBeDisabled()
+      })
+      alertSpy.mockRestore()
+    })
   })
 
   // ── AWD-M-83: bookmarkMutation onError — cache invalidation on failure ──
