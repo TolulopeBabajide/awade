@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
@@ -62,18 +62,21 @@ const GuideViewPage: React.FC = () => {
     }
   }, [guide?.ai_generated_content])
 
+  // AWD-M-130: single shared invalidation callback — avoids duplicating the two
+  // invalidateQueries calls that were previously copy-pasted into both onSuccess
+  // and onError. Any future extension (e.g. adding ['savedGuides']) only requires
+  // a change here.
+  const invalidateBookmarkQueries = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['parentGuide'] })
+    queryClient.invalidateQueries({ queryKey: ['childGuides'] })
+  }, [queryClient])
+
   // Bookmark mutation
   const bookmarkMutation = useMutation({
     mutationFn: () => apiService.toggleGuideBookmark(guide!.guide_id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['parentGuide'] })
-      queryClient.invalidateQueries({ queryKey: ['childGuides'] })
-    },
+    onSuccess: invalidateBookmarkQueries,
     // AWD-M-83: roll back optimistic UI state on failure by re-fetching truth from server
-    onError: () => {
-      queryClient.invalidateQueries({ queryKey: ['parentGuide'] })
-      queryClient.invalidateQueries({ queryKey: ['childGuides'] })
-    },
+    onError: invalidateBookmarkQueries,
   })
 
   // PDF download state
