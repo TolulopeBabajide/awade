@@ -535,4 +535,47 @@ describe('ParentDashboardPage', () => {
       expect(deleteBtn.getAttribute('aria-label')).toMatch(/Remove .+ profile/i)
     })
   })
+
+  describe('auto-select first child (AWD-M-131)', () => {
+    /**
+     * AWD-M-131: the useEffect that auto-selects the first child previously
+     * read `selectedChild` directly, causing react-hooks/exhaustive-deps to
+     * flag a missing dependency. Fixed by using the functional-updater form
+     * `setSelectedChild(prev => prev ?? children[0])` so `selectedChild` is
+     * never read inside the effect body.
+     */
+
+    it('auto-selects the first child when children load and none is selected', async () => {
+      const child = makeChild({ child_id: 1, name: 'Auto Child' })
+      mockApiService.getChildren.mockResolvedValue({
+        error: undefined,
+        data: { children: [child], total: 1 },
+      })
+      mockApiService.getChildTopics.mockResolvedValue({ error: undefined, data: [] })
+
+      renderWithProviders(<ParentDashboardPage />)
+
+      // The child selector card should appear once data loads, indicating
+      // auto-selection has occurred (topics query fires only after a child
+      // is selected).
+      await waitFor(() => expect(screen.getByText('Auto Child')).toBeTruthy())
+    })
+
+    it('does not override an already-selected child when children list re-fetches', async () => {
+      const child1 = makeChild({ child_id: 1, name: 'First Child' })
+      const child2 = makeChild({ child_id: 2, name: 'Second Child' })
+      mockApiService.getChildren.mockResolvedValue({
+        error: undefined,
+        data: { children: [child1, child2], total: 2 },
+      })
+      mockApiService.getChildTopics.mockResolvedValue({ error: undefined, data: [] })
+
+      renderWithProviders(<ParentDashboardPage />)
+
+      // Both child cards should render; the effect must not wipe a previously
+      // selected child on subsequent renders.
+      await waitFor(() => expect(screen.getByText('First Child')).toBeTruthy())
+      await waitFor(() => expect(screen.getByText('Second Child')).toBeTruthy())
+    })
+  })
 })

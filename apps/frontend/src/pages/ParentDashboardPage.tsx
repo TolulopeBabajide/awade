@@ -87,10 +87,13 @@ const ParentDashboardPage: React.FC = () => {
 
   const children: ChildProfile[] = childrenData?.children ?? []
 
-  // Auto-select first child
+  // Auto-select first child.
+  // AWD-M-131: use functional-updater form so `selectedChild` is not read
+  // inside the effect body, eliminating the react-hooks/exhaustive-deps warning
+  // without adding `selectedChild` to the dep array (which would cause a loop).
   useEffect(() => {
-    if (children.length > 0 && !selectedChild) {
-      setSelectedChild(children[0])
+    if (children.length > 0) {
+      setSelectedChild(prev => prev ?? children[0])
     }
   }, [children])
 
