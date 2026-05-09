@@ -600,3 +600,5 @@ After removing it, the next hourly run will:
 2026-05-09T12:14:16Z | AWD-M-131 | useEffect functional-updater in ParentDashboardPage auto-select | 804e715 | ✅ Done | CI:pending (Tolu push)
 2026-05-09T09:45:00Z | AWD-M-129 + AWD-L-24 | Split test_auth_flow_security.py into 6 files + fix inline imports | ae9c7aa / merge 2df70c0 | ✅ Done | CI:pending
 2026-05-09T14:17:00Z | AWD-M-89 | LessonPlanDetailPage polling loop unmount guard | 3a2d076 | ✅ Done | CI:pending
+2026-05-09T15:15Z | AWD-L-28 | Extract hashed_user fixture in test_auth_cookies.py (DRY refactor) | f9c8e66 (merge 61e59dc) | ✅ Done | CI:pending
+2026-05-09T16:11:56Z | AWD-L-27 | LessonPlanDetailPage: remove stale dead comment | 2d2081e (merge c9eb25e) | ✅ Done | CI:pending

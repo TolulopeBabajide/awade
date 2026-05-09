@@ -904,3 +904,19 @@ One-line change, no behaviour change. Remove the now-unused `salt` local variabl
 - **Suggested fix:** Add `setDeleteError(null)` inside the `onClick` / `onKeyDown` handlers on the child selector card, alongside the existing `setSelectedChild(child)` and `setSelectedSubjectId(null)` calls.
 - **Acceptance criteria:** A vitest test confirms that switching child cards clears a pre-existing `deleteError` (no `role="alert"` after card switch).
 - **Filed by:** code-review-agent 2026-05-09
+
+### ~~AWD-L-27~~ ✅ 2026-05-09 — `LessonPlanDetailPage.tsx`: stale `// ... existing code ...` dead comment
+- **Stage:** done
+- **Priority:** Low
+- **Source:** code-review-agent 2026-05-09
+- **Resolution:** Deleted the `// ... existing code ...` placeholder comment between the `useEffect` block and `handleGenerateLessonResource` (line 84). TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. Commit 2d2081e, merge c9eb25e. Tolu: run `git push origin develop` to trigger CI.
+- **Files:** `apps/frontend/src/pages/LessonPlanDetailPage.tsx`
+
+---
+
+### ~~AWD-L-28~~ — ~~`test_auth_cookies.py`: bcrypt password setup duplicated in all 3 test functions~~
+- ~~**Stage:** ready~~ — ✅ resolved 2026-05-09 (commit f9c8e66, merge 61e59dc). Extracted 5-line bcrypt setup block into `hashed_user` pytest fixture; all 3 test functions updated to receive it. `test_db` parameter removed from each test signature. TS 0 errors · lint 0 errors · OpenAPI valid. Backend tests blocked by pre-existing AWD-H-77/M-46.
+- **Priority:** Low
+- **Source:** code-review-agent 2026-05-09
+- **Files:** `apps/backend/tests/test_auth_cookies.py`
+
