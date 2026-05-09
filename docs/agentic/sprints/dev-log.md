@@ -591,3 +591,4 @@ After removing it, the next hourly run will:
 | 2026-05-08T19:16:11Z | AWD-L-22 | Move inline imports to module level in test files | 3fba9e2 | ✅ Done | CI:pending |
 2026-05-08T20:15:09Z | AWD-M-92 | Extract password validation helpers (schemas/users.py) | caafd73 | ✅ Done | CI:pending
 2026-05-08T21:17:43Z | AWD-M-127 | Extract _validate_full_password helper (schemas/users.py) | b84be2f | ✅ Done | CI:pending
+2026-05-09T06:12:47Z | AWD-L-23 | style(auth): move TestPasswordValidationHelpers imports to module level | b8be7f9 | ✅ Done | CI:pending
