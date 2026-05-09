@@ -82,8 +82,6 @@ const LessonPlanDetailPage: React.FC = () => {
     fetchLessonPlan();
   }, [id, location.state]);
 
-  // ... existing code ...
-
   const handleGenerateLessonResource = async () => {
     if (!lessonPlan) return;
 
