@@ -605,3 +605,4 @@ After removing it, the next hourly run will:
 2026-05-09T17:15:53Z | AWD-H-81 | LessonPlanDetailPage: remove AI placeholder comment re-introduced by AWD-C-13 (chore de7da55) | e1f6a9a (merge 3aa7ac1) | ✅ Done | CI:pending
 2026-05-09T19:15:00Z | AWD-M-128 | PARENT_HELPER_PROMPT <curriculum_data> injection delimiter sandboxing + pre-format field sanitization | e3c3d8d | ✅ Done | CI:pending
 2026-05-09T20:12:55Z | AWD-M-132 | GuideViewPage.tsx: extract Section/InfoCard sub-components to GuideViewPage.components.tsx | 2841812 | ✅ Done | CI:pending
+| 2026-05-09T00:00:00Z | M-133 | refactor: extract pollUntilComplete and handleGenerationSuccess from handleGenerateLessonResource | f8cc109 (merge c758536) | ✅ Done | CI: pending (ENOSPC AWD-H-77 blocked local vitest; push to trigger remote CI) |
