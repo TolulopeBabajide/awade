@@ -52,6 +52,8 @@ const ParentDashboardPage: React.FC = () => {
   const [selectedChild, setSelectedChild] = useState<ChildProfile | null>(null)
   const [selectedSubjectId, setSelectedSubjectId] = useState<number | null>(null)
   const [deletingChildId, setDeletingChildId] = useState<number | null>(null)
+  // AWD-H-80: surface delete failures inline instead of silently swallowing them
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   // ── COPPA consent state (AWD-GRC-01) ──────────────────────────────
   const [showConsentModal, setShowConsentModal] = useState(false)
@@ -120,10 +122,14 @@ const ParentDashboardPage: React.FC = () => {
   const handleDeleteChild = async (childId: number) => {
     if (!confirm('Are you sure you want to remove this child profile? All saved guides will be deleted.')) return
     setDeletingChildId(childId)
+    setDeleteError(null)
     try {
       await apiService.deleteChild(childId)
       if (selectedChild?.child_id === childId) setSelectedChild(null)
       queryClient.invalidateQueries({ queryKey: ['children'] })
+    } catch (err) {
+      // AWD-H-80: surface the error inline rather than absorbing it silently
+      setDeleteError(err instanceof Error ? err.message : 'Failed to remove child profile. Please try again.')
     } finally {
       setDeletingChildId(null)
     }
@@ -229,6 +235,12 @@ const ParentDashboardPage: React.FC = () => {
           />
         ) : (
           <div className="px-4 sm:px-6 lg:px-8 py-6">
+            {/* AWD-H-80: inline delete error — shown when deleteChild API call fails */}
+            {deleteError && (
+              <p role="alert" className="text-red-500 text-sm font-medium mb-4">
+                {deleteError}
+              </p>
+            )}
             {/* Child selector cards */}
             <div className="flex gap-3 overflow-x-auto pb-4 mb-6 scrollbar-hide">
               {children.map(child => (

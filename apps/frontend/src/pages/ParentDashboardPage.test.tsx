@@ -107,7 +107,7 @@ beforeEach(() => {
 
   mockUseAuth.mockReturnValue({
     user: {
-      user_id: 10,
+      user_: 10,
       email: 'parent@test.invalid',
       full_name: 'Test Parent',
       role: 'PARENT',
@@ -422,6 +422,78 @@ describe('ParentDashboardPage', () => {
         const alert = screen.getByRole('alert')
         expect(alert.textContent).toContain('Something went wrong. Please try again.')
       })
+    })
+  })
+
+  describe('handleDeleteChild error feedback (AWD-H-80)', () => {
+    /**
+     * AWD-H-80: deleteChild API rejections were previously absorbed in `finally`
+     * with no user-visible feedback. The fix adds a catch block that sets
+     * `deleteError` state, which is rendered as an inline role="alert" message
+     * above the child selector cards.
+     */
+    const setupChildList = () => {
+      mockApiService.getChildren.mockResolvedValue({
+        error: undefined,
+        data: { children: [makeChild({ child_id: 1, name: 'Child A' })], total: 1 },
+      })
+      mockApiService.getChildTopics.mockResolvedValue({ error: undefined, data: [] })
+    }
+
+    it('shows an inline error message when deleteChild API call rejects with an Error', async () => {
+      setupChildList()
+      mockApiService.deleteChild.mockRejectedValue(new Error('Server unavailable'))
+      const confirmMock = vi.spyOn(window, 'confirm').mockReturnValue(true)
+
+      renderWithProviders(<ParentDashboardPage />)
+      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy())
+      fireEvent.click(screen.getByTitle('Remove'))
+
+      await waitFor(() => {
+        const alert = screen.getByRole('alert')
+        expect(alert.textContent).toContain('Server unavailable')
+      })
+
+      confirmMock.mockRestore()
+    })
+
+    it('shows a generic fallback message when deleteChild rejects with a non-Error value', async () => {
+      setupChildList()
+      mockApiService.deleteChild.mockRejectedValue('plain-string-rejection')
+      const confirmMock = vi.spyOn(window, 'confirm').mockReturnValue(true)
+
+      renderWithProviders(<ParentDashboardPage />)
+      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy())
+      fireEvent.click(screen.getByTitle('Remove'))
+
+      await waitFor(() => {
+        const alert = screen.getByRole('alert')
+        expect(alert.textContent).toContain('Failed to remove child profile. Please try again.')
+      })
+
+      confirmMock.mockRestore()
+    })
+
+    it('clears any previous delete error when a new delete attempt begins', async () => {
+      setupChildList()
+      // First call fails; second call succeeds
+      mockApiService.deleteChild
+        .mockRejectedValueOnce(new Error('Temporary failure'))
+        .mockResolvedValueOnce({ data: null, error: undefined })
+
+      const confirmMock = vi.spyOn(window, 'confirm').mockReturnValue(true)
+      renderWithProviders(<ParentDashboardPage />)
+
+      // First delete — fails, error should appear
+      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy())
+      fireEvent.click(screen.getByTitle('Remove'))
+      await waitFor(() => expect(screen.getByRole('alert')).toBeTruthy())
+
+      // Second delete — succeeds, error should be cleared
+      fireEvent.click(screen.getByTitle('Remove'))
+      await waitFor(() => expect(screen.queryByRole('alert')).toBeNull())
+
+      confirmMock.mockRestore()
     })
   })
 
