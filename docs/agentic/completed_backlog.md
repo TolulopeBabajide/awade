@@ -1301,3 +1301,4 @@ Commit: 539d77e | Merge: c624c33
 - AWD-L-28 resolved 2026-05-09: extracted identical 5-line bcrypt password setup block from test_login_sets_httponly_cookies, test_refresh_token_flow, and test_logout_clears_cookies into hashed_user pytest fixture in test_auth_cookies.py; test_db removed from each test signature. Commit f9c8e66, merge 61e59dc.
 2026-05-09 | AWD-L-27 | LessonPlanDetailPage: remove stale dead comment | 2d2081e (merge c9eb25e) | ✅ Done | CI:pending (Tolu: git push origin develop)
 2026-05-09 | AWD-H-81 | LessonPlanDetailPage: remove AI placeholder comment re-introduced by AWD-C-13 (de7da55 chore commit) | style fix, no tests | ✅ Done | CI:pending (Tolu: git push origin develop)
+2026-05-09 | AWD-M-128 | PARENT_HELPER_PROMPT injection delimiter sandboxing: added <curriculum_data> preamble + field wrapping + pre-format sanitization; 3 tests | e3c3d8d (merge d59e39f) | ✅ Done | CI:pending (Tolu: git push origin develop)
