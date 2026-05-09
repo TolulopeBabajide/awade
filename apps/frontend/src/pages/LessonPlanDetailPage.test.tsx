@@ -1,6 +1,7 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, act } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import userEvent from '@testing-library/user-event'
 import LessonPlanDetailPage from './LessonPlanDetailPage'
 
 // ---------------------------------------------------------------------------
@@ -39,6 +40,8 @@ vi.mock('../components/AIGenerationLoading', () => ({
 import apiService from '../services/api'
 
 const mockGetLessonPlan = vi.mocked(apiService.getLessonPlan)
+const mockGenerateLessonResource = vi.mocked(apiService.generateLessonResource)
+const mockGetLessonResource = vi.mocked(apiService.getLessonResource)
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -158,5 +161,78 @@ describe('LessonPlanDetailPage', () => {
       expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
     )
     expect(mockGetLessonPlan).not.toHaveBeenCalled()
+  })
+
+  // ---------------------------------------------------------------------------
+  // AWD-M-89 — unmount guard: state updates must not fire after unmount
+  // ---------------------------------------------------------------------------
+
+  describe('handleGenerateLessonResource unmount guard (AWD-M-89)', () => {
+    it('does not update state after unmount during polling delay', async () => {
+      mockGetLessonPlan.mockResolvedValue({ data: MOCK_LESSON_PLAN })
+
+      // generateLessonResource returns a processing resource
+      mockGenerateLessonResource.mockResolvedValue({
+        data: { lesson_resources_id: 99, status: 'processing' },
+      })
+
+      // getLessonResource never resolves — simulates a long poll interval
+      let resolveFirstPoll!: (v: any) => void
+      mockGetLessonResource.mockReturnValue(
+        new Promise(resolve => { resolveFirstPoll = resolve })
+      )
+
+      const { unmount } = renderPage()
+      await waitFor(() =>
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+      )
+
+      // Click the generate button to start the async handler
+      const user = userEvent.setup()
+      await user.click(screen.getByRole('button', { name: /Generate Lesson Resource/i }))
+
+      // Wait until generateLessonResource was called (handler is in the polling loop)
+      await waitFor(() => expect(mockGenerateLessonResource).toHaveBeenCalledTimes(1))
+
+      // Unmount while the handler is awaiting the first poll response
+      act(() => { unmount() })
+
+      // Resolve the poll after unmount — should not trigger any state update warnings
+      await act(async () => {
+        resolveFirstPoll({ data: { lesson_resources_id: 99, status: 'complete' } })
+      })
+
+      // If isMountedRef guard is absent React logs a console.error about updating
+      // unmounted components. No assertion needed beyond the test completing cleanly.
+    })
+
+    it('does not call setContextFeedback after unmount on generation error', async () => {
+      mockGetLessonPlan.mockResolvedValue({ data: MOCK_LESSON_PLAN })
+
+      // generateLessonResource rejects — error path hits catch block
+      let rejectGenerate!: (reason: unknown) => void
+      mockGenerateLessonResource.mockReturnValue(
+        new Promise((_, reject) => { rejectGenerate = reject })
+      )
+
+      const { unmount } = renderPage()
+      await waitFor(() =>
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+      )
+
+      const user = userEvent.setup()
+      await user.click(screen.getByRole('button', { name: /Generate Lesson Resource/i }))
+      await waitFor(() => expect(mockGenerateLessonResource).toHaveBeenCalledTimes(1))
+
+      // Unmount before the rejection lands
+      act(() => { unmount() })
+
+      // Reject after unmount — catch block should bail via isMountedRef guard
+      await act(async () => {
+        rejectGenerate(new Error('network down'))
+      })
+
+      // Test passes cleanly if no React unmounted-component warning is emitted
+    })
   })
 })

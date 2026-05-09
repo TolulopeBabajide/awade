@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import Sidebar from '../components/Sidebar';
@@ -34,6 +34,13 @@ const LessonPlanDetailPage: React.FC = () => {
   const [isGeneratingLessonResource, setIsGeneratingLessonResource] = useState(false);
   const [contextFeedback, setContextFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [currentGenerationStep, setCurrentGenerationStep] = useState<string>('');
+
+  // Track mount state so the async polling loop can bail out on unmount (AWD-M-89)
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => { isMountedRef.current = false; };
+  }, []);
 
   useEffect(() => {
     const fetchLessonPlan = async () => {
@@ -95,6 +102,7 @@ const LessonPlanDetailPage: React.FC = () => {
           lessonPlan.lesson_id.toString(),
           sanitizedContext
         );
+        if (!isMountedRef.current) return;
 
         if (contextResponse.error) {
           throw new Error(contextResponse.error);
@@ -104,6 +112,7 @@ const LessonPlanDetailPage: React.FC = () => {
       // Step 2: Fetch curriculum data (simulated)
       setCurrentGenerationStep('fetch-curriculum-data');
       await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause to show step
+      if (!isMountedRef.current) return;
 
       // Step 3: Generate lesson resource (starts async process)
       setCurrentGenerationStep('ai-generation');
@@ -111,6 +120,7 @@ const LessonPlanDetailPage: React.FC = () => {
         lessonPlan.lesson_id.toString(),
         sanitizedContext || 'Generate a comprehensive lesson resource for this lesson plan'
       );
+      if (!isMountedRef.current) return;
 
       if (response.error || !response.data) {
         throw new Error(response.error || 'Failed to initiate resource generation');
@@ -128,9 +138,11 @@ const LessonPlanDetailPage: React.FC = () => {
 
         while (resource.status === 'processing' && attempts < maxAttempts) {
           await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s
+          if (!isMountedRef.current) return;
           attempts++;
 
           const pollResponse = await apiService.getLessonResource(resourceId.toString());
+          if (!isMountedRef.current) return;
           if (pollResponse.error || !pollResponse.data) {
             if (import.meta.env.DEV) {
               console.warn("Polling failed temporarily", pollResponse.error);
@@ -140,6 +152,8 @@ const LessonPlanDetailPage: React.FC = () => {
 
           resource = pollResponse.data;
         }
+
+        if (!isMountedRef.current) return;
 
         if (resource.status === 'processing') {
           throw new Error('Generation timed out. Please check back later.');
@@ -153,6 +167,7 @@ const LessonPlanDetailPage: React.FC = () => {
       // Step 5: Complete
       setCurrentGenerationStep('complete');
       await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause before redirect
+      if (!isMountedRef.current) return;
 
       // Show success feedback
       setContextFeedback({
@@ -161,20 +176,23 @@ const LessonPlanDetailPage: React.FC = () => {
       });
       setContext('');
 
-      // Clear feedback after 5 seconds
-      setTimeout(() => setContextFeedback(null), 5000);
+      // Clear feedback after 5 seconds — guard inside callback so unmount after timeout is safe
+      setTimeout(() => { if (isMountedRef.current) setContextFeedback(null); }, 5000);
 
       // Navigate to the edit page after successful generation
       navigate(`/lesson-plans/${lessonPlan.lesson_id}/resources/edit`);
     } catch (err) {
+      if (!isMountedRef.current) return;
       const message = err instanceof Error ? err.message : String(err);
       setContextFeedback({
         type: 'error',
         message: message || 'Failed to generate lesson resource. Please try again.'
       });
     } finally {
-      setIsGeneratingLessonResource(false);
-      setCurrentGenerationStep('');
+      if (isMountedRef.current) {
+        setIsGeneratingLessonResource(false);
+        setCurrentGenerationStep('');
+      }
     }
   };
 
