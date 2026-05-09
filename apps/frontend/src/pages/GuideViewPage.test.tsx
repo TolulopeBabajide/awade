@@ -270,4 +270,39 @@ describe('GuideViewPage', () => {
       })
     })
   })
+
+  // ── AWD-M-130: invalidateBookmarkQueries shared callback ──────────────────
+  // Verifies onSuccess also invalidates both cache keys through the extracted
+  // shared callback — ensuring the deduplication is exercised end-to-end.
+  describe('bookmarkMutation onSuccess (AWD-M-130)', () => {
+    it('invalidates parentGuide query when bookmark toggle succeeds', async () => {
+      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
+      mockToggleBookmark.mockResolvedValue({ data: { ...MOCK_GUIDE, is_bookmarked: true }, error: undefined })
+
+      const { queryClient } = renderPage()
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
+
+      const bookmarkBtn = await screen.findByTitle('Bookmark this guide')
+      await userEvent.click(bookmarkBtn)
+
+      await waitFor(() => {
+        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['parentGuide'] })
+      })
+    })
+
+    it('invalidates childGuides query when bookmark toggle succeeds', async () => {
+      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
+      mockToggleBookmark.mockResolvedValue({ data: { ...MOCK_GUIDE, is_bookmarked: true }, error: undefined })
+
+      const { queryClient } = renderPage()
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
+
+      const bookmarkBtn = await screen.findByTitle('Bookmark this guide')
+      await userEvent.click(bookmarkBtn)
+
+      await waitFor(() => {
+        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['childGuides'] })
+      })
+    })
+  })
 })
