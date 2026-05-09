@@ -128,3 +128,9 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-05-09T14:36:35Z | awade-qa-validation | done | TypeScript✅ Lint✅ OpenAPI✅ spot-check clean; tests blocked by AWD-H-77 ENOSPC; verdict: Ship
 2026-05-09T15:14:31Z | awade-dev-execution | done | AWD-L-28: hashed_user fixture extracted in test_auth_cookies.py — commit f9c8e66, merge 61e59dc
 2026-05-09T16:12:02Z | awade-dev-execution | done | AWD-L-27: removed stale dead comment from LessonPlanDetailPage.tsx; commit 2d2081e merge c9eb25e; index.lock workaround used; unstaged corrupt test_auth_cookies.py index reversion (L-28 regression attempt #6)
+2026-05-09T17:16:30Z | awade-dev-execution | done | AWD-H-81: removed AI placeholder comment from LessonPlanDetailPage.tsx re-introduced by AWD-C-13 (chore de7da55) — commit e1f6a9a, merge 3aa7ac1
+2026-05-09T18:10:45Z | awade-dev-execution | skip | all stage=ready items blocked (H-78: sandbox cannot rm; H-65/M-77: require Tolu venv fix on dev machine)
+2026-05-09T18:22:43Z | awade-code-review | done | AWD-H-81 style fix reviewed ✅ Clean; filed AWD-M-133 (handleGenerateLessonResource complexity)
+2026-05-09T18:36:00Z | awade-qa-validation | done | AWD-H-81 cosmetic removal — TS ✅ Lint ✅ OpenAPI ✅ frontend/backend tests blocked by sandbox ENOSPC + broken venv — change is safe to ship
+2026-05-09T19:16:29Z | awade-dev-execution | done | AWD-M-128: <curriculum_data> injection delimiter sandboxing in PARENT_HELPER_PROMPT + pre-format field sanitization; 3 tests; commit e3c3d8d merge d59e39f
+2026-05-09T20:13:05Z | awade-dev-execution | done | AWD-M-132: extracted Section/InfoCard from GuideViewPage.tsx (407→379 lines) to GuideViewPage.components.tsx; 5 tests added; commit 2841812 merge 89446a5
