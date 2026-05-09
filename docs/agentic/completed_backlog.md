@@ -1302,3 +1302,4 @@ Commit: 539d77e | Merge: c624c33
 2026-05-09 | AWD-L-27 | LessonPlanDetailPage: remove stale dead comment | 2d2081e (merge c9eb25e) | ✅ Done | CI:pending (Tolu: git push origin develop)
 2026-05-09 | AWD-H-81 | LessonPlanDetailPage: remove AI placeholder comment re-introduced by AWD-C-13 (de7da55 chore commit) | style fix, no tests | ✅ Done | CI:pending (Tolu: git push origin develop)
 2026-05-09 | AWD-M-128 | PARENT_HELPER_PROMPT injection delimiter sandboxing: added <curriculum_data> preamble + field wrapping + pre-format sanitization; 3 tests | e3c3d8d (merge d59e39f) | ✅ Done | CI:pending (Tolu: git push origin develop)
+2026-05-09 | AWD-M-132 | GuideViewPage.tsx: extract Section/InfoCard to GuideViewPage.components.tsx; file 407→379 lines; 5 component tests | 2841812 (merge 89446a5) | ✅ Done | CI:pending (Tolu: git push origin develop)
