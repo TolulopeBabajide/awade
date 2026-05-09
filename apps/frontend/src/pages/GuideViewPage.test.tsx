@@ -23,6 +23,7 @@ vi.mock('../services/api', () => ({
 import apiService from '../services/api'
 const mockGetGuide = vi.mocked(apiService.getGuide)
 const mockGenerateGuide = vi.mocked(apiService.generateGuide)
+const mockToggleBookmark = vi.mocked(apiService.toggleGuideBookmark)
 
 // ── Test fixtures ─────────────────────────────────────────────────────────
 const GUIDE_CONTENT = {
@@ -76,15 +77,16 @@ const MOCK_GUIDE = {
 // ── Render helper ─────────────────────────────────────────────────────────
 function renderPage(url = '/guides?guide=42') {
   const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   })
-  return render(
+  const result = render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter initialEntries={[url]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <GuideViewPage />
       </MemoryRouter>
     </QueryClientProvider>,
   )
+  return { ...result, queryClient }
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────
@@ -198,5 +200,38 @@ describe('GuideViewPage', () => {
     renderPage('/guides')
     expect(mockGetGuide).not.toHaveBeenCalled()
     expect(mockGenerateGuide).not.toHaveBeenCalled()
+  })
+
+  // ── AWD-M-83: bookmarkMutation onError — cache invalidation on failure ──
+  describe('bookmarkMutation onError (AWD-M-83)', () => {
+    it('invalidates parentGuide query when bookmark toggle fails', async () => {
+      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
+      mockToggleBookmark.mockRejectedValue(new Error('Network error'))
+
+      const { queryClient } = renderPage()
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
+
+      const bookmarkBtn = await screen.findByTitle('Bookmark this guide')
+      await userEvent.click(bookmarkBtn)
+
+      await waitFor(() => {
+        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['parentGuide'] })
+      })
+    })
+
+    it('invalidates childGuides query when bookmark toggle fails', async () => {
+      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
+      mockToggleBookmark.mockRejectedValue(new Error('Network error'))
+
+      const { queryClient } = renderPage()
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
+
+      const bookmarkBtn = await screen.findByTitle('Bookmark this guide')
+      await userEvent.click(bookmarkBtn)
+
+      await waitFor(() => {
+        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['childGuides'] })
+      })
+    })
   })
 })

@@ -69,6 +69,11 @@ const GuideViewPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['parentGuide'] })
       queryClient.invalidateQueries({ queryKey: ['childGuides'] })
     },
+    // AWD-M-83: roll back optimistic UI state on failure by re-fetching truth from server
+    onError: () => {
+      queryClient.invalidateQueries({ queryKey: ['parentGuide'] })
+      queryClient.invalidateQueries({ queryKey: ['childGuides'] })
+    },
   })
 
   // PDF download state
