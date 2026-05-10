@@ -163,3 +163,6 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-05-10T16:07:41Z | awade-dev-execution | skip | recent commit found within 50 min — afec568 (AWD-M-137)
 2026-05-10T16:24:44Z | awade-code-review | done | commit 5d63ec1 (AWD-M-137 AbortController refactor): ✅ Clean — 3 🟢 filed (AWD-L-29/30/31), 0 🔴/🟠/🟡
 2026-05-10T16:36:03Z | awade-qa-validation | done | AWD-M-137 AbortController refactor — TS ✅ Lint ✅ OpenAPI ✅ Tests ⚠️ ENOSPC (AWD-H-77) | Verdict: Ship
+2026-05-10T17:18:38Z | awade-dev-execution | done | AWD-M-79: replace alert() with inline error banner in GuideViewPage handleDownloadPdf
+2026-05-10T18:08:00Z | awade-dev-execution | skip | recent commit found 49min ago: e2712af chore(agentic): record AWD-M-79 closure and dev-agent heartbeat
+2026-05-10T18:22:34Z | awade-code-review | done | commit 90e3b42 (AWD-M-79 inline error banner) — verdict: Clean — filed AWD-L-32 (anchor DOM append) AWD-L-33 (dismiss button)

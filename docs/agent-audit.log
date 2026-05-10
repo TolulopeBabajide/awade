@@ -1,0 +1,87 @@
+2026-04-29T22:22:24Z | code-review-agent | SKIP | no new commits | skipping review
+2026-04-29T22:27:02Z | performance-agent | WRITE | docs/performance/ | completed performance benchmark — filed H-56, M-62, M-63
+2026-04-29T22:28:07Z | tech-debt-agent | WRITE | docs/tech-debt/ | completed tech debt audit
+2026-04-29T22:28:46Z | dependency-security-agent | WRITE | docs/audits/ | completed dependency security scan — 1 CVE (M-62 bcrypt), 2 staleness items (M-63 weasyprint, M-64 fastapi+uvicorn), 0 license issues, SBOM written
+2026-04-29T22:50:34Z | architecture-agent | WRITE | docs/architecture/ | completed architecture review — arch-review-2026-04-29.md + adr-001 + adr-002 + codebase-map updated + 4 backlog items filed (H-57, M-65, M-66, M-67)
+2026-04-29T22:50:55Z | compliance-agent | WRITE | docs/legal/ | completed compliance audit — 2 new GRC findings (GRC-06, GRC-07); all prior GRC items verified closed
+2026-04-29T22:52:28Z | access-review-agent | WRITE | docs/audits/ | completed access control review
+2026-04-29T23:21:40Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-04-30T00:23:20Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — 359b4a5 (AWD-M-65 TestPage removal); filed AWD-H-58 (staged reversion)
+2026-04-30T09:30:37Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-04-30T10:25:38Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-04-30T11:22:31Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-04-30T12:24:11Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — verdict: ⚠️ Refactor Recommended — filed AWD-H-61 AWD-M-70
+2026-05-01T00:21:25Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-01T01:21:14Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-01T03:28:08Z | code-review-agent | WRITE | docs/code-reviews/review-2026-05-01-f9858cb.md | completed structural code review — verdict: 🛑 Refactor Required — AWD-C-12, AWD-M-71, AWD-M-72 filed
+2026-05-01T04:21:52Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-03T04:21:55Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-03T05:30:15Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-03T07:22:23Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-03T08:21:52Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-03T09:22:21Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-03T10:15:00Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — AWD-H-66 EmptyState extraction — verdict: ✅ Clean — bash workspace unavailable (disk full), review via file tools
+2026-05-03T11:15:00Z | code-review-agent | SKIP | no new commits | HEAD 261bbb8 already reviewed at 10:15 — skipping
+2026-05-03T12:15:00Z | code-review-agent | SKIP | no new commits | HEAD 261bbb8 unchanged — skipping
+2026-05-03T13:15:00Z | code-review-agent | SKIP | no new commits | HEAD 261bbb8 unchanged — skipping; bash workspace unavailable (AWD-M-85 disk full)
+2026-05-03T14:15:00Z | code-review-agent | WRITE | docs/code-reviews/ | DEGRADED RUN — bash workspace unavailable (no disk space on host); git diff skipped; heartbeat written
+2026-05-03T15:15:00Z | code-review-agent | WRITE | docs/code-reviews/review-2026-05-03-261bbb8-arch.md | supplementary architectural deep-scan (bash unavailable, file tools fallback) — verdict: ⚠️ Refactor Recommended — AWD-M-86 (dead variant files), AWD-M-87 (navigate(-1) guard) filed; backlog.md updated
+2026-05-03T17:21:03Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-03T19:19:59Z | code-review-agent | READ | git log | no new commits — skipped
+2026-05-03T20:16:35Z | code-review-agent | SKIP | — | no new commits in last 45 minutes
+2026-05-03T21:22:49Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-04T05:34:52Z | compliance-agent | WRITE | docs/legal/compliance-audit-2026-05-04.md | completed monthly compliance audit — 2 new findings filed (GRC-08 High, GRC-09 Medium)
+2026-05-04T06:17:43Z | performance-agent | SKIP | docs/performance/ | report from 2026-04-29 is 5 days old (threshold: 6 days) — skipping this run
+2026-05-04T08:29:23Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review of AWD-M-71 + AWD-GRC-09 (commits fb4daa1, 740a6f4); filed L-08
+2026-05-04T10:25:04Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — 1 🟠 (H-69 migration FK name), 2 🟡 (M-91 hardcoded limit, M-92 validator duplication), 1 🟢 (L-17 EOF)
+2026-05-04T12:22:53Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — 9865815 — verdict: Refactor Recommended — filed AWD-H-70, AWD-M-93, AWD-M-94
+2026-05-04T14:24:15Z | code-review-agent | WRITE | docs/code-reviews/review-2026-05-04-33105b0.md | completed structural code review — verdict: ⚠️ Refactor Recommended — filed AWD-M-95
+2026-05-04T16:21:26Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-04T18:22:55Z | code-review-agent | WRITE | docs/code-reviews/review-2026-05-04-5aa63a4.md | completed structural code review; filed AWD-H-71, AWD-M-97, AWD-M-98
+2026-05-04T20:21:37Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-04T22:24:37Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-05T05:39:35Z | access-review-agent | WRITE | docs/audits/ | completed access control review
+2026-05-05T06:10:04Z | architecture-agent | SKIP | idempotency | ran within 14-day window — last run was 7639 minutes ago, window is 20160 minutes
+2026-05-05T06:21:56Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review for 3786cf4 (AWD-H-72 fix); filed AWD-M-103
+2026-05-05T08:23:01Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-05T10:22:59Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — commits 78fc972,aba87ee,1fff220,754ea45; verdict ⚠️ Refactor Recommended; filed AWD-M-105, AWD-L-18
+2026-05-05T12:23:25Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review (commits 2a0aab6–7a1bf63, verdict: Clean, filed AWD-M-106)
+2026-05-05T14:27:08Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — verdict ⚠️ Refactor Recommended, filed AWD-M-107 + AWD-L-19
+2026-05-05T16:21:59Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-05T18:21:45Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-05T20:23:00Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — verdict: ✅ Clean — filed AWD-M-110
+2026-05-05T22:22:28Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-06T05:38:44Z | dependency-security-agent | WRITE | docs/audits/ | completed dependency security scan 2026-05-06: 1 critical (WeasyPrint SSRF), 2 high (urllib3, python-multipart), 3 medium; npm clean
+2026-05-06T06:20:36Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-06T08:22:18Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-06T10:22:00Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-06T12:21:02Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-06T14:22:17Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-06T16:25:11Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review (commits 0d3dabb→8fc919d) — verdict ✅ Clean — filed AWD-M-117, AWD-M-118
+2026-05-06T18:22:40Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review (review-2026-05-06-0d1d6ab.md, verdict ✅ Clean)
+2026-05-06T20:20:52Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-07T10:20:15Z | code-review-agent | SKIP | no commits | skipped structural code review
+2026-05-07T14:21:32Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-07T16:21:48Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-07T20:20:27Z | code-review-agent | SKIP | no new commits | skipped structural code review
+2026-05-08T06:11:46Z | tech-debt-agent | WRITE | docs/tech-debt/ | completed tech debt audit
+2026-05-08T06:20:29Z | code-review-agent | SKIP | - | no new commits in last 115 min
+2026-05-08T12:24:44Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review 8c45330 — verdict ⚠️ Refactor Recommended; filed AWD-M-126 (zombie test_services.py) + AWD-L-22 (inline imports)
+2026-05-08T16:21:23Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — AWD-M-112 Pillow bump — verdict: Clean
+2026-05-08T18:23:57Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-08T20:23:45Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-08T22:22:55Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-09T06:23:39Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-09T08:23:58Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-09T10:24:50Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — commits db5bbaf,405462f,04546d0,89da8ba — verdict: ⚠️ Refactor Recommended — filed AWD-H-80, AWD-M-132
+2026-05-09T12:22:07Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-09T14:23:52Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-09T16:21:50Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-09T18:22:39Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-09T22:22:51Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-10T06:20:52Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-10T08:19:36Z | code-review-agent | SKIP | - | no new commits in last 115 minutes
+2026-05-10T12:22:21Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-10T14:22:58Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — commits fce26fa+0a50cf7 — verdict ✅ Clean — filed AWD-M-137
+2026-05-10T16:24:44Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-10T18:22:34Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — commit 90e3b42 (AWD-M-79), verdict: Clean, filed L-32/L-33

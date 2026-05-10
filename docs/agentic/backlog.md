@@ -1,6 +1,7 @@
 # Awade — Backlog
 
 > Last groomed: 2026-05-09 (weekend-ops — M-129/L-24/M-130/M-131 promoted to ready; M-96 superseded by M-129)
+> Last updated: 2026-05-10 (code-review-agent — commit 90e3b42 (AWD-M-79 inline error banner) reviewed. Verdict: ✅ Clean. Filed AWD-L-32: GuideViewPage anchor click without DOM append; AWD-L-33: downloadError banner has no dismiss button. Updated AWD-L-25 file list.)
 > Last updated: 2026-05-10 (dev-agent — AWD-M-79 resolved: replaced both alert() calls in handleDownloadPdf with setDownloadError(); added downloadError state + role="alert" inline banner between top bar and guide content. 4 tests added. 216 tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. Commit 90e3b42, merge 8a923b1. Tolu: run git push origin develop to trigger CI.)
 > Prev updated: 2026-05-10 (code-review-agent — commit 5d63ec1 (AWD-M-137 AbortController refactor) reviewed. Verdict: ✅ Clean. Filed AWD-L-29: LessonPlanDetailPage.tsx 411 lines; AWD-L-30: LessonPlanDetailPage.test.tsx 552 lines; AWD-L-31: stale isMountedRef comments in test file.)
 > Prev updated: 2026-05-10 (dev-agent — AWD-M-137 resolved: replaced isMountedRef guards with AbortController + signal.throwIfAborted() pattern; handleGenerateLessonResource complexity drops ≈12 → ≈8; submitContextIfProvided + pollUntilComplete now accept signal: AbortSignal. 2 new tests. 214 tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. Commit 7ffa87f, merge 5d63ec1. Tolu: run git push origin develop to trigger CI.)
@@ -930,7 +931,7 @@ One-line change, no behaviour change. Remove the now-unused `salt` local variabl
 ### AWD-L-25 — Frontend: extract `err instanceof Error ? err.message : fallback` into a shared `getErrorMessage` utility
 - **Stage:** define
 - **Priority:** Low
-- **Files:** `apps/frontend/src/pages/ParentDashboardPage.tsx` (×2), likely other pages
+- **Files:** `apps/frontend/src/pages/ParentDashboardPage.tsx` (×2), `apps/frontend/src/pages/GuideViewPage.tsx` (line 108), likely other pages
 - **Summary:** The pattern `err instanceof Error ? err.message : 'Something went wrong…'` is duplicated in `handleDeleteChild` and `handleConsentConfirmed` in `ParentDashboardPage.tsx`, and likely recurs in other pages as error handling coverage grows. A tiny utility prevents further divergence.
 - **Suggested fix:** Add `export function getErrorMessage(err: unknown, fallback = 'Something went wrong. Please try again.'): string { return err instanceof Error ? err.message : fallback }` to `apps/frontend/src/utils/errors.ts` and replace the inline ternaries.
 - **Acceptance criteria:** Utility exists in `src/utils/errors.ts` with a unit test; all existing call sites updated; no new inline copies added.
@@ -988,6 +989,41 @@ One-line change, no behaviour change. Remove the now-unused `salt` local variabl
   These are misleading — the guard is now the AbortSignal, not a ref boolean.
 - **Suggested fix:** Update both comments to reference `AbortController signal` instead of `isMountedRef guard`.
 - **Acceptance criteria:** Comments updated; no test logic changed; lint + TS pass.
+- **Filed by:** code-review-agent 2026-05-10
+
+
+### AWD-L-32 — `GuideViewPage.tsx`: PDF anchor click without DOM append
+- **Stage:** define
+- **Priority:** Low
+- **Files:** `apps/frontend/src/pages/GuideViewPage.tsx` (lines 98–103)
+- **Summary:** The PDF download creates an `<a>` element via `document.createElement('a')` and calls `.click()` on it without ever appending it to `document.body`. This works in Chrome and modern Safari but is unreliable in Firefox and some Android WebViews, which require the element to be in the live DOM before a synthetic click triggers a file download.
+- **Suggested fix:** Append before click, remove after:
+  ```ts
+  document.body.appendChild(anchor)
+  anchor.click()
+  document.body.removeChild(anchor)
+  URL.revokeObjectURL(url)
+  ```
+- **Acceptance criteria:** Anchor is appended/removed around the click; existing download tests pass; no new lint errors.
+- **Filed by:** code-review-agent 2026-05-10
+
+### AWD-L-33 — `GuideViewPage.tsx`: `downloadError` banner has no dismiss button
+- **Stage:** define
+- **Priority:** Low
+- **Files:** `apps/frontend/src/pages/GuideViewPage.tsx` (lines 234–241)
+- **Summary:** Once the PDF download error banner appears it persists until the user clicks Download again (which calls `setDownloadError(null)` at the top of the next attempt). A user who reads the error and decides not to retry must navigate away or reload to clear it — slightly confusing UX. Analogous to `deleteError` in `ParentDashboardPage.tsx` (AWD-L-26).
+- **Suggested fix:** Add an accessible dismiss button inside the alert div:
+  ```tsx
+  <button
+    onClick={() => setDownloadError(null)}
+    aria-label="Dismiss error"
+    className="ml-auto text-red-400 hover:text-red-600 leading-none"
+  >
+    ✕
+  </button>
+  ```
+  Wrap the inner `<p>` and button in a `flex` container.
+- **Acceptance criteria:** Button is rendered; clicking it clears the banner; existing error tests still pass; a new test verifies the dismiss interaction.
 - **Filed by:** code-review-agent 2026-05-10
 
 ### ~~AWD-H-82~~ — ~~`LessonPlanDetailPage.test.tsx`: 3 vitest failures shipped without verification (AWD-M-90 + AWD-M-133 tests)~~
