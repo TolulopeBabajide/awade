@@ -204,27 +204,72 @@ describe('GuideViewPage', () => {
     expect(mockGenerateGuide).not.toHaveBeenCalled()
   })
 
-  // ── AWD-H-79: handleDownloadPdf catch block ──────────────────────────────
-  describe('handleDownloadPdf catch (AWD-H-79)', () => {
-    it('alerts the user when exportGuidePdf throws unexpectedly', async () => {
+  // ── AWD-M-79 + AWD-H-79: handleDownloadPdf error paths ──────────────────
+  describe('handleDownloadPdf error banner (AWD-M-79)', () => {
+    it('shows inline error banner when exportGuidePdf returns an API error', async () => {
       mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
-      mockExportGuidePdf.mockRejectedValue(new Error('Network abort'))
-      const alertSpy = vi.spyOn(window, 'alert').mockReturnValue()
+      mockExportGuidePdf.mockResolvedValue({ error: 'PDF generation failed' })
 
       renderPage()
       const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
       await userEvent.click(downloadBtn)
 
       await waitFor(() => {
-        expect(alertSpy).toHaveBeenCalledWith('Could not download PDF: Network abort')
+        expect(screen.getByRole('alert')).toHaveTextContent(
+          'Could not download PDF: PDF generation failed',
+        )
       })
-      alertSpy.mockRestore()
     })
 
-    it('resets isDownloading to false after an unexpected throw', async () => {
+    it('shows inline error banner when exportGuidePdf throws unexpectedly', async () => {
+      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
+      mockExportGuidePdf.mockRejectedValue(new Error('Network abort'))
+
+      renderPage()
+      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+      await userEvent.click(downloadBtn)
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent(
+          'Could not download PDF: Network abort',
+        )
+      })
+    })
+
+    it('clears the error banner on a subsequent download attempt', async () => {
+      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
+      // First call fails, second call resolves successfully
+      mockExportGuidePdf
+        .mockRejectedValueOnce(new Error('Timeout'))
+        .mockResolvedValueOnce({ blob: new Blob(), filename: 'guide.pdf' })
+
+      // jsdom does not implement blob URL APIs — define stubs so the success path completes
+      URL.createObjectURL = vi.fn().mockReturnValue('blob:mock')
+      URL.revokeObjectURL = vi.fn()
+
+      renderPage()
+      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+
+      // Trigger failure
+      await userEvent.click(downloadBtn)
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent('Could not download PDF')
+      })
+
+      // Trigger successful retry — error should disappear
+      await userEvent.click(downloadBtn)
+      await waitFor(() => {
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+      })
+
+      // Restore to undefined so other tests are not affected
+      ;(URL as { createObjectURL?: unknown }).createObjectURL = undefined
+      ;(URL as { revokeObjectURL?: unknown }).revokeObjectURL = undefined
+    })
+
+    it('re-enables the download button after an unexpected throw', async () => {
       mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
       mockExportGuidePdf.mockRejectedValue(new Error('Timeout'))
-      const alertSpy = vi.spyOn(window, 'alert').mockReturnValue()
 
       renderPage()
       const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
@@ -234,7 +279,6 @@ describe('GuideViewPage', () => {
       await waitFor(() => {
         expect(downloadBtn).not.toBeDisabled()
       })
-      alertSpy.mockRestore()
     })
   })
 
