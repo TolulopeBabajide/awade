@@ -82,15 +82,17 @@ const GuideViewPage: React.FC = () => {
 
   // PDF download state
   const [isDownloading, setIsDownloading] = useState(false)
+  // AWD-M-79: inline error — replaces inaccessible alert() calls
+  const [downloadError, setDownloadError] = useState<string | null>(null)
 
   const handleDownloadPdf = async () => {
     if (!guide || isDownloading) return
+    setDownloadError(null)
     setIsDownloading(true)
     try {
       const result = await apiService.exportGuidePdf(guide.guide_id)
       if ('error' in result) {
-        // Non-blocking — show a brief alert rather than a full error page
-        alert(`Could not download PDF: ${result.error}`)
+        setDownloadError(`Could not download PDF: ${result.error}`)
         return
       }
       const url = URL.createObjectURL(result.blob)
@@ -102,7 +104,7 @@ const GuideViewPage: React.FC = () => {
     } catch (err: unknown) {
       // AWD-H-79: surface unexpected throws (e.g. network abort before apiService
       // internal catch, or runtime errors in blob/URL handling) to the user
-      alert(
+      setDownloadError(
         `Could not download PDF: ${err instanceof Error ? err.message : 'Unexpected error'}`,
       )
     } finally {
@@ -227,6 +229,16 @@ const GuideViewPage: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* AWD-M-79: PDF download error banner — accessible, non-blocking */}
+        {downloadError && (
+          <div
+            role="alert"
+            className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-4"
+          >
+            <p className="text-red-600 text-sm font-medium">{downloadError}</p>
+          </div>
+        )}
 
         {/* Guide content */}
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
