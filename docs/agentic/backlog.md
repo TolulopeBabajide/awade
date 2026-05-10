@@ -1,8 +1,8 @@
 # Awade — Backlog
 
 > Last groomed: 2026-05-09 (weekend-ops — M-129/L-24/M-130/M-131 promoted to ready; M-96 superseded by M-129)
-> Last updated: 2026-05-10 (dev-agent — AWD-M-137 resolved: replaced isMountedRef guards with AbortController + signal.throwIfAborted() pattern; handleGenerateLessonResource complexity drops ≈12 → ≈8; submitContextIfProvided + pollUntilComplete now accept signal: AbortSignal. 2 new tests. 214 tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. Commit 7ffa87f, merge 5d63ec1. Tolu: run git push origin develop to trigger CI.)
-> Prev updated: 2026-05-10 (code-review-agent — commits fce26fa+0a50cf7 reviewed. AWD-M-134 extraction is clean; AWD-M-136 lookup refactor reduces pollUntilComplete to 9 points. Filed AWD-M-137: handleGenerateLessonResource still ≈12 decision points by strict McCabe (isMountedRef guards + compound OR + catch/finally = 12; dev count of 9 excluded these). Verdict: ✅ Clean.)
+> Last updated: 2026-05-10 (code-review-agent — commit 5d63ec1 (AWD-M-137 AbortController refactor) reviewed. Verdict: ✅ Clean. Filed AWD-L-29: LessonPlanDetailPage.tsx 411 lines; AWD-L-30: LessonPlanDetailPage.test.tsx 552 lines; AWD-L-31: stale isMountedRef comments in test file.)
+> Prev updated: 2026-05-10 (dev-agent — AWD-M-137 resolved: replaced isMountedRef guards with AbortController + signal.throwIfAborted() pattern; handleGenerateLessonResource complexity drops ≈12 → ≈8; submitContextIfProvided + pollUntilComplete now accept signal: AbortSignal. 2 new tests. 214 tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. Commit 7ffa87f, merge 5d63ec1. Tolu: run git push origin develop to trigger CI.)
 > Prev updated: 2026-05-10 (dev-agent — AWD-M-134 + AWD-M-136 resolved: extracted submitContextIfProvided() helper from handleGenerateLessonResource (M-134, removes 3 branches → complexity ≤10); replaced 3-branch pollUntilComplete tail with statusErrors lookup (M-136, complexity 11→9). 2 new tests. 212 tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. Commit fce26fa. Tolu: run git push origin develop to trigger CI.)
 > Prev updated: 2026-05-10 (code-review-agent — commits 59851e2+692eaed reviewed. AWD-M-135 fix is clean. AWD-H-82 fake-timer fix is exemplary. Filed AWD-M-136: pollUntilComplete cyclomatic complexity at 11 (1 over threshold). Verdict: ✅ Clean.)
 > Prev updated: 2026-05-10 (dev-agent — AWD-M-135 resolved: defined `ResourceStatus = 'processing' | 'failed' | 'complete'` in `apps/frontend/src/types/lesson-plans.ts`; changed `let status = 'processing'` to `let status: ResourceStatus`; changed `as string` cast to `as ResourceStatus`; added `else if (status !== 'complete') { throw new Error(\`Unexpected resource status: \${status}\`) }` guard after the `'failed'` throw. 1 new vitest test `'shows "Unexpected resource status" error when poll returns an unrecognised status'` in `describe('pollUntilComplete unknown status guard (AWD-M-135)')`. 210 tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · backend N/A. Commit bec8404, merge 692eaed. Tolu: run `git push origin develop` to trigger CI.)
@@ -958,6 +958,36 @@ One-line change, no behaviour change. Remove the now-unused `salt` local variabl
 - **Priority:** Low
 - **Source:** code-review-agent 2026-05-09
 - **Files:** `apps/backend/tests/test_auth_cookies.py`
+
+### AWD-L-29 — `LessonPlanDetailPage.tsx`: 411 lines — extract generation workflow into custom hook
+- **Stage:** define
+- **Priority:** Low
+- **Files:** `apps/frontend/src/pages/LessonPlanDetailPage.tsx`
+- **Summary:** File is 411 lines, 11 over the 400-line threshold. The generation workflow — module-level helpers `submitContextIfProvided` + `pollUntilComplete`, component method `handleGenerationSuccess`, and handler `handleGenerateLessonResource` — accounts for ~130 lines and is a distinct concern from page rendering. Extracting into a custom hook `useGenerateLessonResource(lessonPlan, context)` would bring the component under 300 lines and make the hook independently testable without a full page render.
+- **Suggested fix:** Create `apps/frontend/src/hooks/useGenerateLessonResource.ts`. Move `submitContextIfProvided`, `pollUntilComplete`, `abortControllerRef`, `isGeneratingLessonResource`, `contextFeedback`, `currentGenerationStep`, `handleGenerateLessonResource`, and `handleGenerationSuccess` into the hook. The page component calls the hook and passes state + handler to JSX.
+- **Acceptance criteria:** `LessonPlanDetailPage.tsx` under 300 lines; hook has a dedicated test file; existing tests still pass.
+- **Filed by:** code-review-agent 2026-05-10
+
+### AWD-L-30 — `LessonPlanDetailPage.test.tsx`: 552 lines — split into load + generate test files
+- **Stage:** define
+- **Priority:** Low
+- **Files:** `apps/frontend/src/pages/LessonPlanDetailPage.test.tsx`
+- **Summary:** Test file is 552 lines — 152 over the 400-line threshold — and will grow further as generation-workflow coverage continues. The file contains two clearly separable test concerns: fetch/load/error path (8 tests, ~130 lines) and generation workflow (8+ tests, ~400 lines). Can be resolved as part of AWD-L-29 (hook extraction) or independently.
+- **Suggested fix:** Split into `LessonPlanDetailPage.load.test.tsx` (loading state, success render, 403/404/generic errors, nav-state shortcut) and `LessonPlanDetailPage.generate.test.tsx` (all `handleGenerateLessonResource` / AbortController / pollUntilComplete / submitContext describes).
+- **Acceptance criteria:** Both files under 400 lines; all tests retained and passing; shared fixtures extracted to a helper if needed.
+- **Filed by:** code-review-agent 2026-05-10
+
+### AWD-L-31 — `LessonPlanDetailPage.test.tsx`: stale `isMountedRef` comments after AWD-M-137 AbortController refactor
+- **Stage:** define
+- **Priority:** Low
+- **Files:** `apps/frontend/src/pages/LessonPlanDetailPage.test.tsx` (lines 222, 247)
+- **Summary:** Two comments still reference the old `isMountedRef` boolean-ref pattern that AWD-M-137 replaced with AbortController + `signal.throwIfAborted()`:
+  - Line 222: `// If isMountedRef guard is absent React logs a console.error about updating`
+  - Line 247: `// Reject after unmount — catch block should bail via isMountedRef guard`
+  These are misleading — the guard is now the AbortSignal, not a ref boolean.
+- **Suggested fix:** Update both comments to reference `AbortController signal` instead of `isMountedRef guard`.
+- **Acceptance criteria:** Comments updated; no test logic changed; lint + TS pass.
+- **Filed by:** code-review-agent 2026-05-10
 
 ### ~~AWD-H-82~~ — ~~`LessonPlanDetailPage.test.tsx`: 3 vitest failures shipped without verification (AWD-M-90 + AWD-M-133 tests)~~
 - ~~**Stage:** ready~~ — ✅ resolved 2026-05-10 (commit 59851e2, merge e8b2d0e). Rendered page with real timers first (waitFor initial lesson-plan load), then switched to fake timers + called `userEvent.setup({ advanceTimers })` AFTER `vi.useFakeTimers()`; replaced `waitFor` with direct assertions after `act(async () => { await vi.advanceTimersByTimeAsync(...) })`; added `afterEach(() => vi.useRealTimers())` to prevent timer leakage between tests. All 13 tests pass (`TMPDIR=/tmp npm run test:run -- src/pages/LessonPlanDetailPage.test.tsx`). 209 tests pass full suite. TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. Tolu: run `git push origin develop` to trigger CI.

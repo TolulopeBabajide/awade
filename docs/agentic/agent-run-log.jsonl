@@ -156,3 +156,10 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-05-10T12:22:21Z | awade-code-review | done | reviewed 692eaed+bec8404+59851e2 (AWD-M-135 type narrowing + AWD-H-82 fake-timer fix) — verdict ✅ Clean — filed AWD-M-136 (pollUntilComplete complexity 11)
 2026-05-10T12:35:39Z | awade-qa-validation | done | ✅ PASS — AWD-M-135 (ResourceStatus union) + AWD-H-82 (fake-timer fix) clean; TypeScript ✅ Lint ✅ OpenAPI ✅; frontend/backend tests blocked by pre-existing infra (ENOSPC + broken venv)
 2026-05-10T13:20:36Z | awade-dev-execution | done | AWD-M-134+M-136 cyclomatic complexity reduction shipped — fce26fa
+2026-05-10T14:07:35Z | awade-dev-execution | skip | Recent commit found within 50 min (fce26fa); also detected unfinished merge state on develop — manual resolution may be needed
+2026-05-10T14:22:58Z | awade-code-review | done | commits fce26fa+0a50cf7 reviewed — AWD-M-134/M-136 clean — filed AWD-M-137 (handleGenerateLessonResource strict McCabe ~12) — verdict ✅ Clean
+2026-05-10T14:35:38Z | awade-qa-validation | done | ✅ PASS — AWD-M-134/M-136 closure commits (agentic docs only); TypeScript ✅ Lint ✅ OpenAPI ✅; frontend/backend tests blocked by pre-existing infra (AWD-H-77 + AWD-M-46)
+2026-05-10T15:20:37Z | awade-dev-execution | done | AWD-M-137: replaced isMountedRef with AbortController in handleGenerateLessonResource; complexity ≈12→≈8; 214 tests pass; commit 7ffa87f merge 5d63ec1
+2026-05-10T16:07:41Z | awade-dev-execution | skip | recent commit found within 50 min — afec568 (AWD-M-137)
+2026-05-10T16:24:44Z | awade-code-review | done | commit 5d63ec1 (AWD-M-137 AbortController refactor): ✅ Clean — 3 🟢 filed (AWD-L-29/30/31), 0 🔴/🟠/🟡
+2026-05-10T16:36:03Z | awade-qa-validation | done | AWD-M-137 AbortController refactor — TS ✅ Lint ✅ OpenAPI ✅ Tests ⚠️ ENOSPC (AWD-H-77) | Verdict: Ship
