@@ -8,6 +8,7 @@ import Sidebar from '../components/Sidebar'
 import MobileNavigation from '../components/MobileNavigation'
 import AddChildModal from '../components/AddChildModal'
 import ConsentModal from '../components/ConsentModal'
+import DeleteChildConfirmModal from '../components/DeleteChildConfirmModal'
 import type { ChildProfile, ChildTopic, ConsentStatusResponse, ChildProfileListResponse } from '../types/children'
 
 // ── File-scope subcomponent ───────────────────────────────────────────────
@@ -54,6 +55,10 @@ const ParentDashboardPage: React.FC = () => {
   const [deletingChildId, setDeletingChildId] = useState<number | null>(null)
   // AWD-H-80: surface delete failures inline instead of silently swallowing them
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  // AWD-M-80: replace blocking, inaccessible window.confirm() with an
+  // in-app modal — `pendingDeleteChild` is non-null while the confirmation
+  // dialog is open.
+  const [pendingDeleteChild, setPendingDeleteChild] = useState<ChildProfile | null>(null)
 
   // ── COPPA consent state (AWD-GRC-01) ──────────────────────────────
   const [showConsentModal, setShowConsentModal] = useState(false)
@@ -122,17 +127,35 @@ const ParentDashboardPage: React.FC = () => {
     return acc
   }, {})
 
-  const handleDeleteChild = async (childId: number) => {
-    if (!confirm('Are you sure you want to remove this child profile? All saved guides will be deleted.')) return
+  /**
+   * AWD-M-80: open the in-app confirmation modal. The actual API call is
+   * deferred to `confirmDeleteChild` once the parent presses "Remove" inside
+   * the modal.
+   */
+  const requestDeleteChild = (child: ChildProfile) => {
+    setDeleteError(null)
+    setPendingDeleteChild(child)
+  }
+
+  /**
+   * AWD-M-80: invoked from DeleteChildConfirmModal's "Remove" button.
+   * Performs the actual delete and surfaces any error inline (AWD-H-80).
+   */
+  const confirmDeleteChild = async () => {
+    if (!pendingDeleteChild) return
+    const childId = pendingDeleteChild.child_id
     setDeletingChildId(childId)
     setDeleteError(null)
     try {
       await apiService.deleteChild(childId)
       if (selectedChild?.child_id === childId) setSelectedChild(null)
       queryClient.invalidateQueries({ queryKey: ['children'] })
+      setPendingDeleteChild(null)
     } catch (err) {
-      // AWD-H-80: surface the error inline rather than absorbing it silently
+      // AWD-H-80: surface the error inline rather than absorbing it silently.
+      // Close the modal so the inline banner is visible above the cards.
       setDeleteError(err instanceof Error ? err.message : 'Failed to remove child profile. Please try again.')
+      setPendingDeleteChild(null)
     } finally {
       setDeletingChildId(null)
     }
@@ -285,7 +308,7 @@ const ParentDashboardPage: React.FC = () => {
                       <FaEdit className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={e => { e.stopPropagation(); handleDeleteChild(child.child_id) }}
+                      onClick={e => { e.stopPropagation(); requestDeleteChild(child) }}
                       className="p-2 rounded-lg text-gray-500 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       title="Remove"
                       aria-label={`Remove ${child.name}'s profile`}
@@ -402,6 +425,16 @@ const ParentDashboardPage: React.FC = () => {
         onSuccess={onChildAdded}
         editData={editingChild}
       />
+
+      {/* AWD-M-80: Delete-child confirmation modal — replaces window.confirm() */}
+      {pendingDeleteChild && (
+        <DeleteChildConfirmModal
+          childName={pendingDeleteChild.name}
+          onConfirm={confirmDeleteChild}
+          onCancel={() => setPendingDeleteChild(null)}
+          isSubmitting={deletingChildId === pendingDeleteChild.child_id}
+        />
+      )}
     </div>
   )
 }

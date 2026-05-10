@@ -39,6 +39,12 @@ vi.mock('../components/AddChildModal', () => ({
     ) : null,
 }))
 
+// AWD-M-80: useFocusTrap pulls in browser-only focus management. Stub it
+// so the modal renders cleanly in JSDOM without focus side effects.
+vi.mock('../hooks/useFocusTrap', () => ({
+  useFocusTrap: () => {},
+}))
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -425,12 +431,16 @@ describe('ParentDashboardPage', () => {
     })
   })
 
-  describe('handleDeleteChild error feedback (AWD-H-80)', () => {
+  describe('handleDeleteChild error feedback (AWD-H-80, AWD-M-80)', () => {
     /**
      * AWD-H-80: deleteChild API rejections were previously absorbed in `finally`
      * with no user-visible feedback. The fix adds a catch block that sets
      * `deleteError` state, which is rendered as an inline role="alert" message
      * above the child selector cards.
+     *
+     * AWD-M-80: confirmation gating moved from window.confirm() to a controlled
+     * DeleteChildConfirmModal. Tests now click the trash button to open the
+     * modal, then press its "Remove" button to trigger the API call.
      */
     const setupChildList = () => {
       mockApiService.getChildren.mockResolvedValue({
@@ -440,38 +450,40 @@ describe('ParentDashboardPage', () => {
       mockApiService.getChildTopics.mockResolvedValue({ error: undefined, data: [] })
     }
 
+    // Helper: open the delete-confirm modal and click its "Remove" button.
+    const openAndConfirmDelete = async () => {
+      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy())
+      fireEvent.click(screen.getByTitle('Remove'))
+      // The modal exposes a "Remove" button inside role="dialog".
+      const dialog = await screen.findByRole('dialog')
+      const confirmBtn = dialog.querySelector('button') as HTMLButtonElement
+      fireEvent.click(confirmBtn)
+    }
+
     it('shows an inline error message when deleteChild API call rejects with an Error', async () => {
       setupChildList()
       mockApiService.deleteChild.mockRejectedValue(new Error('Server unavailable'))
-      const confirmMock = vi.spyOn(window, 'confirm').mockReturnValue(true)
 
       renderWithProviders(<ParentDashboardPage />)
-      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy())
-      fireEvent.click(screen.getByTitle('Remove'))
+      await openAndConfirmDelete()
 
       await waitFor(() => {
         const alert = screen.getByRole('alert')
         expect(alert.textContent).toContain('Server unavailable')
       })
-
-      confirmMock.mockRestore()
     })
 
     it('shows a generic fallback message when deleteChild rejects with a non-Error value', async () => {
       setupChildList()
       mockApiService.deleteChild.mockRejectedValue('plain-string-rejection')
-      const confirmMock = vi.spyOn(window, 'confirm').mockReturnValue(true)
 
       renderWithProviders(<ParentDashboardPage />)
-      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy())
-      fireEvent.click(screen.getByTitle('Remove'))
+      await openAndConfirmDelete()
 
       await waitFor(() => {
         const alert = screen.getByRole('alert')
         expect(alert.textContent).toContain('Failed to remove child profile. Please try again.')
       })
-
-      confirmMock.mockRestore()
     })
 
     it('clears any previous delete error when a new delete attempt begins', async () => {
@@ -481,19 +493,92 @@ describe('ParentDashboardPage', () => {
         .mockRejectedValueOnce(new Error('Temporary failure'))
         .mockResolvedValueOnce({ data: null, error: undefined })
 
-      const confirmMock = vi.spyOn(window, 'confirm').mockReturnValue(true)
       renderWithProviders(<ParentDashboardPage />)
 
       // First delete — fails, error should appear
-      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy())
-      fireEvent.click(screen.getByTitle('Remove'))
+      await openAndConfirmDelete()
       await waitFor(() => expect(screen.getByRole('alert')).toBeTruthy())
 
       // Second delete — succeeds, error should be cleared
-      fireEvent.click(screen.getByTitle('Remove'))
+      await openAndConfirmDelete()
       await waitFor(() => expect(screen.queryByRole('alert')).toBeNull())
+    })
+  })
 
-      confirmMock.mockRestore()
+  describe('DeleteChildConfirmModal (AWD-M-80)', () => {
+    /**
+     * AWD-M-80: replace browser-native window.confirm() with an in-app
+     * accessible confirmation modal. The modal must:
+     *  - Open when the trash button is clicked (gates the delete API call).
+     *  - Expose role="dialog" with aria-modal="true" for assistive tech.
+     *  - Cancel without calling deleteChild.
+     *  - Confirm by calling deleteChild then closing on success.
+     */
+    const setupChildList = () => {
+      mockApiService.getChildren.mockResolvedValue({
+        error: undefined,
+        data: { children: [makeChild({ child_id: 1, name: 'Child A' })], total: 1 },
+      })
+      mockApiService.getChildTopics.mockResolvedValue({ error: undefined, data: [] })
+    }
+
+    it('does NOT call window.confirm() when the trash button is clicked', async () => {
+      setupChildList()
+      const confirmSpy = vi.spyOn(window, 'confirm')
+
+      renderWithProviders(<ParentDashboardPage />)
+      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy())
+      fireEvent.click(screen.getByTitle('Remove'))
+
+      // The blocking, inaccessible confirm() prompt must not be used.
+      expect(confirmSpy).not.toHaveBeenCalled()
+      confirmSpy.mockRestore()
+    })
+
+    it('opens an accessible role="dialog" when the trash button is clicked', async () => {
+      setupChildList()
+
+      renderWithProviders(<ParentDashboardPage />)
+      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy())
+      fireEvent.click(screen.getByTitle('Remove'))
+
+      const dialog = await screen.findByRole('dialog')
+      expect(dialog.getAttribute('aria-modal')).toBe('true')
+      // The title names the child being removed.
+      expect(dialog.textContent).toContain("Remove Child A's profile?")
+    })
+
+    it('Cancel closes the modal without calling deleteChild', async () => {
+      setupChildList()
+
+      renderWithProviders(<ParentDashboardPage />)
+      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy())
+      fireEvent.click(screen.getByTitle('Remove'))
+
+      // Click the Cancel button inside the dialog.
+      const cancelBtn = await screen.findByRole('button', { name: /^Cancel$/ })
+      fireEvent.click(cancelBtn)
+
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+      expect(mockApiService.deleteChild).not.toHaveBeenCalled()
+    })
+
+    it('Remove button inside the modal calls deleteChild with the right id and closes the modal', async () => {
+      setupChildList()
+      mockApiService.deleteChild.mockResolvedValue({ data: null, error: undefined })
+
+      renderWithProviders(<ParentDashboardPage />)
+      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy())
+      fireEvent.click(screen.getByTitle('Remove'))
+
+      const dialog = await screen.findByRole('dialog')
+      // First button inside the dialog is the destructive "Remove" action.
+      const confirmBtn = dialog.querySelector('button') as HTMLButtonElement
+      expect(confirmBtn).toBeTruthy()
+      fireEvent.click(confirmBtn)
+
+      await waitFor(() => expect(mockApiService.deleteChild).toHaveBeenCalledWith(1))
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
     })
   })
 
