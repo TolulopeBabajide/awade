@@ -477,4 +477,76 @@ describe('LessonPlanDetailPage', () => {
       }
     })
   })
+
+  // ---------------------------------------------------------------------------
+  // AWD-M-137 — AbortController replaces isMountedRef guards
+  // ---------------------------------------------------------------------------
+
+  describe('handleGenerateLessonResource AbortController (AWD-M-137)', () => {
+    it('aborts cleanly when unmounted during the fetch-curriculum-data pause', async () => {
+      mockGetLessonPlan.mockResolvedValue({ data: MOCK_LESSON_PLAN })
+      // generateLessonResource never resolves — we unmount before it is called
+      mockGenerateLessonResource.mockReturnValue(new Promise(() => {}))
+
+      const { unmount } = renderPage()
+      await waitFor(() =>
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+      )
+
+      vi.useFakeTimers()
+      try {
+        const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+        await user.click(screen.getByRole('button', { name: /Generate Lesson Resource/i }))
+
+        // Advance 200ms — handler is in the 500ms fetch-curriculum-data pause, no API call yet
+        await act(async () => { await vi.advanceTimersByTimeAsync(200) })
+
+        // Unmount mid-pause — controller.abort() fires in cleanup effect (AWD-M-137)
+        act(() => { unmount() })
+
+        // Advance past the remaining 300ms — signal.throwIfAborted() fires, no state updates
+        await act(async () => { await vi.advanceTimersByTimeAsync(400) })
+
+        // generateLessonResource was never called — abort prevented it
+        expect(mockGenerateLessonResource).not.toHaveBeenCalled()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('does not call navigate when unmounted during the completion pause', async () => {
+      mockGetLessonPlan.mockResolvedValue({ data: MOCK_LESSON_PLAN })
+      // generate returns complete immediately — skips polling, enters 500ms completion pause
+      mockGenerateLessonResource.mockResolvedValue({
+        data: { lesson_resources_id: 99, status: 'complete' },
+      })
+
+      const { unmount } = renderPage()
+      await waitFor(() =>
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+      )
+
+      // Switch to fake timers after initial render (AWD-H-82 pattern)
+      vi.useFakeTimers()
+      try {
+        const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+        await user.click(screen.getByRole('button', { name: /Generate Lesson Resource/i }))
+
+        // Advance 700ms: past the 500ms fetch-curriculum pause and into the completion pause
+        // (generateLessonResource mock resolves via microtask at ~500ms; completion timer starts ~500ms)
+        await act(async () => { await vi.advanceTimersByTimeAsync(700) })
+
+        // Unmount during the completion pause — controller.abort() fires
+        act(() => { unmount() })
+
+        // Advance 600ms more: completion timer fires (~1000ms total), throwIfAborted() catches it
+        await act(async () => { await vi.advanceTimersByTimeAsync(600) })
+
+        // navigate must NOT have been called — abort short-circuits before handleGenerationSuccess
+        expect(mockNavigate).not.toHaveBeenCalled()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+  })
 })
