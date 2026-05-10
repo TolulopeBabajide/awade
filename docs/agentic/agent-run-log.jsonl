@@ -173,3 +173,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-05-10T20:33:47Z | awade-qa-validation | skip | No new commits on develop in last 110 minutes
 2026-05-10T21:13:51Z | awade-dev-execution | done | AWD-L-32 shipped (PDF anchor DOM append) — commit fce90e6, merge da5bc38
 2026-05-10T22:04:03Z | awade-nightly-monitor | done | morning-brief.md written; FE 217 passing; BE blocked by AWD-H-77 venv; 0C/3H/8M/6L open
+2026-05-10T22:14:17Z | awade-dev-execution | done | AWD-M-80 shipped (DeleteChildConfirmModal replaces window.confirm) — commit 5427797, merge a19fb7a

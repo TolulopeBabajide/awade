@@ -616,3 +616,4 @@ After removing it, the next hourly run will:
 2026-05-10T15:18:00Z | AWD-M-137 | handleGenerateLessonResource AbortController refactor | 7ffa87f | ✅ Done | CI:pending
 2026-05-10T17:15:00Z | AWD-M-79 | GuideViewPage: replace alert() with inline error banner | 90e3b42 | ✅ Done | CI:pending
 2026-05-10T21:12:15Z | AWD-L-32 | GuideViewPage: append PDF anchor to DOM before click for Firefox/WebView | fce90e6 | ✅ Done | CI:pending
+2026-05-10T22:14:17Z | AWD-M-80 | ParentDashboardPage: replace confirm() with accessible DeleteChildConfirmModal | 5427797 | ✅ Done | CI:pending
