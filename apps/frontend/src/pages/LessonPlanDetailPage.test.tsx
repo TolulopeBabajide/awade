@@ -8,6 +8,16 @@ import LessonPlanDetailPage from './LessonPlanDetailPage'
 // Module mocks
 // ---------------------------------------------------------------------------
 
+const mockNavigate = vi.fn()
+
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom')
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  }
+})
+
 vi.mock('../services/api', () => ({
   default: {
     getLessonPlan: vi.fn(),
@@ -306,6 +316,43 @@ describe('LessonPlanDetailPage', () => {
             screen.getByText('Generation timed out. Please check back later.')
           ).toBeInTheDocument()
         )
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+  })
+
+  // ---------------------------------------------------------------------------
+  // AWD-M-90 — happy-path generation success → navigate to edit page
+  // ---------------------------------------------------------------------------
+
+  describe('handleGenerateLessonResource happy path (AWD-M-90)', () => {
+    it('navigates to /lesson-plans/:id/resources/edit when generation completes immediately', async () => {
+      vi.useFakeTimers()
+      try {
+        mockGetLessonPlan.mockResolvedValue({ data: MOCK_LESSON_PLAN })
+        // Initial generate call returns complete — bypasses pollUntilComplete entirely
+        mockGenerateLessonResource.mockResolvedValue({
+          data: { lesson_resources_id: 99, status: 'complete' },
+        })
+
+        renderPage()
+        await act(async () => { await vi.runAllTimersAsync() })
+        await waitFor(() =>
+          expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+        )
+
+        const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+        await user.click(screen.getByRole('button', { name: /Generate Lesson Resource/i }))
+
+        // Advance past the 500ms fetch-curriculum pause + 500ms completion pause
+        await act(async () => { await vi.advanceTimersByTimeAsync(1500) })
+
+        await waitFor(() =>
+          expect(mockNavigate).toHaveBeenCalledWith('/lesson-plans/1/resources/edit')
+        )
+        // Polling endpoint must NOT have been called — status was already complete
+        expect(mockGetLessonResource).not.toHaveBeenCalled()
       } finally {
         vi.useRealTimers()
       }
