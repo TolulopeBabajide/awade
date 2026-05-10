@@ -614,3 +614,4 @@ After removing it, the next hourly run will:
 
 2026-05-10T13:20:28Z | AWD-M-134 + AWD-M-136 | Reduce cyclomatic complexity in handleGenerateLessonResource and pollUntilComplete | fce26fa | ✅ Done | CI:pending
 2026-05-10T15:18:00Z | AWD-M-137 | handleGenerateLessonResource AbortController refactor | 7ffa87f | ✅ Done | CI:pending
+2026-05-10T17:15:00Z | AWD-M-79 | GuideViewPage: replace alert() with inline error banner | 90e3b42 | ✅ Done | CI:pending

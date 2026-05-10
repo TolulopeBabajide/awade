@@ -1323,3 +1323,10 @@ Commit: 539d77e | Merge: c624c33
 - **Closed:** 2026-05-10
 - **Commit:** 7ffa87f, merge 5d63ec1
 - **Summary:** Replaced `isMountedRef` pattern with `AbortController` + `signal.throwIfAborted()`. `handleGenerateLessonResource` complexity ≈12 → ≈8. 2 new tests. 214 pass.
+
+---
+
+### ~~AWD-M-79~~ — GuideViewPage: `alert()` replaced with inline error banner
+- **Closed:** 2026-05-10
+- **Commit:** 90e3b42, merge 8a923b1
+- **Summary:** Added `downloadError` state; replaced both `alert()` calls in `handleDownloadPdf` with `setDownloadError()`; added `role="alert"` inline banner in JSX. 4 tests added. 216 pass.

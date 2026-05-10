@@ -1,7 +1,8 @@
 # Awade — Backlog
 
 > Last groomed: 2026-05-09 (weekend-ops — M-129/L-24/M-130/M-131 promoted to ready; M-96 superseded by M-129)
-> Last updated: 2026-05-10 (code-review-agent — commit 5d63ec1 (AWD-M-137 AbortController refactor) reviewed. Verdict: ✅ Clean. Filed AWD-L-29: LessonPlanDetailPage.tsx 411 lines; AWD-L-30: LessonPlanDetailPage.test.tsx 552 lines; AWD-L-31: stale isMountedRef comments in test file.)
+> Last updated: 2026-05-10 (dev-agent — AWD-M-79 resolved: replaced both alert() calls in handleDownloadPdf with setDownloadError(); added downloadError state + role="alert" inline banner between top bar and guide content. 4 tests added. 216 tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. Commit 90e3b42, merge 8a923b1. Tolu: run git push origin develop to trigger CI.)
+> Prev updated: 2026-05-10 (code-review-agent — commit 5d63ec1 (AWD-M-137 AbortController refactor) reviewed. Verdict: ✅ Clean. Filed AWD-L-29: LessonPlanDetailPage.tsx 411 lines; AWD-L-30: LessonPlanDetailPage.test.tsx 552 lines; AWD-L-31: stale isMountedRef comments in test file.)
 > Prev updated: 2026-05-10 (dev-agent — AWD-M-137 resolved: replaced isMountedRef guards with AbortController + signal.throwIfAborted() pattern; handleGenerateLessonResource complexity drops ≈12 → ≈8; submitContextIfProvided + pollUntilComplete now accept signal: AbortSignal. 2 new tests. 214 tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. Commit 7ffa87f, merge 5d63ec1. Tolu: run git push origin develop to trigger CI.)
 > Prev updated: 2026-05-10 (dev-agent — AWD-M-134 + AWD-M-136 resolved: extracted submitContextIfProvided() helper from handleGenerateLessonResource (M-134, removes 3 branches → complexity ≤10); replaced 3-branch pollUntilComplete tail with statusErrors lookup (M-136, complexity 11→9). 2 new tests. 212 tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. Commit fce26fa. Tolu: run git push origin develop to trigger CI.)
 > Prev updated: 2026-05-10 (code-review-agent — commits 59851e2+692eaed reviewed. AWD-M-135 fix is clean. AWD-H-82 fake-timer fix is exemplary. Filed AWD-M-136: pollUntilComplete cyclomatic complexity at 11 (1 over threshold). Verdict: ✅ Clean.)
@@ -613,12 +614,12 @@ When adding a new issue, use this format:
 - **Stage:** done
 - **Resolution:** Extracted `EmptyState` to file scope with `EmptyStateProps` interface (`firstName?: string`, `onAddChild: () => void`). Call site updated to pass `firstName={user?.full_name?.split(' ')[0]}` and `onAddChild={() => handleAddChildIntent(null)}`. Added 1 vitest prop-wiring test. 0 TS errors · 0 lint · 159/159 tests green. Commit `1d92c95`, merge `261bbb8`.
 
-### AWD-M-79 — GuideViewPage: `alert()` used for PDF download errors — inaccessible, blocks thread
-- **Stage:** define
+### ~~AWD-M-79~~ ✅ 2026-05-10 — GuideViewPage: `alert()` used for PDF download errors — inaccessible, blocks thread
+- **Stage:** done
 - **Priority:** Medium
 - **Source:** code-review-agent 2026-05-03
-- **Detail:** `handleDownloadPdf` calls `alert(\`Could not download PDF: ...\`)` on error. The native `alert()` blocks the main thread, cannot be styled, is not accessible, and is suppressed in some mobile/embedded contexts. **Fix:** Replace with an inline error banner or toast notification consistent with the existing error-state pattern in the page (e.g., the error block already rendered for the guide query).
-- **Files:** `apps/frontend/src/pages/GuideViewPage.tsx` (~line 70)
+- **Resolution:** Added `downloadError` state (`useState<string | null>(null)`); cleared at the start of each attempt; set via `setDownloadError(...)` in both the `'error' in result` API-error path and the `catch` block — replaces both `alert()` calls. Renders `<p role="alert">` inline banner between the sticky top bar and guide content when set. 4 tests added in `GuideViewPage.test.tsx` (`describe('handleDownloadPdf error banner (AWD-M-79)')`): API error surfaces inline, unexpected throw surfaces inline, banner clears on successful retry, button re-enables after throw. 216 tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · backend N/A. Commit 90e3b42, merge 8a923b1. Tolu: run `git push origin develop` to trigger CI.
+- **Files:** `apps/frontend/src/pages/GuideViewPage.tsx`, `apps/frontend/src/pages/GuideViewPage.test.tsx`
 
 ### ~~AWD-H-80~~ ✅ 2026-05-09 — ParentDashboardPage: `handleDeleteChild` silently swallows API errors — no user feedback on delete failure
 - **Stage:** done
