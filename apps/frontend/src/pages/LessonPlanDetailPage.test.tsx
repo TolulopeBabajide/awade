@@ -1,6 +1,6 @@
 import { render, screen, waitFor, act } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import LessonPlanDetailPage from './LessonPlanDetailPage'
 
@@ -93,6 +93,11 @@ function renderPage(lessonId = '1') {
 describe('LessonPlanDetailPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+  })
+
+  // Ensure fake timers are never leaked between tests
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it('renders loading state initially', () => {
@@ -252,70 +257,81 @@ describe('LessonPlanDetailPage', () => {
 
   describe('pollUntilComplete and handleGenerationSuccess (AWD-M-133)', () => {
     it('shows "AI generation failed" error when poll returns failed status', async () => {
+      mockGetLessonPlan.mockResolvedValue({ data: MOCK_LESSON_PLAN })
+      // Initial generate call returns processing — triggers pollUntilComplete
+      mockGenerateLessonResource.mockResolvedValue({
+        data: { lesson_resources_id: 99, status: 'processing' },
+      })
+      // First poll returns failed — pollUntilComplete should throw "AI generation failed"
+      mockGetLessonResource.mockResolvedValue({
+        data: { lesson_resources_id: 99, status: 'failed' },
+      })
+
+      renderPage()
+      // Resolve the initial getLessonPlan with real timers before switching to fake
+      await waitFor(() =>
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+      )
+
+      // NOW switch to fake timers — initial render complete with real timers
+      // userEvent.setup must be called AFTER vi.useFakeTimers() so advanceTimers
+      // captures the mocked implementation, not the real one (AWD-H-82 fix)
       vi.useFakeTimers()
       try {
-        mockGetLessonPlan.mockResolvedValue({ data: MOCK_LESSON_PLAN })
-        // Initial generate call returns processing — triggers pollUntilComplete
-        mockGenerateLessonResource.mockResolvedValue({
-          data: { lesson_resources_id: 99, status: 'processing' },
-        })
-        // First poll returns failed — pollUntilComplete should throw "AI generation failed"
-        mockGetLessonResource.mockResolvedValue({
-          data: { lesson_resources_id: 99, status: 'failed' },
-        })
-
-        renderPage()
-        // Resolve the initial getLessonPlan (microtask) and any setup timers
-        await act(async () => { await vi.runAllTimersAsync() })
-        await waitFor(() =>
-          expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
-        )
-
         const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
         await user.click(screen.getByRole('button', { name: /Generate Lesson Resource/i }))
 
-        // Advance past: 500ms fetch-curriculum pause + 2000ms first poll delay
+        // Advance past: 500ms fetch-curriculum pause + 2000ms first poll delay.
+        // Direct assertion (no waitFor) because waitFor's setInterval retry is
+        // faked and never fires when jest global is absent (AWD-H-82 fix).
+        // Second act() pass flushes React state updates that land in native
+        // timer callbacks (originalSetTimeout) outside act's immediate scope.
         await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
-
-        await waitFor(() =>
-          expect(
-            screen.getByText('AI generation failed. Please try again.')
-          ).toBeInTheDocument()
-        )
+        // Second act() flushes React state updates from native timer callbacks.
+        // Regex matcher needed: component renders "❌ message" so exact string
+        // matching fails (getByText does full-text comparison per element).
+        await act(async () => {})
+        expect(
+          screen.getByText(/AI generation failed\. Please try again\./)
+        ).toBeInTheDocument()
       } finally {
         vi.useRealTimers()
       }
     })
 
     it('shows "Generation timed out" after 60 failed polls', async () => {
+      mockGetLessonPlan.mockResolvedValue({ data: MOCK_LESSON_PLAN })
+      mockGenerateLessonResource.mockResolvedValue({
+        data: { lesson_resources_id: 99, status: 'processing' },
+      })
+      // Always returns processing — loop exhausts maxAttempts (60)
+      mockGetLessonResource.mockResolvedValue({
+        data: { lesson_resources_id: 99, status: 'processing' },
+      })
+
+      renderPage()
+      // Resolve the initial getLessonPlan with real timers before switching to fake
+      await waitFor(() =>
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+      )
+
+      // NOW switch to fake timers — initial render complete with real timers
+      // userEvent.setup must be called AFTER vi.useFakeTimers() (AWD-H-82 fix)
       vi.useFakeTimers()
       try {
-        mockGetLessonPlan.mockResolvedValue({ data: MOCK_LESSON_PLAN })
-        mockGenerateLessonResource.mockResolvedValue({
-          data: { lesson_resources_id: 99, status: 'processing' },
-        })
-        // Always returns processing — loop exhausts maxAttempts (60)
-        mockGetLessonResource.mockResolvedValue({
-          data: { lesson_resources_id: 99, status: 'processing' },
-        })
-
-        renderPage()
-        await act(async () => { await vi.runAllTimersAsync() })
-        await waitFor(() =>
-          expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
-        )
-
         const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
         await user.click(screen.getByRole('button', { name: /Generate Lesson Resource/i }))
 
-        // 500ms pause + 60 polls × 2000ms = 120500ms; advance past that
+        // 500ms pause + 60 polls × 2000ms = 120500ms; advance past that.
+        // Direct assertion (no waitFor) — see AWD-H-82 fix comment above.
+        // Second act() pass flushes React state updates from native timer callbacks.
         await act(async () => { await vi.advanceTimersByTimeAsync(125000) })
-
-        await waitFor(() =>
-          expect(
-            screen.getByText('Generation timed out. Please check back later.')
-          ).toBeInTheDocument()
-        )
+        // Second act() flushes React state updates from native timer callbacks.
+        // Regex matcher: component renders "❌ message" so exact string fails.
+        await act(async () => {})
+        expect(
+          screen.getByText(/Generation timed out\. Please check back later\./)
+        ).toBeInTheDocument()
       } finally {
         vi.useRealTimers()
       }
@@ -328,29 +344,29 @@ describe('LessonPlanDetailPage', () => {
 
   describe('handleGenerateLessonResource happy path (AWD-M-90)', () => {
     it('navigates to /lesson-plans/:id/resources/edit when generation completes immediately', async () => {
+      mockGetLessonPlan.mockResolvedValue({ data: MOCK_LESSON_PLAN })
+      // Initial generate call returns complete — bypasses pollUntilComplete entirely
+      mockGenerateLessonResource.mockResolvedValue({
+        data: { lesson_resources_id: 99, status: 'complete' },
+      })
+
+      renderPage()
+      // Resolve the initial getLessonPlan with real timers before switching to fake
+      await waitFor(() =>
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+      )
+
+      // NOW switch to fake timers — initial render complete with real timers
+      // userEvent.setup must be called AFTER vi.useFakeTimers() (AWD-H-82 fix)
       vi.useFakeTimers()
       try {
-        mockGetLessonPlan.mockResolvedValue({ data: MOCK_LESSON_PLAN })
-        // Initial generate call returns complete — bypasses pollUntilComplete entirely
-        mockGenerateLessonResource.mockResolvedValue({
-          data: { lesson_resources_id: 99, status: 'complete' },
-        })
-
-        renderPage()
-        await act(async () => { await vi.runAllTimersAsync() })
-        await waitFor(() =>
-          expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
-        )
-
         const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
         await user.click(screen.getByRole('button', { name: /Generate Lesson Resource/i }))
 
-        // Advance past the 500ms fetch-curriculum pause + 500ms completion pause
+        // Advance past the 500ms fetch-curriculum pause + 500ms completion pause.
+        // Direct assertions (no waitFor) — see AWD-H-82 fix comment above.
         await act(async () => { await vi.advanceTimersByTimeAsync(1500) })
-
-        await waitFor(() =>
-          expect(mockNavigate).toHaveBeenCalledWith('/lesson-plans/1/resources/edit')
-        )
+        expect(mockNavigate).toHaveBeenCalledWith('/lesson-plans/1/resources/edit')
         // Polling endpoint must NOT have been called — status was already complete
         expect(mockGetLessonResource).not.toHaveBeenCalled()
       } finally {
