@@ -152,3 +152,7 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-05-10T10:19:25Z | awade-code-review | skip | no new commits in last 115 minutes
 2026-05-10T10:33:41Z | awade-qa-validation | skip | No new commits on develop in the last 110 minutes
 2026-05-10T11:10:18Z | awade-dev-execution | done | AWD-H-82: fixed 3 failing vitest tests (fake-timer ordering) — commit 59851e2 merge e8b2d0e
+2026-05-10T12:16:29Z | awade-dev-execution | done | AWD-M-135: ResourceStatus union type + unknown-status guard in pollUntilComplete — commit bec8404 merge 692eaed
+2026-05-10T12:22:21Z | awade-code-review | done | reviewed 692eaed+bec8404+59851e2 (AWD-M-135 type narrowing + AWD-H-82 fake-timer fix) — verdict ✅ Clean — filed AWD-M-136 (pollUntilComplete complexity 11)
+2026-05-10T12:35:39Z | awade-qa-validation | done | ✅ PASS — AWD-M-135 (ResourceStatus union) + AWD-H-82 (fake-timer fix) clean; TypeScript ✅ Lint ✅ OpenAPI ✅; frontend/backend tests blocked by pre-existing infra (ENOSPC + broken venv)
+2026-05-10T13:20:36Z | awade-dev-execution | done | AWD-M-134+M-136 cyclomatic complexity reduction shipped — fce26fa

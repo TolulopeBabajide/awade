@@ -1307,3 +1307,14 @@ Commit: 539d77e | Merge: c624c33
 2026-05-10 | AWD-M-90 | LessonPlanDetailPage: add happy-path test for handleGenerateLessonResource → navigate(/lesson-plans/:id/resources/edit); mocked useNavigate; status:'complete' bypasses pollUntilComplete | 5aa9e20 (merge 14d16b3) | ✅ Done | CI:pending (Tolu: git push origin develop)
 
 | AWD-H-82 | 2026-05-10 | fix(lesson-plan): fake-timer ordering in 3 LessonPlanDetailPage vitest tests — render with real timers first, call userEvent.setup after vi.useFakeTimers(), replace waitFor with direct act assertions, add afterEach vi.useRealTimers(). commit 59851e2, merge e8b2d0e |
+2026-05-10 | AWD-M-135 | pollUntilComplete: ResourceStatus union type + unknown-status guard; 1 vitest test | bec8404 (merge 692eaed) | ✅ Done | CI:pending (Tolu: git push origin develop)
+
+## AWD-M-134 — LessonPlanDetailPage: handleGenerateLessonResource cyclomatic complexity ≈12
+- **Resolved:** 2026-05-10
+- **Commit:** fce26fa (merge into develop)
+- **Resolution:** Extracted `submitContextIfProvided()` async helper; removed 3 decision points from handler. 2 new tests.
+
+## AWD-M-136 — LessonPlanDetailPage: pollUntilComplete cyclomatic complexity at 11
+- **Resolved:** 2026-05-10
+- **Commit:** fce26fa (merge into develop)
+- **Resolution:** Replaced 3-branch status tail with `statusErrors` lookup + single `if (status !== 'complete')` throw. Complexity 11→9. All existing tests preserved.
