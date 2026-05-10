@@ -7,6 +7,7 @@ import AIGenerationLoading from '../components/AIGenerationLoading';
 
 import apiService from '../services/api';
 import { sanitizeInput } from '../utils/sanitizer';
+import type { ResourceStatus } from '../types/lesson-plans';
 
 interface LessonPlanData {
   lesson_id: number;
@@ -37,7 +38,7 @@ async function pollUntilComplete(
   resourceId: string,
   isMountedRef: React.MutableRefObject<boolean>
 ): Promise<void> {
-  let status = 'processing';
+  let status: ResourceStatus = 'processing';
   let attempts = 0;
   const maxAttempts = 60;
 
@@ -54,7 +55,7 @@ async function pollUntilComplete(
       }
       continue;
     }
-    status = pollResponse.data.status as string;
+    status = pollResponse.data.status as ResourceStatus;
   }
 
   if (!isMountedRef.current) return;
@@ -63,6 +64,8 @@ async function pollUntilComplete(
   }
   if (status === 'failed') {
     throw new Error('AI generation failed. Please try again.');
+  } else if (status !== 'complete') {
+    throw new Error(`Unexpected resource status: ${status}`);
   }
 }
 
