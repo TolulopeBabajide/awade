@@ -167,3 +167,9 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-05-10T18:08:00Z | awade-dev-execution | skip | recent commit found 49min ago: e2712af chore(agentic): record AWD-M-79 closure and dev-agent heartbeat
 2026-05-10T18:22:34Z | awade-code-review | done | commit 90e3b42 (AWD-M-79 inline error banner) — verdict: Clean — filed AWD-L-32 (anchor DOM append) AWD-L-33 (dismiss button)
 2026-05-10T18:36:18Z | awade-qa-validation | done | ✅ PASS — AWD-M-79 (GuideViewPage inline error banner): TS✅ lint✅ OpenAPI✅ spot-check✅; infra ENOSPC+venv pre-existing (AWD-H-77, AWD-M-46)
+2026-05-10T19:07:55Z | awade-dev-execution | skip | Recent commits found within 50min window (18:37 UTC qa-agent, 18:22 UTC code-review for AWD-M-79)
+2026-05-10T20:10:39Z | awade-dev-execution | skip | All stage=ready items blocked: H-78 (sandbox rm denied), H-65 (venv PyJWT fix needs Tolu machine), M-77 (venv openai SDK fix needs Tolu machine). Staged index clean — AWD-C-13 did NOT trigger.
+2026-05-10T20:21:00Z | awade-code-review | done | ✅ Clean — 0546d6e — qa-agent chore commit; no reviewable app code
+2026-05-10T20:33:47Z | awade-qa-validation | skip | No new commits on develop in last 110 minutes
+2026-05-10T21:13:51Z | awade-dev-execution | done | AWD-L-32 shipped (PDF anchor DOM append) — commit fce90e6, merge da5bc38
+2026-05-10T22:04:03Z | awade-nightly-monitor | done | morning-brief.md written; FE 217 passing; BE blocked by AWD-H-77 venv; 0C/3H/8M/6L open
