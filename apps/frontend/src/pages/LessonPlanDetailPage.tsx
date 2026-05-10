@@ -27,20 +27,20 @@ interface LessonPlanData {
 /**
  * Submits teacher-provided context for a lesson plan if any was given.
  * Returns cleanly when context is empty.  Throws on API error.
- * Guards the post-await state with `isMountedRef` so the caller can bail after unmount.
+ * Calls `signal.throwIfAborted()` post-await so the caller aborts on unmount (AWD-M-137).
  *
  * Extracted from `handleGenerateLessonResource` (AWD-M-134).
  */
 async function submitContextIfProvided(
   lessonPlanId: string,
   sanitizedContext: string,
-  isMountedRef: React.MutableRefObject<boolean>,
+  signal: AbortSignal,
   setCurrentGenerationStep: (step: string) => void
 ): Promise<void> {
   if (!sanitizedContext) return;
   setCurrentGenerationStep('submit-context');
   const contextResponse = await apiService.submitContext(lessonPlanId, sanitizedContext);
-  if (!isMountedRef.current) return;
+  signal.throwIfAborted();
   if (contextResponse.error) {
     throw new Error(contextResponse.error);
   }
@@ -48,8 +48,8 @@ async function submitContextIfProvided(
 
 /**
  * Polls `getLessonResource` every 2 s until the resource leaves the
- * "processing" state.  Guards every async suspension point with `isMountedRef`
- * so the caller can bail early after unmount.
+ * "processing" state.  Calls `signal.throwIfAborted()` at each async
+ * suspension point so unmount aborts polling cleanly (AWD-M-137).
  *
  * Throws on timeout (60 polls ≈ 2 minutes) or AI failure.
  * Returns cleanly when the resource completes successfully.
@@ -58,7 +58,7 @@ async function submitContextIfProvided(
  */
 async function pollUntilComplete(
   resourceId: string,
-  isMountedRef: React.MutableRefObject<boolean>
+  signal: AbortSignal
 ): Promise<void> {
   let status: ResourceStatus = 'processing';
   let attempts = 0;
@@ -66,11 +66,11 @@ async function pollUntilComplete(
 
   while (status === 'processing' && attempts < maxAttempts) {
     await new Promise<void>(resolve => setTimeout(resolve, 2000));
-    if (!isMountedRef.current) return;
+    signal.throwIfAborted();
     attempts++;
 
     const pollResponse = await apiService.getLessonResource(resourceId);
-    if (!isMountedRef.current) return;
+    signal.throwIfAborted();
     if (pollResponse.error || !pollResponse.data) {
       if (import.meta.env.DEV) {
         console.warn('Polling failed temporarily', pollResponse.error);
@@ -80,7 +80,7 @@ async function pollUntilComplete(
     status = pollResponse.data.status as ResourceStatus;
   }
 
-  if (!isMountedRef.current) return;
+  signal.throwIfAborted();
   // AWD-M-136: lookup collapses the 3-branch status check to ≤10 cyclomatic complexity
   const statusErrors: Partial<Record<ResourceStatus, string>> = {
     processing: 'Generation timed out. Please check back later.',
@@ -103,11 +103,10 @@ const LessonPlanDetailPage: React.FC = () => {
   const [contextFeedback, setContextFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [currentGenerationStep, setCurrentGenerationStep] = useState<string>('');
 
-  // Track mount state so the async polling loop can bail out on unmount (AWD-M-89)
-  const isMountedRef = useRef(true);
+  // AbortController ref — abort() is called on unmount to cancel in-flight generation (AWD-M-137)
+  const abortControllerRef = useRef<AbortController | null>(null);
   useEffect(() => {
-    isMountedRef.current = true;
-    return () => { isMountedRef.current = false; };
+    return () => { abortControllerRef.current?.abort(); };
   }, []);
 
   /**
@@ -121,8 +120,9 @@ const LessonPlanDetailPage: React.FC = () => {
       message: 'Lesson resource generated successfully! You can now view and edit the generated content.',
     });
     setContext('');
-    // Clear feedback after 5 seconds — guard inside callback so unmount after timeout is safe
-    setTimeout(() => { if (isMountedRef.current) setContextFeedback(null); }, 5000);
+    // Clear feedback after 5 seconds — check signal so unmount after timeout is safe (AWD-M-137)
+    const signal = abortControllerRef.current?.signal;
+    setTimeout(() => { if (!signal?.aborted) setContextFeedback(null); }, 5000);
     navigate(`/lesson-plans/${lessonPlan!.lesson_id}/resources/edit`);
   };
 
@@ -169,6 +169,10 @@ const LessonPlanDetailPage: React.FC = () => {
   const handleGenerateLessonResource = async () => {
     if (!lessonPlan) return;
 
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    const { signal } = controller;
+
     setIsGeneratingLessonResource(true);
     setContextFeedback(null);
     setCurrentGenerationStep('validate-lesson-plan');
@@ -181,15 +185,15 @@ const LessonPlanDetailPage: React.FC = () => {
       await submitContextIfProvided(
         lessonPlan.lesson_id.toString(),
         sanitizedContext,
-        isMountedRef,
+        signal,
         setCurrentGenerationStep
       );
-      if (!isMountedRef.current) return;
+      signal.throwIfAborted();
 
       // Step 2: Fetch curriculum data (simulated pause to show step)
       setCurrentGenerationStep('fetch-curriculum-data');
       await new Promise<void>(resolve => setTimeout(resolve, 500));
-      if (!isMountedRef.current) return;
+      signal.throwIfAborted();
 
       // Step 3: Initiate AI generation
       setCurrentGenerationStep('ai-generation');
@@ -197,32 +201,31 @@ const LessonPlanDetailPage: React.FC = () => {
         lessonPlan.lesson_id.toString(),
         sanitizedContext || 'Generate a comprehensive lesson resource for this lesson plan'
       );
-      if (!isMountedRef.current) return;
+      signal.throwIfAborted();
       if (response.error || !response.data) {
         throw new Error(response.error || 'Failed to initiate resource generation');
       }
 
       // Step 4: Poll until complete (only when initially processing)
       if (response.data.status === 'processing') {
-        await pollUntilComplete(response.data.lesson_resources_id.toString(), isMountedRef);
-        if (!isMountedRef.current) return;
+        await pollUntilComplete(response.data.lesson_resources_id.toString(), signal);
       }
 
       // Step 5: Brief completion pause, then navigate
       setCurrentGenerationStep('complete');
       await new Promise<void>(resolve => setTimeout(resolve, 500));
-      if (!isMountedRef.current) return;
+      signal.throwIfAborted();
 
       handleGenerationSuccess();
     } catch (err) {
-      if (!isMountedRef.current) return;
+      if (signal.aborted) return;
       const message = err instanceof Error ? err.message : String(err);
       setContextFeedback({
         type: 'error',
         message: message || 'Failed to generate lesson resource. Please try again.',
       });
     } finally {
-      if (isMountedRef.current) {
+      if (!signal.aborted) {
         setIsGeneratingLessonResource(false);
         setCurrentGenerationStep('');
       }
