@@ -339,6 +339,47 @@ describe('LessonPlanDetailPage', () => {
   })
 
   // ---------------------------------------------------------------------------
+  // AWD-M-135 — pollUntilComplete: unknown status throws instead of silently passing
+  // ---------------------------------------------------------------------------
+
+  describe('pollUntilComplete unknown status guard (AWD-M-135)', () => {
+    it('shows "Unexpected resource status" error when poll returns an unrecognised status', async () => {
+      mockGetLessonPlan.mockResolvedValue({ data: MOCK_LESSON_PLAN })
+      // Initial generate call returns processing — triggers pollUntilComplete
+      mockGenerateLessonResource.mockResolvedValue({
+        data: { lesson_resources_id: 99, status: 'processing' },
+      })
+      // First poll returns an unknown status value (e.g. 'error' / 'cancelled')
+      mockGetLessonResource.mockResolvedValue({
+        data: { lesson_resources_id: 99, status: 'error' },
+      })
+
+      renderPage()
+      // Resolve the initial getLessonPlan with real timers before switching to fake
+      await waitFor(() =>
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+      )
+
+      // NOW switch to fake timers — initial render complete with real timers (AWD-H-82 fix)
+      vi.useFakeTimers()
+      try {
+        const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+        await user.click(screen.getByRole('button', { name: /Generate Lesson Resource/i }))
+
+        // Advance past: 500ms fetch-curriculum pause + 2000ms first poll delay.
+        await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+        // Second act() flushes React state updates from native timer callbacks.
+        await act(async () => {})
+        expect(
+          screen.getByText(/Unexpected resource status: error/)
+        ).toBeInTheDocument()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+  })
+
+  // ---------------------------------------------------------------------------
   // AWD-M-90 — happy-path generation success → navigate to edit page
   // ---------------------------------------------------------------------------
 
