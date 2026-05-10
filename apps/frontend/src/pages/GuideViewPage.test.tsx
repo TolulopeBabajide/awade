@@ -282,6 +282,72 @@ describe('GuideViewPage', () => {
     })
   })
 
+  // ── AWD-L-32: PDF anchor appended to DOM before click ──────────────────
+  describe('handleDownloadPdf anchor DOM lifecycle (AWD-L-32)', () => {
+    it('appends the anchor to document.body before clicking and removes it after', async () => {
+      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
+      mockExportGuidePdf.mockResolvedValue({
+        blob: new Blob(),
+        filename: 'guide.pdf',
+      })
+
+      // jsdom does not implement blob URL APIs — define stubs so the success path completes
+      URL.createObjectURL = vi.fn().mockReturnValue('blob:mock')
+      URL.revokeObjectURL = vi.fn()
+
+      // Spy real DOM methods so we can verify the click is sandwiched between append/remove.
+      // React itself uses appendChild during initial mount, so we filter to anchor elements only.
+      const appendSpy = vi.spyOn(document.body, 'appendChild')
+      const removeSpy = vi.spyOn(document.body, 'removeChild')
+      let anchorWasInDomAtClick = false
+      const originalCreateElement = document.createElement.bind(document)
+      const createElementSpy = vi
+        .spyOn(document, 'createElement')
+        .mockImplementation((tag: string) => {
+          const el = originalCreateElement(tag) as HTMLElement
+          if (tag === 'a') {
+            const realClick = el.click.bind(el)
+            el.click = () => {
+              anchorWasInDomAtClick = document.body.contains(el)
+              realClick()
+            }
+          }
+          return el as unknown as HTMLElement
+        })
+
+      try {
+        renderPage()
+        const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+        await userEvent.click(downloadBtn)
+
+        await waitFor(() => {
+          expect(mockExportGuidePdf).toHaveBeenCalledWith(42)
+        })
+
+        // The anchor must be in the live DOM at the moment .click() fires
+        expect(anchorWasInDomAtClick).toBe(true)
+
+        // Count only anchor appends/removes (React uses appendChild during mount too).
+        const anchorAppends = appendSpy.mock.calls.filter(
+          (args) => (args[0] as HTMLElement).tagName === 'A',
+        )
+        const anchorRemoves = removeSpy.mock.calls.filter(
+          (args) => (args[0] as HTMLElement).tagName === 'A',
+        )
+        expect(anchorAppends).toHaveLength(1)
+        expect(anchorRemoves).toHaveLength(1)
+        // Anchor is gone after the download completes
+        expect(document.body.querySelectorAll('a[download]').length).toBe(0)
+      } finally {
+        appendSpy.mockRestore()
+        removeSpy.mockRestore()
+        createElementSpy.mockRestore()
+        ;(URL as { createObjectURL?: unknown }).createObjectURL = undefined
+        ;(URL as { revokeObjectURL?: unknown }).revokeObjectURL = undefined
+      }
+    })
+  })
+
   // ── AWD-M-83: bookmarkMutation onError — cache invalidation on failure ──
   describe('bookmarkMutation onError (AWD-M-83)', () => {
     it('invalidates parentGuide query when bookmark toggle fails', async () => {

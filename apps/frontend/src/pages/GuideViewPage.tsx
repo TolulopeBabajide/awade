@@ -99,7 +99,11 @@ const GuideViewPage: React.FC = () => {
       const anchor = document.createElement('a')
       anchor.href = url
       anchor.download = result.filename
+      // AWD-L-32: append to DOM before .click() — Firefox + some Android WebViews
+      // ignore synthetic click() on detached anchors. Remove + revoke after.
+      document.body.appendChild(anchor)
       anchor.click()
+      document.body.removeChild(anchor)
       URL.revokeObjectURL(url)
     } catch (err: unknown) {
       // AWD-H-79: surface unexpected throws (e.g. network abort before apiService
