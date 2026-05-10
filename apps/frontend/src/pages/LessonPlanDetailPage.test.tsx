@@ -52,6 +52,7 @@ import apiService from '../services/api'
 const mockGetLessonPlan = vi.mocked(apiService.getLessonPlan)
 const mockGenerateLessonResource = vi.mocked(apiService.generateLessonResource)
 const mockGetLessonResource = vi.mocked(apiService.getLessonResource)
+const mockSubmitContext = vi.mocked(apiService.submitContext)
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -373,6 +374,67 @@ describe('LessonPlanDetailPage', () => {
         expect(
           screen.getByText(/Unexpected resource status: error/)
         ).toBeInTheDocument()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+  })
+
+  // ---------------------------------------------------------------------------
+  // AWD-M-134 — submitContextIfProvided: no-context path + error path
+  // ---------------------------------------------------------------------------
+
+  describe('submitContextIfProvided (AWD-M-134)', () => {
+    it('skips submitContext API call when context input is empty', async () => {
+      mockGetLessonPlan.mockResolvedValue({ data: MOCK_LESSON_PLAN })
+      // generate returns complete immediately — bypasses polling
+      mockGenerateLessonResource.mockResolvedValue({
+        data: { lesson_resources_id: 99, status: 'complete' },
+      })
+
+      renderPage()
+      await waitFor(() =>
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+      )
+
+      vi.useFakeTimers()
+      try {
+        const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+        // Context input is left empty — default state is ''
+        await user.click(screen.getByRole('button', { name: /Generate Lesson Resource/i }))
+        await act(async () => { await vi.advanceTimersByTimeAsync(1500) })
+        // submitContext must NOT have been called because context was empty
+        expect(mockSubmitContext).not.toHaveBeenCalled()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('shows context submission error when submitContext returns an API error', async () => {
+      mockGetLessonPlan.mockResolvedValue({ data: MOCK_LESSON_PLAN })
+      mockSubmitContext.mockResolvedValue({ error: 'Context submission failed' })
+
+      renderPage()
+      await waitFor(() =>
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+      )
+
+      // Type something into the context textarea so submitContextIfProvided is reached
+      const textarea = screen.getByPlaceholderText(/Add local context/i)
+      await userEvent.type(textarea, 'some context')
+
+      vi.useFakeTimers()
+      try {
+        const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+        await user.click(screen.getByRole('button', { name: /Generate Lesson Resource/i }))
+        // submitContext is synchronous-ish — no timer advance needed before the error appears
+        await act(async () => { await vi.advanceTimersByTimeAsync(100) })
+        await act(async () => {})
+        expect(
+          screen.getByText(/Context submission failed/)
+        ).toBeInTheDocument()
+        // generateLessonResource must NOT have been called — error should abort step 1
+        expect(mockGenerateLessonResource).not.toHaveBeenCalled()
       } finally {
         vi.useRealTimers()
       }

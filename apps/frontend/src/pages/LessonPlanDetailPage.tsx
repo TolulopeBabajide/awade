@@ -25,6 +25,28 @@ interface LessonPlanData {
 }
 
 /**
+ * Submits teacher-provided context for a lesson plan if any was given.
+ * Returns cleanly when context is empty.  Throws on API error.
+ * Guards the post-await state with `isMountedRef` so the caller can bail after unmount.
+ *
+ * Extracted from `handleGenerateLessonResource` (AWD-M-134).
+ */
+async function submitContextIfProvided(
+  lessonPlanId: string,
+  sanitizedContext: string,
+  isMountedRef: React.MutableRefObject<boolean>,
+  setCurrentGenerationStep: (step: string) => void
+): Promise<void> {
+  if (!sanitizedContext) return;
+  setCurrentGenerationStep('submit-context');
+  const contextResponse = await apiService.submitContext(lessonPlanId, sanitizedContext);
+  if (!isMountedRef.current) return;
+  if (contextResponse.error) {
+    throw new Error(contextResponse.error);
+  }
+}
+
+/**
  * Polls `getLessonResource` every 2 s until the resource leaves the
  * "processing" state.  Guards every async suspension point with `isMountedRef`
  * so the caller can bail early after unmount.
@@ -59,13 +81,13 @@ async function pollUntilComplete(
   }
 
   if (!isMountedRef.current) return;
-  if (status === 'processing') {
-    throw new Error('Generation timed out. Please check back later.');
-  }
-  if (status === 'failed') {
-    throw new Error('AI generation failed. Please try again.');
-  } else if (status !== 'complete') {
-    throw new Error(`Unexpected resource status: ${status}`);
+  // AWD-M-136: lookup collapses the 3-branch status check to ≤10 cyclomatic complexity
+  const statusErrors: Partial<Record<ResourceStatus, string>> = {
+    processing: 'Generation timed out. Please check back later.',
+    failed: 'AI generation failed. Please try again.',
+  };
+  if (status !== 'complete') {
+    throw new Error(statusErrors[status] ?? `Unexpected resource status: ${status}`);
   }
 }
 
@@ -155,18 +177,14 @@ const LessonPlanDetailPage: React.FC = () => {
       // Sanitize context input
       const sanitizedContext = sanitizeInput(context);
 
-      // Step 1: Submit context if provided
-      if (sanitizedContext) {
-        setCurrentGenerationStep('submit-context');
-        const contextResponse = await apiService.submitContext(
-          lessonPlan.lesson_id.toString(),
-          sanitizedContext
-        );
-        if (!isMountedRef.current) return;
-        if (contextResponse.error) {
-          throw new Error(contextResponse.error);
-        }
-      }
+      // Step 1: Submit context if provided (AWD-M-134: extracted to reduce complexity)
+      await submitContextIfProvided(
+        lessonPlan.lesson_id.toString(),
+        sanitizedContext,
+        isMountedRef,
+        setCurrentGenerationStep
+      );
+      if (!isMountedRef.current) return;
 
       // Step 2: Fetch curriculum data (simulated pause to show step)
       setCurrentGenerationStep('fetch-curriculum-data');
