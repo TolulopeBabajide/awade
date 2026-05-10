@@ -1318,3 +1318,8 @@ Commit: 539d77e | Merge: c624c33
 - **Resolved:** 2026-05-10
 - **Commit:** fce26fa (merge into develop)
 - **Resolution:** Replaced 3-branch status tail with `statusErrors` lookup + single `if (status !== 'complete')` throw. Complexity 11→9. All existing tests preserved.
+
+## AWD-M-137 — `handleGenerateLessonResource` cyclomatic complexity (AbortController refactor)
+- **Closed:** 2026-05-10
+- **Commit:** 7ffa87f, merge 5d63ec1
+- **Summary:** Replaced `isMountedRef` pattern with `AbortController` + `signal.throwIfAborted()`. `handleGenerateLessonResource` complexity ≈12 → ≈8. 2 new tests. 214 pass.

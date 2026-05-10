@@ -613,3 +613,4 @@ After removing it, the next hourly run will:
 2026-05-10T12:15:00Z | AWD-M-135 | pollUntilComplete status cast → ResourceStatus union + unknown-status guard | bec8404 | ✅ Done | CI:pending
 
 2026-05-10T13:20:28Z | AWD-M-134 + AWD-M-136 | Reduce cyclomatic complexity in handleGenerateLessonResource and pollUntilComplete | fce26fa | ✅ Done | CI:pending
+2026-05-10T15:18:00Z | AWD-M-137 | handleGenerateLessonResource AbortController refactor | 7ffa87f | ✅ Done | CI:pending
