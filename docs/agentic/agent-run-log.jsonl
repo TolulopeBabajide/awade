@@ -136,3 +136,19 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-05-09T20:13:05Z | awade-dev-execution | done | AWD-M-132: extracted Section/InfoCard from GuideViewPage.tsx (407→379 lines) to GuideViewPage.components.tsx; 5 tests added; commit 2841812 merge 89446a5
 2026-05-09T20:37:14Z | awade-qa-validation | done | TS✅ Lint✅ OpenAPI✅ Spot-check✅ — tests skipped (ENOSPC+venv-broken, pre-tracked) — code clean, verdict Ship
 {"timestamp":"2026-05-09T00:00:00Z","agent":"dev-agent","status":"done","issue":"AWD-M-133","summary":"Extracted pollUntilComplete (module-level async, 43 lines) and handleGenerationSuccess (inner component fn, 9 lines) from handleGenerateLessonResource. Function reduced ~88→53 lines. 2 new vitest tests (fake timers). Commit f8cc109, merge c758536 on develop."}
+2026-05-09T22:04:43Z | awade-nightly-monitor | done | Morning brief written: 0C/2H/6M/1L open; 90 commits unpushed to origin; TypeScript clean; tests blocked by sandbox ENOSPC+venv; 4 CRITICAL agents (growth, security-scan, dev-execution, qa-validation stale)
+2026-05-09T22:04:50Z | awade-dev-execution | skip | Recent commits found within last 50 min (M-133 refactor just shipped)
+2026-05-09T22:22:51Z | awade-code-review | done | reviewed LessonPlanDetailPage refactor (AWD-M-133); ✅ Clean; filed AWD-M-134 complexity, AWD-M-135 status-cast; updated AWD-M-90 partial coverage note
+2026-05-09T22:35:43Z | awade-qa-validation | done | AWD-M-133 refactor validated ✅ — TS/lint clean, no defects, ENOSPC+venv infra pre-existing
+2026-05-10T05:11:28Z | awade-security-scan | done | 0 C/H/M findings; AWD-M-128 verified resolved; CI mirror clean; npm audit 0 vulns; LLM defences pass
+2026-05-10T06:13:47Z | awade-dev-execution | done | AWD-M-90 happy-path navigate test for handleGenerateLessonResource (5aa9e20 / merge 14d16b3)
+2026-05-10T06:20:52Z | awade-code-review | done | ✅ Clean — AWD-M-90 happy-path test, 1 file, 0 findings
+2026-05-10T06:40:17Z | awade-qa-validation | done | 3 vitest failures in LessonPlanDetailPage.test.tsx (1 new AWD-M-90, 2 pre-existing AWD-M-133); auto-filed AWD-H-82
+2026-05-10T07:08:55Z | awade-dev-execution | skip | dirty working tree on develop — staged+unstaged changes from prior agent runs not yet committed (AWD-H-82 filing, AWD-M-90 closure, LessonPlanDetailPage.test.tsx flip-flop). Cannot branch per workflow.md hard rule. Tolu: review and commit/discard before next run.
+2026-05-10T08:08:18Z | awade-dev-execution | skip | dirty working tree persists on develop (same blocker as 07:15:00Z) — awaiting Tolu's manual cleanup of stale staged+unstaged changes + untracked files; cannot branch per workflow.md
+2026-05-10T08:19:36Z | awade-code-review | skip | no new commits in last 115 minutes
+2026-05-10T08:33:52Z | awade-qa-validation | skip | no commits in last 110 minutes — last commit was 14d16b3 at 2026-05-10T06:13:09Z
+2026-05-10T09:10:47Z | awade-dev-execution | skip | dirty working tree on develop persists (3rd skip in row): staged+unstaged docs updates from prior runs (M-90 closure, M-134/M-135/H-82 filings) + 5 untracked zombie files (test_children_router.py, AIGenerationLoading variants, TestPage.tsx). Cannot branch per workflow.md. Tolu: commit or discard pending docs + clean untracked files.
+2026-05-10T10:19:25Z | awade-code-review | skip | no new commits in last 115 minutes
+2026-05-10T10:33:41Z | awade-qa-validation | skip | No new commits on develop in the last 110 minutes
+2026-05-10T11:10:18Z | awade-dev-execution | done | AWD-H-82: fixed 3 failing vitest tests (fake-timer ordering) — commit 59851e2 merge e8b2d0e
