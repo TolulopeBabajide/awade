@@ -8,7 +8,7 @@ separating concerns from the router layer.
 Author: Tolulope Babajide
 """
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_, or_
 from typing import List, Optional, Dict, Any
 from datetime import datetime
@@ -25,7 +25,7 @@ sys.path.extend([parent_dir, root_dir])
 
 import logging
 
-from apps.backend.models import User, UserRole, ChildProfile, ParentGuide, Topic
+from apps.backend.models import User, UserRole, ChildProfile, ParentGuide
 from apps.backend.schemas.users import UserUpdate, UserResponse, UserProfileResponse
 
 logger = logging.getLogger(__name__)
@@ -432,10 +432,21 @@ class UserService:
             }
 
             # --- children + guides (PARENT only) ---
+            #
+            # AWD-H-83: Eager-load child_profiles → parent_guides → topic in a
+            # single query (joinedload chain). Previously this produced
+            # 1 + N + N·M queries for a parent with N children and M guides
+            # each; now the entire tree is materialised in one round-trip
+            # and we iterate it in-memory. Mirrors the AWD-M-13 pattern in
+            # ChildrenService.get_child_topics.
             children_data: List[Dict[str, Any]] = []
             if current_user.role == UserRole.PARENT:
                 children = (
                     self.db.query(ChildProfile)
+                    .options(
+                        joinedload(ChildProfile.parent_guides)
+                        .joinedload(ParentGuide.topic)
+                    )
                     .filter(ChildProfile.parent_id == current_user.user_id)
                     .order_by(ChildProfile.child_id)
                     .all()
@@ -448,23 +459,16 @@ class UserService:
                         except (json.JSONDecodeError, TypeError):
                             child_subjects = None
 
-                    guides = (
-                        self.db.query(ParentGuide)
-                        .filter(ParentGuide.child_id == child.child_id)
-                        .order_by(ParentGuide.guide_id)
-                        .all()
-                    )
+                    # Use the eagerly-loaded collection — no extra query.
+                    # Preserve the prior ordering (by guide_id ascending) so
+                    # the export payload remains stable.
                     guides_data: List[Dict[str, Any]] = []
-                    for guide in guides:
-                        topic_title: Optional[str] = None
-                        topic = (
-                            self.db.query(Topic)
-                            .filter(Topic.topic_id == guide.topic_id)
-                            .first()
+                    for guide in sorted(
+                        child.parent_guides, key=lambda g: g.guide_id
+                    ):
+                        topic_title: Optional[str] = (
+                            guide.topic.topic_title if guide.topic else None
                         )
-                        if topic:
-                            topic_title = topic.topic_title
-
                         guides_data.append({
                             "guide_id": guide.guide_id,
                             "topic_id": guide.topic_id,
