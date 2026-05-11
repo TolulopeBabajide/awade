@@ -24,13 +24,16 @@ Verifies that:
 - Authenticated user can delete their own account (200) — AWD-GRC-03
 - Account deletion cascades to ChildProfile and ParentGuide records — AWD-GRC-03
 - Unauthenticated account deletion request returns 401 — AWD-GRC-03
+- AWD-H-83: data export eager-loads children/guides/topics — no N+1 query growth
 """
 
 import pytest
 import jwt
 from datetime import datetime, timedelta, timezone
 
-from apps.backend.models import User, UserRole, ChildProfile, ParentGuide
+from sqlalchemy import event
+
+from apps.backend.models import User, UserRole, ChildProfile, ParentGuide, Topic
 from apps.backend.dependencies import get_jwt_secret_key, get_jwt_algorithm
 
 
@@ -322,6 +325,98 @@ class TestDataExport:
         data = response.json()
         child_ids = [c["child_id"] for c in data["children"]]
         assert other_child.child_id not in child_ids
+
+    def test_parent_export_eager_loads_children_guides_and_topics_no_n_plus_one(
+        self, client, test_db, parent_user, sample_curriculum_structure
+    ):
+        """AWD-H-83: ``get_data_export`` must not grow SQL query count with N children · M guides.
+
+        The previous implementation issued ``1 + N + N·M`` SELECTs (one per child for guides,
+        one per guide for topic). The eager-load fix should fetch the entire child→guide→topic
+        tree in a single SELECT regardless of N and M.
+
+        This test seeds a parent with 3 children · 2 guides each (6 guides total, 6 topic rows)
+        and counts the SQL statements emitted while assembling the export. The count must stay
+        well below the old ``1 + 3 + 6 = 10`` baseline. We assert an upper bound of 4 SQL
+        statements for the children/guides/topics block — that bound holds whether SQLAlchemy
+        bundles the joinedload into one statement or splits it into a few, and it fails loudly
+        if anyone reintroduces a per-child or per-guide loop query.
+        """
+        # Seed: 3 children, each with 2 guides bound to 2 different topics
+        topics = []
+        for i in range(2):
+            t = Topic(
+                curriculum_structure_id=sample_curriculum_structure.curriculum_structure_id,
+                topic_title=f"H-83 Topic {i}",
+            )
+            test_db.add(t)
+            topics.append(t)
+        test_db.commit()
+        for t in topics:
+            test_db.refresh(t)
+
+        children = []
+        for i in range(3):
+            c = ChildProfile(
+                parent_id=parent_user.user_id,
+                name=f"H-83 Child {i}",
+                age=7 + i,
+            )
+            test_db.add(c)
+            children.append(c)
+        test_db.commit()
+        for c in children:
+            test_db.refresh(c)
+            for t in topics:
+                test_db.add(ParentGuide(
+                    child_id=c.child_id,
+                    topic_id=t.topic_id,
+                    ai_generated_content='{"steps": []}',
+                    is_bookmarked=False,
+                ))
+        test_db.commit()
+
+        # Count SQL statements issued during the export.
+        engine = test_db.get_bind()
+        statements: list[str] = []
+
+        def _record(conn, cursor, statement, parameters, context, executemany):
+            statements.append(statement)
+
+        event.listen(engine, "before_cursor_execute", _record)
+        try:
+            response = client.get(
+                "/api/users/me/data-export",
+                headers=_auth(parent_user),
+            )
+        finally:
+            event.remove(engine, "before_cursor_execute", _record)
+
+        assert response.status_code == 200
+
+        data = response.json()
+        assert len(data["children"]) == 3
+        for exported_child in data["children"]:
+            assert len(exported_child["guides"]) == 2
+            for g in exported_child["guides"]:
+                # Eager-loaded topic_title must be present, not None
+                assert g["topic_title"] in {"H-83 Topic 0", "H-83 Topic 1"}
+
+        # Count statements that touch the parent-pivot tables. The old code path
+        # issued one per child + one per guide; the new path must stay flat as
+        # the data grows. We use a generous upper bound of 4 to allow for
+        # joinedload variants, but it is far below the old 10 (1 + 3 + 6).
+        target_tokens = ("child_profiles", "parent_guides", "topics")
+        relevant = [
+            s for s in statements
+            if any(tok in s.lower() for tok in target_tokens)
+        ]
+        assert len(relevant) <= 4, (
+            "AWD-H-83 regression: data export issued "
+            f"{len(relevant)} SQL statements against child_profiles/parent_guides/topics — "
+            "expected ≤4 (single eager-loaded round-trip). Statements: "
+            + "\n---\n".join(relevant)
+        )
 
     def test_rate_limit_returns_429_after_limit_exceeded(self, client, educator_user):
         """AWD-H-49: data-export endpoint returns 429 once the per-minute rate limit is exceeded.
