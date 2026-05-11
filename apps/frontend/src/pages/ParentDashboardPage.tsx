@@ -276,12 +276,22 @@ const ParentDashboardPage: React.FC = () => {
                   role="group"
                   aria-label={child.name}
                   tabIndex={0}
-                  onClick={() => { setSelectedChild(child); setSelectedSubjectId(null) }}
+                  onClick={() => {
+                    setSelectedChild(child)
+                    setSelectedSubjectId(null)
+                    // AWD-L-26: clear any stale delete-error banner so it
+                    // doesn't persist while the parent is viewing a different
+                    // child than the one whose delete attempt failed.
+                    setDeleteError(null)
+                  }}
                   onKeyDown={e => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
                       setSelectedChild(child)
                       setSelectedSubjectId(null)
+                      // AWD-L-26: keyboard-activated card switch must also
+                      // clear the delete-error banner.
+                      setDeleteError(null)
                     }
                   }}
                   className={`flex-shrink-0 px-5 py-3 rounded-xl border-2 transition-all text-left min-w-[160px] cursor-pointer ${

@@ -505,6 +505,77 @@ describe('ParentDashboardPage', () => {
     })
   })
 
+  describe('switch child card clears deleteError (AWD-L-26)', () => {
+    /**
+     * AWD-L-26: `deleteError` was cleared on a new delete attempt and on
+     * delete success, but it persisted when the parent switched to a
+     * different child via the selector cards. A stale banner from Child A
+     * could remain visible while the user was now viewing Child B. The
+     * fix adds `setDeleteError(null)` to both the click and keyboard
+     * handlers on the child selector card.
+     */
+    const setupTwoChildren = () => {
+      mockApiService.getChildren.mockResolvedValue({
+        error: undefined,
+        data: {
+          children: [
+            makeChild({ child_id: 1, name: 'Child A' }),
+            makeChild({ child_id: 2, name: 'Child B' }),
+          ],
+          total: 2,
+        },
+      })
+      mockApiService.getChildTopics.mockResolvedValue({ error: undefined, data: [] })
+    }
+
+    // Helper: open the delete-confirm modal for the *currently selected*
+    // child and click its "Remove" button. (Trash buttons render one per
+    // child, but the first card is auto-selected so getByTitle('Remove')
+    // on the first match targets Child A.)
+    const failDeleteOnSelectedChild = async () => {
+      const removeButtons = await screen.findAllByTitle('Remove')
+      fireEvent.click(removeButtons[0])
+      const dialog = await screen.findByRole('dialog')
+      const confirmBtn = dialog.querySelector('button') as HTMLButtonElement
+      fireEvent.click(confirmBtn)
+    }
+
+    it('clears the delete-error banner when the parent clicks another child card', async () => {
+      setupTwoChildren()
+      mockApiService.deleteChild.mockRejectedValue(new Error('Server unavailable'))
+
+      renderWithProviders(<ParentDashboardPage />)
+
+      // Trigger a failing delete on the auto-selected first child so the
+      // role="alert" banner is visible.
+      await failDeleteOnSelectedChild()
+      await waitFor(() => expect(screen.getByRole('alert')).toBeTruthy())
+
+      // Switch to Child B by clicking its selector card.
+      fireEvent.click(screen.getByText('Child B'))
+
+      // The stale banner must be gone.
+      await waitFor(() => expect(screen.queryByRole('alert')).toBeNull())
+    })
+
+    it('clears the delete-error banner when the parent activates another child card via Enter', async () => {
+      setupTwoChildren()
+      mockApiService.deleteChild.mockRejectedValue(new Error('Server unavailable'))
+
+      renderWithProviders(<ParentDashboardPage />)
+
+      await failDeleteOnSelectedChild()
+      await waitFor(() => expect(screen.getByRole('alert')).toBeTruthy())
+
+      // Find Child B's outer card (role="group", aria-label="Child B")
+      // and activate it with the Enter key.
+      const childBCard = screen.getByRole('group', { name: 'Child B' })
+      fireEvent.keyDown(childBCard, { key: 'Enter' })
+
+      await waitFor(() => expect(screen.queryByRole('alert')).toBeNull())
+    })
+  })
+
   describe('DeleteChildConfirmModal (AWD-M-80)', () => {
     /**
      * AWD-M-80: replace browser-native window.confirm() with an in-app
