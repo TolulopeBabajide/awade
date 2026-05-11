@@ -3,6 +3,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { FaEye, FaEyeSlash, FaArrowLeft, FaUser, FaEnvelope, FaLock, FaCheckCircle, FaGraduationCap, FaChild } from 'react-icons/fa';
+import { getErrorMessage } from '../utils/errors';
 
 type AccountRole = 'PARENT' | 'EDUCATOR';
 
@@ -53,7 +54,7 @@ const SignupPage: React.FC = () => {
         setError('Google signup failed. Please try email/password signup instead.');
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Google signup failed');
+      setError(getErrorMessage(err, 'Google signup failed'));
     } finally {
       setLoading(false);
     }
@@ -128,7 +129,7 @@ const SignupPage: React.FC = () => {
         setError('Signup failed. Please try again.');
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Signup failed');
+      setError(getErrorMessage(err, 'Signup failed'));
     } finally {
       setLoading(false);
     }

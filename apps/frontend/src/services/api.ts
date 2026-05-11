@@ -1,4 +1,5 @@
 import { sanitizeInput } from '../utils/sanitizer';
+import { getErrorMessage } from '../utils/errors';
 import type {
   ChildProfile,
   ChildProfileCreate,
@@ -812,7 +813,7 @@ class ApiService {
       const filename = match?.[1] ?? `guide_${guideId}.pdf`
       return { blob, filename }
     } catch (err: unknown) {
-      return { error: err instanceof Error ? err.message : 'Export failed' }
+      return { error: getErrorMessage(err, 'Export failed') }
     }
   }
 

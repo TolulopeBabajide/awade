@@ -20,6 +20,7 @@ import Sidebar from '../components/Sidebar'
 import MobileNavigation from '../components/MobileNavigation'
 import type { ParentGuide, ParentGuideContent } from '../types/children'
 import { Section, InfoCard } from './GuideViewPage.components'
+import { getErrorMessage } from '../utils/errors'
 
 const GuideViewPage: React.FC = () => {
   const [searchParams] = useSearchParams()
@@ -109,7 +110,7 @@ const GuideViewPage: React.FC = () => {
       // AWD-H-79: surface unexpected throws (e.g. network abort before apiService
       // internal catch, or runtime errors in blob/URL handling) to the user
       setDownloadError(
-        `Could not download PDF: ${err instanceof Error ? err.message : 'Unexpected error'}`,
+        `Could not download PDF: ${getErrorMessage(err, 'Unexpected error')}`,
       )
     } finally {
       setIsDownloading(false)

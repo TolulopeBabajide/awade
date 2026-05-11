@@ -10,6 +10,7 @@ import AddChildModal from '../components/AddChildModal'
 import ConsentModal from '../components/ConsentModal'
 import DeleteChildConfirmModal from '../components/DeleteChildConfirmModal'
 import type { ChildProfile, ChildTopic, ConsentStatusResponse, ChildProfileListResponse } from '../types/children'
+import { getErrorMessage } from '../utils/errors'
 
 // ── File-scope subcomponent ───────────────────────────────────────────────
 // Defined outside ParentDashboardPage so React sees a stable component
@@ -154,7 +155,7 @@ const ParentDashboardPage: React.FC = () => {
     } catch (err) {
       // AWD-H-80: surface the error inline rather than absorbing it silently.
       // Close the modal so the inline banner is visible above the cards.
-      setDeleteError(err instanceof Error ? err.message : 'Failed to remove child profile. Please try again.')
+      setDeleteError(getErrorMessage(err, 'Failed to remove child profile. Please try again.'))
       setPendingDeleteChild(null)
     } finally {
       setDeletingChildId(null)
@@ -204,7 +205,7 @@ const ParentDashboardPage: React.FC = () => {
     } catch (err) {
       // AWD-M-81: surface the underlying error message when available
       // instead of collapsing every failure into a generic string.
-      setConsentError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+      setConsentError(getErrorMessage(err))
     } finally {
       setConsentSubmitting(false)
     }
