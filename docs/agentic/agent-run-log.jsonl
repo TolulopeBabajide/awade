@@ -174,3 +174,9 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-05-10T21:13:51Z | awade-dev-execution | done | AWD-L-32 shipped (PDF anchor DOM append) — commit fce90e6, merge da5bc38
 2026-05-10T22:04:03Z | awade-nightly-monitor | done | morning-brief.md written; FE 217 passing; BE blocked by AWD-H-77 venv; 0C/3H/8M/6L open
 2026-05-10T22:14:17Z | awade-dev-execution | done | AWD-M-80 shipped (DeleteChildConfirmModal replaces window.confirm) — commit 5427797, merge a19fb7a
+2026-05-10T22:22:50Z | awade-code-review | done | reviewed fce90e6+5427797 (AWD-L-32, AWD-M-80) verdict ✅ Clean — no backlog items filed
+2026-05-10T22:36:28Z | awade-qa-validation | done | ✅ PASS AWD-L-32 + AWD-M-80 — tsc/lint/openapi green, spot-check clean; frontend tests skipped (sandbox ENOSPC), backend tests skipped (venv python3.13 missing in sandbox). Verdict: Ship.
+2026-05-11T03:07:04Z | awade-growth-daily | done | Educator Twitter/X thread drafted for 2026-05-11 — Teacher Workflow Tips, translation/contextualisation angle
+2026-05-11T05:09:43Z | awade-security-scan | done | 0 C/0 H/0 M; CI mirror passes; AI prompt defences intact; clean posture
+2026-05-11T06:06:23Z | awade-performance-audit | done | first baseline written; 1x N+1 filed as AWD-H-83 (orange); bundle 131KB gz initial (green); API latency skipped (no local server)
+2026-05-11T06:16:38Z | awade-dev-execution | done | AWD-H-83 N+1 fix in UserService.get_data_export; commit 38eade7, merge e5f9344
