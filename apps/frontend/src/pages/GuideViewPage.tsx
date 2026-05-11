@@ -16,10 +16,8 @@ import {
   FaRobot,
 } from 'react-icons/fa'
 import apiService from '../services/api'
-import Sidebar from '../components/Sidebar'
-import MobileNavigation from '../components/MobileNavigation'
 import type { ParentGuide, ParentGuideContent } from '../types/children'
-import { Section, InfoCard } from './GuideViewPage.components'
+import { GuidePageShell, Section, InfoCard } from './GuideViewPage.components'
 import { getErrorMessage } from '../utils/errors'
 
 const GuideViewPage: React.FC = () => {
@@ -120,40 +118,32 @@ const GuideViewPage: React.FC = () => {
   // ── Loading state ─────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div className="flex min-h-screen bg-background-50">
-        <Sidebar currentPage="dashboard" />
-        <main className="flex-1 lg:ml-64 flex items-center justify-center">
-          <div role="status" aria-live="polite" className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4" />
-            <p className="text-gray-600 font-medium">Generating your guide...</p>
-            <p className="text-gray-400 text-sm mt-1">This may take a few seconds</p>
-          </div>
-        </main>
-        <MobileNavigation currentPage="dashboard" />
-      </div>
+      <GuidePageShell>
+        <div role="status" aria-live="polite" className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4" />
+          <p className="text-gray-600 font-medium">Generating your guide...</p>
+          <p className="text-gray-400 text-sm mt-1">This may take a few seconds</p>
+        </div>
+      </GuidePageShell>
     )
   }
 
   // ── Error state ───────────────────────────────────────────────────
   if (error || !content) {
     return (
-      <div className="flex min-h-screen bg-background-50">
-        <Sidebar currentPage="dashboard" />
-        <main className="flex-1 lg:ml-64 flex items-center justify-center">
-          <div className="text-center max-w-md px-4">
-            <p className="text-red-500 font-medium mb-4">
-              {error instanceof Error ? error.message : 'Could not load guide'}
-            </p>
-            <button
-              onClick={() => navigate(-1)}
-              className="text-primary-600 hover:text-primary-700 font-medium"
-            >
-              ← Go back
-            </button>
-          </div>
-        </main>
-        <MobileNavigation currentPage="dashboard" />
-      </div>
+      <GuidePageShell>
+        <div className="text-center max-w-md px-4">
+          <p className="text-red-500 font-medium mb-4">
+            {error instanceof Error ? error.message : 'Could not load guide'}
+          </p>
+          <button
+            onClick={() => navigate(-1)}
+            className="text-primary-600 hover:text-primary-700 font-medium"
+          >
+            ← Go back
+          </button>
+        </div>
+      </GuidePageShell>
     )
   }
 
@@ -184,10 +174,11 @@ const GuideViewPage: React.FC = () => {
 
   // ── Guide content ─────────────────────────────────────────────────
   return (
-    <div className="flex min-h-screen bg-background-50">
-      <Sidebar currentPage="dashboard" />
-
-      <main id="main-content" tabIndex={-1} className="flex-1 lg:ml-64 pb-20 lg:pb-0 outline-none">
+    <GuidePageShell
+      mainId="main-content"
+      mainTabIndex={-1}
+      mainClassName="pb-20 lg:pb-0 outline-none"
+    >
         {/* Top bar */}
         <div className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4 sticky top-0 z-10">
           <div className="flex items-center justify-between max-w-3xl mx-auto">
@@ -396,10 +387,7 @@ const GuideViewPage: React.FC = () => {
             </div>
           </Section>
         </div>
-      </main>
-
-      <MobileNavigation currentPage="dashboard" />
-    </div>
+    </GuidePageShell>
   )
 }
 
