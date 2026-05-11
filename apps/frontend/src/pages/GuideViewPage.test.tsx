@@ -452,4 +452,45 @@ describe('GuideViewPage', () => {
       })
     })
   })
+
+  // ── AWD-M-139: GuidePageShell renders layout chrome in every render path ──
+  // Ensures sidebar + mobile-nav are present in loading, error, and success states,
+  // and that the success <main> carries its skip-nav attributes.
+  describe('GuidePageShell layout shell (AWD-M-139)', () => {
+    it('renders sidebar and mobile-nav in loading state', () => {
+      mockGetGuide.mockReturnValue(new Promise(() => {}))
+      renderPage()
+      expect(screen.getByTestId('sidebar')).toBeInTheDocument()
+      expect(screen.getByTestId('mobile-nav')).toBeInTheDocument()
+    })
+
+    it('renders sidebar and mobile-nav in error state', async () => {
+      mockGetGuide.mockResolvedValue({ data: undefined, error: 'Not found' })
+      renderPage()
+      await waitFor(() => expect(screen.getByText('Not found')).toBeInTheDocument())
+      expect(screen.getByTestId('sidebar')).toBeInTheDocument()
+      expect(screen.getByTestId('mobile-nav')).toBeInTheDocument()
+    })
+
+    it('renders sidebar and mobile-nav in success state', async () => {
+      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
+      renderPage()
+      await waitFor(() =>
+        expect(screen.getByRole('heading', { name: /Fractions/i })).toBeInTheDocument(),
+      )
+      expect(screen.getByTestId('sidebar')).toBeInTheDocument()
+      expect(screen.getByTestId('mobile-nav')).toBeInTheDocument()
+    })
+
+    it('success state <main> has id="main-content" and tabIndex={-1} for skip-nav', async () => {
+      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
+      renderPage()
+      await waitFor(() =>
+        expect(screen.getByRole('heading', { name: /Fractions/i })).toBeInTheDocument(),
+      )
+      const main = document.querySelector('main')
+      expect(main).toHaveAttribute('id', 'main-content')
+      expect(main).toHaveAttribute('tabindex', '-1')
+    })
+  })
 })
