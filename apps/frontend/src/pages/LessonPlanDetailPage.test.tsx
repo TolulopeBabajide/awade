@@ -218,8 +218,9 @@ describe('LessonPlanDetailPage', () => {
         resolveFirstPoll({ data: { lesson_resources_id: 99, status: 'complete' } })
       })
 
-      // If isMountedRef guard is absent React logs a console.error about updating
-      // unmounted components. No assertion needed beyond the test completing cleanly.
+      // If the AbortController signal guard is absent React logs a console.error
+      // about updating unmounted components. No assertion needed beyond the test
+      // completing cleanly.
     })
 
     it('does not call setContextFeedback after unmount on generation error', async () => {
@@ -243,7 +244,7 @@ describe('LessonPlanDetailPage', () => {
       // Unmount before the rejection lands
       act(() => { unmount() })
 
-      // Reject after unmount — catch block should bail via isMountedRef guard
+      // Reject after unmount — catch block should bail via the AbortController signal guard
       await act(async () => {
         rejectGenerate(new Error('network down'))
       })
