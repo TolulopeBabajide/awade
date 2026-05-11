@@ -180,3 +180,7 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-05-11T05:09:43Z | awade-security-scan | done | 0 C/0 H/0 M; CI mirror passes; AI prompt defences intact; clean posture
 2026-05-11T06:06:23Z | awade-performance-audit | done | first baseline written; 1x N+1 filed as AWD-H-83 (orange); bundle 131KB gz initial (green); API latency skipped (no local server)
 2026-05-11T06:16:38Z | awade-dev-execution | done | AWD-H-83 N+1 fix in UserService.get_data_export; commit 38eade7, merge e5f9344
+2026-05-11T06:22:04Z | awade-code-review | done | review 14ea5a5 (AWD-H-83 N+1 fix) — verdict ✅ Clean, 0 findings filed, 2 🟢 observations
+2026-05-11T06:37:39Z | awade-qa-validation | done | PASS — AWD-H-83 data export N+1 fix verified: TS/lint/frontend tests/OpenAPI all green, backend pytest skipped (venv mismatch), no issues filed
+2026-05-11T07:04:07Z | awade-daily-health-check | done | 🟡 TS✅ lint✅ openapi✅; vitest/pytest INFRA (AWD-H-77,M-46); 0C/3H open (H-57,H-65,H-77); 2 merges unpushed (AWD-H-83, AWD-M-80)
+2026-05-11T07:17:57Z | awade-dev-execution | done | AWD-L-25 getErrorMessage util extracted; commit 17763a0 merge f3c1aa0 (git plumbing); 226 frontend tests pass
