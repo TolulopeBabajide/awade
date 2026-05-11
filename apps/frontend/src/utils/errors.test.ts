@@ -34,9 +34,18 @@ describe('getErrorMessage (AWD-L-25)', () => {
     )
   })
 
-  it('prefers err.message over the fallback even when an Error has an empty message', () => {
-    // Empty-string message is still a string from an Error instance.
+  it('falls back when an Error has an empty message (AWD-M-138)', () => {
+    // An Error with an empty message would otherwise render as a blank banner.
+    // The guard ensures consumers always get a meaningful user-facing string.
     const err = new Error('')
-    expect(getErrorMessage(err, 'fallback')).toBe('')
+    expect(getErrorMessage(err, 'fallback')).toBe('fallback')
+  })
+
+  it('produces a complete banner string when composed in a template literal (AWD-M-138)', () => {
+    // Regression guard for the consumer pattern in GuideViewPage.handleDownloadPdf —
+    // an Error('') would previously yield "Failed: " with no human-readable text.
+    const err = new Error('')
+    const banner = `Failed: ${getErrorMessage(err, 'unknown error')}`
+    expect(banner).toBe('Failed: unknown error')
   })
 })
