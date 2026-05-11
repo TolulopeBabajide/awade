@@ -282,6 +282,43 @@ describe('GuideViewPage', () => {
     })
   })
 
+  // ── AWD-L-33: downloadError dismiss button ──────────────────────────────
+  describe('downloadError dismiss button (AWD-L-33)', () => {
+    it('renders a dismiss button inside the error banner', async () => {
+      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
+      mockExportGuidePdf.mockResolvedValue({ error: 'PDF generation failed' })
+
+      renderPage()
+      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+      await userEvent.click(downloadBtn)
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toBeInTheDocument()
+      })
+      expect(screen.getByLabelText('Dismiss error')).toBeInTheDocument()
+    })
+
+    it('clears the error banner when the dismiss button is clicked', async () => {
+      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
+      mockExportGuidePdf.mockResolvedValue({ error: 'PDF generation failed' })
+
+      renderPage()
+      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+      await userEvent.click(downloadBtn)
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toBeInTheDocument()
+      })
+
+      const dismissBtn = screen.getByLabelText('Dismiss error')
+      await userEvent.click(dismissBtn)
+
+      await waitFor(() => {
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+      })
+    })
+  })
+
   // ── AWD-L-32: PDF anchor appended to DOM before click ──────────────────
   describe('handleDownloadPdf anchor DOM lifecycle (AWD-L-32)', () => {
     it('appends the anchor to document.body before clicking and removes it after', async () => {

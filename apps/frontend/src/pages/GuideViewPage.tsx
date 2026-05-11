@@ -236,12 +236,22 @@ const GuideViewPage: React.FC = () => {
         </div>
 
         {/* AWD-M-79: PDF download error banner — accessible, non-blocking */}
+        {/* AWD-L-33: dismiss button so the user can clear the banner without retrying */}
         {downloadError && (
           <div
             role="alert"
             className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-4"
           >
-            <p className="text-red-600 text-sm font-medium">{downloadError}</p>
+            <div className="flex items-start gap-2">
+              <p className="text-red-600 text-sm font-medium flex-1">{downloadError}</p>
+              <button
+                onClick={() => setDownloadError(null)}
+                aria-label="Dismiss error"
+                className="ml-auto text-red-400 hover:text-red-600 leading-none flex-shrink-0"
+              >
+                ✕
+              </button>
+            </div>
           </div>
         )}
 
