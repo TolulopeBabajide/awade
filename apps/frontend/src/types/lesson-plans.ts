@@ -9,3 +9,24 @@
  * triggering navigation.
  */
 export type ResourceStatus = 'processing' | 'failed' | 'complete';
+
+// ── Lesson Plan Data (AWD-L-29) ─────────────────────────────────────────────
+
+/**
+ * Shape of a lesson plan as returned by the API.
+ * Shared between LessonPlanDetailPage and useGenerateLessonResource.
+ */
+export interface LessonPlanData {
+  lesson_id: number;
+  title: string;
+  subject: string;
+  grade_level: string;
+  topic: string;
+  author_id: number;
+  duration_minutes: number;
+  created_at: string;
+  updated_at: string;
+  status: string;
+  curriculum_learning_objectives: string[];
+  curriculum_contents: string[];
+}
