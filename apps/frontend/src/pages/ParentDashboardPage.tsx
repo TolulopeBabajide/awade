@@ -11,6 +11,7 @@ import ConsentModal from '../components/ConsentModal'
 import DeleteChildConfirmModal from '../components/DeleteChildConfirmModal'
 import type { ChildProfile, ChildTopic, ConsentStatusResponse, ChildProfileListResponse } from '../types/children'
 import { getErrorMessage } from '../utils/errors'
+import { useConsentGate } from '../hooks/useConsentGate'
 
 // ── File-scope subcomponent ───────────────────────────────────────────────
 // Defined outside ParentDashboardPage so React sees a stable component
@@ -61,11 +62,6 @@ const ParentDashboardPage: React.FC = () => {
   // dialog is open.
   const [pendingDeleteChild, setPendingDeleteChild] = useState<ChildProfile | null>(null)
 
-  // ── COPPA consent state (AWD-GRC-01) ──────────────────────────────
-  const [showConsentModal, setShowConsentModal] = useState(false)
-  const [consentSubmitting, setConsentSubmitting] = useState(false)
-  const [consentError, setConsentError] = useState<string | null>(null)
-
   // Fetch consent status once on mount so we know whether to gate "Add Child"
   const { data: consentStatus, refetch: refetchConsent } = useQuery<ConsentStatusResponse, Error>({
     queryKey: ['consentStatus'],
@@ -75,6 +71,11 @@ const ParentDashboardPage: React.FC = () => {
       return res.data!
     },
   })
+
+  // ── COPPA consent gate (AWD-M-132) ───────────────────────────────────
+  // Extracts showConsentModal / consentSubmitting / consentError + their
+  // handlers into a dedicated hook, reducing this component's useState count.
+  const consentGate = useConsentGate(consentStatus, refetchConsent, () => setShowAddChild(true))
 
   // Fetch children
   const {
@@ -173,42 +174,13 @@ const ParentDashboardPage: React.FC = () => {
 
   /**
    * Called when the parent clicks any "Add Child" button.
-   * If consent has not yet been given, show the COPPA consent modal first.
-   * editingChild is already set by the caller when opening for edit.
+   * AWD-M-132: delegates consent-gate logic to useConsentGate hook.
+   * If consent has not yet been given, the hook opens ConsentModal;
+   * otherwise it calls onConsentGranted (setShowAddChild) directly.
    */
   const handleAddChildIntent = (child: ChildProfile | null = null) => {
     setEditingChild(child)
-    if (consentStatus?.has_consented) {
-      setShowAddChild(true)
-    } else {
-      setShowConsentModal(true)
-    }
-  }
-
-  /**
-   * Called when the parent presses "I Agree" in the ConsentModal.
-   * Records consent via the API, then opens AddChildModal on success.
-   */
-  const handleConsentConfirmed = async () => {
-    setConsentSubmitting(true)
-    setConsentError(null)
-    try {
-      const res = await apiService.recordConsent()
-      if (res.error) {
-        setConsentError(res.error)
-        return
-      }
-      // Invalidate the consent status query so subsequent checks are correct
-      await refetchConsent()
-      setShowConsentModal(false)
-      setShowAddChild(true)
-    } catch (err) {
-      // AWD-M-81: surface the underlying error message when available
-      // instead of collapsing every failure into a generic string.
-      setConsentError(getErrorMessage(err))
-    } finally {
-      setConsentSubmitting(false)
-    }
+    consentGate.openConsentGate()
   }
 
   return (
@@ -420,12 +392,13 @@ const ParentDashboardPage: React.FC = () => {
       <MobileNavigation currentPage="dashboard" />
 
       {/* COPPA Consent Modal (AWD-GRC-01) — shown before the first "Add Child" */}
-      {showConsentModal && (
+      {/* AWD-M-132: state + handlers managed by useConsentGate hook */}
+      {consentGate.showConsentModal && (
         <ConsentModal
-          onConsented={handleConsentConfirmed}
-          onCancel={() => { setShowConsentModal(false); setEditingChild(null); setConsentError(null) }}
-          isSubmitting={consentSubmitting}
-          error={consentError}
+          onConsented={consentGate.handleConsentConfirmed}
+          onCancel={() => { consentGate.handleCancel(); setEditingChild(null) }}
+          isSubmitting={consentGate.consentSubmitting}
+          error={consentGate.consentError}
         />
       )}
 
