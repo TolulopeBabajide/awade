@@ -9,7 +9,6 @@ Covers:
 import datetime
 
 import bcrypt
-import pytz
 
 from apps.backend.models import User, UserRole
 
@@ -52,7 +51,7 @@ class TestAccountEnumerationProtection:
             full_name="Google User",
             role=UserRole.PARENT,
             country="NG",
-            created_at=datetime.datetime.now(pytz.UTC),
+            created_at=datetime.datetime.now(datetime.timezone.utc),
         )
         test_db.add(oauth_user)
         test_db.commit()
