@@ -19,7 +19,7 @@ const ModerationList: React.FC = () => {
             const data = await response.json();
             setResources(data);
         } catch (error) {
-            console.error('Failed to fetch resources:', error);
+            if (import.meta.env.DEV) console.error('Failed to fetch resources:', error);
         } finally {
             setIsLoading(false);
         }
@@ -37,7 +37,7 @@ const ModerationList: React.FC = () => {
             });
             if (response.ok) fetchResources();
         } catch (error) {
-            console.error('Failed to moderate resource:', error);
+            if (import.meta.env.DEV) console.error('Failed to moderate resource:', error);
         }
     };
 

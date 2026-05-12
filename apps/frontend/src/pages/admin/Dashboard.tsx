@@ -26,7 +26,7 @@ const [metricsRes, logsRes] = await Promise.all([
                 setMetrics(metricsData);
                 setActivities(logsData);
             } catch (error) {
-                console.error('Failed to fetch dashboard data:', error);
+                if (import.meta.env.DEV) console.error('Failed to fetch dashboard data:', error);
             } finally {
                 setIsLoading(false);
             }
