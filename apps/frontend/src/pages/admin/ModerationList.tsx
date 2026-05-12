@@ -4,6 +4,7 @@ import { FiCheckCircle, FiXCircle, FiEye } from 'react-icons/fi';
 const ModerationList: React.FC = () => {
     const [resources, setResources] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [actionError, setActionError] = useState<string | null>(null);
 
     useEffect(() => {
         fetchResources();
@@ -26,6 +27,7 @@ const ModerationList: React.FC = () => {
     };
 
     const handleModerate = async (resourceId: number, status: string) => {
+        setActionError(null);
         try {
             const response = await fetch(`${(import.meta as any).env.VITE_API_URL}/api/admin/resources/${resourceId}`, {
                 method: 'PATCH',
@@ -35,9 +37,11 @@ const ModerationList: React.FC = () => {
                 },
                 body: JSON.stringify({ status, notes: `Action taken by Admin at ${new Date().toLocaleString()}` })
             });
-            if (response.ok) fetchResources();
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            fetchResources();
         } catch (error) {
             if (import.meta.env.DEV) console.error('Failed to moderate resource:', error);
+            setActionError(error instanceof Error ? error.message : 'Failed to moderate resource. Please try again.');
         }
     };
 
@@ -49,6 +53,22 @@ const ModerationList: React.FC = () => {
                 <h2 className="text-2xl font-bold text-gray-900">Resource Moderation</h2>
                 <p className="text-gray-500">Review flagged or reported content.</p>
             </div>
+
+            {actionError && (
+                <div
+                    role="alert"
+                    className="flex items-center justify-between rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800"
+                >
+                    <span>{actionError}</span>
+                    <button
+                        onClick={() => setActionError(null)}
+                        aria-label="Dismiss error"
+                        className="ml-4 text-red-500 hover:text-red-700 font-bold"
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {resources.map((res) => (
