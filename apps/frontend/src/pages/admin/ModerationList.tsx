@@ -21,8 +21,8 @@ const ModerationList: React.FC = () => {
                     /* access_token cookie sent automatically */
                 }
             });
-            const data = await response.json();
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
             setResources(data);
         } catch (error) {
             if (import.meta.env.DEV) console.error('Failed to fetch resources:', error);

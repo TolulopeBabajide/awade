@@ -113,6 +113,28 @@ describe('ModerationList fetchResources error handling (AWD-L-37)', () => {
         // No resource cards should render — error body was not set as resources
         expect(screen.queryByText(/Resource ID:/)).not.toBeInTheDocument()
     })
+
+    it('shows HTTP status error when server returns non-JSON body on error (AWD-M-147)', async () => {
+        // Simulates a gateway returning an HTML error page (non-JSON body).
+        // Before the fix, response.json() was called first and would throw a
+        // SyntaxError; after the fix, !response.ok is checked first so json()
+        // is never called and the user sees "HTTP 502" instead of a parse error.
+        vi.stubGlobal(
+            'fetch',
+            vi.fn().mockResolvedValue({
+                ok: false,
+                status: 502,
+                json: async () => { throw new SyntaxError('Unexpected token < in JSON at position 0') },
+            })
+        )
+
+        renderComponent()
+
+        await waitFor(() => {
+            expect(screen.getByRole('alert')).toBeInTheDocument()
+            expect(screen.getByRole('alert')).toHaveTextContent('HTTP 502')
+        })
+    })
 })
 
 // ---------------------------------------------------------------------------
