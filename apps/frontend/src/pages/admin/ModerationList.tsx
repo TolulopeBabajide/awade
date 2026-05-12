@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FiCheckCircle, FiXCircle, FiEye } from 'react-icons/fi';
 import ContentPreviewModal from '../../components/ContentPreviewModal';
+import ErrorBanner from '../../components/ErrorBanner';
 
 const ModerationList: React.FC = () => {
     const [resources, setResources] = useState<any[]>([]);
@@ -61,35 +62,18 @@ const ModerationList: React.FC = () => {
             </div>
 
             {loadError && (
-                <div
-                    role="alert"
-                    className="flex items-center justify-between rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800"
-                >
-                    <span>{loadError}</span>
-                    <button
-                        onClick={() => setLoadError(null)}
-                        aria-label="Dismiss load error"
-                        className="ml-4 text-red-500 hover:text-red-700 font-bold"
-                    >
-                        ✕
-                    </button>
-                </div>
+                <ErrorBanner
+                    message={loadError}
+                    onDismiss={() => setLoadError(null)}
+                    dismissLabel="Dismiss load error"
+                />
             )}
 
             {actionError && (
-                <div
-                    role="alert"
-                    className="flex items-center justify-between rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800"
-                >
-                    <span>{actionError}</span>
-                    <button
-                        onClick={() => setActionError(null)}
-                        aria-label="Dismiss error"
-                        className="ml-4 text-red-500 hover:text-red-700 font-bold"
-                    >
-                        ✕
-                    </button>
-                </div>
+                <ErrorBanner
+                    message={actionError}
+                    onDismiss={() => setActionError(null)}
+                />
             )}
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
