@@ -58,20 +58,25 @@ describe('UserList (AWD-M-143)', () => {
     })
 
     it('shows error banner when handleRoleChange receives a non-OK response', async () => {
-        // Initial load succeeds; role-change PATCH fails with 403
+        // Initial load succeeds; role-change PATCH fails with 403.
+        // AWD-M-144: role change now goes through ConfirmRoleChangeModal —
+        // click "Manage Role" to open the modal, then click "Confirm".
         vi.stubGlobal(
             'fetch',
             vi.fn()
                 .mockResolvedValueOnce({ ok: true, json: async () => MOCK_USERS })    // fetchUsers on mount
                 .mockResolvedValueOnce({ ok: false, status: 403, json: async () => ({}) }) // PATCH fails
         )
-        vi.stubGlobal('confirm', vi.fn().mockReturnValue(true))
 
         renderComponent()
         await waitFor(() => screen.getByText('Ada Okonkwo'))
 
-        // Click the role-cycle button (FiMoreVertical)
+        // Open the modal
         fireEvent.click(screen.getByTitle('Manage Role'))
+        await waitFor(() => screen.getByRole('dialog'))
+
+        // Confirm the role change through the modal
+        fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
 
         await waitFor(() => {
             expect(screen.getByRole('alert')).toBeInTheDocument()
@@ -155,5 +160,115 @@ describe('UserList (AWD-M-143)', () => {
         // Second action succeeds — error banner is cleared before the request
         fireEvent.click(screen.getByText('Suspend'))
         await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument())
+    })
+})
+
+// ---------------------------------------------------------------------------
+// Tests — AWD-M-144: ConfirmRoleChangeModal replaces window.confirm()
+// ---------------------------------------------------------------------------
+
+describe('UserList role-change modal (AWD-M-144)', () => {
+    it('opens ConfirmRoleChangeModal when Manage Role is clicked', async () => {
+        mockFetchUsers()
+        renderComponent()
+        await waitFor(() => screen.getByText('Ada Okonkwo'))
+
+        fireEvent.click(screen.getByTitle('Manage Role'))
+
+        await waitFor(() => {
+            expect(screen.getByRole('dialog')).toBeInTheDocument()
+        })
+        // Modal title mentions the next role (EDUCATOR → ADMIN)
+        expect(screen.getByRole('dialog')).toHaveTextContent('ADMIN')
+        // Modal body mentions the user name
+        expect(screen.getByRole('dialog')).toHaveTextContent('Ada Okonkwo')
+    })
+
+    it('closes the modal without calling the API when Cancel is clicked', async () => {
+        const fetchMock = vi.fn()
+            .mockResolvedValueOnce({ ok: true, json: async () => MOCK_USERS }) // initial load
+        vi.stubGlobal('fetch', fetchMock)
+
+        renderComponent()
+        await waitFor(() => screen.getByText('Ada Okonkwo'))
+
+        fireEvent.click(screen.getByTitle('Manage Role'))
+        await waitFor(() => screen.getByRole('dialog'))
+
+        fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+        // Modal gone, no second fetch call
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+        expect(fetchMock).toHaveBeenCalledTimes(1)
+    })
+
+    it('calls the role-change API and closes the modal when Confirm is clicked', async () => {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn()
+                .mockResolvedValueOnce({ ok: true, json: async () => MOCK_USERS }) // mount
+                .mockResolvedValueOnce({ ok: true, json: async () => ({}) })       // PATCH
+                .mockResolvedValueOnce({ ok: true, json: async () => MOCK_USERS }) // refetch
+        )
+
+        renderComponent()
+        await waitFor(() => screen.getByText('Ada Okonkwo'))
+
+        fireEvent.click(screen.getByTitle('Manage Role'))
+        await waitFor(() => screen.getByRole('dialog'))
+
+        fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
+
+        await waitFor(() => {
+            expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+        })
+        // PATCH was called with the correct user ID
+        expect(vi.mocked(globalThis.fetch)).toHaveBeenCalledWith(
+            expect.stringContaining('/api/admin/users/1'),
+            expect.objectContaining({ method: 'PATCH' })
+        )
+    })
+
+    it('shows an error banner (not dialog) when the role-change API fails after Confirm', async () => {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn()
+                .mockResolvedValueOnce({ ok: true, json: async () => MOCK_USERS })
+                .mockResolvedValueOnce({ ok: false, status: 500, json: async () => ({}) })
+        )
+
+        renderComponent()
+        await waitFor(() => screen.getByText('Ada Okonkwo'))
+
+        fireEvent.click(screen.getByTitle('Manage Role'))
+        await waitFor(() => screen.getByRole('dialog'))
+
+        fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
+
+        await waitFor(() => {
+            expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+            expect(screen.getByRole('alert')).toHaveTextContent('HTTP 500')
+        })
+    })
+
+    it('does not call window.confirm at all during a role change', async () => {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn()
+                .mockResolvedValueOnce({ ok: true, json: async () => MOCK_USERS })
+                .mockResolvedValueOnce({ ok: true, json: async () => ({}) })
+                .mockResolvedValueOnce({ ok: true, json: async () => MOCK_USERS })
+        )
+        const confirmSpy = vi.spyOn(window, 'confirm')
+
+        renderComponent()
+        await waitFor(() => screen.getByText('Ada Okonkwo'))
+
+        fireEvent.click(screen.getByTitle('Manage Role'))
+        await waitFor(() => screen.getByRole('dialog'))
+        fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
+        await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+
+        expect(confirmSpy).not.toHaveBeenCalled()
     })
 })
