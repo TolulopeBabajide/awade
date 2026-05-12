@@ -21,6 +21,14 @@ from apps.backend.models import User, UserRole
 # of an Authorization header.
 security = HTTPBearer(auto_error=False)
 
+# Environments in which a "dev-secret" JWT fallback is tolerated.  Allocated
+# once at import time instead of inside get_jwt_secret_key() to avoid repeated
+# set construction on every authenticated request.
+_SAFE_FALLBACK_ENVIRONMENTS: frozenset[str] = frozenset(
+    {"development", "test", "testing"}
+)
+
+
 def get_jwt_secret_key() -> str:
     """Get JWT secret key from environment variables.
 
@@ -37,7 +45,6 @@ def get_jwt_secret_key() -> str:
     secret = os.getenv("JWT_SECRET_KEY")
     if not secret:
         environment = os.getenv("ENVIRONMENT", "development")
-        _SAFE_FALLBACK_ENVIRONMENTS = {"development", "test", "testing"}
         if environment not in _SAFE_FALLBACK_ENVIRONMENTS:
             raise RuntimeError(
                 f"JWT_SECRET_KEY environment variable is required when "
