@@ -1,11 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { FiSearch, FiFilter, FiMoreVertical } from 'react-icons/fi';
+import ConfirmRoleChangeModal from '../../components/ConfirmRoleChangeModal';
+
+// AWD-M-144: tracks a pending role-change confirmation before the modal fires.
+interface PendingRoleChange {
+    userId: number;
+    userName: string;
+    newRole: string;
+}
 
 const UserList: React.FC = () => {
     const [users, setUsers] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [actionError, setActionError] = useState<string | null>(null);
+    // AWD-M-144: replaces inline window.confirm() with an accessible modal.
+    const [pendingRoleChange, setPendingRoleChange] = useState<PendingRoleChange | null>(null);
 
     useEffect(() => {
         fetchUsers();
@@ -46,6 +56,17 @@ const UserList: React.FC = () => {
         }
     };
 
+    /**
+     * AWD-M-144: invoked from ConfirmRoleChangeModal's "Confirm" button.
+     * Closes the modal and performs the actual role change.
+     */
+    const confirmRoleChange = async () => {
+        if (!pendingRoleChange) return;
+        const { userId, newRole } = pendingRoleChange;
+        setPendingRoleChange(null);
+        await handleRoleChange(userId, newRole);
+    };
+
     const handleToggleSuspension = async (userId: number, currentStatus: boolean) => {
         setActionError(null);
         try {
@@ -74,6 +95,16 @@ const UserList: React.FC = () => {
 
     return (
         <div className="space-y-6">
+            {/* AWD-M-144: accessible role-change confirmation modal */}
+            {pendingRoleChange && (
+                <ConfirmRoleChangeModal
+                    userName={pendingRoleChange.userName}
+                    newRole={pendingRoleChange.newRole}
+                    onConfirm={confirmRoleChange}
+                    onCancel={() => setPendingRoleChange(null)}
+                />
+            )}
+
             <div className="flex justify-between items-center">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
@@ -171,10 +202,14 @@ const UserList: React.FC = () => {
                                             title="Manage Role"
                                             className="text-indigo-600 hover:text-indigo-900 p-1"
                                             onClick={() => {
+                                                // AWD-M-144: open the accessible confirmation modal instead of
+                                                // calling blocking window.confirm().
                                                 const nextRole = user.role === 'EDUCATOR' ? 'ADMIN' : (user.role === 'ADMIN' ? 'SUPER_ADMIN' : 'EDUCATOR');
-                                                if (confirm(`Change ${user.full_name}'s role to ${nextRole}?`)) {
-                                                    handleRoleChange(user.user_id, nextRole);
-                                                }
+                                                setPendingRoleChange({
+                                                    userId: user.user_id,
+                                                    userName: user.full_name,
+                                                    newRole: nextRole,
+                                                });
                                             }}
                                         >
                                             <FiMoreVertical />
