@@ -16,7 +16,7 @@ const AuditLogs: React.FC = () => {
                 const data = await response.json();
                 setLogs(data);
             } catch (error) {
-                console.error('Failed to fetch logs:', error);
+                if (import.meta.env.DEV) console.error('Failed to fetch logs:', error);
             } finally {
                 setIsLoading(false);
             }

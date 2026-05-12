@@ -20,7 +20,7 @@ const UserList: React.FC = () => {
             const data = await response.json();
             setUsers(data);
         } catch (error) {
-            console.error('Failed to fetch users:', error);
+            if (import.meta.env.DEV) console.error('Failed to fetch users:', error);
         } finally {
             setIsLoading(false);
         }
@@ -38,7 +38,7 @@ const UserList: React.FC = () => {
             });
             if (response.ok) fetchUsers();
         } catch (error) {
-            console.error('Failed to change role:', error);
+            if (import.meta.env.DEV) console.error('Failed to change role:', error);
         }
     };
 
@@ -54,7 +54,7 @@ const UserList: React.FC = () => {
             });
             if (response.ok) fetchUsers();
         } catch (error) {
-            console.error('Failed to toggle suspension:', error);
+            if (import.meta.env.DEV) console.error('Failed to toggle suspension:', error);
         }
     };
 
