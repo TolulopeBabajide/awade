@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FiSearch, FiFilter, FiMoreVertical } from 'react-icons/fi';
 import ConfirmRoleChangeModal from '../../components/ConfirmRoleChangeModal';
+import ErrorBanner from '../../components/ErrorBanner';
 
 // AWD-M-144: tracks a pending role-change confirmation before the modal fires.
 interface PendingRoleChange {
@@ -113,19 +114,10 @@ const UserList: React.FC = () => {
             </div>
 
             {actionError && (
-                <div
-                    role="alert"
-                    className="flex items-center justify-between rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800"
-                >
-                    <span>{actionError}</span>
-                    <button
-                        onClick={() => setActionError(null)}
-                        aria-label="Dismiss error"
-                        className="ml-4 text-red-500 hover:text-red-700 font-bold"
-                    >
-                        ✕
-                    </button>
-                </div>
+                <ErrorBanner
+                    message={actionError}
+                    onDismiss={() => setActionError(null)}
+                />
             )}
 
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
