@@ -45,6 +45,66 @@ function renderComponent() {
 }
 
 // ---------------------------------------------------------------------------
+// Tests — AWD-H-86 + AWD-H-87: fetchUsers response-ok guard and loadError state
+// ---------------------------------------------------------------------------
+
+describe('UserList fetchUsers (AWD-H-86 + AWD-H-87)', () => {
+    it('surfaces an HTTP status error when the server returns a non-OK non-JSON body', async () => {
+        // Simulates a 502 gateway response with an HTML body — response.json() must
+        // NOT be called first, otherwise we get a confusing SyntaxError (AWD-H-86).
+        vi.stubGlobal(
+            'fetch',
+            vi.fn().mockResolvedValue({
+                ok: false,
+                status: 502,
+                json: async () => { throw new SyntaxError('Unexpected token < in JSON'); },
+            })
+        )
+
+        renderComponent()
+
+        await waitFor(() => {
+            expect(screen.getByRole('alert')).toBeInTheDocument()
+        })
+        // Error must say "HTTP 502", not a SyntaxError from the JSON parser.
+        expect(screen.getByRole('alert')).toHaveTextContent('HTTP 502')
+    })
+
+    it('shows a loadError banner when the users API call fails (AWD-H-87)', async () => {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn().mockRejectedValue(new Error('Network failure'))
+        )
+
+        renderComponent()
+
+        await waitFor(() => {
+            expect(screen.getByRole('alert')).toBeInTheDocument()
+        })
+        expect(screen.getByRole('alert')).toHaveTextContent('Network failure')
+    })
+
+    it('clears the loadError banner when the dismiss button is clicked', async () => {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn().mockResolvedValue({
+                ok: false,
+                status: 503,
+                json: async () => ({}),
+            })
+        )
+
+        renderComponent()
+
+        await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
+
+        fireEvent.click(screen.getByLabelText('Dismiss error'))
+
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    })
+})
+
+// ---------------------------------------------------------------------------
 // Tests — AWD-M-143: mutation catch blocks surface errors to UI
 // ---------------------------------------------------------------------------
 

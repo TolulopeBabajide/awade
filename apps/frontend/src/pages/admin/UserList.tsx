@@ -14,6 +14,7 @@ const UserList: React.FC = () => {
     const [users, setUsers] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [loadError, setLoadError] = useState<string | null>(null);
     const [actionError, setActionError] = useState<string | null>(null);
     // AWD-M-144: replaces inline window.confirm() with an accessible modal.
     const [pendingRoleChange, setPendingRoleChange] = useState<PendingRoleChange | null>(null);
@@ -23,16 +24,24 @@ const UserList: React.FC = () => {
     }, []);
 
     const fetchUsers = async () => {
+        setLoadError(null);
         try {
             const response = await fetch(`${(import.meta as any).env.VITE_API_URL}/api/admin/users`, {
                 headers: {
                     /* access_token cookie sent automatically */
                 }
             });
+            // AWD-H-86: check !response.ok before calling response.json() so that
+            // non-JSON error bodies (e.g. a 502 HTML page) surface as a clean HTTP
+            // status error rather than an opaque SyntaxError from the JSON parser.
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
             setUsers(data);
         } catch (error) {
             if (import.meta.env.DEV) console.error('Failed to fetch users:', error);
+            // AWD-H-87: surface load failures to the admin via the loadError banner
+            // instead of silently rendering an empty table.
+            setLoadError(error instanceof Error ? error.message : 'Failed to load users. Please try again.');
         } finally {
             setIsLoading(false);
         }
@@ -112,6 +121,13 @@ const UserList: React.FC = () => {
                     <p className="text-gray-500">View and manage all platform users.</p>
                 </div>
             </div>
+
+            {loadError && (
+                <ErrorBanner
+                    message={loadError}
+                    onDismiss={() => setLoadError(null)}
+                />
+            )}
 
             {actionError && (
                 <ErrorBanner
