@@ -24,18 +24,29 @@ security = HTTPBearer(auto_error=False)
 def get_jwt_secret_key() -> str:
     """Get JWT secret key from environment variables.
 
+    The dev-secret fallback is only permitted when ENVIRONMENT is one of the
+    explicit safe values: "development", "test", or "testing".  Any other value
+    — including "staging", "preview", or an unrecognised string — raises
+    RuntimeError so that a misconfigured server fails loudly rather than
+    silently accepting forged JWTs signed with the well-known dev-secret.
+
     Raises:
-        RuntimeError: If ENVIRONMENT is 'production' and JWT_SECRET_KEY is not set.
+        RuntimeError: If JWT_SECRET_KEY is unset and ENVIRONMENT is not in the
+            safe-fallback allowlist {"development", "test", "testing"}.
     """
     secret = os.getenv("JWT_SECRET_KEY")
     if not secret:
         environment = os.getenv("ENVIRONMENT", "development")
-        if environment == "production":
+        _SAFE_FALLBACK_ENVIRONMENTS = {"development", "test", "testing"}
+        if environment not in _SAFE_FALLBACK_ENVIRONMENTS:
             raise RuntimeError(
-                "JWT_SECRET_KEY environment variable is required in production. "
-                "Set a strong random secret before starting the server."
+                f"JWT_SECRET_KEY environment variable is required when "
+                f"ENVIRONMENT='{environment}'. "
+                "Set a strong random secret before starting the server. "
+                "The dev-secret fallback is only allowed when ENVIRONMENT is "
+                "one of: development, test, testing."
             )
-        # Development / testing fallback — never safe for production.
+        # Development / testing fallback — never safe for production or staging.
         secret = "dev-secret"
     return secret
 
