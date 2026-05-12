@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { FiCheckCircle, FiXCircle, FiEye } from 'react-icons/fi';
+import ContentPreviewModal from '../../components/ContentPreviewModal';
 
 const ModerationList: React.FC = () => {
     const [resources, setResources] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [actionError, setActionError] = useState<string | null>(null);
+    const [previewContent, setPreviewContent] = useState<string | null>(null);
 
     useEffect(() => {
         fetchResources();
@@ -102,7 +104,7 @@ const ModerationList: React.FC = () => {
                             </button>
                             <button
                                 className="text-indigo-600 hover:text-indigo-700 p-1 flex items-center text-xs font-bold"
-                                onClick={() => alert(res.ai_generated_content)}
+                                onClick={() => setPreviewContent(res.ai_generated_content ?? '')}
                             >
                                 <FiEye className="mr-1" /> View
                             </button>
@@ -115,6 +117,13 @@ const ModerationList: React.FC = () => {
                     </div>
                 )}
             </div>
+
+            {previewContent !== null && (
+                <ContentPreviewModal
+                    content={previewContent}
+                    onClose={() => setPreviewContent(null)}
+                />
+            )}
         </div>
     );
 };

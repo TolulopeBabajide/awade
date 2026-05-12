@@ -131,3 +131,67 @@ describe('ModerationList (AWD-M-143)', () => {
         await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument())
     })
 })
+
+// ---------------------------------------------------------------------------
+// Tests — AWD-M-145: ContentPreviewModal replaces alert()
+// ---------------------------------------------------------------------------
+
+describe('ContentPreviewModal (AWD-M-145)', () => {
+    it('does NOT call window.alert when View is clicked', async () => {
+        mockFetchResources()
+        const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {})
+
+        renderComponent()
+        await waitFor(() => screen.getByText('Resource ID: 7'))
+
+        fireEvent.click(screen.getByText('View'))
+
+        expect(alertSpy).not.toHaveBeenCalled()
+    })
+
+    it('opens the ContentPreviewModal with role="dialog" when View is clicked', async () => {
+        mockFetchResources()
+        renderComponent()
+        await waitFor(() => screen.getByText('Resource ID: 7'))
+
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+
+        fireEvent.click(screen.getByText('View'))
+
+        expect(screen.getByRole('dialog')).toBeInTheDocument()
+        expect(screen.getByRole('dialog')).toHaveAttribute('aria-modal', 'true')
+    })
+
+    it('displays the resource ai_generated_content inside the modal', async () => {
+        mockFetchResources()
+        renderComponent()
+        await waitFor(() => screen.getByText('Resource ID: 7'))
+
+        fireEvent.click(screen.getByText('View'))
+
+        expect(screen.getByRole('dialog')).toHaveTextContent('Sample lesson content for review.')
+    })
+
+    it('shows "AI-Generated Content Preview" heading in the modal', async () => {
+        mockFetchResources()
+        renderComponent()
+        await waitFor(() => screen.getByText('Resource ID: 7'))
+
+        fireEvent.click(screen.getByText('View'))
+
+        expect(screen.getByText('AI-Generated Content Preview')).toBeInTheDocument()
+    })
+
+    it('Close button dismisses the modal', async () => {
+        mockFetchResources()
+        renderComponent()
+        await waitFor(() => screen.getByText('Resource ID: 7'))
+
+        fireEvent.click(screen.getByText('View'))
+        await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument())
+
+        fireEvent.click(screen.getByRole('button', { name: 'Close' }))
+
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+})
