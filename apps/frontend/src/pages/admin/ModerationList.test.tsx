@@ -42,6 +42,80 @@ function renderComponent() {
 }
 
 // ---------------------------------------------------------------------------
+// Tests — AWD-L-37: fetchResources load errors surfaced to UI
+// ---------------------------------------------------------------------------
+
+describe('ModerationList fetchResources error handling (AWD-L-37)', () => {
+    it('shows load error banner when initial fetch returns a non-OK response', async () => {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn().mockResolvedValue({
+                ok: false,
+                status: 500,
+                json: async () => ({ detail: 'Internal Server Error' }),
+            })
+        )
+
+        renderComponent()
+
+        await waitFor(() => {
+            expect(screen.getByRole('alert')).toBeInTheDocument()
+            expect(screen.getByRole('alert')).toHaveTextContent('HTTP 500')
+        })
+    })
+
+    it('shows load error banner on network failure during initial fetch', async () => {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn().mockRejectedValue(new Error('Network error'))
+        )
+
+        renderComponent()
+
+        await waitFor(() => {
+            expect(screen.getByRole('alert')).toBeInTheDocument()
+            expect(screen.getByRole('alert')).toHaveTextContent('Network error')
+        })
+    })
+
+    it('dismiss load error button clears the load error banner', async () => {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn().mockResolvedValue({
+                ok: false,
+                status: 503,
+                json: async () => ({}),
+            })
+        )
+
+        renderComponent()
+        await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
+
+        fireEvent.click(screen.getByLabelText('Dismiss load error'))
+
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    })
+
+    it('does not call setResources with error body when response is non-OK', async () => {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn().mockResolvedValue({
+                ok: false,
+                status: 403,
+                json: async () => ({ detail: 'Forbidden' }),
+            })
+        )
+
+        renderComponent()
+
+        await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
+
+        // No resource cards should render — error body was not set as resources
+        expect(screen.queryByText(/Resource ID:/)).not.toBeInTheDocument()
+    })
+})
+
+// ---------------------------------------------------------------------------
 // Tests — AWD-M-143: mutation catch blocks surface errors to UI
 // ---------------------------------------------------------------------------
 

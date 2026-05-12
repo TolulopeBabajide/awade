@@ -5,6 +5,7 @@ import ContentPreviewModal from '../../components/ContentPreviewModal';
 const ModerationList: React.FC = () => {
     const [resources, setResources] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [loadError, setLoadError] = useState<string | null>(null);
     const [actionError, setActionError] = useState<string | null>(null);
     const [previewContent, setPreviewContent] = useState<string | null>(null);
 
@@ -13,6 +14,7 @@ const ModerationList: React.FC = () => {
     }, []);
 
     const fetchResources = async () => {
+        setLoadError(null);
         try {
             const response = await fetch(`${(import.meta as any).env.VITE_API_URL}/api/admin/resources`, {
                 headers: {
@@ -20,9 +22,11 @@ const ModerationList: React.FC = () => {
                 }
             });
             const data = await response.json();
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             setResources(data);
         } catch (error) {
             if (import.meta.env.DEV) console.error('Failed to fetch resources:', error);
+            setLoadError(error instanceof Error ? error.message : 'Failed to load resources. Please try again.');
         } finally {
             setIsLoading(false);
         }
@@ -55,6 +59,22 @@ const ModerationList: React.FC = () => {
                 <h2 className="text-2xl font-bold text-gray-900">Resource Moderation</h2>
                 <p className="text-gray-500">Review flagged or reported content.</p>
             </div>
+
+            {loadError && (
+                <div
+                    role="alert"
+                    className="flex items-center justify-between rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800"
+                >
+                    <span>{loadError}</span>
+                    <button
+                        onClick={() => setLoadError(null)}
+                        aria-label="Dismiss load error"
+                        className="ml-4 text-red-500 hover:text-red-700 font-bold"
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
 
             {actionError && (
                 <div
