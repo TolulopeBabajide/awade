@@ -5,6 +5,7 @@ const UserList: React.FC = () => {
     const [users, setUsers] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [actionError, setActionError] = useState<string | null>(null);
 
     useEffect(() => {
         fetchUsers();
@@ -27,6 +28,7 @@ const UserList: React.FC = () => {
     };
 
     const handleRoleChange = async (userId: number, newRole: string) => {
+        setActionError(null);
         try {
             const response = await fetch(`${(import.meta as any).env.VITE_API_URL}/api/admin/users/${userId}`, {
                 method: 'PATCH',
@@ -36,13 +38,16 @@ const UserList: React.FC = () => {
                 },
                 body: JSON.stringify({ role: newRole })
             });
-            if (response.ok) fetchUsers();
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            fetchUsers();
         } catch (error) {
             if (import.meta.env.DEV) console.error('Failed to change role:', error);
+            setActionError(error instanceof Error ? error.message : 'Failed to update role. Please try again.');
         }
     };
 
     const handleToggleSuspension = async (userId: number, currentStatus: boolean) => {
+        setActionError(null);
         try {
             const response = await fetch(`${(import.meta as any).env.VITE_API_URL}/api/admin/users/${userId}`, {
                 method: 'PATCH',
@@ -52,9 +57,11 @@ const UserList: React.FC = () => {
                 },
                 body: JSON.stringify({ is_suspended: !currentStatus })
             });
-            if (response.ok) fetchUsers();
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            fetchUsers();
         } catch (error) {
             if (import.meta.env.DEV) console.error('Failed to toggle suspension:', error);
+            setActionError(error instanceof Error ? error.message : 'Failed to update suspension status. Please try again.');
         }
     };
 
@@ -73,6 +80,22 @@ const UserList: React.FC = () => {
                     <p className="text-gray-500">View and manage all platform users.</p>
                 </div>
             </div>
+
+            {actionError && (
+                <div
+                    role="alert"
+                    className="flex items-center justify-between rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800"
+                >
+                    <span>{actionError}</span>
+                    <button
+                        onClick={() => setActionError(null)}
+                        aria-label="Dismiss error"
+                        className="ml-4 text-red-500 hover:text-red-700 font-bold"
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
 
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                 <div className="relative flex-1">
