@@ -30,7 +30,10 @@ _MAX_USER_CONTEXT_CHARS: int = 2000
 
 # Regex patterns that indicate an instruction-injection attempt in user input.
 # Any match causes the offending phrase to be scrubbed and logged.
+# Extended in AWD-M-150 to cover newer jailbreak variants (DAN, developer mode,
+# forget-instructions, pretend-unrestricted, no-restrictions, roleplay injections).
 _INPUT_INJECTION_PATTERNS: list[str] = [
+    # --- Original patterns (AWD-M-12) ---
     r"ignore\s+(all\s+)?(?:previous\s+)?instructions",
     r"disregard\s+(all\s+)?instructions",
     r"override\s+(your\s+)?(?:instructions|training)",
@@ -41,6 +44,13 @@ _INPUT_INJECTION_PATTERNS: list[str] = [
     r"bypass\s+(?:safety|security|filters)",
     r"new\s+(?:role|persona|mode|behaviour|behavior)\s*:",
     r"<\s*/?(?:system|assistant|user)\s*>",   # fake role tags
+    # --- Extended patterns (AWD-M-150) ---
+    r"forget\s+(all\s+)?(?:previous\s+)?instructions",        # "forget all previous instructions"
+    r"pretend\s+(?:you\s+are|to\s+be)\s+(?:a\s+)?(?:different|unrestricted|uncensored)",  # pretend-unrestricted
+    r"\bdo\s+anything\s+now\b",                                # DAN (Do Anything Now) jailbreak
+    r"\bdeveloper\s+mode\b",                                   # "enable developer mode" jailbreak
+    r"you\s+(?:have\s+)?no\s+(?:restrictions|limitations|filters|rules)",  # "you have no restrictions"
+    r"(?:roleplay|role[\s\-]play)\s+as\s+(?:(?:a|an|the)\s+)?(?:unrestricted|uncensored)",  # roleplay-as-unrestricted/uncensored
 ]
 
 # ---------------------------------------------------------------------------
