@@ -8,9 +8,9 @@ interface ErrorBannerProps {
 }
 
 /**
- * Shared dismissible error banner for admin pages.
+ * Shared dismissible error banner.
  * Renders as a role="alert" div so screen readers announce the error immediately.
- * Used by ModerationList and UserList (AWD-M-148).
+ * Used by UserList, ModerationList, GuideViewPage, and ParentDashboardPage (AWD-M-148).
  */
 const ErrorBanner: React.FC<ErrorBannerProps> = ({
     message,

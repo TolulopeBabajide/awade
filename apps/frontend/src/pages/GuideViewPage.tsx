@@ -19,6 +19,7 @@ import apiService from '../services/api'
 import type { ParentGuide, ParentGuideContent } from '../types/children'
 import { GuidePageShell, Section, InfoCard } from './GuideViewPage.components'
 import { getErrorMessage } from '../utils/errors'
+import ErrorBanner from '../components/ErrorBanner'
 
 const GuideViewPage: React.FC = () => {
   const [searchParams] = useSearchParams()
@@ -227,22 +228,13 @@ const GuideViewPage: React.FC = () => {
         </div>
 
         {/* AWD-M-79: PDF download error banner — accessible, non-blocking */}
-        {/* AWD-L-33: dismiss button so the user can clear the banner without retrying */}
+        {/* AWD-L-33 / AWD-M-148: use shared ErrorBanner component */}
         {downloadError && (
-          <div
-            role="alert"
-            className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-4"
-          >
-            <div className="flex items-start gap-2">
-              <p className="text-red-600 text-sm font-medium flex-1">{downloadError}</p>
-              <button
-                onClick={() => setDownloadError(null)}
-                aria-label="Dismiss error"
-                className="ml-auto text-red-400 hover:text-red-600 leading-none flex-shrink-0"
-              >
-                ✕
-              </button>
-            </div>
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+            <ErrorBanner
+              message={downloadError}
+              onDismiss={() => setDownloadError(null)}
+            />
           </div>
         )}
 
