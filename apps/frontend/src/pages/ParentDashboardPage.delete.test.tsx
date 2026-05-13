@@ -3,7 +3,7 @@
  *
  * Covers:
  *   - handleConsentConfirmed error narrowing (AWD-M-81)
- *   - handleDeleteChild error feedback (AWD-H-80, AWD-M-80)
+ *   - handleDeleteChild error feedback (AWD-H-80, AWD-M-80, AWD-M-148)
  *   - switch child card clears deleteError (AWD-L-26)
  *   - DeleteChildConfirmModal (AWD-M-80)
  *
@@ -148,8 +148,8 @@ describe('ParentDashboardPage — delete & consent', () => {
     /**
      * AWD-H-80: deleteChild API rejections were previously absorbed in `finally`
      * with no user-visible feedback. The fix adds a catch block that sets
-     * `deleteError` state, which is rendered as an inline role="alert" message
-     * above the child selector cards.
+     * `deleteError` state, which is rendered via the shared ErrorBanner component
+     * (AWD-M-148) above the child selector cards.
      *
      * AWD-M-80: confirmation gating moved from window.confirm() to a controlled
      * DeleteChildConfirmModal. Tests now click the trash button to open the
@@ -194,6 +194,37 @@ describe('ParentDashboardPage — delete & consent', () => {
       await waitFor(() => {
         const alert = screen.getByRole('alert')
         expect(alert.textContent).toContain('Failed to remove child profile. Please try again.')
+      })
+    })
+
+    it('renders a dismiss button inside the ErrorBanner (AWD-M-148)', async () => {
+      setupChildList()
+      mockApiService.deleteChild.mockRejectedValue(new Error('Server unavailable'))
+
+      renderPage()
+      await openAndConfirmDelete()
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toBeInTheDocument()
+      })
+      expect(screen.getByLabelText('Dismiss error')).toBeInTheDocument()
+    })
+
+    it('dismiss button clears the delete error banner (AWD-M-148)', async () => {
+      setupChildList()
+      mockApiService.deleteChild.mockRejectedValue(new Error('Server unavailable'))
+
+      renderPage()
+      await openAndConfirmDelete()
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toBeInTheDocument()
+      })
+
+      fireEvent.click(screen.getByLabelText('Dismiss error'))
+
+      await waitFor(() => {
+        expect(screen.queryByRole('alert')).toBeNull()
       })
     })
 

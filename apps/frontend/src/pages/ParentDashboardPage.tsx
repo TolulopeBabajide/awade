@@ -12,6 +12,7 @@ import DeleteChildConfirmModal from '../components/DeleteChildConfirmModal'
 import type { ChildProfile, ChildTopic, ConsentStatusResponse, ChildProfileListResponse } from '../types/children'
 import { getErrorMessage } from '../utils/errors'
 import { useConsentGate } from '../hooks/useConsentGate'
+import ErrorBanner from '../components/ErrorBanner'
 
 // ── File-scope subcomponent ───────────────────────────────────────────────
 // Defined outside ParentDashboardPage so React sees a stable component
@@ -234,11 +235,14 @@ const ParentDashboardPage: React.FC = () => {
           />
         ) : (
           <div className="px-4 sm:px-6 lg:px-8 py-6">
-            {/* AWD-H-80: inline delete error — shown when deleteChild API call fails */}
+            {/* AWD-H-80 / AWD-M-148: delete error via shared ErrorBanner */}
             {deleteError && (
-              <p role="alert" className="text-red-500 text-sm font-medium mb-4">
-                {deleteError}
-              </p>
+              <div className="mb-4">
+                <ErrorBanner
+                  message={deleteError}
+                  onDismiss={() => setDeleteError(null)}
+                />
+              </div>
             )}
             {/* Child selector cards */}
             <div className="flex gap-3 overflow-x-auto pb-4 mb-6 scrollbar-hide">
