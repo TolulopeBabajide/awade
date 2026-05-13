@@ -48,7 +48,7 @@ _INPUT_INJECTION_PATTERNS: list[str] = [
     r"forget\s+(all\s+)?(?:previous\s+)?instructions",        # "forget all previous instructions"
     r"pretend\s+(?:you\s+are|to\s+be)\s+(?:a\s+)?(?:different|unrestricted|uncensored)",  # pretend-unrestricted
     r"\bdo\s+anything\s+now\b",                                # DAN (Do Anything Now) jailbreak
-    r"\bdeveloper\s+mode\b",                                   # "enable developer mode" jailbreak
+    r"(?:enable|activate|turn\s+on|switch\s+to|unlock)\s+developer\s+mode",  # "enable developer mode" jailbreak (AWD-M-157: narrowed to avoid false positives on ICT lesson content)
     r"you\s+(?:have\s+)?no\s+(?:restrictions|limitations|filters|rules)",  # "you have no restrictions"
     r"(?:roleplay|role[\s\-]play)\s+as\s+(?:(?:a|an|the)\s+)?(?:unrestricted|uncensored)",  # roleplay-as-unrestricted/uncensored
 ]
