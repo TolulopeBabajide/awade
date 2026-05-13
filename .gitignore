@@ -151,3 +151,10 @@ docs/tech-debt/
 # Sandbox/temp artifacts
 .sandbox_*/
 .sandbox_work_*/
+
+# Vitest / test-runner temp directories (AWD-L-43)
+# Generated during `npm run test:run` — accumulate across runs, never committed
+.tmp-test/
+.tmp-vitest/
+.tmp-vitest-*/
+.tmpvitest/
