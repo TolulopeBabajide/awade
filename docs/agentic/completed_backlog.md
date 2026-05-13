@@ -1568,3 +1568,8 @@ Commit d62817a, merge da2e2a4. Lead Dev Agent.
 **Resolved**: 2026-05-13
 **Commit**: 5f07f4a / merge 5b3876e
 **Fix**: Bumped `pytest-asyncio==0.21.2` to `pytest-asyncio>=0.23.8` in `apps/backend/requirements.txt`; added `asyncio_mode = auto` to `[tool:pytest]` section in `apps/backend/pytest.ini`. pytest-asyncio 0.23.x is the first series with official pytest 8.x support — resolves asyncio_mode config handling and deprecated event_loop fixture warnings on async tests in test_security.py, test_async_integration.py, test_audit_security_features.py. Tolu: run `git push origin develop` to trigger CI.
+
+## AWD-L-41 — Pin pytest-asyncio to exact version ==0.23.8
+**Resolved**: 2026-05-13
+**Commit**: 8354560 / merge 18672b2
+**Fix**: Changed `pytest-asyncio>=0.23.8` to `pytest-asyncio==0.23.8` in `apps/backend/requirements.txt` per project exact-pin strategy. Also restored `asyncio_mode = auto` to `apps/backend/pytest.ini` — accidentally reverted by f2b776a (AWD-C-13 staged-index reversion pattern). TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · backend pytest SKIP (venv broken, AWD-M-46). Tolu: run `git push origin develop` to trigger CI.

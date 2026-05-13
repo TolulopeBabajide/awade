@@ -1,7 +1,8 @@
 # Awade — Backlog
 
 > Last groomed: 2026-05-09 (weekend-ops — M-129/L-24/M-130/M-131 promoted to ready; M-96 superseded by M-129)
-> Last updated: 2026-05-13 (dev-agent — AWD-L-40 resolved: pytest-asyncio 0.21.2→>=0.23.8 in requirements.txt; asyncio_mode = auto added to pytest.ini. TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · frontend vitest SKIP (ENOSPC, AWD-H-77) · backend pytest SKIP (venv broken, M-46). Commit 5f07f4a, merge 5b3876e. Tolu: run `git push origin develop` to trigger CI.)
+> Last updated: 2026-05-13 (code-review-agent — commit 5f07f4a (AWD-L-40) reviewed. Verdict: ⚠️ Refactor Recommended. Filed AWD-L-41: pytest-asyncio uses >=0.23.8 unpinned minimum — inconsistent with project's exact-pin strategy for test deps.)
+> Prev updated: 2026-05-13 (dev-agent — AWD-L-40 resolved: pytest-asyncio 0.21.2→>=0.23.8 in requirements.txt; asyncio_mode = auto added to pytest.ini. TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · frontend vitest SKIP (ENOSPC, AWD-H-77) · backend pytest SKIP (venv broken, M-46). Commit 5f07f4a, merge 5b3876e. Tolu: run `git push origin develop` to trigger CI.)
 > Prev updated: 2026-05-13 (code-review-agent — commits 8afba6d/8ef9f16 (AWD-L-39 + AWD-M-158) reviewed. Verdict: ✅ Clean. Filed AWD-L-40: pytest-asyncio 0.21.2 should be upgraded to 0.23.x+ to match pytest 8.3.5 — deprecation-warning risk on async tests.)
 > Prev updated: 2026-05-13 (dev-agent — AWD-L-39 resolved: pytest 7.4.0→8.3.5 in apps/backend/requirements.txt. TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · frontend vitest SKIP (ENOSPC, AWD-H-77) · backend pytest SKIP (venv broken, M-46). Commit 8afba6d, merge f9e59eb. Tolu: run `git push origin develop` to trigger CI.)
 > Prev updated: 2026-05-13 (dev-agent — AWD-M-158 resolved: extracted 6 shared AWD-M-150/M-156 jailbreak regex strings into module-level _SHARED_INJECTION_PATTERNS; _INPUT_INJECTION_PATTERNS and _OUTPUT_INJECTION_PATTERNS both unpack from it via *_SHARED_INJECTION_PATTERNS. 4 new tests in TestSharedInjectionPatterns (subset-in-input, subset-in-output, non-empty ≥6, issubset assertions). TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · Python import/assertion check ✅. Commit 8ef9f16, merge 7cf1342. AWD-C-13 staged-index reversion cleared. Tolu: run `git push origin develop` to trigger CI.)
@@ -362,6 +363,10 @@ AWD-M-96 remain open. Verdict: ✅ Clean.)
 ---
 
 **~~AWD-L-40~~** — ✅ resolved 2026-05-13 (commit 5f07f4a, merge 5b3876e). `pytest-asyncio>=0.23.8` in `apps/backend/requirements.txt`; `asyncio_mode = auto` added to `[tool:pytest]` section in `apps/backend/pytest.ini`. TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · backend pytest SKIP (venv broken, M-46). Tolu: run `git push origin develop` to trigger CI. **Stage**: done
+
+---
+
+**~~AWD-L-41~~** — ✅ resolved 2026-05-13 (commit 8354560, merge 18672b2). `pytest-asyncio==0.23.8` exact-pinned in `apps/backend/requirements.txt`; `asyncio_mode = auto` also restored to `apps/backend/pytest.ini` (accidentally reverted in f2b776a via AWD-C-13). TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · backend pytest SKIP (venv broken, M-46). Tolu: run `git push origin develop` to trigger CI. **Stage**: done
 
 ---
 

@@ -655,3 +655,4 @@ After removing it, the next hourly run will:
 2026-05-13T00:00:00Z | AWD-M-158 | Extract _SHARED_INJECTION_PATTERNS to prevent gate desync | 8ef9f16 | ✅ Done | CI:pending
 2026-05-13T16:11:11Z | AWD-L-39 | DepSec: pytest 7.4.0 → 8.3.5 | 8afba6d | ✅ Done | CI:pending
 2026-05-13T17:12:00Z | AWD-L-40 | DepSec: pytest-asyncio 0.21.2 → 0.23.x for pytest 8.x support | 5f07f4a | ✅ Done | CI:pending (Tolu: git push origin develop)
+2026-05-13T19:12:41Z | AWD-L-41 | Pin pytest-asyncio==0.23.8 and restore asyncio_mode=auto | 8354560 / merge 18672b2 | ✅ Done | CI:pending — Tolu: run `git push origin develop`
