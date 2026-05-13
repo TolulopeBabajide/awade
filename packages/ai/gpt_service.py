@@ -28,10 +28,27 @@ from .prompts import COMPREHENSIVE_LESSON_RESOURCE_PROMPT, PARENT_HELPER_PROMPT
 # Longer inputs are truncated to prevent token-stuffing / prompt DoS.
 _MAX_USER_CONTEXT_CHARS: int = 2000
 
+# ---------------------------------------------------------------------------
+# Shared injection patterns (AWD-M-158) — jailbreak variants that must be
+# detected by BOTH the input sanitiser and the output gate.  Maintaining a
+# single source of truth prevents the two lists from drifting apart (the
+# desync risk identified after AWD-M-150 input additions + AWD-M-156 output
+# mirror required manual coordination).  New jailbreak variants should be
+# added here first; gate-specific patterns stay in their own lists below.
+# ---------------------------------------------------------------------------
+_SHARED_INJECTION_PATTERNS: list[str] = [
+    r"forget\s+(all\s+)?(?:previous\s+)?instructions",        # "forget all previous instructions"
+    r"pretend\s+(?:you\s+are|to\s+be)\s+(?:a\s+)?(?:different|unrestricted|uncensored)",  # pretend-unrestricted
+    r"\bdo\s+anything\s+now\b",                                # DAN (Do Anything Now) jailbreak
+    r"(?:enable|activate|turn\s+on|switch\s+to|unlock)\s+developer\s+mode",  # "enable developer mode" jailbreak (AWD-M-157: narrowed to avoid false positives on ICT lesson content)
+    r"you\s+(?:have\s+)?no\s+(?:restrictions|limitations|filters|rules)",  # "you have no restrictions"
+    r"(?:roleplay|role[\s\-]play)\s+as\s+(?:(?:a|an|the)\s+)?(?:unrestricted|uncensored)",  # roleplay-as-unrestricted/uncensored
+]
+
 # Regex patterns that indicate an instruction-injection attempt in user input.
 # Any match causes the offending phrase to be scrubbed and logged.
-# Extended in AWD-M-150 to cover newer jailbreak variants (DAN, developer mode,
-# forget-instructions, pretend-unrestricted, no-restrictions, roleplay injections).
+# Extended in AWD-M-150 to cover newer jailbreak variants; shared variants
+# are now sourced from _SHARED_INJECTION_PATTERNS (AWD-M-158).
 _INPUT_INJECTION_PATTERNS: list[str] = [
     # --- Original patterns (AWD-M-12) ---
     r"ignore\s+(all\s+)?(?:previous\s+)?instructions",
@@ -44,13 +61,8 @@ _INPUT_INJECTION_PATTERNS: list[str] = [
     r"bypass\s+(?:safety|security|filters)",
     r"new\s+(?:role|persona|mode|behaviour|behavior)\s*:",
     r"<\s*/?(?:system|assistant|user)\s*>",   # fake role tags
-    # --- Extended patterns (AWD-M-150) ---
-    r"forget\s+(all\s+)?(?:previous\s+)?instructions",        # "forget all previous instructions"
-    r"pretend\s+(?:you\s+are|to\s+be)\s+(?:a\s+)?(?:different|unrestricted|uncensored)",  # pretend-unrestricted
-    r"\bdo\s+anything\s+now\b",                                # DAN (Do Anything Now) jailbreak
-    r"(?:enable|activate|turn\s+on|switch\s+to|unlock)\s+developer\s+mode",  # "enable developer mode" jailbreak (AWD-M-157: narrowed to avoid false positives on ICT lesson content)
-    r"you\s+(?:have\s+)?no\s+(?:restrictions|limitations|filters|rules)",  # "you have no restrictions"
-    r"(?:roleplay|role[\s\-]play)\s+as\s+(?:(?:a|an|the)\s+)?(?:unrestricted|uncensored)",  # roleplay-as-unrestricted/uncensored
+    # --- Shared jailbreak patterns (AWD-M-150, deduplicated via AWD-M-158) ---
+    *_SHARED_INJECTION_PATTERNS,
 ]
 
 # ---------------------------------------------------------------------------
@@ -65,9 +77,8 @@ _OUTPUT_PII_PATTERNS: list[tuple[str, str]] = [
 ]
 
 # Phrases that indicate the model was jailbroken / injection succeeded.
-# Extended in AWD-M-156 to mirror the AWD-M-150 additions to
-# _INPUT_INJECTION_PATTERNS — both gates must cover the same jailbreak
-# variants so a successful injection cannot slip through to output.
+# Shared jailbreak variants are sourced from _SHARED_INJECTION_PATTERNS
+# (AWD-M-158) so input and output gates stay in sync automatically.
 _OUTPUT_INJECTION_PATTERNS: list[str] = [
     # --- Original patterns (AWD-M-12) ---
     r"ignore\s+(all\s+)?previous\s+instructions",
@@ -77,13 +88,8 @@ _OUTPUT_INJECTION_PATTERNS: list[str] = [
     r"bypass\s+(safety|security|filters)",
     r"override\s+(your\s+)?(instructions|training)",
     r"you\s+are\s+now\s+(?:a\s+)?(?:different|new|another)",
-    # --- Extended patterns (AWD-M-156, mirroring AWD-M-150 input additions) ---
-    r"forget\s+(all\s+)?(?:previous\s+)?instructions",
-    r"pretend\s+(?:you\s+are|to\s+be)\s+(?:a\s+)?(?:different|unrestricted|uncensored)",
-    r"\bdo\s+anything\s+now\b",
-    r"(?:enable|activate|turn\s+on|switch\s+to|unlock)\s+developer\s+mode",
-    r"you\s+(?:have\s+)?no\s+(?:restrictions|limitations|filters|rules)",
-    r"(?:roleplay|role[\s\-]play)\s+as\s+(?:(?:a|an|the)\s+)?(?:unrestricted|uncensored)",
+    # --- Shared jailbreak patterns (AWD-M-156/AWD-M-158) ---
+    *_SHARED_INJECTION_PATTERNS,
 ]
 
 # Terms clearly inappropriate in child-facing educational content

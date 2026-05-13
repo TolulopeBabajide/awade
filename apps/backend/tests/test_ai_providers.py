@@ -10,7 +10,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.
 from packages.ai.providers.openai_provider import OpenAIProvider
 from packages.ai.providers.gemini_provider import GeminiProvider
 from packages.ai.cache import ContentCache
-from packages.ai.gpt_service import AwadeGPTService
+from packages.ai.gpt_service import (
+    AwadeGPTService,
+    _SHARED_INJECTION_PATTERNS,
+    _INPUT_INJECTION_PATTERNS,
+    _OUTPUT_INJECTION_PATTERNS,
+)
 
 class TestOpenAIProvider:
     @patch("packages.ai.providers.openai_provider.openai")
@@ -358,6 +363,36 @@ class TestCheckContentSafetyOutputGate:
         is_safe, reason = svc._check_content_safety(clean)
         assert is_safe
         assert reason is None
+
+
+class TestSharedInjectionPatterns:
+    """AWD-M-158: _SHARED_INJECTION_PATTERNS must be a strict subset of both
+    input and output lists so a single definition keeps both gates in sync."""
+
+    def test_shared_patterns_present_in_input_list(self):
+        """Every pattern in _SHARED_INJECTION_PATTERNS appears in _INPUT_INJECTION_PATTERNS."""
+        for pattern in _SHARED_INJECTION_PATTERNS:
+            assert pattern in _INPUT_INJECTION_PATTERNS, (
+                f"Shared pattern missing from _INPUT_INJECTION_PATTERNS: {pattern!r}"
+            )
+
+    def test_shared_patterns_present_in_output_list(self):
+        """Every pattern in _SHARED_INJECTION_PATTERNS appears in _OUTPUT_INJECTION_PATTERNS."""
+        for pattern in _SHARED_INJECTION_PATTERNS:
+            assert pattern in _OUTPUT_INJECTION_PATTERNS, (
+                f"Shared pattern missing from _OUTPUT_INJECTION_PATTERNS: {pattern!r}"
+            )
+
+    def test_shared_patterns_non_empty(self):
+        """_SHARED_INJECTION_PATTERNS must contain at least 6 entries (AWD-M-150 variants)."""
+        assert len(_SHARED_INJECTION_PATTERNS) >= 6
+
+    def test_input_and_output_cover_all_shared(self):
+        """Both lists are strict supersets of _SHARED_INJECTION_PATTERNS — no shared
+        pattern may be dropped from either gate without breaking this test."""
+        shared_set = set(_SHARED_INJECTION_PATTERNS)
+        assert shared_set.issubset(set(_INPUT_INJECTION_PATTERNS))
+        assert shared_set.issubset(set(_OUTPUT_INJECTION_PATTERNS))
 
 
 class TestParentHelperPromptInjectionSandboxing:
