@@ -2,8 +2,8 @@
 # Core FastAPI dependencies - Updated for security
 fastapi==0.115.12  # Upgraded from 0.109.2 — patches CVE-2024-24762 (DoS via multipart) and 6 minor security releases (AWD-M-64)
 uvicorn[standard]==0.34.0  # Upgraded from 0.27.1 — 7 minor security hardening releases (AWD-M-64)
-pydantic==2.6.4
-sqlalchemy==2.0.29
+pydantic==2.10.6  # Upgraded from 2.6.4 — 4 minor versions of security hardening; covers CVE-2024-3772 (ReDoS in email validation, patched at 2.6.2) and further hardening in 2.7–2.10 (AWD-M-151)
+sqlalchemy==2.0.41  # Upgraded from 2.0.29 — 12 patch releases of ORM correctness fixes and minor security hardening (AWD-M-152)
 psycopg2-binary==2.9.9
 python-dotenv==1.2.2  # Fix CVE-2026-28684 (symlink following in set_key) (AWD-M-115)
 openai==1.109.1  # Upgraded from 1.12.0 — latest 1.x, stays below 2.x (breaking API changes); security patches (AWD-M-39)
@@ -36,7 +36,7 @@ sentry-sdk[fastapi]==2.58.0  # Error monitoring (AWD-H-01)
 
 # Async Worker
 arq==0.25.0
-redis==5.0.0
+redis==5.2.1  # Upgraded from 5.0.0 — 2 minor releases with connection pooling security improvements and TLS hardening (AWD-M-153)
 prometheus-fastapi-instrumentator==6.1.0
 
 # AI Providers
