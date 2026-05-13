@@ -64,8 +64,12 @@ _OUTPUT_PII_PATTERNS: list[tuple[str, str]] = [
     (r"sk-[a-zA-Z0-9]{32,}", "API key"),
 ]
 
-# Phrases that indicate the model was jailbroken / injection succeeded
+# Phrases that indicate the model was jailbroken / injection succeeded.
+# Extended in AWD-M-156 to mirror the AWD-M-150 additions to
+# _INPUT_INJECTION_PATTERNS — both gates must cover the same jailbreak
+# variants so a successful injection cannot slip through to output.
 _OUTPUT_INJECTION_PATTERNS: list[str] = [
+    # --- Original patterns (AWD-M-12) ---
     r"ignore\s+(all\s+)?previous\s+instructions",
     r"\bsystem\s+prompt\b",
     r"\bjailbreak\b",
@@ -73,6 +77,13 @@ _OUTPUT_INJECTION_PATTERNS: list[str] = [
     r"bypass\s+(safety|security|filters)",
     r"override\s+(your\s+)?(instructions|training)",
     r"you\s+are\s+now\s+(?:a\s+)?(?:different|new|another)",
+    # --- Extended patterns (AWD-M-156, mirroring AWD-M-150 input additions) ---
+    r"forget\s+(all\s+)?(?:previous\s+)?instructions",
+    r"pretend\s+(?:you\s+are|to\s+be)\s+(?:a\s+)?(?:different|unrestricted|uncensored)",
+    r"\bdo\s+anything\s+now\b",
+    r"(?:enable|activate|turn\s+on|switch\s+to|unlock)\s+developer\s+mode",
+    r"you\s+(?:have\s+)?no\s+(?:restrictions|limitations|filters|rules)",
+    r"(?:roleplay|role[\s\-]play)\s+as\s+(?:(?:a|an|the)\s+)?(?:unrestricted|uncensored)",
 ]
 
 # Terms clearly inappropriate in child-facing educational content
