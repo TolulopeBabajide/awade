@@ -26,7 +26,7 @@ setuptools==78.1.1  # Fix CVE-2025-47273, CVE-2024-6345
 
 # Testing dependencies
 pytest==8.3.5  # Upgraded from 7.4.0 — latest 8.x; improved assertion rewriting, async test support, fixture scoping (AWD-L-39)
-pytest-asyncio==0.21.2
+pytest-asyncio>=0.23.8  # Upgraded from 0.21.2 — first series with official pytest 8.x support; fixes asyncio_mode config handling and deprecated event_loop fixture warnings (AWD-L-40)
 pytest-cov==4.1.0
 httpx==0.28.1  # Upgraded from 0.24.1 — google-genai requires >=0.28.1
 slowapi==0.1.9
