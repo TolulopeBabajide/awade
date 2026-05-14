@@ -1,13 +1,13 @@
 # Awade API Documentation
 
-> **Last generated: 2025-07-30 11:21:18
-
-
-> **For detailed endpoint contracts and example payloads, see the OpenAPI specification at `/docs` when running the server.**
+> **Last updated: 2026-04-26**
+> **For detailed endpoint contracts and example payloads, see the OpenAPI specification at `/docs` when running the server (development only — disabled in production).**
 
 ## Overview
 
-The Awade API provides RESTful endpoints for AI-powered lesson planning, training modules, and educator support features. Built with FastAPI, it offers automatic OpenAPI documentation and type safety.
+The Awade API provides RESTful endpoints for AI-powered lesson planning (educators) and "How to Help" parent guides (parents). Built with FastAPI, it offers automatic OpenAPI documentation and type safety.
+
+Two user roles are supported: `EDUCATOR` and `PARENT`. Most endpoints are role-gated — requests using the wrong role receive `403 Forbidden`.
 
 ## 🔗 Base URL
 
@@ -175,14 +175,166 @@ Add new curriculum standards.
 
 
 
-## 🔐 Authentication
+### Parent: Child Profiles
 
-Currently, the API uses basic authentication. Future versions will implement JWT tokens.
+> **Role required**: `PARENT`. All `/api/children` and `/api/guides` endpoints return `403` for `EDUCATOR` callers.
+
+#### POST `/api/children`
+Create a child profile for the current parent.
+
+**Request Body:**
+```json
+{
+  "name": "Amara",
+  "age": 9,
+  "school_name": "Greenfield Primary",
+  "country_id": 1,
+  "curricula_id": 2,
+  "grade_level_id": 5,
+  "subjects": [3, 7]
+}
+```
+
+**Response (201):**
+```json
+{
+  "child_id": 42,
+  "parent_id": 17,
+  "name": "Amara",
+  "age": 9,
+  "school_name": "Greenfield Primary",
+  "country_id": 1,
+  "country_name": "Nigeria",
+  "curricula_id": 2,
+  "curricula_title": "Nigerian Basic Education Curriculum",
+  "grade_level_id": 5,
+  "grade_level_name": "Grade 4",
+  "subjects": [3, 7],
+  "created_at": "2026-04-26T10:00:00Z",
+  "updated_at": "2026-04-26T10:00:00Z"
+}
+```
+
+#### GET `/api/children`
+List all child profiles for the current parent.
+
+**Response:**
+```json
+{
+  "children": [ { ...ChildProfileResponse... } ],
+  "total": 2
+}
+```
+
+#### GET `/api/children/{child_id}`
+Get a single child profile by ID. Returns `404` if the child does not belong to the current parent.
+
+#### PUT `/api/children/{child_id}`
+Update a child profile. All fields are optional.
+
+**Request Body:** same shape as `POST /api/children`, all fields optional.
+
+#### DELETE `/api/children/{child_id}`
+Delete a child profile and all associated guides. Returns `{"message": "Child profile deleted"}`.
+
+---
+
+### Parent: Curriculum Topics for a Child
+
+#### GET `/api/children/{child_id}/topics`
+Return curriculum topics available to a child based on their grade and curriculum.
+
+**Query Parameters:**
+- `subject_id` (optional, integer): Filter to a specific subject.
+
+**Response:**
+```json
+[
+  {
+    "topic_id": 101,
+    "title": "Fractions",
+    "subject_id": 3,
+    "subject_name": "Mathematics",
+    "grade_level_id": 5
+  }
+]
+```
+
+---
+
+### Parent: "How to Help" Guides
+
+#### GET `/api/children/{child_id}/guides`
+List all saved guides for a child.
+
+**Query Parameters:**
+- `bookmarked` (optional, boolean, default `false`): Return only bookmarked guides.
+
+**Response:**
+```json
+{
+  "guides": [ { ...ParentGuideResponse... } ],
+  "total": 5
+}
+```
+
+#### POST `/api/children/{child_id}/guides/generate`
+Generate (or retrieve existing) a "How to Help" guide for a topic.
+- If a guide already exists for this child+topic combination, returns the cached guide immediately (idempotent).
+- If not, calls the AI service to generate a new guide and persists it.
+- **Rate-limited**: 5 requests / minute per IP.
+
+**Query Parameters:**
+- `topic_id` (required, integer): Topic to generate the guide for.
+
+**Response (201 created / 200 existing):** `ParentGuideResponse`
+
+**Error responses:**
+- `503` — AI service temporarily unavailable
+- `502` — AI returned malformed output (retry)
+- `404` — Child not found or not owned by caller
+
+#### GET `/api/guides/{guide_id}`
+Get a single parent guide by ID. Returns `404` if not owned by the current parent.
+
+#### POST `/api/guides/{guide_id}/bookmark`
+Toggle the bookmark status of a guide. Returns the updated `ParentGuideResponse`.
+
+#### GET `/api/guides/{guide_id}/export`
+Export a parent guide as a downloadable PDF for offline printing.
+
+**Response:** Binary PDF (`application/pdf`)
 
 **Headers:**
 ```
-Authorization: Basic <base64-encoded-credentials>
+Content-Disposition: attachment; filename="Fractions.pdf"
+Content-Type: application/pdf
 ```
+
+**Error responses:**
+- `422` — Guide has no content or content is malformed
+- `503` — PDF generation service unavailable (WeasyPrint not installed)
+- `500` — Unexpected export error
+
+---
+
+## 🔐 Authentication
+
+All protected endpoints require a valid JWT. Tokens are issued as **HttpOnly cookies** (set on login/register — browser clients just need `credentials: 'include'`). API clients can alternatively pass the token in the `Authorization` header.
+
+**HttpOnly cookie (browser clients):**
+```
+Cookie: access_token=<jwt>
+```
+
+**Bearer header (API clients):**
+```
+Authorization: Bearer <jwt>
+```
+
+Tokens are obtained via `POST /api/auth/login`, `POST /api/auth/register`, or `POST /api/auth/google`. A `POST /api/auth/logout` endpoint clears the cookie.
+
+Requests to protected endpoints without a valid token return `401 Unauthorized`. Requests with a valid token but the wrong role return `403 Forbidden`.
 
 ## 📊 Data Models
 
@@ -263,6 +415,107 @@ Authorization: Basic <base64-encoded-credentials>
 
 
 
+### ChildProfileCreate / ChildProfileUpdate
+```typescript
+{
+  name: string,          // 1–100 chars, required on create
+  age?: number,          // 3–25 (inclusive)
+  school_name?: string,  // max 200 chars
+  country_id?: number,
+  curricula_id?: number,
+  grade_level_id?: number,
+  subjects?: number[]    // list of subject IDs
+}
+```
+
+### ChildProfileResponse
+```typescript
+{
+  child_id: number,
+  parent_id: number,
+  name: string,
+  age?: number,
+  school_name?: string,
+  country_id?: number,
+  country_name?: string,
+  curricula_id?: number,
+  curricula_title?: string,
+  grade_level_id?: number,
+  grade_level_name?: string,
+  subjects?: number[],
+  created_at: string,    // ISO 8601
+  updated_at: string
+}
+```
+
+### ChildProfileListResponse
+```typescript
+{
+  children: ChildProfileResponse[],
+  total: number
+}
+```
+
+### ParentGuideResponse
+```typescript
+{
+  guide_id: number,
+  child_id: number,
+  topic_id: number,
+  topic_title?: string,
+  subject_name?: string,
+  ai_generated_content?: string,   // JSON string — ParentGuideAIContent structure
+  user_edited_content?: string,
+  is_bookmarked: boolean,
+  created_at: string,
+  updated_at: string
+}
+```
+
+### ParentGuideListResponse
+```typescript
+{
+  guides: ParentGuideResponse[],
+  total: number
+}
+```
+
+### ParentGuideAIContent (shape of `ai_generated_content` JSON)
+```typescript
+{
+  topic_header: {
+    topic: string,
+    subject: string,
+    grade_level: string,
+    country: string,
+    curriculum: string
+  },
+  simple_explanation: {
+    what_it_is: string,
+    why_it_matters: string
+  },
+  home_activity: {
+    title: string,
+    description: string,
+    materials_needed: string[],
+    steps: string[],
+    what_to_look_for: string
+  },
+  conversation_starters: string[],
+  common_mistakes: Array<{
+    mistake: string,
+    why_it_happens: string,
+    how_to_help: string
+  }>,
+  curriculum_context?: {
+    what_came_before?: string,
+    what_comes_next?: string,
+    how_long_in_school?: string
+  },
+  encouragement_tips?: string[]
+}
+```
+
 ## 🚨 Error Handling
 
 ### Error Response Format
@@ -284,8 +537,11 @@ All API errors follow a consistent format:
 | `201` | Created | Resource created successfully |
 | `400` | Bad Request | Invalid request parameters |
 | `401` | Unauthorized | Authentication required |
-| `404` | Not Found | Resource doesn't exist |
+| `403` | Forbidden | Authenticated but wrong role, or accessing another user's resource |
+| `404` | Not Found | Resource doesn't exist or doesn't belong to caller |
 | `422` | Validation Error | Request validation failed |
+| `502` | Bad Gateway | AI returned malformed output — safe to retry |
+| `503` | Service Unavailable | AI or PDF generation service temporarily unavailable |
 | `500` | Internal Server Error | Server error |
 
 ### Endpoint-Specific Error Responses

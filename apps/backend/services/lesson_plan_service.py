@@ -1,9 +1,9 @@
 """
 Lesson Plan Service for Awade
 
-This module provides service methods for managing lesson plans, including CRUD operations,
-AI-powered generation, and resource management. It handles all business logic related
-to lesson plans, separating concerns from the router layer.
+This module provides service methods for managing lesson plans, including CRUD operations
+and AI-powered generation. Resource management has been extracted to
+``lesson_resource_service.LessonResourceService`` (AWD-M-117).
 
 Author: Tolulope Babajide
 """
@@ -28,7 +28,7 @@ root_dir = os.path.dirname(parent_dir)
 sys.path.extend([parent_dir, root_dir])
 
 from apps.backend.models import (
-    LessonPlan, User, Topic, CurriculumStructure, Curriculum, Country, 
+    LessonPlan, User, Topic, CurriculumStructure, Curriculum, Country,
     GradeLevel, Subject, LessonResource, LessonStatus, UserRole, Context
 )
 from apps.backend.schemas.lesson_plans import (
@@ -37,20 +37,27 @@ from apps.backend.schemas.lesson_plans import (
 )
 from packages.ai.gpt_service import AwadeGPTService
 
+# AWD-M-117: _to_lesson_resource_response moved to lesson_resource_service.
+# Re-exported here so existing imports (tests, etc.) continue to work.
+from apps.backend.services.lesson_resource_service import (  # noqa: F401
+    _to_lesson_resource_response,
+)
+
+
 class LessonPlanService:
     """Service class for lesson plan operations."""
-    
+
     def __init__(self, db: Session, redis_pool: Optional[ArqRedis] = None):
         """
         Initialize the LessonPlanService with a database session and optional Redis pool.
-        
+
         Args:
             db (Session): SQLAlchemy database session
             redis_pool (Optional[ArqRedis]): Arq Redis connection pool for async tasks
         """
         self.db = db
         self.redis = redis_pool
-    
+
     def fetch_curriculum_data(self, topic_obj: Topic) -> tuple[List[str], List[str]]:
         """Helper function to fetch curriculum learning objectives and contents for a topic."""
         curriculum_learning_objectives = []
@@ -59,13 +66,13 @@ class LessonPlanService:
             curriculum_learning_objectives = [obj.objective for obj in topic_obj.learning_objectives]
             curriculum_contents = [content.content_area for content in topic_obj.topic_contents]
         return curriculum_learning_objectives, curriculum_contents
-    
+
     def create_lesson_plan_response(self, lesson_plan: LessonPlan, request_data: Optional[LessonPlanCreate] = None) -> LessonPlanResponse:
         """Helper function to create a standardized lesson plan response."""
         try:
             # Fetch curriculum data
             curriculum_learning_objectives, curriculum_contents = self.fetch_curriculum_data(lesson_plan.topic)
-            
+
             # Determine title, subject, grade_level, topic
             if request_data:
                 # For new lesson plans from request data
@@ -89,10 +96,10 @@ class LessonPlanService:
                     subject = lesson_plan.topic.curriculum_structure.subject.name
                     grade_level = lesson_plan.topic.curriculum_structure.grade_level.name
                     topic = lesson_plan.topic.topic_title
-                
+
                 author_id = lesson_plan.user_id  # Use actual user_id from lesson plan
                 duration_minutes = 45  # Default duration
-            
+
             return LessonPlanResponse(
                 lesson_id=lesson_plan.lesson_plan_id,
                 title=title,
@@ -103,7 +110,7 @@ class LessonPlanService:
                 duration_minutes=duration_minutes,
                 created_at=lesson_plan.created_at,
                 updated_at=lesson_plan.created_at,  # Using created_at as updated_at
-                status=LessonStatus.DRAFT.value, # Pass string value to match schema
+                status=LessonStatus.DRAFT.value,  # Pass string value to match schema
                 curriculum_learning_objectives=curriculum_learning_objectives,
                 curriculum_contents=curriculum_contents
             )
@@ -113,35 +120,35 @@ class LessonPlanService:
                 status_code=500,
                 detail="Error creating lesson plan response"
             )
-    
+
     def generate_lesson_plan(self, request: LessonPlanCreate, current_user: User) -> LessonPlanResponse:
         """
         Generate a new lesson plan using AI.
-        
+
         Args:
             request (LessonPlanCreate): Lesson plan creation request
             current_user (User): Current authenticated user
-            
+
         Returns:
             LessonPlanResponse: Generated lesson plan response
-            
+
         Raises:
             HTTPException: If topic not found or creation fails
         """
         try:
             # Use current user's ID as author
             request.user_id = current_user.user_id
-            
+
             # Find topic based on curriculum structure
             topic = self.db.query(Topic).join(CurriculumStructure).join(Subject).join(GradeLevel).filter(
                 Subject.name == request.subject,
                 GradeLevel.name == request.grade_level,
                 Topic.topic_title == request.topic
             ).first()
-            
+
             if not topic:
                 raise HTTPException(status_code=404, detail="Topic not found in curriculum")
-            
+
             # Create lesson plan with user_id
             lesson_plan = LessonPlan(
                 topic_id=topic.topic_id,
@@ -151,75 +158,75 @@ class LessonPlanService:
             self.db.add(lesson_plan)
             self.db.commit()
             self.db.refresh(lesson_plan)
-            
+
             return self.create_lesson_plan_response(lesson_plan, request)
-            
+
         except HTTPException:
             raise
         except Exception as e:
             logger.error("Unexpected error in generate_lesson_plan", exc_info=True)
             raise HTTPException(
-                status_code=500, 
+                status_code=500,
                 detail="An error occurred while generating the lesson plan"
             )
-    
+
     def get_lesson_plans(
-        self, 
-        current_user: User, 
-        skip: int = 0, 
-        limit: int = 100, 
-        subject: Optional[str] = None, 
+        self,
+        current_user: User,
+        skip: int = 0,
+        limit: int = 100,
+        subject: Optional[str] = None,
         grade_level: Optional[str] = None
     ) -> List[LessonPlanResponse]:
         """
         Get lesson plans for the current user with optional filtering.
-        
+
         Args:
             current_user (User): Current authenticated user
             skip (int): Number of records to skip
             limit (int): Maximum number of records to return
             subject (Optional[str]): Filter by subject
             grade_level (Optional[str]): Filter by grade level
-            
+
         Returns:
             List[LessonPlanResponse]: List of lesson plan responses
-            
+
         Raises:
             HTTPException: If retrieval fails
         """
         try:
             # Start with lesson plans for the current user
             query = self.db.query(LessonPlan).filter(LessonPlan.user_id == current_user.user_id)
-            
+
             # Apply additional filters
             if subject:
                 query = query.join(Topic).join(CurriculumStructure).join(Subject).filter(Subject.name == subject)
             if grade_level:
                 query = query.join(Topic).join(CurriculumStructure).join(GradeLevel).filter(GradeLevel.name == grade_level)
-            
+
             # Apply pagination
             lesson_plans = query.offset(skip).limit(limit).all()
-            
+
             return [self.create_lesson_plan_response(lesson_plan) for lesson_plan in lesson_plans]
-            
+
         except Exception:
             logger.error("Failed to retrieve lesson plans", exc_info=True)
             raise HTTPException(
                 status_code=500,
                 detail="An error occurred while retrieving lesson plans"
             )
-    
+
     def get_lesson_plan(self, lesson_id: int, current_user: User) -> LessonPlanResponse:
         """
         Get a specific lesson plan by ID.
-        
+
         Args:
             lesson_id (int): Lesson plan ID
             current_user (User): Current authenticated user
-            
+
         Returns:
             LessonPlanResponse: Lesson plan response
-            
+
         Raises:
             HTTPException: If lesson plan not found or access denied
         """
@@ -228,12 +235,12 @@ class LessonPlanService:
                 LessonPlan.lesson_plan_id == lesson_id,
                 LessonPlan.user_id == current_user.user_id
             ).first()
-            
+
             if not lesson_plan:
                 raise HTTPException(status_code=404, detail="Lesson plan not found")
-            
+
             return self.create_lesson_plan_response(lesson_plan)
-            
+
         except HTTPException:
             raise
         except Exception:
@@ -242,19 +249,19 @@ class LessonPlanService:
                 status_code=500,
                 detail="An error occurred while retrieving the lesson plan"
             )
-    
+
     def update_lesson_plan(self, lesson_id: int, request: LessonPlanUpdate, current_user: User) -> LessonPlanResponse:
         """
         Update a lesson plan.
-        
+
         Args:
             lesson_id (int): Lesson plan ID
             request (LessonPlanUpdate): Update data
             current_user (User): Current authenticated user
-            
+
         Returns:
             LessonPlanResponse: Updated lesson plan response
-            
+
         Raises:
             HTTPException: If lesson plan not found or update fails
         """
@@ -263,19 +270,19 @@ class LessonPlanService:
                 LessonPlan.lesson_plan_id == lesson_id,
                 LessonPlan.user_id == current_user.user_id
             ).first()
-            
+
             if not lesson_plan:
                 raise HTTPException(status_code=404, detail="Lesson plan not found")
-            
+
             # Update lesson plan fields
             # Note: This is a placeholder - you'll need to add the fields you want to update
             # For example: lesson_plan.title = request.title
-            
+
             self.db.commit()
             self.db.refresh(lesson_plan)
-            
+
             return self.create_lesson_plan_response(lesson_plan)
-            
+
         except HTTPException:
             raise
         except Exception:
@@ -284,18 +291,18 @@ class LessonPlanService:
                 status_code=500,
                 detail="An error occurred while updating the lesson plan"
             )
-    
+
     def delete_lesson_plan(self, lesson_id: int, current_user: User) -> Dict[str, str]:
         """
         Delete a lesson plan.
-        
+
         Args:
             lesson_id (int): Lesson plan ID
             current_user (User): Current authenticated user
-            
+
         Returns:
             Dict[str, str]: Success message
-            
+
         Raises:
             HTTPException: If lesson plan not found or deletion fails
         """
@@ -304,15 +311,15 @@ class LessonPlanService:
                 LessonPlan.lesson_plan_id == lesson_id,
                 LessonPlan.user_id == current_user.user_id
             ).first()
-            
+
             if not lesson_plan:
                 raise HTTPException(status_code=404, detail="Lesson plan not found")
-            
+
             self.db.delete(lesson_plan)
             self.db.commit()
-            
+
             return {"message": "Lesson plan deleted successfully"}
-            
+
         except HTTPException:
             raise
         except Exception:
@@ -320,247 +327,4 @@ class LessonPlanService:
             raise HTTPException(
                 status_code=500,
                 detail="An error occurred while deleting the lesson plan"
-            )
-    
-    async def generate_lesson_resource(self, lesson_id: int, data: LessonResourceCreate, current_user: User) -> LessonResourceResponse:
-        """
-        Generate AI-powered lesson resources for a specific lesson plan.
-        
-        Args:
-            lesson_id (int): Lesson plan ID
-            data (LessonResourceCreate): Resource creation data
-            current_user (User): Current authenticated user
-            
-        Returns:
-            LessonResourceResponse: Generated lesson resource response
-            
-        Raises:
-            HTTPException: If lesson plan not found or generation fails
-        """
-        try:
-            # Verify lesson plan exists and user has access
-            lesson_plan = self.db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_id).first()
-            if not lesson_plan:
-                raise HTTPException(status_code=404, detail="Lesson plan not found")
-            
-            # Check if user owns the lesson plan or is admin
-            if lesson_plan.user_id != current_user.user_id and current_user.role != UserRole.ADMIN:
-                raise HTTPException(status_code=403, detail="You can only generate resources for your own lesson plans")
-            
-            # Get topic and curriculum data
-            topic = self.db.query(Topic).filter(Topic.topic_id == lesson_plan.topic_id).first()
-            if not topic:
-                raise HTTPException(status_code=404, detail="Topic not found")
-            
-            # Get learning objectives
-            objectives = [obj.objective for obj in topic.learning_objectives] if topic.learning_objectives else []
-            
-            # Get curriculum contents
-            contents = [content.content_area for content in topic.topic_contents] if topic.topic_contents else []
-            
-            # Get subject and grade level from curriculum structure
-            curriculum_structure = self.db.query(CurriculumStructure).filter(
-                CurriculumStructure.curriculum_structure_id == topic.curriculum_structure_id
-            ).first()
-            
-            subject = self.db.query(Subject).filter(Subject.subject_id == curriculum_structure.subject_id).first()
-            grade_level = self.db.query(GradeLevel).filter(GradeLevel.grade_level_id == curriculum_structure.grade_level_id).first()
-            
-            # Get contexts from database for this lesson plan
-            contexts = self.db.query(Context).filter(Context.lesson_plan_id == lesson_id).all()
-            context_texts = [ctx.context_text for ctx in contexts]
-            
-            # Combine context from database with input context
-            combined_context = ""
-            if context_texts:
-                combined_context += "Stored Context:\n" + "\n".join(context_texts) + "\n\n"
-            if data.context_input:
-                combined_context += "Additional Context:\n" + data.context_input
-            
-            # Create lesson resource with 'processing' status
-            lesson_resource = LessonResource(
-                lesson_plan_id=lesson_id,
-                user_id=current_user.user_id,
-                context_input=data.context_input,
-                ai_generated_content=None, # Content will be generated async
-                export_format=data.export_format,
-                status='processing',
-                created_at=datetime.now(timezone.utc)
-            )
-            
-            self.db.add(lesson_resource)
-            self.db.commit()
-            self.db.refresh(lesson_resource)
-            
-            # Enqueue async task if redis pool is available
-            if self.redis:
-                try:
-                    await self.redis.enqueue_job('generate_lesson_resource_task', resource_id=lesson_resource.lesson_resources_id)
-                except Exception as e:
-                    # Log error but don't fail request, user can retry or checking status will show processing/stuck
-                    logger.error("Failed to enqueue job", exc_info=True)
-                    # Optionally set status to failed or keep as processing to retry
-            else:
-                # Fallback to sync generation if no redis (e.g. during testing without worker mock)
-                # Or just raise warning. For this sprint, we assume Redis is available if configured.
-                # However, to keep existing tests passing we might want fallback logic?
-                # Better to just return processing and rely on worker. But if no worker running, it stays processing.
-                pass 
-                
-            return LessonResourceResponse(
-                lesson_resources_id=lesson_resource.lesson_resources_id,
-                lesson_plan_id=lesson_resource.lesson_plan_id,
-                user_id=lesson_resource.user_id,
-                context_input=lesson_resource.context_input,
-                ai_generated_content=lesson_resource.ai_generated_content,
-                user_edited_content=lesson_resource.user_edited_content,
-                export_format=lesson_resource.export_format,
-                status=lesson_resource.status,
-                created_at=lesson_resource.created_at
-            )
-            
-        except HTTPException:
-            raise
-        except Exception:
-            logger.error("Failed to initiate lesson resource generation for lesson %s", lesson_id, exc_info=True)
-            raise HTTPException(
-                status_code=500,
-                detail="An error occurred while initiating lesson resource generation"
-            )
-    
-    def get_all_lesson_resources(self, current_user: User) -> List[LessonResourceResponse]:
-        """
-        Get all lesson resources for the current user.
-        
-        Args:
-            current_user (User): Current authenticated user
-            
-        Returns:
-            List[LessonResourceResponse]: List of lesson resource responses
-            
-        Raises:
-            HTTPException: If retrieval fails
-        """
-        try:
-            lesson_resources = self.db.query(LessonResource).filter(
-                LessonResource.user_id == current_user.user_id
-            ).order_by(LessonResource.created_at.desc()).all()
-            
-            return [
-                LessonResourceResponse(
-                    lesson_resources_id=resource.lesson_resources_id,
-                    lesson_plan_id=resource.lesson_plan_id,
-                    user_id=resource.user_id,
-                    context_input=resource.context_input,
-                    ai_generated_content=resource.ai_generated_content,
-                    user_edited_content=resource.user_edited_content,
-                    export_format=resource.export_format,
-                    status=resource.status,
-                    created_at=resource.created_at
-                )
-                for resource in lesson_resources
-            ]
-            
-        except Exception:
-            logger.error("Failed to retrieve lesson resources for user", exc_info=True)
-            raise HTTPException(
-                status_code=500,
-                detail="An error occurred while retrieving lesson resources"
-            )
-    
-    def get_lesson_plan_resources(self, lesson_id: int, current_user: User) -> List[LessonResourceResponse]:
-        """
-        Get all resources for a specific lesson plan.
-        
-        Args:
-            lesson_id (int): Lesson plan ID
-            current_user (User): Current authenticated user
-            
-        Returns:
-            List[LessonResourceResponse]: List of lesson resource responses
-            
-        Raises:
-            HTTPException: If lesson plan not found or access denied
-        """
-        try:
-            # First verify the lesson plan exists and user has access
-            lesson_plan = self.db.query(LessonPlan).filter(LessonPlan.lesson_plan_id == lesson_id).first()
-            if not lesson_plan:
-                raise HTTPException(status_code=404, detail="Lesson plan not found")
-            
-            # Check if user is the lesson plan author or admin
-            if current_user.user_id != lesson_plan.user_id and current_user.role != UserRole.ADMIN:
-                raise HTTPException(status_code=403, detail="You can only view resources for your own lesson plans")
-            
-            # Get all resources for this lesson plan
-            lesson_resources = self.db.query(LessonResource).filter(
-                LessonResource.lesson_plan_id == lesson_id
-            ).order_by(LessonResource.created_at.desc()).all()
-            
-            return [
-                LessonResourceResponse(
-                    lesson_resources_id=resource.lesson_resources_id,
-                    lesson_plan_id=resource.lesson_plan_id,
-                    user_id=resource.user_id,
-                    context_input=resource.context_input,
-                    ai_generated_content=resource.ai_generated_content,
-                    user_edited_content=resource.user_edited_content,
-                    export_format=resource.export_format,
-                    status=resource.status,
-                    created_at=resource.created_at
-                )
-                for resource in lesson_resources
-            ]
-            
-        except HTTPException:
-            raise
-        except Exception:
-            logger.error("Failed to retrieve resources for lesson plan %s", lesson_id, exc_info=True)
-            raise HTTPException(
-                status_code=500,
-                detail="An error occurred while retrieving lesson plan resources"
-            )
-
-    def get_lesson_resource(self, resource_id: int, current_user: User) -> LessonResourceResponse:
-        """
-        Get a specific lesson resource.
-        
-        Args:
-            resource_id (int): Resource ID
-            current_user (User): Current authenticated user
-            
-        Returns:
-            LessonResourceResponse: Lesson resource response
-            
-        Raises:
-            HTTPException: If resource not found or access denied
-        """
-        try:
-            lesson_resource = self.db.query(LessonResource).filter(LessonResource.lesson_resources_id == resource_id).first()
-            if not lesson_resource:
-                raise HTTPException(status_code=404, detail="Lesson resource not found")
-            
-            # Check if user is the resource author or admin
-            if current_user.user_id != lesson_resource.user_id and current_user.role != UserRole.ADMIN:
-                raise HTTPException(status_code=403, detail="You can only view your own resources")
-            
-            return LessonResourceResponse(
-                lesson_resources_id=lesson_resource.lesson_resources_id,
-                lesson_plan_id=lesson_resource.lesson_plan_id,
-                user_id=lesson_resource.user_id,
-                context_input=lesson_resource.context_input,
-                ai_generated_content=lesson_resource.ai_generated_content,
-                user_edited_content=lesson_resource.user_edited_content,
-                export_format=lesson_resource.export_format,
-                status=lesson_resource.status,
-                created_at=lesson_resource.created_at
-            )
-            
-        except HTTPException:
-            raise
-        except Exception:
-            logger.error("Failed to retrieve lesson resource %s", resource_id, exc_info=True)
-            raise HTTPException(
-                status_code=500,
-                detail="An error occurred while retrieving the lesson resource"
             )

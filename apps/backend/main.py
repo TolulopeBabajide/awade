@@ -56,6 +56,7 @@ load_dotenv()
 import logging as _logging
 
 _sentry_logger = _logging.getLogger(__name__)
+logger = _sentry_logger  # module-level structured logger (AWD-M-50)
 
 def _init_sentry() -> None:
     sentry_dsn = os.getenv("SENTRY_DSN", "")
@@ -101,20 +102,20 @@ _init_sentry()
 def run_database_fix():
     """Run database fix script automatically on startup."""
     try:
-        print("🔧 Running database fix script...")
-        
+        logger.info("Running database fix script...")
+
         # Import and run our fix script
         from apps.backend.init_db_fix import fix_database
         success = fix_database()
-        
+
         if success:
-            print("✅ Database fix completed successfully!")
+            logger.info("Database fix completed successfully")
         else:
-            print("⚠️ Database fix had issues, but continuing startup...")
-            
+            logger.warning("Database fix had issues, but continuing startup...")
+
     except Exception as e:
-        print(f"❌ Database fix failed: {e}")
-        print("⚠️ Continuing startup despite database fix failure...")
+        logger.error("Database fix failed", exc_info=True)
+        logger.warning("Continuing startup despite database fix failure...")
         # Don't fail startup, just log the error
         pass
 
@@ -131,17 +132,17 @@ async def lifespan(app: FastAPI):
     # Startup: Create Redis pool
     try:
         app.state.redis = await create_redis_pool()
-        print("✅ Redis pool created")
+        logger.info("Redis pool created")
     except Exception as e:
-        print(f"⚠️ Failed to create Redis pool: {e}")
+        logger.error("Failed to create Redis pool", exc_info=True)
         app.state.redis = None
 
     yield
-    
+
     # Shutdown: Close Redis pool
     if getattr(app.state, "redis", None):
         await app.state.redis.close()
-        print("🛑 Redis pool closed")
+        logger.info("Redis pool closed")
 
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from apps.backend.middleware import SecurityHeadersMiddleware
@@ -177,7 +178,7 @@ try:
     from prometheus_fastapi_instrumentator import Instrumentator
     Instrumentator().instrument(app).expose(app)
 except ImportError:
-    print("⚠️ Prometheus Instrumentator not found, skipping metrics exposure.")
+    logger.warning("Prometheus Instrumentator not found, skipping metrics exposure")
 
 # Register Rate Limiter
 app.state.limiter = limiter

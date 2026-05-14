@@ -196,4 +196,98 @@ describe('ParentOnboardingPage', () => {
       await screen.findByTestId('dashboard-page')
     })
   })
+
+  // AWD-M-53: required-field a11y — name input must be programmatically required
+  describe('required-field a11y (AWD-M-53)', () => {
+    it('marks the child name input as required with aria-required', async () => {
+      renderPage()
+      await screen.findByText('Mathematics')
+      const nameInput = screen.getByPlaceholderText(/e\.g\. Amina/i)
+      expect(nameInput).toHaveAttribute('required')
+      expect(nameInput).toHaveAttribute('aria-required', 'true')
+    })
+
+    it('associates the child name label with its input via htmlFor/id', async () => {
+      renderPage()
+      await screen.findByText('Mathematics')
+      const nameInput = screen.getByPlaceholderText(/e\.g\. Amina/i)
+      expect(nameInput).toHaveAttribute('id', 'onboarding-name')
+      const label = screen.getByText(/child's name/i)
+      expect(label.closest('label')).toHaveAttribute('for', 'onboarding-name')
+    })
+  })
+
+  // AWD-M-55: aria-invalid / aria-describedby wired to name input after validation error
+  describe('validation a11y (AWD-M-55)', () => {
+    it('sets aria-invalid on the name input after an empty-name submit', async () => {
+      renderPage()
+      await screen.findByText('Mathematics')
+      fireEvent.click(screen.getByRole('button', { name: /Get Started/i }))
+      await screen.findByRole('alert')
+      const nameInput = screen.getByPlaceholderText(/e\.g\. Amina/i)
+      expect(nameInput).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('points aria-describedby at the error message id after validation failure', async () => {
+      renderPage()
+      await screen.findByText('Mathematics')
+      fireEvent.click(screen.getByRole('button', { name: /Get Started/i }))
+      const alert = await screen.findByRole('alert')
+      expect(alert).toHaveAttribute('id', 'onboarding-error-msg')
+      const nameInput = screen.getByPlaceholderText(/e\.g\. Amina/i)
+      expect(nameInput).toHaveAttribute('aria-describedby', 'onboarding-error-msg')
+    })
+
+    it('clears aria-invalid once the user starts typing in the name field', async () => {
+      renderPage()
+      await screen.findByText('Mathematics')
+      // trigger validation error
+      fireEvent.click(screen.getByRole('button', { name: /Get Started/i }))
+      await screen.findByRole('alert')
+      // user types a character — error should clear
+      fireEvent.change(screen.getByPlaceholderText(/e\.g\. Amina/i), { target: { value: 'A' } })
+      const nameInput = screen.getByPlaceholderText(/e\.g\. Amina/i)
+      expect(nameInput).not.toHaveAttribute('aria-invalid')
+      expect(nameInput).not.toHaveAttribute('aria-describedby')
+    })
+  })
+
+  // AWD-L-16: all form labels programmatically associated with their controls via htmlFor/id
+  describe('label association a11y (AWD-L-16)', () => {
+    it('associates the Age label with its input via htmlFor/id', async () => {
+      renderPage()
+      await screen.findByText('Mathematics')
+      const ageInput = screen.getByPlaceholderText(/e\.g\. 12/i)
+      expect(ageInput).toHaveAttribute('id', 'onboarding-age')
+      const label = screen.getByText(/^age$/i)
+      expect(label.closest('label')).toHaveAttribute('for', 'onboarding-age')
+    })
+
+    it('associates the School Name label with its input via htmlFor/id', async () => {
+      renderPage()
+      await screen.findByText('Mathematics')
+      const schoolInput = screen.getByPlaceholderText(/Federal Government College/i)
+      expect(schoolInput).toHaveAttribute('id', 'onboarding-school')
+      const label = screen.getByText(/^school name$/i)
+      expect(label.closest('label')).toHaveAttribute('for', 'onboarding-school')
+    })
+
+    it('associates the Country label with its select via htmlFor/id', async () => {
+      renderPage()
+      await screen.findByText('Mathematics')
+      const countrySelect = screen.getByRole('combobox', { name: /country/i })
+      expect(countrySelect).toHaveAttribute('id', 'onboarding-country')
+      const label = screen.getByText(/^country$/i)
+      expect(label.closest('label')).toHaveAttribute('for', 'onboarding-country')
+    })
+
+    it('associates the Grade Level label with its select via htmlFor/id', async () => {
+      renderPage()
+      await screen.findByText('Mathematics')
+      const gradeSelect = screen.getByRole('combobox', { name: /grade level/i })
+      expect(gradeSelect).toHaveAttribute('id', 'onboarding-grade')
+      const label = screen.getByText(/^grade level$/i)
+      expect(label.closest('label')).toHaveAttribute('for', 'onboarding-grade')
+    })
+  })
 })

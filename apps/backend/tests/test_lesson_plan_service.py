@@ -1,15 +1,17 @@
 """
-Tests for AWD-M-04 — shore up LessonPlanService coverage.
+Tests for LessonPlanService — AWD-M-04 coverage + AWD-M-117 split.
 
-Covers untested service methods:
+Covers plan-only service methods:
 - fetch_curriculum_data
 - create_lesson_plan_response (with and without request_data)
-- get_lesson_plan  (404, 200)
+- generate_lesson_plan
+- get_lesson_plan  (404, 200, cross-user)
 - update_lesson_plan (404, 200)
 - delete_lesson_plan (404, 200)
-- get_all_lesson_resources (empty, populated)
-- get_lesson_plan_resources (404 no plan, 403 wrong user, 200, admin bypass)
-- get_lesson_resource (404, 403, 200, admin bypass)
+- get_lesson_plans (smoke via TestLessonPlanServiceSmoke)
+
+Resource methods have moved to LessonResourceService (AWD-M-117).
+Tests for those methods live in test_lesson_resource_service.py.
 """
 
 import pytest
@@ -66,56 +68,50 @@ def _educator(user_id: int = 1) -> User:
     return _make_user(user_id, UserRole.EDUCATOR)
 
 
-def _admin(user_id: int = 99) -> User:
-    return _make_user(user_id, UserRole.ADMIN)
+def _make_topic(topic_id: int = 1, title: str = "Fractions") -> MagicMock:
+    """Return a plain MagicMock standing in for a Topic ORM object.
 
-
-def _make_topic(topic_id: int = 1, title: str = "Fractions") -> Topic:
-    t = Topic()
+    Using real SQLAlchemy ORM instances here triggers backref event processing
+    (``emit_backref_from_collection_append_event``) when relationship lists are
+    assigned, which requires every item to have ``_sa_instance_state``.
+    MagicMock objects don't satisfy that constraint, so we use a plain MagicMock
+    for the whole topic and populate only the attributes the service layer reads.
+    """
+    t = MagicMock()
     t.topic_id = topic_id
     t.topic_title = title
-    cs = CurriculumStructure()
-    subj = Subject()
-    subj.name = "Mathematics"
-    gl = GradeLevel()
-    gl.name = "Grade 5"
-    cs.subject = subj
-    cs.grade_level = gl
-    t.curriculum_structure = cs
-    lo = MagicMock(spec=LearningObjective)
+    t.curriculum_structure_id = 1
+    # Attribute chains read by create_lesson_plan_response
+    t.curriculum_structure.subject.name = "Mathematics"
+    t.curriculum_structure.subject_id = 1
+    t.curriculum_structure.grade_level.name = "Grade 5"
+    t.curriculum_structure.grade_level_id = 1
+    lo = MagicMock()
     lo.objective = "Understand fractions"
-    tc = MagicMock(spec=TopicContent)
+    tc = MagicMock()
     tc.content_area = "Fraction basics"
     t.learning_objectives = [lo]
     t.topic_contents = [tc]
     return t
 
 
-def _make_lesson_plan(plan_id: int = 1, user_id: int = 1, topic: Topic = None) -> LessonPlan:
-    lp = LessonPlan()
+def _make_lesson_plan(plan_id: int = 1, user_id: int = 1, topic=None) -> MagicMock:
+    """Return a plain MagicMock standing in for a LessonPlan ORM object.
+
+    Assigning a non-ORM object to ``LessonPlan.topic`` via the instrumented
+    setter also fires SQLAlchemy backref events, so we use a MagicMock here too.
+    """
+    lp = MagicMock()
     lp.lesson_plan_id = plan_id
     lp.user_id = user_id
     lp.created_at = _now()
-    lp.topic = topic or _make_topic()
+    lp.topic_id = 1
+    lp.topic = topic if topic is not None else _make_topic()
     return lp
 
 
-def _make_resource(resource_id: int = 1, lesson_plan_id: int = 1, user_id: int = 1) -> LessonResource:
-    r = LessonResource()
-    r.lesson_resources_id = resource_id
-    r.lesson_plan_id = lesson_plan_id
-    r.user_id = user_id
-    r.context_input = "Some context"
-    r.ai_generated_content = "AI content"
-    r.user_edited_content = None
-    r.export_format = None
-    r.status = "draft"
-    r.created_at = _now()
-    return r
-
-
 # --------------------------------------------------------------------------
-# Helpers
+# DB helpers
 # --------------------------------------------------------------------------
 
 def _db_returning(return_val) -> MagicMock:
@@ -126,14 +122,6 @@ def _db_returning(return_val) -> MagicMock:
     db.commit = MagicMock()
     db.refresh = MagicMock()
     db.delete = MagicMock()
-    return db
-
-
-def _db_all_returning(items) -> MagicMock:
-    """DB mock whose all() returns items."""
-    db = MagicMock()
-    db.query.return_value.filter.return_value.order_by.return_value.all.return_value = items
-    db.query.return_value.filter.return_value.all.return_value = items
     return db
 
 
@@ -315,187 +303,47 @@ class TestDeleteLessonPlan:
         assert "message" in result
 
 
-# ==========================================================================
-# TestGetAllLessonResources
-# ==========================================================================
+# ---------------------------------------------------------------------------
+# Basic smoke tests migrated from test_services.py (AWD-M-110 split)
+# These cover the top-level generate + list paths not already tested above.
+# ---------------------------------------------------------------------------
 
-class TestGetAllLessonResources:
-    """get_all_lesson_resources — returns user's resources ordered by created_at."""
+class TestLessonPlanServiceSmoke:
+    """Smoke tests for LessonPlanService initialization, plan generation, and retrieval.
 
-    def test_empty_returns_empty_list(self):
-        user = _educator(user_id=1)
-        db = _db_all_returning([])
-        svc = LessonPlanService(db=db)
-        result = svc.get_all_lesson_resources(current_user=user)
-        assert result == []
+    Migrated from test_services.py as part of AWD-M-110 (split monolith test file).
+    The detailed unit tests for individual methods live in the classes above.
+    Resource method smoke tests live in test_lesson_resource_service.py (AWD-M-117).
+    """
 
-    def test_returns_only_user_resources(self):
-        user = _educator(user_id=1)
-        r1 = _make_resource(resource_id=1, user_id=1)
-        r2 = _make_resource(resource_id=2, user_id=1)
-        db = _db_all_returning([r1, r2])
-        svc = LessonPlanService(db=db)
-        result = svc.get_all_lesson_resources(current_user=user)
-        assert len(result) == 2
-        assert result[0].lesson_resources_id == 1
-        assert result[1].lesson_resources_id == 2
+    def test_lesson_plan_service_initialization(self, test_db):
+        """Test LessonPlanService initialization."""
+        service = LessonPlanService(test_db)
+        assert service.db == test_db
 
-    def test_resource_fields_mapped_correctly(self):
-        user = _educator(user_id=1)
-        r = _make_resource(resource_id=7, lesson_plan_id=3, user_id=1)
-        r.ai_generated_content = "AI lesson plan text"
-        db = _db_all_returning([r])
-        svc = LessonPlanService(db=db)
-        result = svc.get_all_lesson_resources(current_user=user)
-        resp = result[0]
-        assert resp.lesson_resources_id == 7
-        assert resp.lesson_plan_id == 3
-        assert resp.ai_generated_content == "AI lesson plan text"
-        assert resp.status == "draft"
+    def test_generate_lesson_plan(self, test_db, sample_user, sample_topic):
+        """Test lesson plan generation via mocked topic query."""
 
+        service = LessonPlanService(test_db)
 
-# ==========================================================================
-# TestGetLessonPlanResources
-# ==========================================================================
+        request = LessonPlanCreate(
+            subject="Mathematics",
+            grade_level="Grade 5",
+            topic="Basic Algebra",
+            user_id=sample_user.user_id
+        )
 
-class TestGetLessonPlanResources:
-    """get_lesson_plan_resources — 404 no plan, 403 wrong user, 200, admin bypass."""
+        with patch.object(service.db, 'query') as mock_query:
+            mock_query.return_value.join.return_value.join.return_value.join.return_value.filter.return_value.first.return_value = sample_topic
 
-    def _db_for_plan_resources(self, plan_obj, resources) -> MagicMock:
-        db = MagicMock()
-        call_count = [0]
+            result = service.generate_lesson_plan(request, sample_user)
+            assert result is not None
+            assert result.subject == "Mathematics"
 
-        def query_side(model_arg):
-            q = MagicMock()
-            call_count[0] += 1
-            if call_count[0] == 1:
-                # LessonPlan lookup
-                q.filter.return_value.first.return_value = plan_obj
-            else:
-                # LessonResource query
-                q.filter.return_value.order_by.return_value.all.return_value = resources
-            return q
+    def test_get_lesson_plans(self, test_db, sample_user, sample_lesson_plan):
+        """Test lesson plan list retrieval."""
 
-        db.query.side_effect = query_side
-        return db
+        service = LessonPlanService(test_db)
 
-    def test_plan_not_found_raises_404(self):
-        user = _educator(user_id=1)
-        db = MagicMock()
-        q = MagicMock()
-        q.filter.return_value.first.return_value = None
-        db.query.return_value = q
-        svc = LessonPlanService(db=db)
-        with pytest.raises(HTTPException) as exc_info:
-            svc.get_lesson_plan_resources(lesson_id=99, current_user=user)
-        assert exc_info.value.status_code == 404
-
-    def test_wrong_user_raises_403(self):
-        user = _educator(user_id=2)
-        lp = _make_lesson_plan(plan_id=1, user_id=1)  # owned by user 1
-        db = self._db_for_plan_resources(lp, [])
-        svc = LessonPlanService(db=db)
-        with pytest.raises(HTTPException) as exc_info:
-            svc.get_lesson_plan_resources(lesson_id=1, current_user=user)
-        assert exc_info.value.status_code == 403
-
-    def test_owner_gets_resources(self):
-        user = _educator(user_id=1)
-        lp = _make_lesson_plan(plan_id=1, user_id=1)
-        r1 = _make_resource(resource_id=10, lesson_plan_id=1, user_id=1)
-        db = self._db_for_plan_resources(lp, [r1])
-        svc = LessonPlanService(db=db)
-        result = svc.get_lesson_plan_resources(lesson_id=1, current_user=user)
-        assert len(result) == 1
-        assert result[0].lesson_resources_id == 10
-
-    def test_admin_can_access_any_plan_resources(self):
-        admin = _admin(user_id=99)
-        lp = _make_lesson_plan(plan_id=1, user_id=1)  # owned by user 1
-        r1 = _make_resource(resource_id=10, lesson_plan_id=1, user_id=1)
-        db = self._db_for_plan_resources(lp, [r1])
-        svc = LessonPlanService(db=db)
-        result = svc.get_lesson_plan_resources(lesson_id=1, current_user=admin)
-        assert len(result) == 1
-
-    def test_empty_resources_returns_empty_list(self):
-        user = _educator(user_id=1)
-        lp = _make_lesson_plan(plan_id=1, user_id=1)
-        db = self._db_for_plan_resources(lp, [])
-        svc = LessonPlanService(db=db)
-        result = svc.get_lesson_plan_resources(lesson_id=1, current_user=user)
-        assert result == []
-
-
-# ==========================================================================
-# TestGetLessonResource
-# ==========================================================================
-
-class TestGetLessonResource:
-    """get_lesson_resource — 404, 403, 200, admin bypass."""
-
-    def test_resource_not_found_raises_404(self):
-        user = _educator(user_id=1)
-        db = MagicMock()
-        q = MagicMock()
-        q.filter.return_value.first.return_value = None
-        db.query.return_value = q
-        svc = LessonPlanService(db=db)
-        with pytest.raises(HTTPException) as exc_info:
-            svc.get_lesson_resource(resource_id=99, current_user=user)
-        assert exc_info.value.status_code == 404
-
-    def test_wrong_user_raises_403(self):
-        user = _educator(user_id=2)
-        resource = _make_resource(resource_id=1, user_id=1)  # owned by user 1
-        db = MagicMock()
-        q = MagicMock()
-        q.filter.return_value.first.return_value = resource
-        db.query.return_value = q
-        svc = LessonPlanService(db=db)
-        with pytest.raises(HTTPException) as exc_info:
-            svc.get_lesson_resource(resource_id=1, current_user=user)
-        assert exc_info.value.status_code == 403
-
-    def test_owner_gets_resource(self):
-        user = _educator(user_id=1)
-        resource = _make_resource(resource_id=1, lesson_plan_id=5, user_id=1)
-        resource.ai_generated_content = "Detailed lesson content"
-        db = MagicMock()
-        q = MagicMock()
-        q.filter.return_value.first.return_value = resource
-        db.query.return_value = q
-        svc = LessonPlanService(db=db)
-        result = svc.get_lesson_resource(resource_id=1, current_user=user)
-        assert result.lesson_resources_id == 1
-        assert result.lesson_plan_id == 5
-        assert result.ai_generated_content == "Detailed lesson content"
-
-    def test_admin_can_access_any_resource(self):
-        admin = _admin(user_id=99)
-        resource = _make_resource(resource_id=1, user_id=1)  # owned by user 1
-        db = MagicMock()
-        q = MagicMock()
-        q.filter.return_value.first.return_value = resource
-        db.query.return_value = q
-        svc = LessonPlanService(db=db)
-        result = svc.get_lesson_resource(resource_id=1, current_user=admin)
-        assert result.lesson_resources_id == 1
-
-    def test_resource_fields_mapped_correctly(self):
-        user = _educator(user_id=1)
-        resource = _make_resource(resource_id=3, lesson_plan_id=2, user_id=1)
-        resource.context_input = "Nigerian classroom context"
-        resource.user_edited_content = "Edited by teacher"
-        resource.export_format = "pdf"
-        resource.status = "complete"
-        db = MagicMock()
-        q = MagicMock()
-        q.filter.return_value.first.return_value = resource
-        db.query.return_value = q
-        svc = LessonPlanService(db=db)
-        result = svc.get_lesson_resource(resource_id=3, current_user=user)
-        assert result.context_input == "Nigerian classroom context"
-        assert result.user_edited_content == "Edited by teacher"
-        assert result.export_format == "pdf"
-        assert result.status == "complete"
+        lesson_plans = service.get_lesson_plans(sample_user)
+        assert len(lesson_plans) >= 1

@@ -25,6 +25,16 @@ root_dir = os.path.dirname(apps_dir)
 sys.path.insert(0, backend_dir)
 sys.path.insert(0, root_dir)
 
+# Import convention (AWD-L-22):
+# Module-level imports in test files must use ONE of these two forms — never inline:
+#   Short form  (preferred for new files): from services.xxx import Foo
+#                                          from schemas.xxx import Bar
+#                                          from models import Baz
+#   Long form   (used by older files):     from apps.backend.services.xxx import Foo
+# Both work because conftest inserts both backend_dir and root_dir into sys.path.
+# Bare factory imports (e.g. from children_factories import …) also work because
+# pytest adds each conftest.py directory to sys.path automatically.
+
 from apps.backend.main import app
 from apps.backend.database import get_db
 from apps.backend.models import Base, User, Country, Curriculum, Subject, GradeLevel, CurriculumStructure, Topic, LessonPlan

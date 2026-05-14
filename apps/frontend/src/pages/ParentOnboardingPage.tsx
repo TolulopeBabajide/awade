@@ -26,6 +26,7 @@ const ParentOnboardingPage: React.FC = () => {
   const [selectedSubjects, setSelectedSubjects] = useState<number[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [nameInvalid, setNameInvalid] = useState(false)
   const [done, setDone] = useState(false)
 
   // Check if parent already has children — if so, skip onboarding
@@ -91,10 +92,12 @@ const ParentOnboardingPage: React.FC = () => {
     e.preventDefault()
     if (!form.name.trim()) {
       setError("Please enter your child's name")
+      setNameInvalid(true)
       return
     }
     setIsSubmitting(true)
     setError('')
+    setNameInvalid(false)
     try {
       const payload: ChildProfileCreate = {
         ...form,
@@ -157,30 +160,41 @@ const ParentOnboardingPage: React.FC = () => {
           Add your child's profile
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
           {error && (
-            <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
+            <div id="onboarding-error-msg" role="alert" className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
           )}
 
           {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Child's Name <span className="text-red-500">*</span>
+            <label htmlFor="onboarding-name" className="block text-sm font-medium text-gray-700 mb-1">
+              Child's Name{' '}
+              <span className="text-red-500" aria-hidden="true">*</span>
+              <span className="sr-only">(required)</span>
             </label>
             <input
+              id="onboarding-name"
               type="text"
               value={form.name}
-              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+              onChange={e => {
+                setForm(f => ({ ...f, name: e.target.value }))
+                if (nameInvalid) { setNameInvalid(false); setError('') }
+              }}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition"
               placeholder="e.g. Amina"
+              required
+              aria-required="true"
+              aria-invalid={nameInvalid || undefined}
+              aria-describedby={nameInvalid ? 'onboarding-error-msg' : undefined}
               autoFocus
             />
           </div>
 
           {/* Age */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
+            <label htmlFor="onboarding-age" className="block text-sm font-medium text-gray-700 mb-1">Age</label>
             <input
+              id="onboarding-age"
               type="number"
               min={3}
               max={25}
@@ -193,8 +207,9 @@ const ParentOnboardingPage: React.FC = () => {
 
           {/* School */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">School Name</label>
+            <label htmlFor="onboarding-school" className="block text-sm font-medium text-gray-700 mb-1">School Name</label>
             <input
+              id="onboarding-school"
               type="text"
               value={form.school_name ?? ''}
               onChange={e => setForm(f => ({ ...f, school_name: e.target.value || null }))}
@@ -205,8 +220,9 @@ const ParentOnboardingPage: React.FC = () => {
 
           {/* Country */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+            <label htmlFor="onboarding-country" className="block text-sm font-medium text-gray-700 mb-1">Country</label>
             <select
+              id="onboarding-country"
               value={form.country_id ?? ''}
               onChange={e => setForm(f => ({
                 ...f,
@@ -225,8 +241,9 @@ const ParentOnboardingPage: React.FC = () => {
           {/* Curriculum — shown only after country selected */}
           {form.country_id && curriculums.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Curriculum</label>
+              <label htmlFor="onboarding-curriculum" className="block text-sm font-medium text-gray-700 mb-1">Curriculum</label>
               <select
+                id="onboarding-curriculum"
                 value={form.curricula_id ?? ''}
                 onChange={e => setForm(f => ({ ...f, curricula_id: e.target.value ? parseInt(e.target.value) : null }))}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition bg-white"
@@ -241,8 +258,9 @@ const ParentOnboardingPage: React.FC = () => {
 
           {/* Grade Level */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Grade Level</label>
+            <label htmlFor="onboarding-grade" className="block text-sm font-medium text-gray-700 mb-1">Grade Level</label>
             <select
+              id="onboarding-grade"
               value={form.grade_level_id ?? ''}
               onChange={e => setForm(f => ({ ...f, grade_level_id: e.target.value ? parseInt(e.target.value) : null }))}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition bg-white"
@@ -286,7 +304,7 @@ const ParentOnboardingPage: React.FC = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-accent-600 hover:bg-accent-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
+            className="w-full bg-accent-700 hover:bg-accent-800 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
           >
             {isSubmitting ? (
               <>

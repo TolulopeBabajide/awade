@@ -218,7 +218,7 @@ def test_input_sanitization():
     assert clean_messy == "Hello World"
 
 class TestGetJwtSecretKey:
-    """AWD-C-02: JWT secret key must not fall back to 'dev-secret' in production."""
+    """AWD-M-142: JWT dev-secret fallback must only be allowed in explicit safe environments."""
 
     def test_returns_env_var_when_set(self, monkeypatch):
         """When JWT_SECRET_KEY is set it is returned regardless of environment."""
@@ -241,6 +241,13 @@ class TestGetJwtSecretKey:
         monkeypatch.setenv("ENVIRONMENT", "testing")
         assert get_jwt_secret_key() == "dev-secret"
 
+    def test_returns_dev_secret_in_test(self, monkeypatch):
+        """Missing key is tolerated when ENVIRONMENT='test' — falls back to 'dev-secret'."""
+        from apps.backend.dependencies import get_jwt_secret_key
+        monkeypatch.delenv("JWT_SECRET_KEY", raising=False)
+        monkeypatch.setenv("ENVIRONMENT", "test")
+        assert get_jwt_secret_key() == "dev-secret"
+
     def test_raises_in_production_without_key(self, monkeypatch):
         """Missing JWT_SECRET_KEY in production must raise RuntimeError at call time."""
         from apps.backend.dependencies import get_jwt_secret_key
@@ -248,6 +255,29 @@ class TestGetJwtSecretKey:
         monkeypatch.setenv("ENVIRONMENT", "production")
         with pytest.raises(RuntimeError, match="JWT_SECRET_KEY"):
             get_jwt_secret_key()
+
+    def test_raises_when_environment_is_staging(self, monkeypatch):
+        """Missing JWT_SECRET_KEY with ENVIRONMENT=staging must raise — staging is not in the safe allowlist (AWD-M-142)."""
+        from apps.backend.dependencies import get_jwt_secret_key
+        monkeypatch.delenv("JWT_SECRET_KEY", raising=False)
+        monkeypatch.setenv("ENVIRONMENT", "staging")
+        with pytest.raises(RuntimeError, match="JWT_SECRET_KEY"):
+            get_jwt_secret_key()
+
+    def test_raises_when_environment_is_unrecognised(self, monkeypatch):
+        """Any unrecognised ENVIRONMENT value without JWT_SECRET_KEY must raise (AWD-M-142)."""
+        from apps.backend.dependencies import get_jwt_secret_key
+        monkeypatch.delenv("JWT_SECRET_KEY", raising=False)
+        monkeypatch.setenv("ENVIRONMENT", "preview")
+        with pytest.raises(RuntimeError, match="JWT_SECRET_KEY"):
+            get_jwt_secret_key()
+
+    def test_staging_with_key_set_succeeds(self, monkeypatch):
+        """Staging environment is fine when JWT_SECRET_KEY is explicitly provided."""
+        from apps.backend.dependencies import get_jwt_secret_key
+        monkeypatch.setenv("JWT_SECRET_KEY", "staging-strong-secret")
+        monkeypatch.setenv("ENVIRONMENT", "staging")
+        assert get_jwt_secret_key() == "staging-strong-secret"
 
 
 @pytest.mark.skip(

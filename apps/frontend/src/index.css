@@ -70,6 +70,11 @@
     font-weight: 600;
     color: var(--color-primary-900);
   }
+
+  /* Ensure all buttons display a visible focus ring for keyboard navigation (WCAG 2.1 AA). */
+  button:focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+  }
 }
 
 @layer components {

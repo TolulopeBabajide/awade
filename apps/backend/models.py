@@ -4,8 +4,8 @@ Simplified and clean implementation based on the new schema.
 """
 
 from sqlalchemy import (
-    Column, Integer, String, Text, DateTime, ForeignKey, 
-    Enum, Table, MetaData, Index
+    Column, Integer, String, Text, DateTime, ForeignKey,
+    Enum, Table, MetaData, Index, Boolean
 )
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import relationship
@@ -192,6 +192,8 @@ class User(Base):
     bio = Column(Text, nullable=True)  # User bio/description
     last_login = Column(DateTime, nullable=True)
     is_suspended = Column(Integer, default=0, nullable=False) # 0 = active, 1 = suspended
+    password_reset_token = Column(String(64), nullable=True)  # SHA-256 hex digest of raw reset token
+    password_reset_expires = Column(DateTime(timezone=True), nullable=True)  # UTC expiry for the reset token (1hr window)
     created_at = Column(DateTime, default=func.now(), nullable=False)
     
     # Relationships
@@ -236,7 +238,7 @@ class ParentGuide(Base):
     topic_id = Column(Integer, ForeignKey('topics.topic_id', ondelete='CASCADE'), nullable=False)
     ai_generated_content = Column(Text, nullable=True)
     user_edited_content = Column(Text, nullable=True)
-    is_bookmarked = Column(Integer, default=0, nullable=False)  # 0 = not bookmarked, 1 = bookmarked
+    is_bookmarked = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, default=func.now(), nullable=False)
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
 
@@ -247,6 +249,34 @@ class ParentGuide(Base):
     __table_args__ = (
         Index('idx_guide_child_topic', 'child_id', 'topic_id'),
     )
+
+
+class ParentalConsent(Base):
+    """COPPA-required parental consent record for child profile creation.
+
+    One row per parent. Records the datetime and consent-text version at the
+    moment the parent explicitly agreed to the data collection disclosure.
+    The unique constraint on parent_id ensures idempotency — re-POSTing to
+    /api/consent is safe and updates the timestamp.
+    """
+    __tablename__ = 'parental_consents'
+
+    consent_id = Column(Integer, primary_key=True, autoincrement=True)
+    parent_id = Column(
+        Integer,
+        ForeignKey('users.user_id', ondelete='CASCADE'),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+    consented_at = Column(DateTime, default=func.now(), nullable=False)
+    # ip_address stores the originating IP for audit purposes (IPv6-safe length).
+    ip_address = Column(String(45), nullable=True)
+    # Version of the consent text shown to the user — bump when the disclosure changes.
+    consent_version = Column(String(20), default='1.0', nullable=False)
+
+    # Relationship back to the parent user
+    parent = relationship("User", foreign_keys=[parent_id])
 
 
 class LessonPlan(Base):
@@ -314,15 +344,16 @@ class AdminAuditLog(Base):
     __tablename__ = 'admin_audit_logs'
     
     log_id = Column(Integer, primary_key=True, autoincrement=True)
-    actor_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
+    actor_id = Column(Integer, ForeignKey('users.user_id', ondelete='SET NULL'), nullable=True)
     action = Column(String(100), nullable=False)  # e.g., 'suspend_user', 'change_role', 'delete_resource'
     target_type = Column(String(50), nullable=False)  # e.g., 'user', 'lesson_resource', 'curriculum'
     target_id = Column(Integer, nullable=True)
     metadata_json = Column(Text, nullable=True)  # Detailed info about the change (JSON string)
     ip_address = Column(String(45), nullable=True)
     created_at = Column(DateTime, default=func.now(), nullable=False)
-    
+
     # Relationships
+    # actor may be NULL when the admin user account has been deleted (ondelete='SET NULL')
     actor = relationship("User")
 
 class ResourceModeration(Base):

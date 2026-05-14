@@ -111,6 +111,7 @@ platform/
 DEVELOPMENT_SPRINT_GUIDE.md
 WORKFLOW_GUIDE.md
 TODO.md
+manual_to_do.md
 
 
 
@@ -125,9 +126,35 @@ logs/
 cache/
 .pytest_cache/
 
+# Prototype / scratch images — not for source control
+apps/frontend/src/assets/ChatGPT*
+apps/frontend/public/assets/ChatGPT*
+
 # Agentic framework — keep local, do not commit
 # (installed 2026-04-20 from agentic-team-template, adapted for Awade)
 CLAUDE.md
 project-config.md
 .claude/
 docs/agentic/
+.agent-health/
+.agent-health/**/*.last-run
+
+# Generated agent documentation (local only)
+docs/architecture/
+docs/audits/
+docs/code-reviews/
+docs/legal/
+docs/performance/
+docs/security/
+docs/tech-debt/
+
+# Sandbox/temp artifacts
+.sandbox_*/
+.sandbox_work_*/
+
+# Vitest / test-runner temp directories (AWD-L-43)
+# Generated during `npm run test:run` — accumulate across runs, never committed
+.tmp-test/
+.tmp-vitest/
+.tmp-vitest-*/
+.tmpvitest/

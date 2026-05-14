@@ -1,32 +1,54 @@
 import React, { useEffect, useState } from 'react';
 import { FiSearch, FiFilter, FiMoreVertical } from 'react-icons/fi';
+import ConfirmRoleChangeModal from '../../components/ConfirmRoleChangeModal';
+import ErrorBanner from '../../components/ErrorBanner';
+
+// AWD-M-144: tracks a pending role-change confirmation before the modal fires.
+interface PendingRoleChange {
+    userId: number;
+    userName: string;
+    newRole: string;
+}
 
 const UserList: React.FC = () => {
     const [users, setUsers] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [loadError, setLoadError] = useState<string | null>(null);
+    const [actionError, setActionError] = useState<string | null>(null);
+    // AWD-M-144: replaces inline window.confirm() with an accessible modal.
+    const [pendingRoleChange, setPendingRoleChange] = useState<PendingRoleChange | null>(null);
 
     useEffect(() => {
         fetchUsers();
     }, []);
 
     const fetchUsers = async () => {
+        setLoadError(null);
         try {
             const response = await fetch(`${(import.meta as any).env.VITE_API_URL}/api/admin/users`, {
                 headers: {
                     /* access_token cookie sent automatically */
                 }
             });
+            // AWD-H-86: check !response.ok before calling response.json() so that
+            // non-JSON error bodies (e.g. a 502 HTML page) surface as a clean HTTP
+            // status error rather than an opaque SyntaxError from the JSON parser.
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
             setUsers(data);
         } catch (error) {
-            console.error('Failed to fetch users:', error);
+            if (import.meta.env.DEV) console.error('Failed to fetch users:', error);
+            // AWD-H-87: surface load failures to the admin via the loadError banner
+            // instead of silently rendering an empty table.
+            setLoadError(error instanceof Error ? error.message : 'Failed to load users. Please try again.');
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleRoleChange = async (userId: number, newRole: string) => {
+        setActionError(null);
         try {
             const response = await fetch(`${(import.meta as any).env.VITE_API_URL}/api/admin/users/${userId}`, {
                 method: 'PATCH',
@@ -36,13 +58,27 @@ const UserList: React.FC = () => {
                 },
                 body: JSON.stringify({ role: newRole })
             });
-            if (response.ok) fetchUsers();
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            fetchUsers();
         } catch (error) {
-            console.error('Failed to change role:', error);
+            if (import.meta.env.DEV) console.error('Failed to change role:', error);
+            setActionError(error instanceof Error ? error.message : 'Failed to update role. Please try again.');
         }
     };
 
+    /**
+     * AWD-M-144: invoked from ConfirmRoleChangeModal's "Confirm" button.
+     * Closes the modal and performs the actual role change.
+     */
+    const confirmRoleChange = async () => {
+        if (!pendingRoleChange) return;
+        const { userId, newRole } = pendingRoleChange;
+        setPendingRoleChange(null);
+        await handleRoleChange(userId, newRole);
+    };
+
     const handleToggleSuspension = async (userId: number, currentStatus: boolean) => {
+        setActionError(null);
         try {
             const response = await fetch(`${(import.meta as any).env.VITE_API_URL}/api/admin/users/${userId}`, {
                 method: 'PATCH',
@@ -52,9 +88,11 @@ const UserList: React.FC = () => {
                 },
                 body: JSON.stringify({ is_suspended: !currentStatus })
             });
-            if (response.ok) fetchUsers();
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            fetchUsers();
         } catch (error) {
-            console.error('Failed to toggle suspension:', error);
+            if (import.meta.env.DEV) console.error('Failed to toggle suspension:', error);
+            setActionError(error instanceof Error ? error.message : 'Failed to update suspension status. Please try again.');
         }
     };
 
@@ -67,12 +105,36 @@ const UserList: React.FC = () => {
 
     return (
         <div className="space-y-6">
+            {/* AWD-M-144: accessible role-change confirmation modal */}
+            {pendingRoleChange && (
+                <ConfirmRoleChangeModal
+                    userName={pendingRoleChange.userName}
+                    newRole={pendingRoleChange.newRole}
+                    onConfirm={confirmRoleChange}
+                    onCancel={() => setPendingRoleChange(null)}
+                />
+            )}
+
             <div className="flex justify-between items-center">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
                     <p className="text-gray-500">View and manage all platform users.</p>
                 </div>
             </div>
+
+            {loadError && (
+                <ErrorBanner
+                    message={loadError}
+                    onDismiss={() => setLoadError(null)}
+                />
+            )}
+
+            {actionError && (
+                <ErrorBanner
+                    message={actionError}
+                    onDismiss={() => setActionError(null)}
+                />
+            )}
 
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                 <div className="relative flex-1">
@@ -148,10 +210,14 @@ const UserList: React.FC = () => {
                                             title="Manage Role"
                                             className="text-indigo-600 hover:text-indigo-900 p-1"
                                             onClick={() => {
+                                                // AWD-M-144: open the accessible confirmation modal instead of
+                                                // calling blocking window.confirm().
                                                 const nextRole = user.role === 'EDUCATOR' ? 'ADMIN' : (user.role === 'ADMIN' ? 'SUPER_ADMIN' : 'EDUCATOR');
-                                                if (confirm(`Change ${user.full_name}'s role to ${nextRole}?`)) {
-                                                    handleRoleChange(user.user_id, nextRole);
-                                                }
+                                                setPendingRoleChange({
+                                                    userId: user.user_id,
+                                                    userName: user.full_name,
+                                                    newRole: nextRole,
+                                                });
                                             }}
                                         >
                                             <FiMoreVertical />

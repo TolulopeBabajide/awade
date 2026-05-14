@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { FaTimes } from 'react-icons/fa'
 import apiService from '../services/api'
 import type { ChildProfileCreate } from '../types/children'
+import { useFocusTrap } from '../hooks/useFocusTrap'
 
 interface AddChildModalProps {
   isOpen: boolean
@@ -11,6 +12,9 @@ interface AddChildModalProps {
 }
 
 const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSuccess, editData }) => {
+  const dialogRef = useRef<HTMLDivElement>(null)
+  useFocusTrap(dialogRef, isOpen, onClose)
+
   const [form, setForm] = useState<ChildProfileCreate>({
     name: '',
     age: null,
@@ -27,6 +31,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
   const [selectedSubjects, setSelectedSubjects] = useState<number[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [nameInvalid, setNameInvalid] = useState(false)
 
   // Load reference data
   useEffect(() => {
@@ -75,6 +80,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
       setSelectedSubjects([])
     }
     setError('')
+    setNameInvalid(false)
   }, [editData, isOpen])
 
   const toggleSubject = (id: number) => {
@@ -87,10 +93,12 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
     e.preventDefault()
     if (!form.name.trim()) {
       setError("Please enter your child's name")
+      setNameInvalid(true)
       return
     }
     setIsSubmitting(true)
     setError('')
+    setNameInvalid(false)
 
     const payload = {
       ...form,
@@ -119,14 +127,21 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
+    <div
+      ref={dialogRef}
+      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="add-child-modal-title"
+    >
       <div
         className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-xl font-semibold text-primary-800">
+          <h2 id="add-child-modal-title" className="text-xl font-semibold text-primary-800">
             {editData ? 'Edit Child Profile' : 'Add Your Child'}
           </h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1">
@@ -135,28 +150,41 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5" noValidate>
           {error && (
-            <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
+            <div id="modal-error-msg" role="alert" className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
           )}
 
           {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Child's Name *</label>
+            <label htmlFor="modal-child-name" className="block text-sm font-medium text-gray-700 mb-1">
+              Child's Name{' '}
+              <span className="text-red-500" aria-hidden="true">*</span>
+              <span className="sr-only">(required)</span>
+            </label>
             <input
+              id="modal-child-name"
               type="text"
               value={form.name}
-              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+              onChange={e => {
+                setForm(f => ({ ...f, name: e.target.value }))
+                if (nameInvalid) { setNameInvalid(false); setError('') }
+              }}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition"
               placeholder="e.g. Amina"
+              required
+              aria-required="true"
+              aria-invalid={nameInvalid || undefined}
+              aria-describedby={nameInvalid ? 'modal-error-msg' : undefined}
               autoFocus
             />
           </div>
 
           {/* Age */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
+            <label htmlFor="modal-age" className="block text-sm font-medium text-gray-700 mb-1">Age</label>
             <input
+              id="modal-age"
               type="number"
               min={3}
               max={25}
@@ -169,8 +197,9 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
 
           {/* School */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">School Name</label>
+            <label htmlFor="modal-school" className="block text-sm font-medium text-gray-700 mb-1">School Name</label>
             <input
+              id="modal-school"
               type="text"
               value={form.school_name ?? ''}
               onChange={e => setForm(f => ({ ...f, school_name: e.target.value || null }))}
@@ -181,8 +210,9 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
 
           {/* Country */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+            <label htmlFor="modal-country" className="block text-sm font-medium text-gray-700 mb-1">Country</label>
             <select
+              id="modal-country"
               value={form.country_id ?? ''}
               onChange={e => setForm(f => ({ ...f, country_id: e.target.value ? parseInt(e.target.value) : null, curricula_id: null }))}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition bg-white"
@@ -197,8 +227,9 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
           {/* Curriculum */}
           {form.country_id && curriculums.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Curriculum</label>
+              <label htmlFor="modal-curriculum" className="block text-sm font-medium text-gray-700 mb-1">Curriculum</label>
               <select
+                id="modal-curriculum"
                 value={form.curricula_id ?? ''}
                 onChange={e => setForm(f => ({ ...f, curricula_id: e.target.value ? parseInt(e.target.value) : null }))}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition bg-white"
@@ -213,8 +244,9 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
 
           {/* Grade Level */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Grade Level</label>
+            <label htmlFor="modal-grade" className="block text-sm font-medium text-gray-700 mb-1">Grade Level</label>
             <select
+              id="modal-grade"
               value={form.grade_level_id ?? ''}
               onChange={e => setForm(f => ({ ...f, grade_level_id: e.target.value ? parseInt(e.target.value) : null }))}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition bg-white"
@@ -256,7 +288,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-accent-600 hover:bg-accent-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-accent-700 hover:bg-accent-800 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting
               ? (editData ? 'Saving...' : 'Adding...')

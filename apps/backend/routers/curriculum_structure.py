@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import literal, select, union_all
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from apps.backend.database import get_db
@@ -7,6 +8,44 @@ from apps.backend.models import CurriculumStructure, Curriculum, GradeLevel, Sub
 from pydantic import BaseModel, ConfigDict
 
 router = APIRouter(prefix="/api/curriculum-structures", tags=["curriculum-structures"])
+
+
+def _validate_fk_targets(
+    db: Session,
+    curricula_id: int,
+    grade_level_id: int,
+    subject_id: int,
+) -> None:
+    """
+    Verify that the Curriculum, GradeLevel and Subject referenced by a curriculum
+    structure all exist, in a single database round-trip (AWD-M-63).
+
+    Replaces three sequential ``db.query(...).first()`` calls with one
+    ``UNION ALL`` query whose result set names the entities found. Same 404
+    responses as the previous implementation; ordering matches: curriculum
+    first, then grade level, then subject.
+    """
+    rows = db.execute(
+        union_all(
+            select(literal("curriculum").label("entity"))
+            .select_from(Curriculum)
+            .where(Curriculum.curricula_id == curricula_id),
+            select(literal("grade_level").label("entity"))
+            .select_from(GradeLevel)
+            .where(GradeLevel.grade_level_id == grade_level_id),
+            select(literal("subject").label("entity"))
+            .select_from(Subject)
+            .where(Subject.subject_id == subject_id),
+        )
+    ).fetchall()
+    found = {row[0] for row in rows}
+
+    if "curriculum" not in found:
+        raise HTTPException(status_code=404, detail="Curriculum not found")
+    if "grade_level" not in found:
+        raise HTTPException(status_code=404, detail="Grade level not found")
+    if "subject" not in found:
+        raise HTTPException(status_code=404, detail="Subject not found")
 
 class CurriculumStructureCreate(BaseModel):
     """Schema for creating a new curriculum structure."""
@@ -47,21 +86,14 @@ def create_curriculum_structure(
     Create a new curriculum structure record.
     Requires admin authentication.
     """
-    # Validate that curriculum exists
-    curriculum = db.query(Curriculum).filter(Curriculum.curricula_id == structure.curricula_id).first()
-    if not curriculum:
-        raise HTTPException(status_code=404, detail="Curriculum not found")
-    
-    # Validate that grade level exists
-    grade_level = db.query(GradeLevel).filter(GradeLevel.grade_level_id == structure.grade_level_id).first()
-    if not grade_level:
-        raise HTTPException(status_code=404, detail="Grade level not found")
-    
-    # Validate that subject exists
-    subject = db.query(Subject).filter(Subject.subject_id == structure.subject_id).first()
-    if not subject:
-        raise HTTPException(status_code=404, detail="Subject not found")
-    
+    # Validate FK targets in a single round-trip (AWD-M-63)
+    _validate_fk_targets(
+        db,
+        structure.curricula_id,
+        structure.grade_level_id,
+        structure.subject_id,
+    )
+
     # Check if curriculum structure already exists
     existing_structure = db.query(CurriculumStructure).filter(
         CurriculumStructure.curricula_id == structure.curricula_id,
@@ -106,22 +138,15 @@ def update_curriculum_structure(
     db_structure = db.query(CurriculumStructure).filter(CurriculumStructure.curriculum_structure_id == structure_id).first()
     if not db_structure:
         raise HTTPException(status_code=404, detail="Curriculum structure not found")
-    
-    # Validate that curriculum exists
-    curriculum = db.query(Curriculum).filter(Curriculum.curricula_id == structure.curricula_id).first()
-    if not curriculum:
-        raise HTTPException(status_code=404, detail="Curriculum not found")
-    
-    # Validate that grade level exists
-    grade_level = db.query(GradeLevel).filter(GradeLevel.grade_level_id == structure.grade_level_id).first()
-    if not grade_level:
-        raise HTTPException(status_code=404, detail="Grade level not found")
-    
-    # Validate that subject exists
-    subject = db.query(Subject).filter(Subject.subject_id == structure.subject_id).first()
-    if not subject:
-        raise HTTPException(status_code=404, detail="Subject not found")
-    
+
+    # Validate FK targets in a single round-trip (AWD-M-63)
+    _validate_fk_targets(
+        db,
+        structure.curricula_id,
+        structure.grade_level_id,
+        structure.subject_id,
+    )
+
     # Check if new structure conflicts with existing one
     existing_structure = db.query(CurriculumStructure).filter(
         CurriculumStructure.curricula_id == structure.curricula_id,

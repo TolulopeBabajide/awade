@@ -1,0 +1,406 @@
+{
+  "_meta": {
+    "description": "Read/write path manifest for all active Awade scheduled and on-demand agents. Used by the access-review-agent for scope-creep auditing. Update whenever a new agent is added or an agent's output paths change.",
+    "generated": "2026-05-05",
+    "generated_by": "dev-agent (AWD-M-101, AWD-M-100)",
+    "agents_count": 14
+  },
+  "agents": {
+    "dev-agent": {
+      "schedule": "hourly",
+      "description": "Lead developer agent — picks stage=ready backlog items and implements them.",
+      "reads": [
+        "project-config.md",
+        "CLAUDE.md",
+        ".claude/rules/*.md",
+        "docs/agentic/backlog.md",
+        "docs/agentic/sprints/qa-log.md",
+        "docs/agentic/sprints/dev-log.md",
+        "docs/agentic/design/handoff-*.md",
+        "docs/agentic/specs/*.md",
+        "apps/backend/**",
+        "apps/frontend/**",
+        "packages/**",
+        ".github/workflows/ci.yml",
+        ".env.example",
+        "env.production.template",
+        "env.test.template",
+        ".cursor/mcp.json",
+        "apps/backend/app/openapi.json"
+      ],
+      "writes": [
+        "apps/backend/**",
+        "apps/frontend/**",
+        "packages/**",
+        ".github/workflows/ci.yml",
+        ".env.example",
+        "env.production.template",
+        "env.test.template",
+        "apps/backend/app/openapi.json",
+        "apps/backend/alembic/versions/*.py",
+        "docs/agentic/backlog.md",
+        "docs/agentic/completed_backlog.md",
+        "docs/agentic/sprints/dev-log.md",
+        ".agent-health/dev-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "qa-agent": {
+      "schedule": "hourly",
+      "description": "QA agent — validates dev-agent output; runs CI mirror checks and files blocking issues.",
+      "reads": [
+        "project-config.md",
+        "CLAUDE.md",
+        ".claude/rules/*.md",
+        "docs/agentic/backlog.md",
+        "docs/agentic/sprints/dev-log.md",
+        "docs/agentic/sprints/qa-log.md",
+        "apps/backend/**",
+        "apps/frontend/**",
+        "packages/**",
+        "apps/backend/app/openapi.json",
+        ".cursor/mcp.json"
+      ],
+      "writes": [
+        "docs/agentic/backlog.md",
+        "docs/agentic/sprints/qa-log.md",
+        ".agent-health/qa-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "security-agent": {
+      "schedule": "daily",
+      "description": "Daily OWASP Web + LLM Top 10 security scan. Files Critical/High backlog items for new findings.",
+      "reads": [
+        "project-config.md",
+        "CLAUDE.md",
+        ".claude/rules/security.md",
+        "apps/backend/**",
+        "apps/frontend/**",
+        "packages/**",
+        ".github/workflows/ci.yml",
+        ".env.example",
+        "apps/backend/requirements.txt",
+        "apps/frontend/package.json"
+      ],
+      "writes": [
+        "docs/agentic/backlog.md",
+        ".agent-health/security-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "nightly-monitor": {
+      "schedule": "daily",
+      "description": "Nightly monitor — aggregates agent health, MCP failures, and key metrics into the morning brief.",
+      "reads": [
+        "project-config.md",
+        ".agent-health/*.last-run",
+        ".agent-health/mcp-failures.log",
+        "docs/agentic/sprints/dev-log.md",
+        "docs/agentic/sprints/qa-log.md",
+        "docs/agentic/backlog.md",
+        "scripts/check-agent-health.sh"
+      ],
+      "writes": [
+        "docs/agentic/daily-briefs/morning-brief.md",
+        ".agent-health/nightly-monitor.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "weekly-review": {
+      "schedule": "weekly",
+      "description": "Weekly review agent — produces sprint retrospective, health metrics, and priority recommendations.",
+      "reads": [
+        "project-config.md",
+        "docs/agentic/sprints/dev-log.md",
+        "docs/agentic/sprints/qa-log.md",
+        "docs/agentic/backlog.md",
+        "docs/agentic/completed_backlog.md",
+        "docs/agentic/daily-briefs/morning-brief.md",
+        ".agent-health/*.last-run"
+      ],
+      "writes": [
+        "docs/agentic/sprint-plans/sprint-*.md",
+        ".agent-health/weekly-review.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "code-review-agent": {
+      "schedule": "on-demand / post-merge",
+      "description": "Code review agent — reviews PRs and committed code for quality, security, and correctness issues.",
+      "reads": [
+        "project-config.md",
+        "CLAUDE.md",
+        ".claude/rules/*.md",
+        "apps/backend/**",
+        "apps/frontend/**",
+        "packages/**",
+        "docs/agentic/backlog.md"
+      ],
+      "writes": [
+        "docs/agentic/backlog.md",
+        "docs/code-reviews/**",
+        "docs/agentic/daily-briefs/morning-brief.md",
+        ".agent-health/code-review-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "compliance-agent": {
+      "schedule": "on-demand",
+      "description": "Compliance agent — audits for GDPR, COPPA, NDPR, POPIA, and EU AI Act requirements.",
+      "reads": [
+        "project-config.md",
+        "CLAUDE.md",
+        "apps/backend/**",
+        "apps/frontend/**",
+        "docs/public/external/privacy-policy.md",
+        "docs/public/external/terms-of-service.md",
+        "docs/agentic/backlog.md"
+      ],
+      "writes": [
+        "docs/public/external/privacy-policy.md",
+        "docs/public/external/terms-of-service.md",
+        "docs/agentic/backlog.md",
+        ".agent-health/compliance-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "architecture-agent": {
+      "schedule": "on-demand",
+      "description": "Architecture agent — evaluates technical design, identifies structural issues, and produces ADRs.",
+      "reads": [
+        "project-config.md",
+        "CLAUDE.md",
+        ".claude/rules/codebase-map.md",
+        "apps/backend/**",
+        "apps/frontend/**",
+        "packages/**",
+        "docs/architecture/**",
+        "docs/agentic/backlog.md"
+      ],
+      "writes": [
+        "docs/architecture/*.md",
+        "docs/agentic/backlog.md",
+        ".agent-health/architecture-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "performance-agent": {
+      "schedule": "on-demand",
+      "description": "Performance agent — profiles frontend bundle, backend DB queries, and Lighthouse scores.",
+      "reads": [
+        "project-config.md",
+        "apps/frontend/vite.config.ts",
+        "apps/frontend/src/**",
+        "apps/backend/services/**",
+        "apps/backend/routers/**",
+        "docs/agentic/backlog.md"
+      ],
+      "writes": [
+        "docs/agentic/backlog.md",
+        ".agent-health/performance-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "dependency-security-agent": {
+      "schedule": "weekly",
+      "description": "Dependency security agent — audits npm and pip dependencies for CVEs and outdated pins.",
+      "reads": [
+        "project-config.md",
+        "apps/backend/requirements.txt",
+        "apps/frontend/package.json",
+        "apps/frontend/package-lock.json",
+        "docs/agentic/backlog.md"
+      ],
+      "writes": [
+        "apps/backend/requirements.txt",
+        "apps/frontend/package.json",
+        "docs/agentic/backlog.md",
+        ".agent-health/dependency-security-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "access-review-agent": {
+      "schedule": "on-demand / periodic",
+      "description": "Access review agent — audits agent permissions, API key rotation, and secret hygiene.",
+      "reads": [
+        "project-config.md",
+        "agent-permissions.json",
+        ".env.example",
+        "env.production.template",
+        "env.test.template",
+        ".agent-health/*.last-run",
+        "docs/agentic/backlog.md",
+        ".cursor/mcp.json"
+      ],
+      "writes": [
+        "docs/agentic/backlog.md",
+        ".agent-health/access-review-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "tech-debt-agent": {
+      "schedule": "on-demand",
+      "description": "Tech debt agent — catalogs structural debt (god objects, migration gaps, dual caches) and files backlog items.",
+      "reads": [
+        "project-config.md",
+        "CLAUDE.md",
+        ".claude/rules/*.md",
+        "apps/backend/**",
+        "apps/frontend/**",
+        "packages/**",
+        "docs/agentic/backlog.md"
+      ],
+      "writes": [
+        "docs/agentic/backlog.md",
+        ".agent-health/tech-debt-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "marketing-agent": {
+      "schedule": "on-demand",
+      "description": "Marketing agent — produces content for landing pages, blog posts, and outreach campaigns.",
+      "reads": [
+        "project-config.md",
+        "docs/agentic/gtm/strategy-*.md",
+        "docs/public/**",
+        "apps/frontend/src/pages/LandingPage.tsx"
+      ],
+      "writes": [
+        "docs/public/**",
+        "docs/agentic/daily-briefs/marketing-brief.md",
+        ".agent-health/marketing-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**",
+        "apps/backend/**",
+        "apps/frontend/src/**"
+      ]
+    },
+    "finance-agent": {
+      "schedule": "on-demand",
+      "description": "Finance agent — reviews revenue metrics, subscription cohorts, and cost exposure (AI API spend).",
+      "reads": [
+        "project-config.md",
+        "docs/agentic/backlog.md"
+      ],
+      "writes": [
+        "docs/agentic/backlog.md",
+        ".agent-health/finance-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**",
+        "apps/backend/**",
+        "apps/frontend/**"
+      ]
+    }
+  }
+}

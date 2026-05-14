@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
@@ -13,11 +13,13 @@ import {
   FaHome,
   FaWhatsapp,
   FaDownload,
+  FaRobot,
 } from 'react-icons/fa'
 import apiService from '../services/api'
-import Sidebar from '../components/Sidebar'
-import MobileNavigation from '../components/MobileNavigation'
 import type { ParentGuide, ParentGuideContent } from '../types/children'
+import { GuidePageShell, Section, InfoCard } from './GuideViewPage.components'
+import { getErrorMessage } from '../utils/errors'
+import ErrorBanner from '../components/ErrorBanner'
 
 const GuideViewPage: React.FC = () => {
   const [searchParams] = useSearchParams()
@@ -61,34 +63,54 @@ const GuideViewPage: React.FC = () => {
     }
   }, [guide?.ai_generated_content])
 
+  // AWD-M-130: single shared invalidation callback — avoids duplicating the two
+  // invalidateQueries calls that were previously copy-pasted into both onSuccess
+  // and onError. Any future extension (e.g. adding ['savedGuides']) only requires
+  // a change here.
+  const invalidateBookmarkQueries = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['parentGuide'] })
+    queryClient.invalidateQueries({ queryKey: ['childGuides'] })
+  }, [queryClient])
+
   // Bookmark mutation
   const bookmarkMutation = useMutation({
     mutationFn: () => apiService.toggleGuideBookmark(guide!.guide_id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['parentGuide'] })
-      queryClient.invalidateQueries({ queryKey: ['childGuides'] })
-    },
+    onSuccess: invalidateBookmarkQueries,
+    // AWD-M-83: roll back optimistic UI state on failure by re-fetching truth from server
+    onError: invalidateBookmarkQueries,
   })
 
   // PDF download state
   const [isDownloading, setIsDownloading] = useState(false)
+  // AWD-M-79: inline error — replaces inaccessible alert() calls
+  const [downloadError, setDownloadError] = useState<string | null>(null)
 
   const handleDownloadPdf = async () => {
     if (!guide || isDownloading) return
+    setDownloadError(null)
     setIsDownloading(true)
     try {
       const result = await apiService.exportGuidePdf(guide.guide_id)
       if ('error' in result) {
-        // Non-blocking — show a brief alert rather than a full error page
-        alert(`Could not download PDF: ${result.error}`)
+        setDownloadError(`Could not download PDF: ${result.error}`)
         return
       }
       const url = URL.createObjectURL(result.blob)
       const anchor = document.createElement('a')
       anchor.href = url
       anchor.download = result.filename
+      // AWD-L-32: append to DOM before .click() — Firefox + some Android WebViews
+      // ignore synthetic click() on detached anchors. Remove + revoke after.
+      document.body.appendChild(anchor)
       anchor.click()
+      document.body.removeChild(anchor)
       URL.revokeObjectURL(url)
+    } catch (err: unknown) {
+      // AWD-H-79: surface unexpected throws (e.g. network abort before apiService
+      // internal catch, or runtime errors in blob/URL handling) to the user
+      setDownloadError(
+        `Could not download PDF: ${getErrorMessage(err, 'Unexpected error')}`,
+      )
     } finally {
       setIsDownloading(false)
     }
@@ -97,40 +119,32 @@ const GuideViewPage: React.FC = () => {
   // ── Loading state ─────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div className="flex min-h-screen bg-background-50">
-        <Sidebar currentPage="dashboard" />
-        <main className="flex-1 lg:ml-64 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4" />
-            <p className="text-gray-600 font-medium">Generating your guide...</p>
-            <p className="text-gray-400 text-sm mt-1">This may take a few seconds</p>
-          </div>
-        </main>
-        <MobileNavigation currentPage="dashboard" />
-      </div>
+      <GuidePageShell>
+        <div role="status" aria-live="polite" className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4" />
+          <p className="text-gray-600 font-medium">Generating your guide...</p>
+          <p className="text-gray-400 text-sm mt-1">This may take a few seconds</p>
+        </div>
+      </GuidePageShell>
     )
   }
 
   // ── Error state ───────────────────────────────────────────────────
   if (error || !content) {
     return (
-      <div className="flex min-h-screen bg-background-50">
-        <Sidebar currentPage="dashboard" />
-        <main className="flex-1 lg:ml-64 flex items-center justify-center">
-          <div className="text-center max-w-md px-4">
-            <p className="text-red-500 font-medium mb-4">
-              {error instanceof Error ? error.message : 'Could not load guide'}
-            </p>
-            <button
-              onClick={() => navigate(-1)}
-              className="text-primary-600 hover:text-primary-700 font-medium"
-            >
-              ← Go back
-            </button>
-          </div>
-        </main>
-        <MobileNavigation currentPage="dashboard" />
-      </div>
+      <GuidePageShell>
+        <div className="text-center max-w-md px-4">
+          <p className="text-red-500 font-medium mb-4">
+            {error instanceof Error ? error.message : 'Could not load guide'}
+          </p>
+          <button
+            onClick={() => navigate(-1)}
+            className="text-primary-600 hover:text-primary-700 font-medium"
+          >
+            ← Go back
+          </button>
+        </div>
+      </GuidePageShell>
     )
   }
 
@@ -161,10 +175,11 @@ const GuideViewPage: React.FC = () => {
 
   // ── Guide content ─────────────────────────────────────────────────
   return (
-    <div className="flex min-h-screen bg-background-50">
-      <Sidebar currentPage="dashboard" />
-
-      <main className="flex-1 lg:ml-64 pb-20 lg:pb-0">
+    <GuidePageShell
+      mainId="main-content"
+      mainTabIndex={-1}
+      mainClassName="pb-20 lg:pb-0 outline-none"
+    >
         {/* Top bar */}
         <div className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4 sticky top-0 z-10">
           <div className="flex items-center justify-between max-w-3xl mx-auto">
@@ -179,7 +194,7 @@ const GuideViewPage: React.FC = () => {
               <button
                 onClick={handleDownloadPdf}
                 disabled={isDownloading}
-                className="text-gray-400 hover:text-primary-600 transition-colors p-2 disabled:opacity-50"
+                className="text-gray-500 hover:text-primary-600 transition-colors p-2 disabled:opacity-50"
                 title="Download as PDF"
                 aria-label="Download this guide as a PDF"
               >
@@ -191,7 +206,7 @@ const GuideViewPage: React.FC = () => {
               </button>
               <button
                 onClick={handleWhatsAppShare}
-                className="text-gray-400 hover:text-green-600 transition-colors p-2"
+                className="text-gray-500 hover:text-green-600 transition-colors p-2"
                 title="Share on WhatsApp"
                 aria-label="Share this guide on WhatsApp"
               >
@@ -199,7 +214,7 @@ const GuideViewPage: React.FC = () => {
               </button>
               <button
                 onClick={() => bookmarkMutation.mutate()}
-                className="text-gray-400 hover:text-accent-600 transition-colors p-2"
+                className="text-gray-500 hover:text-accent-600 transition-colors p-2"
                 title={guide?.is_bookmarked ? 'Remove bookmark' : 'Bookmark this guide'}
               >
                 {guide?.is_bookmarked ? (
@@ -211,6 +226,17 @@ const GuideViewPage: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* AWD-M-79: PDF download error banner — accessible, non-blocking */}
+        {/* AWD-L-33 / AWD-M-148: use shared ErrorBanner component */}
+        {downloadError && (
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+            <ErrorBanner
+              message={downloadError}
+              onDismiss={() => setDownloadError(null)}
+            />
+          </div>
+        )}
 
         {/* Guide content */}
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
@@ -224,6 +250,26 @@ const GuideViewPage: React.FC = () => {
             <h1 className="text-2xl lg:text-3xl font-bold text-primary-800">
               {content.topic_header.topic}
             </h1>
+          </div>
+
+          {/* AI disclosure banner — EU AI Act Art. 52 / GDPR Art. 5(1)(a) — AWD-GRC-07 */}
+          <div className="bg-accent-50 border border-accent-200 rounded-xl px-4 py-3 flex items-start gap-3">
+            <div className="w-7 h-7 bg-accent-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <FaRobot className="w-3.5 h-3.5 text-accent-700" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-accent-800 leading-relaxed">
+                <span className="font-semibold">This guide was created by Awade's AI.</span>{' '}
+                It may contain inaccuracies — please use your own judgement and speak to your
+                child's teacher if you have concerns.{' '}
+                <a
+                  href="/disclaimer"
+                  className="underline hover:text-accent-900 font-medium transition-colors"
+                >
+                  Read full disclaimer
+                </a>
+              </p>
+            </div>
           </div>
 
           {/* Simple Explanation */}
@@ -333,40 +379,8 @@ const GuideViewPage: React.FC = () => {
             </div>
           </Section>
         </div>
-      </main>
-
-      <MobileNavigation currentPage="dashboard" />
-    </div>
+    </GuidePageShell>
   )
 }
-
-// ── Reusable sub-components ─────────────────────────────────────────
-
-interface SectionProps {
-  icon: React.ReactNode
-  title: string
-  subtitle?: string
-  children: React.ReactNode
-}
-
-const Section: React.FC<SectionProps> = ({ icon, title, subtitle, children }) => (
-  <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-    <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-3">
-      {icon}
-      <div>
-        <h2 className="font-semibold text-gray-800">{title}</h2>
-        {subtitle && <p className="text-xs text-gray-400">{subtitle}</p>}
-      </div>
-    </div>
-    <div className="px-5 py-4">{children}</div>
-  </div>
-)
-
-const InfoCard: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-  <div className="bg-background-50 rounded-xl p-3">
-    <p className="text-xs font-medium text-gray-500 mb-1">{label}</p>
-    <p className="text-gray-700 text-sm leading-relaxed">{value}</p>
-  </div>
-)
 
 export default GuideViewPage

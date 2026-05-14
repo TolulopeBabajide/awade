@@ -79,7 +79,7 @@ const ChildrenPage: React.FC = () => {
     <div className="flex min-h-screen bg-background-50">
       <Sidebar currentPage="children" />
 
-      <main className="flex-1 lg:ml-64 pb-20 lg:pb-0">
+      <main id="main-content" tabIndex={-1} className="flex-1 lg:ml-64 pb-20 lg:pb-0 outline-none">
         {/* Top bar */}
         <div className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -91,7 +91,7 @@ const ChildrenPage: React.FC = () => {
             </div>
             <button
               onClick={openAddModal}
-              className="bg-accent-600 hover:bg-accent-700 text-white font-medium py-2 px-4 rounded-xl transition-colors inline-flex items-center gap-2 text-sm"
+              className="bg-accent-700 hover:bg-accent-800 text-white font-medium py-2 px-4 rounded-xl transition-colors inline-flex items-center gap-2 text-sm"
             >
               <FaPlus className="w-3 h-3" />
               <span className="hidden sm:inline">Add Child</span>
@@ -102,7 +102,7 @@ const ChildrenPage: React.FC = () => {
         <div className="px-4 sm:px-6 lg:px-8 py-6">
           {/* Delete error banner */}
           {deleteError && (
-            <div className="mb-4 bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm">
+            <div role="alert" className="mb-4 bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm">
               {deleteError}
             </div>
           )}
@@ -138,7 +138,7 @@ const ChildrenPage: React.FC = () => {
                 </p>
                 <button
                   onClick={openAddModal}
-                  className="bg-accent-600 hover:bg-accent-700 text-white font-semibold py-3 px-8 rounded-xl transition-colors inline-flex items-center gap-2 shadow-md"
+                  className="bg-accent-700 hover:bg-accent-800 text-white font-semibold py-3 px-8 rounded-xl transition-colors inline-flex items-center gap-2 shadow-md"
                 >
                   <FaPlus className="w-4 h-4" />
                   Add Your First Child

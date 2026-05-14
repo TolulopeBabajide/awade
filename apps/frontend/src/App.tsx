@@ -12,7 +12,6 @@ import EditLessonPlanPage from './pages/EditLessonPlanPage'
 import EditLessonResourcePage from './pages/EditLessonResourcePage'
 import LessonResourcesPage from './pages/LessonResourcesPage'
 import SettingsPage from './pages/SettingsPage'
-import TestPage from './pages/TestPage'
 import GuideViewPage from './pages/GuideViewPage'
 import SavedGuidesPage from './pages/SavedGuidesPage'
 import ChildrenPage from './pages/ChildrenPage'
@@ -27,6 +26,8 @@ import ModerationList from './pages/admin/ModerationList'
 import CurriculumManager from './pages/admin/CurriculumManager'
 import TemplateManager from './pages/admin/TemplateManager'
 import AdminSettings from './pages/admin/Settings'
+import ChildProfileList from './pages/admin/ChildProfileList'
+import DisclaimerPage from './pages/DisclaimerPage'
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/disclaimer" element={<DisclaimerPage />} />
 
           {/* Protected routes — role-aware dashboard */}
           <Route path="/dashboard" element={
@@ -99,12 +101,6 @@ function App() {
               <SettingsPage />
             </ProtectedRoute>
           } />
-          <Route path="/test" element={
-            <ProtectedRoute>
-              <TestPage />
-            </ProtectedRoute>
-          } />
-
           {/* Admin routes */}
           <Route path="/admin" element={
             <AdminRoute>
@@ -118,6 +114,7 @@ function App() {
             <Route path="curriculum" element={<CurriculumManager />} />
             <Route path="templates" element={<TemplateManager />} />
             <Route path="logs" element={<AuditLogs />} />
+            <Route path="children" element={<ChildProfileList />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
         </Routes>

@@ -40,15 +40,15 @@ class WebSocketService {
     }
 
     this.isConnecting = true;
-    const wsUrl = import.meta.env.MODE === 'production' 
-      ? 'wss://your-production-domain.com/ws' 
-      : 'ws://localhost:8000/ws';
+    // VITE_WS_URL must be set in production (e.g. wss://your-domain.com/ws).
+    // Falls back to localhost for local development.
+    const wsUrl = (import.meta.env.VITE_WS_URL as string | undefined) ?? 'ws://localhost:8000/ws';
 
     try {
       this.ws = new WebSocket(wsUrl);
 
       this.ws.onopen = () => {
-        console.log('WebSocket connected');
+        if (import.meta.env.DEV) console.log('WebSocket connected');
         this.isConnecting = false;
         this.reconnectAttempts = 0;
         this.reconnectDelay = 1000;
@@ -59,23 +59,23 @@ class WebSocketService {
           const data = JSON.parse(event.data);
           this.handleMessage(data);
         } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
+          if (import.meta.env.DEV) console.error('Error parsing WebSocket message:', error);
         }
       };
 
       this.ws.onclose = () => {
-        console.log('WebSocket disconnected');
+        if (import.meta.env.DEV) console.log('WebSocket disconnected');
         this.isConnecting = false;
         this.attemptReconnect();
       };
 
       this.ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
+        if (import.meta.env.DEV) console.error('WebSocket error:', error);
         this.isConnecting = false;
       };
 
     } catch (error) {
-      console.error('Error creating WebSocket connection:', error);
+      if (import.meta.env.DEV) console.error('Error creating WebSocket connection:', error);
       this.isConnecting = false;
       this.attemptReconnect();
     }
@@ -83,12 +83,12 @@ class WebSocketService {
 
   private attemptReconnect() {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.log('Max reconnection attempts reached');
+      if (import.meta.env.DEV) console.log('Max reconnection attempts reached');
       return;
     }
 
     this.reconnectAttempts++;
-    console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${this.reconnectDelay}ms`);
+    if (import.meta.env.DEV) console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${this.reconnectDelay}ms`);
 
     setTimeout(() => {
       this.connect();
@@ -113,7 +113,7 @@ class WebSocketService {
         this.emit('session_started', payload);
         break;
       default:
-        console.log('Unknown message type:', type);
+        if (import.meta.env.DEV) console.log('Unknown message type:', type);
     }
   }
 
@@ -152,7 +152,7 @@ class WebSocketService {
         payload: session
       }));
     } else {
-      console.warn('WebSocket not connected, cannot start generation');
+      if (import.meta.env.DEV) console.warn('WebSocket not connected, cannot start generation');
     }
   }
 

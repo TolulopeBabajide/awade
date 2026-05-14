@@ -63,7 +63,7 @@ const SavedGuidesPage: React.FC = () => {
     <div className="flex min-h-screen bg-background-50">
       <Sidebar currentPage="lesson-resources" />
 
-      <main className="flex-1 lg:ml-64 pb-20 lg:pb-0">
+      <main id="main-content" tabIndex={-1} className="flex-1 lg:ml-64 pb-20 lg:pb-0 outline-none">
         {/* Top bar */}
         <div className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -159,6 +159,7 @@ const SavedGuidesPage: React.FC = () => {
                 <button
                   key={guide.guide_id}
                   onClick={() => handleGuideClick(guide)}
+                  aria-label={`Open "How to Help" guide for ${guide.topic_title || 'Untitled Topic'}${guide.is_bookmarked ? ' (bookmarked)' : ''}`}
                   className="bg-white border border-gray-200 rounded-xl p-5 text-left hover:border-primary-400 hover:shadow-md transition-all group"
                 >
                   <div className="flex items-start justify-between mb-2">
@@ -166,7 +167,7 @@ const SavedGuidesPage: React.FC = () => {
                       {guide.topic_title || 'Untitled Topic'}
                     </p>
                     {guide.is_bookmarked && (
-                      <FaBookmark className="w-3 h-3 text-accent-500 flex-shrink-0 ml-2 mt-0.5" />
+                      <FaBookmark className="w-3 h-3 text-accent-500 flex-shrink-0 ml-2 mt-0.5" aria-hidden="true" />
                     )}
                   </div>
                   <p className="text-xs text-gray-400">

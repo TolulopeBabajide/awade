@@ -5,108 +5,89 @@ This module provides service methods for user authentication, including Google O
 email/password signup, login, and password reset functionality. It handles all business
 logic related to authentication, separating concerns from the router layer.
 
+Token lifecycle operations (create/refresh/blacklist) live in
+:class:`~apps.backend.services.token_service.TokenService` (AWD-M-108).
+
 Author: Tolulope Babajide
 """
 
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, timezone
-import jwt
 import bcrypt
-import secrets
+import hashlib
 import json
 import logging
 import requests
-import sys
 import os
+import secrets
 from fastapi import HTTPException, status
 from typing import Tuple, Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
 
-# Add parent directories to Python path for imports
-current_dir = os.path.dirname(__file__)
-parent_dir = os.path.dirname(current_dir)
-root_dir = os.path.dirname(parent_dir)
-sys.path.extend([parent_dir, root_dir])
-
 from apps.backend.models import User, UserRole
 from apps.backend.schemas.users import AuthResponse, UserResponse, UserCreate, UserLogin, PasswordResetRequest, PasswordReset
-from apps.backend.dependencies import get_jwt_secret_key, get_jwt_algorithm
+from apps.backend.services.token_service import TokenService
+
+# Roles that users may request at self-registration (email/password or OAuth).
+# ADMIN and SUPER_ADMIN are excluded — those roles must be assigned by an admin.
+# Using frozenset to prevent accidental mutation.
+_SELF_REGISTERABLE_ROLES: frozenset = frozenset({UserRole.PARENT, UserRole.EDUCATOR})
 
 class AuthService:
-    """Service class for authentication operations."""
-    
+    """Service class for user-identity authentication operations.
+
+    Handles Google OAuth, email/password registration and login, and password
+    reset.  JWT token lifecycle (create / refresh / blacklist) is delegated to
+    :class:`~apps.backend.services.token_service.TokenService` via
+    ``self.token_service``.
+    """
+
     def __init__(self, db: Session):
         """
         Initialize the AuthService with a database session.
-        
+
         Args:
             db (Session): SQLAlchemy database session
         """
         self.db = db
-    
+        # Token lifecycle operations are handled by TokenService (AWD-M-108).
+        self.token_service = TokenService(db)
+
     def get_google_client_id(self) -> str:
         """Get Google OAuth client ID from environment variables."""
-        import os
         return os.getenv("GOOGLE_CLIENT_ID", "")
-    
-    def get_jwt_expires_minutes(self) -> int:
-        """Get JWT expiration time from environment variables."""
-        import os
-        return int(os.getenv("JWT_EXPIRES_MINUTES", "60"))
-    
+
     def get_password_min_length(self) -> int:
         """Get minimum password length from environment variables."""
-        import os
         return int(os.getenv("PASSWORD_MIN_LENGTH", "8"))
     
     def _hash_password(self, password: str) -> str:
         """
         Hash a password using bcrypt.
-        
+
         Args:
             password (str): Plain text password
-            
+
         Returns:
             str: Hashed password
         """
         salt = bcrypt.gensalt()
         return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
-    
-    def create_access_token(self, data: dict) -> str:
-        """
-        Create a new access token (JWT).
-        """
-        to_encode = data.copy()
-        expire = datetime.now(timezone.utc) + timedelta(minutes=self.get_jwt_expires_minutes())
-        to_encode.update({"exp": expire, "type": "access"})
-        return jwt.encode(to_encode, get_jwt_secret_key(), algorithm=get_jwt_algorithm())
 
-    def create_refresh_token(self, data: dict) -> str:
-        """
-        Create a new refresh token (JWT) with a unique identifier (JTI).
-        Longer expiration (e.g. 7 days).
-        """
-        to_encode = data.copy()
-        # Refresh token valid for 7 days
-        expire = datetime.now(timezone.utc) + timedelta(days=7)
-        # Add JTI to ensure uniqueness and for revocation tracking
-        jti = secrets.token_urlsafe(16)
-        to_encode.update({"exp": expire, "type": "refresh", "jti": jti})
-        return jwt.encode(to_encode, get_jwt_secret_key(), algorithm=get_jwt_algorithm())
-    
     def _verify_password(self, password: str, hashed_password: str) -> bool:
         """
         Verify a password against its hash.
-        
+
         Args:
             password (str): Plain text password
             hashed_password (str): Hashed password
-            
+
         Returns:
             bool: True if password matches hash
         """
         return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
+
     def verify_google_token(self, id_token: str) -> Dict[str, Any]:
         """
         Verify Google OAuth ID token.
@@ -122,14 +103,22 @@ class AuthService:
         """
         GOOGLE_CLIENT_ID = self.get_google_client_id()
         if not GOOGLE_CLIENT_ID:
+            logger.warning("Google OAuth is not available: GOOGLE_CLIENT_ID is not set")
             raise HTTPException(
-                status_code=500, 
-                detail="Google OAuth is not configured. Please set GOOGLE_CLIENT_ID environment variable."
+                status_code=500,
+                detail="Google OAuth is not available. Please contact support."
             )
         
         # Verify the token with Google
         google_verify_url = f"https://oauth2.googleapis.com/tokeninfo?id_token={id_token}"
-        resp = requests.get(google_verify_url)
+        try:
+            resp = requests.get(google_verify_url, timeout=10)
+        except requests.exceptions.Timeout:
+            logger.warning("Google tokeninfo request timed out")
+            raise HTTPException(
+                status_code=503,
+                detail="Google OAuth temporarily unavailable. Please try again."
+            )
         if resp.status_code != 200:
             raise HTTPException(status_code=401, detail="Invalid Google token")
         
@@ -169,10 +158,9 @@ class AuthService:
             if not user:
                 # Whitelist only PARENT and EDUCATOR — coerce anything else (including
                 # ADMIN / SUPER_ADMIN) to PARENT so clients cannot self-elevate via OAuth.
-                _ALLOWED_GOOGLE_ROLES = {UserRole.PARENT, UserRole.EDUCATOR}
                 try:
                     candidate = UserRole(requested_role)
-                    new_role = candidate if candidate in _ALLOWED_GOOGLE_ROLES else UserRole.PARENT
+                    new_role = candidate if candidate in _SELF_REGISTERABLE_ROLES else UserRole.PARENT
                 except (ValueError, KeyError):
                     new_role = UserRole.PARENT
 
@@ -192,39 +180,21 @@ class AuthService:
                 self.db.commit()
                 self.db.refresh(user)
             
-            # Generate JWT tokens
-            token_payload = {
-                "sub": str(user.user_id),
-                "email": user.email
-            }
-            token = self.create_access_token(token_payload)
-            refresh_token = self.create_refresh_token(token_payload)
-            
-            # Parse JSON strings back to lists for response
-            subjects_list = json.loads(user.subjects) if user.subjects else None
-            grade_levels_list = json.loads(user.grade_levels) if user.grade_levels else None
-            
-            user_response = UserResponse(
-                user_id=user.user_id,
-                email=user.email,
-                full_name=user.full_name,
-                role=user.role.value,
-                country=user.country,
-                region=user.region,
-                school_name=user.school_name,
-                subjects=subjects_list,
-                grade_levels=grade_levels_list,
-                languages_spoken=user.languages_spoken,
-                created_at=user.created_at,
-                last_login=user.last_login
-            )
-            
+            # Generate JWT tokens via TokenService (AWD-M-108)
+            token_payload = self.token_service._build_token_payload(user)
+            token = self.token_service.create_access_token(token_payload)
+            refresh_token = self.token_service.create_refresh_token(token_payload)
+
+            # Delegate UserResponse construction to get_current_user_profile() — single
+            # source of truth for JSON parsing (AWD-M-98)
+            user_response = self.get_current_user_profile(user)
+
             return AuthResponse(
                 access_token=token,
                 token_type="bearer",
                 user=user_response
             ), refresh_token
-            
+
         except HTTPException:
             raise
         except Exception as e:
@@ -248,31 +218,32 @@ class AuthService:
             HTTPException: If registration fails
         """
         try:
-            JWT_SECRET_KEY = get_jwt_secret_key()
-            JWT_EXPIRES_MINUTES = self.get_jwt_expires_minutes()
             PASSWORD_MIN_LENGTH = self.get_password_min_length()
-            
+
             # Validate password length
             if len(user_data.password) < PASSWORD_MIN_LENGTH:
                 raise HTTPException(
-                    status_code=400, 
+                    status_code=400,
                     detail=f"Password must be at least {PASSWORD_MIN_LENGTH} characters long"
                 )
-            
+
             # Check if user already exists
             if self.db.query(User).filter(User.email == user_data.email).first():
                 raise HTTPException(status_code=400, detail="Email already registered")
+
+            # Hash password — delegate to _hash_password() to avoid divergent bcrypt paths
+            password_hash = self._hash_password(user_data.password)
             
-            # Hash password
-            salt = bcrypt.gensalt()
-            password_hash = bcrypt.hashpw(user_data.password.encode('utf-8'), salt).decode('utf-8')
-            
+            # Whitelist only PARENT and EDUCATOR — coerce anything else (including
+            # ADMIN / SUPER_ADMIN) to PARENT so clients cannot self-elevate at registration.
+            safe_role = user_data.role if user_data.role in _SELF_REGISTERABLE_ROLES else UserRole.PARENT
+
             # Create user
             user = User(
                 email=user_data.email,
                 password_hash=password_hash,
                 full_name=user_data.full_name,
-                role=user_data.role,
+                role=safe_role,
                 country=user_data.country,
                 region=user_data.region,
                 school_name=user_data.school_name,
@@ -285,39 +256,21 @@ class AuthService:
             self.db.commit()
             self.db.refresh(user)
             
-            # Generate JWT tokens
-            token_payload = {
-                "sub": str(user.user_id),
-                "email": user.email
-            }
-            token = self.create_access_token(token_payload)
-            refresh_token = self.create_refresh_token(token_payload)
-            
-            # Parse JSON strings back to lists for response
-            subjects_list = json.loads(user.subjects) if user.subjects else None
-            grade_levels_list = json.loads(user.grade_levels) if user.grade_levels else None
-            
-            user_response = UserResponse(
-                user_id=user.user_id,
-                email=user.email,
-                full_name=user.full_name,
-                role=user.role.value,
-                country=user.country,
-                region=user.region,
-                school_name=user.school_name,
-                subjects=subjects_list,
-                grade_levels=grade_levels_list,
-                languages_spoken=user.languages_spoken,
-                created_at=user.created_at,
-                last_login=user.last_login
-            )
-            
+            # Generate JWT tokens via TokenService (AWD-M-108)
+            token_payload = self.token_service._build_token_payload(user)
+            token = self.token_service.create_access_token(token_payload)
+            refresh_token = self.token_service.create_refresh_token(token_payload)
+
+            # Delegate UserResponse construction to get_current_user_profile() — single
+            # source of truth for JSON parsing (AWD-M-98)
+            user_response = self.get_current_user_profile(user)
+
             return AuthResponse(
                 access_token=token,
                 token_type="bearer",
                 user=user_response
             ), refresh_token
-            
+
         except HTTPException:
             raise
         except Exception as e:
@@ -328,67 +281,6 @@ class AuthService:
             )
     
     
-    async def refresh_access_token(self, refresh_token: str, redis_pool: Optional[Any] = None) -> Tuple[AuthResponse, str]:
-        """
-        Refresh access token using a valid refresh token and rotate the refresh token.
-        
-        Args:
-            refresh_token (str): The refresh token
-            redis_pool (Optional[Any]): Redis pool for blacklist check
-            
-        Returns:
-            Tuple[AuthResponse, str]: New access token and user data, plus new refresh token
-        """
-        try:
-            # Verify token
-            payload = jwt.decode(refresh_token, get_jwt_secret_key(), algorithms=[get_jwt_algorithm()])
-            
-            if payload.get("type") != "refresh":
-                raise HTTPException(status_code=401, detail="Invalid token type")
-                
-            # Check blacklist
-            if await self.is_refresh_token_blacklisted(refresh_token, redis_pool):
-                raise HTTPException(status_code=401, detail="Token has been revoked")
-
-            user_id = payload.get("sub")
-            if not user_id:
-                raise HTTPException(status_code=401, detail="Invalid token payload")
-                
-            # Get user
-            user = self.db.query(User).filter(User.user_id == int(user_id)).first()
-            if not user:
-                raise HTTPException(status_code=401, detail="Invalid token")
-                
-            # Generate new tokens
-            token_payload = {
-                "sub": str(user.user_id),
-                "email": user.email
-            }
-            new_access_token = self.create_access_token(token_payload)
-            new_refresh_token = self.create_refresh_token(token_payload)
-            
-            # Retrieve user profile for response
-            user_response = self.get_current_user_profile(user)
-            
-            return AuthResponse(
-                access_token=new_access_token,
-                token_type="bearer",
-                user=user_response
-            ), new_refresh_token
-            
-        except jwt.ExpiredSignatureError:
-            raise HTTPException(status_code=401, detail="Refresh token expired")
-        except jwt.InvalidTokenError:
-            raise HTTPException(status_code=401, detail="Invalid refresh token")
-        except Exception as e:
-            if isinstance(e, HTTPException):
-                raise e
-            logger.error("Unexpected error during token refresh: %s", e, exc_info=True)
-            raise HTTPException(
-                status_code=500,
-                detail="An error occurred during token refresh"
-            )
-
     def authenticate_user(self, user_data: UserLogin) -> Tuple[AuthResponse, str]:
         """
         Authenticate user with email and password.
@@ -403,9 +295,6 @@ class AuthService:
             HTTPException: If authentication fails
         """
         try:
-            JWT_SECRET_KEY = get_jwt_secret_key()
-            JWT_EXPIRES_MINUTES = self.get_jwt_expires_minutes()
-            
             # Find user by email
             user = self.db.query(User).filter(User.email == user_data.email).first()
             if not user:
@@ -424,8 +313,8 @@ class AuthService:
                     headers={"WWW-Authenticate": "Bearer"},
                 )
             
-            # Verify password with bcrypt
-            if not bcrypt.checkpw(user_data.password.encode('utf-8'), user.password_hash.encode('utf-8')):
+            # Verify password — delegate to _verify_password() to keep a single bcrypt path (AWD-M-107)
+            if not self._verify_password(user_data.password, user.password_hash):
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Invalid email or password",
@@ -437,46 +326,21 @@ class AuthService:
             self.db.commit()
             self.db.refresh(user)
             
-            # Generate JWT tokens
-            token_payload = {
-                "sub": str(user.user_id),
-                "email": user.email
-            }
-            token = self.create_access_token(token_payload)
-            refresh_token = self.create_refresh_token(token_payload)
+            # Generate JWT tokens via TokenService (AWD-M-108)
+            token_payload = self.token_service._build_token_payload(user)
+            token = self.token_service.create_access_token(token_payload)
+            refresh_token = self.token_service.create_refresh_token(token_payload)
             
-            # Parse JSON strings back to lists for response
-            try:
-                subjects_list = json.loads(user.subjects) if user.subjects else None
-            except (json.JSONDecodeError, TypeError):
-                subjects_list = None
-            
-            try:
-                grade_levels_list = json.loads(user.grade_levels) if user.grade_levels else None
-            except (json.JSONDecodeError, TypeError):
-                grade_levels_list = None
-            
-            user_response = UserResponse(
-                user_id=user.user_id,
-                email=user.email,
-                full_name=user.full_name,
-                role=user.role.value,
-                country=user.country,
-                region=user.region,
-                school_name=user.school_name,
-                subjects=subjects_list,
-                grade_levels=grade_levels_list,
-                languages_spoken=user.languages_spoken,
-                created_at=user.created_at,
-                last_login=user.last_login
-            )
-            
+            # Delegate UserResponse construction to get_current_user_profile() — single
+            # source of truth for JSON parsing (AWD-M-98)
+            user_response = self.get_current_user_profile(user)
+
             return AuthResponse(
                 access_token=token,
                 token_type="bearer",
                 user=user_response
             ), refresh_token
-            
+
         except HTTPException:
             raise
         except Exception as e:
@@ -530,119 +394,118 @@ class AuthService:
                 detail="An error occurred while retrieving user profile"
             )
     
+    @staticmethod
+    def _hash_reset_token(raw_token: str) -> str:
+        """Return the SHA-256 hex digest of a raw reset token for safe DB storage."""
+        return hashlib.sha256(raw_token.encode('utf-8')).hexdigest()
+
     def request_password_reset(self, email: str) -> Dict[str, str]:
         """
-        Request password reset for a user.
-        
+        Request a password reset for the given email address.
+
+        Generates a cryptographically random token, stores its SHA-256 hash on the
+        user record with a 1-hour expiry, and (when email is wired up) would dispatch
+        a reset link containing the raw token.
+
+        The response is intentionally identical for existing and non-existing emails
+        so that callers cannot enumerate registered accounts (OWASP A07).
+
         Args:
-            email (str): User's email address
-            
+            email: Email address submitted by the user.
+
         Returns:
-            Dict[str, str]: Success message
-            
-        Raises:
-            HTTPException: If request fails
+            Dict with a generic success message (enumeration-safe).
         """
+        _ENUM_SAFE_RESPONSE = {"message": "If the email exists, a password reset link has been sent"}
         try:
-            # Check if user exists
             user = self.db.query(User).filter(User.email == email).first()
             if not user:
-                # Don't reveal if email exists or not for security
-                return {"message": "If the email exists, a password reset link has been sent"}
-            
-            # Generate reset token (in-memory for demo, use DB/Redis in production)
-            reset_token = secrets.token_urlsafe(32)
-            # In production, store this token in database with expiration
-            
-            # Send email with reset link (placeholder)
-            # In production, implement actual email sending
-            
-            return {"message": "If the email exists, a password reset link has been sent"}
-            
+                return _ENUM_SAFE_RESPONSE
+
+            # Generate a URL-safe random token (256 bits of entropy).
+            raw_token = secrets.token_urlsafe(32)
+
+            # Store the SHA-256 hash — the raw token is never persisted.
+            user.password_reset_token = self._hash_reset_token(raw_token)
+            user.password_reset_expires = datetime.now(timezone.utc) + timedelta(hours=1)
+            self.db.commit()
+
+            # TODO(AWD-H-68): send email with reset link once email layer is wired up.
+            # The reset URL should be: {FRONTEND_URL}/reset-password?token={raw_token}
+            # Do NOT log raw_token — it is a credential.
+            logger.info("Password reset token generated for user_id=%s", user.user_id)
+
+            return _ENUM_SAFE_RESPONSE
+
         except Exception as e:
-            logger.error("Unexpected error while requesting password reset: %s", e, exc_info=True)
+            self.db.rollback()
+            logger.error("Unexpected error while requesting password reset", exc_info=True)
             raise HTTPException(
                 status_code=500,
                 detail="An error occurred while requesting password reset"
             )
-    
+
     def reset_password(self, token: str, new_password: str) -> Dict[str, str]:
         """
-        Reset user password using reset token.
-        
+        Reset the password for the user identified by the given reset token.
+
+        Validates:
+        - Token exists in the DB (matched by SHA-256 hash).
+        - Token has not expired.
+        - New password passes the configured length / byte-size constraints
+          (the PasswordReset Pydantic schema already validates these at the HTTP layer,
+           but we re-check here as a defence-in-depth measure).
+
+        On success clears the token columns to prevent replay attacks.
+
         Args:
-            token (str): Password reset token
-            new_password (str): New password
-            
+            token: Raw reset token from the email link.
+            new_password: Plaintext new password (pre-validated by Pydantic schema).
+
         Returns:
-            Dict[str, str]: Success message
-            
+            Dict with a success message.
+
         Raises:
-            HTTPException: If reset fails
+            HTTPException 400: Token is invalid or expired.
+            HTTPException 500: Unexpected DB / hashing failure.
         """
         try:
-            # Validate password length
-            PASSWORD_MIN_LENGTH = self.get_password_min_length()
-            if len(new_password) < PASSWORD_MIN_LENGTH:
-                raise HTTPException(
-                    status_code=400, 
-                    detail=f"Password must be at least {PASSWORD_MIN_LENGTH} characters long"
+            token_hash = self._hash_reset_token(token)
+            now = datetime.now(timezone.utc)
+
+            user = (
+                self.db.query(User)
+                .filter(
+                    User.password_reset_token == token_hash,
+                    User.password_reset_expires > now,
                 )
-            
-            # In production, validate token from database and get user
-            # For demo purposes, we'll just return success
-            # In production: verify token, find user, update password
-            
+                .first()
+            )
+
+            if user is None:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Invalid or expired reset token"
+                )
+
+            # Hash and store the new password, respecting bcrypt's 72-byte cap (AWD-M-72).
+            user.password_hash = self._hash_password(new_password)
+
+            # Clear token fields to prevent replay.
+            user.password_reset_token = None
+            user.password_reset_expires = None
+
+            self.db.commit()
+            logger.info("Password reset completed for user_id=%s", user.user_id)
+
             return {"message": "Password reset successfully"}
-            
+
         except HTTPException:
             raise
         except Exception as e:
-            logger.error("Unexpected error while resetting password: %s", e, exc_info=True)
+            self.db.rollback()
+            logger.error("Unexpected error while resetting password", exc_info=True)
             raise HTTPException(
                 status_code=500,
                 detail="An error occurred while resetting password"
             )
-    async def blacklist_refresh_token(self, refresh_token: str, redis_pool: Any):
-        """
-        Blacklist a refresh token in Redis until it expires using its JTI.
-        """
-        try:
-            # Decode to get expiration and jti
-            payload = jwt.decode(refresh_token, get_jwt_secret_key(), algorithms=[get_jwt_algorithm()])
-            jti = payload.get("jti")
-            exp = payload.get("exp")
-            if not jti or not exp:
-                return
-            
-            # Calculate TTL
-            ttl = int(exp - datetime.now(timezone.utc).timestamp())
-            if ttl <= 0:
-                return
-            
-            # Store in Redis with TTL
-            key = f"blacklist:{jti}"
-            await redis_pool.setex(key, ttl, "true")
-            
-        except Exception as e:
-            # Log error but don't fail logout
-            logger.error("Error blacklisting token: %s", e, exc_info=True)
-
-    async def is_refresh_token_blacklisted(self, refresh_token: str, redis_pool: Any) -> bool:
-        """
-        Check if a refresh token's JTI is blacklisted in Redis.
-        """
-        if not redis_pool:
-            return False
-            
-        try:
-            # Decode to get jti
-            payload = jwt.decode(refresh_token, get_jwt_secret_key(), algorithms=[get_jwt_algorithm()])
-            jti = payload.get("jti")
-            if not jti:
-                return False
-                
-            key = f"blacklist:{jti}"
-            return await redis_pool.exists(key)
-        except Exception:
-            return False

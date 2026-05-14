@@ -28,9 +28,29 @@ from .prompts import COMPREHENSIVE_LESSON_RESOURCE_PROMPT, PARENT_HELPER_PROMPT
 # Longer inputs are truncated to prevent token-stuffing / prompt DoS.
 _MAX_USER_CONTEXT_CHARS: int = 2000
 
+# ---------------------------------------------------------------------------
+# Shared injection patterns (AWD-M-158) — jailbreak variants that must be
+# detected by BOTH the input sanitiser and the output gate.  Maintaining a
+# single source of truth prevents the two lists from drifting apart (the
+# desync risk identified after AWD-M-150 input additions + AWD-M-156 output
+# mirror required manual coordination).  New jailbreak variants should be
+# added here first; gate-specific patterns stay in their own lists below.
+# ---------------------------------------------------------------------------
+_SHARED_INJECTION_PATTERNS: list[str] = [
+    r"forget\s+(all\s+)?(?:previous\s+)?instructions",        # "forget all previous instructions"
+    r"pretend\s+(?:you\s+are|to\s+be)\s+(?:a\s+)?(?:different|unrestricted|uncensored)",  # pretend-unrestricted
+    r"\bdo\s+anything\s+now\b",                                # DAN (Do Anything Now) jailbreak
+    r"(?:enable|activate|turn\s+on|switch\s+to|unlock)\s+developer\s+mode",  # "enable developer mode" jailbreak (AWD-M-157: narrowed to avoid false positives on ICT lesson content)
+    r"you\s+(?:have\s+)?no\s+(?:restrictions|limitations|filters|rules)",  # "you have no restrictions"
+    r"(?:roleplay|role[\s\-]play)\s+as\s+(?:(?:a|an|the)\s+)?(?:unrestricted|uncensored)",  # roleplay-as-unrestricted/uncensored
+]
+
 # Regex patterns that indicate an instruction-injection attempt in user input.
 # Any match causes the offending phrase to be scrubbed and logged.
+# Extended in AWD-M-150 to cover newer jailbreak variants; shared variants
+# are now sourced from _SHARED_INJECTION_PATTERNS (AWD-M-158).
 _INPUT_INJECTION_PATTERNS: list[str] = [
+    # --- Original patterns (AWD-M-12) ---
     r"ignore\s+(all\s+)?(?:previous\s+)?instructions",
     r"disregard\s+(all\s+)?instructions",
     r"override\s+(your\s+)?(?:instructions|training)",
@@ -41,6 +61,8 @@ _INPUT_INJECTION_PATTERNS: list[str] = [
     r"bypass\s+(?:safety|security|filters)",
     r"new\s+(?:role|persona|mode|behaviour|behavior)\s*:",
     r"<\s*/?(?:system|assistant|user)\s*>",   # fake role tags
+    # --- Shared jailbreak patterns (AWD-M-150, deduplicated via AWD-M-158) ---
+    *_SHARED_INJECTION_PATTERNS,
 ]
 
 # ---------------------------------------------------------------------------
@@ -54,8 +76,11 @@ _OUTPUT_PII_PATTERNS: list[tuple[str, str]] = [
     (r"sk-[a-zA-Z0-9]{32,}", "API key"),
 ]
 
-# Phrases that indicate the model was jailbroken / injection succeeded
+# Phrases that indicate the model was jailbroken / injection succeeded.
+# Shared jailbreak variants are sourced from _SHARED_INJECTION_PATTERNS
+# (AWD-M-158) so input and output gates stay in sync automatically.
 _OUTPUT_INJECTION_PATTERNS: list[str] = [
+    # --- Original patterns (AWD-M-12) ---
     r"ignore\s+(all\s+)?previous\s+instructions",
     r"\bsystem\s+prompt\b",
     r"\bjailbreak\b",
@@ -63,6 +88,8 @@ _OUTPUT_INJECTION_PATTERNS: list[str] = [
     r"bypass\s+(safety|security|filters)",
     r"override\s+(your\s+)?(instructions|training)",
     r"you\s+are\s+now\s+(?:a\s+)?(?:different|new|another)",
+    # --- Shared jailbreak patterns (AWD-M-156/AWD-M-158) ---
+    *_SHARED_INJECTION_PATTERNS,
 ]
 
 # Terms clearly inappropriate in child-facing educational content
@@ -562,18 +589,21 @@ class AwadeGPTService:
                 else "General topic content"
             )
 
+            # Pre-format: sanitise each curriculum field individually before
+            # template substitution so PII / key-like strings are stripped
+            # prior to being embedded in the prompt (AWD-M-128 defence-in-depth).
             prompt_params = {
-                "topic": topic,
-                "subject": subject,
-                "grade_level": grade,
-                "country": country,
-                "curriculum": curriculum,
-                "learning_objectives": objectives_str,
-                "contents": contents_str,
+                "topic": self._sanitize_input(topic),
+                "subject": self._sanitize_input(subject),
+                "grade_level": self._sanitize_input(grade),
+                "country": self._sanitize_input(country),
+                "curriculum": self._sanitize_input(curriculum),
+                "learning_objectives": self._sanitize_input(objectives_str),
+                "contents": self._sanitize_input(contents_str),
             }
 
             prompt = PARENT_HELPER_PROMPT.format(**prompt_params)
-            prompt = self._sanitize_input(prompt)
+            prompt = self._sanitize_input(prompt)  # post-format pass retained
 
             prompt_metadata = {
                 "type": "parent_guide",
@@ -610,7 +640,22 @@ class AwadeGPTService:
             return self._generate_mock_parent_guide(topic, subject, grade, country, curriculum), True
 
     def _validate_parent_guide(self, content: str) -> tuple[bool, Optional[str]]:
-        """Validate that the parent guide JSON has the required top-level keys."""
+        """Validate a parent-guide AI output.
+
+        Runs in two passes (mirrors ``validate_output`` for lesson resources):
+
+        1. Content-safety pass on the raw string — PII, prompt-injection markers,
+           harmful content (AWD-M-58, OWASP LLM02). Persisted parent guides are
+           exported as PDF, so any unscrubbed model emission must be rejected
+           before it reaches the database.
+        2. Structural validation — JSON parse + required top-level keys.
+        """
+        # 1. Content-safety pass (raw string — before JSON parsing)
+        is_safe, safety_reason = self._check_content_safety(content)
+        if not is_safe:
+            return False, safety_reason
+
+        # 2. Structural validation
         try:
             data = json.loads(content)
             required = ["topic_header", "simple_explanation", "home_activity", "conversation_starters", "common_mistakes"]

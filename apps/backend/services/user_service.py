@@ -8,7 +8,7 @@ separating concerns from the router layer.
 Author: Tolulope Babajide
 """
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_, or_
 from typing import List, Optional, Dict, Any
 from datetime import datetime
@@ -25,7 +25,7 @@ sys.path.extend([parent_dir, root_dir])
 
 import logging
 
-from apps.backend.models import User, UserRole
+from apps.backend.models import User, UserRole, ChildProfile, ParentGuide
 from apps.backend.schemas.users import UserUpdate, UserResponse, UserProfileResponse
 
 logger = logging.getLogger(__name__)
@@ -152,16 +152,16 @@ class UserService:
         """
         try:
             # Check if user can update this profile
-            if current_user.user_id != user_id and current_user.role != UserRole.ADMIN:
+            if current_user.user_id != user_id and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
                 raise HTTPException(
                     status_code=403,
                     detail="You can only update your own profile"
                 )
-            
+
             user = self.db.query(User).filter(User.user_id == user_id).first()
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
-            
+
             # Update user fields
             update_data = user_data.dict(exclude_unset=True)
             
@@ -203,8 +203,8 @@ class UserService:
             HTTPException: If deletion fails or access denied
         """
         try:
-            # Only admins can delete users
-            if current_user.role != UserRole.ADMIN:
+            # Only admins and super admins can delete users
+            if current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
                 raise HTTPException(
                     status_code=403,
                     detail="Only administrators can delete users"
@@ -250,8 +250,8 @@ class UserService:
             HTTPException: If user not found or access denied
         """
         try:
-            # Users can view their own profile, admins can view any profile
-            if current_user.user_id != user_id and current_user.role != UserRole.ADMIN:
+            # Users can view their own profile, admins and super admins can view any profile
+            if current_user.user_id != user_id and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
                 raise HTTPException(
                     status_code=403,
                     detail="You can only view your own profile"
@@ -288,8 +288,8 @@ class UserService:
             HTTPException: If update fails or access denied
         """
         try:
-            # Users can update their own profile, admins can update any profile
-            if current_user.user_id != user_id and current_user.role != UserRole.ADMIN:
+            # Users can update their own profile, admins and super admins can update any profile
+            if current_user.user_id != user_id and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
                 raise HTTPException(
                     status_code=403,
                     detail="You can only update your own profile"
@@ -325,6 +325,194 @@ class UserService:
                 detail="An error occurred while updating the user profile"
             )
     
+    def delete_account(self, current_user: User) -> Dict[str, str]:
+        """
+        GDPR account deletion — permanently delete the authenticated user's account
+        and all associated data (ChildProfile records and their ParentGuide records).
+
+        The SQLAlchemy ``cascade="all, delete-orphan"`` on ``User.children`` and
+        ``ChildProfile.parent_guides`` ensures that all dependent rows are removed
+        within the same transaction.  LessonPlan records owned by EDUCATOR users are
+        also cascaded via ``User.lesson_plans``.
+
+        Args:
+            current_user (User): The authenticated user requesting deletion.
+
+        Returns:
+            Dict[str, str]: Confirmation message.
+
+        Raises:
+            HTTPException: 500 if deletion fails unexpectedly.
+        """
+        try:
+            user = self.db.query(User).filter(User.user_id == current_user.user_id).first()
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+
+            self.db.delete(user)
+            self.db.commit()
+
+            logger.info("User %s account deleted (GRC-03)", current_user.user_id)
+            return {"message": "Account deleted successfully"}
+
+        except HTTPException:
+            raise
+        except Exception:
+            self.db.rollback()
+            logger.error(
+                "Failed to delete account for user %s",
+                current_user.user_id,
+                exc_info=True,
+            )
+            raise HTTPException(
+                status_code=500,
+                detail="An error occurred while deleting the account",
+            )
+
+    def get_data_export(self, current_user: User) -> Dict[str, Any]:
+        """
+        Produce a full GDPR data export for the authenticated user.
+
+        Returns a JSON-serialisable dict containing the caller's profile data
+        and, for PARENT users, all child profiles with their associated
+        AI-generated guides.  Password hashes and internal image blobs are
+        intentionally excluded.
+
+        Args:
+            current_user (User): The authenticated user requesting the export.
+
+        Returns:
+            Dict[str, Any]: Structured export payload.
+
+        Raises:
+            HTTPException: 500 if export assembly fails.
+        """
+        try:
+            from datetime import timezone as _tz
+
+            def _fmt(dt: Optional[datetime]) -> Optional[str]:
+                """ISO-8601 string with UTC marker, or None."""
+                if dt is None:
+                    return None
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=_tz.utc)
+                return dt.isoformat()
+
+            # --- user profile (no password_hash, no image blobs) ---
+            subjects_list: Optional[List[str]] = None
+            grade_levels_list: Optional[List[str]] = None
+
+            if current_user.subjects:
+                try:
+                    subjects_list = json.loads(current_user.subjects)
+                except (json.JSONDecodeError, TypeError):
+                    subjects_list = None
+
+            if current_user.grade_levels:
+                try:
+                    grade_levels_list = json.loads(current_user.grade_levels)
+                except (json.JSONDecodeError, TypeError):
+                    grade_levels_list = None
+
+            user_data: Dict[str, Any] = {
+                "user_id": current_user.user_id,
+                "email": current_user.email,
+                "full_name": current_user.full_name,
+                "role": current_user.role.value,
+                "country": current_user.country,
+                "region": current_user.region,
+                "school_name": current_user.school_name,
+                "subjects": subjects_list,
+                "grade_levels": grade_levels_list,
+                "languages_spoken": current_user.languages_spoken,
+                "phone": current_user.phone,
+                "bio": current_user.bio,
+                "created_at": _fmt(current_user.created_at),
+                "last_login": _fmt(current_user.last_login),
+            }
+
+            # --- children + guides (PARENT only) ---
+            #
+            # AWD-H-83: Eager-load child_profiles → parent_guides → topic in a
+            # single query (joinedload chain). Previously this produced
+            # 1 + N + N·M queries for a parent with N children and M guides
+            # each; now the entire tree is materialised in one round-trip
+            # and we iterate it in-memory. Mirrors the AWD-M-13 pattern in
+            # ChildrenService.get_child_topics.
+            children_data: List[Dict[str, Any]] = []
+            if current_user.role == UserRole.PARENT:
+                children = (
+                    self.db.query(ChildProfile)
+                    .options(
+                        joinedload(ChildProfile.parent_guides)
+                        .joinedload(ParentGuide.topic)
+                    )
+                    .filter(ChildProfile.parent_id == current_user.user_id)
+                    .order_by(ChildProfile.child_id)
+                    .all()
+                )
+                for child in children:
+                    child_subjects: Optional[List] = None
+                    if child.subjects:
+                        try:
+                            child_subjects = json.loads(child.subjects)
+                        except (json.JSONDecodeError, TypeError):
+                            child_subjects = None
+
+                    # Use the eagerly-loaded collection — no extra query.
+                    # Preserve the prior ordering (by guide_id ascending) so
+                    # the export payload remains stable.
+                    guides_data: List[Dict[str, Any]] = []
+                    for guide in sorted(
+                        child.parent_guides, key=lambda g: g.guide_id
+                    ):
+                        topic_title: Optional[str] = (
+                            guide.topic.topic_title if guide.topic else None
+                        )
+                        guides_data.append({
+                            "guide_id": guide.guide_id,
+                            "topic_id": guide.topic_id,
+                            "topic_title": topic_title,
+                            "ai_generated_content": guide.ai_generated_content,
+                            "user_edited_content": guide.user_edited_content,
+                            "is_bookmarked": bool(guide.is_bookmarked),
+                            "created_at": _fmt(guide.created_at),
+                            "updated_at": _fmt(guide.updated_at),
+                        })
+
+                    children_data.append({
+                        "child_id": child.child_id,
+                        "name": child.name,
+                        "age": child.age,
+                        "school_name": child.school_name,
+                        "country_id": child.country_id,
+                        "curricula_id": child.curricula_id,
+                        "grade_level_id": child.grade_level_id,
+                        "subjects": child_subjects,
+                        "created_at": _fmt(child.created_at),
+                        "updated_at": _fmt(child.updated_at),
+                        "guides": guides_data,
+                    })
+
+            return {
+                "export_date": _fmt(datetime.now()),
+                "user": user_data,
+                "children": children_data,
+            }
+
+        except HTTPException:
+            raise
+        except Exception:
+            logger.error(
+                "Failed to assemble data export for user %s",
+                current_user.user_id,
+                exc_info=True,
+            )
+            raise HTTPException(
+                status_code=500,
+                detail="An error occurred while generating the data export",
+            )
+
     def _create_user_response(self, user: User) -> UserResponse:
         """
         Create a user response from a User model.

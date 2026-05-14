@@ -5,7 +5,9 @@ This module provides endpoints for managing child profiles and parent guides.
 Parents can add children, view their curriculum topics, and access saved guides.
 
 Endpoints:
-- POST   /api/children              — Create a child profile
+- GET    /api/consent/status         — Check COPPA consent status (AWD-GRC-01)
+- POST   /api/consent                — Record COPPA parental consent (AWD-GRC-01)
+- POST   /api/children              — Create a child profile (requires consent)
 - GET    /api/children              — List all children for the current parent
 - GET    /api/children/{child_id}   — Get a single child profile
 - PUT    /api/children/{child_id}   — Update a child profile
@@ -40,21 +42,59 @@ from apps.backend.schemas.children import (
     ChildProfileListResponse,
     ParentGuideResponse,
     ParentGuideListResponse,
+    ParentalConsentResponse,
+    ConsentStatusResponse,
 )
 from apps.backend.services.children_service import ChildrenService
 
 router = APIRouter(prefix="/api", tags=["children"])
 
 
+# ── COPPA Consent (AWD-GRC-01) ────────────────────────────────────────
+
+@router.get("/consent/status", response_model=ConsentStatusResponse)
+def get_consent_status(
+    current_user: User = Depends(require_parent),
+    db: Session = Depends(get_db),
+):
+    """Return whether the authenticated parent has given COPPA consent."""
+    service = ChildrenService(db)
+    return service.get_consent_status(current_user)
+
+
+@router.post("/consent", response_model=ParentalConsentResponse, status_code=201)
+@limiter.limit("10/minute")
+def record_consent(
+    request: Request,
+    current_user: User = Depends(require_parent),
+    db: Session = Depends(get_db),
+):
+    """
+    Record COPPA parental consent for the authenticated parent.
+
+    Idempotent — re-posting updates the consent timestamp.
+    The client must display the full disclosure text before calling this endpoint.
+    Rate-limited to 10 requests/minute to prevent abuse.
+    """
+    ip_address = request.client.host if request.client else None
+    service = ChildrenService(db)
+    return service.record_consent(current_user, ip_address=ip_address)
+
+
 # ── Child Profile CRUD ────────────────────────────────────────────────
 
 @router.post("/children", response_model=ChildProfileResponse, status_code=201)
+@limiter.limit("20/minute")
 def create_child(
+    request: Request,
     data: ChildProfileCreate,
     current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
 ):
-    """Create a new child profile for the current parent."""
+    """Create a new child profile for the current parent.
+
+    Rate-limited to 20 requests/minute per IP to prevent profile-spam abuse.
+    """
     service = ChildrenService(db)
     return service.create_child(current_user, data)
 
@@ -164,18 +204,25 @@ def get_guide(
 
 
 @router.post("/guides/{guide_id}/bookmark", response_model=ParentGuideResponse)
+@limiter.limit("30/minute")
 def toggle_bookmark(
+    request: Request,
     guide_id: int,
     current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
 ):
-    """Toggle the bookmark status of a guide."""
+    """Toggle the bookmark status of a guide.
+
+    Rate-limited to 30 requests/minute per IP to prevent rapid-fire toggle abuse.
+    """
     service = ChildrenService(db)
     return service.toggle_bookmark(current_user, guide_id)
 
 
 @router.get("/guides/{guide_id}/export")
+@limiter.limit("5/minute")
 def export_guide_pdf(
+    request: Request,
     guide_id: int,
     current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
@@ -185,6 +232,8 @@ def export_guide_pdf(
 
     Returns a PDF binary with Content-Disposition: attachment.
     Requires the guide to belong to the current parent (404 otherwise).
+    Rate-limited to 5 requests/minute per IP — WeasyPrint is CPU-intensive
+    and unbounded export requests can degrade the worker process.
     """
     from apps.backend.services.pdf_service import PDFService
 

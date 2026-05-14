@@ -3,11 +3,12 @@ import React, { useState, useEffect } from 'react';
 interface AIGenerationLoadingProps {
   isVisible: boolean;
   onComplete?: () => void;
-  onError?: (error: string) => void;
   generationType: 'lesson-plan' | 'lesson-resource';
   topic?: string;
   subject?: string;
   gradeLevel?: string;
+  currentStep?: string;
+  hasContext?: boolean;
 }
 
 interface GenerationStep {
@@ -15,7 +16,6 @@ interface GenerationStep {
   title: string;
   description: string;
   status: 'pending' | 'in-progress' | 'completed' | 'error';
-  duration?: number; // Estimated duration in seconds
 }
 
 const AIGenerationLoading: React.FC<AIGenerationLoadingProps> = ({
@@ -24,156 +24,129 @@ const AIGenerationLoading: React.FC<AIGenerationLoadingProps> = ({
   generationType,
   topic,
   subject,
-  gradeLevel
+  gradeLevel,
+  currentStep,
+  hasContext = false
 }) => {
-  const [currentStep, setCurrentStep] = useState(0);
   const [steps, setSteps] = useState<GenerationStep[]>([]);
   const [progress, setProgress] = useState(0);
-  const [estimatedTime, setEstimatedTime] = useState(0);
 
-  // Define steps based on generation type
+  // Initialize steps based on generation type and context
   useEffect(() => {
-    if (generationType === 'lesson-plan') {
-      setSteps([
-        {
-          id: 'validate-input',
-          title: 'Validating Input',
-          description: 'Checking topic, subject, and grade level requirements',
-          status: 'pending',
-          duration: 2
-        },
-        {
-          id: 'find-topic',
-          title: 'Finding Topic in Curriculum',
-          description: 'Locating topic in the curriculum database',
-          status: 'pending',
-          duration: 3
-        },
-        {
-          id: 'create-lesson-plan',
-          title: 'Creating Lesson Plan',
-          description: 'Setting up lesson plan structure and metadata',
-          status: 'pending',
-          duration: 2
-        },
-        {
-          id: 'complete',
-          title: 'Generation Complete',
-          description: 'Lesson plan created successfully',
-          status: 'pending',
-          duration: 1
-        }
-      ]);
-    } else {
-      setSteps([
+    if (generationType === 'lesson-resource') {
+      const baseSteps: GenerationStep[] = [
         {
           id: 'validate-lesson-plan',
           title: 'Validating Lesson Plan',
           description: 'Checking lesson plan access and permissions',
-          status: 'pending',
-          duration: 2
-        },
+          status: 'pending'
+        }
+      ];
+
+      // Add context step only if context is provided
+      if (hasContext) {
+        baseSteps.push({
+          id: 'submit-context',
+          title: 'Submitting Context',
+          description: 'Saving additional context to database',
+          status: 'pending'
+        });
+      }
+
+      baseSteps.push(
         {
           id: 'fetch-curriculum-data',
           title: 'Fetching Curriculum Data',
           description: 'Retrieving learning objectives and content areas',
-          status: 'pending',
-          duration: 3
-        },
-        {
-          id: 'prepare-context',
-          title: 'Preparing Context',
-          description: 'Combining stored context with additional input',
-          status: 'pending',
-          duration: 2
+          status: 'pending'
         },
         {
           id: 'ai-generation',
           title: 'AI Content Generation',
           description: 'Generating comprehensive lesson resources using AI',
-          status: 'pending',
-          duration: 15
+          status: 'pending'
         },
         {
           id: 'save-resource',
           title: 'Saving Resource',
           description: 'Storing generated content in database',
-          status: 'pending',
-          duration: 2
+          status: 'pending'
         },
         {
           id: 'complete',
           title: 'Generation Complete',
           description: 'Lesson resource ready for editing',
-          status: 'pending',
-          duration: 1
+          status: 'pending'
+        }
+      );
+
+      setSteps(baseSteps);
+    } else if (generationType === 'lesson-plan') {
+      setSteps([
+        {
+          id: 'fetch-curriculum-data',
+          title: 'Fetching Curriculum Data',
+          description: 'Looking up topic, grade level, and learning objectives',
+          status: 'pending'
+        },
+        {
+          id: 'ai-generation',
+          title: 'AI Content Generation',
+          description: 'Generating lesson plan content using AI',
+          status: 'pending'
+        },
+        {
+          id: 'save-lesson-plan',
+          title: 'Saving Lesson Plan',
+          description: 'Storing generated content in database',
+          status: 'pending'
+        },
+        {
+          id: 'complete',
+          title: 'Generation Complete',
+          description: 'Lesson plan ready for review',
+          status: 'pending'
         }
       ]);
     }
-  }, [generationType]);
+  }, [generationType, hasContext]);
 
-  // Calculate estimated time
+  // Update step status based on currentStep prop
   useEffect(() => {
-    const totalTime = steps.reduce((acc, step) => acc + (step.duration || 0), 0);
-    setEstimatedTime(totalTime);
-  }, [steps]);
+    if (!isVisible || !currentStep) return;
 
-  // Simulate progress through steps
+    // AWD-M-74: compute progress inside the functional updater so `prev` is always
+    // the freshly-committed steps array — reading outer `steps` was a stale closure
+    // that returned [] on the first render, producing NaN/0% progress.
+    setSteps(prev => {
+      const currentIdx = prev.findIndex(s => s.id === currentStep);
+      const pct =
+        prev.length > 0 && currentIdx >= 0
+          ? ((currentIdx + 1) / prev.length) * 100
+          : 0;
+      setProgress(pct); // batched with setSteps by React 18 automatic batching
+
+      return prev.map((step, idx) => {
+        if (step.id === currentStep) return { ...step, status: 'in-progress' };
+        if (idx < currentIdx) return { ...step, status: 'completed' };
+        return step;
+      });
+    });
+  }, [currentStep, isVisible]); // steps.length removed — prev inside updater is always fresh
+
+  // Handle completion
   useEffect(() => {
-    if (!isVisible) {
-      setCurrentStep(0);
-      setProgress(0);
-      setSteps(prev => prev.map(step => ({ ...step, status: 'pending' as const })));
-      return;
+    if (isVisible && currentStep === 'complete') {
+      setSteps(prev => prev.map(step => ({ ...step, status: 'completed' })));
+      setProgress(100);
+      // AWD-M-75: capture timer ID and return cleanup so onComplete is not fired
+      // if the component unmounts before the 1-second delay elapses.
+      const timer = setTimeout(() => {
+        onComplete?.();
+      }, 1000);
+      return () => clearTimeout(timer);
     }
-
-    let stepIndex = 0;
-    let totalElapsed = 0;
-
-    const progressInterval = setInterval(() => {
-      if (stepIndex < steps.length) {
-        // Update current step to in-progress
-        setSteps(prev => prev.map((step, index) => ({
-          ...step,
-          status: index === stepIndex ? 'in-progress' : 
-                  index < stepIndex ? 'completed' : 'pending'
-        })));
-
-        // Calculate progress percentage
-        const stepProgress = Math.min(100, (totalElapsed / estimatedTime) * 100);
-        setProgress(stepProgress);
-
-        // Move to next step after duration
-        setTimeout(() => {
-          setSteps(prev => prev.map((step, index) => ({
-            ...step,
-            status: index <= stepIndex ? 'completed' : 'pending'
-          })));
-          stepIndex++;
-          setCurrentStep(stepIndex);
-        }, (steps[stepIndex]?.duration || 1) * 1000);
-
-        totalElapsed += steps[stepIndex]?.duration || 1;
-      } else {
-        clearInterval(progressInterval);
-        setProgress(100);
-        setTimeout(() => {
-          onComplete?.();
-        }, 1000);
-      }
-    }, 1000);
-
-    return () => clearInterval(progressInterval);
-  }, [isVisible, steps, estimatedTime, onComplete]);
-
-  if (!isVisible) return null;
-
-  const formatTime = (seconds: number) => {
-    if (seconds < 60) return `${seconds}s`;
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}m ${remainingSeconds}s`;
-  };
+  }, [currentStep, isVisible, onComplete]);
 
   const getStepIcon = (status: GenerationStep['status']) => {
     switch (status) {
@@ -208,6 +181,8 @@ const AIGenerationLoading: React.FC<AIGenerationLoadingProps> = ({
     }
   };
 
+  if (!isVisible) return null;
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
@@ -237,14 +212,14 @@ const AIGenerationLoading: React.FC<AIGenerationLoadingProps> = ({
             <span>{Math.round(progress)}%</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
+            <div
               className="bg-orange-500 h-2 rounded-full transition-all duration-500 ease-out"
               style={{ width: `${progress}%` }}
             ></div>
           </div>
           <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>Estimated time: {formatTime(estimatedTime)}</span>
-            <span>Step {currentStep + 1} of {steps.length}</span>
+            <span>Step {steps.filter(s => s.status === 'completed' || s.status === 'in-progress').length} of {steps.length}</span>
+            <span>AI Generation in Progress</span>
           </div>
         </div>
 

@@ -3,25 +3,11 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import Sidebar from '../components/Sidebar';
 import MobileNavigation from '../components/MobileNavigation';
-import AIGenerationLoadingActual from '../components/AIGenerationLoadingActual';
+import AIGenerationLoading from '../components/AIGenerationLoading';
 
 import apiService from '../services/api';
-import { sanitizeInput } from '../utils/sanitizer';
-
-interface LessonPlanData {
-  lesson_id: number;
-  title: string;
-  subject: string;
-  grade_level: string;
-  topic: string;
-  author_id: number;
-  duration_minutes: number;
-  created_at: string;
-  updated_at: string;
-  status: string;
-  curriculum_learning_objectives: string[];
-  curriculum_contents: string[];
-}
+import { useGenerateLessonResource } from '../hooks/useGenerateLessonResource';
+import type { LessonPlanData } from '../types/lesson-plans';
 
 const LessonPlanDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -31,9 +17,14 @@ const LessonPlanDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   const [context, setContext] = useState('');
-  const [isGeneratingLessonResource, setIsGeneratingLessonResource] = useState(false);
-  const [contextFeedback, setContextFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
-  const [currentGenerationStep, setCurrentGenerationStep] = useState<string>('');
+
+  const {
+    isGeneratingLessonResource,
+    contextFeedback,
+    currentGenerationStep,
+    handleGenerateLessonResource,
+    resetGenerating,
+  } = useGenerateLessonResource(lessonPlan, context, () => setContext(''));
 
   useEffect(() => {
     const fetchLessonPlan = async () => {
@@ -55,14 +46,17 @@ const LessonPlanDetailPage: React.FC = () => {
         } else {
           throw new Error('No data received from lesson plan request');
         }
-      } catch (err: any) {
-        console.error('Error loading lesson plan:', err);
-        if (err.message?.includes('403')) {
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.error('Error loading lesson plan:', err);
+        }
+        const message = err instanceof Error ? err.message : String(err);
+        if (message.includes('403')) {
           setError('You do not have permission to access this lesson plan. It may belong to another user.');
-        } else if (err.message?.includes('404')) {
+        } else if (message.includes('404')) {
           setError('Lesson plan not found. It may have been deleted or moved.');
         } else {
-          setError(err.message || 'Failed to load lesson plan. Please try again.');
+          setError(message || 'Failed to load lesson plan. Please try again.');
         }
       } finally {
         setLoading(false);
@@ -71,106 +65,6 @@ const LessonPlanDetailPage: React.FC = () => {
 
     fetchLessonPlan();
   }, [id, location.state]);
-
-  // ... existing code ...
-
-  const handleGenerateLessonResource = async () => {
-    if (!lessonPlan) return;
-
-    setIsGeneratingLessonResource(true);
-    setContextFeedback(null);
-    setCurrentGenerationStep('validate-lesson-plan');
-
-    try {
-      // Sanitize context input
-      const sanitizedContext = sanitizeInput(context);
-
-      // Step 1: Submit context if provided
-      if (sanitizedContext) {
-        setCurrentGenerationStep('submit-context');
-        const contextResponse = await apiService.submitContext(
-          lessonPlan.lesson_id.toString(),
-          sanitizedContext
-        );
-
-        if (contextResponse.error) {
-          throw new Error(contextResponse.error);
-        }
-      }
-
-      // Step 2: Fetch curriculum data (simulated)
-      setCurrentGenerationStep('fetch-curriculum-data');
-      await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause to show step
-
-      // Step 3: Generate lesson resource (starts async process)
-      setCurrentGenerationStep('ai-generation');
-      const response = await apiService.generateLessonResource(
-        lessonPlan.lesson_id.toString(),
-        sanitizedContext || 'Generate a comprehensive lesson resource for this lesson plan'
-      );
-
-      if (response.error || !response.data) {
-        throw new Error(response.error || 'Failed to initiate resource generation');
-      }
-
-      let resource = response.data;
-      const resourceId = resource.lesson_resources_id;
-
-      // Step 4: Poll for completion if status is processing
-      if (resource.status === 'processing') {
-        setCurrentGenerationStep('ai-generation'); // Keep showing generation step
-
-        let attempts = 0;
-        const maxAttempts = 60; // 2 minutes timeout (2s * 60)
-
-        while (resource.status === 'processing' && attempts < maxAttempts) {
-          await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s
-          attempts++;
-
-          const pollResponse = await apiService.getLessonResource(resourceId.toString());
-          if (pollResponse.error || !pollResponse.data) {
-            console.warn("Polling failed temporarily", pollResponse.error);
-            continue; // Retry polling
-          }
-
-          resource = pollResponse.data;
-        }
-
-        if (resource.status === 'processing') {
-          throw new Error('Generation timed out. Please check back later.');
-        }
-
-        if (resource.status === 'failed') {
-          throw new Error('AI generation failed. Please try again.');
-        }
-      }
-
-      // Step 5: Complete
-      setCurrentGenerationStep('complete');
-      await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause before redirect
-
-      // Show success feedback
-      setContextFeedback({
-        type: 'success',
-        message: 'Lesson resource generated successfully! You can now view and edit the generated content.'
-      });
-      setContext('');
-
-      // Clear feedback after 5 seconds
-      setTimeout(() => setContextFeedback(null), 5000);
-
-      // Navigate to the edit page after successful generation
-      navigate(`/lesson-plans/${lessonPlan.lesson_id}/resources/edit`);
-    } catch (err: any) {
-      setContextFeedback({
-        type: 'error',
-        message: err.message || 'Failed to generate lesson resource. Please try again.'
-      });
-    } finally {
-      setIsGeneratingLessonResource(false);
-      setCurrentGenerationStep('');
-    }
-  };
 
   if (loading) {
     return (
@@ -279,9 +173,6 @@ const LessonPlanDetailPage: React.FC = () => {
                 rows={3}
               />
 
-              {/* Loading State and Feedback */}
-
-
               {/* Success/Error Feedback */}
               {contextFeedback && (
                 <div className={`mt-3 p-3 rounded-lg border ${contextFeedback.type === 'success'
@@ -335,16 +226,9 @@ const LessonPlanDetailPage: React.FC = () => {
       <MobileNavigation />
 
       {/* AI Generation Loading Modal */}
-      <AIGenerationLoadingActual
+      <AIGenerationLoading
         isVisible={isGeneratingLessonResource}
-        onComplete={() => setIsGeneratingLessonResource(false)}
-        onError={(error) => {
-          setContextFeedback({
-            type: 'error',
-            message: error
-          });
-          setIsGeneratingLessonResource(false);
-        }}
+        onComplete={resetGenerating}
         generationType="lesson-resource"
         topic={lessonPlan?.topic}
         subject={lessonPlan?.subject}
@@ -356,4 +240,4 @@ const LessonPlanDetailPage: React.FC = () => {
   );
 };
 
-export default LessonPlanDetailPage; 
+export default LessonPlanDetailPage;

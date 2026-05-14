@@ -1,31 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import { FiCheckCircle, FiXCircle, FiEye } from 'react-icons/fi';
+import ContentPreviewModal from '../../components/ContentPreviewModal';
+import ErrorBanner from '../../components/ErrorBanner';
 
 const ModerationList: React.FC = () => {
     const [resources, setResources] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [loadError, setLoadError] = useState<string | null>(null);
+    const [actionError, setActionError] = useState<string | null>(null);
+    const [previewContent, setPreviewContent] = useState<string | null>(null);
 
     useEffect(() => {
         fetchResources();
     }, []);
 
     const fetchResources = async () => {
+        setLoadError(null);
         try {
             const response = await fetch(`${(import.meta as any).env.VITE_API_URL}/api/admin/resources`, {
                 headers: {
                     /* access_token cookie sent automatically */
                 }
             });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
             setResources(data);
         } catch (error) {
-            console.error('Failed to fetch resources:', error);
+            if (import.meta.env.DEV) console.error('Failed to fetch resources:', error);
+            setLoadError(error instanceof Error ? error.message : 'Failed to load resources. Please try again.');
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleModerate = async (resourceId: number, status: string) => {
+        setActionError(null);
         try {
             const response = await fetch(`${(import.meta as any).env.VITE_API_URL}/api/admin/resources/${resourceId}`, {
                 method: 'PATCH',
@@ -35,9 +44,11 @@ const ModerationList: React.FC = () => {
                 },
                 body: JSON.stringify({ status, notes: `Action taken by Admin at ${new Date().toLocaleString()}` })
             });
-            if (response.ok) fetchResources();
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            fetchResources();
         } catch (error) {
-            console.error('Failed to moderate resource:', error);
+            if (import.meta.env.DEV) console.error('Failed to moderate resource:', error);
+            setActionError(error instanceof Error ? error.message : 'Failed to moderate resource. Please try again.');
         }
     };
 
@@ -49,6 +60,21 @@ const ModerationList: React.FC = () => {
                 <h2 className="text-2xl font-bold text-gray-900">Resource Moderation</h2>
                 <p className="text-gray-500">Review flagged or reported content.</p>
             </div>
+
+            {loadError && (
+                <ErrorBanner
+                    message={loadError}
+                    onDismiss={() => setLoadError(null)}
+                    dismissLabel="Dismiss load error"
+                />
+            )}
+
+            {actionError && (
+                <ErrorBanner
+                    message={actionError}
+                    onDismiss={() => setActionError(null)}
+                />
+            )}
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {resources.map((res) => (
@@ -82,7 +108,7 @@ const ModerationList: React.FC = () => {
                             </button>
                             <button
                                 className="text-indigo-600 hover:text-indigo-700 p-1 flex items-center text-xs font-bold"
-                                onClick={() => alert(res.ai_generated_content)}
+                                onClick={() => setPreviewContent(res.ai_generated_content ?? '')}
                             >
                                 <FiEye className="mr-1" /> View
                             </button>
@@ -95,6 +121,13 @@ const ModerationList: React.FC = () => {
                     </div>
                 )}
             </div>
+
+            {previewContent !== null && (
+                <ContentPreviewModal
+                    content={previewContent}
+                    onClose={() => setPreviewContent(null)}
+                />
+            )}
         </div>
     );
 };
