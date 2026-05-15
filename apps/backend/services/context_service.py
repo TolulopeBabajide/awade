@@ -198,7 +198,7 @@ class ContextService:
                 )
             
             # Update context fields
-            update_data = context_data.dict(exclude_unset=True)
+            update_data = context_data.model_dump(exclude_unset=True)
             for field, value in update_data.items():
                 setattr(context, field, value)
             

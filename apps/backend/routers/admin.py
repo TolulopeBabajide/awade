@@ -201,7 +201,7 @@ async def create_template(
     if template_data.is_active:
         db.query(LessonTemplate).update({LessonTemplate.is_active: 0})
         
-    db_template = LessonTemplate(**template_data.dict())
+    db_template = LessonTemplate(**template_data.model_dump())
     db.add(db_template)
     db.commit()
     db.refresh(db_template)
@@ -238,7 +238,7 @@ async def update_template(
     if template_data.is_active and not db_template.is_active:
         db.query(LessonTemplate).filter(LessonTemplate.template_id != template_id).update({LessonTemplate.is_active: 0})
         
-    for key, value in template_data.dict(exclude_unset=True).items():
+    for key, value in template_data.model_dump(exclude_unset=True).items():
         setattr(db_template, key, value)
         
     db.commit()

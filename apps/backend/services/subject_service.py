@@ -123,7 +123,7 @@ class SubjectService:
                 raise HTTPException(status_code=400, detail="Subject already exists")
             
             # Create new subject
-            subject = Subject(**subject_data.dict())
+            subject = Subject(**subject_data.model_dump())
             self.db.add(subject)
             self.db.commit()
             self.db.refresh(subject)
@@ -168,7 +168,7 @@ class SubjectService:
                     raise HTTPException(status_code=400, detail="Subject name already exists")
             
             # Update fields
-            update_data = subject_data.dict(exclude_unset=True)
+            update_data = subject_data.model_dump(exclude_unset=True)
             for field, value in update_data.items():
                 setattr(subject, field, value)
             

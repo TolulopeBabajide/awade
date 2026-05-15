@@ -41,7 +41,7 @@ class CurriculumService:
         Returns:
             Curriculum: The created curriculum ORM object.
         """
-        curriculum = Curriculum(**curriculum_data.dict())
+        curriculum = Curriculum(**curriculum_data.model_dump())
         self.db.add(curriculum)
         self.db.commit()
         self.db.refresh(curriculum)
@@ -94,7 +94,7 @@ class CurriculumService:
         if not curriculum:
             return None
         
-        update_data = curriculum_data.dict(exclude_unset=True)
+        update_data = curriculum_data.model_dump(exclude_unset=True)
         for field, value in update_data.items():
             setattr(curriculum, field, value)
         
@@ -132,7 +132,7 @@ class CurriculumService:
         Returns:
             Topic: The created topic ORM object.
         """
-        topic = Topic(**topic_data.dict())
+        topic = Topic(**topic_data.model_dump())
         self.db.add(topic)
         self.db.commit()
         self.db.refresh(topic)
@@ -185,7 +185,7 @@ class CurriculumService:
         if not topic:
             return None
         
-        update_data = topic_data.dict(exclude_unset=True)
+        update_data = topic_data.model_dump(exclude_unset=True)
         for field, value in update_data.items():
             setattr(topic, field, value)
         
@@ -207,7 +207,7 @@ class CurriculumService:
     # Learning Objective operations
     def create_learning_objective(self, objective_data: LearningObjectiveCreate) -> LearningObjective:
         """Create a new learning objective."""
-        objective = LearningObjective(**objective_data.dict())
+        objective = LearningObjective(**objective_data.model_dump())
         self.db.add(objective)
         self.db.commit()
         self.db.refresh(objective)
@@ -241,7 +241,7 @@ class CurriculumService:
     # Content operations
     def create_content(self, content_data: ContentCreate) -> TopicContent:
         """Create a new content area."""
-        content = TopicContent(**content_data.dict())
+        content = TopicContent(**content_data.model_dump())
         self.db.add(content)
         self.db.commit()
         self.db.refresh(content)
