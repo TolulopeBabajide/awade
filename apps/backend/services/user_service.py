@@ -163,8 +163,8 @@ class UserService:
                 raise HTTPException(status_code=404, detail="User not found")
 
             # Update user fields
-            update_data = user_data.dict(exclude_unset=True)
-            
+            update_data = user_data.model_dump(exclude_unset=True)
+
             # Handle JSON fields
             if 'subjects' in update_data and update_data['subjects'] is not None:
                 update_data['subjects'] = json.dumps(update_data['subjects'])
@@ -300,8 +300,8 @@ class UserService:
                 raise HTTPException(status_code=404, detail="User not found")
             
             # Update profile fields
-            update_data = profile_data.dict(exclude_unset=True)
-            
+            update_data = profile_data.model_dump(exclude_unset=True)
+
             # Handle JSON fields
             if 'subjects' in update_data and update_data['subjects'] is not None:
                 update_data['subjects'] = json.dumps(update_data['subjects'])

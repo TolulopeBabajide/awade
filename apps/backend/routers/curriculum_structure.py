@@ -103,7 +103,7 @@ def create_curriculum_structure(
     if existing_structure:
         raise HTTPException(status_code=400, detail="Curriculum structure already exists")
     
-    db_structure = CurriculumStructure(**structure.dict())
+    db_structure = CurriculumStructure(**structure.model_dump())
     db.add(db_structure)
     db.commit()
     db.refresh(db_structure)
