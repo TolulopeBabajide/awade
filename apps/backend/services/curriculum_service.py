@@ -354,6 +354,9 @@ class CurriculumService:
         2+2N to at most 4 (structures + topics + 2 counts) regardless of how
         many topics the curriculum has.
 
+        AWD-M-170: wrapped in try/except so DB errors are logged and surfaced
+        as HTTP 500 rather than propagating unlogged to the router.
+
         Args:
             curriculum_id: Primary key of the Curriculum record (curricula_id).
 
@@ -361,54 +364,65 @@ class CurriculumService:
             Dict with total_topics, total_learning_objectives, total_contents,
             or an empty dict if the curriculum does not exist.
         """
-        curriculum = self.get_curriculum(curriculum_id)
-        if not curriculum:
-            return {}
+        try:
+            curriculum = self.get_curriculum(curriculum_id)
+            if not curriculum:
+                return {}
 
-        # Collect all CurriculumStructure IDs that belong to this curriculum,
-        # then fetch every Topic that references one of those structures.
-        # (get_topics() filters by a single curriculum_structure_id, so we query
-        # topics directly here to cover all structures under the curriculum.)
-        structure_ids = [
-            cs.curriculum_structure_id
-            for cs in self.db.query(CurriculumStructure).filter(
-                CurriculumStructure.curricula_id == curriculum_id
-            ).all()
-        ]
-        topics = (
-            self.db.query(Topic)
-            .filter(Topic.curriculum_structure_id.in_(structure_ids))
-            .all()
-        ) if structure_ids else []
+            # Collect all CurriculumStructure IDs that belong to this curriculum,
+            # then fetch every Topic that references one of those structures.
+            # (get_topics() filters by a single curriculum_structure_id, so we query
+            # topics directly here to cover all structures under the curriculum.)
+            structure_ids = [
+                cs.curriculum_structure_id
+                for cs in self.db.query(CurriculumStructure).filter(
+                    CurriculumStructure.curricula_id == curriculum_id
+                ).all()
+            ]
+            topics = (
+                self.db.query(Topic)
+                .filter(Topic.curriculum_structure_id.in_(structure_ids))
+                .all()
+            ) if structure_ids else []
 
-        total_topics = len(topics)
+            total_topics = len(topics)
 
-        if not topics:
+            if not topics:
+                return {
+                    "curriculum_id": curriculum_id,
+                    "total_topics": 0,
+                    "total_learning_objectives": 0,
+                    "total_contents": 0,
+                }
+
+            # AWD-M-165: two aggregated COUNT queries replace N per-topic SELECTs
+            topic_ids = [t.topic_id for t in topics]
+
+            total_objectives = (
+                self.db.query(func.count(LearningObjective.learning_objective_id))
+                .filter(LearningObjective.topic_id.in_(topic_ids))
+                .scalar()
+            ) or 0
+
+            total_contents = (
+                self.db.query(func.count(TopicContent.topic_contents_id))
+                .filter(TopicContent.topic_id.in_(topic_ids))
+                .scalar()
+            ) or 0
+
             return {
                 "curriculum_id": curriculum_id,
-                "total_topics": 0,
-                "total_learning_objectives": 0,
-                "total_contents": 0,
+                "total_topics": total_topics,
+                "total_learning_objectives": total_objectives,
+                "total_contents": total_contents,
             }
-
-        # AWD-M-165: two aggregated COUNT queries replace N per-topic SELECTs
-        topic_ids = [t.topic_id for t in topics]
-
-        total_objectives = (
-            self.db.query(func.count(LearningObjective.learning_objective_id))
-            .filter(LearningObjective.topic_id.in_(topic_ids))
-            .scalar()
-        ) or 0
-
-        total_contents = (
-            self.db.query(func.count(TopicContent.topic_contents_id))
-            .filter(TopicContent.topic_id.in_(topic_ids))
-            .scalar()
-        ) or 0
-
-        return {
-            "curriculum_id": curriculum_id,
-            "total_topics": total_topics,
-            "total_learning_objectives": total_objectives,
-            "total_contents": total_contents,
-        }
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(
+                "Error getting statistics for curriculum %s: %s",
+                curriculum_id,
+                e,
+                exc_info=True,
+            )
+            raise HTTPException(status_code=500, detail="Failed to get curriculum statistics")
