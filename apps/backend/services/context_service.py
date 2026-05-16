@@ -299,6 +299,7 @@ class ContextService:
             return [self._create_context_response(context) for context in contexts]
 
         except Exception as e:
+            logger.error("Unexpected error retrieving contexts for user %s: %s", user_id, e, exc_info=True)
             raise HTTPException(
                 status_code=500,
                 detail="An error occurred while retrieving contexts"
