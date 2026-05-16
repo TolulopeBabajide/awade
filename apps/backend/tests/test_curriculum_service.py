@@ -1,5 +1,5 @@
 """
-Unit tests for CurriculumService — AWD-M-163, AWD-M-164, AWD-M-165, AWD-M-166, AWD-M-167.
+Unit tests for CurriculumService — AWD-M-163, AWD-M-164, AWD-M-165, AWD-M-166, AWD-M-167, AWD-H-88.
 
 Covers:
 - get_curriculum_statistics: happy path (one structure, topics, objectives, contents)
@@ -19,6 +19,10 @@ Covers:
 - search_topics: empty string returns [] without hitting DB (AWD-M-166)
 - search_topics: whitespace-only string returns [] without hitting DB (AWD-M-166)
 - search_topics: non-empty term returns matching topics (AWD-M-166)
+- CurriculumCRUD (AWD-H-88): create/update/delete raise HTTP 500 on DB error
+- TopicCRUD (AWD-H-88): create/update/delete raise HTTP 500 on DB error
+- LearningObjectiveCRUD (AWD-H-88): create/update/delete raise HTTP 500 on DB error
+- ContentCRUD (AWD-H-88): create/update/delete raise HTTP 500 on DB error
 """
 
 import pytest
@@ -476,3 +480,195 @@ class TestGetCurriculumStatisticsM170:
             service.get_curriculum_statistics(42)
         assert exc_info.value.status_code == 500
         assert "statistics" in exc_info.value.detail.lower()
+
+
+# ---------------------------------------------------------------------------
+# AWD-H-88: CRUD methods wrap DB errors as HTTP 500
+# ---------------------------------------------------------------------------
+
+class TestCurriculumCRUDH88:
+    """AWD-H-88: create/update/delete curriculum raise HTTP 500 on DB error."""
+
+    def _mock_db(self):
+        from unittest.mock import MagicMock
+        return MagicMock()
+
+    def test_create_curriculum_db_error_raises_500(self):
+        from unittest.mock import MagicMock
+        from fastapi import HTTPException
+        from apps.backend.schemas.curriculum import CurriculumCreate
+
+        mock_db = self._mock_db()
+        mock_db.add.side_effect = Exception("DB connection lost")
+        service = CurriculumService(mock_db)
+        data = CurriculumCreate(curricula_title="Test", country_id=1)
+        with pytest.raises(HTTPException) as exc_info:
+            service.create_curriculum(data)
+        assert exc_info.value.status_code == 500
+        assert "curriculum" in exc_info.value.detail.lower()
+
+    def test_update_curriculum_db_error_raises_500(self):
+        from unittest.mock import MagicMock
+        from fastapi import HTTPException
+        from apps.backend.schemas.curriculum import CurriculumCreate
+
+        mock_db = self._mock_db()
+        mock_db.query.side_effect = Exception("DB connection lost")
+        service = CurriculumService(mock_db)
+        data = CurriculumCreate(curricula_title="Updated", country_id=1)
+        with pytest.raises(HTTPException) as exc_info:
+            service.update_curriculum(curricula_id=1, curriculum_data=data)
+        assert exc_info.value.status_code == 500
+        assert "curriculum" in exc_info.value.detail.lower()
+
+    def test_delete_curriculum_db_error_raises_500(self):
+        from unittest.mock import MagicMock
+        from fastapi import HTTPException
+
+        mock_db = self._mock_db()
+        mock_db.query.side_effect = Exception("DB connection lost")
+        service = CurriculumService(mock_db)
+        with pytest.raises(HTTPException) as exc_info:
+            service.delete_curriculum(curricula_id=1)
+        assert exc_info.value.status_code == 500
+        assert "curriculum" in exc_info.value.detail.lower()
+
+
+class TestTopicCRUDH88:
+    """AWD-H-88: create/update/delete topic raise HTTP 500 on DB error."""
+
+    def _mock_db(self):
+        from unittest.mock import MagicMock
+        return MagicMock()
+
+    def test_create_topic_db_error_raises_500(self):
+        from unittest.mock import MagicMock
+        from fastapi import HTTPException
+        from apps.backend.schemas.curriculum import TopicCreate
+
+        mock_db = self._mock_db()
+        mock_db.add.side_effect = Exception("DB connection lost")
+        service = CurriculumService(mock_db)
+        data = TopicCreate(topic_title="Algebra", curriculum_structure_id=1)
+        with pytest.raises(HTTPException) as exc_info:
+            service.create_topic(data)
+        assert exc_info.value.status_code == 500
+        assert "topic" in exc_info.value.detail.lower()
+
+    def test_update_topic_db_error_raises_500(self):
+        from unittest.mock import MagicMock
+        from fastapi import HTTPException
+        from apps.backend.schemas.curriculum import TopicCreate
+
+        mock_db = self._mock_db()
+        mock_db.query.side_effect = Exception("DB connection lost")
+        service = CurriculumService(mock_db)
+        data = TopicCreate(topic_title="Updated Algebra", curriculum_structure_id=1)
+        with pytest.raises(HTTPException) as exc_info:
+            service.update_topic(topic_id=1, topic_data=data)
+        assert exc_info.value.status_code == 500
+        assert "topic" in exc_info.value.detail.lower()
+
+    def test_delete_topic_db_error_raises_500(self):
+        from unittest.mock import MagicMock
+        from fastapi import HTTPException
+
+        mock_db = self._mock_db()
+        mock_db.query.side_effect = Exception("DB connection lost")
+        service = CurriculumService(mock_db)
+        with pytest.raises(HTTPException) as exc_info:
+            service.delete_topic(topic_id=1)
+        assert exc_info.value.status_code == 500
+        assert "topic" in exc_info.value.detail.lower()
+
+
+class TestLearningObjectiveCRUDH88:
+    """AWD-H-88: create/update/delete learning objective raise HTTP 500 on DB error."""
+
+    def _mock_db(self):
+        from unittest.mock import MagicMock
+        return MagicMock()
+
+    def test_create_learning_objective_db_error_raises_500(self):
+        from unittest.mock import MagicMock
+        from fastapi import HTTPException
+        from apps.backend.schemas.curriculum import LearningObjectiveCreate
+
+        mock_db = self._mock_db()
+        mock_db.add.side_effect = Exception("DB connection lost")
+        service = CurriculumService(mock_db)
+        data = LearningObjectiveCreate(topic_id=1, objective="Understand variables")
+        with pytest.raises(HTTPException) as exc_info:
+            service.create_learning_objective(data)
+        assert exc_info.value.status_code == 500
+        assert "learning objective" in exc_info.value.detail.lower()
+
+    def test_update_learning_objective_db_error_raises_500(self):
+        from unittest.mock import MagicMock
+        from fastapi import HTTPException
+
+        mock_db = self._mock_db()
+        mock_db.query.side_effect = Exception("DB connection lost")
+        service = CurriculumService(mock_db)
+        with pytest.raises(HTTPException) as exc_info:
+            service.update_learning_objective(objective_id=1, objective_data="New text")
+        assert exc_info.value.status_code == 500
+        assert "learning objective" in exc_info.value.detail.lower()
+
+    def test_delete_learning_objective_db_error_raises_500(self):
+        from unittest.mock import MagicMock
+        from fastapi import HTTPException
+
+        mock_db = self._mock_db()
+        mock_db.query.side_effect = Exception("DB connection lost")
+        service = CurriculumService(mock_db)
+        with pytest.raises(HTTPException) as exc_info:
+            service.delete_learning_objective(objective_id=1)
+        assert exc_info.value.status_code == 500
+        assert "learning objective" in exc_info.value.detail.lower()
+
+
+class TestContentCRUDH88:
+    """AWD-H-88: create/update/delete content raise HTTP 500 on DB error."""
+
+    def _mock_db(self):
+        from unittest.mock import MagicMock
+        return MagicMock()
+
+    def test_create_content_db_error_raises_500(self):
+        from unittest.mock import MagicMock
+        from fastapi import HTTPException
+        from apps.backend.schemas.curriculum import ContentCreate
+
+        mock_db = self._mock_db()
+        mock_db.add.side_effect = Exception("DB connection lost")
+        service = CurriculumService(mock_db)
+        data = ContentCreate(topic_id=1, content_area="Introduction to algebra")
+        with pytest.raises(HTTPException) as exc_info:
+            service.create_content(data)
+        assert exc_info.value.status_code == 500
+        assert "content" in exc_info.value.detail.lower()
+
+    def test_update_content_db_error_raises_500(self):
+        from unittest.mock import MagicMock
+        from fastapi import HTTPException
+
+        mock_db = self._mock_db()
+        mock_db.query.side_effect = Exception("DB connection lost")
+        service = CurriculumService(mock_db)
+        with pytest.raises(HTTPException) as exc_info:
+            service.update_content(content_id=1, content_data="New content")
+        assert exc_info.value.status_code == 500
+        assert "content" in exc_info.value.detail.lower()
+
+    def test_delete_content_db_error_raises_500(self):
+        from unittest.mock import MagicMock
+        from fastapi import HTTPException
+
+        mock_db = self._mock_db()
+        mock_db.query.side_effect = Exception("DB connection lost")
+        service = CurriculumService(mock_db)
+        with pytest.raises(HTTPException) as exc_info:
+            service.delete_content(content_id=1)
+        assert exc_info.value.status_code == 500
+        assert "content" in exc_info.value.detail.lower()
