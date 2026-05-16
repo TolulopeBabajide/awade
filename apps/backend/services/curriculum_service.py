@@ -289,20 +289,47 @@ class CurriculumService:
         ).all()
     
     def get_curriculum_statistics(self, curriculum_id: int) -> Dict[str, Any]:
-        """Get statistics for a curriculum."""
+        """Get statistics for a curriculum.
+
+        Counts all topics, learning objectives, and content areas across every
+        CurriculumStructure that belongs to the given curriculum.
+
+        Args:
+            curriculum_id: Primary key of the Curriculum record (curricula_id).
+
+        Returns:
+            Dict with total_topics, total_learning_objectives, total_contents,
+            or an empty dict if the curriculum does not exist.
+        """
         curriculum = self.get_curriculum(curriculum_id)
         if not curriculum:
             return {}
-        
-        topics = self.get_topics(curriculum_id=curriculum_id)
+
+        # Collect all CurriculumStructure IDs that belong to this curriculum,
+        # then fetch every Topic that references one of those structures.
+        # (get_topics() filters by a single curriculum_structure_id, so we query
+        # topics directly here to cover all structures under the curriculum.)
+        structure_ids = [
+            cs.curriculum_structure_id
+            for cs in self.db.query(CurriculumStructure).filter(
+                CurriculumStructure.curricula_id == curriculum_id
+            ).all()
+        ]
+        topics = (
+            self.db.query(Topic)
+            .filter(Topic.curriculum_structure_id.in_(structure_ids))
+            .all()
+        ) if structure_ids else []
+
         total_topics = len(topics)
-        
+
         total_objectives = 0
         total_contents = 0
 
         for topic in topics:
-            total_objectives += len(self.get_learning_objectives(topic.id))
-            total_contents += len(self.get_contents(topic.id))
+            # Topic primary key is topic_id, not id
+            total_objectives += len(self.get_learning_objectives(topic.topic_id))
+            total_contents += len(self.get_contents(topic.topic_id))
 
         return {
             "curriculum_id": curriculum_id,
