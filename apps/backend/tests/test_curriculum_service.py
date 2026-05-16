@@ -459,3 +459,20 @@ class TestGetCurriculumStatisticsM165:
         assert result["total_topics"] == 0
         assert result["total_learning_objectives"] == 0
         assert result["total_contents"] == 0
+
+
+class TestGetCurriculumStatisticsM170:
+    """AWD-M-170: get_curriculum_statistics wraps DB errors as HTTP 500."""
+
+    def test_db_error_raises_http_500(self):
+        """SQLAlchemy error is caught, logged, and re-raised as HTTP 500."""
+        from unittest.mock import MagicMock
+        from fastapi import HTTPException
+
+        mock_db = MagicMock()
+        mock_db.query.side_effect = Exception("DB connection lost")
+        service = CurriculumService(mock_db)
+        with pytest.raises(HTTPException) as exc_info:
+            service.get_curriculum_statistics(42)
+        assert exc_info.value.status_code == 500
+        assert "statistics" in exc_info.value.detail.lower()
