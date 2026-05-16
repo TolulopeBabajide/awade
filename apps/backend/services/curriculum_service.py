@@ -274,12 +274,36 @@ class CurriculumService:
 
     # Search and utility methods
     def search_curriculums(self, search_term: str) -> List[Curriculum]:
-        """Search curricula by country, subject, or theme."""
-        return self.db.query(Curriculum).filter(
-            or_(
-                Curriculum.country.ilike(f"%{search_term}%"),
-                Curriculum.subject.ilike(f"%{search_term}%"),            )
-        ).all()
+        """Search curricula by country name, subject name, or curriculum title.
+
+        AWD-M-164: The original implementation called .ilike() on ORM
+        relationship attributes (Curriculum.country, Curriculum.subject) which
+        raises AttributeError.  Fix: join Country for country_name lookup;
+        outerjoin CurriculumStructure → Subject for subject name lookup;
+        also search Curriculum.curricula_title.  distinct() prevents duplicate
+        rows when a curriculum has multiple structures.
+        """
+        return (
+            self.db.query(Curriculum)
+            .join(Country, Curriculum.country_id == Country.country_id)
+            .outerjoin(
+                CurriculumStructure,
+                CurriculumStructure.curricula_id == Curriculum.curricula_id,
+            )
+            .outerjoin(
+                Subject,
+                Subject.subject_id == CurriculumStructure.subject_id,
+            )
+            .filter(
+                or_(
+                    Curriculum.curricula_title.ilike(f"%{search_term}%"),
+                    Country.country_name.ilike(f"%{search_term}%"),
+                    Subject.name.ilike(f"%{search_term}%"),
+                )
+            )
+            .distinct()
+            .all()
+        )
     
     def search_topics(self, search_term: str) -> List[Topic]:
         """Search topics by title or description."""

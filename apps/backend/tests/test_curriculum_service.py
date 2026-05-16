@@ -1,5 +1,5 @@
 """
-Unit tests for CurriculumService — AWD-M-163.
+Unit tests for CurriculumService — AWD-M-163, AWD-M-164.
 
 Covers:
 - get_curriculum_statistics: happy path (one structure, topics, objectives, contents)
@@ -7,6 +7,11 @@ Covers:
 - get_curriculum_statistics: curriculum not found returns empty dict
 - get_curriculum_statistics: curriculum with no structures returns zero counts
 - get_curriculum_statistics: curriculum with structures but no topics returns zero counts
+- search_curriculums: match by curriculum title (AWD-M-164)
+- search_curriculums: match by country name (AWD-M-164)
+- search_curriculums: match by subject name (AWD-M-164)
+- search_curriculums: no match returns empty list (AWD-M-164)
+- search_curriculums: no duplicate rows when curriculum has multiple matching structures (AWD-M-164)
 """
 
 import pytest
@@ -23,7 +28,8 @@ sys.path.insert(0, root_dir)
 
 from apps.backend.services.curriculum_service import CurriculumService
 from apps.backend.models import (
-    Curriculum, CurriculumStructure, Topic, LearningObjective, TopicContent, Country
+    Curriculum, CurriculumStructure, Topic, LearningObjective, TopicContent, Country,
+    Subject, GradeLevel,
 )
 
 
@@ -199,3 +205,79 @@ class TestGetCurriculumStatistics:
         assert result["total_topics"] == 2
         assert result["total_learning_objectives"] == 1
         assert result["total_contents"] == 1
+
+
+class TestSearchCurriculums:
+    """search_curriculums — AWD-M-164: fix .ilike() on ORM relationships."""
+
+    def test_match_by_curriculum_title(self, test_db, sample_curriculum):
+        """Searching the curriculum title returns the matching curriculum."""
+        service = CurriculumService(test_db)
+        # sample_curriculum.curricula_title == "Test Curriculum"
+        results = service.search_curriculums("Test Curriculum")
+        ids = [c.curricula_id for c in results]
+        assert sample_curriculum.curricula_id in ids
+
+    def test_match_by_country_name(self, test_db, sample_curriculum, sample_country):
+        """Searching by country name (joined via Country model) returns the matching curriculum."""
+        service = CurriculumService(test_db)
+        # sample_country.country_name == "Test Country"
+        results = service.search_curriculums("Test Country")
+        ids = [c.curricula_id for c in results]
+        assert sample_curriculum.curricula_id in ids
+
+    def test_match_by_subject_name(
+        self,
+        test_db,
+        sample_curriculum,
+        sample_curriculum_structure,
+        sample_subject,
+    ):
+        """Searching by subject name (joined via CurriculumStructure→Subject) returns the curriculum."""
+        service = CurriculumService(test_db)
+        # sample_subject.name == "Mathematics"
+        results = service.search_curriculums("Mathematics")
+        ids = [c.curricula_id for c in results]
+        assert sample_curriculum.curricula_id in ids
+
+    def test_no_match_returns_empty_list(self, test_db, sample_curriculum):
+        """A search term that matches nothing returns an empty list (no crash)."""
+        service = CurriculumService(test_db)
+        results = service.search_curriculums("xyzzy_no_match_9876")
+        assert results == []
+
+    def test_no_duplicate_rows_with_multiple_matching_structures(
+        self,
+        test_db,
+        sample_curriculum,
+        sample_subject,
+        sample_grade_level,
+    ):
+        """Curriculum with two structures both matching the search term returns exactly one row."""
+        subject2 = Subject(name="Mathematics Advanced-M164")
+        grade2 = GradeLevel(name="Grade 7-M164")
+        test_db.add(subject2)
+        test_db.add(grade2)
+        test_db.commit()
+        test_db.refresh(subject2)
+        test_db.refresh(grade2)
+
+        struct1 = CurriculumStructure(
+            curricula_id=sample_curriculum.curricula_id,
+            subject_id=sample_subject.subject_id,
+            grade_level_id=sample_grade_level.grade_level_id,
+        )
+        struct2 = CurriculumStructure(
+            curricula_id=sample_curriculum.curricula_id,
+            subject_id=subject2.subject_id,
+            grade_level_id=grade2.grade_level_id,
+        )
+        test_db.add(struct1)
+        test_db.add(struct2)
+        test_db.commit()
+
+        service = CurriculumService(test_db)
+        # Both structures have subjects containing "Mathematics" in the name
+        results = service.search_curriculums("Mathematics")
+        matching = [c for c in results if c.curricula_id == sample_curriculum.curricula_id]
+        assert len(matching) == 1, "distinct() must prevent duplicate rows per curriculum"
