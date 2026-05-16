@@ -282,7 +282,13 @@ class CurriculumService:
         outerjoin CurriculumStructure → Subject for subject name lookup;
         also search Curriculum.curricula_title.  distinct() prevents duplicate
         rows when a curriculum has multiple structures.
+
+        AWD-M-166: Guard against empty or whitespace-only search_term.
+        Passing "" would make ilike("%%") match every row — returning the full
+        unfiltered result set with expensive joins.  Return [] early instead.
         """
+        if not search_term or not search_term.strip():
+            return []
         return (
             self.db.query(Curriculum)
             .join(Country, Curriculum.country_id == Country.country_id)
@@ -304,12 +310,19 @@ class CurriculumService:
             .distinct()
             .all()
         )
-    
+
     def search_topics(self, search_term: str) -> List[Topic]:
-        """Search topics by title or description."""
+        """Search topics by title.
+
+        AWD-M-166: Guard against empty or whitespace-only search_term.
+        Passing "" would make ilike("%%") match every row.  Return [] early.
+        """
+        if not search_term or not search_term.strip():
+            return []
         return self.db.query(Topic).filter(
             or_(
-                Topic.topic_title.ilike(f"%{search_term}%"),            )
+                Topic.topic_title.ilike(f"%{search_term}%"),
+            )
         ).all()
     
     def get_curriculum_statistics(self, curriculum_id: int) -> Dict[str, Any]:
