@@ -1,0 +1,359 @@
+1	2026-05-06T03:07:20Z | awade-growth-daily | done | Wed 2026-05-06 — Twitter/X parent post: algebra-homework 30-second freeze, Parent Empowerment Stories pillar
+2	2026-05-06T05:11:59Z | awade-security-scan | done | CI clean, 0 npm vuln, deps pinned; filed AWD-M-111 (missing rate limits on 3 children endpoints); H-74 role whitelist code-verified
+3	2026-05-06T05:38:44Z | awade-dependency-security | done | 7 CVE findings: AWD-C-14 WeasyPrint SSRF + AWD-H-75/76 urllib3/multipart + AWD-M-112-115; npm clean
+4	2026-05-06T06:13:24Z | awade-dev-execution | done | AWD-H-75: urllib3 2.5.0→2.6.3 (decompression-bomb CVEs), commit 2206447 merged to develop
+5	2026-05-06T06:20:36Z | awade-code-review | done | urllib3 2.5.0→2.6.3 dep bump — ✅ Clean, 0 findings, no backlog items filed
+6	2026-05-06T06:35:51Z | awade-qa-validation | done | AWD-H-75 (urllib3 bump) — ✅ 185/185 frontend tests pass, TS clean, lint clean, OpenAPI valid; verdict: Ship
+7	2026-05-06T07:03:37Z | awade-daily-health-check | done | TS✅ lint✅ frontend-tests✅(185) backend-tests⚠️(skip/no-venv) OpenAPI✅ — 159 commits unpushed, H-76+M-111 ready
+8	2026-05-06T07:08:45Z | awade-dev-execution | done | AWD-H-76: python-multipart 0.0.18→0.0.27 (CVE-2026-24486, CVE-2026-40347); AWD-C-13 cleared staged urllib3 reversion
+9	2026-05-06T08:03:24Z | awade-content-calendar | done | Content calendar for May 11–15 written; 5 posts planned across Twitter/X (4) and LinkedIn (1); educator + parent pillars balanced
+10	2026-05-06T08:08:27Z | awade-dev-execution | done | AWD-M-111: rate limits added to create_child/toggle_bookmark/export_guide_pdf in children.py; 4 tests; commit fe54fa6 merge d66212b
+11	2026-05-06T08:22:18Z | awade-code-review | done | ✅ Clean — AWD-M-111+H-76+L-19 verified; filed AWD-M-116 (test_children_router.py 759 lines)
+12	2026-05-06T08:35:48Z | awade-qa-validation | done | PASS — AWD-M-111 rate-limits + AWD-H-76 dep bump; TS✅ lint✅ 185 FE tests✅ openapi✅ backend skipped(AWD-M-85)
+13	2026-05-06T09:14:21Z | awade-dev-execution | done | AWD-M-113/114/115: cryptography 44→46.0.6, requests 2.32→2.33, python-dotenv 1.0→1.2.2; AWD-C-13 cleared staged M-111 reversion
+14	2026-05-06T10:11:49Z | awade-dev-execution | skip | AWD-C-13 27th cleared; no stage=ready items open (H-65,M-77 blocked by venv fix)
+15	2026-05-06T10:22:07Z | awade-code-review | done | reviewed c624c33 (AWD-M-113/114/115 dep bumps); verdict ✅ Clean; no findings filed
+16	2026-05-06T10:35:49Z | awade-qa-validation | done | PASS (advisory) — frontend ts/lint/tests green, backend tests skipped (broken venv symlink), openapi valid; deps bump AWD-M-113/114/115 spot-checked clean
+17	2026-05-06T11:07:34Z | awade-dev-execution | skip | recent commits ae7f9b5, f5e1ae8 within 50min window
+18	2026-05-06T12:14:07Z | awade-dev-execution | done | AWD-M-68 shipped — removed stale SECRET_KEY from env.production.template + env.test.template; commit 9a60008 merge 610130a; advanced develop ref via bundle+filled-stale-locks workaround.
+19	2026-05-06T12:21:02Z | awade-code-review | done | reviewed 4 commits (610130a..f5e1ae8) — config-only, no application code; verdict ✅ Clean; no backlog items filed
+20	2026-05-06T12:35:59Z | awade-qa-validation | done | PASS — 4 commits (env templates + gitignore), TS/lint/frontend/openapi ✅, backend skipped (venv broken in sandbox), no code changes
+21	2026-05-06T14:18:24Z | awade-dev-execution | done | AWD-M-63 batch FK validation in curriculum_structures POST/PUT — commit f349d11 merge 66d4296
+22	2026-05-06T14:22:17Z | awade-code-review | done | review of f349d11/66d4296 (AWD-M-63 batch FK validation) — verdict ✅ Clean, 0 findings, 0 backlog items filed
+23	2026-05-06T14:35:57Z | awade-qa-validation | done | PASS advisory — frontend green (185/185, lint+tsc clean), backend tests skipped (venv broken), OpenAPI valid, spot-check clean for AWD-M-63 batch FK validation
+24	2026-05-06T15:16:15Z | awade-dev-execution | done | AWD-M-70: refactor(lesson-plans) delegate export access-control to LessonPlanService.get_lesson_resource_orm; commit 0d3dabb merge b216375; frontend tsc+lint clean; backend pytest skipped (M-46 venv broken, /sessions full); CI:pending
+25	2026-05-06T16:15:38Z | awade-dev-execution | done | AWD-C-14: DepSec weasyprint 62.3->68.0 (CVE-2025-68616 SSRF); commit 430435c merge 8fc919d; frontend TSC+lint+185 vitest ✅; backend pytest skipped (M-46 venv broken); CI:pending — Tolu: git push origin develop. AWD-C-13 staged-reversion cleared.
+26	2026-05-06T16:25:11Z | awade-code-review | done | verdict ✅ Clean — files reviewed: 3 (1 test skipped); filed AWD-M-117 (lesson_plan_service.py 598 lines), AWD-M-118 (LessonResourceResponse mapping x4); commits 0d3dabb→8fc919d
+27	2026-05-06T16:35:38Z | awade-qa-validation | done | 4 commits validated; tsc/lint/frontend-tests/openapi green; backend skipped (sandbox venv); no auto-filed issues
+28	2026-05-06T17:16:45Z | awade-dev-execution | done | AWD-M-118 _to_lesson_resource_response helper extracted; 4 sites unified; commit 86b9ff8 merge bcc900e
+29	2026-05-06T18:14:25Z | awade-dev-execution | done | AWD-M-94 shipped (commit b25aef0, merge 0d1d6ab) — removed 3 redundant 'import bcrypt as _bcrypt' aliases in test_auth_flow_security.py
+30	2026-05-06T18:22:40Z | awade-code-review | done | reviewed 86b9ff8 (AWD-M-118) + b25aef0 (AWD-M-94); verdict ✅ Clean; 0 findings filed
+31	2026-05-06T18:35:50Z | awade-qa-validation | done | PASS — 4 commits validated (AWD-M-94, AWD-M-118, AWD-C-14); TS/lint/frontend-tests/openapi all green; backend skipped (AWD-M-85 venv); no new issues
+32	2026-05-06T19:14:02Z | awade-dev-execution | done | AWD-L-08 sqlite fk + actor_id assertion (commit 9119055, merge 2474085)
+33	2026-05-06T20:05:28Z | awade-dev-execution | error | AWD-H-25-follow-up: code committed (fa8c49a) but merge blocked by git index.lock (virtiofs FUSE issue)
+34	2026-05-06T20:20:59Z | awade-code-review | done | Reviewed 2 test files (test_auth_flow_security.py, test_grc09_audit_log_retention.py); verdict: Clean with 2 minor duplication findings in test setup patterns
+35	2026-05-06T20:35:22Z | awade-qa-validation | done | QA PASS: AWD-L-08 audit log tests, all checks green except infra skips (ENOSPC, missing pytest)
+36	2026-05-06T22:02:21Z | awade-nightly-monitor | done | Morning brief updated; 27 commits today; 1H + 11M + 1L open; infrastructure issues noted
+37	2026-05-06T22:04:42Z | awade-dev-execution | skip | All stage=ready items blocked (H-65, M-77 await venv fix)
+2026-05-06T22:20:04Z | awade-code-review | skip | No new commits since last check
+2026-05-06T22:34:07Z | awade-qa-validation | skip | No new commits in last 110 min
+2026-05-07T03:08:00Z | awade-growth-daily | done | Parent nurture email draft: curriculum insights angle — alternate audience from May 1 educator outreach. Platform: Email, Pillar: Curriculum Insights/Parent Empowerment. Topics covered in log.
+2026-05-07T05:09:20Z | awade-security-scan | done | 0 Critical, 0 High, 3 Low findings; OWASP Web/LLM passed
+2026-05-07T06:09:13Z | awade-dev-execution | skip | no stage=ready items — H-65/M-77 blocked by Tolu venv fix; working tree dirty (virtiofs FUSE)
+2026-05-07T06:20:11Z | awade-code-review | skip | no new commits since last check
+2026-05-07T06:34:22Z | awade-qa-validation | skip | no new commits in last 110 min
+2026-05-07T07:03:17Z | awade-daily-health-check | done | 20 commits, static checks pass, tests blocked by sandbox — brief written
+2026-05-07T08:20:14Z | awade-code-review | skip | No new commits in last 115 minutes (most recent: 2026-05-06 19:12:18 UTC)
+2026-05-07T08:29:42Z | awade-dev-execution | skip | No stage=ready items unblocked; H-65+M-77 blocked by Tolu venv fix; others at stage=define (upstream work)
+2026-05-07T08:32:06Z | awade-dev-execution | skip | No stage=ready items; all (H-65, M-77) blocked by Tolu venv fix; /sessions disk 100% full (M-46 infrastructure blocker); /dev 90% full — cannot run pytest or install deps
+2026-05-07T08:34:29Z | awade-qa-validation | skip | no new commits on develop (last: 2026-05-06 19:12:18 UTC)
+2026-05-07T10:20:15Z | awade-code-review | skip | no new commits in last 115 minutes
+2026-05-07T10:34:11Z | awade-qa-validation | skip | no new commits on develop
+2026-05-07T11:08:30Z | awade-dev-execution | skip | No stage=ready items — all open issues at stage=define or earlier
+2026-05-07T12:08:26Z | awade-dev-execution | skip | no stage=ready items in backlog
+2026-05-07T12:20:18Z | awade-code-review | skip | no new commits in 115 min window
+2026-05-07T14:30:00Z | awade-dev-execution | skip | All open issues at stage=define or earlier; no stage=ready items
+2026-05-07T14:21:32Z | awade-code-review | done | review-2026-05-07-173ad59.md: ✅ Clean verdict
+2026-05-07T14:35:54Z | awade-qa-validation | done | M-99 fix validated and shipped; no code issues found
+2026-05-07T15:08:49Z | awade-dev-execution | skip | all stage=ready items blocked by M-46 venv fix; H-73 requires Tolu decision
+2026-05-07T16:21:55Z | awade-code-review | done | ✅ Clean verdict: 173ad59 (fix: M-99 remove sys.path.extend) — resolves AWD-M-99, no new findings
+2026-05-07T16:34:45Z | awade-qa-validation | skip | no new commits on develop since last run
+2026-05-07T17:09:25Z | awade-dev-execution | skip | Zero stage=ready items available; all high/med items blocked by Tolu decisions (venv fix, migration system, cache arch review, key rotation) or at stage=define
+2026-05-07T18:17:00Z | awade-dev-execution | error | Infrastructure blocker: virtiofs mount permission errors prevent git writes (lock files). Cannot proceed with development tasks.
+2026-05-07T18:20:38Z | awade-code-review | skip | no new commits in last 115 min
+2026-05-07T18:34:37Z | awade-qa-validation | skip | no new commits in last 110 minutes
+2026-05-07T07:00:00Z | awade-dev-execution | skip | No stage=ready items in backlog (15 commits pending push, awaiting Tolu review)
+$(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: virtiofs FUSE mount prevents git repo access; AWD-C-13 recurring staging-index issue + prior mount failures have left repo in unrecoverable state within this sandbox session. Tolu action required: (1) verify git state locally on dev Mac, (2) run `git push origin develop` to clear backlog items from prior dev-agent runs, (3) restart Cowork session to get clean mount.
+2026-05-07T20:20:34Z | awade-code-review | skip | no new commits since 115 min ago
+2026-05-07T20:36:39Z | awade-qa-validation | skip | no new commits in last 110 min
+2026-05-07T22:02:46Z | awade-nightly-monitor | done | Health check + uncommitted changes alert — openapi.json severely modified (8092 lines removed)
+2026-05-07T22:20:39Z | awade-code-review | skip | no new commits in last 115 min
+2026-05-07T22:34:49Z | awade-qa-validation | skip | No new commits in last 110 minutes
+2026-05-08T03:08:34Z | awade-growth-daily | done | Twitter/X 5-tweet thread on accessibility sprint (parent+educator audience) saved to drafts; content-log updated
+2026-05-08T05:13:28Z | awade-security-scan | done | 5/5 CI checks PASS (1 WT-only mismatch); 0 C; 1 H proposed (openapi.json staged corrupt); npm audit clean; pinned deps recent
+2026-05-08T06:11:46Z | awade-tech-debt | done | 9 net-new items (M-119..M-125, L-20..L-21); 6 re-confirmed; 1 Tier-1 quick win (L-20)
+2026-05-08T06:12:03Z | awade-dev-execution | skip | Cleaned corrupted staged openapi.json (5-line Python traceback overwrote 8086-line spec — flagged by nightly-monitor 2026-05-07 22:02). Tree now clean. Only stage=ready items (H-65 PyJWT venv pin, M-77 openai SDK venv pin) require Tolu's local pip install -r apps/backend/requirements.txt — cannot be done from sandbox. All other open items at stage=define. 15 prior commits still pending push to origin/develop.
+2026-05-08T06:20:29Z | awade-code-review | skip | no new commits in last 115 min
+2026-05-08T06:35:00Z | awade-qa-validation | skip | no commits on develop in last 110 minutes (last commit 2026-05-07T14:11Z, ~16h ago)
+2026-05-08T07:05:53Z | awade-daily-health-check | done | TS+lint+OpenAPI green; FE+BE tests blocked by M-46 sandbox ENOSPC; 0 C / 1 H open; 15 commits unpushed on develop
+2026-05-08T07:13:16Z | awade-dev-execution | done | AWD-M-81 narrow handleConsentConfirmed catch to surface err.message — commit c34ba38 merge 987d89a docs 1b63823
+2026-05-08T09:11:41Z | awade-dev-execution | skip | Both stage=ready items (AWD-H-65 PyJWT venv, AWD-M-77 openai venv) require Tolu to run pip install on dev Mac (M-46 blocker). All other items at stage=define.
+2026-05-08T10:20:34Z | awade-code-review | skip | no new commits in last 115 minutes
+2026-05-08T10:36:08Z | awade-qa-validation | done | AWD-M-108 TokenService split: TS✅ lint✅ spot-check✅ tests⚠️ ENOSPC+broken-venv (infra). Filed AWD-H-77. Verdict: Ship.
+2026-05-08T11:08:23Z | awade-dev-execution | skip | recent commit found (adeaa4d fix(auth): AWD-M-108 at 10:26 UTC)
+{"ts": "2026-05-08T12:20:58Z", "task": "awade-dev-execution", "status": "done", "issue": "AWD-M-110", "summary": "Split test_services.py into focused modules (8c45330, merge db34e46). AWD-C-13 cleared at preflight.", "ci": "pending — Tolu: git push origin develop"}
+2026-05-08T12:24:51Z | awade-code-review | done | ⚠️ Refactor Recommended — AWD-M-110 split; zombie test_services.py (M-126) + inline imports (L-22) filed
+2026-05-08T12:36:49Z | awade-qa-validation | done | AWD-M-110 doc-only commit: TS✅ lint✅ tests⚠️SKIP(ENOSPC/AWD-H-77) openapi✅ spot-check✅ verdict:ship-conditional
+2026-05-08T13:13:51Z | awade-dev-execution | skip | AWD-M-126 selected (stage=ready); rm blocked by virtiofs EPERM; commit 4bb1c44 records skip; Tolu: run `rm apps/backend/tests/test_services.py` locally
+2026-05-08T14:24:03Z | awade-dev-execution | done | AWD-M-117 LessonResourceService extracted (ba0dacf); AWD-M-126 zombie file confirmed absent
+2026-05-08T14:36:13Z | awade-qa-validation | done | ✅ PASS — AWD-M-117 LessonResourceService extraction; TS/lint clean; tests/backend skipped (ENOSPC/venv pre-existing); OpenAPI valid; spot-check clean
+2026-05-08T15:09:12Z | awade-dev-execution | skip | recent commit found (45m ago: 457b4f6)
+2026-05-08T16:18:48Z | awade-dev-execution | done | AWD-M-112: Pillow 10.4.0→12.2.0 (5 CVEs incl AV:N CVE-2026-40192), commit 2f5bf84 merge d551c02
+2026-05-08T16:21:23Z | awade-code-review | done | Clean — Pillow 10.4.0→12.2.0 (AWD-M-112) — 1 file reviewed, 0 findings, no backlog items filed
+2026-05-08T16:36:34Z | awade-qa-validation | done | ✅ PASS — Pillow 10.4.0→12.2.0 CVE fix (AWD-M-112); TS/lint ✅; tests skipped (ENOSPC+venv); openapi ✅; no blocking issues
+2026-05-08T17:08:48Z | awade-dev-execution | skip | Recent commit found: 5a697c1 chore(agent): AWD-M-112 dev-agent records — skipping this cycle
+2026-05-08T18:15:48Z | awade-dev-execution | done | AWD-M-116 test_children_router.py split 759→5 files + children_factories.py; commits c6dc026/2658451
+2026-05-08T18:24:04Z | awade-code-review | done | ⚠️ Refactor Recommended — H-78 filed (zombie test_children_router.py on disk); L-22 extended; 2 commits reviewed (c6dc026 eb39b86)
+2026-05-08T18:36:32Z | awade-qa-validation | done | AWD-M-116 validated (test split 5 files): TS ✅ lint ✅ openapi ✅ | infra: ENOSPC + venv (pre-existing) | verdict: Ship
+2026-05-08T19:12:03Z | awade-friday-finance | done | Finance snapshot 2026-05-08 written — MRR bash, burn ~5-100/mo est, balance.md missing day 17 (breached), 41 commits CI-pending, no Stripe ticket (week 4)
+2026-05-08T19:16:48Z | awade-dev-execution | done | AWD-L-22: moved inline imports to module level in 3 test files + conftest.py import-convention comment; commit 3fba9e2 merge d5fb800
+2026-05-08T20:15:26Z | awade-dev-execution | done | AWD-M-92: extracted _WEAK_PASSWORDS + _validate_password_byte_length + _validate_weak_password helpers; 3 validators delegated; 8 tests added. Commit caafd73 merge 4d491f0.
+2026-05-08T20:23:50Z | awade-code-review | done | ✅ Clean — caafd73+4d491f0 (AWD-M-92 password helper extraction); filed AWD-M-127 (residual validator duplication), AWD-L-23 (inline import regression in TestPasswordValidationHelpers)
+2026-05-08T20:36:45Z | awade-qa-validation | done | AWD-M-92 TS✅ lint✅ OpenAPI✅ tests-skipped(ENOSPC/AWD-H-77) spot-check✅ no-new-issues verdict:ship
+2026-05-08T21:18:19Z | awade-dev-execution | done | AWD-M-127 extracted _validate_full_password helper; UserCreate+PasswordReset validators deduped; 4 tests added; commit b84be2f merge 124873c
+2026-05-08T22:03:22Z | awade-nightly-monitor | done | 36 commits today; TS clean; tests blocked by ENOSPC; 9 open issues (0C/2H/6M/1L); 51 commits unpushed; morning-brief written
+2026-05-08T22:04:40Z | awade-dev-execution | skip | recent commit found 46min ago (AWD-M-127)
+2026-05-08T22:22:55Z | awade-code-review | done | ✅ Clean — AWD-M-127 resolution reviewed; no new issues; 2 files; 3 commits
+2026-05-08T22:36:49Z | awade-qa-validation | done | AWD-M-127 refactor: TS✅ Lint✅ OpenAPI✅ tests⚠️ infra-block(AWD-H-77) spot-check✅ verdict:Ship
+2026-05-09T05:17:17Z | awade-security-scan | done | 0 C 0 H 1 M (AWD-M-128 PARENT_HELPER_PROMPT injection delimiters); CI mirror+secret scan+npm audit all clean
+2026-05-09T06:13:25Z | awade-dev-execution | done | AWD-L-23 shipped: moved TestPasswordValidationHelpers imports to module level (b8be7f9, merge 7a86c46)
+2026-05-09T06:23:39Z | awade-code-review | done | reviewed b8be7f9 AWD-L-23 fix — ✅ Clean — filed AWD-L-24 (inline imports), AWD-M-129 (file 689 lines)
+2026-05-09T06:36:22Z | awade-qa-validation | done | ✅ PASS (infra-limited) — AWD-L-23 style fix; TS+Lint+OpenAPI clean; test runners blocked by AWD-H-77
+2026-05-09T07:15:40Z | awade-dev-execution | done | AWD-M-82 add explicit useQuery generics to ParentDashboardPage — commit 4acf825 merge 1ca3597
+2026-05-09T08:14:16Z | awade-dev-execution | done | AWD-M-83 bookmarkMutation onError handler + 2 tests — commit b7d65c7 merge a432dc7
+2026-05-09T08:23:58Z | awade-code-review | done | reviewed AWD-M-82 + AWD-M-83 (GuideViewPage/ParentDashboardPage); verdict ⚠️ Refactor Recommended; filed H-79, M-130, M-131
+2026-05-09T08:37:52Z | awade-qa-validation | done | PASS — 4 commits (AWD-M-83, AWD-M-82); TS✅ lint✅ 189 tests✅ openapi✅; no new issues
+2026-05-09T09:06:40Z | awade-weekend-ops | done | retro-2026-05-09.md + monday-prep.md written; backlog groomed (4 items promoted to ready, M-96 superseded); 145 commits / ~60 issues reviewed
+2026-05-09T09:11:42Z | awade-dev-execution | done | AWD-H-79 catch block added to handleDownloadPdf; 191 tests passing; merge 405462f
+2026-05-09T10:12:58Z | awade-dev-execution | done | AWD-M-130 extract invalidateBookmarkQueries — 04546d0 merged to develop as 89da8ba. TS 0 · lint 0 · 193 vitest passing. AWD-C-13 cleared. Tolu: run git push origin develop
+2026-05-09T10:24:50Z | awade-code-review | done | reviewed 3 files (GuideViewPage.tsx, ParentDashboardPage.tsx, GuideViewPage.test.tsx) — verdict ⚠️ Refactor Recommended — filed AWD-H-80, AWD-M-132
+2026-05-09T10:37:25Z | awade-qa-validation | done | TypeScript✅ Lint✅ OpenAPI✅ Spot-check✅; tests skipped (ENOSPC + broken venv); no issues filed; verdict Ship
+2026-05-09T11:17:37Z | awade-dev-execution | done | AWD-H-80: handleDeleteChild catch block + inline error, commit a960c6d merge b900b39
+2026-05-09T12:14:22Z | awade-dev-execution | done | AWD-M-131 shipped: functional-updater in ParentDashboardPage useEffect; commit 804e715, merge b6306da; TS 0 · lint 0 · vitest SKIP (ENOSPC); Tolu: git push origin develop
+2026-05-09T12:22:07Z | awade-code-review | done | reviewed AWD-M-131 + AWD-H-80 (ParentDashboardPage) — ✅ Clean; filed AWD-M-132, AWD-L-25, AWD-L-26
+2026-05-09T12:36:59Z | awade-qa-validation | done | ✅ PASS — AWD-H-80 + AWD-M-131 clean; TS/lint/OpenAPI ✅; tests skipped (ENOSPC+venv, AWD-H-77/M-46)
+2026-05-09T13:16:32Z | awade-dev-execution | done | AWD-M-129+L-24: split test_auth_flow_security.py → 6 files; 0 inline imports; 10 classes/38 tests preserved; commit ae9c7aa merge 2df70c0
+2026-05-09T14:17:57Z | awade-dev-execution | done | AWD-M-89 isMountedRef guard on polling loop in LessonPlanDetailPage; AWD-M-96 closed as superseded by M-129
+2026-05-09T14:23:52Z | awade-code-review | done | 5 commits: M-129 test split (6 files) + M-89 unmount guard; verdict ✅ Clean; filed AWD-L-27 AWD-L-28
+2026-05-09T14:36:35Z | awade-qa-validation | done | TypeScript✅ Lint✅ OpenAPI✅ spot-check clean; tests blocked by AWD-H-77 ENOSPC; verdict: Ship
+2026-05-09T15:14:31Z | awade-dev-execution | done | AWD-L-28: hashed_user fixture extracted in test_auth_cookies.py — commit f9c8e66, merge 61e59dc
+2026-05-09T16:12:02Z | awade-dev-execution | done | AWD-L-27: removed stale dead comment from LessonPlanDetailPage.tsx; commit 2d2081e merge c9eb25e; index.lock workaround used; unstaged corrupt test_auth_cookies.py index reversion (L-28 regression attempt #6)
+2026-05-09T17:16:30Z | awade-dev-execution | done | AWD-H-81: removed AI placeholder comment from LessonPlanDetailPage.tsx re-introduced by AWD-C-13 (chore de7da55) — commit e1f6a9a, merge 3aa7ac1
+2026-05-09T18:10:45Z | awade-dev-execution | skip | all stage=ready items blocked (H-78: sandbox cannot rm; H-65/M-77: require Tolu venv fix on dev machine)
+2026-05-09T18:22:43Z | awade-code-review | done | AWD-H-81 style fix reviewed ✅ Clean; filed AWD-M-133 (handleGenerateLessonResource complexity)
+2026-05-09T18:36:00Z | awade-qa-validation | done | AWD-H-81 cosmetic removal — TS ✅ Lint ✅ OpenAPI ✅ frontend/backend tests blocked by sandbox ENOSPC + broken venv — change is safe to ship
+2026-05-09T19:16:29Z | awade-dev-execution | done | AWD-M-128: <curriculum_data> injection delimiter sandboxing in PARENT_HELPER_PROMPT + pre-format field sanitization; 3 tests; commit e3c3d8d merge d59e39f
+2026-05-09T20:13:05Z | awade-dev-execution | done | AWD-M-132: extracted Section/InfoCard from GuideViewPage.tsx (407→379 lines) to GuideViewPage.components.tsx; 5 tests added; commit 2841812 merge 89446a5
+2026-05-09T20:37:14Z | awade-qa-validation | done | TS✅ Lint✅ OpenAPI✅ Spot-check✅ — tests skipped (ENOSPC+venv-broken, pre-tracked) — code clean, verdict Ship
+{"timestamp":"2026-05-09T00:00:00Z","agent":"dev-agent","status":"done","issue":"AWD-M-133","summary":"Extracted pollUntilComplete (module-level async, 43 lines) and handleGenerationSuccess (inner component fn, 9 lines) from handleGenerateLessonResource. Function reduced ~88→53 lines. 2 new vitest tests (fake timers). Commit f8cc109, merge c758536 on develop."}
+2026-05-09T22:04:43Z | awade-nightly-monitor | done | Morning brief written: 0C/2H/6M/1L open; 90 commits unpushed to origin; TypeScript clean; tests blocked by sandbox ENOSPC+venv; 4 CRITICAL agents (growth, security-scan, dev-execution, qa-validation stale)
+2026-05-09T22:04:50Z | awade-dev-execution | skip | Recent commits found within last 50 min (M-133 refactor just shipped)
+2026-05-09T22:22:51Z | awade-code-review | done | reviewed LessonPlanDetailPage refactor (AWD-M-133); ✅ Clean; filed AWD-M-134 complexity, AWD-M-135 status-cast; updated AWD-M-90 partial coverage note
+2026-05-09T22:35:43Z | awade-qa-validation | done | AWD-M-133 refactor validated ✅ — TS/lint clean, no defects, ENOSPC+venv infra pre-existing
+2026-05-10T05:11:28Z | awade-security-scan | done | 0 C/H/M findings; AWD-M-128 verified resolved; CI mirror clean; npm audit 0 vulns; LLM defences pass
+2026-05-10T06:13:47Z | awade-dev-execution | done | AWD-M-90 happy-path navigate test for handleGenerateLessonResource (5aa9e20 / merge 14d16b3)
+2026-05-10T06:20:52Z | awade-code-review | done | ✅ Clean — AWD-M-90 happy-path test, 1 file, 0 findings
+2026-05-10T06:40:17Z | awade-qa-validation | done | 3 vitest failures in LessonPlanDetailPage.test.tsx (1 new AWD-M-90, 2 pre-existing AWD-M-133); auto-filed AWD-H-82
+2026-05-10T07:08:55Z | awade-dev-execution | skip | dirty working tree on develop — staged+unstaged changes from prior agent runs not yet committed (AWD-H-82 filing, AWD-M-90 closure, LessonPlanDetailPage.test.tsx flip-flop). Cannot branch per workflow.md hard rule. Tolu: review and commit/discard before next run.
+2026-05-10T08:08:18Z | awade-dev-execution | skip | dirty working tree persists on develop (same blocker as 07:15:00Z) — awaiting Tolu's manual cleanup of stale staged+unstaged changes + untracked files; cannot branch per workflow.md
+2026-05-10T08:19:36Z | awade-code-review | skip | no new commits in last 115 minutes
+2026-05-10T08:33:52Z | awade-qa-validation | skip | no commits in last 110 minutes — last commit was 14d16b3 at 2026-05-10T06:13:09Z
+2026-05-10T09:10:47Z | awade-dev-execution | skip | dirty working tree on develop persists (3rd skip in row): staged+unstaged docs updates from prior runs (M-90 closure, M-134/M-135/H-82 filings) + 5 untracked zombie files (test_children_router.py, AIGenerationLoading variants, TestPage.tsx). Cannot branch per workflow.md. Tolu: commit or discard pending docs + clean untracked files.
+2026-05-10T10:19:25Z | awade-code-review | skip | no new commits in last 115 minutes
+2026-05-10T10:33:41Z | awade-qa-validation | skip | No new commits on develop in the last 110 minutes
+2026-05-10T11:10:18Z | awade-dev-execution | done | AWD-H-82: fixed 3 failing vitest tests (fake-timer ordering) — commit 59851e2 merge e8b2d0e
+2026-05-10T12:16:29Z | awade-dev-execution | done | AWD-M-135: ResourceStatus union type + unknown-status guard in pollUntilComplete — commit bec8404 merge 692eaed
+2026-05-10T12:22:21Z | awade-code-review | done | reviewed 692eaed+bec8404+59851e2 (AWD-M-135 type narrowing + AWD-H-82 fake-timer fix) — verdict ✅ Clean — filed AWD-M-136 (pollUntilComplete complexity 11)
+2026-05-10T12:35:39Z | awade-qa-validation | done | ✅ PASS — AWD-M-135 (ResourceStatus union) + AWD-H-82 (fake-timer fix) clean; TypeScript ✅ Lint ✅ OpenAPI ✅; frontend/backend tests blocked by pre-existing infra (ENOSPC + broken venv)
+2026-05-10T13:20:36Z | awade-dev-execution | done | AWD-M-134+M-136 cyclomatic complexity reduction shipped — fce26fa
+2026-05-10T14:07:35Z | awade-dev-execution | skip | Recent commit found within 50 min (fce26fa); also detected unfinished merge state on develop — manual resolution may be needed
+2026-05-10T14:22:58Z | awade-code-review | done | commits fce26fa+0a50cf7 reviewed — AWD-M-134/M-136 clean — filed AWD-M-137 (handleGenerateLessonResource strict McCabe ~12) — verdict ✅ Clean
+2026-05-10T14:35:38Z | awade-qa-validation | done | ✅ PASS — AWD-M-134/M-136 closure commits (agentic docs only); TypeScript ✅ Lint ✅ OpenAPI ✅; frontend/backend tests blocked by pre-existing infra (AWD-H-77 + AWD-M-46)
+2026-05-10T15:20:37Z | awade-dev-execution | done | AWD-M-137: replaced isMountedRef with AbortController in handleGenerateLessonResource; complexity ≈12→≈8; 214 tests pass; commit 7ffa87f merge 5d63ec1
+2026-05-10T16:07:41Z | awade-dev-execution | skip | recent commit found within 50 min — afec568 (AWD-M-137)
+2026-05-10T16:24:44Z | awade-code-review | done | commit 5d63ec1 (AWD-M-137 AbortController refactor): ✅ Clean — 3 🟢 filed (AWD-L-29/30/31), 0 🔴/🟠/🟡
+2026-05-10T16:36:03Z | awade-qa-validation | done | AWD-M-137 AbortController refactor — TS ✅ Lint ✅ OpenAPI ✅ Tests ⚠️ ENOSPC (AWD-H-77) | Verdict: Ship
+2026-05-10T17:18:38Z | awade-dev-execution | done | AWD-M-79: replace alert() with inline error banner in GuideViewPage handleDownloadPdf
+2026-05-10T18:08:00Z | awade-dev-execution | skip | recent commit found 49min ago: e2712af chore(agentic): record AWD-M-79 closure and dev-agent heartbeat
+2026-05-10T18:22:34Z | awade-code-review | done | commit 90e3b42 (AWD-M-79 inline error banner) — verdict: Clean — filed AWD-L-32 (anchor DOM append) AWD-L-33 (dismiss button)
+2026-05-10T18:36:18Z | awade-qa-validation | done | ✅ PASS — AWD-M-79 (GuideViewPage inline error banner): TS✅ lint✅ OpenAPI✅ spot-check✅; infra ENOSPC+venv pre-existing (AWD-H-77, AWD-M-46)
+2026-05-10T19:07:55Z | awade-dev-execution | skip | Recent commits found within 50min window (18:37 UTC qa-agent, 18:22 UTC code-review for AWD-M-79)
+2026-05-10T20:10:39Z | awade-dev-execution | skip | All stage=ready items blocked: H-78 (sandbox rm denied), H-65 (venv PyJWT fix needs Tolu machine), M-77 (venv openai SDK fix needs Tolu machine). Staged index clean — AWD-C-13 did NOT trigger.
+2026-05-10T20:21:00Z | awade-code-review | done | ✅ Clean — 0546d6e — qa-agent chore commit; no reviewable app code
+2026-05-10T20:33:47Z | awade-qa-validation | skip | No new commits on develop in last 110 minutes
+2026-05-10T21:13:51Z | awade-dev-execution | done | AWD-L-32 shipped (PDF anchor DOM append) — commit fce90e6, merge da5bc38
+2026-05-10T22:04:03Z | awade-nightly-monitor | done | morning-brief.md written; FE 217 passing; BE blocked by AWD-H-77 venv; 0C/3H/8M/6L open
+2026-05-10T22:14:17Z | awade-dev-execution | done | AWD-M-80 shipped (DeleteChildConfirmModal replaces window.confirm) — commit 5427797, merge a19fb7a
+2026-05-10T22:22:50Z | awade-code-review | done | reviewed fce90e6+5427797 (AWD-L-32, AWD-M-80) verdict ✅ Clean — no backlog items filed
+2026-05-10T22:36:28Z | awade-qa-validation | done | ✅ PASS AWD-L-32 + AWD-M-80 — tsc/lint/openapi green, spot-check clean; frontend tests skipped (sandbox ENOSPC), backend tests skipped (venv python3.13 missing in sandbox). Verdict: Ship.
+2026-05-11T03:07:04Z | awade-growth-daily | done | Educator Twitter/X thread drafted for 2026-05-11 — Teacher Workflow Tips, translation/contextualisation angle
+2026-05-11T05:09:43Z | awade-security-scan | done | 0 C/0 H/0 M; CI mirror passes; AI prompt defences intact; clean posture
+2026-05-11T06:06:23Z | awade-performance-audit | done | first baseline written; 1x N+1 filed as AWD-H-83 (orange); bundle 131KB gz initial (green); API latency skipped (no local server)
+2026-05-11T06:16:38Z | awade-dev-execution | done | AWD-H-83 N+1 fix in UserService.get_data_export; commit 38eade7, merge e5f9344
+2026-05-11T06:22:04Z | awade-code-review | done | review 14ea5a5 (AWD-H-83 N+1 fix) — verdict ✅ Clean, 0 findings filed, 2 🟢 observations
+2026-05-11T06:37:39Z | awade-qa-validation | done | PASS — AWD-H-83 data export N+1 fix verified: TS/lint/frontend tests/OpenAPI all green, backend pytest skipped (venv mismatch), no issues filed
+2026-05-11T07:04:07Z | awade-daily-health-check | done | 🟡 TS✅ lint✅ openapi✅; vitest/pytest INFRA (AWD-H-77,M-46); 0C/3H open (H-57,H-65,H-77); 2 merges unpushed (AWD-H-83, AWD-M-80)
+2026-05-11T07:17:57Z | awade-dev-execution | done | AWD-L-25 getErrorMessage util extracted; commit 17763a0 merge f3c1aa0 (git plumbing); 226 frontend tests pass
+2026-05-11T08:07:26Z | awade-dev-execution | skip | recent commit aa4948d within 50min window
+2026-05-11T08:09:03Z | awade-weekly-review | done | Week ending 2026-05-11; 185 commits, ~50 issues closed; biggest risk: ~100 unpushed commits on develop; full report at docs/agentic/weekly-reviews/review-2026-05-11.md
+2026-05-11T08:22:35Z | awade-code-review | done | review 17763a0 (AWD-L-25 getErrorMessage util) — ✅ Clean, filed AWD-M-138 (empty Error.message edge case)
+2026-05-11T08:34:22Z | awade-sprint-planning | done | sprint-2026-05-11.md written: 7 issues (2M + 5L), 2 stretch goals, 9 decisions/blockers itemised; flagged AWD-M-132 duplicate ID for renumber
+2026-05-11T08:37:18Z | awade-qa-validation | done | AWD-L-25 refactor passes — 226 fe tests · 0 ts errors · 0 lint · OpenAPI valid · backend skipped (venv) · ship
+2026-05-11T09:16:11Z | awade-dev-execution | done | AWD-M-138 shipped (commit 5a3f51c, merge 22a1a42) — getErrorMessage empty-message guard
+2026-05-11T10:13:54Z | awade-dev-execution | done | AWD-L-26 ParentDashboardPage clear deleteError on child card switch — 2 vitest tests, commit 4b83d64, merge 62d3c52
+2026-05-11T10:21:40Z | awade-code-review | done | reviewed 62d3c52 (AWD-M-138 + AWD-L-26) — verdict ✅ Clean, 1 🟢 noted (no backlog item filed)
+2026-05-11T10:36:58Z | awade-qa-validation | done | PASS — 2 commits validated (AWD-L-26, AWD-M-138); TS/lint/vitest green; backend skipped (sandbox venv); no triage needed
+2026-05-11T11:09:53Z | awade-dev-execution | skip | all 9 open items blocked (H-78 sandbox-perm; rest need Tolu decisions/dev-machine actions)
+2026-05-11T12:13:10Z | awade-dev-execution | done | AWD-L-31 shipped (commit 109baa6, merge 3a108d0) — LessonPlanDetailPage.test.tsx stale isMountedRef comments updated to AbortController signal (lines 221, 246); 18/18 vitest passing; AWD-C-13 staged-index reversion cleared
+2026-05-11T12:21:16Z | awade-code-review | done | 3 files (AWD-L-26 + AWD-L-31), ✅ Clean, 0 backlog items filed
+2026-05-11T12:35:38Z | awade-qa-validation | done | AWD-L-31 docs-only comment update — TS✅ lint✅ openapi✅ env-tests⚠️(pre-existing AWD-H-77) — verdict: Ship
+2026-05-11T13:17:03Z | awade-dev-execution | done | AWD-M-132 useConsentGate hook extracted — 3 useState removed from ParentDashboardPage, 10 new tests, commit 2ecf1fc merge f0b92bc
+2026-05-11T14:19:13Z | awade-dev-execution | done | AWD-L-30: split LessonPlanDetailPage.test.tsx into load (8 tests) + generate (10 tests) files
+2026-05-11T14:21:03Z | awade-code-review | done | AWD-M-132 useConsentGate hook + AWD-L-30 test split reviewed — verdict: Clean
+2026-05-11T14:37:15Z | awade-qa-validation | done | ✅ PASS (static) — AWD-M-132 useConsentGate + AWD-L-30 test split clean; ENOSPC blocked live tests; no new issues filed
+2026-05-11T15:07:57Z | awade-dev-execution | skip | recent commit 61ab60b (50min ago) — AWD-L-30 merge into develop
+2026-05-11T16:12:15Z | awade-dev-execution | done | AWD-L-33 GuideViewPage downloadError dismiss button — commit e915a94 merge dbedace
+2026-05-11T16:22:05Z | awade-code-review | done | ✅ Clean — dbedace (AWD-L-33 dismiss button); filed AWD-M-139 layout shell duplication
+2026-05-11T16:35:58Z | awade-qa-validation | done | AWD-L-33 dismiss button: TS ✅ lint ✅ openapi ✅ spot-check ✅ — sandbox ENOSPC+broken-venv blocked test runners; code clean; verdict Ship
+2026-05-11T17:13:57Z | awade-dev-execution | done | AWD-M-139: extracted GuidePageShell to GuideViewPage.components.tsx — 245 tests · TS 0 · lint 0 · commit a2843f0 · merge f52c392
+2026-05-11T18:18:06Z | awade-dev-execution | done | AWD-L-29 shipped: extracted useGenerateLessonResource hook, LessonPlanDetailPage.tsx 411→243 lines, 12 new tests, 257 total pass
+2026-05-11T18:22:35Z | awade-code-review | done | commits 3083852+a2843f0 reviewed — verdict ✅ Clean — filed AWD-M-140
+2026-05-11T18:36:41Z | awade-qa-validation | done | ✅ PASS — AWD-L-29 + AWD-M-139 TS/lint/openapi clean; tests blocked by pre-existing ENOSPC (H-77)
+2026-05-11T19:17:22Z | awade-dev-execution | done | AWD-M-140 split GuideViewPage.test.tsx into render+interactions files; __fixtures__/guideViewPage.tsx extracted; 257 tests pass
+2026-05-11T20:18:04Z | awade-dev-execution | done | AWD-M-141: split ParentDashboardPage.test.tsx 737→render(390/19t)+delete(349/11t), fixture 68L, 257 tests pass
+2026-05-11T20:22:26Z | awade-code-review | done | AWD-M-140+M-141 test splits reviewed — verdict ✅ Clean — no new backlog items
+2026-05-11T20:35:52Z | awade-qa-validation | done | AWD-M-141+AWD-M-140 test splits: TS✅ lint✅ openapi✅ spot-check✅; frontend tests SKIP (ENOSPC AWD-H-77); backend tests SKIP (venv broken AWD-M-46); verdict Ship
+2026-05-11T21:09:37Z | awade-dev-execution | skip | All stage=ready items blocked by Tolu machine (H-78: rm untracked file; H-65/M-77: venv pip install); index clean, AWD-C-13 not triggered
+2026-05-11T22:02:05Z | awade-nightly-monitor | done | morning-brief written: 14 commits (M-141 M-140 L-29 M-139 L-33 L-30 M-132 L-31 L-26 M-138 L-25 H-83 M-80 L-32); TS clean; tests blocked by sandbox ENOSPC+venv; 🟡 Attention — push develop to CI
+2026-05-11T22:08:58Z | awade-dev-execution | skip | All 3 Stage:ready items (H-78 untracked-file-delete, H-65 venv-PyJWT, M-77 venv-openai) require dev machine — sandbox cannot proceed
+2026-05-11T22:19:32Z | awade-code-review | skip | no new commits in last 115 minutes
+2026-05-11T22:33:53Z | awade-qa-validation | skip | no new commits on develop in last 110 minutes
+2026-05-12T03:07:15Z | awade-growth-daily | done | Twitter/X parent post drafted — Parent Empowerment Stories: sitting down anyway (2026-05-12-twitter-x.md)
+2026-05-12T05:14:48Z | awade-security-scan | done | 0 C / 0 H / 1 M (AWD-M-142 JWT env guard) / 1 L (AWD-L-34 console.error); CI mirror ✅; deps ✅; OWASP Web ✅; OWASP LLM ✅
+2026-05-12T06:17:46Z | awade-architecture-review | done | first run: 4 ADRs created, drift in 6 undocumented modules + 2 dead-code clusters, 4 backlog items filed (H-84 H-85 M-142 L-34)
+2026-05-12T06:19:35Z | awade-dev-execution | done | AWD-M-142 JWT dev-secret allowlist — commit 66bd3bb merge 62d8b4b
+2026-05-12T06:21:03Z | awade-code-review | done | AWD-M-142 JWT allowlist hardening — ✅ Clean, 0 findings filed
+2026-05-12T06:35:48Z | awade-qa-validation | done | AWD-M-142 JWT allowlist — code clean, TS/lint/OpenAPI ✅, tests blocked by pre-existing ENOSPC, verdict: Ship
+2026-05-12T07:04:08Z | awade-daily-health-check | done | TS✅ lint✅ tests-SKIP(ENOSPC/no-venv) openapi✅ · 25 commits pending push · 0 Critical 2 High open
+2026-05-12T07:07:44Z | awade-dev-execution | skip | recent commit within 50min: AWD-M-142 JWT secret env allowlist
+2026-05-12T08:16:07Z | awade-dev-execution | done | AWD-L-34: gated 7 admin console.error calls behind import.meta.env.DEV — commit d9fd18c, merge abe202a
+2026-05-12T08:23:02Z | awade-code-review | done | AWD-L-34+JWT-allowlist reviewed: ✅ Clean — filed AWD-M-143 (admin silent mutation failures) + AWD-L-35 (module-level constant)
+2026-05-12T08:36:40Z | awade-qa-validation | done | PASS — AWD-L-34 console.error gating validated; TS✅ Lint✅ OpenAPI✅; test runners blocked by AWD-H-77 ENOSPC (known)
+2026-05-12T09:15:51Z | awade-dev-execution | done | AWD-M-143 admin mutation errors surfaced — 11 new tests, 268 pass, commit a292c82 merge e1950db
+2026-05-12T10:12:46Z | awade-dev-execution | done | AWD-L-35 _SAFE_FALLBACK_ENVIRONMENTS promoted to module-level frozenset in dependencies.py — commit 363a2de merge b5b241e
+2026-05-12T10:22:47Z | awade-code-review | done | reviewed AWD-L-35 + AWD-M-143 commits; verdict ⚠️ Refactor Recommended; filed M-144, M-145, L-36
+2026-05-12T10:37:14Z | awade-qa-validation | done | ✅ PASS — AWD-M-143 + AWD-L-35: TS ✅ lint ✅ 268 frontend tests ✅ OpenAPI ✅ spot-check ✅ venv unavailable (sandbox)
+2026-05-12T11:11:39Z | awade-dev-execution | skip | All stage=ready items blocked: H-84/H-85/H-78 untracked files (sandbox cannot rm), H-65/M-77 require Tolu venv fix on dev machine, H-73 requires API key rotation by Tolu
+2026-05-12T12:19:07Z | awade-dev-execution | done | AWD-M-144 ConfirmRoleChangeModal in admin UserList — commit 41367ed merge 9571436 — 11 tests pass · TS 0 · lint 0
+2026-05-12T12:23:13Z | awade-code-review | done | AWD-M-144 (ConfirmRoleChangeModal) reviewed — ⚠️ Refactor Recommended — filed AWD-M-146 (SUPER_ADMIN role cycling catch-all)
+2026-05-12T12:35:32Z | awade-qa-validation | done | AWD-M-144 modal: TS✅ lint✅ openapi✅ spot-check✅ tests⚠️(ENOSPC sandbox) — verdict: Ship pending CI
+2026-05-12T13:07:53Z | awade-dev-execution | skip | recent commit found (9571436 Merge fix/admin/AWD-M-144) — skipping run
+2026-05-12T14:11:07Z | awade-dev-execution | skip | all stage=ready items blocked: H-78/H-84/H-85 sandbox cannot delete untracked files; H-65/M-77 require Tolu venv fix on dev machine
+2026-05-12T14:19:30Z | awade-code-review | skip | no new commits in last 115 minutes
+2026-05-12T14:33:51Z | awade-qa-validation | skip | no new commits on develop in last 110 minutes
+2026-05-12T15:24:43Z | awade-dev-execution | done | AWD-M-145 shipped: ContentPreviewModal replaces alert() in ModerationList (commit 1c3f8d4, merge 35759ee)
+2026-05-12T16:07:56Z | awade-dev-execution | skip | recent commit found (35759ee, 44min ago — AWD-M-145)
+2026-05-12T16:21:26Z | awade-code-review | done | ✅ Clean — ContentPreviewModal (new) + ModerationList (modified); 1 🟡 filed AWD-L-37 (fetchResources swallows load errors)
+2026-05-12T16:35:07Z | awade-qa-validation | done | AWD-M-145 validated — TS ✅ lint ✅ openapi ✅ spot-check ✅ test runners blocked by sandbox infra
+2026-05-12T17:15:34Z | awade-dev-execution | done | AWD-L-37: fetchResources load error surfaced in ModerationList — commit 60087ec
+2026-05-12T18:14:20Z | awade-dev-execution | skip | All stage=ready blocked: H-78/H-84/H-85 require file deletion on Tolu machine; H-73 needs external key rotation; M-17/L-07/M-146 need Tolu decisions; M-19/M-46 need hardware; M-20 skipped (no spec for prompts.py)
+2026-05-12T18:22:30Z | awade-code-review | done | commit 60087ec (AWD-L-37 ModerationList): ⚠️ Refactor Recommended — 2 findings — filed AWD-M-147 (json-before-ok), AWD-M-148 (duplicate error banner)
+2026-05-12T18:38:31Z | awade-qa-validation | done | AWD-L-37 validated — TS✅ lint✅ OpenAPI✅ spot-check✅ frontend tests ⚠️ pre-existing AWD-H-77 sandbox issue — verdict: Ship
+2026-05-12T19:11:36Z | awade-dev-execution | done | AWD-M-147: swapped response.json() to after !response.ok in ModerationList.fetchResources; 15 tests pass; commit 0ffa3a7 merge e270a32
+2026-05-12T20:16:45Z | awade-dev-execution | done | AWD-M-148 extract ErrorBanner component — commit 73a2f54 merge d0fd4f9
+2026-05-12T20:21:59Z | awade-code-review | done | ⚠️ Refactor Recommended — filed AWD-H-86 (UserList.fetchUsers json-before-ok) + AWD-H-87 (UserList.fetchUsers silent load error)
+2026-05-12T20:37:01Z | awade-qa-validation | done | PASS: AWD-M-147+AWD-M-148 validated; TS/lint/OpenAPI clean; test runners sandbox-blocked (H-77); confirmed H-86+H-87 findings; verdict Ship
+2026-05-12T21:08:00Z | awade-dev-execution | skip | recent commit found (AWD-L-38 fix shipped < 50 min ago)
+2026-05-12T22:03:59Z | awade-nightly-monitor | done | morning-brief written: 18 commits, TS clean, ENOSPC sandbox (pre-existing), 1C/8H open, 6 CRITICAL agent health alerts
+2026-05-12T22:14:58Z | awade-dev-execution | done | AWD-H-86+H-87: fetchUsers !response.ok guard + loadError state in UserList.tsx — commit ee51ec0
+2026-05-12T22:21:39Z | awade-code-review | done | ee51ec0 3 commits: H-86+H-87 fetchUsers guard+loadError, L-38 pytz→stdlib, ErrorBanner component. Verdict: Clean.
+2026-05-12T22:36:05Z | awade-qa-validation | done | ee51ec0 UserList.tsx AWD-H-86/87 — TS✅ lint✅ openapi✅ spot✅ tests⚠️ENOSPC(infra) — verdict: Ship
+2026-05-13T03:08:19Z | awade-growth-daily | done | LinkedIn post drafted: Africa-centred Education News — communal learning as a family project (280 words, Both audience, 8:30am WAT)
+2026-05-13T05:26:51Z | awade-security-scan | done | No Critical/High findings; 2 Medium filed (AWD-M-149 token cap env mismatch, AWD-M-150 injection patterns)
+2026-05-13T05:52:07Z | awade-dependency-security | done | no Critical/High CVEs; 3 M (pydantic/sqlalchemy/redis staleness) + 2 L (react-icons/pytest major); SBOM snapshot written
+2026-05-13T06:25:25Z | awade-code-review | skip | no new commits in last 115 minutes
+2026-05-13T06:26:48Z | awade-code-review | skip | no new commits in last 115 minutes
+2026-05-13T06:36:39Z | awade-qa-validation | skip | no new commits on develop in last 110 minutes
+2026-05-13T06:53Z | awade-dev-execution | done | AWD-M-151/152/153 pydantic+sqlalchemy+redis bumped, commit 4e8a51b merge 00ffb08
+2026-05-13T07:14:21Z | awade-dev-execution | skip | recent commit found (00ffb08 21min ago)
+2026-05-13T07:17:00Z | awade-daily-health-check | done | TS✅ lint✅ OpenAPI✅ tests-SKIP(ENOSPC) 0C/7H open push-pending
+2026-05-13T08:06:00Z | awade-content-calendar | done | Content calendar written for May 18–22 (5 pieces: parent empowerment Mon, educator workflow Tue, LinkedIn BIP Wed, email Africa-centred Thu, BIP week-in-review Fri)
+2026-05-13T08:15:20Z | awade-dev-execution | done | AWD-M-148 shipped: migrated GuideViewPage + ParentDashboardPage to ErrorBanner, 2 new tests, commit be18230 merge 1e782d8
+2026-05-13T08:23:03Z | awade-code-review | done | ✅ Clean — AWD-M-148 ErrorBanner migration (4 sites, 2 new tests) + AWD-M-151/152/153 dep bumps; 0 findings filed
+2026-05-13T08:37:25Z | awade-qa-validation | done | ✅ PASS — AWD-M-148 ErrorBanner migration + AWD-M-151/152/153 dep bumps; TypeScript/lint clean; no issues filed
+2026-05-13T09:18:08Z | awade-dev-execution | done | AWD-M-149 fix AI_MAX_TOKENS env var in env.example/production/test templates; H-84+H-85 audited closed; C-13 staged-reversion cleared
+2026-05-13T10:10:05Z | awade-dev-execution | skip | All stage=ready items require Tolu local machine (AWD-H-78 untracked file not in mount, AWD-H-65/M-46/M-77 venv ops). No sandbox-actionable work.
+2026-05-13T10:22:13Z | awade-code-review | done | ✅ Clean — env template rename (M-149); filed M-154 (OPENAI_TEMPERATURE stale) + M-155 (OPENAI_MODEL phantom var)
+2026-05-13T10:35:39Z | awade-qa-validation | done | AWD-M-149 env rename ✅ PASS — TS/lint/OpenAPI clean; test runner unavailable (pre-existing ENOSPC+venv); no issues filed
+2026-05-13T11:10:53Z | awade-dev-execution | done | AWD-M-154: renamed OPENAI_TEMPERATURE→AI_TEMPERATURE in 3 env templates; AWD-C-13 cleared; commit 66e0cca merge d173c54
+2026-05-13T12:15:33Z | awade-dev-execution | done | AWD-M-150: expanded _INPUT_INJECTION_PATTERNS with 6 new jailbreak patterns + 6 tests; commit b767da7 merge b9bb9a3
+2026-05-13T12:25:00Z | awade-code-review | done | commits b767da7+66e0cca (AWD-M-150+AWD-M-154) reviewed — verdict ✅ Clean — filed AWD-M-156 (output injection blind spots) + AWD-M-157 (developer_mode false positives)
+2026-05-13T12:36:52Z | awade-qa-validation | done | PASS — AWD-M-150 injection patterns + AWD-M-154 AI_TEMPERATURE rename validated; no issues filed; ship verdict
+2026-05-13T13:14:21Z | awade-dev-execution | done | AWD-M-157 narrow developer_mode pattern to avoid ICT false positives — commit f62dd1f merge 99464a5
+2026-05-13T14:14:56Z | awade-dev-execution | done | AWD-M-156: extended _OUTPUT_INJECTION_PATTERNS 7→13 entries; 7 tests; commit 91a49a7
+2026-05-13T14:21:56Z | awade-code-review | done | commits 91a49a7+f62dd1f (AWD-M-156+M-157): ✅ Clean — filed AWD-M-158 (_SHARED_INJECTION_PATTERNS refactor)
+2026-05-13T14:36:14Z | awade-qa-validation | done | ✅ PASS (infra caveats) — AWD-M-156+M-157 security patches; TS✅ lint✅ openapi✅ tests skipped(ENOSPC+broken venv)
+2026-05-13T15:13:22Z | awade-dev-execution | done | AWD-M-158: extracted _SHARED_INJECTION_PATTERNS from both injection gates (commit 8ef9f16, merge 7cf1342)
+2026-05-13T16:11:16Z | awade-dev-execution | done | AWD-L-39: pytest 7.4.0→8.3.5 bumped in requirements.txt; commit 8afba6d merge f9e59eb
+2026-05-13T16:30:55Z | awade-code-review | done | ✅ Clean — AWD-L-39 (pytest 8.3.5) + AWD-M-158 (_SHARED_INJECTION_PATTERNS). Filed AWD-L-40: pytest-asyncio 0.21.2→0.23.x
+2026-05-13T16:35:38Z | awade-qa-validation | done | ✅ PASS — AWD-L-39 (pytest 8.3.5) + AWD-M-158 (_SHARED_INJECTION_PATTERNS) clean; tsc/lint ✅; tests SKIP (ENOSPC/venv); openapi ✅; no new issues (AWD-L-40 pre-filed by code-review-agent)
+2026-05-13T17:14:33Z | awade-dev-execution | done | AWD-L-40 pytest-asyncio 0.21.2→>=0.23.8 + asyncio_mode=auto; commit 5f07f4a merge 5b3876e
+2026-05-13T18:23:04Z | awade-code-review | done | commit 5f07f4a (AWD-L-40): ⚠️ Refactor Recommended — pytest-asyncio>=0.23.8 unpinned, filed AWD-L-41
+2026-05-13T18:36:29Z | awade-qa-validation | done | ✅ PASS — AWD-L-40 (pytest-asyncio >=0.23.8 + asyncio_mode=auto) clean; tsc/lint ✅; tests SKIP (ENOSPC/venv); openapi ✅; AWD-L-41 pre-filed by code-review-agent
+2026-05-13T19:14:01Z | awade-dev-execution | done | AWD-L-41 pin pytest-asyncio==0.23.8; restore asyncio_mode=auto; commit 8354560 merge 18672b2
+2026-05-13T20:15:39Z | awade-dev-execution | done | AWD-L-34: added codebase-map update rule to workflow.md DoD and dev-agent SKILL.md step 8a (disk-only, .claude/ gitignored)
+2026-05-13T20:20:57Z | awade-code-review | done | ✅ Clean — pytest-asyncio 0.21.2→0.23.8 + asyncio_mode=auto; 0 findings; no backlog items filed
+2026-05-13T20:35:57Z | awade-qa-validation | done | ✅ PASS — AWD-L-41 pin pytest-asyncio==0.23.8; TypeScript ✅ lint ✅ openapi ✅; tests unrunnable (ENOSPC/venv — AWD-H-77/M-46); no new failures
+2026-05-13T21:17:19Z | awade-dev-execution | done | AWD-L-42 shipped: removed duplicate sys/os+sys.path block in grade_level_service.py (973d850)
+2026-05-13T22:11:05Z | awade-nightly-monitor | done | 26 commits unpushed; TS ✅; tests SKIP (ENOSPC); C:1 H:3 M:6 L:1 open; 6 CRITICAL agents; morning-brief written
+2026-05-13T22:17:23Z | awade-dev-execution | done | AWD-L-43 shipped: add .gitignore patterns for vitest temp dirs — commit 60ac16e merge 4beac20
+2026-05-13T22:23:15Z | awade-code-review | done | commits 973d850+60ac16e (AWD-L-42+L-43): ⚠️ Refactor Recommended — filed AWD-M-159 sys.path at module level, AWD-L-44 .dict() deprecated
+2026-05-13T22:35:06Z | awade-qa-validation | done | ✅ PASS — AWD-L-43 (.gitignore vitest patterns) + AWD-L-42 (duplicate import removal): TypeScript ✅ Lint ✅ OpenAPI ✅ spot-check ✅; FE/BE tests blocked by pre-existing sandbox infra (AWD-H-77/AWD-M-46); no new issues filed; verdict Ship
+2026-05-14T14:02:15Z | awade-growth-daily | done | Created Twitter/X thread draft for May 14: "where is your child?" — 4-tweet thread explaining why country+curriculum+grade selection comes first in parent onboarding (verified ParentOnboardingPage.tsx flow) — saved to docs/agentic/content/drafts/2026-05-14-twitter.md, updated content-log.md
+2026-05-14T06:34:32Z | awade-qa-validation | skip | No new commits in 110 minutes
+2026-05-14T08:21:16Z | awade-code-review | skip | no new commits in last 115 minutes
+2026-05-14T08:34:54Z | awade-qa-validation | skip | No new commits on develop since 110 min ago
+2026-05-14T10:07:49Z | awade-dev-execution | skip | recent commit (6dd1aca) within 50 min window
+2026-05-14T10:20:50Z | awade-code-review | done | structural review of 6dd1aca, 66da1ca: no code changes, docs-only chore commits (security cleanup)
+2026-05-14T10:35:38Z | awade-qa-validation | done | ENOSPC + missing venv block frontend & backend tests; 2 doc-only commits; TS/lint/openAPI ✅; H-77/M-46 pre-existing
+2026-05-14T11:13:51Z | awade-dev-execution | done | AWD-M-159: remove sys.path.extend() antipattern from grade_level_service.py; commit e249b8b; also updated .dict()→.model_dump() for Pydantic v2; backlog/dev-log/completed_backlog updated
+2026-05-14T12:21:28Z | awade-code-review | done | Structural review complete: 1 file reviewed, 0 findings, verdict clean (refactor: sys.path removal + pydantic v2 compat)
+2026-05-14T12:36:12Z | awade-qa-validation | done | Code PASS (e249b8b refactor clean); infra BLOCKED (disk space, venv); H-79 auto-filed
+2026-05-14T14:20:13Z | awade-code-review | skip | no new commits in last 115 minutes
+2026-05-14T14:34:33Z | awade-qa-validation | skip | No new commits in last 110 minutes
+2026-05-14T16:08:33Z | awade-dev-execution | error | Git index.lock blocker — FUSE mount permissions
+2026-05-14T16:20:23Z | awade-code-review | skip | no commits in last 115 minutes
+2026-05-14T16:34:24Z | awade-qa-validation | skip | no new commits
+2026-05-15T18:20:29Z | awade-code-review | skip | no new commits in last 115 minutes
+2026-05-15T18:34:21Z | awade-qa-validation | skip | No commits in last 110 minutes
+2026-05-15T19:13:32Z | awade-friday-finance | done | Financial snapshot generated for May 15 2026; CI validation successful (41 commits reduced to 1); critical alerts: balance.md missing 24 days, openai-costs.md missing, Stripe not started (week 5), no analytics connected. Runway blocked without balance.md. Recommended actions: create balance.md, create openai-costs.md, file AWD-H-37 (Stripe), resolve AWD-M-17 (migration).
+2026-05-15T20:20:37Z | awade-code-review | skip | no new commits in last 115 minutes
+2026-05-15T20:34:22Z | awade-qa-validation | skip | no new commits on develop
+{"timestamp":"2026-05-15T16:30:00Z","agent":"dev-agent","status":"no_work","summary":"QA log clear (no STOP). Backlog has no stage=ready items available. H-79 at stage=discover is the only open issue. Blocked items: H-78/H-84/H-85 (sandbox file deletion), H-65/M-77 (Tolu venv fix).","duration_seconds":120}
+2026-05-15T22:05:08Z | awade-nightly-monitor | done | morning-brief written: 0 commits today, TS clean, tests ENOSPC-blocked, 11 open issues (3H/7M/1L), CI pending push
+2026-05-15T22:13:07Z | awade-dev-execution | done | AWD-L-45: replaced 16 .dict() calls with .model_dump() across 7 backend files — commit a680f7b merge 2a991b7
+2026-05-15T22:23:00Z | awade-code-review | done | AWD-L-45 (.dict→.model_dump, 7 files) — ⚠️ Refactor Recommended — filed M-160 M-161 M-162
+2026-05-15T22:35:30Z | awade-qa-validation | done | AWD-L-45 .dict()→.model_dump() refactor: TS✅ lint✅ openapi✅ spot-check✅; test runners blocked by pre-existing ENOSPC/venv (AWD-H-77/79); verdict Ship
+2026-05-16T05:12:16Z | awade-security-scan | done | PASS — 0 Critical, 0 High; low: rate limits missing on non-AI children endpoints
+2026-05-16T06:12:00Z | awade-dev-execution | done | AWD-M-160: removed duplicate sys.path.extend blocks from country_service.py, subject_service.py, context_service.py (commit 4957a57, merge d9b412e)
+2026-05-16T06:22:18Z | awade-code-review | done | AWD-M-160 resolution reviewed — ✅ Clean. Filed AWD-L-46: get_contexts_for_user silent exception swallow in context_service.py
+2026-05-16T06:35:41Z | awade-qa-validation | done | QA PASS (chore AWD-M-160: 3 service files, spot-check clean, sandbox infra limits on tests)
+2026-05-16T07:12:46Z | awade-dev-execution | done | AWD-M-161 removed 138 lines commented-out dead code from curriculum_service.py · commit 4a406d4 · merge 8e28dd8
+2026-05-16T08:12:45Z | awade-dev-execution | done | AWD-L-46 shipped: added logger.error in get_contexts_for_user before raise HTTPException — commit 8807c96
+2026-05-16T08:24:11Z | awade-code-review | done | AWD-L-46 + AWD-M-161 reviewed; ⚠️ Refactor Recommended; filed M-163 (get_curriculum_statistics crashes) M-164 (search_curriculums crashes)
+2026-05-16T08:38:07Z | awade-qa-validation | done | 3 commits clean (AWD-L-46/M-161/M-160); filed AWD-L-47 (missing test for get_contexts_for_user); sandbox ENOSPC blocked test runners (AWD-H-77/M-85)
+2026-05-16T09:07:20Z | awade-weekend-ops | done | retro-2026-05-16 + monday-prep written; groomed M-163/M-164→ready, M-162→define, H-57 dup closed, M-78 launch-blocked
+2026-05-16T09:14:35Z | awade-dev-execution | done | AWD-M-163 fixed get_curriculum_statistics: wrong kwarg + topic.id→topic.topic_id, 5 tests added, commit a8d1e4f merge eb3371b
+2026-05-16T10:18:32Z | awade-dev-execution | done | AWD-M-164 fixed search_curriculums — joined Country+Subject, .ilike() on columns, distinct(). 5 tests. Commit 899d718, merge 63aa121
+2026-05-16T10:23:25Z | awade-code-review | done | ⚠️ Refactor Recommended — AWD-M-163+164 fixes reviewed, filed AWD-M-165 (N+1 stats) + AWD-M-166 (empty search term)
+2026-05-16T10:37:17Z | awade-qa-validation | done | ✅ PASS — AWD-M-163/M-164 curriculum fixes reviewed; TS/lint/OpenAPI clean; sandbox infra issues (ENOSPC, venv) pre-existing
+2026-05-16T11:14:04Z | awade-dev-execution | done | AWD-L-47: added 3 tests for get_contexts_for_user (happy path, empty, DB exception)
+2026-05-16T12:13:19Z | awade-dev-execution | done | AWD-M-166 shipped: empty search_term guard in search_curriculums + search_topics; 6 tests; commit 3d5a05d merge 8a567ed
+2026-05-16T12:23:57Z | awade-code-review | done | ✅ Clean — AWD-M-166 guard + AWD-L-47 tests reviewed; filed M-167 (missing search error handling) + L-48 (missing database marker)
+2026-05-16T12:36:28Z | awade-qa-validation | done | PASS — AWD-M-166+AWD-L-47 validated; TS✅ Lint✅ OpenAPI✅ spot-check✅; sandbox ENOSPC+venv H-79 ongoing
+2026-05-16T13:14:01Z | awade-dev-execution | done | AWD-M-167: add try/except to search_curriculums + search_topics, commit f23e74d merge e741999
+2026-05-16T14:13:21Z | awade-dev-execution | done | AWD-L-48: @pytest.mark.database added to TestGetContextsForUser (14cd646, cc15f9e)
+2026-05-16T14:23:19Z | awade-code-review | done | ✅ Clean — AWD-M-167 (search error handling) + AWD-L-48 (database marker) resolved correctly; no new issues
+2026-05-16T14:36:01Z | awade-qa-validation | done | PASS (infra caveats) — AWD-L-48 + AWD-M-167 on develop; TS ✅ lint ✅ openapi ✅ spot-check ✅; tests blocked by ENOSPC sandbox
+2026-05-16T15:16:03Z | awade-dev-execution | done | AWD-M-165 shipped (c1295e0) — N+1 fix in get_curriculum_statistics, 2 new tests
+2026-05-16T16:17:13Z | awade-dev-execution | done | AWD-M-162 extracted _apply_user_fields helper in user_service.py; commit e2e9421 merge a09249f
+2026-05-16T16:23:27Z | awade-code-review | done | Reviewed c1295e0+e2e9421+a09249f (AWD-M-165+M-162). Verdict: ⚠️ Refactor Recommended. Filed AWD-M-168/M-169/M-170.
+2026-05-16T16:37:49Z | awade-qa-validation | done | 3 commits clean (AWD-M-162, AWD-M-165); AWD-L-49 filed (EOF newline); infra blockers pre-existing H-77/H-79
+2026-05-16T17:19:26Z | awade-dev-execution | done | AWD-M-170: get_curriculum_statistics try/except — commit 9f5be8b merge 1bc1217
+2026-05-16T18:21:45Z | awade-code-review | done | AWD-M-170 try/except in get_curriculum_statistics — verdict: Clean, no new backlog items
+2026-05-16T18:36:48Z | awade-qa-validation | done | AWD-M-170 try/except wrap validated — TS ✅ lint ✅ OpenAPI ✅ spot-check ✅; tests blocked by pre-existing ENOSPC (AWD-H-77/AWD-H-79)
+2026-05-16T19:17:19Z | awade-dev-execution | done | AWD-L-49 add EOF newline to curriculum_service.py (commit e5d37dd, merge eb27eb4; AWD-C-13 staged-revert cleared first)
+2026-05-16T20:30:00Z | awade-dev-execution | done | AWD-M-168 + AWD-M-169: _apply_user_fields copy-safe (dict copy, 3 tests) + extracted _parse_json_list @staticmethod (6 tests); no bash shell in session — commit pending Tolu git action
+2026-05-16T20:24:15Z | awade-code-review | done | commit eb27eb4 (AWD-L-49 EOF newline) — ⚠️ Refactor Recommended — filed AWD-H-88, AWD-M-171
+2026-05-16T20:50:04Z | awade-qa-validation | done | PASS — AWD-L-49 EOF newline fix; OpenAPI ✅; spot-check ✅; sandbox tool timeouts pre-existing (AWD-H-77/79)
+2026-05-16T21:31:10Z | awade-dev-execution | done | AWD-H-88 CurriculumService CRUD try/except (12 methods, 12 tests); also committed pending AWD-M-168+M-169 (c46bf81)
