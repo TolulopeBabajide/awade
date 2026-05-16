@@ -1,5 +1,5 @@
 """
-Unit tests for CurriculumService — AWD-M-163, AWD-M-164.
+Unit tests for CurriculumService — AWD-M-163, AWD-M-164, AWD-M-166.
 
 Covers:
 - get_curriculum_statistics: happy path (one structure, topics, objectives, contents)
@@ -12,6 +12,11 @@ Covers:
 - search_curriculums: match by subject name (AWD-M-164)
 - search_curriculums: no match returns empty list (AWD-M-164)
 - search_curriculums: no duplicate rows when curriculum has multiple matching structures (AWD-M-164)
+- search_curriculums: empty string returns [] without hitting DB (AWD-M-166)
+- search_curriculums: whitespace-only string returns [] without hitting DB (AWD-M-166)
+- search_topics: empty string returns [] without hitting DB (AWD-M-166)
+- search_topics: whitespace-only string returns [] without hitting DB (AWD-M-166)
+- search_topics: non-empty term returns matching topics (AWD-M-166)
 """
 
 import pytest
@@ -281,3 +286,53 @@ class TestSearchCurriculums:
         results = service.search_curriculums("Mathematics")
         matching = [c for c in results if c.curricula_id == sample_curriculum.curricula_id]
         assert len(matching) == 1, "distinct() must prevent duplicate rows per curriculum"
+
+    def test_empty_string_returns_empty_list(self, test_db, sample_curriculum):
+        """AWD-M-166: empty search_term must return [] without executing the join query."""
+        service = CurriculumService(test_db)
+        results = service.search_curriculums("")
+        assert results == [], "Empty string should return [] not the full table"
+
+    def test_whitespace_only_returns_empty_list(self, test_db, sample_curriculum):
+        """AWD-M-166: whitespace-only search_term must return [] not the full table."""
+        service = CurriculumService(test_db)
+        results = service.search_curriculums("   ")
+        assert results == [], "Whitespace-only string should return [] not the full table"
+
+
+class TestSearchTopics:
+    """search_topics — AWD-M-166: empty search_term guard + basic happy path."""
+
+    def test_empty_string_returns_empty_list(self, test_db):
+        """AWD-M-166: empty search_term returns [] without hitting DB."""
+        service = CurriculumService(test_db)
+        results = service.search_topics("")
+        assert results == [], "Empty string should return [] not the full topics table"
+
+    def test_whitespace_only_returns_empty_list(self, test_db):
+        """AWD-M-166: whitespace-only search_term returns [] not the full topics table."""
+        service = CurriculumService(test_db)
+        results = service.search_topics("   ")
+        assert results == [], "Whitespace-only string should return [] not the full topics table"
+
+    def test_matching_term_returns_topic(self, test_db, sample_curriculum_structure):
+        """AWD-M-166: non-empty term returns matching topics."""
+        from apps.backend.models import Topic
+        topic = Topic(
+            topic_title="Algebra Basics M166",
+            curriculum_structure_id=sample_curriculum_structure.curriculum_structure_id,
+        )
+        test_db.add(topic)
+        test_db.commit()
+        test_db.refresh(topic)
+
+        service = CurriculumService(test_db)
+        results = service.search_topics("Algebra Basics M166")
+        ids = [t.topic_id for t in results]
+        assert topic.topic_id in ids
+
+    def test_no_match_returns_empty_list(self, test_db):
+        """search_topics with a term matching nothing returns [] (no crash)."""
+        service = CurriculumService(test_db)
+        results = service.search_topics("xyzzy_no_topic_9876")
+        assert results == []
