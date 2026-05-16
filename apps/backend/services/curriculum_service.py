@@ -6,10 +6,13 @@ This module provides service methods for managing curriculum data, topics, learn
 Author: Tolulope Babajide
 """
 
+import logging
+
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timezone
+from fastapi import HTTPException
 
 from apps.backend.models import (
     Curriculum, Topic, CurriculumStructure, Country, GradeLevel, Subject, LearningObjective, TopicContent
@@ -17,6 +20,9 @@ from apps.backend.models import (
 from apps.backend.schemas.curriculum import (
     CurriculumCreate, CurriculumResponse, TopicCreate, TopicResponse, LearningObjectiveCreate, ContentCreate
 )
+
+logger = logging.getLogger(__name__)
+
 
 class CurriculumService:
     """Service class for curriculum operations."""
@@ -289,27 +295,33 @@ class CurriculumService:
         """
         if not search_term or not search_term.strip():
             return []
-        return (
-            self.db.query(Curriculum)
-            .join(Country, Curriculum.country_id == Country.country_id)
-            .outerjoin(
-                CurriculumStructure,
-                CurriculumStructure.curricula_id == Curriculum.curricula_id,
-            )
-            .outerjoin(
-                Subject,
-                Subject.subject_id == CurriculumStructure.subject_id,
-            )
-            .filter(
-                or_(
-                    Curriculum.curricula_title.ilike(f"%{search_term}%"),
-                    Country.country_name.ilike(f"%{search_term}%"),
-                    Subject.name.ilike(f"%{search_term}%"),
+        try:
+            return (
+                self.db.query(Curriculum)
+                .join(Country, Curriculum.country_id == Country.country_id)
+                .outerjoin(
+                    CurriculumStructure,
+                    CurriculumStructure.curricula_id == Curriculum.curricula_id,
                 )
+                .outerjoin(
+                    Subject,
+                    Subject.subject_id == CurriculumStructure.subject_id,
+                )
+                .filter(
+                    or_(
+                        Curriculum.curricula_title.ilike(f"%{search_term}%"),
+                        Country.country_name.ilike(f"%{search_term}%"),
+                        Subject.name.ilike(f"%{search_term}%"),
+                    )
+                )
+                .distinct()
+                .all()
             )
-            .distinct()
-            .all()
-        )
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error("Error searching curricula for term %r: %s", search_term, e, exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to search curricula")
 
     def search_topics(self, search_term: str) -> List[Topic]:
         """Search topics by title.
@@ -319,11 +331,17 @@ class CurriculumService:
         """
         if not search_term or not search_term.strip():
             return []
-        return self.db.query(Topic).filter(
-            or_(
-                Topic.topic_title.ilike(f"%{search_term}%"),
-            )
-        ).all()
+        try:
+            return self.db.query(Topic).filter(
+                or_(
+                    Topic.topic_title.ilike(f"%{search_term}%"),
+                )
+            ).all()
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error("Error searching topics for term %r: %s", search_term, e, exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to search topics")
     
     def get_curriculum_statistics(self, curriculum_id: int) -> Dict[str, Any]:
         """Get statistics for a curriculum.

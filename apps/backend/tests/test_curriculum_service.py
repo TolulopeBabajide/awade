@@ -1,5 +1,5 @@
 """
-Unit tests for CurriculumService — AWD-M-163, AWD-M-164, AWD-M-166.
+Unit tests for CurriculumService — AWD-M-163, AWD-M-164, AWD-M-166, AWD-M-167.
 
 Covers:
 - get_curriculum_statistics: happy path (one structure, topics, objectives, contents)
@@ -299,6 +299,19 @@ class TestSearchCurriculums:
         results = service.search_curriculums("   ")
         assert results == [], "Whitespace-only string should return [] not the full table"
 
+    def test_db_error_raises_http_500(self):
+        """AWD-M-167: SQLAlchemy error is caught and re-raised as HTTP 500."""
+        from unittest.mock import MagicMock
+        from fastapi import HTTPException
+
+        mock_db = MagicMock()
+        mock_db.query.side_effect = Exception("DB connection lost")
+        service = CurriculumService(mock_db)
+        with pytest.raises(HTTPException) as exc_info:
+            service.search_curriculums("algebra")
+        assert exc_info.value.status_code == 500
+        assert "curricula" in exc_info.value.detail.lower()
+
 
 class TestSearchTopics:
     """search_topics — AWD-M-166: empty search_term guard + basic happy path."""
@@ -336,3 +349,16 @@ class TestSearchTopics:
         service = CurriculumService(test_db)
         results = service.search_topics("xyzzy_no_topic_9876")
         assert results == []
+
+    def test_db_error_raises_http_500(self):
+        """AWD-M-167: SQLAlchemy error is caught and re-raised as HTTP 500."""
+        from unittest.mock import MagicMock
+        from fastapi import HTTPException
+
+        mock_db = MagicMock()
+        mock_db.query.side_effect = Exception("DB connection lost")
+        service = CurriculumService(mock_db)
+        with pytest.raises(HTTPException) as exc_info:
+            service.search_topics("algebra")
+        assert exc_info.value.status_code == 500
+        assert "topics" in exc_info.value.detail.lower()
