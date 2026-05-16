@@ -1,5 +1,5 @@
 """
-Unit tests for CurriculumService — AWD-M-163, AWD-M-164, AWD-M-166, AWD-M-167.
+Unit tests for CurriculumService — AWD-M-163, AWD-M-164, AWD-M-165, AWD-M-166, AWD-M-167.
 
 Covers:
 - get_curriculum_statistics: happy path (one structure, topics, objectives, contents)
@@ -7,6 +7,8 @@ Covers:
 - get_curriculum_statistics: curriculum not found returns empty dict
 - get_curriculum_statistics: curriculum with no structures returns zero counts
 - get_curriculum_statistics: curriculum with structures but no topics returns zero counts
+- get_curriculum_statistics (AWD-M-165): aggregated COUNT queries across 3 topics/2 structures
+- get_curriculum_statistics (AWD-M-165): empty topics list short-circuits to zeros
 - search_curriculums: match by curriculum title (AWD-M-164)
 - search_curriculums: match by country name (AWD-M-164)
 - search_curriculums: match by subject name (AWD-M-164)
@@ -362,3 +364,98 @@ class TestSearchTopics:
             service.search_topics("algebra")
         assert exc_info.value.status_code == 500
         assert "topics" in exc_info.value.detail.lower()
+
+
+class TestGetCurriculumStatisticsM165:
+    """AWD-M-165: aggregated COUNT queries replace N+1 per-topic SELECTs."""
+
+    def test_aggregates_objectives_and_contents_across_many_topics(
+        self,
+        test_db,
+        sample_curriculum,
+        sample_subject,
+        sample_grade_level,
+    ):
+        """3 topics across 2 structures with varied objectives/contents → correct totals.
+
+        Specifically validates the IN-clause aggregation introduced by AWD-M-165:
+        topic1 (struct1): 2 objectives, 1 content
+        topic2 (struct1): 1 objective,  3 contents
+        topic3 (struct2): 0 objectives, 2 contents
+        Expected: topics=3, objectives=3, contents=6
+        """
+        subject2 = Subject(name="Science-M165")
+        grade2 = GradeLevel(name="Grade 5-M165")
+        test_db.add_all([subject2, grade2])
+        test_db.commit()
+        test_db.refresh(subject2)
+        test_db.refresh(grade2)
+
+        struct1 = CurriculumStructure(
+            curricula_id=sample_curriculum.curricula_id,
+            subject_id=sample_subject.subject_id,
+            grade_level_id=sample_grade_level.grade_level_id,
+        )
+        struct2 = CurriculumStructure(
+            curricula_id=sample_curriculum.curricula_id,
+            subject_id=subject2.subject_id,
+            grade_level_id=grade2.grade_level_id,
+        )
+        test_db.add_all([struct1, struct2])
+        test_db.commit()
+        test_db.refresh(struct1)
+        test_db.refresh(struct2)
+
+        # topic1: 2 objectives, 1 content
+        t1 = _make_topic(test_db, struct1.curriculum_structure_id, "Topic A M165")
+        _make_objective(test_db, t1.topic_id, "Obj A1")
+        _make_objective(test_db, t1.topic_id, "Obj A2")
+        _make_content(test_db, t1.topic_id, "Content A1")
+
+        # topic2: 1 objective, 3 contents
+        t2 = _make_topic(test_db, struct1.curriculum_structure_id, "Topic B M165")
+        _make_objective(test_db, t2.topic_id, "Obj B1")
+        _make_content(test_db, t2.topic_id, "Content B1")
+        _make_content(test_db, t2.topic_id, "Content B2")
+        _make_content(test_db, t2.topic_id, "Content B3")
+
+        # topic3: 0 objectives, 2 contents (struct2)
+        t3 = _make_topic(test_db, struct2.curriculum_structure_id, "Topic C M165")
+        _make_content(test_db, t3.topic_id, "Content C1")
+        _make_content(test_db, t3.topic_id, "Content C2")
+
+        service = CurriculumService(test_db)
+        result = service.get_curriculum_statistics(
+            curriculum_id=sample_curriculum.curricula_id
+        )
+
+        assert result["curriculum_id"] == sample_curriculum.curricula_id
+        assert result["total_topics"] == 3
+        assert result["total_learning_objectives"] == 3   # 2 + 1 + 0
+        assert result["total_contents"] == 6              # 1 + 3 + 2
+
+    def test_no_topics_returns_zero_counts(
+        self,
+        test_db,
+        sample_curriculum,
+        sample_subject,
+        sample_grade_level,
+    ):
+        """Structure with no topics → short-circuits before COUNT queries; returns zeros."""
+        struct = CurriculumStructure(
+            curricula_id=sample_curriculum.curricula_id,
+            subject_id=sample_subject.subject_id,
+            grade_level_id=sample_grade_level.grade_level_id,
+        )
+        test_db.add(struct)
+        test_db.commit()
+
+        service = CurriculumService(test_db)
+        result = service.get_curriculum_statistics(
+            curriculum_id=sample_curriculum.curricula_id
+        )
+
+        assert result["curriculum_id"] == sample_curriculum.curricula_id
+        assert result["total_topics"] == 0
+        assert result["total_learning_objectives"] == 0
+        assert result["total_contents"] == 0

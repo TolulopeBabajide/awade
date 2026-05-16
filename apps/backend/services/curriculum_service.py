@@ -9,7 +9,7 @@ Author: Tolulope Babajide
 import logging
 
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, func
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timezone
 from fastapi import HTTPException
@@ -349,6 +349,11 @@ class CurriculumService:
         Counts all topics, learning objectives, and content areas across every
         CurriculumStructure that belongs to the given curriculum.
 
+        AWD-M-165: replaced the N per-topic SELECT loop with two aggregated
+        COUNT queries filtered by topic_id IN (...).  Query count drops from
+        2+2N to at most 4 (structures + topics + 2 counts) regardless of how
+        many topics the curriculum has.
+
         Args:
             curriculum_id: Primary key of the Curriculum record (curricula_id).
 
@@ -378,17 +383,32 @@ class CurriculumService:
 
         total_topics = len(topics)
 
-        total_objectives = 0
-        total_contents = 0
+        if not topics:
+            return {
+                "curriculum_id": curriculum_id,
+                "total_topics": 0,
+                "total_learning_objectives": 0,
+                "total_contents": 0,
+            }
 
-        for topic in topics:
-            # Topic primary key is topic_id, not id
-            total_objectives += len(self.get_learning_objectives(topic.topic_id))
-            total_contents += len(self.get_contents(topic.topic_id))
+        # AWD-M-165: two aggregated COUNT queries replace N per-topic SELECTs
+        topic_ids = [t.topic_id for t in topics]
+
+        total_objectives = (
+            self.db.query(func.count(LearningObjective.learning_objective_id))
+            .filter(LearningObjective.topic_id.in_(topic_ids))
+            .scalar()
+        ) or 0
+
+        total_contents = (
+            self.db.query(func.count(TopicContent.topic_contents_id))
+            .filter(TopicContent.topic_id.in_(topic_ids))
+            .scalar()
+        ) or 0
 
         return {
             "curriculum_id": curriculum_id,
             "total_topics": total_topics,
             "total_learning_objectives": total_objectives,
             "total_contents": total_contents,
-        } 
+        }
