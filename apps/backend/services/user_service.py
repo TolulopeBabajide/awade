@@ -135,25 +135,51 @@ class UserService:
                 detail="An error occurred while retrieving the user",
             )
     
+    @staticmethod
+    def _parse_json_list(val: Any) -> Optional[List]:
+        """
+        Deserialize a JSON-encoded list string back to a Python list.
+
+        Returns ``None`` if *val* is falsy or unparseable, preserving the
+        previous ``None``-on-error contract used by
+        :meth:`_create_user_response` and :meth:`_create_user_profile_response`.
+
+        Args:
+            val: The value to parse — expected to be a JSON-encoded string
+                such as ``'["Math","Science"]'``, or ``None``.
+
+        Returns:
+            list | None: The decoded list, or ``None`` on failure / empty input.
+        """
+        if not val:
+            return None
+        try:
+            return json.loads(val)
+        except (json.JSONDecodeError, TypeError):
+            return None
+
     def _apply_user_fields(self, user: User, update_data: dict) -> None:
         """
         Serialize JSON list fields and apply *update_data* to *user* in-place.
 
-        Handles ``subjects`` and ``grade_levels`` JSON serialization (list →
-        JSON string), then calls ``setattr`` for every remaining key.  Both
-        :meth:`update_user` and :meth:`update_user_profile` delegate this
-        shared mutation step here to avoid duplicating the logic.
+        Works on a **shallow copy** of *update_data* so the caller's dict is
+        not mutated (AWD-M-168).  Handles ``subjects`` and ``grade_levels``
+        JSON serialization (list → JSON string), then calls ``setattr`` for
+        every remaining key.  Both :meth:`update_user` and
+        :meth:`update_user_profile` delegate this shared mutation step here to
+        avoid duplicating the logic.
 
         Args:
             user (User): The SQLAlchemy ``User`` instance to mutate.
             update_data (dict): Field-value pairs from
                 ``model_dump(exclude_unset=True)``.
         """
-        if 'subjects' in update_data and update_data['subjects'] is not None:
-            update_data['subjects'] = json.dumps(update_data['subjects'])
-        if 'grade_levels' in update_data and update_data['grade_levels'] is not None:
-            update_data['grade_levels'] = json.dumps(update_data['grade_levels'])
-        for field, value in update_data.items():
+        data = dict(update_data)  # AWD-M-168: work on a copy, do not mutate caller's dict
+        if 'subjects' in data and data['subjects'] is not None:
+            data['subjects'] = json.dumps(data['subjects'])
+        if 'grade_levels' in data and data['grade_levels'] is not None:
+            data['grade_levels'] = json.dumps(data['grade_levels'])
+        for field, value in data.items():
             setattr(user, field, value)
 
     def update_user(self, user_id: int, user_data: UserUpdate, current_user: User) -> UserResponse:
@@ -527,22 +553,10 @@ class UserService:
             UserResponse: User response object
         """
         try:
-            # Parse JSON strings back to lists
-            subjects_list = None
-            grade_levels_list = None
-            
-            if user.subjects:
-                try:
-                    subjects_list = json.loads(user.subjects)
-                except (json.JSONDecodeError, TypeError):
-                    subjects_list = None
-            
-            if user.grade_levels:
-                try:
-                    grade_levels_list = json.loads(user.grade_levels)
-                except (json.JSONDecodeError, TypeError):
-                    grade_levels_list = None
-            
+            # AWD-M-169: delegate JSON parsing to shared _parse_json_list helper
+            subjects_list = self._parse_json_list(user.subjects)
+            grade_levels_list = self._parse_json_list(user.grade_levels)
+
             return UserResponse(
                 user_id=user.user_id,
                 email=user.email,
@@ -577,22 +591,10 @@ class UserService:
             UserProfileResponse: User profile response object
         """
         try:
-            # Parse JSON strings back to lists
-            subjects_list = None
-            grade_levels_list = None
-            
-            if user.subjects:
-                try:
-                    subjects_list = json.loads(user.subjects)
-                except (json.JSONDecodeError, TypeError):
-                    subjects_list = None
-            
-            if user.grade_levels:
-                try:
-                    grade_levels_list = json.loads(user.grade_levels)
-                except (json.JSONDecodeError, TypeError):
-                    grade_levels_list = None
-            
+            # AWD-M-169: delegate JSON parsing to shared _parse_json_list helper
+            subjects_list = self._parse_json_list(user.subjects)
+            grade_levels_list = self._parse_json_list(user.grade_levels)
+
             return UserProfileResponse(
                 user_id=user.user_id,
                 full_name=user.full_name,

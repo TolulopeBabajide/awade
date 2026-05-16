@@ -198,3 +198,99 @@ class TestApplyUserFields:
 
         assert result.subjects == ["History"]
         assert result.grade_levels == ["Grade 4"]
+
+
+class TestApplyUserFieldsNoCopy(TestApplyUserFields):
+    """
+    Additional tests for AWD-M-168: _apply_user_fields must not mutate the
+    caller's dict.  The callers always pass a fresh model_dump() result, but
+    silent in-place mutation would be a fragility hazard for future callers.
+    """
+
+    def test_caller_dict_not_mutated_subjects(self):
+        """Caller's dict is unchanged after _apply_user_fields serialises subjects."""
+        service = self._make_service()
+        user = self._make_user()
+        original_subjects = ["Math", "Science"]
+        update_data = {"subjects": original_subjects}
+        original_list = list(original_subjects)  # snapshot before call
+
+        service._apply_user_fields(user, update_data)
+
+        # The caller's dict must still hold the original list, not a JSON string
+        assert update_data["subjects"] == original_list
+
+    def test_caller_dict_not_mutated_grade_levels(self):
+        """Caller's dict is unchanged after _apply_user_fields serialises grade_levels."""
+        service = self._make_service()
+        user = self._make_user()
+        original_grades = ["Grade 1", "Grade 2"]
+        update_data = {"grade_levels": original_grades}
+        original_list = list(original_grades)
+
+        service._apply_user_fields(user, update_data)
+
+        assert update_data["grade_levels"] == original_list
+
+    def test_caller_dict_not_mutated_when_both_fields_present(self):
+        """Caller's dict is unchanged for both JSON fields simultaneously."""
+        service = self._make_service()
+        user = self._make_user()
+        update_data = {
+            "subjects": ["English"],
+            "grade_levels": ["Grade 3"],
+            "full_name": "Test User",
+        }
+        original_subjects = list(update_data["subjects"])
+        original_grades = list(update_data["grade_levels"])
+        original_name = update_data["full_name"]
+
+        service._apply_user_fields(user, update_data)
+
+        assert update_data["subjects"] == original_subjects
+        assert update_data["grade_levels"] == original_grades
+        assert update_data["full_name"] == original_name
+
+
+class TestParseJsonList:
+    """
+    Unit tests for UserService._parse_json_list (AWD-M-169).
+
+    These tests exercise the extracted private helper that both
+    _create_user_response and _create_user_profile_response delegate to.
+    """
+
+    def _make_service(self) -> UserService:
+        return UserService(db=MagicMock())
+
+    def test_valid_json_list_returned(self):
+        """A valid JSON array string is decoded to a Python list."""
+        service = self._make_service()
+        result = service._parse_json_list('["Math", "Science"]')
+        assert result == ["Math", "Science"]
+
+    def test_none_returns_none(self):
+        """None input returns None (no error)."""
+        service = self._make_service()
+        assert service._parse_json_list(None) is None
+
+    def test_empty_string_returns_none(self):
+        """Empty string is treated as falsy — returns None."""
+        service = self._make_service()
+        assert service._parse_json_list("") is None
+
+    def test_invalid_json_returns_none(self):
+        """Malformed JSON string returns None rather than raising."""
+        service = self._make_service()
+        assert service._parse_json_list("not-json") is None
+
+    def test_non_string_type_returns_none(self):
+        """Non-string, non-None input (e.g. int) returns None gracefully."""
+        service = self._make_service()
+        assert service._parse_json_list(42) is None  # type: ignore[arg-type]
+
+    def test_empty_array_returns_empty_list(self):
+        """A JSON empty array string '[]' is decoded to an empty Python list."""
+        service = self._make_service()
+        result = service._parse_json_list("[]")
+        assert result == []
