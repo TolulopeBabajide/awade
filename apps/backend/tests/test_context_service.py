@@ -55,6 +55,7 @@ class TestContextService:
         assert result.total >= 1
 
 
+@pytest.mark.database
 class TestGetContextsForUser:
     """Tests for ContextService.get_contexts_for_user() (AWD-L-47)."""
 
