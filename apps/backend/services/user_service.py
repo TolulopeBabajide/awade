@@ -135,18 +135,39 @@ class UserService:
                 detail="An error occurred while retrieving the user",
             )
     
+    def _apply_user_fields(self, user: User, update_data: dict) -> None:
+        """
+        Serialize JSON list fields and apply *update_data* to *user* in-place.
+
+        Handles ``subjects`` and ``grade_levels`` JSON serialization (list →
+        JSON string), then calls ``setattr`` for every remaining key.  Both
+        :meth:`update_user` and :meth:`update_user_profile` delegate this
+        shared mutation step here to avoid duplicating the logic.
+
+        Args:
+            user (User): The SQLAlchemy ``User`` instance to mutate.
+            update_data (dict): Field-value pairs from
+                ``model_dump(exclude_unset=True)``.
+        """
+        if 'subjects' in update_data and update_data['subjects'] is not None:
+            update_data['subjects'] = json.dumps(update_data['subjects'])
+        if 'grade_levels' in update_data and update_data['grade_levels'] is not None:
+            update_data['grade_levels'] = json.dumps(update_data['grade_levels'])
+        for field, value in update_data.items():
+            setattr(user, field, value)
+
     def update_user(self, user_id: int, user_data: UserUpdate, current_user: User) -> UserResponse:
         """
         Update a user profile.
-        
+
         Args:
             user_id (int): User ID to update
             user_data (UserUpdate): Update data
             current_user (User): Current authenticated user
-            
+
         Returns:
             UserResponse: Updated user response
-            
+
         Raises:
             HTTPException: If update fails or access denied
         """
@@ -162,23 +183,14 @@ class UserService:
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
 
-            # Update user fields
             update_data = user_data.model_dump(exclude_unset=True)
+            self._apply_user_fields(user, update_data)
 
-            # Handle JSON fields
-            if 'subjects' in update_data and update_data['subjects'] is not None:
-                update_data['subjects'] = json.dumps(update_data['subjects'])
-            if 'grade_levels' in update_data and update_data['grade_levels'] is not None:
-                update_data['grade_levels'] = json.dumps(update_data['grade_levels'])
-            
-            for field, value in update_data.items():
-                setattr(user, field, value)
-            
             self.db.commit()
             self.db.refresh(user)
-            
+
             return self._create_user_response(user)
-            
+
         except HTTPException:
             raise
         except Exception:
@@ -275,15 +287,15 @@ class UserService:
     def update_user_profile(self, user_id: int, profile_data: UserUpdate, current_user: User) -> UserProfileResponse:
         """
         Update a user's profile information.
-        
+
         Args:
             user_id (int): User ID to update
             profile_data (UserUpdate): Profile update data
             current_user (User): Current authenticated user
-            
+
         Returns:
             UserProfileResponse: Updated user profile response
-            
+
         Raises:
             HTTPException: If update fails or access denied
         """
@@ -294,28 +306,19 @@ class UserService:
                     status_code=403,
                     detail="You can only update your own profile"
                 )
-            
+
             user = self.db.query(User).filter(User.user_id == user_id).first()
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
-            
-            # Update profile fields
-            update_data = profile_data.model_dump(exclude_unset=True)
 
-            # Handle JSON fields
-            if 'subjects' in update_data and update_data['subjects'] is not None:
-                update_data['subjects'] = json.dumps(update_data['subjects'])
-            if 'grade_levels' in update_data and update_data['grade_levels'] is not None:
-                update_data['grade_levels'] = json.dumps(update_data['grade_levels'])
-            
-            for field, value in update_data.items():
-                setattr(user, field, value)
-            
+            update_data = profile_data.model_dump(exclude_unset=True)
+            self._apply_user_fields(user, update_data)
+
             self.db.commit()
             self.db.refresh(user)
-            
+
             return self._create_user_profile_response(user)
-            
+
         except HTTPException:
             raise
         except Exception:
