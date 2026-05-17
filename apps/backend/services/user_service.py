@@ -102,14 +102,7 @@ class UserService:
             HTTPException: 403 if caller lacks ownership/admin role, 404 if not found
         """
         try:
-            if (
-                current_user.user_id != user_id
-                and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN)
-            ):
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="You can only view your own profile",
-                )
+            self._assert_user_access(current_user, user_id)
 
             user = self.db.query(User).filter(User.user_id == user_id).first()
             if not user:
@@ -126,6 +119,31 @@ class UserService:
                 detail="An error occurred while retrieving the user",
             )
     
+    def _assert_user_access(self, current_user: User, user_id: int) -> None:
+        """
+        Raise HTTP 403 if *current_user* is neither the owner of *user_id*
+        nor an ADMIN/SUPER_ADMIN.
+
+        Centralises the ownership guard that was previously duplicated across
+        :meth:`get_user`, :meth:`update_user`, :meth:`get_user_profile`, and
+        :meth:`update_user_profile` (AWD-M-173).
+
+        Args:
+            current_user: The authenticated caller.
+            user_id: The target user's primary key.
+
+        Raises:
+            HTTPException: 403 if the caller is not the owner and not an admin.
+        """
+        if (
+            current_user.user_id != user_id
+            and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN)
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You can only access your own profile",
+            )
+
     @staticmethod
     def _parse_json_list(val: Any) -> Optional[List]:
         """
@@ -189,12 +207,7 @@ class UserService:
             HTTPException: If update fails or access denied
         """
         try:
-            # Check if user can update this profile
-            if current_user.user_id != user_id and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
-                raise HTTPException(
-                    status_code=403,
-                    detail="You can only update your own profile"
-                )
+            self._assert_user_access(current_user, user_id)
 
             user = self.db.query(User).filter(User.user_id == user_id).first()
             if not user:
@@ -279,13 +292,8 @@ class UserService:
             HTTPException: If user not found or access denied
         """
         try:
-            # Users can view their own profile, admins and super admins can view any profile
-            if current_user.user_id != user_id and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
-                raise HTTPException(
-                    status_code=403,
-                    detail="You can only view your own profile"
-                )
-            
+            self._assert_user_access(current_user, user_id)
+
             user = self.db.query(User).filter(User.user_id == user_id).first()
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
@@ -317,12 +325,7 @@ class UserService:
             HTTPException: If update fails or access denied
         """
         try:
-            # Users can update their own profile, admins and super admins can update any profile
-            if current_user.user_id != user_id and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
-                raise HTTPException(
-                    status_code=403,
-                    detail="You can only update your own profile"
-                )
+            self._assert_user_access(current_user, user_id)
 
             user = self.db.query(User).filter(User.user_id == user_id).first()
             if not user:
