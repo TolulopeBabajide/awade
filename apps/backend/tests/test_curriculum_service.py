@@ -849,3 +849,44 @@ class TestDbGuardM175:
         with pytest.raises(KeyboardInterrupt):
             with service._db_guard("Should not swallow KeyboardInterrupt"):
                 raise KeyboardInterrupt()
+
+    def test_db_guard_calls_rollback_on_generic_exception(self):
+        """AWD-M-177: db.rollback() must be called before raising HTTP 500.
+
+        Mirrors the pattern in auth_service and children_service where
+        self.db.rollback() is always called before re-raising on non-HTTP
+        errors.  get_db() only calls db.close() in its finally block; rollback
+        is not guaranteed on all SQLAlchemy versions without an explicit call.
+        """
+        from unittest.mock import MagicMock
+        from fastapi import HTTPException
+
+        mock_db = MagicMock()
+        service = CurriculumService(mock_db)
+
+        with pytest.raises(HTTPException) as exc_info:
+            with service._db_guard("Failed to do the thing"):
+                raise RuntimeError("simulated DB error")
+
+        # rollback must have been called exactly once before the 500 is raised
+        mock_db.rollback.assert_called_once()
+        assert exc_info.value.status_code == 500
+
+    def test_db_guard_does_not_rollback_on_http_exception(self):
+        """AWD-M-177: rollback must NOT be called when an HTTPException propagates.
+
+        HTTPExceptions are intentional responses (404, 403, etc.) — rolling
+        back on them would undo valid reads that set up the error context.
+        """
+        from unittest.mock import MagicMock
+        from fastapi import HTTPException
+
+        mock_db = MagicMock()
+        service = CurriculumService(mock_db)
+
+        with pytest.raises(HTTPException) as exc_info:
+            with service._db_guard("Should not rollback"):
+                raise HTTPException(status_code=404, detail="not found")
+
+        mock_db.rollback.assert_not_called()
+        assert exc_info.value.status_code == 404
