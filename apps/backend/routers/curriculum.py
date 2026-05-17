@@ -20,6 +20,8 @@ from datetime import datetime
 from apps.backend.database import get_db
 from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator, get_optional_current_user
 from apps.backend.services.curriculum_service import CurriculumService
+from apps.backend.services.learning_objective_service import LearningObjectiveService
+from apps.backend.services.topic_content_service import TopicContentService
 from apps.backend.schemas.curriculum import (
     CurriculumCreate, CurriculumResponse, TopicCreate, TopicResponse,
     LearningObjectiveCreate, LearningObjectiveUpdate, LearningObjectiveResponse,
@@ -181,12 +183,12 @@ def create_learning_objective(
     Create a new learning objective for a topic.
     Requires admin authentication.
     """
-    service = CurriculumService(db)
+    service = LearningObjectiveService(db)
     return service.create_learning_objective(objective_data)
 
 @router.get("/topics/{topic_id}/learning-objectives", response_model=List[LearningObjectiveResponse])
 def get_learning_objectives(
-    topic_id: int, 
+    topic_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -194,7 +196,7 @@ def get_learning_objectives(
     Retrieve learning objectives for a specific topic.
     Requires authentication.
     """
-    service = CurriculumService(db)
+    service = LearningObjectiveService(db)
     return service.get_learning_objectives(topic_id)
 
 @router.put("/learning-objectives/{objective_id}", response_model=LearningObjectiveResponse)
@@ -208,12 +210,12 @@ def update_learning_objective(
     Update a learning objective.
     Requires admin authentication.
     """
-    service = CurriculumService(db)
+    service = LearningObjectiveService(db)
     return service.update_learning_objective(objective_id, objective_data)
 
 @router.delete("/learning-objectives/{objective_id}")
 def delete_learning_objective(
-    objective_id: int, 
+    objective_id: int,
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
@@ -221,13 +223,13 @@ def delete_learning_objective(
     Delete a learning objective.
     Requires admin authentication.
     """
-    service = CurriculumService(db)
+    service = LearningObjectiveService(db)
     return service.delete_learning_objective(objective_id)
 
 # Content endpoints
 @router.post("/contents", response_model=ContentResponse)
 def create_content(
-    content_data: ContentCreate, 
+    content_data: ContentCreate,
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
@@ -235,12 +237,12 @@ def create_content(
     Create a new content area for a topic.
     Requires admin authentication.
     """
-    service = CurriculumService(db)
+    service = TopicContentService(db)
     return service.create_content(content_data)
 
 @router.get("/topics/{topic_id}/contents", response_model=List[ContentResponse])
 def get_contents(
-    topic_id: int, 
+    topic_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -248,7 +250,7 @@ def get_contents(
     Retrieve content areas for a specific topic.
     Requires authentication.
     """
-    service = CurriculumService(db)
+    service = TopicContentService(db)
     return service.get_contents(topic_id)
 
 @router.put("/contents/{content_id}", response_model=ContentResponse)
@@ -262,12 +264,12 @@ def update_content(
     Update a content area.
     Requires admin authentication.
     """
-    service = CurriculumService(db)
+    service = TopicContentService(db)
     return service.update_content(content_id, content_data)
 
 @router.delete("/contents/{content_id}")
 def delete_content(
-    content_id: int, 
+    content_id: int,
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
@@ -275,7 +277,7 @@ def delete_content(
     Delete a content area.
     Requires admin authentication.
     """
-    service = CurriculumService(db)
+    service = TopicContentService(db)
     return service.delete_content(content_id)
 
 @router.get("/{curriculum_id}", response_model=CurriculumResponse)

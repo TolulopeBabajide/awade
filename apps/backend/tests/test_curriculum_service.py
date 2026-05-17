@@ -1,5 +1,10 @@
 """
-Unit tests for CurriculumService — AWD-M-163, AWD-M-164, AWD-M-165, AWD-M-166, AWD-M-167, AWD-H-88, AWD-M-175, AWD-M-179.
+Unit tests for CurriculumService, LearningObjectiveService, TopicContentService
+— AWD-M-163, AWD-M-164, AWD-M-165, AWD-M-166, AWD-M-167, AWD-H-88, AWD-M-175, AWD-M-178, AWD-M-179.
+
+AWD-M-178: LearningObjectiveService and TopicContentService were extracted from
+CurriculumService. TestLearningObjectiveCRUDH88 and TestContentCRUDH88 now
+instantiate the dedicated sub-service classes directly.
 
 Covers:
 - get_curriculum_statistics: happy path (one structure, topics, objectives, contents)
@@ -23,6 +28,8 @@ Covers:
 - TopicCRUD (AWD-H-88): create/update/delete raise HTTP 500 on DB error
 - LearningObjectiveCRUD (AWD-H-88): create/update/delete raise HTTP 500 on DB error
 - ContentCRUD (AWD-H-88): create/update/delete raise HTTP 500 on DB error
+- LearningObjectiveService smoke tests (AWD-M-178)
+- TopicContentService smoke tests (AWD-M-178)
 """
 
 import pytest
@@ -38,6 +45,8 @@ root_dir = os.path.abspath(os.path.join(backend_dir, "../.."))
 sys.path.insert(0, root_dir)
 
 from apps.backend.services.curriculum_service import CurriculumService
+from apps.backend.services.learning_objective_service import LearningObjectiveService
+from apps.backend.services.topic_content_service import TopicContentService
 from apps.backend.models import (
     Curriculum, CurriculumStructure, Topic, LearningObjective, TopicContent, Country,
     Subject, GradeLevel,
@@ -583,7 +592,11 @@ class TestTopicCRUDH88:
 
 
 class TestLearningObjectiveCRUDH88:
-    """AWD-H-88: create/update/delete learning objective raise HTTP 500 on DB error."""
+    """AWD-H-88: create/update/delete learning objective raise HTTP 500 on DB error.
+
+    AWD-M-178: Tests now instantiate LearningObjectiveService directly (extracted
+    from CurriculumService).
+    """
 
     def _mock_db(self):
         from unittest.mock import MagicMock
@@ -596,7 +609,7 @@ class TestLearningObjectiveCRUDH88:
 
         mock_db = self._mock_db()
         mock_db.add.side_effect = Exception("DB connection lost")
-        service = CurriculumService(mock_db)
+        service = LearningObjectiveService(mock_db)
         data = LearningObjectiveCreate(topic_id=1, objective="Understand variables")
         with pytest.raises(HTTPException) as exc_info:
             service.create_learning_objective(data)
@@ -610,7 +623,7 @@ class TestLearningObjectiveCRUDH88:
 
         mock_db = self._mock_db()
         mock_db.query.side_effect = Exception("DB connection lost")
-        service = CurriculumService(mock_db)
+        service = LearningObjectiveService(mock_db)
         data = LearningObjectiveUpdate(objective="New text")
         with pytest.raises(HTTPException) as exc_info:
             service.update_learning_objective(objective_id=1, objective_data=data)
@@ -623,7 +636,7 @@ class TestLearningObjectiveCRUDH88:
 
         mock_db = self._mock_db()
         mock_db.query.side_effect = Exception("DB connection lost")
-        service = CurriculumService(mock_db)
+        service = LearningObjectiveService(mock_db)
         with pytest.raises(HTTPException) as exc_info:
             service.delete_learning_objective(objective_id=1)
         assert exc_info.value.status_code == 500
@@ -631,7 +644,11 @@ class TestLearningObjectiveCRUDH88:
 
 
 class TestContentCRUDH88:
-    """AWD-H-88: create/update/delete content raise HTTP 500 on DB error."""
+    """AWD-H-88: create/update/delete content raise HTTP 500 on DB error.
+
+    AWD-M-178: Tests now instantiate TopicContentService directly (extracted
+    from CurriculumService).
+    """
 
     def _mock_db(self):
         from unittest.mock import MagicMock
@@ -644,7 +661,7 @@ class TestContentCRUDH88:
 
         mock_db = self._mock_db()
         mock_db.add.side_effect = Exception("DB connection lost")
-        service = CurriculumService(mock_db)
+        service = TopicContentService(mock_db)
         data = ContentCreate(topic_id=1, content_area="Introduction to algebra")
         with pytest.raises(HTTPException) as exc_info:
             service.create_content(data)
@@ -658,7 +675,7 @@ class TestContentCRUDH88:
 
         mock_db = self._mock_db()
         mock_db.query.side_effect = Exception("DB connection lost")
-        service = CurriculumService(mock_db)
+        service = TopicContentService(mock_db)
         data = ContentUpdate(content_area="New content")
         with pytest.raises(HTTPException) as exc_info:
             service.update_content(content_id=1, content_data=data)
@@ -671,7 +688,7 @@ class TestContentCRUDH88:
 
         mock_db = self._mock_db()
         mock_db.query.side_effect = Exception("DB connection lost")
-        service = CurriculumService(mock_db)
+        service = TopicContentService(mock_db)
         with pytest.raises(HTTPException) as exc_info:
             service.delete_content(content_id=1)
         assert exc_info.value.status_code == 500
@@ -742,14 +759,17 @@ class TestUpdateMethodsM171:
     # --- Service method accepts schema, unpacks field correctly ---
 
     def test_update_learning_objective_assigns_schema_field(self):
-        """Service should assign objective_data.objective to the ORM object."""
+        """Service should assign objective_data.objective to the ORM object.
+
+        AWD-M-178: uses LearningObjectiveService directly.
+        """
         from unittest.mock import MagicMock
         from apps.backend.schemas.curriculum import LearningObjectiveUpdate
 
         mock_db = MagicMock()
         mock_objective = MagicMock()
         mock_db.query.return_value.filter.return_value.first.return_value = mock_objective
-        service = CurriculumService(mock_db)
+        service = LearningObjectiveService(mock_db)
 
         data = LearningObjectiveUpdate(objective="Understand polynomial expressions")
         result = service.update_learning_objective(objective_id=42, objective_data=data)
@@ -758,14 +778,17 @@ class TestUpdateMethodsM171:
         assert result is mock_objective
 
     def test_update_content_assigns_schema_field(self):
-        """Service should assign content_data.content_area to the ORM object."""
+        """Service should assign content_data.content_area to the ORM object.
+
+        AWD-M-178: uses TopicContentService directly.
+        """
         from unittest.mock import MagicMock
         from apps.backend.schemas.curriculum import ContentUpdate
 
         mock_db = MagicMock()
         mock_content = MagicMock()
         mock_db.query.return_value.filter.return_value.first.return_value = mock_content
-        service = CurriculumService(mock_db)
+        service = TopicContentService(mock_db)
 
         data = ContentUpdate(content_area="Quadratic equations and factorisation")
         result = service.update_content(content_id=7, content_data=data)
@@ -921,3 +944,137 @@ class TestDbGuardM179:
         assert hints["return"] == Generator[None, None, None], (
             f"Expected Generator[None, None, None], got {hints['return']}"
         )
+
+
+# ---------------------------------------------------------------------------
+# AWD-M-178: sub-service smoke tests
+# ---------------------------------------------------------------------------
+
+class TestLearningObjectiveServiceM178:
+    """AWD-M-178: LearningObjectiveService — extracted from CurriculumService.
+
+    Smoke tests to confirm instantiation and _db_guard work independently.
+    Full CRUD behaviour is covered by TestLearningObjectiveCRUDH88 above.
+    """
+
+    def test_instantiation(self):
+        """LearningObjectiveService can be instantiated with a mock db session."""
+        from unittest.mock import MagicMock
+        db = MagicMock()
+        service = LearningObjectiveService(db)
+        assert service.db is db
+
+    def test_db_guard_converts_exception_to_http_500(self):
+        """_db_guard on LearningObjectiveService converts generic exception to HTTP 500."""
+        from unittest.mock import MagicMock
+        from fastapi import HTTPException
+
+        service = LearningObjectiveService(MagicMock())
+        with pytest.raises(HTTPException) as exc_info:
+            with service._db_guard("Failed to do thing"):
+                raise RuntimeError("test error")
+        assert exc_info.value.status_code == 500
+        assert exc_info.value.detail == "Failed to do thing"
+
+    def test_get_learning_objectives_returns_empty_list(self, test_db, sample_curriculum_structure):
+        """get_learning_objectives returns [] when no objectives exist for a topic."""
+        from apps.backend.models import Topic
+        topic = Topic(
+            topic_title="Empty Objectives Topic M178",
+            curriculum_structure_id=sample_curriculum_structure.curriculum_structure_id,
+        )
+        test_db.add(topic)
+        test_db.commit()
+        test_db.refresh(topic)
+
+        service = LearningObjectiveService(test_db)
+        results = service.get_learning_objectives(topic.topic_id)
+        assert results == []
+
+    def test_create_and_retrieve_learning_objective(self, test_db, sample_curriculum_structure):
+        """create_learning_objective persists and get_learning_objectives retrieves it."""
+        from apps.backend.models import Topic
+        from apps.backend.schemas.curriculum import LearningObjectiveCreate
+
+        topic = Topic(
+            topic_title="Objective CRUD Topic M178",
+            curriculum_structure_id=sample_curriculum_structure.curriculum_structure_id,
+        )
+        test_db.add(topic)
+        test_db.commit()
+        test_db.refresh(topic)
+
+        service = LearningObjectiveService(test_db)
+        data = LearningObjectiveCreate(topic_id=topic.topic_id, objective="Students understand fractions M178")
+        created = service.create_learning_objective(data)
+        assert created.learning_objective_id is not None
+        assert created.objective == "Students understand fractions M178"
+
+        fetched = service.get_learning_objectives(topic.topic_id)
+        ids = [o.learning_objective_id for o in fetched]
+        assert created.learning_objective_id in ids
+
+
+class TestTopicContentServiceM178:
+    """AWD-M-178: TopicContentService — extracted from CurriculumService.
+
+    Smoke tests to confirm instantiation and _db_guard work independently.
+    Full CRUD behaviour is covered by TestContentCRUDH88 above.
+    """
+
+    def test_instantiation(self):
+        """TopicContentService can be instantiated with a mock db session."""
+        from unittest.mock import MagicMock
+        db = MagicMock()
+        service = TopicContentService(db)
+        assert service.db is db
+
+    def test_db_guard_converts_exception_to_http_500(self):
+        """_db_guard on TopicContentService converts generic exception to HTTP 500."""
+        from unittest.mock import MagicMock
+        from fastapi import HTTPException
+
+        service = TopicContentService(MagicMock())
+        with pytest.raises(HTTPException) as exc_info:
+            with service._db_guard("Failed to do content thing"):
+                raise RuntimeError("test error")
+        assert exc_info.value.status_code == 500
+        assert exc_info.value.detail == "Failed to do content thing"
+
+    def test_get_contents_returns_empty_list(self, test_db, sample_curriculum_structure):
+        """get_contents returns [] when no content exists for a topic."""
+        from apps.backend.models import Topic
+        topic = Topic(
+            topic_title="Empty Contents Topic M178",
+            curriculum_structure_id=sample_curriculum_structure.curriculum_structure_id,
+        )
+        test_db.add(topic)
+        test_db.commit()
+        test_db.refresh(topic)
+
+        service = TopicContentService(test_db)
+        results = service.get_contents(topic.topic_id)
+        assert results == []
+
+    def test_create_and_retrieve_content(self, test_db, sample_curriculum_structure):
+        """create_content persists and get_contents retrieves it."""
+        from apps.backend.models import Topic
+        from apps.backend.schemas.curriculum import ContentCreate
+
+        topic = Topic(
+            topic_title="Content CRUD Topic M178",
+            curriculum_structure_id=sample_curriculum_structure.curriculum_structure_id,
+        )
+        test_db.add(topic)
+        test_db.commit()
+        test_db.refresh(topic)
+
+        service = TopicContentService(test_db)
+        data = ContentCreate(topic_id=topic.topic_id, content_area="Introduction to fractions M178")
+        created = service.create_content(data)
+        assert created.topic_contents_id is not None
+        assert created.content_area == "Introduction to fractions M178"
+
+        fetched = service.get_contents(topic.topic_id)
+        ids = [c.topic_contents_id for c in fetched]
+        assert created.topic_contents_id in ids

@@ -1,7 +1,17 @@
 """
 Curriculum Service for Awade
 
-This module provides service methods for managing curriculum data, topics, learning objectives, and content areas in the Awade platform. It supports CRUD operations, search, and statistics for curriculum mapping and educational content.
+This module provides service methods for managing curriculum data, topics,
+search, and statistics in the Awade platform.
+
+AWD-M-178: Learning objective and topic content operations have been extracted
+into focused sub-services:
+  - LearningObjectiveService  → apps/backend/services/learning_objective_service.py
+  - TopicContentService       → apps/backend/services/topic_content_service.py
+
+The curriculum router now imports LearningObjectiveService and TopicContentService
+directly for those operations. CurriculumService retains Curriculum + Topic CRUD,
+search, and statistics.
 
 Author: Tolulope Babajide
 """
@@ -10,17 +20,16 @@ import logging
 from contextlib import contextmanager
 
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, func
+from sqlalchemy import or_, func
 from typing import Generator, List, Optional, Dict, Any
 from datetime import datetime, timezone
 from fastapi import HTTPException
 
 from apps.backend.models import (
-    Curriculum, Topic, CurriculumStructure, Country, GradeLevel, Subject, LearningObjective, TopicContent
+    Curriculum, Topic, CurriculumStructure, Country, Subject, LearningObjective, TopicContent
 )
 from apps.backend.schemas.curriculum import (
-    CurriculumCreate, CurriculumResponse, TopicCreate, TopicResponse,
-    LearningObjectiveCreate, LearningObjectiveUpdate, ContentCreate, ContentUpdate,
+    CurriculumCreate, TopicCreate,
 )
 
 logger = logging.getLogger(__name__)
@@ -40,24 +49,10 @@ class CurriculumService:
 
     @contextmanager
     def _db_guard(self, error_msg: str) -> Generator[None, None, None]:
-        """Context manager that absorbs and converts DB errors to HTTP 500.
+        """Context manager that converts DB errors to HTTP 500 (AWD-M-175).
 
-        Re-raises HTTPException unchanged so callers' explicit 404/403
-        responses are not swallowed.  Any other exception is logged (with full
-        traceback) and re-raised as ``HTTPException(status_code=500,
-        detail=error_msg)``.
-
-        AWD-M-175: replaces 15 identical try/except blocks that previously
-        differed only in their error message string.
-
-        Usage::
-
-            with self._db_guard("Failed to create curriculum"):
-                obj = Curriculum(...)
-                self.db.add(obj)
-                self.db.commit()
-                self.db.refresh(obj)
-                return obj
+        Re-raises HTTPException unchanged; rolls back and wraps any other
+        exception as HTTP 500 with ``detail=error_msg``.
         """
         try:
             yield
@@ -251,86 +246,6 @@ class CurriculumService:
                 return False
 
             self.db.delete(topic)
-            self.db.commit()
-            return True
-
-    # ------------------------------------------------------------------
-    # Learning Objective operations
-    # ------------------------------------------------------------------
-
-    def create_learning_objective(self, objective_data: LearningObjectiveCreate) -> LearningObjective:
-        """Create a new learning objective."""
-        with self._db_guard("Failed to create learning objective"):
-            objective = LearningObjective(**objective_data.model_dump())
-            self.db.add(objective)
-            self.db.commit()
-            self.db.refresh(objective)
-            return objective
-
-    def get_learning_objectives(self, topic_id: int) -> List[LearningObjective]:
-        """Get all learning objectives for a topic."""
-        return self.db.query(LearningObjective).filter(LearningObjective.topic_id == topic_id).all()
-
-    def update_learning_objective(self, objective_id: int, objective_data: LearningObjectiveUpdate) -> Optional[LearningObjective]:
-        """Update a learning objective."""
-        with self._db_guard("Failed to update learning objective"):
-            objective = self.db.query(LearningObjective).filter(LearningObjective.learning_objective_id == objective_id).first()
-            if not objective:
-                return None
-
-            objective.objective = objective_data.objective
-            self.db.commit()
-            self.db.refresh(objective)
-            return objective
-
-    def delete_learning_objective(self, objective_id: int) -> bool:
-        """Delete a learning objective."""
-        with self._db_guard("Failed to delete learning objective"):
-            objective = self.db.query(LearningObjective).filter(LearningObjective.learning_objective_id == objective_id).first()
-            if not objective:
-                return False
-
-            self.db.delete(objective)
-            self.db.commit()
-            return True
-
-    # ------------------------------------------------------------------
-    # Content operations
-    # ------------------------------------------------------------------
-
-    def create_content(self, content_data: ContentCreate) -> TopicContent:
-        """Create a new content area."""
-        with self._db_guard("Failed to create content"):
-            content = TopicContent(**content_data.model_dump())
-            self.db.add(content)
-            self.db.commit()
-            self.db.refresh(content)
-            return content
-
-    def get_contents(self, topic_id: int) -> List[TopicContent]:
-        """Get all content areas for a topic."""
-        return self.db.query(TopicContent).filter(TopicContent.topic_id == topic_id).all()
-
-    def update_content(self, content_id: int, content_data: ContentUpdate) -> Optional[TopicContent]:
-        """Update a content area."""
-        with self._db_guard("Failed to update content"):
-            content = self.db.query(TopicContent).filter(TopicContent.topic_contents_id == content_id).first()
-            if not content:
-                return None
-
-            content.content_area = content_data.content_area
-            self.db.commit()
-            self.db.refresh(content)
-            return content
-
-    def delete_content(self, content_id: int) -> bool:
-        """Delete a content area."""
-        with self._db_guard("Failed to delete content"):
-            content = self.db.query(TopicContent).filter(TopicContent.topic_contents_id == content_id).first()
-            if not content:
-                return False
-
-            self.db.delete(content)
             self.db.commit()
             return True
 

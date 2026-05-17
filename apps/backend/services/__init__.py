@@ -16,6 +16,8 @@ if parent_dir not in sys.path:
     sys.path.extend([parent_dir, root_dir])
 
 from .curriculum_service import CurriculumService
+from .learning_objective_service import LearningObjectiveService
+from .topic_content_service import TopicContentService
 from .file_upload_service import FileUploadService
 # from .pdf_service import PDFService  # Temporarily disabled due to WeasyPrint dependencies
 from .lesson_plan_service import LessonPlanService
@@ -30,6 +32,8 @@ from .optimized_database_service import OptimizedDatabaseService
 
 __all__ = [
     "CurriculumService",
+    "LearningObjectiveService",
+    "TopicContentService",
     "FileUploadService", 
     # "PDFService",  # Temporarily disabled due to WeasyPrint dependencies
     "LessonPlanService",
