@@ -509,9 +509,11 @@ class TestGetDataExportM176:
 
             result = svc.get_data_export(current_user)
 
-            # The first call to fmt() should be for export_date
+            # export_date is fmt()'s LAST call (created_at + last_login are formatted
+            # earlier in get_data_export when building user_data, so recorded[0] and
+            # recorded[1] are the user-profile datetimes; export_date comes last).
             assert recorded, "fmt was never called — check get_data_export implementation"
-            export_dt = recorded[0]
+            export_dt = recorded[-1]
             assert export_dt.tzinfo is not None, (
                 "export_date passed a tz-naive datetime; use datetime.now(timezone.utc)"
             )
