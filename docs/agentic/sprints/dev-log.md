@@ -701,3 +701,4 @@ After removing it, the next hourly run will:
 2026-05-17T09:15:11Z | AWD-M-171 | add Pydantic validation to update_learning_objective and update_content | b488bff | ✅ Done | CI:pending
 2026-05-17T10:13:09Z | AWD-M-173 | Extract _assert_user_access helper in UserService | cdeef5c (merge a6f3cfc) | ✅ Done | CI:pending
 | 2026-05-17T00:00:00Z | AWD-M-174 | Extract _fmt_datetime/_serialize_guide/_serialize_child from get_data_export | 327f854 | ✅ Done | CI:pending |
+2026-05-17T12:17:00Z | M-155 | Sync env templates: remove phantom OPENAI_MODEL, add missing AI provider vars | 0060ba8 | ✅ Done | CI:pending

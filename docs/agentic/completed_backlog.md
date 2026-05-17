@@ -1659,3 +1659,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Validation**: Python syntax ✅ · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · backend pytest SKIP (venv broken, AWD-M-46) · frontend vitest SKIP (no FE files changed).
 | M-173 | Duplication / Architecture | Extract `_assert_user_access` helper — 4× inline auth guard removed; 5 new tests | 2026-05-17 |
 | M-174 | Complexity / Code Quality | Extract `_fmt_datetime`, `_serialize_guide`, `_serialize_child` from `get_data_export`; 13 new unit tests | 2026-05-17 |
+| M-155 | Config / AI | Remove phantom `OPENAI_MODEL=gpt-4`; add missing AI provider vars to all 3 env templates | 2026-05-17 |
