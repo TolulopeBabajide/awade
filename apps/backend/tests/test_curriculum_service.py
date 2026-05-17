@@ -1,5 +1,5 @@
 """
-Unit tests for CurriculumService — AWD-M-163, AWD-M-164, AWD-M-165, AWD-M-166, AWD-M-167, AWD-H-88, AWD-M-175.
+Unit tests for CurriculumService — AWD-M-163, AWD-M-164, AWD-M-165, AWD-M-166, AWD-M-167, AWD-H-88, AWD-M-175, AWD-M-179.
 
 Covers:
 - get_curriculum_statistics: happy path (one structure, topics, objectives, contents)
@@ -890,3 +890,34 @@ class TestDbGuardM175:
 
         mock_db.rollback.assert_not_called()
         assert exc_info.value.status_code == 404
+
+
+# AWD-M-179: _db_guard return type annotation
+# ---------------------------------------------------------------------------
+
+class TestDbGuardM179:
+    """AWD-M-179: _db_guard must carry a Generator[None, None, None] return
+    type annotation so mypy / pyright can validate all call sites.
+
+    The fix adds ``Generator`` to the typing imports and changes the signature
+    from ``def _db_guard(self, error_msg: str):`` to
+    ``def _db_guard(self, error_msg: str) -> Generator[None, None, None]:``.
+    """
+
+    def test_db_guard_has_generator_return_annotation(self):
+        """_db_guard.__annotations__['return'] must be Generator[None, None, None]."""
+        import inspect
+        from typing import Generator
+
+        hints = {}
+        try:
+            import typing
+            hints = typing.get_type_hints(CurriculumService._db_guard)
+        except Exception:
+            # Fall back to raw __annotations__ if get_type_hints fails in the sandbox
+            hints = getattr(CurriculumService._db_guard, "__annotations__", {})
+
+        assert "return" in hints, "_db_guard is missing a return type annotation"
+        assert hints["return"] == Generator[None, None, None], (
+            f"Expected Generator[None, None, None], got {hints['return']}"
+        )

@@ -11,7 +11,7 @@ from contextlib import contextmanager
 
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func
-from typing import List, Optional, Dict, Any
+from typing import Generator, List, Optional, Dict, Any
 from datetime import datetime, timezone
 from fastapi import HTTPException
 
@@ -39,7 +39,7 @@ class CurriculumService:
         self.db = db
 
     @contextmanager
-    def _db_guard(self, error_msg: str):
+    def _db_guard(self, error_msg: str) -> Generator[None, None, None]:
         """Context manager that absorbs and converts DB errors to HTTP 500.
 
         Re-raises HTTPException unchanged so callers' explicit 404/403
