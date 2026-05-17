@@ -1662,3 +1662,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | M-155 | Config / AI | Remove phantom `OPENAI_MODEL=gpt-4`; add missing AI provider vars to all 3 env templates | 2026-05-17 |
 | M-176 | Code Quality | Replace `datetime.now()` with `datetime.now(timezone.utc)` for `export_date` in `get_data_export`; 1 new test | 2026-05-17 |
 | 2026-05-17 | AWD-M-175 | Extracted `_db_guard` context manager in CurriculumService; removed 15 duplicate try/except blocks | 82c973a |
+| H-91 | Repo Health | Re-commit `_db_guard` refactor + `TestDbGuardM175` dropped by chore commit 3e3c897 | 2026-05-17 |

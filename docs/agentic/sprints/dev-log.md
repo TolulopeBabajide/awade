@@ -704,3 +704,4 @@ After removing it, the next hourly run will:
 2026-05-17T12:17:00Z | M-155 | Sync env templates: remove phantom OPENAI_MODEL, add missing AI provider vars | 0060ba8 | ✅ Done | CI:pending
 2026-05-17T00:00:00Z | AWD-M-176 | fix: datetime.now(timezone.utc) for export_date in get_data_export | 32aa94f | ✅ Done | CI:pending
 2026-05-17T14:16:25Z | AWD-M-175 | extract _db_guard context manager in CurriculumService | 82c973a | ✅ Done | CI:pending
+2026-05-17T15:12:49Z | H-91 | Re-commit _db_guard refactor dropped by chore commit 3e3c897 | a93f1d7 (merge de408f5) | ✅ Done | CI:pending
