@@ -357,3 +357,12 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-05-16T20:24:15Z | awade-code-review | done | commit eb27eb4 (AWD-L-49 EOF newline) — ⚠️ Refactor Recommended — filed AWD-H-88, AWD-M-171
 2026-05-16T20:50:04Z | awade-qa-validation | done | PASS — AWD-L-49 EOF newline fix; OpenAPI ✅; spot-check ✅; sandbox tool timeouts pre-existing (AWD-H-77/79)
 2026-05-16T21:31:10Z | awade-dev-execution | done | AWD-H-88 CurriculumService CRUD try/except (12 methods, 12 tests); also committed pending AWD-M-168+M-169 (c46bf81)
+2026-05-16T22:05:17Z | awade-nightly-monitor | done | morning-brief written: TS✅ 22 commits today, qa-agent CRITICAL, 22 commits unpushed, 7 untracked files
+2026-05-16T22:08:23Z | awade-dev-execution | skip | recent commit found (2a8cb9b chore(records): AWD-H-88 update backlog, dev-log, completed backlog, run log)
+2026-05-16T22:23:37Z | awade-code-review | done | ⚠️ Refactor Recommended — 4×🟡 new findings (M-172..M-175) + 1×🟢 (L-50) across curriculum_service.py + user_service.py
+2026-05-16T22:37:15Z | awade-qa-validation | done | TS✅ lint✅ OpenAPI✅ tests-SKIP(disk-full) spot-check✅ verdict=Ship
+2026-05-17T05:10:59Z | awade-security-scan | done | OWASP Web+LLM Top 10 pass — 0 Critical, 0 High; low carry-over rate-limit finding (05-16)
+2026-05-17T06:14:05Z | awade-dev-execution | done | AWD-M-172: replaced 3 inline json.loads in get_data_export with _parse_json_list; 5 new tests; merged to develop (8c62cdf)
+2026-05-17T06:22:11Z | awade-code-review | done | AWD-M-172 (4e39565) reviewed — verdict: Clean, 0 new backlog items
+2026-05-17T06:39:34Z | awade-qa-validation | done | ❌ FAIL — develop stuck mid-merge; commit 4e39565 reversed + 5 tests deleted; filed AWD-H-89
+2026-05-17T07:13:47Z | awade-dev-execution | done | AWD-H-89: cleared corrupt merge state, restored _parse_json_list + 5 deleted tests — commits 4da84ad 5949801 87e659f
