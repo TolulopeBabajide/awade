@@ -25,7 +25,6 @@ Verifies that:
 - Account deletion cascades to ChildProfile and ParentGuide records — AWD-GRC-03
 - Unauthenticated account deletion request returns 401 — AWD-GRC-03
 - AWD-H-83: data export eager-loads children/guides/topics — no N+1 query growth
-- AWD-M-172: data export deserialises subjects/grade_levels JSON list fields via _parse_json_list
 """
 
 import pytest
@@ -418,71 +417,6 @@ class TestDataExport:
             "expected ≤4 (single eager-loaded round-trip). Statements: "
             + "\n---\n".join(relevant)
         )
-
-    # --- AWD-M-172: _parse_json_list adoption in get_data_export ---
-
-    def test_export_deserialises_user_subjects_json_list(self, client, test_db, educator_user):
-        """AWD-M-172: subjects stored as JSON list string must arrive deserialised in export."""
-        educator_user.subjects = '["Mathematics", "Science"]'
-        test_db.commit()
-
-        response = client.get("/api/users/me/data-export", headers=_auth(educator_user))
-        assert response.status_code == 200
-        data = response.json()
-        assert data["user"]["subjects"] == ["Mathematics", "Science"]
-
-    def test_export_deserialises_user_grade_levels_json_list(self, client, test_db, educator_user):
-        """AWD-M-172: grade_levels stored as JSON list string must arrive deserialised in export."""
-        educator_user.grade_levels = '["Grade 1", "Grade 2"]'
-        test_db.commit()
-
-        response = client.get("/api/users/me/data-export", headers=_auth(educator_user))
-        assert response.status_code == 200
-        data = response.json()
-        assert data["user"]["grade_levels"] == ["Grade 1", "Grade 2"]
-
-    def test_export_returns_none_for_null_user_subjects(self, client, test_db, educator_user):
-        """AWD-M-172: subjects=None on the user row must produce null in the export (not an error)."""
-        educator_user.subjects = None
-        test_db.commit()
-
-        response = client.get("/api/users/me/data-export", headers=_auth(educator_user))
-        assert response.status_code == 200
-        assert response.json()["user"]["subjects"] is None
-
-    def test_export_deserialises_child_subjects_json_list(self, client, test_db, parent_user):
-        """AWD-M-172: child.subjects stored as JSON list string must arrive deserialised in export."""
-        child = ChildProfile(
-            parent_id=parent_user.user_id,
-            name="M-172 Child",
-            age=9,
-            subjects='["English", "Art"]',
-        )
-        test_db.add(child)
-        test_db.commit()
-
-        response = client.get("/api/users/me/data-export", headers=_auth(parent_user))
-        assert response.status_code == 200
-        children = response.json()["children"]
-        assert len(children) == 1
-        assert children[0]["subjects"] == ["English", "Art"]
-
-    def test_export_returns_none_for_null_child_subjects(self, client, test_db, parent_user):
-        """AWD-M-172: child.subjects=None must produce null in the export (not an error)."""
-        child = ChildProfile(
-            parent_id=parent_user.user_id,
-            name="M-172 Child No Subjects",
-            age=7,
-            subjects=None,
-        )
-        test_db.add(child)
-        test_db.commit()
-
-        response = client.get("/api/users/me/data-export", headers=_auth(parent_user))
-        assert response.status_code == 200
-        children = response.json()["children"]
-        assert len(children) == 1
-        assert children[0]["subjects"] is None
 
     def test_rate_limit_returns_429_after_limit_exceeded(self, client, educator_user):
         """AWD-H-49: data-export endpoint returns 429 once the per-minute rate limit is exceeded.

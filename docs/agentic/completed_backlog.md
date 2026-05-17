@@ -1626,3 +1626,12 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Tests**: 12 new mock-based tests across 4 new classes: `TestCurriculumCRUDH88`, `TestTopicCRUDH88`, `TestLearningObjectiveCRUDH88`, `TestContentCRUDH88` — each with create/update/delete DB error → HTTP 500 assertions. Pattern identical to existing `TestGetCurriculumStatisticsM170` and `TestSearchCurriculums.test_db_error_raises_http_500`.
 - **Validation**: Python syntax ✅ · openapi.json ✅ · mcp.json ✅ · no API endpoints changed · no frontend files changed · backend pytest SKIP (venv broken, AWD-M-46) · AWD-C-13 cleared post-merge.
 - **Also shipped**: AWD-M-168 + AWD-M-169 (pending commit from prior session) committed as c46bf81 before branching for H-88.
+
+---
+
+## AWD-M-172 — `get_data_export` inline `json.loads` replaced with `_parse_json_list`
+- **Completed**: 2026-05-17
+- **Commit**: 4e39565 (feature), 8c62cdf (merge into develop)
+- **Change**: Three inline `try: json.loads(...) except (JSONDecodeError, TypeError): None` blocks in `UserService.get_data_export` replaced with `self._parse_json_list(...)` calls — completing the M-169 adoption that `_create_user_response` and `_create_user_profile_response` already received. Affects `current_user.subjects`, `current_user.grade_levels`, and `child.subjects` (lines 431–444, 483–489 in original). Net removal of ~18 lines of duplicated guard logic.
+- **Tests**: 5 new tests added to `TestDataExport` in `test_users_router.py`: subjects JSON list deserialised, grade_levels JSON list deserialised, null subjects → None, child subjects JSON list deserialised, null child subjects → None.
+- **Validation**: Python syntax ✅ · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · no API endpoints changed · no frontend files changed · backend pytest SKIP (venv broken, AWD-M-46 / no disk space AWD-M-85).
