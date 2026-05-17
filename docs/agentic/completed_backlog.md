@@ -1643,3 +1643,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commits**: 4da84ad (records commit), 5949801 (fix: restore _parse_json_list + 5 tests)
 - **Change**: (1) Cleared corrupted empty MERGE_HEAD file (renamed to .stale) to exit broken merge state. (2) Committed pending doc/health records that were staged but never committed (4da84ad). (3) Restored correct `user_service.py` — `get_data_export` uses `self._parse_json_list()` for `current_user.subjects`, `current_user.grade_levels`, and `child.subjects` instead of inline `json.loads` try/except blocks that HEAD had erroneously committed. (4) Restored 5 deleted tests to `test_users_router.py`: `test_export_deserialises_user_subjects_json_list`, `test_export_deserialises_user_grade_levels_json_list`, `test_export_returns_none_for_null_user_subjects`, `test_export_deserialises_child_subjects_json_list`, `test_export_returns_none_for_null_child_subjects`.
 - **Validation**: Python syntax ✅ · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · backend pytest SKIP (venv broken, AWD-M-46) · frontend vitest SKIP (no FE files changed).
+
+## AWD-L-50 — Remove stale sys.path.extend block from user_service.py
+- **Completed**: 2026-05-17
+- **Commits**: 50a8145 (fix), c5546bf (merge into develop)
+- **Change**: Removed `import sys`, `import os`, the path comment, and the 4-line `sys.path.extend` block (9 lines total) from `apps/backend/services/user_service.py`. Identical to AWD-M-160 which removed the same pattern from `country_service.py`, `subject_service.py`, `context_service.py`. All downstream imports use absolute `apps.backend.*` paths so the path extension was dead code.
+- **Validation**: Python syntax ✅ · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · backend pytest SKIP (venv broken, AWD-M-46) · frontend vitest SKIP (no FE files changed).

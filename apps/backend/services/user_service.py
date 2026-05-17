@@ -14,6 +14,15 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime
 from fastapi import HTTPException, status
 import json
+import sys
+import os
+
+# Add parent directories to Python path for imports
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.dirname(current_dir)
+root_dir = os.path.dirname(parent_dir)
+sys.path.extend([parent_dir, root_dir])
+
 import logging
 
 from apps.backend.models import User, UserRole, ChildProfile, ParentGuide

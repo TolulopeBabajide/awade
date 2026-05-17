@@ -697,3 +697,4 @@ After removing it, the next hourly run will:
 | 2026-05-16T22:05:00Z | AWD-H-88 | CurriculumService CRUD methods: wrap all 12 create/update/delete methods in try/except HTTP 500 | 4f4fecb (merge de0a01c) | ✅ Done | CI:pending — Self-promoted from define→done (fix fully specified, S effort, pattern established in same file, no Tolu decision). 12 new mock-based tests. Python ✅ · openapi.json ✅ · mcp.json ✅. AWD-H-78 also closed (file confirmed absent). Tolu: run `git push origin develop` to trigger CI. |
 2026-05-17T06:12:00Z | AWD-M-172 | get_data_export inline json.loads → _parse_json_list | 8c62cdf | ✅ Done | CI:pending (push required)
 2026-05-17T07:13:11Z | AWD-H-89 | develop stuck mid-merge + M-172 reversed + 5 tests deleted | 5949801 | ✅ Done | CI:pending
+2026-05-17T08:11:00Z | AWD-L-50 | Remove stale sys.path.extend block from user_service.py | 50a8145 | ✅ Done | CI:pending (push required)
