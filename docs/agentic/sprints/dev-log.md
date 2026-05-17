@@ -706,3 +706,5 @@ After removing it, the next hourly run will:
 2026-05-17T14:16:25Z | AWD-M-175 | extract _db_guard context manager in CurriculumService | 82c973a | ✅ Done | CI:pending
 2026-05-17T15:12:49Z | H-91 | Re-commit _db_guard refactor dropped by chore commit 3e3c897 | a93f1d7 (merge de408f5) | ✅ Done | CI:pending
 2026-05-17T15:30:00Z | AWD-H-90 | Fix test_export_date_is_tz_aware recorded[0]→recorded[-1] | 182fedc | ✅ Done | CI:pending
+2026-05-17T18:25:47Z | AWD-M-177 | Add db.rollback() to _db_guard exception path | ebc27b6 (merge 2f3c3ae) | ✅ Done | CI:pending
+2026-05-17T19:31:56Z | AWD-M-179 | Add Generator return type to CurriculumService._db_guard | 9c43ee6 | ✅ Done | CI:pending
