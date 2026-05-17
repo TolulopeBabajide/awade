@@ -606,12 +606,14 @@ class TestLearningObjectiveCRUDH88:
     def test_update_learning_objective_db_error_raises_500(self):
         from unittest.mock import MagicMock
         from fastapi import HTTPException
+        from apps.backend.schemas.curriculum import LearningObjectiveUpdate
 
         mock_db = self._mock_db()
         mock_db.query.side_effect = Exception("DB connection lost")
         service = CurriculumService(mock_db)
+        data = LearningObjectiveUpdate(objective="New text")
         with pytest.raises(HTTPException) as exc_info:
-            service.update_learning_objective(objective_id=1, objective_data="New text")
+            service.update_learning_objective(objective_id=1, objective_data=data)
         assert exc_info.value.status_code == 500
         assert "learning objective" in exc_info.value.detail.lower()
 
@@ -652,12 +654,14 @@ class TestContentCRUDH88:
     def test_update_content_db_error_raises_500(self):
         from unittest.mock import MagicMock
         from fastapi import HTTPException
+        from apps.backend.schemas.curriculum import ContentUpdate
 
         mock_db = self._mock_db()
         mock_db.query.side_effect = Exception("DB connection lost")
         service = CurriculumService(mock_db)
+        data = ContentUpdate(content_area="New content")
         with pytest.raises(HTTPException) as exc_info:
-            service.update_content(content_id=1, content_data="New content")
+            service.update_content(content_id=1, content_data=data)
         assert exc_info.value.status_code == 500
         assert "content" in exc_info.value.detail.lower()
 
@@ -672,3 +676,99 @@ class TestContentCRUDH88:
             service.delete_content(content_id=1)
         assert exc_info.value.status_code == 500
         assert "content" in exc_info.value.detail.lower()
+
+
+class TestUpdateMethodsM171:
+    """AWD-M-171: update_learning_objective and update_content accept LearningObjectiveUpdate/ContentUpdate
+    schemas with min_length=1 and max_length=2000 validation — raw str no longer accepted."""
+
+    # --- LearningObjectiveUpdate schema validation ---
+
+    def test_learning_objective_update_rejects_empty_string(self):
+        """Empty string must fail Pydantic validation (min_length=1)."""
+        from pydantic import ValidationError
+        from apps.backend.schemas.curriculum import LearningObjectiveUpdate
+
+        with pytest.raises(ValidationError):
+            LearningObjectiveUpdate(objective="")
+
+    def test_learning_objective_update_rejects_string_over_2000_chars(self):
+        """String longer than 2000 chars must fail Pydantic validation (max_length=2000)."""
+        from pydantic import ValidationError
+        from apps.backend.schemas.curriculum import LearningObjectiveUpdate
+
+        with pytest.raises(ValidationError):
+            LearningObjectiveUpdate(objective="x" * 2001)
+
+    def test_learning_objective_update_accepts_valid_string(self):
+        """Valid non-empty string within limit must pass."""
+        from apps.backend.schemas.curriculum import LearningObjectiveUpdate
+
+        schema = LearningObjectiveUpdate(objective="Students will identify prime numbers")
+        assert schema.objective == "Students will identify prime numbers"
+
+    def test_learning_objective_update_accepts_max_length_boundary(self):
+        """Exactly 2000-char string must pass."""
+        from apps.backend.schemas.curriculum import LearningObjectiveUpdate
+
+        schema = LearningObjectiveUpdate(objective="a" * 2000)
+        assert len(schema.objective) == 2000
+
+    # --- ContentUpdate schema validation ---
+
+    def test_content_update_rejects_empty_string(self):
+        """Empty string must fail Pydantic validation (min_length=1)."""
+        from pydantic import ValidationError
+        from apps.backend.schemas.curriculum import ContentUpdate
+
+        with pytest.raises(ValidationError):
+            ContentUpdate(content_area="")
+
+    def test_content_update_rejects_string_over_2000_chars(self):
+        """String longer than 2000 chars must fail Pydantic validation (max_length=2000)."""
+        from pydantic import ValidationError
+        from apps.backend.schemas.curriculum import ContentUpdate
+
+        with pytest.raises(ValidationError):
+            ContentUpdate(content_area="y" * 2001)
+
+    def test_content_update_accepts_valid_string(self):
+        """Valid non-empty string within limit must pass."""
+        from apps.backend.schemas.curriculum import ContentUpdate
+
+        schema = ContentUpdate(content_area="Introduction to algebraic expressions")
+        assert schema.content_area == "Introduction to algebraic expressions"
+
+    # --- Service method accepts schema, unpacks field correctly ---
+
+    def test_update_learning_objective_assigns_schema_field(self):
+        """Service should assign objective_data.objective to the ORM object."""
+        from unittest.mock import MagicMock
+        from apps.backend.schemas.curriculum import LearningObjectiveUpdate
+
+        mock_db = MagicMock()
+        mock_objective = MagicMock()
+        mock_db.query.return_value.filter.return_value.first.return_value = mock_objective
+        service = CurriculumService(mock_db)
+
+        data = LearningObjectiveUpdate(objective="Understand polynomial expressions")
+        result = service.update_learning_objective(objective_id=42, objective_data=data)
+
+        assert mock_objective.objective == "Understand polynomial expressions"
+        assert result is mock_objective
+
+    def test_update_content_assigns_schema_field(self):
+        """Service should assign content_data.content_area to the ORM object."""
+        from unittest.mock import MagicMock
+        from apps.backend.schemas.curriculum import ContentUpdate
+
+        mock_db = MagicMock()
+        mock_content = MagicMock()
+        mock_db.query.return_value.filter.return_value.first.return_value = mock_content
+        service = CurriculumService(mock_db)
+
+        data = ContentUpdate(content_area="Quadratic equations and factorisation")
+        result = service.update_content(content_id=7, content_data=data)
+
+        assert mock_content.content_area == "Quadratic equations and factorisation"
+        assert result is mock_content
