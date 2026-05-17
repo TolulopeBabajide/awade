@@ -10,8 +10,8 @@ Author: Tolulope Babajide
 
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_, or_
-from typing import List, Optional, Dict, Any
-from datetime import datetime
+from typing import Callable, List, Optional, Dict, Any
+from datetime import datetime, timezone
 from fastapi import HTTPException, status
 import json
 import logging
@@ -166,6 +166,99 @@ class UserService:
             return json.loads(val)
         except (json.JSONDecodeError, TypeError):
             return None
+
+    @staticmethod
+    def _fmt_datetime(dt: Optional[datetime]) -> Optional[str]:
+        """
+        ISO-8601 string with UTC marker, or None (AWD-M-174).
+
+        Extracted from the inline ``_fmt`` closure in :meth:`get_data_export`
+        so it can be tested and reused independently.
+
+        Args:
+            dt: A ``datetime`` instance (tz-aware or naive) or ``None``.
+
+        Returns:
+            str | None: ISO-8601 string, e.g. ``"2026-05-17T10:00:00+00:00"``,
+                or ``None`` when *dt* is ``None``.
+        """
+        if dt is None:
+            return None
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.isoformat()
+
+    @staticmethod
+    def _serialize_guide(
+        guide: ParentGuide,
+        fmt_fn: Callable[[Optional[datetime]], Optional[str]],
+    ) -> Dict[str, Any]:
+        """
+        Serialize a :class:`ParentGuide` to an export-safe dict (AWD-M-174).
+
+        Extracted from the inner loop in :meth:`get_data_export` to reduce
+        function length and allow unit testing.
+
+        Args:
+            guide: The eagerly-loaded ``ParentGuide`` instance.
+            fmt_fn: Callable that converts a ``datetime`` to an ISO-8601 string
+                (typically :meth:`_fmt_datetime`).
+
+        Returns:
+            Dict[str, Any]: JSON-serialisable guide payload.
+        """
+        topic_title: Optional[str] = guide.topic.topic_title if guide.topic else None
+        return {
+            "guide_id": guide.guide_id,
+            "topic_id": guide.topic_id,
+            "topic_title": topic_title,
+            "ai_generated_content": guide.ai_generated_content,
+            "user_edited_content": guide.user_edited_content,
+            "is_bookmarked": bool(guide.is_bookmarked),
+            "created_at": fmt_fn(guide.created_at),
+            "updated_at": fmt_fn(guide.updated_at),
+        }
+
+    @staticmethod
+    def _serialize_child(
+        child: ChildProfile,
+        fmt_fn: Callable[[Optional[datetime]], Optional[str]],
+    ) -> Dict[str, Any]:
+        """
+        Serialize a :class:`ChildProfile` (with its guides) to an export-safe
+        dict (AWD-M-174).
+
+        Extracted from the inner loop in :meth:`get_data_export` to reduce
+        function length and allow unit testing.  Calls :meth:`_serialize_guide`
+        for each eagerly-loaded guide and :meth:`_parse_json_list` for the
+        ``subjects`` JSON field.
+
+        Args:
+            child: The eagerly-loaded ``ChildProfile`` instance.
+            fmt_fn: Callable that converts a ``datetime`` to an ISO-8601 string
+                (typically :meth:`_fmt_datetime`).
+
+        Returns:
+            Dict[str, Any]: JSON-serialisable child payload including guides.
+        """
+        child_subjects: Optional[List] = UserService._parse_json_list(child.subjects)
+        guides_data: List[Dict[str, Any]] = [
+            UserService._serialize_guide(guide, fmt_fn)
+            for guide in sorted(child.parent_guides, key=lambda g: g.guide_id)
+        ]
+        return {
+            "child_id": child.child_id,
+            "name": child.name,
+            "age": child.age,
+            "school_name": child.school_name,
+            "country_id": child.country_id,
+            "curricula_id": child.curricula_id,
+            "grade_level_id": child.grade_level_id,
+            "subjects": child_subjects,
+            "created_at": fmt_fn(child.created_at),
+            "updated_at": fmt_fn(child.updated_at),
+            "guides": guides_data,
+        }
 
     def _apply_user_fields(self, user: User, update_data: dict) -> None:
         """
@@ -411,15 +504,10 @@ class UserService:
             HTTPException: 500 if export assembly fails.
         """
         try:
-            from datetime import timezone as _tz
-
-            def _fmt(dt: Optional[datetime]) -> Optional[str]:
-                """ISO-8601 string with UTC marker, or None."""
-                if dt is None:
-                    return None
-                if dt.tzinfo is None:
-                    dt = dt.replace(tzinfo=_tz.utc)
-                return dt.isoformat()
+            # AWD-M-174: delegate datetime formatting and child/guide serialisation
+            # to extracted static helpers (_fmt_datetime, _serialize_guide,
+            # _serialize_child) to bring this function below the 60-line threshold.
+            fmt = self._fmt_datetime
 
             # --- user profile (no password_hash, no image blobs) ---
             # AWD-M-172: delegate JSON parsing to shared _parse_json_list helper
@@ -439,8 +527,8 @@ class UserService:
                 "languages_spoken": current_user.languages_spoken,
                 "phone": current_user.phone,
                 "bio": current_user.bio,
-                "created_at": _fmt(current_user.created_at),
-                "last_login": _fmt(current_user.last_login),
+                "created_at": fmt(current_user.created_at),
+                "last_login": fmt(current_user.last_login),
             }
 
             # --- children + guides (PARENT only) ---
@@ -463,47 +551,12 @@ class UserService:
                     .order_by(ChildProfile.child_id)
                     .all()
                 )
-                for child in children:
-                    # AWD-M-172: delegate JSON parsing to shared _parse_json_list helper
-                    child_subjects: Optional[List] = self._parse_json_list(child.subjects)
-
-                    # Use the eagerly-loaded collection — no extra query.
-                    # Preserve the prior ordering (by guide_id ascending) so
-                    # the export payload remains stable.
-                    guides_data: List[Dict[str, Any]] = []
-                    for guide in sorted(
-                        child.parent_guides, key=lambda g: g.guide_id
-                    ):
-                        topic_title: Optional[str] = (
-                            guide.topic.topic_title if guide.topic else None
-                        )
-                        guides_data.append({
-                            "guide_id": guide.guide_id,
-                            "topic_id": guide.topic_id,
-                            "topic_title": topic_title,
-                            "ai_generated_content": guide.ai_generated_content,
-                            "user_edited_content": guide.user_edited_content,
-                            "is_bookmarked": bool(guide.is_bookmarked),
-                            "created_at": _fmt(guide.created_at),
-                            "updated_at": _fmt(guide.updated_at),
-                        })
-
-                    children_data.append({
-                        "child_id": child.child_id,
-                        "name": child.name,
-                        "age": child.age,
-                        "school_name": child.school_name,
-                        "country_id": child.country_id,
-                        "curricula_id": child.curricula_id,
-                        "grade_level_id": child.grade_level_id,
-                        "subjects": child_subjects,
-                        "created_at": _fmt(child.created_at),
-                        "updated_at": _fmt(child.updated_at),
-                        "guides": guides_data,
-                    })
+                children_data = [
+                    self._serialize_child(child, fmt) for child in children
+                ]
 
             return {
-                "export_date": _fmt(datetime.now()),
+                "export_date": fmt(datetime.now()),
                 "user": user_data,
                 "children": children_data,
             }

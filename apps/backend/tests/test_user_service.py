@@ -294,3 +294,176 @@ class TestParseJsonList:
         service = self._make_service()
         result = service._parse_json_list("[]")
         assert result == []
+
+
+class TestFmtDatetime:
+    """AWD-M-174: tests for the extracted _fmt_datetime static helper."""
+
+    def test_none_returns_none(self):
+        """None input must return None (no crash)."""
+        assert UserService._fmt_datetime(None) is None
+
+    def test_naive_datetime_gets_utc_marker(self):
+        """A tz-naive datetime must be tagged as UTC in the output string."""
+        from datetime import datetime
+        dt = datetime(2026, 5, 17, 10, 0, 0)  # no tzinfo
+        result = UserService._fmt_datetime(dt)
+        assert result is not None
+        assert "+00:00" in result or "Z" in result or "UTC" in result
+
+    def test_aware_datetime_preserved(self):
+        """A tz-aware datetime must not have its timezone overwritten."""
+        from datetime import datetime, timezone, timedelta
+        tz_plus2 = timezone(timedelta(hours=2))
+        dt = datetime(2026, 5, 17, 12, 0, 0, tzinfo=tz_plus2)
+        result = UserService._fmt_datetime(dt)
+        assert result is not None
+        # The offset must reflect +02:00, not +00:00
+        assert "+02:00" in result
+
+    def test_returns_iso8601_string(self):
+        """Output must be a valid ISO-8601 string parseable by fromisoformat."""
+        from datetime import datetime, timezone
+        dt = datetime(2026, 1, 15, 8, 30, 0, tzinfo=timezone.utc)
+        result = UserService._fmt_datetime(dt)
+        assert result == "2026-01-15T08:30:00+00:00"
+
+
+class TestSerializeGuide:
+    """AWD-M-174: tests for the extracted _serialize_guide static helper."""
+
+    def _make_guide(self, **kwargs):
+        """Return a Mock ParentGuide with sensible defaults."""
+        from datetime import datetime, timezone
+        g = Mock()
+        g.guide_id = kwargs.get("guide_id", 1)
+        g.topic_id = kwargs.get("topic_id", 10)
+        g.topic = kwargs.get("topic", None)
+        g.ai_generated_content = kwargs.get("ai_generated_content", '{"steps":[]}')
+        g.user_edited_content = kwargs.get("user_edited_content", None)
+        g.is_bookmarked = kwargs.get("is_bookmarked", False)
+        g.created_at = kwargs.get("created_at", datetime(2026, 5, 1, tzinfo=timezone.utc))
+        g.updated_at = kwargs.get("updated_at", datetime(2026, 5, 2, tzinfo=timezone.utc))
+        return g
+
+    def _fmt(self, dt):
+        return UserService._fmt_datetime(dt)
+
+    def test_fields_mapped_correctly(self):
+        """All expected fields must be present with correct values."""
+        topic = Mock()
+        topic.topic_title = "Algebra"
+        guide = self._make_guide(guide_id=5, topic_id=20, topic=topic, is_bookmarked=True)
+
+        result = UserService._serialize_guide(guide, self._fmt)
+
+        assert result["guide_id"] == 5
+        assert result["topic_id"] == 20
+        assert result["topic_title"] == "Algebra"
+        assert result["is_bookmarked"] is True
+        assert result["ai_generated_content"] == '{"steps":[]}'
+
+    def test_topic_none_yields_none_title(self):
+        """When guide.topic is None the topic_title key must be None."""
+        guide = self._make_guide(topic=None)
+        result = UserService._serialize_guide(guide, self._fmt)
+        assert result["topic_title"] is None
+
+    def test_is_bookmarked_coerced_to_bool(self):
+        """is_bookmarked must be a Python bool even if the model returns a truthy int."""
+        guide = self._make_guide(is_bookmarked=1)
+        result = UserService._serialize_guide(guide, self._fmt)
+        assert result["is_bookmarked"] is True
+        assert isinstance(result["is_bookmarked"], bool)
+
+    def test_fmt_fn_called_for_timestamps(self):
+        """The supplied fmt_fn must be called for created_at and updated_at."""
+        from datetime import datetime, timezone
+        calls = []
+
+        def tracking_fmt(dt):
+            calls.append(dt)
+            return UserService._fmt_datetime(dt)
+
+        guide = self._make_guide(
+            created_at=datetime(2026, 3, 1, tzinfo=timezone.utc),
+            updated_at=datetime(2026, 4, 1, tzinfo=timezone.utc),
+        )
+        UserService._serialize_guide(guide, tracking_fmt)
+        assert len(calls) == 2
+
+
+class TestSerializeChild:
+    """AWD-M-174: tests for the extracted _serialize_child static helper."""
+
+    def _make_child(self, subjects_json=None, guides=None, **kwargs):
+        """Return a Mock ChildProfile with sensible defaults."""
+        from datetime import datetime, timezone
+        c = Mock()
+        c.child_id = kwargs.get("child_id", 1)
+        c.name = kwargs.get("name", "Test Child")
+        c.age = kwargs.get("age", 8)
+        c.school_name = kwargs.get("school_name", None)
+        c.country_id = kwargs.get("country_id", None)
+        c.curricula_id = kwargs.get("curricula_id", None)
+        c.grade_level_id = kwargs.get("grade_level_id", None)
+        c.subjects = subjects_json
+        c.created_at = kwargs.get("created_at", datetime(2026, 5, 1, tzinfo=timezone.utc))
+        c.updated_at = kwargs.get("updated_at", datetime(2026, 5, 2, tzinfo=timezone.utc))
+        c.parent_guides = guides if guides is not None else []
+        return c
+
+    def _make_guide(self, guide_id, topic_title=None):
+        from datetime import datetime, timezone
+        g = Mock()
+        g.guide_id = guide_id
+        g.topic_id = guide_id * 10
+        g.topic = Mock()
+        g.topic.topic_title = topic_title or f"Topic {guide_id}"
+        g.ai_generated_content = "{}"
+        g.user_edited_content = None
+        g.is_bookmarked = False
+        g.created_at = datetime(2026, 5, 1, tzinfo=timezone.utc)
+        g.updated_at = datetime(2026, 5, 2, tzinfo=timezone.utc)
+        return g
+
+    def _fmt(self, dt):
+        return UserService._fmt_datetime(dt)
+
+    def test_fields_mapped_correctly(self):
+        """Core child fields must be present and correctly mapped."""
+        child = self._make_child(child_id=7, name="Alice", age=9)
+        result = UserService._serialize_child(child, self._fmt)
+
+        assert result["child_id"] == 7
+        assert result["name"] == "Alice"
+        assert result["age"] == 9
+        assert "guides" in result
+
+    def test_subjects_json_decoded(self):
+        """subjects stored as a JSON string must be deserialised in the output."""
+        child = self._make_child(subjects_json='["Maths", "English"]')
+        result = UserService._serialize_child(child, self._fmt)
+        assert result["subjects"] == ["Maths", "English"]
+
+    def test_subjects_none_stays_none(self):
+        """subjects=None must produce null in the output, not an error."""
+        child = self._make_child(subjects_json=None)
+        result = UserService._serialize_child(child, self._fmt)
+        assert result["subjects"] is None
+
+    def test_guides_ordered_by_guide_id(self):
+        """guides must appear sorted by guide_id ascending."""
+        g1 = self._make_guide(guide_id=3)
+        g2 = self._make_guide(guide_id=1)
+        g3 = self._make_guide(guide_id=2)
+        child = self._make_child(guides=[g1, g2, g3])
+        result = UserService._serialize_child(child, self._fmt)
+        guide_ids = [g["guide_id"] for g in result["guides"]]
+        assert guide_ids == [1, 2, 3]
+
+    def test_no_guides_returns_empty_list(self):
+        """A child with no guides must produce an empty 'guides' list."""
+        child = self._make_child(guides=[])
+        result = UserService._serialize_child(child, self._fmt)
+        assert result["guides"] == []
