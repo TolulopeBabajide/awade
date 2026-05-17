@@ -1649,3 +1649,11 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commits**: 50a8145 (fix), c5546bf (merge into develop)
 - **Change**: Removed `import sys`, `import os`, the path comment, and the 4-line `sys.path.extend` block (9 lines total) from `apps/backend/services/user_service.py`. Identical to AWD-M-160 which removed the same pattern from `country_service.py`, `subject_service.py`, `context_service.py`. All downstream imports use absolute `apps.backend.*` paths so the path extension was dead code.
 - **Validation**: Python syntax ✅ · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · backend pytest SKIP (venv broken, AWD-M-46) · frontend vitest SKIP (no FE files changed).
+
+---
+
+## AWD-M-171 — update_learning_objective and update_content bypass Pydantic validation
+- **Resolved**: 2026-05-17
+- **Commits**: b488bff (fix), c77fd08 (merge into develop)
+- **Change**: Added `min_length=1, max_length=2000` to `LearningObjectiveUpdate.objective` and `ContentUpdate.content_area` fields in `apps/backend/schemas/curriculum.py`. Updated `update_learning_objective` and `update_content` service methods to accept the schema objects (`LearningObjectiveUpdate`, `ContentUpdate`) instead of raw `str`, and updated field assignment to use `.objective` and `.content_area` respectively. Updated 2 existing H-88 tests that passed raw strings to use schema objects. Added 10 new tests in `TestUpdateMethodsM171` covering: empty string rejected (min_length), 2001-char rejected (max_length), 2000-char boundary accepted, valid string accepted, service correctly assigns schema field to ORM object (for both methods).
+- **Validation**: Python syntax ✅ · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ · backend pytest SKIP (venv broken, AWD-M-46) · frontend vitest SKIP (no FE files changed).

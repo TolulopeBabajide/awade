@@ -698,3 +698,4 @@ After removing it, the next hourly run will:
 2026-05-17T06:12:00Z | AWD-M-172 | get_data_export inline json.loads → _parse_json_list | 8c62cdf | ✅ Done | CI:pending (push required)
 2026-05-17T07:13:11Z | AWD-H-89 | develop stuck mid-merge + M-172 reversed + 5 tests deleted | 5949801 | ✅ Done | CI:pending
 2026-05-17T08:11:00Z | AWD-L-50 | Remove stale sys.path.extend block from user_service.py | 50a8145 | ✅ Done | CI:pending (push required)
+2026-05-17T09:15:11Z | AWD-M-171 | add Pydantic validation to update_learning_objective and update_content | b488bff | ✅ Done | CI:pending
