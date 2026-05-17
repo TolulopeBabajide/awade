@@ -64,6 +64,7 @@ class CurriculumService:
         except HTTPException:
             raise
         except Exception as e:
+            self.db.rollback()
             logger.error("%s: %s", error_msg, e, exc_info=True)
             raise HTTPException(status_code=500, detail=error_msg)
 
