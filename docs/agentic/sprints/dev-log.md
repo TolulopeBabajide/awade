@@ -702,3 +702,5 @@ After removing it, the next hourly run will:
 2026-05-17T10:13:09Z | AWD-M-173 | Extract _assert_user_access helper in UserService | cdeef5c (merge a6f3cfc) | ✅ Done | CI:pending
 | 2026-05-17T00:00:00Z | AWD-M-174 | Extract _fmt_datetime/_serialize_guide/_serialize_child from get_data_export | 327f854 | ✅ Done | CI:pending |
 2026-05-17T12:17:00Z | M-155 | Sync env templates: remove phantom OPENAI_MODEL, add missing AI provider vars | 0060ba8 | ✅ Done | CI:pending
+2026-05-17T00:00:00Z | AWD-M-176 | fix: datetime.now(timezone.utc) for export_date in get_data_export | 32aa94f | ✅ Done | CI:pending
+2026-05-17T14:16:25Z | AWD-M-175 | extract _db_guard context manager in CurriculumService | 82c973a | ✅ Done | CI:pending

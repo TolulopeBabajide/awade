@@ -7,7 +7,6 @@ Author: Tolulope Babajide
 """
 
 import logging
-from contextlib import contextmanager
 
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func
@@ -28,49 +27,17 @@ logger = logging.getLogger(__name__)
 
 class CurriculumService:
     """Service class for curriculum operations."""
-
+    
     def __init__(self, db: Session):
         """
         Initialize the CurriculumService with a database session.
-
+        
         Args:
             db (Session): SQLAlchemy database session
         """
         self.db = db
-
-    @contextmanager
-    def _db_guard(self, error_msg: str):
-        """Context manager that absorbs and converts DB errors to HTTP 500.
-
-        Re-raises HTTPException unchanged so callers' explicit 404/403
-        responses are not swallowed.  Any other exception is logged (with full
-        traceback) and re-raised as ``HTTPException(status_code=500,
-        detail=error_msg)``.
-
-        AWD-M-175: replaces 15 identical try/except blocks that previously
-        differed only in their error message string.
-
-        Usage::
-
-            with self._db_guard("Failed to create curriculum"):
-                obj = Curriculum(...)
-                self.db.add(obj)
-                self.db.commit()
-                self.db.refresh(obj)
-                return obj
-        """
-        try:
-            yield
-        except HTTPException:
-            raise
-        except Exception as e:
-            logger.error("%s: %s", error_msg, e, exc_info=True)
-            raise HTTPException(status_code=500, detail=error_msg)
-
-    # ------------------------------------------------------------------
+    
     # Curriculum CRUD operations (normalized)
-    # ------------------------------------------------------------------
-
     def create_curriculum(self, curriculum_data: CurriculumCreate) -> Curriculum:
         """
         Create a new curriculum.
@@ -81,13 +48,18 @@ class CurriculumService:
         Returns:
             Curriculum: The created curriculum ORM object.
         """
-        with self._db_guard("Failed to create curriculum"):
+        try:
             curriculum = Curriculum(**curriculum_data.model_dump())
             self.db.add(curriculum)
             self.db.commit()
             self.db.refresh(curriculum)
             return curriculum
-
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error("Error creating curriculum: %s", e, exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to create curriculum")
+    
     def get_curriculum(self, curricula_id: int) -> Optional[Curriculum]:
         """
         Get a curriculum by its ID.
@@ -99,7 +71,7 @@ class CurriculumService:
             Optional[Curriculum]: The curriculum ORM object or None if not found.
         """
         return self.db.query(Curriculum).filter(Curriculum.curricula_id == curricula_id).first()
-
+    
     def get_curriculums(self, skip: int = 0, limit: int = 100, country_id: Optional[int] = None) -> List[Curriculum]:
         """
         Get a list of curriculums with optional filtering by country.
@@ -113,13 +85,13 @@ class CurriculumService:
             List[Curriculum]: List of curriculum ORM objects.
         """
         query = self.db.query(Curriculum)
-
+        
         # Apply filters
         if country_id:
             query = query.filter(Curriculum.country_id == country_id)
-
+        
         return query.offset(skip).limit(limit).all()
-
+    
     def update_curriculum(self, curricula_id: int, curriculum_data: CurriculumCreate) -> Optional[Curriculum]:
         """
         Update a curriculum by its ID.
@@ -131,7 +103,7 @@ class CurriculumService:
         Returns:
             Optional[Curriculum]: The updated curriculum ORM object or None if not found.
         """
-        with self._db_guard("Failed to update curriculum"):
+        try:
             curriculum = self.get_curriculum(curricula_id)
             if not curriculum:
                 return None
@@ -144,7 +116,12 @@ class CurriculumService:
             self.db.commit()
             self.db.refresh(curriculum)
             return curriculum
-
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error("Error updating curriculum %s: %s", curricula_id, e, exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to update curriculum")
+    
     def delete_curriculum(self, curricula_id: int) -> bool:
         """
         Delete a curriculum and all related data by its ID.
@@ -155,7 +132,7 @@ class CurriculumService:
         Returns:
             bool: True if deleted, False if not found.
         """
-        with self._db_guard("Failed to delete curriculum"):
+        try:
             curriculum = self.get_curriculum(curricula_id)
             if not curriculum:
                 return False
@@ -163,11 +140,13 @@ class CurriculumService:
             self.db.delete(curriculum)
             self.db.commit()
             return True
-
-    # ------------------------------------------------------------------
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error("Error deleting curriculum %s: %s", curricula_id, e, exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to delete curriculum")
+    
     # Topic CRUD operations (normalized)
-    # ------------------------------------------------------------------
-
     def create_topic(self, topic_data: TopicCreate) -> Topic:
         """
         Create a new topic.
@@ -178,13 +157,18 @@ class CurriculumService:
         Returns:
             Topic: The created topic ORM object.
         """
-        with self._db_guard("Failed to create topic"):
+        try:
             topic = Topic(**topic_data.model_dump())
             self.db.add(topic)
             self.db.commit()
             self.db.refresh(topic)
             return topic
-
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error("Error creating topic: %s", e, exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to create topic")
+    
     def get_topic(self, topic_id: int) -> Optional[Topic]:
         """
         Get a topic by its ID.
@@ -196,7 +180,7 @@ class CurriculumService:
             Optional[Topic]: The topic ORM object or None if not found.
         """
         return self.db.query(Topic).filter(Topic.topic_id == topic_id).first()
-
+    
     def get_topics(self, skip: int = 0, limit: int = 100, curriculum_structure_id: Optional[int] = None) -> List[Topic]:
         """
         Get a list of topics with optional filtering by curriculum structure.
@@ -210,13 +194,13 @@ class CurriculumService:
             List[Topic]: List of topic ORM objects.
         """
         query = self.db.query(Topic)
-
+        
         # Apply filters
         if curriculum_structure_id:
             query = query.filter(Topic.curriculum_structure_id == curriculum_structure_id)
-
+        
         return query.offset(skip).limit(limit).all()
-
+    
     def update_topic(self, topic_id: int, topic_data: TopicCreate) -> Optional[Topic]:
         """
         Update a topic by its ID.
@@ -228,7 +212,7 @@ class CurriculumService:
         Returns:
             Optional[Topic]: The updated topic ORM object or None if not found.
         """
-        with self._db_guard("Failed to update topic"):
+        try:
             topic = self.get_topic(topic_id)
             if not topic:
                 return None
@@ -241,10 +225,15 @@ class CurriculumService:
             self.db.commit()
             self.db.refresh(topic)
             return topic
-
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error("Error updating topic %s: %s", topic_id, e, exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to update topic")
+    
     def delete_topic(self, topic_id: int) -> bool:
         """Delete a topic and all related data."""
-        with self._db_guard("Failed to delete topic"):
+        try:
             topic = self.get_topic(topic_id)
             if not topic:
                 return False
@@ -252,27 +241,34 @@ class CurriculumService:
             self.db.delete(topic)
             self.db.commit()
             return True
-
-    # ------------------------------------------------------------------
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error("Error deleting topic %s: %s", topic_id, e, exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to delete topic")
+    
     # Learning Objective operations
-    # ------------------------------------------------------------------
-
     def create_learning_objective(self, objective_data: LearningObjectiveCreate) -> LearningObjective:
         """Create a new learning objective."""
-        with self._db_guard("Failed to create learning objective"):
+        try:
             objective = LearningObjective(**objective_data.model_dump())
             self.db.add(objective)
             self.db.commit()
             self.db.refresh(objective)
             return objective
-
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error("Error creating learning objective: %s", e, exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to create learning objective")
+    
     def get_learning_objectives(self, topic_id: int) -> List[LearningObjective]:
         """Get all learning objectives for a topic."""
         return self.db.query(LearningObjective).filter(LearningObjective.topic_id == topic_id).all()
-
+    
     def update_learning_objective(self, objective_id: int, objective_data: LearningObjectiveUpdate) -> Optional[LearningObjective]:
         """Update a learning objective."""
-        with self._db_guard("Failed to update learning objective"):
+        try:
             objective = self.db.query(LearningObjective).filter(LearningObjective.learning_objective_id == objective_id).first()
             if not objective:
                 return None
@@ -281,10 +277,15 @@ class CurriculumService:
             self.db.commit()
             self.db.refresh(objective)
             return objective
-
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error("Error updating learning objective %s: %s", objective_id, e, exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to update learning objective")
+    
     def delete_learning_objective(self, objective_id: int) -> bool:
         """Delete a learning objective."""
-        with self._db_guard("Failed to delete learning objective"):
+        try:
             objective = self.db.query(LearningObjective).filter(LearningObjective.learning_objective_id == objective_id).first()
             if not objective:
                 return False
@@ -292,27 +293,34 @@ class CurriculumService:
             self.db.delete(objective)
             self.db.commit()
             return True
-
-    # ------------------------------------------------------------------
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error("Error deleting learning objective %s: %s", objective_id, e, exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to delete learning objective")
+    
     # Content operations
-    # ------------------------------------------------------------------
-
     def create_content(self, content_data: ContentCreate) -> TopicContent:
         """Create a new content area."""
-        with self._db_guard("Failed to create content"):
+        try:
             content = TopicContent(**content_data.model_dump())
             self.db.add(content)
             self.db.commit()
             self.db.refresh(content)
             return content
-
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error("Error creating content: %s", e, exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to create content")
+    
     def get_contents(self, topic_id: int) -> List[TopicContent]:
         """Get all content areas for a topic."""
         return self.db.query(TopicContent).filter(TopicContent.topic_id == topic_id).all()
-
+    
     def update_content(self, content_id: int, content_data: ContentUpdate) -> Optional[TopicContent]:
         """Update a content area."""
-        with self._db_guard("Failed to update content"):
+        try:
             content = self.db.query(TopicContent).filter(TopicContent.topic_contents_id == content_id).first()
             if not content:
                 return None
@@ -321,10 +329,15 @@ class CurriculumService:
             self.db.commit()
             self.db.refresh(content)
             return content
-
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error("Error updating content %s: %s", content_id, e, exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to update content")
+    
     def delete_content(self, content_id: int) -> bool:
         """Delete a content area."""
-        with self._db_guard("Failed to delete content"):
+        try:
             content = self.db.query(TopicContent).filter(TopicContent.topic_contents_id == content_id).first()
             if not content:
                 return False
@@ -332,11 +345,13 @@ class CurriculumService:
             self.db.delete(content)
             self.db.commit()
             return True
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error("Error deleting content %s: %s", content_id, e, exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to delete content")
 
-    # ------------------------------------------------------------------
     # Search and utility methods
-    # ------------------------------------------------------------------
-
     def search_curriculums(self, search_term: str) -> List[Curriculum]:
         """Search curricula by country name, subject name, or curriculum title.
 
@@ -353,7 +368,7 @@ class CurriculumService:
         """
         if not search_term or not search_term.strip():
             return []
-        with self._db_guard("Failed to search curricula"):
+        try:
             return (
                 self.db.query(Curriculum)
                 .join(Country, Curriculum.country_id == Country.country_id)
@@ -375,6 +390,11 @@ class CurriculumService:
                 .distinct()
                 .all()
             )
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error("Error searching curricula for term %r: %s", search_term, e, exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to search curricula")
 
     def search_topics(self, search_term: str) -> List[Topic]:
         """Search topics by title.
@@ -384,13 +404,18 @@ class CurriculumService:
         """
         if not search_term or not search_term.strip():
             return []
-        with self._db_guard("Failed to search topics"):
+        try:
             return self.db.query(Topic).filter(
                 or_(
                     Topic.topic_title.ilike(f"%{search_term}%"),
                 )
             ).all()
-
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error("Error searching topics for term %r: %s", search_term, e, exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to search topics")
+    
     def get_curriculum_statistics(self, curriculum_id: int) -> Dict[str, Any]:
         """Get statistics for a curriculum.
 
@@ -412,7 +437,7 @@ class CurriculumService:
             Dict with total_topics, total_learning_objectives, total_contents,
             or an empty dict if the curriculum does not exist.
         """
-        with self._db_guard("Failed to get curriculum statistics"):
+        try:
             curriculum = self.get_curriculum(curriculum_id)
             if not curriculum:
                 return {}
@@ -464,3 +489,13 @@ class CurriculumService:
                 "total_learning_objectives": total_objectives,
                 "total_contents": total_contents,
             }
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(
+                "Error getting statistics for curriculum %s: %s",
+                curriculum_id,
+                e,
+                exc_info=True,
+            )
+            raise HTTPException(status_code=500, detail="Failed to get curriculum statistics")

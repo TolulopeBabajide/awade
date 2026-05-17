@@ -1,5 +1,5 @@
 """
-Unit tests for CurriculumService — AWD-M-163, AWD-M-164, AWD-M-165, AWD-M-166, AWD-M-167, AWD-H-88, AWD-M-175.
+Unit tests for CurriculumService — AWD-M-163, AWD-M-164, AWD-M-165, AWD-M-166, AWD-M-167, AWD-H-88.
 
 Covers:
 - get_curriculum_statistics: happy path (one structure, topics, objectives, contents)
@@ -772,80 +772,3 @@ class TestUpdateMethodsM171:
 
         assert mock_content.content_area == "Quadratic equations and factorisation"
         assert result is mock_content
-
-
-# ---------------------------------------------------------------------------
-# AWD-M-175: _db_guard context manager — unit tests
-# ---------------------------------------------------------------------------
-
-class TestDbGuardM175:
-    """AWD-M-175: _db_guard() context manager introduced to eliminate 15
-    identical try/except blocks in CurriculumService.
-
-    These tests verify the context manager directly so the refactoring is
-    independently validated, separate from the CRUD behaviour tests above.
-    """
-
-    def test_db_guard_passes_through_return_value(self):
-        """Normal execution: the value returned inside the with-block is
-        accessible via a local variable (context managers don't suppress
-        return — callers capture the result via their own return statement)."""
-        from unittest.mock import MagicMock
-        service = CurriculumService(MagicMock())
-        result = None
-        with service._db_guard("Should not raise"):
-            result = 42
-        assert result == 42
-
-    def test_db_guard_reraises_http_exception_unchanged(self):
-        """HTTPException must propagate without being wrapped in a 500."""
-        from unittest.mock import MagicMock
-        from fastapi import HTTPException
-
-        service = CurriculumService(MagicMock())
-        original = HTTPException(status_code=404, detail="not found")
-        with pytest.raises(HTTPException) as exc_info:
-            with service._db_guard("Should not change this"):
-                raise original
-        assert exc_info.value.status_code == 404
-        assert exc_info.value.detail == "not found"
-
-    def test_db_guard_converts_generic_exception_to_http_500(self):
-        """Any non-HTTP exception becomes HTTP 500 with the supplied detail."""
-        from unittest.mock import MagicMock
-        from fastapi import HTTPException
-
-        service = CurriculumService(MagicMock())
-        with pytest.raises(HTTPException) as exc_info:
-            with service._db_guard("Failed to do the thing"):
-                raise RuntimeError("disk on fire")
-        assert exc_info.value.status_code == 500
-        assert exc_info.value.detail == "Failed to do the thing"
-
-    def test_db_guard_logs_error_on_generic_exception(self):
-        """The logger.error call must fire (with exc_info=True) on non-HTTP errors."""
-        from unittest.mock import MagicMock, patch
-        from fastapi import HTTPException
-
-        service = CurriculumService(MagicMock())
-        with patch("apps.backend.services.curriculum_service.logger") as mock_logger:
-            with pytest.raises(HTTPException):
-                with service._db_guard("Failed to log test"):
-                    raise ValueError("bad value")
-            mock_logger.error.assert_called_once()
-            call_kwargs = mock_logger.error.call_args
-            # exc_info=True must be present so the traceback is captured
-            assert call_kwargs.kwargs.get("exc_info") is True or (
-                len(call_kwargs.args) >= 1 and call_kwargs.kwargs.get("exc_info", True)
-            )
-
-    def test_db_guard_does_not_suppress_keyboard_interrupt(self):
-        """BaseException subclasses that are not Exception must propagate freely."""
-        from unittest.mock import MagicMock
-
-        service = CurriculumService(MagicMock())
-        # KeyboardInterrupt inherits from BaseException, not Exception — the
-        # guard's `except Exception` clause must NOT catch it.
-        with pytest.raises(KeyboardInterrupt):
-            with service._db_guard("Should not swallow KeyboardInterrupt"):
-                raise KeyboardInterrupt()
