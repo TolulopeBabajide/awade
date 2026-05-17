@@ -428,20 +428,9 @@ class UserService:
                 return dt.isoformat()
 
             # --- user profile (no password_hash, no image blobs) ---
-            subjects_list: Optional[List[str]] = None
-            grade_levels_list: Optional[List[str]] = None
-
-            if current_user.subjects:
-                try:
-                    subjects_list = json.loads(current_user.subjects)
-                except (json.JSONDecodeError, TypeError):
-                    subjects_list = None
-
-            if current_user.grade_levels:
-                try:
-                    grade_levels_list = json.loads(current_user.grade_levels)
-                except (json.JSONDecodeError, TypeError):
-                    grade_levels_list = None
+            # AWD-M-172: delegate JSON parsing to shared _parse_json_list helper
+            subjects_list: Optional[List[str]] = self._parse_json_list(current_user.subjects)
+            grade_levels_list: Optional[List[str]] = self._parse_json_list(current_user.grade_levels)
 
             user_data: Dict[str, Any] = {
                 "user_id": current_user.user_id,
@@ -481,12 +470,8 @@ class UserService:
                     .all()
                 )
                 for child in children:
-                    child_subjects: Optional[List] = None
-                    if child.subjects:
-                        try:
-                            child_subjects = json.loads(child.subjects)
-                        except (json.JSONDecodeError, TypeError):
-                            child_subjects = None
+                    # AWD-M-172: delegate JSON parsing to shared _parse_json_list helper
+                    child_subjects: Optional[List] = self._parse_json_list(child.subjects)
 
                     # Use the eagerly-loaded collection — no extra query.
                     # Preserve the prior ordering (by guide_id ascending) so
