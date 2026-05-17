@@ -467,3 +467,56 @@ class TestSerializeChild:
         child = self._make_child(guides=[])
         result = UserService._serialize_child(child, self._fmt)
         assert result["guides"] == []
+
+
+class TestGetDataExportM176:
+    """AWD-M-176: export_date must be timezone-aware (UTC) rather than tz-naive."""
+
+    def test_export_date_is_tz_aware(self):
+        """_fmt_datetime receives a tz-aware datetime so export_date is never tz-naive."""
+        from datetime import datetime, timezone
+        recorded = []
+
+        def capturing_fmt(dt):
+            recorded.append(dt)
+            return dt.isoformat() if dt is not None else None
+
+        # Patch _fmt_datetime on the class so get_data_export uses our capture
+        original = UserService._fmt_datetime
+        UserService._fmt_datetime = staticmethod(capturing_fmt)
+        try:
+            svc = UserService.__new__(UserService)
+            svc.db = Mock()
+            current_user = Mock()
+            current_user.user_id = 1
+            current_user.role = "EDUCATOR"
+
+            # Stub DB queries to return minimal objects
+            user_mock = Mock()
+            user_mock.user_id = 1
+            user_mock.email = "test@example.com"
+            user_mock.name = "Test"
+            user_mock.role = "EDUCATOR"
+            user_mock.subjects = None
+            user_mock.grade_levels = None
+            user_mock.created_at = datetime(2026, 1, 1, tzinfo=timezone.utc)
+            user_mock.updated_at = datetime(2026, 1, 2, tzinfo=timezone.utc)
+
+            query_mock = Mock()
+            query_mock.filter.return_value.first.return_value = user_mock
+            # second query for children — role is not PARENT so no child query
+            svc.db.query = Mock(return_value=query_mock)
+
+            result = svc.get_data_export(current_user)
+
+            # The first call to fmt() should be for export_date
+            assert recorded, "fmt was never called — check get_data_export implementation"
+            export_dt = recorded[0]
+            assert export_dt.tzinfo is not None, (
+                "export_date passed a tz-naive datetime; use datetime.now(timezone.utc)"
+            )
+            assert export_dt.tzinfo == timezone.utc or str(export_dt.tzinfo) == "UTC", (
+                f"export_date tzinfo is {export_dt.tzinfo!r}, expected UTC"
+            )
+        finally:
+            UserService._fmt_datetime = staticmethod(original)

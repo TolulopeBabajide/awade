@@ -556,7 +556,7 @@ class UserService:
                 ]
 
             return {
-                "export_date": fmt(datetime.now()),
+                "export_date": fmt(datetime.now(timezone.utc)),
                 "user": user_data,
                 "children": children_data,
             }
