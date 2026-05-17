@@ -370,3 +370,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-05-17T08:21:53Z | awade-code-review | done | ✅ Clean — AWD-H-89/L-50/M-172: user_service sys.path removed + _parse_json_list delegation restored + 5 tests. No new findings.
 2026-05-17T08:37:56Z | awade-qa-validation | done | ✅ PASS — AWD-L-50 sys.path cleanup + AWD-H-89 _parse_json_list restore; sandbox infra caveats (ENOSPC/venv); verdict Ship
 2026-05-17T09:15:28Z | awade-dev-execution | done | AWD-M-171 add Pydantic validation to update_learning_objective/update_content (10 new tests, schemas + service updated)
+2026-05-17T10:13:09Z | awade-dev-execution | done | AWD-M-173 extract _assert_user_access helper — 4 inline guards → 1 helper, 5 new tests, merged to develop
