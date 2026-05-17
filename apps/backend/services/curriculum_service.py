@@ -18,7 +18,8 @@ from apps.backend.models import (
     Curriculum, Topic, CurriculumStructure, Country, GradeLevel, Subject, LearningObjective, TopicContent
 )
 from apps.backend.schemas.curriculum import (
-    CurriculumCreate, CurriculumResponse, TopicCreate, TopicResponse, LearningObjectiveCreate, ContentCreate
+    CurriculumCreate, CurriculumResponse, TopicCreate, TopicResponse,
+    LearningObjectiveCreate, LearningObjectiveUpdate, ContentCreate, ContentUpdate,
 )
 
 logger = logging.getLogger(__name__)
@@ -265,14 +266,14 @@ class CurriculumService:
         """Get all learning objectives for a topic."""
         return self.db.query(LearningObjective).filter(LearningObjective.topic_id == topic_id).all()
     
-    def update_learning_objective(self, objective_id: int, objective_data: str) -> Optional[LearningObjective]:
+    def update_learning_objective(self, objective_id: int, objective_data: LearningObjectiveUpdate) -> Optional[LearningObjective]:
         """Update a learning objective."""
         try:
             objective = self.db.query(LearningObjective).filter(LearningObjective.learning_objective_id == objective_id).first()
             if not objective:
                 return None
 
-            objective.objective = objective_data
+            objective.objective = objective_data.objective
             self.db.commit()
             self.db.refresh(objective)
             return objective
@@ -317,14 +318,14 @@ class CurriculumService:
         """Get all content areas for a topic."""
         return self.db.query(TopicContent).filter(TopicContent.topic_id == topic_id).all()
     
-    def update_content(self, content_id: int, content_data: str) -> Optional[TopicContent]:
+    def update_content(self, content_id: int, content_data: ContentUpdate) -> Optional[TopicContent]:
         """Update a content area."""
         try:
             content = self.db.query(TopicContent).filter(TopicContent.topic_contents_id == content_id).first()
             if not content:
                 return None
 
-            content.content_area = content_data
+            content.content_area = content_data.content_area
             self.db.commit()
             self.db.refresh(content)
             return content
