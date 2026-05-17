@@ -1663,3 +1663,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | M-176 | Code Quality | Replace `datetime.now()` with `datetime.now(timezone.utc)` for `export_date` in `get_data_export`; 1 new test | 2026-05-17 |
 | 2026-05-17 | AWD-M-175 | Extracted `_db_guard` context manager in CurriculumService; removed 15 duplicate try/except blocks | 82c973a |
 | H-91 | Repo Health | Re-commit `_db_guard` refactor + `TestDbGuardM175` dropped by chore commit 3e3c897 | 2026-05-17 |
+| H-90 | 2026-05-17 | Fix `test_export_date_is_tz_aware` — `recorded[0]` → `recorded[-1]` | commit 182fedc, merge a24b10f |
