@@ -504,13 +504,24 @@ class ChildrenService:
                 detail="Failed to save generated guide",
             )
 
-        # Reload with relationships for the response
-        return (
+        # Reload with relationships for the response (AWD-M-188: guard against None)
+        reloaded = (
             self.db.query(ParentGuide)
             .options(joinedload(ParentGuide.topic))
             .filter(ParentGuide.guide_id == guide.guide_id)
             .first()
         )
+        if reloaded is None:
+            logger.error(
+                "Guide %s disappeared immediately after persist for topic %s",
+                guide.guide_id,
+                topic_id,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to reload saved guide",
+            )
+        return reloaded
 
     def generate_guide(self, user: User, child_id: int, topic_id: int) -> ParentGuideResponse:
         """
