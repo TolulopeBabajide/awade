@@ -425,3 +425,11 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-05-18T14:29:41Z | awade-code-review | done | AWD-M-185 reviewed ✅ Clean — filed M-188 (_persist_guide nullable reload)
 2026-05-18T14:39:08Z | awade-qa-validation | done | AWD-M-185 PASS — TS✅ lint✅ openapi✅ spot-check✅ tests⚠️SKIP(ENOSPC)
 2026-05-18T15:31:00Z | awade-dev-execution | done | AWD-M-188 guard _persist_guide reload against None: +11 lines children_service.py + 1 test, commit b23d3c6 merge c9f1156
+2026-05-18T15:42:01Z | awade-dev-execution | done | AWD-M-188 resolved: guard _persist_guide reload against None; raise HTTP 500; 1 new test; commit b23d3c6 merge c9f1156; records fdc6ed2; Tolu: git push origin develop
+2026-05-18T16:11:56Z | awade-dev-execution | skip | recent commit found (905d80e < 50 min ago) — skipping this cycle
+2026-05-18T16:25:27Z | awade-code-review | done | ✅ Clean — b23d3c6 _persist_guide None guard; 0 findings; no backlog items filed
+2026-05-18T16:57:27Z | awade-qa-validation | done | AWD-M-188: TS✅ OpenAPI✅ spot-check✅; lint/vitest/pytest skipped (sandbox limits)
+2026-05-18T17:26:52Z | awade-dev-execution | skip | No actionable items: H-65/M-77 require Tolu machine; M-78/M-146/M-69 require Tolu decisions; L-38 requires npm; all others discover/define
+2026-05-18T18:42:22Z | awade-code-review | skip | no new commits in last 115 minutes
+2026-05-18T18:42:26Z | awade-qa-validation | skip | no new commits on develop in last 110 minutes
+2026-05-18T19:20:35Z | awade-dev-execution | done | AWD-M-186+M-187 type-annotate model param + hasattr guard in _check_fk_exists; commit e5bc4fd merge 48b2baf on develop
