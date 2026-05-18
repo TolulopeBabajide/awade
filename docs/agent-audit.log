@@ -86,3 +86,54 @@
 2026-05-10T16:24:44Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
 2026-05-10T18:22:34Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — commit 90e3b42 (AWD-M-79), verdict: Clean, filed L-32/L-33
 2026-05-10T20:21:00Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — 0546d6e — ✅ Clean (no reviewable app code)
+2026-05-10T22:22:50Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-11T06:06:23Z | performance-agent | WRITE | docs/performance/ | completed performance benchmark — first baseline; filed AWD-H-83 (N+1 in get_data_export)
+2026-05-11T06:22:04Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-11T08:22:35Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-11T10:21:40Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-11T12:21:16Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-11T14:21:03Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-11T16:22:05Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-11T18:22:35Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-11T20:22:26Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — AWD-M-140 + AWD-M-141 test splits — Verdict: ✅ Clean
+2026-05-12T06:17:46Z | architecture-agent | WRITE | docs/architecture/ | completed architecture review 2026-05-12: 4 ADRs, 4 backlog items filed (H-84 H-85 M-142 L-34), codebase map updated
+2026-05-12T06:21:03Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-12T08:23:02Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-12T10:22:47Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review (AWD-L-35 + AWD-M-143): ✅ clean; 3 new items filed (M-144, M-145, L-36)
+2026-05-12T12:23:13Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-12T16:21:26Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-12T18:22:30Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-12T20:21:59Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-12T22:21:39Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-13T05:52:07Z | dependency-security-agent | WRITE | docs/agentic/audits/ | completed dependency security scan — no Critical/High; 3 M + 2 L items filed; SBOM written to docs/security/sbom-2026-05-13.md
+2026-05-13T08:23:03Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-13T10:22:13Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-13T12:25:00Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-13T14:21:56Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-13T16:30:51Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-13T18:23:00Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — verdict ⚠️ Refactor Recommended, filed AWD-L-41
+2026-05-13T20:20:57Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-13T22:23:15Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-14T08:21:16Z | code-review-agent | skip | no commits in review window
+2026-05-14T10:20:43Z | code-review-agent | WRITE | docs/code-reviews/review-2026-05-14-6dd1aca.md | completed structural code review (no code changes detected)
+2026-05-14T12:21:23Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — verdict: clean, 1 file, 0 findings
+2026-05-15T20:20:31Z | code-review-agent | SKIP | no new commits since 115 min
+2026-05-15T22:23:00Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-16T06:22:22Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-16T08:24:11Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — 2 commits reviewed (AWD-L-46, AWD-M-161); verdict ⚠️ Refactor Recommended; filed AWD-M-163 AWD-M-164
+2026-05-16T10:23:22Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review (AWD-M-163+164 fixes — verdict: ⚠️ Refactor Recommended — filed AWD-M-165, AWD-M-166)
+2026-05-16T12:23:57Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — commits 3d5a05d/8a567ed (AWD-M-166) + 8dc08de/f43644b (AWD-L-47), verdict: Clean, filed M-167 + L-48
+2026-05-16T14:23:19Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — verdict: ✅ Clean (AWD-M-167 + AWD-L-48)
+2026-05-16T16:23:27Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — AWD-M-162 (user_service) + AWD-M-165 (curriculum_service). Verdict: ⚠️ Refactor Recommended. Filed AWD-M-168, M-169, M-170.
+2026-05-16T18:21:45Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review of commits 9f5be8b/1bc1217 (AWD-M-170)
+2026-05-16T20:24:15Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-16T22:23:37Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-17T06:22:11Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review for AWD-M-172 (4e39565) — verdict: Clean
+2026-05-17T08:21:53Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-17T10:23:14Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-17T12:21:59Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — verdict ✅ Clean — AWD-M-176 filed
+2026-05-17T14:25:24Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-17T16:30:57Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — verdict ✅ Clean, filed AWD-M-179
+2026-05-17T18:27:32Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-17T20:31:54Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — AWD-M-179 ✅ Clean; filed AWD-H-92 uncommitted M-178 sub-services
+2026-05-18T06:09:13Z | performance-agent | WRITE | docs/performance/ | completed performance benchmark

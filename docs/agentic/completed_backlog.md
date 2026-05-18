@@ -8,6 +8,7 @@
 | # | Issue | Completed |
 |---|-------|-----------|
 | — | Initial agentic framework adaptation | 2026-04-20 |
+| AWD-M-178 | Split `curriculum_service.py` (466→382 lines) into `LearningObjectiveService` and `TopicContentService`; updated router + tests; 8 new smoke tests | 2026-05-17 |
 | H-05 | Security: Account enumeration protection — generic error for Google OAuth login attempts | 2026-04-21 |
 | C-01 | Admin GET endpoints missing auth — **already fixed** in commit `df399fc` via router-level `dependencies=[Depends(require_admin)]` on `APIRouter`. Backlog item was filed in error. | 2026-04-21 |
 | C-02 | JWT secret key hardcoded fallback in production — `get_jwt_secret_key()` now raises `RuntimeError` when `ENVIRONMENT=production` and `JWT_SECRET_KEY` unset; startup validation added to lifespan. Commit `cf3e391`. | 2026-04-21 |
@@ -1666,3 +1667,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | H-90 | 2026-05-17 | Fix `test_export_date_is_tz_aware` — `recorded[0]` → `recorded[-1]` | commit 182fedc, merge a24b10f |
 | 2026-05-17 | AWD-M-177 | Add `self.db.rollback()` to `_db_guard` exception path in CurriculumService; 2 new rollback-assertion tests | commit ebc27b6, merge 2f3c3ae |
 | 2026-05-17 | AWD-M-179 | Add `Generator[None, None, None]` return type to `CurriculumService._db_guard`; 1 new annotation-assertion test | commit 9c43ee6, merge 6e06cf0 |
+| 2026-05-17 | AWD-H-92 | Verified AWD-M-178 sub-service files on disk — all 6 files correct and complete. No bash shell in Cowork session; cannot run git commit. Files verified: `learning_objective_service.py` (131 lines, LearningObjectiveService, 4 CRUD methods + _db_guard ✅), `topic_content_service.py` (131 lines, TopicContentService, 4 CRUD methods + _db_guard ✅), `curriculum_service.py` (383 lines, under 400 threshold ✅), `routers/curriculum.py` (imports both sub-services, all 8 endpoints correct ✅), `services/__init__.py` (exports both new classes ✅), `test_curriculum_service.py` (imports sub-service classes, M-178 smoke tests present ✅). **Tolu action required**: `git add apps/backend/services/learning_objective_service.py apps/backend/services/topic_content_service.py apps/backend/services/curriculum_service.py apps/backend/routers/curriculum.py apps/backend/services/__init__.py apps/backend/tests/test_curriculum_service.py && git commit -m "refactor(curriculum): AWD-M-178 AWD-H-92 commit sub-service extraction" && git push origin develop`. Also update `.claude/rules/codebase-map.md` Curriculum section. | pending Tolu commit |
