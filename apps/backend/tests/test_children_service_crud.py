@@ -470,6 +470,14 @@ class TestCheckFkExistsHelper:
         assert exc_info.value.status_code == 400
         assert 'curricula_id' in exc_info.value.detail
 
+    def test_invalid_field_name_raises_value_error(self):
+        """AWD-M-187: passing a field_name that does not exist on model raises ValueError."""
+        svc = ChildrenService(db=self._mock_db(found=True))
+        with pytest.raises(ValueError) as exc_info:
+            svc._check_fk_exists(Country, 1, 'nonexistent_field')
+        assert 'Country' in str(exc_info.value)
+        assert 'nonexistent_field' in str(exc_info.value)
+
 
 # ---------------------------------------------------------------------------
 # _validate_profile_fks helper — AWD-M-183
