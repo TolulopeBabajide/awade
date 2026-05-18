@@ -210,9 +210,19 @@ class ChildrenService:
             grade_level_id=data.grade_level_id,
             subjects=json.dumps(data.subjects) if data.subjects else None,
         )
-        self.db.add(child)
-        self.db.commit()
-        self.db.refresh(child)
+        try:
+            self.db.add(child)
+            self.db.commit()
+            self.db.refresh(child)
+        except HTTPException:
+            raise
+        except Exception as e:
+            self.db.rollback()
+            logger.error("Failed to create child profile: %s", e, exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to create child profile",
+            )
 
         # Eager-load relationships for the response
         child = self._get_child_or_404(child.child_id, user.user_id)
@@ -280,8 +290,18 @@ class ChildrenService:
         for field, value in update_data.items():
             setattr(child, field, value)
 
-        self.db.commit()
-        self.db.refresh(child)
+        try:
+            self.db.commit()
+            self.db.refresh(child)
+        except HTTPException:
+            raise
+        except Exception as e:
+            self.db.rollback()
+            logger.error("Failed to update child profile %s: %s", child_id, e, exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to update child profile",
+            )
 
         child = self._get_child_or_404(child_id, user.user_id)
         return self._to_response(child)
@@ -291,8 +311,18 @@ class ChildrenService:
         self._verify_parent(user)
         child = self._get_child_or_404(child_id, user.user_id)
 
-        self.db.delete(child)
-        self.db.commit()
+        try:
+            self.db.delete(child)
+            self.db.commit()
+        except HTTPException:
+            raise
+        except Exception as e:
+            self.db.rollback()
+            logger.error("Failed to delete child profile %s: %s", child_id, e, exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to delete child profile",
+            )
 
         return {"message": "Child profile deleted successfully"}
 
@@ -403,8 +433,18 @@ class ChildrenService:
             )
 
         guide.is_bookmarked = not guide.is_bookmarked
-        self.db.commit()
-        self.db.refresh(guide)
+        try:
+            self.db.commit()
+            self.db.refresh(guide)
+        except HTTPException:
+            raise
+        except Exception as e:
+            self.db.rollback()
+            logger.error("Failed to toggle bookmark for guide %s: %s", guide_id, e, exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to update bookmark",
+            )
 
         return self._guide_to_response(guide)
 
@@ -494,9 +534,19 @@ class ChildrenService:
             topic_id=topic_id,
             ai_generated_content=ai_content,
         )
-        self.db.add(guide)
-        self.db.commit()
-        self.db.refresh(guide)
+        try:
+            self.db.add(guide)
+            self.db.commit()
+            self.db.refresh(guide)
+        except HTTPException:
+            raise
+        except Exception as e:
+            self.db.rollback()
+            logger.error("Failed to persist guide for topic %s: %s", topic_id, e, exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to save generated guide",
+            )
 
         # Reload with relationships for the response
         guide = (
