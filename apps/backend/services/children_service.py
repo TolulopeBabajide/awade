@@ -166,6 +166,18 @@ class ChildrenService:
                 ),
             )
 
+    def _check_fk_exists(self, model, id_value: int, field_name: str) -> None:
+        """Raise HTTP 400 if *id_value* does not reference an existing row in *model*.
+
+        *field_name* must match both the data-dict key and the SQLAlchemy column
+        attribute on *model* (e.g. ``'country_id'`` → ``Country.country_id``).
+        Used by :meth:`_validate_profile_fks` to eliminate repeated query boilerplate
+        for single-row FK checks (AWD-M-184).
+        """
+        pk_col = getattr(model, field_name)
+        if not self.db.query(model).filter(pk_col == id_value).first():
+            raise HTTPException(status_code=400, detail=f"Invalid {field_name}")
+
     def _validate_profile_fks(self, data: dict) -> None:
         """Validate that FK IDs in *data* reference existing rows.
 
@@ -174,26 +186,21 @@ class ChildrenService:
         Only keys that are present **and** non-None are validated, so callers
         can safely pass a sparse update dict without triggering spurious checks.
 
+        Single-FK checks (country, curricula, grade level) delegate to
+        :meth:`_check_fk_exists`. Subject validation is kept inline because it
+        uses a batch ``IN`` query rather than a per-row lookup.
+
         Note: subject serialisation (list → JSON string) is the caller's
         responsibility and is intentionally excluded from this helper.
         """
         if data.get('country_id') is not None:
-            if not self.db.query(Country).filter(
-                Country.country_id == data['country_id']
-            ).first():
-                raise HTTPException(status_code=400, detail="Invalid country_id")
+            self._check_fk_exists(Country, data['country_id'], 'country_id')
 
         if data.get('curricula_id') is not None:
-            if not self.db.query(Curriculum).filter(
-                Curriculum.curricula_id == data['curricula_id']
-            ).first():
-                raise HTTPException(status_code=400, detail="Invalid curricula_id")
+            self._check_fk_exists(Curriculum, data['curricula_id'], 'curricula_id')
 
         if data.get('grade_level_id') is not None:
-            if not self.db.query(GradeLevel).filter(
-                GradeLevel.grade_level_id == data['grade_level_id']
-            ).first():
-                raise HTTPException(status_code=400, detail="Invalid grade_level_id")
+            self._check_fk_exists(GradeLevel, data['grade_level_id'], 'grade_level_id')
 
         if data.get('subjects') is not None:
             found = (

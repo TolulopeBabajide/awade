@@ -422,6 +422,56 @@ class TestUpdateChildSubjectValidation:
 
 
 # ---------------------------------------------------------------------------
+# _check_fk_exists helper — AWD-M-184
+# ---------------------------------------------------------------------------
+
+class TestCheckFkExistsHelper:
+    """_check_fk_exists raises HTTP 400 when the row is absent; passes when found."""
+
+    def _mock_db(self, found: bool):
+        """Return a DB mock whose query().filter().first() returns an object or None."""
+        mock_db = MagicMock()
+        mock_db.query.return_value.filter.return_value.first.return_value = (
+            MagicMock() if found else None
+        )
+        return mock_db
+
+    def test_raises_400_when_row_not_found(self):
+        svc = ChildrenService(db=self._mock_db(found=False))
+        with pytest.raises(HTTPException) as exc_info:
+            svc._check_fk_exists(Country, 999, 'country_id')
+        assert exc_info.value.status_code == 400
+        assert 'country_id' in exc_info.value.detail
+
+    def test_passes_when_row_found(self):
+        svc = ChildrenService(db=self._mock_db(found=True))
+        svc._check_fk_exists(Country, 1, 'country_id')  # no exception
+
+    def test_error_detail_contains_field_name(self):
+        """Detail message must echo the field_name so the client knows which FK failed."""
+        svc = ChildrenService(db=self._mock_db(found=False))
+        with pytest.raises(HTTPException) as exc_info:
+            svc._check_fk_exists(GradeLevel, 99, 'grade_level_id')
+        assert 'grade_level_id' in exc_info.value.detail
+
+    def test_uses_getattr_to_select_pk_column(self):
+        """filter() must be called with the correct model column (Country.country_id)."""
+        mock_db = MagicMock()
+        mock_db.query.return_value.filter.return_value.first.return_value = MagicMock()
+        svc = ChildrenService(db=mock_db)
+        svc._check_fk_exists(Country, 7, 'country_id')
+        # Verify filter was invoked (exact SQLAlchemy expr not inspectable, but called once)
+        mock_db.query.return_value.filter.assert_called_once()
+
+    def test_works_for_curricula_model(self):
+        svc = ChildrenService(db=self._mock_db(found=False))
+        with pytest.raises(HTTPException) as exc_info:
+            svc._check_fk_exists(Curriculum, 42, 'curricula_id')
+        assert exc_info.value.status_code == 400
+        assert 'curricula_id' in exc_info.value.detail
+
+
+# ---------------------------------------------------------------------------
 # _validate_profile_fks helper — AWD-M-183
 # ---------------------------------------------------------------------------
 
