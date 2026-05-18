@@ -442,3 +442,190 @@ class TestToggleBookmark:
         svc = ChildrenService(db=db)
         svc.toggle_bookmark(parent, guide_id=10)
         db.commit.assert_called_once()
+
+
+# ---------------------------------------------------------------------------
+# AWD-M-185 — _build_guide_ai_payload + _persist_guide helpers
+# ---------------------------------------------------------------------------
+
+class TestBuildGuideAIPayloadM185:
+    """Unit tests for ChildrenService._build_guide_ai_payload (AWD-M-185)."""
+
+    def _mock_topic(
+        self,
+        title="Fractions",
+        subject="Mathematics",
+        grade="Grade 5",
+        curriculum_title="Nigerian Curriculum",
+        objectives=None,
+        contents=None,
+    ):
+        cs = MagicMock()
+        cs.subject.name = subject
+        cs.grade_level.name = grade
+        cs.curriculum.curricula_title = curriculum_title
+
+        topic = MagicMock()
+        topic.topic_title = title
+        topic.curriculum_structure = cs
+
+        obj1 = MagicMock()
+        obj1.objective = objectives[0] if objectives else "Understand halves"
+        topic.learning_objectives = [obj1]
+
+        c1 = MagicMock()
+        c1.content_area = contents[0] if contents else "Introduction to fractions"
+        topic.topic_contents = [c1]
+        return topic
+
+    def _mock_child(self, country_name="Nigeria"):
+        child = MagicMock()
+        country = MagicMock()
+        country.country_name = country_name
+        child.country = country
+        return child
+
+    def test_payload_contains_expected_keys(self):
+        svc = ChildrenService(db=MagicMock())
+        payload = svc._build_guide_ai_payload(
+            self._mock_child(), self._mock_topic()
+        )
+        assert set(payload.keys()) == {
+            "subject", "grade", "topic", "country", "curriculum",
+            "objectives", "contents",
+        }
+
+    def test_payload_values_match_topic_and_child(self):
+        svc = ChildrenService(db=MagicMock())
+        topic = self._mock_topic(
+            title="Algebra",
+            subject="Maths",
+            grade="JSS1",
+            curriculum_title="Lagos Curriculum",
+            objectives=["Solve linear equations"],
+            contents=["Introduction to variables"],
+        )
+        child = self._mock_child(country_name="Ghana")
+        payload = svc._build_guide_ai_payload(child, topic)
+
+        assert payload["topic"] == "Algebra"
+        assert payload["subject"] == "Maths"
+        assert payload["grade"] == "JSS1"
+        assert payload["curriculum"] == "Lagos Curriculum"
+        assert payload["country"] == "Ghana"
+        assert payload["objectives"] == ["Solve linear equations"]
+        assert payload["contents"] == ["Introduction to variables"]
+
+    def test_missing_curriculum_structure_uses_defaults(self):
+        """When curriculum_structure is None, defaults are applied."""
+        svc = ChildrenService(db=MagicMock())
+        topic = MagicMock()
+        topic.topic_title = "Decimals"
+        topic.curriculum_structure = None
+        topic.learning_objectives = []
+        topic.topic_contents = []
+
+        child = MagicMock()
+        child.country = None
+
+        payload = svc._build_guide_ai_payload(child, topic)
+        assert payload["subject"] == "Unknown Subject"
+        assert payload["grade"] == "Unknown Grade"
+        assert payload["curriculum"] == "National Curriculum"
+        assert payload["country"] == "Nigeria"
+        assert payload["objectives"] == []
+        assert payload["contents"] == []
+
+    def test_multiple_objectives_and_contents(self):
+        svc = ChildrenService(db=MagicMock())
+        cs = MagicMock()
+        cs.subject.name = "Science"
+        cs.grade_level.name = "SS1"
+        cs.curriculum.curricula_title = "National"
+
+        topic = MagicMock()
+        topic.topic_title = "Photosynthesis"
+        topic.curriculum_structure = cs
+
+        obj1, obj2 = MagicMock(), MagicMock()
+        obj1.objective = "Explain the process"
+        obj2.objective = "Identify reactants"
+        topic.learning_objectives = [obj1, obj2]
+
+        c1, c2 = MagicMock(), MagicMock()
+        c1.content_area = "Light energy"
+        c2.content_area = "Chlorophyll"
+        topic.topic_contents = [c1, c2]
+
+        child = self._mock_child("Nigeria")
+        payload = svc._build_guide_ai_payload(child, topic)
+        assert payload["objectives"] == ["Explain the process", "Identify reactants"]
+        assert payload["contents"] == ["Light energy", "Chlorophyll"]
+
+
+class TestPersistGuideM185:
+    """Unit tests for ChildrenService._persist_guide (AWD-M-185)."""
+
+    def _db_persist_ok(self, reload_guide) -> MagicMock:
+        """DB mock that succeeds on add/commit/refresh and returns reload_guide."""
+        db = MagicMock()
+        db.add = MagicMock()
+        db.commit = MagicMock()
+        db.refresh = MagicMock()
+        reload_q = MagicMock()
+        reload_q.options.return_value.filter.return_value.first.return_value = reload_guide
+        db.query.return_value = reload_q
+        return db
+
+    def test_adds_and_commits_guide(self):
+        reload_guide = _guide(guide_id=42, child_id=5, topic_id=3)
+        db = self._db_persist_ok(reload_guide)
+        svc = ChildrenService(db=db)
+        result = svc._persist_guide(child_id=5, topic_id=3, ai_content='{"key": "val"}')
+        db.add.assert_called_once()
+        db.commit.assert_called_once()
+        assert result.guide_id == 42
+
+    def test_db_error_raises_500_and_rolls_back(self):
+        db = MagicMock()
+        db.add = MagicMock()
+        db.commit.side_effect = Exception("disk full")
+        db.rollback = MagicMock()
+
+        svc = ChildrenService(db=db)
+        with pytest.raises(HTTPException) as exc_info:
+            svc._persist_guide(child_id=5, topic_id=3, ai_content='{}')
+
+        assert exc_info.value.status_code == 500
+        db.rollback.assert_called_once()
+
+    def test_http_exception_propagated_unchanged(self):
+        """An HTTPException raised in commit must not be wrapped."""
+        db = MagicMock()
+        db.commit.side_effect = HTTPException(status_code=409, detail="conflict")
+        svc = ChildrenService(db=db)
+        with pytest.raises(HTTPException) as exc_info:
+            svc._persist_guide(child_id=5, topic_id=3, ai_content='{}')
+        assert exc_info.value.status_code == 409
+
+    def test_reload_query_uses_returned_guide_id(self):
+        """After commit, _persist_guide reloads using the guide_id assigned by the DB."""
+        from apps.backend.models import ParentGuide
+
+        reload_guide = _guide(guide_id=99, child_id=5, topic_id=3)
+        db = MagicMock()
+        db.add = MagicMock()
+        db.commit = MagicMock()
+
+        # refresh sets guide_id on the new ParentGuide instance
+        def mock_refresh(obj):
+            obj.guide_id = 99
+
+        db.refresh.side_effect = mock_refresh
+        reload_q = MagicMock()
+        reload_q.options.return_value.filter.return_value.first.return_value = reload_guide
+        db.query.return_value = reload_q
+
+        svc = ChildrenService(db=db)
+        result = svc._persist_guide(child_id=5, topic_id=3, ai_content='{"key": "val"}')
+        assert result.guide_id == 99

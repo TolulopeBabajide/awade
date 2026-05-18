@@ -1,3 +1,4 @@
+2026-05-18T00:00:00Z | awade-dev-execution | done | AWD-M-185 resolved: extracted _build_guide_ai_payload + _persist_guide helpers from generate_guide in children_service.py; CC 12→~5; 9 new tests; Tolu: git push origin develop
 2026-05-17T22:30:00Z | awade-dev-execution | done | AWD-M-178/H-92 commit shipped: 51d25ff on develop — LearningObjectiveService + TopicContentService extracted from curriculum_service.py; codebase-map updated; Tolu: git push origin develop
 2026-05-17T23:00:00Z | awade-nightly-monitor | done | morning-brief written: 🔴 H-92 uncommitted M-178 files urgent; 7 commits unpushed; CI unknown; C=1 H=3 M=12 L=2 open
 2026-05-17T21:00:00Z | awade-dev-execution | done | AWD-H-92: verified all 6 AWD-M-178 sub-service files on disk are correct and complete; no bash shell available to run git commit; Tolu must commit manually — see H-92 entry in backlog + dev-log for exact git commands
@@ -416,3 +417,7 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-05-18T10:14:17Z | awade-dev-execution | done | AWD-L-51 promote sqlfunc+AwadeGPTService to module level in children_service.py; fix 4 test patch targets; commit 66b8590 merge 9768941
 2026-05-18T10:24:04Z | awade-code-review | done | ✅ Clean — AWD-L-51+M-183; filed M-184 (_validate_profile_fks cc=11) and M-185 (generate_guide cc=12)
 2026-05-18T10:37:09Z | awade-qa-validation | done | PASS — AWD-L-51 inline imports + AWD-M-183 FK validation; TS✅ lint✅ OpenAPI✅ spot-check✅; sandbox ENOSPC/venv pre-existing
+2026-05-18T11:20:54Z | awade-dev-execution | done | AWD-M-184 extract _check_fk_exists: CC 11→6, 5 new tests, commit dee5948 merge 99c040a
+2026-05-18T12:22:47Z | awade-code-review | done | ✅ Clean — AWD-M-184 (dee5948/483c4a9); filed AWD-M-186 (untyped model param), AWD-M-187 (no getattr guard)
+2026-05-18T12:40:22Z | awade-qa-validation | done | ✅ PASS — AWD-M-184 _check_fk_exists refactor; TS/lint/OpenAPI clean; pre-existing sandbox limitations unchanged; no backlog items filed
+2026-05-18T13:19:39Z | awade-dev-execution | done | AWD-M-185 committed: extract _build_guide_ai_payload + _persist_guide from generate_guide (5e9d05f)
