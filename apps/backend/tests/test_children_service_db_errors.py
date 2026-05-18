@@ -187,7 +187,7 @@ class TestChildrenServiceDBErrors:
         svc._get_child_or_404 = MagicMock(return_value=child_obj)
         svc._verify_parent = MagicMock()
 
-        with patch("packages.ai.gpt_service.AwadeGPTService") as MockAI:
+        with patch("apps.backend.services.children_service.AwadeGPTService") as MockAI:
             instance = MockAI.return_value
             instance.generate_parent_guide.return_value = (
                 json.dumps(VALID_AI_CONTENT), True

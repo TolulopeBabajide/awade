@@ -56,7 +56,7 @@ class TestGenerateGuideIdempotency:
         svc = ChildrenService(db=mock_db)
         svc._get_child_or_404 = MagicMock(return_value=child_obj)
 
-        with patch("packages.ai.gpt_service.AwadeGPTService") as MockAI:
+        with patch("apps.backend.services.children_service.AwadeGPTService") as MockAI:
             result = svc.generate_guide(parent, child_id=5, topic_id=3)
             MockAI.assert_not_called()
 
@@ -74,7 +74,7 @@ class TestGenerateGuideIdempotency:
         svc = ChildrenService(db=mock_db)
         svc._get_child_or_404 = MagicMock(return_value=child_obj)
 
-        with patch("packages.ai.gpt_service.AwadeGPTService"):
+        with patch("apps.backend.services.children_service.AwadeGPTService"):
             first = svc.generate_guide(parent, child_id=5, topic_id=3)
             second = svc.generate_guide(parent, child_id=5, topic_id=3)
 
@@ -134,7 +134,7 @@ class TestGenerateGuideAIValidation:
         svc = ChildrenService(db=mock_db)
         svc._get_child_or_404 = MagicMock(return_value=child_obj)
 
-        with patch("packages.ai.gpt_service.AwadeGPTService") as MockAI:
+        with patch("apps.backend.services.children_service.AwadeGPTService") as MockAI:
             instance = MockAI.return_value
             instance.generate_parent_guide.return_value = ("not-json{{{", True)
             with pytest.raises(HTTPException) as exc_info:
@@ -155,7 +155,7 @@ class TestGenerateGuideAIValidation:
 
         bad = {k: v for k, v in VALID_AI_CONTENT.items() if k != "home_activity"}
 
-        with patch("packages.ai.gpt_service.AwadeGPTService") as MockAI:
+        with patch("apps.backend.services.children_service.AwadeGPTService") as MockAI:
             instance = MockAI.return_value
             instance.generate_parent_guide.return_value = (json.dumps(bad), False)
             with pytest.raises(HTTPException) as exc_info:
@@ -191,7 +191,7 @@ class TestGenerateGuideAIValidation:
         svc = ChildrenService(db=mock_db)
         svc._get_child_or_404 = MagicMock(return_value=child_obj)
 
-        with patch("packages.ai.gpt_service.AwadeGPTService") as MockAI:
+        with patch("apps.backend.services.children_service.AwadeGPTService") as MockAI:
             instance = MockAI.return_value
             instance.generate_parent_guide.return_value = (
                 json.dumps(VALID_AI_CONTENT), True
