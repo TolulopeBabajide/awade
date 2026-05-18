@@ -629,3 +629,21 @@ class TestPersistGuideM185:
         svc = ChildrenService(db=db)
         result = svc._persist_guide(child_id=5, topic_id=3, ai_content='{"key": "val"}')
         assert result.guide_id == 99
+
+    def test_persist_guide_reload_returns_none_raises_500(self):
+        """AWD-M-188: if reload after commit returns None, _persist_guide raises HTTP 500."""
+        db = MagicMock()
+        db.add = MagicMock()
+        db.commit = MagicMock()
+        db.refresh = MagicMock()
+        reload_q = MagicMock()
+        # Simulate the guide disappearing before the reload query completes
+        reload_q.options.return_value.filter.return_value.first.return_value = None
+        db.query.return_value = reload_q
+
+        svc = ChildrenService(db=db)
+        with pytest.raises(HTTPException) as exc_info:
+            svc._persist_guide(child_id=5, topic_id=3, ai_content='{"key": "val"}')
+
+        assert exc_info.value.status_code == 500
+        assert "reload" in exc_info.value.detail.lower()
