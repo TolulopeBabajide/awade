@@ -716,3 +716,4 @@ After removing it, the next hourly run will:
 2026-05-18T08:22:00Z | AWD-M-182 | Split test_children_service.py (1,309 lines) into 4 focused files + shared factory | 3edc3c1 (merge 0ebdd59) | ✅ Done | CI:pending — Tolu: run git push origin develop to trigger CI
 2026-05-18T09:14:55Z | AWD-M-183 | Extract _validate_profile_fks helper from ChildrenService (create_child + update_child) | commit 11b0870, merge 1d831f9 | ✅ Done | CI:pending
 2026-05-18T10:14:12Z | AWD-L-51 | Promote sqlfunc + AwadeGPTService inline imports to module level in children_service.py; fix 4 test patch targets | commit 66b8590, merge 9768941 | ✅ Done | CI:pending
+2026-05-18T11:15:00Z | AWD-M-184 | Extract _check_fk_exists helper; _validate_profile_fks CC 11→6; 5 new TestCheckFkExistsHelper tests | commit dee5948, merge 99c040a | ✅ Done | CI:pending — Tolu: run git push origin develop to trigger CI
