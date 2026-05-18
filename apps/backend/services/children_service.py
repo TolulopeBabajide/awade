@@ -455,6 +455,63 @@ class ChildrenService:
 
         return self._guide_to_response(guide)
 
+    def _build_guide_ai_payload(self, child: ChildProfile, topic: Topic) -> dict:
+        """
+        Assemble the keyword-argument dict for AwadeGPTService.generate_parent_guide().
+
+        Extracted from generate_guide (AWD-M-185) to reduce cyclomatic complexity.
+        """
+        cs = topic.curriculum_structure
+        subject_name = cs.subject.name if cs and cs.subject else "Unknown Subject"
+        grade_name = cs.grade_level.name if cs and cs.grade_level else "Unknown Grade"
+        curriculum_title = cs.curriculum.curricula_title if cs and cs.curriculum else "National Curriculum"
+        country_name = child.country.country_name if child.country else "Nigeria"
+        objectives = [obj.objective for obj in topic.learning_objectives]
+        contents = [c.content_area for c in topic.topic_contents]
+        return {
+            "subject": subject_name,
+            "grade": grade_name,
+            "topic": topic.topic_title,
+            "country": country_name,
+            "curriculum": curriculum_title,
+            "objectives": objectives,
+            "contents": contents,
+        }
+
+    def _persist_guide(self, child_id: int, topic_id: int, ai_content: str) -> ParentGuide:
+        """
+        Create, commit, and reload a ParentGuide row with its topic relationship.
+
+        Extracted from generate_guide (AWD-M-185) to reduce cyclomatic complexity.
+        Raises HTTP 500 on DB failure (rollback included).
+        """
+        guide = ParentGuide(
+            child_id=child_id,
+            topic_id=topic_id,
+            ai_generated_content=ai_content,
+        )
+        try:
+            self.db.add(guide)
+            self.db.commit()
+            self.db.refresh(guide)
+        except HTTPException:
+            raise
+        except Exception as e:
+            self.db.rollback()
+            logger.error("Failed to persist guide for topic %s: %s", topic_id, e, exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to save generated guide",
+            )
+
+        # Reload with relationships for the response
+        return (
+            self.db.query(ParentGuide)
+            .options(joinedload(ParentGuide.topic))
+            .filter(ParentGuide.guide_id == guide.guide_id)
+            .first()
+        )
+
     def generate_guide(self, user: User, child_id: int, topic_id: int) -> ParentGuideResponse:
         """
         Generate a 'How to Help' guide for a specific topic and child.
@@ -494,26 +551,10 @@ class ChildrenService:
         if not topic:
             raise HTTPException(status_code=404, detail="Topic not found")
 
-        # Gather curriculum metadata
-        cs = topic.curriculum_structure
-        subject_name = cs.subject.name if cs and cs.subject else "Unknown Subject"
-        grade_name = cs.grade_level.name if cs and cs.grade_level else "Unknown Grade"
-        curriculum_title = cs.curriculum.curricula_title if cs and cs.curriculum else "National Curriculum"
-        country_name = child.country.country_name if child.country else "Nigeria"
-
-        objectives = [obj.objective for obj in topic.learning_objectives]
-        contents = [c.content_area for c in topic.topic_contents]
-
         # Call AI service
         ai_service = AwadeGPTService()
         ai_content, is_valid = ai_service.generate_parent_guide(
-            subject=subject_name,
-            grade=grade_name,
-            topic=topic.topic_title,
-            country=country_name,
-            curriculum=curriculum_title,
-            objectives=objectives,
-            contents=contents,
+            **self._build_guide_ai_payload(child, topic)
         )
 
         if not is_valid:
@@ -533,34 +574,7 @@ class ChildrenService:
                 detail="AI service returned content that did not match the expected structure. Please try again.",
             )
 
-        # Persist the guide
-        guide = ParentGuide(
-            child_id=child_id,
-            topic_id=topic_id,
-            ai_generated_content=ai_content,
-        )
-        try:
-            self.db.add(guide)
-            self.db.commit()
-            self.db.refresh(guide)
-        except HTTPException:
-            raise
-        except Exception as e:
-            self.db.rollback()
-            logger.error("Failed to persist guide for topic %s: %s", topic_id, e, exc_info=True)
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to save generated guide",
-            )
-
-        # Reload with relationships for the response
-        guide = (
-            self.db.query(ParentGuide)
-            .options(joinedload(ParentGuide.topic))
-            .filter(ParentGuide.guide_id == guide.guide_id)
-            .first()
-        )
-
+        guide = self._persist_guide(child_id, topic_id, ai_content)
         return self._guide_to_response(guide)
 
     def _guide_to_response(self, guide: ParentGuide) -> ParentGuideResponse:
