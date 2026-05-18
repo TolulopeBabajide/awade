@@ -10,7 +10,7 @@ Author: Tolulope Babajide
 
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.sql import func as sqlfunc
-from typing import List, Optional
+from typing import Any, List, Optional, Type
 from fastapi import HTTPException, status
 import json
 import logging
@@ -166,14 +166,22 @@ class ChildrenService:
                 ),
             )
 
-    def _check_fk_exists(self, model, id_value: int, field_name: str) -> None:
+    def _check_fk_exists(self, model: Type[Any], id_value: int, field_name: str) -> None:
         """Raise HTTP 400 if *id_value* does not reference an existing row in *model*.
 
         *field_name* must match both the data-dict key and the SQLAlchemy column
         attribute on *model* (e.g. ``'country_id'`` → ``Country.country_id``).
         Used by :meth:`_validate_profile_fks` to eliminate repeated query boilerplate
         for single-row FK checks (AWD-M-184).
+
+        Raises :exc:`ValueError` if *field_name* is not an attribute on *model*,
+        which indicates a programming error at the call site (AWD-M-187).
         """
+        if not hasattr(model, field_name):
+            raise ValueError(
+                f"{model.__name__} has no attribute '{field_name}' "
+                f"— check _validate_profile_fks call sites (AWD-M-187)"
+            )
         pk_col = getattr(model, field_name)
         if not self.db.query(model).filter(pk_col == id_value).first():
             raise HTTPException(status_code=400, detail=f"Invalid {field_name}")
