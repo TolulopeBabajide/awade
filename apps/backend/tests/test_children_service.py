@@ -1264,3 +1264,46 @@ class TestChildrenServiceDBErrors:
 
         assert exc_info.value.status_code == 500
         mock_db.rollback.assert_called_once()
+
+    # -- record_consent ----------------------------------------------------------
+
+    def test_record_consent_db_error_raises_500(self):
+        """Generic DB error during consent commit must roll back and raise HTTP 500."""
+        parent = _parent(user_id=1)
+
+        mock_db = MagicMock()
+        # query returns no existing consent record → will insert
+        q = MagicMock()
+        q.filter.return_value.first.return_value = None
+        mock_db.query.return_value = q
+        mock_db.commit.side_effect = Exception("DB unavailable")
+        mock_db.rollback = MagicMock()
+
+        svc = ChildrenService(db=mock_db)
+        svc._verify_parent = MagicMock()
+
+        with pytest.raises(HTTPException) as exc_info:
+            svc.record_consent(parent, ip_address="127.0.0.1")
+
+        assert exc_info.value.status_code == 500
+        mock_db.rollback.assert_called_once()
+
+    def test_record_consent_http_exception_not_wrapped(self):
+        """An HTTPException raised during consent commit must propagate unchanged."""
+        parent = _parent(user_id=1)
+
+        mock_db = MagicMock()
+        q = MagicMock()
+        q.filter.return_value.first.return_value = None
+        mock_db.query.return_value = q
+        mock_db.commit.side_effect = HTTPException(status_code=409, detail="conflict")
+        mock_db.rollback = MagicMock()
+
+        svc = ChildrenService(db=mock_db)
+        svc._verify_parent = MagicMock()
+
+        with pytest.raises(HTTPException) as exc_info:
+            svc.record_consent(parent, ip_address="127.0.0.1")
+
+        assert exc_info.value.status_code == 409
+        mock_db.rollback.assert_not_called()

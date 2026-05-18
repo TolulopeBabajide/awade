@@ -138,6 +138,8 @@ class ChildrenService:
         try:
             self.db.commit()
             self.db.refresh(record)
+        except HTTPException:
+            raise
         except Exception:
             self.db.rollback()
             logger.error("Failed to record parental consent for user %s", user.user_id, exc_info=True)
