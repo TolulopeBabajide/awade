@@ -165,6 +165,49 @@ class ChildrenService:
                 ),
             )
 
+    def _validate_profile_fks(self, data: dict) -> None:
+        """Validate that FK IDs in *data* reference existing rows.
+
+        Raises HTTP 400 if any referenced foreign key is not found in the DB.
+        *data* is a plain dict (e.g. from ``model_dump(exclude_unset=True)``).
+        Only keys that are present **and** non-None are validated, so callers
+        can safely pass a sparse update dict without triggering spurious checks.
+
+        Note: subject serialisation (list → JSON string) is the caller's
+        responsibility and is intentionally excluded from this helper.
+        """
+        if data.get('country_id') is not None:
+            if not self.db.query(Country).filter(
+                Country.country_id == data['country_id']
+            ).first():
+                raise HTTPException(status_code=400, detail="Invalid country_id")
+
+        if data.get('curricula_id') is not None:
+            if not self.db.query(Curriculum).filter(
+                Curriculum.curricula_id == data['curricula_id']
+            ).first():
+                raise HTTPException(status_code=400, detail="Invalid curricula_id")
+
+        if data.get('grade_level_id') is not None:
+            if not self.db.query(GradeLevel).filter(
+                GradeLevel.grade_level_id == data['grade_level_id']
+            ).first():
+                raise HTTPException(status_code=400, detail="Invalid grade_level_id")
+
+        if data.get('subjects') is not None:
+            found = (
+                self.db.query(Subject.subject_id)
+                .filter(Subject.subject_id.in_(data['subjects']))
+                .all()
+            )
+            found_ids = {row[0] for row in found}
+            invalid = [sid for sid in data['subjects'] if sid not in found_ids]
+            if invalid:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Invalid subject_id: {invalid[0]}",
+                )
+
     # ── Child Profile CRUD ────────────────────────────────────────────────────
 
     def create_child(self, user: User, data: ChildProfileCreate) -> ChildProfileResponse:
@@ -174,33 +217,7 @@ class ChildrenService:
         """
         self._verify_parent(user)
         self._require_consent(user)
-
-        # Validate foreign keys if provided
-        if data.country_id:
-            country = self.db.query(Country).filter(Country.country_id == data.country_id).first()
-            if not country:
-                raise HTTPException(status_code=400, detail="Invalid country_id")
-
-        if data.curricula_id:
-            curriculum = self.db.query(Curriculum).filter(Curriculum.curricula_id == data.curricula_id).first()
-            if not curriculum:
-                raise HTTPException(status_code=400, detail="Invalid curricula_id")
-
-        if data.grade_level_id:
-            grade = self.db.query(GradeLevel).filter(GradeLevel.grade_level_id == data.grade_level_id).first()
-            if not grade:
-                raise HTTPException(status_code=400, detail="Invalid grade_level_id")
-
-        if data.subjects:
-            found = (
-                self.db.query(Subject.subject_id)
-                .filter(Subject.subject_id.in_(data.subjects))
-                .all()
-            )
-            found_ids = {row[0] for row in found}
-            invalid = [sid for sid in data.subjects if sid not in found_ids]
-            if invalid:
-                raise HTTPException(status_code=400, detail=f"Invalid subject_id: {invalid[0]}")
+        self._validate_profile_fks(data.model_dump(exclude_unset=True))
 
         child = ChildProfile(
             parent_id=user.user_id,
@@ -263,30 +280,10 @@ class ChildrenService:
         child = self._get_child_or_404(child_id, user.user_id)
 
         update_data = data.model_dump(exclude_unset=True)
+        self._validate_profile_fks(update_data)
 
-        # Validate foreign keys if being updated
-        if 'country_id' in update_data and update_data['country_id'] is not None:
-            if not self.db.query(Country).filter(Country.country_id == update_data['country_id']).first():
-                raise HTTPException(status_code=400, detail="Invalid country_id")
-
-        if 'curricula_id' in update_data and update_data['curricula_id'] is not None:
-            if not self.db.query(Curriculum).filter(Curriculum.curricula_id == update_data['curricula_id']).first():
-                raise HTTPException(status_code=400, detail="Invalid curricula_id")
-
-        if 'grade_level_id' in update_data and update_data['grade_level_id'] is not None:
-            if not self.db.query(GradeLevel).filter(GradeLevel.grade_level_id == update_data['grade_level_id']).first():
-                raise HTTPException(status_code=400, detail="Invalid grade_level_id")
-
+        # Serialize subjects list to JSON string for storage
         if 'subjects' in update_data and update_data['subjects'] is not None:
-            found = (
-                self.db.query(Subject.subject_id)
-                .filter(Subject.subject_id.in_(update_data['subjects']))
-                .all()
-            )
-            found_ids = {row[0] for row in found}
-            invalid = [sid for sid in update_data['subjects'] if sid not in found_ids]
-            if invalid:
-                raise HTTPException(status_code=400, detail=f"Invalid subject_id: {invalid[0]}")
             update_data['subjects'] = json.dumps(update_data['subjects'])
 
         for field, value in update_data.items():

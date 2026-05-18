@@ -419,3 +419,114 @@ class TestUpdateChildSubjectValidation:
         assert len(batch_calls) == 1, (
             f"Expected 1 batch subject query for update, got {len(batch_calls)}"
         )
+
+
+# ---------------------------------------------------------------------------
+# _validate_profile_fks helper — AWD-M-183
+# ---------------------------------------------------------------------------
+
+class TestValidateProfileFKsHelper:
+    """_validate_profile_fks raises HTTP 400 for any missing FK; skips absent/None keys."""
+
+    def _db_single_fk(self, model_class, found: bool):
+        """DB mock where a query for *model_class* returns an object or None."""
+        mock_db = MagicMock()
+
+        def query_side(arg):
+            q = MagicMock()
+            if arg is model_class:
+                q.filter.return_value.first.return_value = MagicMock() if found else None
+            else:
+                q.filter.return_value.first.return_value = MagicMock()
+            return q
+
+        mock_db.query.side_effect = query_side
+        return mock_db
+
+    def _db_subjects(self, valid_ids):
+        """DB mock for subject batch validation."""
+        mock_db = MagicMock()
+        single_q = MagicMock()
+        single_q.filter.return_value.first.return_value = MagicMock()
+        batch_q = MagicMock()
+        batch_q.filter.return_value.all.return_value = [(sid,) for sid in valid_ids]
+
+        def query_side(arg):
+            import inspect
+            return single_q if inspect.isclass(arg) else batch_q
+
+        mock_db.query.side_effect = query_side
+        return mock_db
+
+    # -- country_id -----------------------------------------------------------
+
+    def test_invalid_country_id_raises_400(self):
+        svc = ChildrenService(db=self._db_single_fk(Country, found=False))
+        with pytest.raises(HTTPException) as exc_info:
+            svc._validate_profile_fks({'country_id': 999})
+        assert exc_info.value.status_code == 400
+        assert 'country_id' in exc_info.value.detail
+
+    def test_valid_country_id_passes(self):
+        svc = ChildrenService(db=self._db_single_fk(Country, found=True))
+        svc._validate_profile_fks({'country_id': 1})  # no exception
+
+    def test_missing_country_id_key_skips_check(self):
+        """An absent key must not trigger any DB query for that FK."""
+        mock_db = MagicMock()
+        svc = ChildrenService(db=mock_db)
+        svc._validate_profile_fks({})
+        mock_db.query.assert_not_called()
+
+    def test_none_country_id_skips_check(self):
+        """An explicit None value must skip validation (e.g. clearing the field)."""
+        mock_db = MagicMock()
+        svc = ChildrenService(db=mock_db)
+        svc._validate_profile_fks({'country_id': None})
+        mock_db.query.assert_not_called()
+
+    # -- curricula_id ---------------------------------------------------------
+
+    def test_invalid_curricula_id_raises_400(self):
+        svc = ChildrenService(db=self._db_single_fk(Curriculum, found=False))
+        with pytest.raises(HTTPException) as exc_info:
+            svc._validate_profile_fks({'curricula_id': 999})
+        assert exc_info.value.status_code == 400
+        assert 'curricula_id' in exc_info.value.detail
+
+    # -- grade_level_id -------------------------------------------------------
+
+    def test_invalid_grade_level_id_raises_400(self):
+        svc = ChildrenService(db=self._db_single_fk(GradeLevel, found=False))
+        with pytest.raises(HTTPException) as exc_info:
+            svc._validate_profile_fks({'grade_level_id': 999})
+        assert exc_info.value.status_code == 400
+        assert 'grade_level_id' in exc_info.value.detail
+
+    # -- subjects -------------------------------------------------------------
+
+    def test_invalid_subject_raises_400(self):
+        svc = ChildrenService(db=self._db_subjects(valid_ids=[]))
+        with pytest.raises(HTTPException) as exc_info:
+            svc._validate_profile_fks({'subjects': [42]})
+        assert exc_info.value.status_code == 400
+        assert '42' in exc_info.value.detail
+
+    def test_valid_subjects_pass(self):
+        svc = ChildrenService(db=self._db_subjects(valid_ids=[5, 6]))
+        svc._validate_profile_fks({'subjects': [5, 6]})  # no exception
+
+    def test_partial_invalid_subjects_raises_400_for_first_bad_id(self):
+        svc = ChildrenService(db=self._db_subjects(valid_ids=[10]))
+        with pytest.raises(HTTPException) as exc_info:
+            svc._validate_profile_fks({'subjects': [10, 77]})
+        assert '77' in exc_info.value.detail
+
+    # -- sparse dict (update scenario) ----------------------------------------
+
+    def test_sparse_dict_only_validates_present_keys(self):
+        """A dict with only 'name' must not trigger any FK query."""
+        mock_db = MagicMock()
+        svc = ChildrenService(db=mock_db)
+        svc._validate_profile_fks({'name': 'Alice'})
+        mock_db.query.assert_not_called()
