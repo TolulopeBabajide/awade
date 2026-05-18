@@ -402,3 +402,17 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-05-18T03:08:50Z | awade-growth-daily | done | Monday parent post — 'hold the table' Twitter/X draft saved; content-log updated
 2026-05-18T05:13:12Z | awade-security-scan | done | PASS w/ Low — 0 Critical, 0 High; 2 unguarded console.error in frontend (Low, not filed); carry-over: no rate limits on non-AI children endpoints
 2026-05-18T06:09:13Z | awade-performance-audit | done | benchmark-2026-05-18 written; AWD-H-83 confirmed fixed; bundle 131KB gz stable; 30 deps (was 44); latency still unmeasured (no local server)
+2026-05-18T06:18:17Z | awade-dev-execution | done | AWD-M-180: wrapped 5 ChildrenService DB mutations in try/except HTTP 500 with rollback; 7 new tests; commit d3b0f21 merge 31f6788
+2026-05-18T06:23:42Z | awade-code-review | done | ⚠️ Refactor Recommended — AWD-M-180 (children_service DB error handling): 4 🟡 findings, filed M-181 M-182
+2026-05-18T06:36:43Z | awade-qa-validation | done | ✅ PASS — AWD-M-180 DB error handling: TS/lint/openapi clean; backend tests skipped (venv broken, Python mismatch); frontend tests ENOSPC (sandbox infra); spot-check clean
+2026-05-18T07:03:47Z | awade-daily-health-check | done | TS clean, lint clean, OpenAPI valid; frontend+backend tests SKIP (ENOSPC sandbox); 1 Critical + 3 High open; 40+ commits on develop awaiting push
+2026-05-18T07:15:01Z | awade-dev-execution | done | AWD-M-181 shipped: except HTTPException guard in record_consent + 2 tests (commit f575919)
+2026-05-18T08:11:08Z | awade-weekly-review | done | 146 commits, ~70 issues closed; parent-flow hardening + CurriculumService overhaul; CI dark (40+ unpushed commits); analytics still missing 4.5 weeks from launch
+2026-05-18T08:15:47Z | awade-dev-execution | done | AWD-M-182 split test_children_service.py into 4 focused files; commit 3edc3c1 merge 0ebdd59
+2026-05-18T08:21:08Z | awade-code-review | done | reviewed f575919+8f18581+3edc3c1 (AWD-M-181 HTTPException guard + AWD-M-182 test split); filed AWD-M-183 (FK validation duplication) + AWD-L-51 (inline imports); verdict: Refactor Recommended
+2026-05-18T08:35:11Z | awade-sprint-planning | done | sprint-2026-05-18.md written — 3 autonomous issues (M-183, L-51, L-38); flagged 5 launch-blocking Tolu decisions for June 2026
+2026-05-18T08:38:46Z | awade-qa-validation | done | TS✅ Lint✅ OpenAPI✅ Spot-check✅ — AWD-M-182 test refactor passed; frontend ENOSPC + venv symlink pre-existing (H-77/M-46); verdict: Ship
+2026-05-18T09:15:01Z | awade-dev-execution | done | AWD-M-183 _validate_profile_fks helper extracted; commit 11b0870 merge 1d831f9 on develop
+2026-05-18T10:14:17Z | awade-dev-execution | done | AWD-L-51 promote sqlfunc+AwadeGPTService to module level in children_service.py; fix 4 test patch targets; commit 66b8590 merge 9768941
+2026-05-18T10:24:04Z | awade-code-review | done | ✅ Clean — AWD-L-51+M-183; filed M-184 (_validate_profile_fks cc=11) and M-185 (generate_guide cc=12)
+2026-05-18T10:37:09Z | awade-qa-validation | done | PASS — AWD-L-51 inline imports + AWD-M-183 FK validation; TS✅ lint✅ OpenAPI✅ spot-check✅; sandbox ENOSPC/venv pre-existing

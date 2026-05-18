@@ -711,3 +711,8 @@ After removing it, the next hourly run will:
 2026-05-17T15:30:00Z | AWD-H-90 | Fix test_export_date_is_tz_aware recorded[0]→recorded[-1] | 182fedc | ✅ Done | CI:pending
 2026-05-17T18:25:47Z | AWD-M-177 | Add db.rollback() to _db_guard exception path | ebc27b6 (merge 2f3c3ae) | ✅ Done | CI:pending
 2026-05-17T19:31:56Z | AWD-M-179 | Add Generator return type to CurriculumService._db_guard | 9c43ee6 | ✅ Done | CI:pending
+2026-05-18T06:18:12Z | AWD-M-180 | ChildrenService: wrap 5 DB mutation methods in try/except HTTP 500 + 7 new tests | d3b0f21 (merge 31f6788) | ✅ Done | CI:pending — Tolu: run git push origin develop to trigger CI
+2026-05-18T07:14:56Z | AWD-M-181 | Add except HTTPException guard to record_consent + 2 new DB-error tests | f575919 | ✅ Done | CI:pending
+2026-05-18T08:22:00Z | AWD-M-182 | Split test_children_service.py (1,309 lines) into 4 focused files + shared factory | 3edc3c1 (merge 0ebdd59) | ✅ Done | CI:pending — Tolu: run git push origin develop to trigger CI
+2026-05-18T09:14:55Z | AWD-M-183 | Extract _validate_profile_fks helper from ChildrenService (create_child + update_child) | commit 11b0870, merge 1d831f9 | ✅ Done | CI:pending
+2026-05-18T10:14:12Z | AWD-L-51 | Promote sqlfunc + AwadeGPTService inline imports to module level in children_service.py; fix 4 test patch targets | commit 66b8590, merge 9768941 | ✅ Done | CI:pending

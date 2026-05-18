@@ -137,3 +137,6 @@
 2026-05-17T18:27:32Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
 2026-05-17T20:31:54Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — AWD-M-179 ✅ Clean; filed AWD-H-92 uncommitted M-178 sub-services
 2026-05-18T06:09:13Z | performance-agent | WRITE | docs/performance/ | completed performance benchmark
+2026-05-18T06:23:42Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review of AWD-M-180 (d3b0f21/31f6788)
+2026-05-18T08:21:08Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-18T10:24:04Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
