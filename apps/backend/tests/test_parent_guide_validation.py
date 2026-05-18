@@ -261,7 +261,7 @@ class TestGenerateGuideValidation:
         service._get_child_or_404 = MagicMock(return_value=mock_child)
 
         with patch(
-            "packages.ai.gpt_service.AwadeGPTService"
+            "apps.backend.services.children_service.AwadeGPTService"
         ) as MockAI:
             instance = MockAI.return_value
             instance.generate_parent_guide.return_value = (ai_content_json, True)
@@ -297,7 +297,7 @@ class TestGenerateGuideValidation:
         service = ChildrenService(db=mock_db)
         service._get_child_or_404 = MagicMock(return_value=mock_child)
 
-        with patch("packages.ai.gpt_service.AwadeGPTService") as MockAI:
+        with patch("apps.backend.services.children_service.AwadeGPTService") as MockAI:
             instance = MockAI.return_value
             instance.generate_parent_guide.return_value = (json.dumps(data), False)
             with pytest.raises(HTTPException):
@@ -338,7 +338,7 @@ class TestGenerateGuideValidation:
         service = ChildrenService(db=mock_db)
         service._get_child_or_404 = MagicMock(return_value=mock_child)
 
-        with patch("packages.ai.gpt_service.AwadeGPTService") as MockAI:
+        with patch("apps.backend.services.children_service.AwadeGPTService") as MockAI:
             result = service.generate_guide(mock_user, child_id=1, topic_id=1)
             MockAI.assert_not_called()
 

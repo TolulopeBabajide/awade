@@ -9,6 +9,7 @@ Author: Tolulope Babajide
 """
 
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.sql import func as sqlfunc
 from typing import List, Optional
 from fastapi import HTTPException, status
 import json
@@ -16,6 +17,7 @@ import logging
 
 from pydantic import ValidationError
 
+from packages.ai.gpt_service import AwadeGPTService
 from apps.backend.models import (
     ChildProfile, ParentGuide, ParentalConsent, User, UserRole,
     Country, Curriculum, GradeLevel, Subject, Topic,
@@ -125,7 +127,6 @@ class ChildrenService:
         )
         if record:
             # Update existing record (parent re-confirmed consent)
-            from sqlalchemy.sql import func as sqlfunc
             record.consented_at = sqlfunc.now()
             record.ip_address = ip_address
         else:
@@ -497,8 +498,6 @@ class ChildrenService:
         contents = [c.content_area for c in topic.topic_contents]
 
         # Call AI service
-        from packages.ai.gpt_service import AwadeGPTService
-
         ai_service = AwadeGPTService()
         ai_content, is_valid = ai_service.generate_parent_guide(
             subject=subject_name,
