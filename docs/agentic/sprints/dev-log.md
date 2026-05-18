@@ -719,3 +719,4 @@ After removing it, the next hourly run will:
 2026-05-18T10:14:12Z | AWD-L-51 | Promote sqlfunc + AwadeGPTService inline imports to module level in children_service.py; fix 4 test patch targets | commit 66b8590, merge 9768941 | ✅ Done | CI:pending
 2026-05-18T11:15:00Z | AWD-M-184 | Extract _check_fk_exists helper; _validate_profile_fks CC 11→6; 5 new TestCheckFkExistsHelper tests | commit dee5948, merge 99c040a | ✅ Done | CI:pending — Tolu: run git push origin develop to trigger CI
 2026-05-18T15:31:00Z | AWD-M-188 | Guard _persist_guide reload against None return; raise HTTP 500 if reloaded is None; 1 new test test_persist_guide_reload_returns_none_raises_500 | commit b23d3c6, merge c9f1156 | ✅ Done | CI:pending — Tolu: run git push origin develop to trigger CI
+2026-05-18T19:20:06Z | AWD-M-186+M-187 | type-annotate model param + hasattr guard in _check_fk_exists | e5bc4fd | ✅ Done | CI:pending
