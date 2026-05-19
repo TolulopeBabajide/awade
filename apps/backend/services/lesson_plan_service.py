@@ -190,15 +190,11 @@ class LessonPlanService:
             # Start with lesson plans for the current user
             query = self.db.query(LessonPlan).filter(LessonPlan.user_id == current_user.user_id)
 
-            # Apply additional filters — join Topic+CurriculumStructure once to avoid
-            # SQLAlchemy InvalidRequestError("already been joined") when both filters
-            # are supplied simultaneously (AWD-H-93).
-            if subject or grade_level:
-                query = query.join(Topic).join(CurriculumStructure)
-                if subject:
-                    query = query.join(Subject).filter(Subject.name == subject)
-                if grade_level:
-                    query = query.join(GradeLevel).filter(GradeLevel.name == grade_level)
+            # Apply additional filters
+            if subject:
+                query = query.join(Topic).join(CurriculumStructure).join(Subject).filter(Subject.name == subject)
+            if grade_level:
+                query = query.join(Topic).join(CurriculumStructure).join(GradeLevel).filter(GradeLevel.name == grade_level)
 
             # Apply pagination
             lesson_plans = query.offset(skip).limit(limit).all()
