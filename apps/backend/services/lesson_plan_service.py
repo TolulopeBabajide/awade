@@ -8,8 +8,6 @@ and AI-powered generation. Resource management has been extracted to
 Author: Tolulope Babajide
 """
 
-import sys
-import os
 import logging
 
 logger = logging.getLogger(__name__)
@@ -20,12 +18,6 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime, timezone
 from fastapi import HTTPException, status
 from arq import ArqRedis
-
-# Add parent directories to Python path for imports
-current_dir = os.path.dirname(__file__)
-parent_dir = os.path.dirname(current_dir)
-root_dir = os.path.dirname(parent_dir)
-sys.path.extend([parent_dir, root_dir])
 
 from apps.backend.models import (
     LessonPlan, User, Topic, CurriculumStructure, Curriculum, Country,
