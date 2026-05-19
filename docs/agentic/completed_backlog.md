@@ -1679,3 +1679,5 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | 2026-05-18 | AWD-M-186 | Type-annotate model param as Type[Any] in _check_fk_exists; added Any,Type to typing imports | commit e5bc4fd, merge 48b2baf |
 | 2026-05-18 | AWD-M-187 | Add hasattr guard before getattr in _check_fk_exists; raises ValueError with model+field name; 1 new test test_invalid_field_name_raises_value_error in TestCheckFkExistsHelper | commit e5bc4fd, merge 48b2baf |
 | 2026-05-19 | AWD-H-93 | Fix SQLAlchemy duplicate join crash in get_lesson_plans: join Topic+CurriculumStructure once under shared guard; Subject/GradeLevel appended conditionally; 4 new tests in TestGetLessonPlansFilters (subject-only, grade_level-only, both-together, no-filters-skips-join) | commit d1b61fd, merge e8ff62b |
+
+| AWD-H-94 | Performance / Dead Code | 2026-05-19 | Remove 3 dead DB queries (CurriculumStructure, Subject, GradeLevel) from `generate_lesson_resource` in `lesson_resource_service.py`. Commit c02e3eb, merge c4195ef. |
