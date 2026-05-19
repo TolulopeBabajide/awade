@@ -1681,3 +1681,5 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | 2026-05-19 | AWD-H-93 | Fix SQLAlchemy duplicate join crash in get_lesson_plans: join Topic+CurriculumStructure once under shared guard; Subject/GradeLevel appended conditionally; 4 new tests in TestGetLessonPlansFilters (subject-only, grade_level-only, both-together, no-filters-skips-join) | commit d1b61fd, merge e8ff62b |
 
 | AWD-H-94 | Performance / Dead Code | 2026-05-19 | Remove 3 dead DB queries (CurriculumStructure, Subject, GradeLevel) from `generate_lesson_resource` in `lesson_resource_service.py`. Commit c02e3eb, merge c4195ef. |
+| 2026-05-19 | AWD-M-190 | Remove dead schema mutation `request.user_id = current_user.user_id` from generate_lesson_plan; constructor already used current_user.user_id directly | commit 93bdab8, merge 1f1683f |
+| 2026-05-19 | AWD-M-191 | Fix silent no-op update_lesson_plan: raise HTTP 501 (LessonPlan model has no update-schema columns); remove TODO comment; 4 new tests (404, 501, detail, no-commit) | commit 93bdab8, merge 1f1683f |

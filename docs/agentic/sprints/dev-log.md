@@ -726,3 +726,4 @@ After removing it, the next hourly run will:
 2026-05-19T08:15:19Z | AWD-M-189 | Remove stale sys.path.extend from lesson_plan_service.py + lesson_resource_service.py | commit 0361cf4 (merge 558b31a) | ✅ Done | CI:pending — Tolu: run git push origin develop to trigger CI
 2026-05-19T09:14:59Z | AWD-H-93 | Fix get_lesson_plans duplicate join crash (subject+grade_level) | d1b61fd | ✅ Done | CI:pending
 2026-05-19T11:00:00Z | AWD-H-94 | Remove 3 dead DB queries from generate_lesson_resource | c02e3eb (merge c4195ef) | ✅ Done | CI:pending
+2026-05-19T12:30:00Z | AWD-M-191 AWD-M-190 | fix silent no-op update_lesson_plan (501), remove schema mutation, restore H-93 reversion | 93bdab8 | ✅ Done | CI:pending
