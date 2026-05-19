@@ -449,3 +449,6 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-05-19T06:37:40Z | awade-qa-validation | done | ✅ PASS — d88ba17 agent-state commit only; TS ✅ lint ✅ openapi ✅; tests SKIP (ENOSPC/venv known); no new issues filed
 2026-05-19T07:04:08Z | awade-daily-health-check | done | TS✅ lint✅ tests⚠️ENOSPC openapi✅ 0 critical 7 high open; push develop overdue
 2026-05-19T08:15:47Z | awade-dev-execution | skip | All backlog items blocked: H-65/M-77/M-46 (Tolu venv), H-73 (key rotation/Render), M-78/M-142/M-146/M-67/L-07/M-17/C-13 (Tolu decisions), L-38 (visual QA required), H-79/M-19/M-20/M-85 (discover/infra)
+2026-05-19T08:16:17Z | awade-dev-execution | done | AWD-M-189: removed stale sys/os/sys.path.extend from lesson_plan_service + lesson_resource_service (16 lines deleted, 2 files)
+2026-05-19T08:22:14Z | awade-code-review | done | ⚠️ Refactor Recommended — H-93 H-94 M-190 M-191 filed from lesson_plan_service + lesson_resource_service full-file review
+2026-05-19T08:37:06Z | awade-qa-validation | done | AWD-M-189 hygiene (sys.path.extend removal) — TS ✅ lint ✅ OpenAPI ✅ tests SKIP (AWD-H-77/M-46) spot-check ✅ verdict: Ship

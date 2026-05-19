@@ -8,8 +8,6 @@ access control, and ORM-level helpers used by the export router.
 Author: Tolulope Babajide
 """
 
-import sys
-import os
 import logging
 
 logger = logging.getLogger(__name__)
@@ -19,12 +17,6 @@ from typing import List, Optional
 from datetime import datetime, timezone
 from fastapi import HTTPException
 from arq import ArqRedis
-
-# Add parent directories to Python path for imports
-current_dir = os.path.dirname(__file__)
-parent_dir = os.path.dirname(current_dir)
-root_dir = os.path.dirname(parent_dir)
-sys.path.extend([parent_dir, root_dir])
 
 from apps.backend.models import (
     LessonPlan, User, Topic, CurriculumStructure,
