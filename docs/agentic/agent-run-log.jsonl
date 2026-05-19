@@ -458,3 +458,6 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-05-19T10:43:38Z | awade-qa-validation | done | PASS — AWD-C-13 reversion + AWD-H-93 duplicate-join fix + AWD-H-94 dead-query removal; tsc✅ lint✅ openapi✅; fe-tests ENOSPC, be-tests venv-broken (pre-existing)
 2026-05-19T11:07:56Z | awade-dev-execution | skip | recent commit found (AWD-H-94 shipped within last 50 min)
 2026-05-19T12:16:45Z | awade-dev-execution | done | AWD-M-191 fix silent no-op update_lesson_plan (501), AWD-M-190 remove schema mutation, restore AWD-H-93 reversion; commit 93bdab8 merge 1f1683f
+2026-05-19T12:23:37Z | awade-code-review | done | commit 93bdab8 reviewed — ✅ Clean, 1 🟡 (M-192: LessonPlan missing updated_at column)
+2026-05-19T12:36:33Z | awade-qa-validation | done | ✅ PASS — AWD-M-191/M-190/H-93 restore in lesson_plan_service.py; TS clean, lint clean, OpenAPI valid; no new issues filed
+2026-05-19T13:13:11Z | awade-dev-execution | done | AWD-C-13 re-applied AWD-H-94 fix (reverted by records commit 0db8e92) — e4229ba, merge 90d21d0
