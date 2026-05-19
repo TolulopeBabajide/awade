@@ -452,3 +452,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-05-19T08:16:17Z | awade-dev-execution | done | AWD-M-189: removed stale sys/os/sys.path.extend from lesson_plan_service + lesson_resource_service (16 lines deleted, 2 files)
 2026-05-19T08:22:14Z | awade-code-review | done | ⚠️ Refactor Recommended — H-93 H-94 M-190 M-191 filed from lesson_plan_service + lesson_resource_service full-file review
 2026-05-19T08:37:06Z | awade-qa-validation | done | AWD-M-189 hygiene (sys.path.extend removal) — TS ✅ lint ✅ OpenAPI ✅ tests SKIP (AWD-H-77/M-46) spot-check ✅ verdict: Ship
+2026-05-19T09:15:14Z | awade-dev-execution | done | AWD-H-93: fixed get_lesson_plans SQLAlchemy duplicate join crash (subject+grade_level filters); 4 new tests; commit d1b61fd merge e8ff62b
