@@ -19,8 +19,7 @@ from fastapi import HTTPException
 from arq import ArqRedis
 
 from apps.backend.models import (
-    LessonPlan, User, Topic, CurriculumStructure,
-    Subject, GradeLevel, LessonResource, UserRole, Context
+    LessonPlan, User, Topic, LessonResource, UserRole, Context
 )
 from apps.backend.schemas.lesson_plans import (
     LessonResourceCreate, LessonResourceResponse
@@ -134,18 +133,6 @@ class LessonResourceService:
                 if topic.topic_contents
                 else []
             )
-
-            # Get subject and grade level from curriculum structure
-            curriculum_structure = self.db.query(CurriculumStructure).filter(
-                CurriculumStructure.curriculum_structure_id == topic.curriculum_structure_id
-            ).first()
-
-            subject = self.db.query(Subject).filter(
-                Subject.subject_id == curriculum_structure.subject_id
-            ).first()
-            grade_level = self.db.query(GradeLevel).filter(
-                GradeLevel.grade_level_id == curriculum_structure.grade_level_id
-            ).first()
 
             # Get contexts from database for this lesson plan
             contexts = self.db.query(Context).filter(
