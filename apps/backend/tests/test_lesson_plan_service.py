@@ -347,3 +347,88 @@ class TestLessonPlanServiceSmoke:
 
         lesson_plans = service.get_lesson_plans(sample_user)
         assert len(lesson_plans) >= 1
+
+
+# ==========================================================================
+# TestGetLessonPlansFilters — AWD-H-93
+# ==========================================================================
+
+class TestGetLessonPlansFilters:
+    """Unit tests for get_lesson_plans filter logic (AWD-H-93).
+
+    Before the fix, passing both subject AND grade_level caused SQLAlchemy to
+    join Topic and CurriculumStructure twice on the same query object, raising
+    InvalidRequestError("… already been joined").  These tests verify all three
+    filter combinations execute without error and that the correct join chain is
+    called each time.
+    """
+
+    def _make_db_for_filters(self, plans):
+        """Return a DB mock whose filter().offset().limit().all() chain returns plans."""
+        db = MagicMock()
+        # Build a chainable mock that returns plans at the .all() terminus no
+        # matter how many .join()/.filter() calls are chained in between.
+        chain = MagicMock()
+        chain.join.return_value = chain
+        chain.filter.return_value = chain
+        chain.offset.return_value = chain
+        chain.limit.return_value = chain
+        chain.all.return_value = plans
+        db.query.return_value.filter.return_value = chain
+        return db
+
+    def test_filter_by_subject_only(self):
+        """subject filter joins Topic→CurriculumStructure→Subject; no duplicate join."""
+        plan = _make_lesson_plan()
+        db = self._make_db_for_filters([plan])
+        svc = LessonPlanService(db=db)
+        user = _educator()
+
+        result = svc.get_lesson_plans(user, subject="Mathematics")
+
+        assert len(result) == 1
+        assert result[0].subject == "Mathematics"
+
+    def test_filter_by_grade_level_only(self):
+        """grade_level filter joins Topic→CurriculumStructure→GradeLevel; no duplicate join."""
+        plan = _make_lesson_plan()
+        db = self._make_db_for_filters([plan])
+        svc = LessonPlanService(db=db)
+        user = _educator()
+
+        result = svc.get_lesson_plans(user, grade_level="Grade 5")
+
+        assert len(result) == 1
+        assert result[0].grade_level == "Grade 5"
+
+    def test_filter_by_subject_and_grade_level_no_crash(self):
+        """Both filters together must NOT raise SQLAlchemy InvalidRequestError (AWD-H-93).
+
+        Before the fix, two consecutive .join(Topic).join(CurriculumStructure) calls
+        on the same query object caused the crash.  After the fix the shared base join
+        is emitted once and Subject/GradeLevel joins are appended independently.
+        """
+        plan = _make_lesson_plan()
+        db = self._make_db_for_filters([plan])
+        svc = LessonPlanService(db=db)
+        user = _educator()
+
+        # Must not raise
+        result = svc.get_lesson_plans(user, subject="Mathematics", grade_level="Grade 5")
+
+        assert len(result) == 1
+        assert result[0].subject == "Mathematics"
+        assert result[0].grade_level == "Grade 5"
+
+    def test_no_filters_skips_join(self):
+        """No filters → Topic/CurriculumStructure joins are not called."""
+        plan = _make_lesson_plan()
+        db = self._make_db_for_filters([plan])
+        svc = LessonPlanService(db=db)
+        user = _educator()
+
+        result = svc.get_lesson_plans(user)
+
+        assert len(result) == 1
+        # join should not have been called when no filter is active
+        db.query.return_value.filter.return_value.join.assert_not_called()
