@@ -433,3 +433,14 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-05-18T18:42:22Z | awade-code-review | skip | no new commits in last 115 minutes
 2026-05-18T18:42:26Z | awade-qa-validation | skip | no new commits on develop in last 110 minutes
 2026-05-18T19:20:35Z | awade-dev-execution | done | AWD-M-186+M-187 type-annotate model param + hasattr guard in _check_fk_exists; commit e5bc4fd merge 48b2baf on develop
+2026-05-18T20:08:31Z | awade-dev-execution | skip | recent commits found within 50 min window (M-186, M-187 shipped)
+2026-05-18T20:23:13Z | awade-code-review | done | AWD-M-186/M-187: hasattr guard + type annotation in _check_fk_exists — ✅ Clean, no backlog items filed
+2026-05-18T20:36:42Z | awade-qa-validation | done | ✅ PASS AWD-M-186/M-187 children_service hasattr guard — tsc/lint/openapi ✅ frontend ENOSPC backend venv broken (pre-existing infra) no new issues
+2026-05-18T21:13:44Z | awade-dev-execution | skip | No actionable items: ready items require Tolu's machine (H-65/M-77/M-46); L-38 blocked by npm registry + visual QA
+2026-05-18T22:03:44Z | awade-nightly-monitor | done | TS clean, 9 open issues (2H/6M/1L), 22+ commits today, staged-index C-13 warning, qa-agent CRITICAL
+2026-05-18T22:12:28Z | awade-dev-execution | skip | No dev work — AWD-C-13 staged-index reversion cleared; all open items blocked (ENOSPC/Tolu decisions/infra)
+2026-05-18T22:20:30Z | awade-code-review | skip | no new commits in last 115 minutes
+2026-05-18T22:34:44Z | awade-qa-validation | skip | No commits on develop in last 110 minutes
+2026-05-19T03:08:31Z | awade-growth-daily | done | Twitter/X educator thread — writing learning objectives for parents, 5 tweets, draft saved to drafts/2026-05-19-twitter.md
+2026-05-19T05:13:29Z | awade-security-scan | done | all CI checks pass; 0 new C/H findings; 2 Low carry-overs (children.py rate limits, console.error cleanup)
+2026-05-19T06:10:51Z | awade-architecture-review | skip | idempotency: last run was 10072 min ago (window=20160 min, 14 days)
