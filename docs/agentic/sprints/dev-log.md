@@ -728,3 +728,4 @@ After removing it, the next hourly run will:
 2026-05-19T09:14:59Z | AWD-H-93 | Fix get_lesson_plans duplicate join crash (subject+grade_level) | d1b61fd | ✅ Done | CI:pending
 2026-05-19T11:00:00Z | AWD-H-94 | Remove 3 dead DB queries from generate_lesson_resource | c02e3eb (merge c4195ef) | ✅ Done | CI:pending
 2026-05-19T12:30:00Z | AWD-M-191 AWD-M-190 | fix silent no-op update_lesson_plan (501), remove schema mutation, restore H-93 reversion | 93bdab8 | ✅ Done | CI:pending
+2026-06-03T23:58:00Z | AWD-M-208 | Full NERDC curriculum capture: schema (themes + 4 pedagogy tables), migration d7a4b2e9f1c5 (merges 2 alembic heads), generalized importer, parent-prompt wiring, tests | — uncommitted (Cowork) | ✅ Done | CI:pending — Tolu: review, commit, push

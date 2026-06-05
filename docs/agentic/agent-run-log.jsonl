@@ -1,3 +1,4 @@
+2026-06-05T20:35:00Z | awade-support-digest | done | first digest run: 0 support messages (support-log.md created, Slack/Gmail empty, Intercom unauthenticated); digest-2026-06-05.md written; no queue additions; 2 setup gaps flagged for Tolu (no support intake channel; support-agent SKILL.md missing from repo)
 2026-05-18T00:00:00Z | awade-dev-execution | done | AWD-M-185 resolved: extracted _build_guide_ai_payload + _persist_guide helpers from generate_guide in children_service.py; CC 12→~5; 9 new tests; Tolu: git push origin develop
 2026-05-17T22:30:00Z | awade-dev-execution | done | AWD-M-178/H-92 commit shipped: 51d25ff on develop — LearningObjectiveService + TopicContentService extracted from curriculum_service.py; codebase-map updated; Tolu: git push origin develop
 2026-05-17T23:00:00Z | awade-nightly-monitor | done | morning-brief written: 🔴 H-92 uncommitted M-178 files urgent; 7 commits unpushed; CI unknown; C=1 H=3 M=12 L=2 open
@@ -461,3 +462,92 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-05-19T12:23:37Z | awade-code-review | done | commit 93bdab8 reviewed — ✅ Clean, 1 🟡 (M-192: LessonPlan missing updated_at column)
 2026-05-19T12:36:33Z | awade-qa-validation | done | ✅ PASS — AWD-M-191/M-190/H-93 restore in lesson_plan_service.py; TS clean, lint clean, OpenAPI valid; no new issues filed
 2026-05-19T13:13:11Z | awade-dev-execution | done | AWD-C-13 re-applied AWD-H-94 fix (reverted by records commit 0db8e92) — e4229ba, merge 90d21d0
+2026-05-19T14:14:09Z | awade-dev-execution | skip | No actionable issue: stage=ready items need Tolu venv fix (H-65/M-46/M-77); L-38 blocked by ENOSPC (M-85); M-192 gated on future work; all others need Tolu decision
+2026-05-19T14:23:31Z | awade-code-review | done | ⚠️ Refactor Recommended — 2 🟡 findings (M-193 ownership guard dup, M-194 inline asyncio import) for e6cfba5
+2026-05-19T22:05:55Z | awade-nightly-monitor | done | morning brief written; TS✅ tests ENOSPC/venv-skip (known); 19 commits today; develop 119 ahead of origin unpushed; dev+qa agents CRITICAL; M-78 launch-blocking open
+2026-05-20T03:07:16Z | awade-growth-daily | done | LinkedIn post drafted — calendar topic: invisible pre-launch security work (WeasyPrint SSRF, N+1 fix, prompt injection sandboxing)
+2026-05-20T05:13:07Z | awade-security-scan | done | OWASP Web+LLM clean; 0 critical/high; 1 medium filed (AWD-M-195: untyped export format_data dict)
+2026-05-20T05:37:30Z | awade-dependency-security | done | no Critical/High CVEs; 5 moderate npm (ws/vitest chain, dev-only, no fix); 1 new M-154 psycopg2-binary patch staleness; SBOM: docs/security/sbom-2026-05-20.md
+2026-05-20T07:02:50Z | awade-daily-health-check | done | TS clean, lint clean, tests BLOCKED (ENOSPC 100% disk), OpenAPI valid, 1C+2H open
+2026-05-20T08:04:03Z | awade-content-calendar | done | 5-day calendar written for 2026-05-25–29 (T-2 weeks to launch); parent/educator alternating; 6 content-log entries appended
+2026-05-20T22:02:55Z | awade-nightly-monitor | done | morning-brief written: 0 commits today, TS ✅, frontend tests ❌ ENOSPC, backend tests ❌ venv broken, 119 commits unpushed, 2H/11M open
+2026-05-21T03:08:13Z | awade-growth-daily | done | Email draft written — 'Why we don't talk about catching up' (Africa-centred Education News, Both audiences, planned Thu 21 May)
+2026-05-21T05:13:23Z | awade-security-scan | done | OWASP Web+LLM pass clean; H-95 cryptography 2 versions behind; M-196 LLM09 frontend label; no Critical findings
+2026-05-21T07:10:29Z | awade-daily-health-check | done | 🔴 brief written: TS✅ lint✅ OpenAPI✅; FE tests 1 flaky failure (ChildrenPage ParentRoute); BE tests blocked (venv broken AWD-H-77); 1 Critical/3 High open; 119 commits unpushed
+2026-05-21T22:07:14Z | awade-nightly-monitor | done | morning-brief written for 2026-05-22: 0 commits/24h, TS ✅, FE+BE tests ⛔ ENOSPC, 119 commits unpushed, CI unknown, dev/qa loop stalled since 05-19, 0C/3H/12M/1L open
+2026-05-22T03:10:18Z | awade-growth-daily | done | Friday week-in-review thread drafted for 2026-05-22 (Twitter/X, Both, Building in Public); rewrote stale calendar shipped-list with verified 18-22 May work; content-log updated
+2026-05-22T05:12:34Z | awade-security-scan | done | PASS w/ recs — 0 new C/H; AWD-H-95 cryptography staleness carried over; npm 0 vulns; CI mirror + auth/role + LLM checks pass
+2026-05-22T06:17:26Z | awade-tech-debt | done | report written 2026-05-22: 13 active (4 resolved, 3 net-new); only 1/13 filed in backlog — flagged report-to-backlog gap as headline
+2026-05-22T07:12:04Z | awade-daily-health-check | done | TS+lint+OpenAPI clean; vitest/pytest unverifiable (sandbox disk full, broken venv); 1 Critical / 5 High open; develop unpushed since 2026-05-19
+2026-05-22T19:16:26Z | awade-friday-finance | done | snapshot-2026-05-22 written; balance.md still missing (day 31); dev/QA/code-review loop stalled since 05-19, 119 commits unpushed; Stripe unfiled week 6
+2026-05-22T22:24:04Z | awade-nightly-monitor | done | morning-brief written for 2026-05-23: 0 commits/24h, TS/FE/BE checks unverifiable in sandbox, develop unpushed since 05-19 (119+ commits), dev/qa/code-review loop CRITICAL (~80h stale), 1C/5H/12M/1L open
+2026-05-23T05:43:11Z | awade-security-scan | done | All 5 CI checks pass; no secrets; 0 new Critical/High; filed M-197 (audit log user_id null) + M-198 (LLM01 delimiter-breakout); npm audit degraded (sandbox offline)
+2026-05-24T05:11:50Z | awade-security-scan | done | All 5 CI checks pass; no secrets; 0 new Critical/High/Medium; carried H-95+M-196/197/198 not re-filed; npm audit OK (0 prod vulns, 5 moderate dev-only); pip outdated skipped (sandbox venv interpreter mismatch)
+2026-05-24T22:11:12Z | awade-nightly-monitor | done | morning-brief written for 2026-05-25: TS clean (0 errors), vitest inconclusive (45s sandbox cap, 0 failures seen), backend pytest skipped (venv/M-46); develop unpushed since 05-19, CI dark ~6d; dev/qa/code-review loop CRITICAL (~5.3d stale); open 1C/5H/20M/2L
+2026-05-25T03:08:22Z | awade-growth-daily | done | Monday 2-post Twitter/X draft saved (parent pain point + T-2wk building-in-public); content-log updated
+2026-05-25T05:16:25Z | awade-security-scan | done | 5 CI checks pass, no secrets; pip-audit found 7 CVEs/4 pkgs — filed AWD-H-96 (starlette 3 CVEs), AWD-M-199 (urllib3 2 CVEs), updated AWD-H-95 (cryptography PYSEC-2026-36); 0 new Critical
+2026-05-25T06:11:19Z | awade-performance-audit | done | clean build: 130KB gz initial JS (flat), 0 N+1, 30 py deps; no backlog items; API latency unmeasured 3rd wk; in-place build EPERM noted
+2026-05-25T07:07:36Z | awade-daily-health-check | done | TS/lint/FE-tests green; backend 636 pass/25 fail (Python 3.10 sandbox - not authoritative); openapi valid; no commits 24h; 1 Critical / 6 High open
+2026-05-25T08:13:19Z | awade-weekly-review | done | review-2026-05-25 written; dev loop idle 6d (out of unblocked work), CI dark, 1C/6H/21M/2L open, 5 resolved/10 filed, M-78 launch-blocker open
+2026-05-25T08:37:40Z | awade-sprint-planning | done | sprint-2026-05-25 written: 9 core autonomous items (H-95,M-154,M-199,M-193,M-194,M-195,M-197,M-198,M-196), H-96 merge-gated, L-38 env-gated; flagged develop unpushed 6d + 5 unchanged launch-blockers + M-154 ID collision
+2026-05-25T22:09:49Z | awade-nightly-monitor | done | TS ✅ FE-tests 293 pass; no commits 24h; 0C/4H/15M/1L open; 12 CRITICAL agent heartbeats stale; H-95 H-96 security CVEs unresolved; morning-brief written
+2026-05-26T03:08:19Z | awade-growth-daily | done | Tue 2026-05-26 Twitter/X thread (6 tweets, Educator, Curriculum Insights) — grade naming maze across Africa; draft saved + content-log updated
+2026-05-26T05:21:22Z | awade-security-scan | done | No new findings — tree unchanged since 2026-05-19 (e6cfba5); 7 carried CVE/OWASP items remain open
+2026-05-26T06:10:07Z | awade-architecture-review | skip | last run 20152 min ago, under 20160-min (14-day) idempotency window
+2026-05-26T07:07:20Z | awade-daily-health-check | done | TS✅ lint✅ FE-tests✅ 293/295 OpenAPI✅ BE-tests SKIP(sandbox) · 1🔴 C-13 · 6🟠 incl H-95/H-96 CVEs · develop idle 7d
+2026-05-26T22:05:03Z | awade-nightly-monitor | done | TS ✅ FE-tests 293 pass; no commits 24h; 0C/4H/15M/1L open; dev-agent/qa-agent/code-review-agent CRITICAL; H-95 H-96 CVEs unresolved; morning-brief written
+2026-05-27T03:07:56Z | awade-growth-daily | done | LinkedIn post (Both, Africa-centred Education News) — evening study routine in Lagos/Nairobi/Accra, 320 words, founder voice
+2026-05-27T05:13:51Z | awade-security-scan | done | No Critical/High findings; filed M-200 (curriculum rate limits) + M-201 (Vercel frontend CSP missing); H-95/H-96/H-73 carry-forward
+2026-05-27T05:40:51Z | awade-dependency-security | done | 7 advisories across 4 pkgs; L-52 L-53 M-202 filed; H-95 H-96 M-199 still open
+2026-05-27T07:03:18Z | awade-daily-health-check | done | TS✅ lint✅ frontend-tests✅(293 pass) backend-tests⚠️(no pytest in sandbox) openapi✅ 0C/4H open
+2026-05-27T08:03:44Z | awade-content-calendar | done | Content calendar written for 1–5 Jun 2026 (launch week): 5 posts across Twitter/X, LinkedIn, Email — parent empowerment, teacher workflow, launch announcement, product spotlight, Africa-centred news
+2026-05-27T22:03:44Z | awade-nightly-monitor | done | morning-brief written; TS clean; 0 new commits; 4H/18M/3L open; dev-agent+qa-agent CRITICAL (not run since 2026-05-19)
+2026-05-28T03:08:05Z | awade-growth-daily | done | Email educator draft: differentiated instruction workflow (3-tier lesson plan from one topic)
+2026-05-28T05:21:13Z | awade-security-scan | done | OWASP Web+LLM pass clean; 0 new C/H findings; 5 dep issues + 5 web/LLM items already tracked in backlog
+2026-05-28T07:03:20Z | awade-daily-health-check | done | TS✅ lint✅ fe-tests✅ openapi✅ backend-blocked(disk-full) 0-Critical 4-High
+2026-05-28T22:04:50Z | awade-nightly-monitor | done | morning-brief written; 🔴 dev/qa/code-review agents CRITICAL (9d gap); 119 commits unpushed; TS ✅; H-96 starlette CVEs action needed
+2026-05-29T03:09:04Z | awade-growth-daily | done | Friday week-in-review Twitter thread (T-1 week to launch) written to docs/agentic/content/drafts/2026-05-29-twitter.md
+2026-05-29T05:13:49Z | awade-security-scan | done | CI pass, 0 secrets, 0 npm vulns, pip deps tracked, OWASP Web+LLM pass, 1 new M-203 filed
+2026-05-29T06:13:23Z | awade-tech-debt | done | 3rd weekly run: 0 resolved, 0 net-new, 3 ID collisions corrected (M-197→M-204 L-52→L-54 L-53→L-55), dev loop stalled 10d
+2026-05-29T07:02:32Z | awade-daily-health-check | done | TS✅ lint✅ tests⚠️(sandbox disk/no-pytest) OpenAPI✅ 0C/4H open
+2026-05-29T19:12:08Z | awade-friday-finance | done | snapshot-2026-05-29 written: T-1 week to launch, bash MRR, balance.md missing day 38, dev loop 10d stalled, 119 commits unpushed, no Stripe (week 7 of flag), M-78 quota unset, OpenAI May closes in 2 days
+2026-05-29T22:03:38Z | awade-nightly-monitor | done | morning-brief written: TS clean, 119 commits unvalidated, all agents CRITICAL, 2 security CVEs (H-95/H-96) unblocked
+2026-05-30T05:15:52Z | awade-security-scan | done | CI mirrors pass, 0 secrets, 0 npm vulns, no new H/C findings; H-95/H-96/H-73 carried over
+2026-05-30T09:08:32Z | awade-weekend-ops | done | retro-2026-05-30 + monday-prep-2026-06-02 written; 0 commits this week; 119+ unpushed; 4H open incl H-95/H-96 CVEs; T-1 week to launch
+2026-05-30T22:04:30Z | awade-nightly-monitor | done | morning-brief written 2026-05-30; status RED — 119 commits unpushed, dev/qa/code-review CRITICAL, H-95/H-96 CVEs open
+2026-05-31T05:11:02Z | awade-security-scan | done | security-report-2026-05-31 written; CI gates pass; no new C/H; H-95/H-96/M-199 dep CVEs remain open; ALLOWED_HOSTS=* noted (AWD-L-04)
+2026-05-31T22:03:07Z | awade-nightly-monitor | done | Morning brief written; 0 commits 24h; backlog 2C/7H/24M/9L/4GRC; TS/tests UNKNOWN (timed out); PROMPT INJECTION in backlog.md flagged, not executed
+2026-05-31T22:06:23Z | awade-nightly-monitor | done | CORRECTION of prior line: morning-brief 2026-05-31 rewritten. Status RED (operational: ~119 commits unpushed, dirty tree w/ stray probe files, H-95/H-96/M-199 dep CVEs open). TS clean; FE/BE tests blocked by sandbox ENOSPC+venv (AWD-H-77/M-46). No prompt-injection found in backlog (prior line erroneous). gh unavailable=CI unknown.
+2026-05-31T22:07:29Z | awade-nightly-monitor | done | FINAL: morning-brief 2026-05-31 written w/ verified counts (1C/4H/19M/3L). Status RED: ~119 commits unpushed, 0 commits 24h, dirty tree (7 stray probe files), H-95/H-96 CVEs open, dev/qa/code-review/tech-debt agents CRITICAL. TS clean; FE/BE tests blocked by sandbox ENOSPC+venv. gh unavailable=CI unknown. No prompt-injection (earlier 22:03 line was erroneous).
+2026-06-01T03:07:36Z | awade-growth-daily | done | Mon parent Twitter/X draft (curiosity reframe) written from calendar, feature-verified, content-log updated
+2026-06-01T05:10:19Z | awade-security-scan | done | No new Critical/High. 5/5 CI gates pass, npm 0 vulns, no hardcoded secrets, access-control+COPPA+IDOR scoping clean, LLM injection/output defences intact. Open dep CVEs H-95/H-96/M-199 still unremediated (dev loop stalled).
+2026-06-01T05:35:53Z | awade-compliance-audit | done | clean posture; 1 Medium filed (M-204 admin audit log retention not enforced)
+2026-06-01T06:06:38Z | awade-performance-audit | done | benchmark-2026-06-01.md written — all metrics flat (0% vs baseline), 0 backlog items, API latency unmeasured 4th wk
+2026-06-01T07:05:57Z | awade-daily-health-check | done | 🟡 FE TS/lint/tests green, OpenAPI valid; backend tests blocked (H-79 venv+disk); 119 unpushed, agents stale
+2026-06-01T08:09:01Z | awade-weekly-review | done | review-2026-06-01 written (launch week, RED): dev loop idle 13d, ~119 unpushed, CI dark, M-78 quota unset, North Star unmeasurable, 0C/4H open; content calendar Jun1-5 ready
+2026-06-01T08:33:55Z | awade-sprint-planning | done | sprint-2026-06-01 written; velocity 0 commits/0 issues (dev loop idle 13d); ~119 unpushed/CI dark; 2 CVE Highs (H-95/H-96)+clean security/code-quality batch queued; flagged push develop + restart loop + M-78 quota as launch-week blockers
+2026-06-01T22:09:12Z | awade-nightly-monitor | done | 🔴 launch week: TS green, FE/BE tests blocked (H-77/H-79 env), CI dark ~13d, ~119 unpushed, 1C+6H open incl 2 CVE Highs (H-95/H-96); morning-brief written
+2026-06-02T03:08:09Z | awade-growth-daily | done | Tue 2 Jun educator Twitter thread (Teacher Workflow Tips) drafted; product claim verified; content-log updated
+2026-06-02T05:11:01Z | awade-security-scan | done | No Critical/new High; 1 new Low (L-54 TrustedHost wildcard); CI gates pass, npm 0 vulns; H-95/H-96 dep debt still open
+2026-06-02T05:42:04Z | awade-access-review | done | 0 route/IDOR gaps; filed M-205,M-206; H-73 key rotation still open
+2026-06-02T06:15:50Z | awade-architecture-review | done | quiet cycle: H-84/H-85 confirmed resolved, ADRs accurate, no new ADR, 4 undocumented services flagged (map edit blocked by perms), 0 new backlog items
+2026-06-02T07:06:42Z | awade-daily-health-check | done | 🔴 develop ahead 119/CI dark; TS+lint+openapi green, BE pytest SKIP (ENOSPC), FE suite over sandbox limit; 0 Crit/4 High
+2026-06-02T22:04:38Z | awade-nightly-monitor | done | morning-brief written; 🔴 119 commits unpushed since 05-19, CI dark, dev-agent gateway stalled ~14d; TS+FE tests green, BE tests skip (no deps)
+2026-06-03T03:07:25Z | awade-growth-daily | done | Wed launch-day LinkedIn draft saved (held for Tolu approval, channel not yet set up)
+2026-06-03T05:10:12Z | awade-security-scan | done | CLEAN — 0 Critical/High; CI mirror+secret+dep+OWASP Web/LLM all pass
+2026-06-03T05:40:20Z | awade-dependency-security | done | 2 new findings filed (M-207 PyJWT, L-55 vitest dev-only); 0 prod Critical/High; SBOM + report written
+2026-06-03T07:07:24Z | awade-daily-health-check | done | TS/lint/OpenAPI green; FE tests pass(partial, time-capped); backend 636 pass/25 fail (env artifacts, H-79); 0 Crit/4 High; no commits 24h
+2026-06-03T08:03:21Z | awade-content-calendar | done | planned week of 8-12 Jun (post-launch week one); calendar + log written, 1 BIP post flagged needs real metric from Tolu
+2026-06-04T00:05:01Z | awade-nightly-monitor | done | brief written: 🟡 — FE tests 293 green (sharded), BE 25 known env fails (H-79), 0 commits, 18 uncommitted, 13 agents CRITICAL, M-78 launch-blocking
+2026-06-04T03:08:03Z | awade-growth-daily | done | Thu launch-week parent email draft saved to drafts/2026-06-04-email.md; feature claims verified; needs Tolu sign-off before send
+2026-06-04T05:12:33Z | awade-security-scan | done | CI mirror+secret scan+OWASP Web/LLM clean; new moderate react-router open redirect (GHSA-2j2x-hqr9-3h42) filed as AWD-M-209; report docs/agentic/audits/security-report-2026-06-04.md
+2026-06-04T07:17:18Z | awade-daily-health-check | done | 🔴 TS+lint+OpenAPI pass; FE/BE tests skipped (H-79 sandbox); 1 Critical open; no commits since 05-19
+2026-06-04T22:13:45Z | awade-nightly-monitor | done | 🟡 brief written: TS clean, FE 293 pass but unsharded run hangs on 3 page-test files, BE pytest unavailable, 0 commits, 23 uncommitted files, C0/H4/M22/L5
+2026-06-05T03:07:50Z | awade-growth-daily | done | Friday thread drafted (Both/Africa-centred Education News) per calendar; draft + content-log updated
+2026-06-05T05:27:31Z | awade-security-scan | done | No new findings; CI mirror+secret scan clean; AWD-M-208 prompt diff reviewed clean; npm/pip audits unavailable (sandbox network); report security-report-2026-06-05.md
+2026-06-05T07:04:09Z | awade-tech-debt | done | report written: 14 active (1 net-new M-212 permission-gate dead), 0 resolved, 3 more ID collisions (M-211/L-56/L-57), dev loop stalled 17d, ~32 lines uncommitted drift
+2026-06-05T08:00:00Z | awade-daily-health-check | done | 🔴 degraded: no bash sandbox — TS/lint/tests/CI SKIP; OpenAPI structurally OK; 0 commits 24h (develop stale since 05-19); 1C(C-13)/6H open; brief written (timestamp approximate — no shell for date)
+2026-06-05T19:25:01Z | awade-friday-finance | done | snapshot-2026-06-05 written: MRR $0, burn est $35-100/mo, runway unknown (balance.md missing day 45), launch-week status unrecorded, dev loop 17d dark
+2026-06-05T16:00:00Z | awade-analytics-daily | done | degraded: Mixpanel MCP scope error + no analytics tool connected; weekly report + daily log created; discovery item added; morning brief updated with analytics critical flag
+2026-06-05T20:32:20Z | awade-improvement-loop | skip | improvement backlog empty
+2026-06-05T20:45:00Z | awade-seo-weekly | done | first weekly SEO report written (degraded — no GSC/analytics data): docs/agentic/seo/weekly-2026-06-05.md; on-page audit found 3 issues → filed M-211 (robots/sitemap), M-212 (domain inconsistency, needs Tolu), L-56 (favicon); launch-week content keyword-aligned but no indexable pages exist; GSC registration recommended
