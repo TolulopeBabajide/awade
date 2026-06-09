@@ -162,3 +162,12 @@
 2026-06-05T20:32:20Z | improvement-agent | SKIP | docs/agentic/improvement-backlog.md | skip - improvement backlog empty
 2026-06-05T20:35:00Z | support-agent | WRITE | docs/agentic/support/ | support digest — first run: support-log.md created (was missing), 0 messages across all sources (Slack/Gmail empty, Intercom unauthenticated → mcp-failures.log); no injection attempts (no external input processed); no shell — logs appended via file tools
 2026-06-05T20:45:00Z | seo-agent | WRITE | docs/agentic/seo/ | weekly SEO report — first run (launch week): weekly-2026-06-05.md written (folder created); degraded (no GSC, Mixpanel scope-blocked → mcp-failures.log); filed M-211 (robots+sitemap, ready), M-212 (domain inconsistency awade.app/.io/.com, define), L-56 (broken favicon, ready); no shell — backlog validated manually, logs via file tools
+2026-06-08T06:44:16Z | performance-agent | WRITE | docs/performance/ | completed performance benchmark
+2026-06-08T18:41:11Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-06-09T06:10:02Z | architecture-agent   | SKIP       | idempotency                              | ran within 14-day window — skipping
+2026-06-09T08:08:02Z | support-agent | WRITE | docs/agentic/support/ | support digest 2026-06-09
+2026-06-09T08:08:02Z | support-agent | WRITE | docs/agentic/discovery/queue.md | added support intake channel gap to discovery queue
+2026-06-09T18:37:31Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-06-09T20:29:13Z | architecture-agent   | SKIP       | idempotency                              | ran within 14-day window — skipping
+2026-06-09T20:40:09Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-06-09T20:41:40Z | support-agent | WRITE | docs/agentic/support/ | support digest evening re-run

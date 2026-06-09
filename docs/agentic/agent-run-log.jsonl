@@ -551,3 +551,23 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-06-05T16:00:00Z | awade-analytics-daily | done | degraded: Mixpanel MCP scope error + no analytics tool connected; weekly report + daily log created; discovery item added; morning brief updated with analytics critical flag
 2026-06-05T20:32:20Z | awade-improvement-loop | skip | improvement backlog empty
 2026-06-05T20:45:00Z | awade-seo-weekly | done | first weekly SEO report written (degraded — no GSC/analytics data): docs/agentic/seo/weekly-2026-06-05.md; on-page audit found 3 issues → filed M-211 (robots/sitemap), M-212 (domain inconsistency, needs Tolu), L-56 (favicon); launch-week content keyword-aligned but no indexable pages exist; GSC registration recommended
+2026-06-05T22:09:09Z | awade-nightly-monitor | done | brief written: 🟡 — TS ✅, FE tests 293 ✅ (4-shard), BE pytest SKIP (sandbox), tree dirty 16 files (M-208 + debris), 3 agents CRITICAL (security/depsec/marketing), 0C/4H/23M/6L open
+2026-06-06T09:04:50Z | awade-weekend-ops | done | retro-2026-06-06 + monday-prep written; week: 2 housekeeping commits, 0 issues closed, dev loop frozen 17d (tree dirty + M-208 uncommitted); launched 06-03 with no analytics/quota; grooming flagged ID collisions M-211/L-56/L-57 + DepSec sweep
+2026-06-07T22:04:45Z | awade-nightly-monitor | done | brief written: 🟡 — TS ✅, FE tests partial-pass (sandbox ENOSPC 97%), BE pytest SKIP (no venv), tree dirty 17 files (M-208 + test debris), 8 agents CRITICAL incl dev-agent/code-review (loop frozen ~18d), CI unknown (no gh), 0C/4H/23M/6L open
+2026-06-08T03:07:22Z | awade-growth-daily | done | Mon parent draft written (2026-06-08-twitter.md); BIP stat post held pending real number, swapped for parent-empowerment fallback
+2026-06-08T06:44:16Z | awade-performance-audit | done | benchmark-2026-06-08 written; bundle carried fwd (src unchanged, sandbox build incomplete); N+1=0; deps 30/9/22 unchanged; API unmeasured 5th wk; 0 backlog filed
+2026-06-08T07:27:58Z | awde-daily-health-check | done | brief written; OpenAPI valid, 0C/4H open, no commits 24h, dev-agent stalled since 06-05; tsc/lint/vitest/pytest not runnable in sandbox (H-79)
+2026-06-08T08:16:32Z | awade-weekly-review | done | review-2026-06-08 written (🔴 action required: dev loop frozen ~18d, launched w/o analytics; M-208 done-but-uncommitted; 0C/4H/23M/6L); morning-brief summary appended
+2026-06-08T08:33:14Z | awade-sprint-planning | done | sprint-2026-06-08 written; 7 ready items queued, dev loop blocked by dirty tree (AWD-M-208 uncommitted + debris)
+2026-06-08T18:41:11Z | awade-analytics-daily | done | degraded: Mixpanel scope error persists; daily-log.md updated; morning-brief.md updated with off-track note
+2026-06-08T22:44:58Z | awade-nightly-monitor | done | brief written: 🔴 action required — dev loop frozen ~18d (M-208 uncommitted, tree dirty); OpenAPI ✅, tsc/vitest/pytest not runnable in sandbox, CI unknown (no gh); 1C/4H/23M/6L open; 20/27 heartbeats CRITICAL incl dev-agent/code-review
+2026-06-09T03:07:43Z | awade-growth-daily | done | Educator Twitter/X thread (6 tweets) — Sunday-night prep ritual, Teacher Workflow Tips pillar, saved to drafts/2026-06-09-twitter.md
+2026-06-09T06:10:09Z | awade-architecture-review | skip | idempotency check fired — ran 10074m ago, window is 20160m (14 days)
+2026-06-09T07:08:09Z | awade-daily-health-check | done | TS✅ lint✅ fe-tests✅ be-tests🔴25fail openapi✅ 0C 4H open
+2026-06-09T08:08:02Z | awade-support-digest | done | second digest run: 0 support messages (support-log empty, Slack/Gmail empty, Intercom unauthenticated); digest-2026-06-09.md written; 1 queue addition (support intake channel); 2 setup gaps still pending for Tolu
+2026-06-09T18:37:31Z | awade-analytics-daily | done | degraded: no analytics MCP; daily-log.md appended; morning-brief updated with analytics off-track warning
+2026-06-09T20:27:25Z | awade-growth-daily | skip | Draft for 2026-06-09 already exists (educator Twitter/X thread on Sunday-night prep ritual) — no action taken
+2026-06-09T20:29:13Z | awade-architecture-review | skip | idempotency check fired — last run 10933m ago, window=20160m
+2026-06-09T20:30:30Z | awade-daily-health-check | done | TS pass, lint pass, 293 frontend tests pass, OpenAPI valid, 25 backend failures (existing), dirty tree since 2026-06-05
+2026-06-09T20:40:09Z | awade-analytics-daily | done | degraded — Mixpanel MCP scope error; appended daily-log entry; no live data; analytics dark day 6
+2026-06-09T20:41:40Z | awade-support-digest | done | evening re-run: 0 support messages; digest-2026-06-09.md updated (same-day second check confirms morning run accurate)
