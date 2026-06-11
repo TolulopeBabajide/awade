@@ -581,3 +581,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-06-10T22:03:09Z | awade-nightly-monitor | done | morning-brief written — 🔴 AWD-M-208 blocker day 5, TS clean, 36 open issues (H:1 M:11 L:24)
 2026-06-11T03:07:52Z | awade-growth-daily | done | Thu educator email: product spotlight — export step (PDF/DOCX), 2026-06-11-email.md
 2026-06-11T18:40:34Z | awade-analytics-daily | done | degraded: Mixpanel MCP scope error day 8; daily log + morning-brief updated
+2026-06-11T19:33:45Z | awade-dev-execution | skip | tree dirty day 8 — AWD-M-208 Tolu-gated WIP + 7 debris files; 3rd consecutive skip; sync pushed 673693f (origin current); sync.sh ignored-path bug noted; ready queue starved: M-207 M-209 M-211 L-56 L-57
