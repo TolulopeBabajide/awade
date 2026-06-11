@@ -171,3 +171,6 @@
 2026-06-09T20:29:13Z | architecture-agent   | SKIP       | idempotency                              | ran within 14-day window — skipping
 2026-06-09T20:40:09Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
 2026-06-09T20:41:40Z | support-agent | WRITE | docs/agentic/support/ | support digest evening re-run
+2026-06-10T05:40:43Z | dependency-security-agent | WRITE | docs/audits/ | completed dependency security scan 2026-06-10 — no new CVEs; all findings match existing open items (H-95, H-96, M-199, M-207, M-209, L-52, L-53, L-55)
+2026-06-10T18:37:22Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-06-11T18:40:34Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check

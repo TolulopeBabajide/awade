@@ -1,3 +1,4 @@
+2026-06-11T08:00:00Z | awade-daily-health-check | done | morning-brief written: 🔴 sandbox unavailable (day 6 ENOSPC) + AWD-M-208 dirty tree day 6; all shell checks blocked; last CI green 2026-06-05; C=1 H=5 M=~20 L=24 open; top actions: commit M-208 tree, then M-207+M-209 security patches
 2026-06-05T20:35:00Z | awade-support-digest | done | first digest run: 0 support messages (support-log.md created, Slack/Gmail empty, Intercom unauthenticated); digest-2026-06-05.md written; no queue additions; 2 setup gaps flagged for Tolu (no support intake channel; support-agent SKILL.md missing from repo)
 2026-05-18T00:00:00Z | awade-dev-execution | done | AWD-M-185 resolved: extracted _build_guide_ai_payload + _persist_guide helpers from generate_guide in children_service.py; CC 12→~5; 9 new tests; Tolu: git push origin develop
 2026-05-17T22:30:00Z | awade-dev-execution | done | AWD-M-178/H-92 commit shipped: 51d25ff on develop — LearningObjectiveService + TopicContentService extracted from curriculum_service.py; codebase-map updated; Tolu: git push origin develop
@@ -571,3 +572,12 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-06-09T20:30:30Z | awade-daily-health-check | done | TS pass, lint pass, 293 frontend tests pass, OpenAPI valid, 25 backend failures (existing), dirty tree since 2026-06-05
 2026-06-09T20:40:09Z | awade-analytics-daily | done | degraded — Mixpanel MCP scope error; appended daily-log entry; no live data; analytics dark day 6
 2026-06-09T20:41:40Z | awade-support-digest | done | evening re-run: 0 support messages; digest-2026-06-09.md updated (same-day second check confirms morning run accurate)
+2026-06-09T22:05:32Z | awade-nightly-monitor | done | morning-brief written: TS✅ FE-tests✅(293) BE-tests⚠️(skip/venv) CI⚠️(push-deferred) 14-uncommitted-files AWD-M-208-blocker-day5 9-agents-CRITICAL
+2026-06-10T03:07:29Z | awade-growth-daily | done | LinkedIn post drafted: BIP week-one WAU metric, 2026-06-10-linkedin.md
+2026-06-10T05:40:43Z | awade-dependency-security | done | no new CVEs; 8 open items unchanged; SBOM written; report docs/audits/dep-security-2026-06-10.md
+2026-06-10T07:13:01Z | awade-daily-health-check | done | TS✅ lint✅ fe-tests✅ openapi✅ — 0 critical, 5 high open; dev-agent blocked day 5 (AWD-M-208 Tolu-gated)
+2026-06-10T08:08:28Z | awade-content-calendar | done | content-calendar-2026-06-10.md written — Jun 15-20 week, 5 posts, pillars: Parent Empowerment / Curriculum Insights (NERDC) / BTS / Product Spotlight / Teacher Tips
+2026-06-10T18:37:22Z | awade-analytics-daily | done | degraded — no analytics MCP; daily-log.md appended; morning-brief.md updated with analytics warning
+2026-06-10T22:03:09Z | awade-nightly-monitor | done | morning-brief written — 🔴 AWD-M-208 blocker day 5, TS clean, 36 open issues (H:1 M:11 L:24)
+2026-06-11T03:07:52Z | awade-growth-daily | done | Thu educator email: product spotlight — export step (PDF/DOCX), 2026-06-11-email.md
+2026-06-11T18:40:34Z | awade-analytics-daily | done | degraded: Mixpanel MCP scope error day 8; daily log + morning-brief updated
