@@ -549,7 +549,7 @@ When adding a new issue, use this format:
 | ID | Issue | Stage | 
 |----|-------|-------|
 | H-79 | Tooling / QA | Set up venv + pytest in QA sandbox; free disk space for frontend tests | — | M | discover |
-| M-210 | Security / DepSec | DepSec: psycopg2-binary 2.9.9 → 2.9.12 (3 patch versions behind, no published CVEs but out of date) — patch command: update requirements.txt to `psycopg2-binary==2.9.12`. Filed by dependency-security-agent 2026-05-20. Renumbered from duplicate ID M-154 during backlog-format cleanup 2026-06-05. | `apps/backend/requirements.txt` | XS | ready |
+~~| M-210 | Security / DepSec | DepSec: psycopg2-binary 2.9.9 → 2.9.12 (3 patch versions behind, no published CVEs but out of date) — patch command: update requirements.txt to `psycopg2-binary==2.9.12`. Filed by dependency-security-agent 2026-05-20. Renumbered from duplicate ID M-154 during backlog-format cleanup 2026-06-05. **Resolved 2026-06-12** (commit 585b38d, merge 9c25112). Updated requirements.txt psycopg2-binary 2.9.9→2.9.12. TS ✅ · lint ✅ · openapi.json ✅ · mcp.json ✅. Push deferred (sandbox). | `apps/backend/requirements.txt` | XS | done |~~
 
 
 ~~| M-172 | Duplication | `get_data_export` inline json.loads blocks replaced with _parse_json_list. | `apps/backend/services/user_service.py` | XS | **done 2026-05-17** |~~
