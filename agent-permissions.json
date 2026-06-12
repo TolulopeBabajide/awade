@@ -337,10 +337,12 @@
         "apps/backend/**",
         "apps/frontend/**",
         "packages/**",
-        "docs/agentic/backlog.md"
+        "docs/agentic/backlog.md",
+        "docs/tech-debt/**"
       ],
       "writes": [
         "docs/agentic/backlog.md",
+        "docs/tech-debt/**",
         ".agent-health/tech-debt-agent.last-run"
       ],
       "forbidden": [

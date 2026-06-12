@@ -43,16 +43,21 @@ manifest_path = sys.argv[3]
 with open(manifest_path) as f:
     manifest = json.load(f)
 
-if agent not in manifest:
+agents = manifest.get("agents", manifest)
+if agent not in agents:
     print(f"[check-permissions] DENY: agent '{agent}' not found in manifest", file=sys.stderr)
     sys.exit(2)
 
-write_list = manifest[agent].get("write", [])
+write_list = agents[agent].get("writes", agents[agent].get("write", []))
 
 # Allowed if target equals a permitted path exactly, or is inside a permitted directory.
-# The unbounded startswith(allowed) check is intentionally absent — it would allow
-# prefix-sibling paths (e.g. docs/agentic/specs-evil matching docs/agentic/specs).
+# Glob suffixes (/** or /*) are stripped to their directory prefix before comparison so
+# that "docs/tech-debt/**" matches "docs/tech-debt/report.md" without a startswith that
+# could match sibling prefixes (e.g. docs/agentic/specs-evil vs docs/agentic/specs).
 for allowed in write_list:
+    # Strip trailing glob components before normalization
+    if allowed.endswith("/**") or allowed.endswith("/*"):
+        allowed = allowed.rsplit("/", 1)[0]
     allowed = os.path.normpath(allowed.rstrip("/"))
     if target == allowed or target.startswith(allowed + "/"):
         print(f"[check-permissions] ALLOW: '{target}' permitted for {agent}")
