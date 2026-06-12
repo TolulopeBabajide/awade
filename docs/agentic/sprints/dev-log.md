@@ -735,3 +735,4 @@ After removing it, the next hourly run will:
 2026-06-12T12:13:22Z | AWD-H-97 | Remove 10 empty stale git ref files in .git/refs/heads/ (git log --all was fatal: bad object); rm 6 debris untracked files; git rm empty test_auth_flow_security.py; tree now clean for branching | no code commit | ✅ Done | CI:N/A (infra fix)
 2026-06-12T12:15:59Z | AWD-M-209 | Patch react-router→6.30.4, vitest, ws via npm audit fix — resolves 3 moderate + 3 critical CVEs, 0 vulnerabilities remaining | 373af98 | ✅ Done | CI:pending
 | 2026-06-12T13:13:00Z | AWD-M-215 | fix sync.sh: stage paths individually, skip gitignored | a9d6433, merge c40b080 | ✅ Done | CI:pending — 2 commits ahead of origin (push blocked by sandbox permissions; Tolu: run git push origin develop) |
+2026-06-12T16:15:00Z | AWD-M-213 | fix check-permissions.sh schema mismatch and glob matching | 81022c7 | ✅ Done | CI:pending
