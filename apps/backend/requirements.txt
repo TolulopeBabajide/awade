@@ -4,7 +4,7 @@ fastapi==0.115.12  # Upgraded from 0.109.2 — patches CVE-2024-24762 (DoS via m
 uvicorn[standard]==0.34.0  # Upgraded from 0.27.1 — 7 minor security hardening releases (AWD-M-64)
 pydantic==2.10.6  # Upgraded from 2.6.4 — 4 minor versions of security hardening; covers CVE-2024-3772 (ReDoS in email validation, patched at 2.6.2) and further hardening in 2.7–2.10 (AWD-M-151)
 sqlalchemy==2.0.41  # Upgraded from 2.0.29 — 12 patch releases of ORM correctness fixes and minor security hardening (AWD-M-152)
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.12  # Patched 3 versions (2.9.9→2.9.12) — no published CVEs, maintenance patch (AWD-M-210)
 python-dotenv==1.2.2  # Fix CVE-2026-28684 (symlink following in set_key) (AWD-M-115)
 openai==1.109.1  # Upgraded from 1.12.0 — latest 1.x, stays below 2.x (breaking API changes); security patches (AWD-M-39)
 
