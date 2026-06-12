@@ -180,3 +180,5 @@
 2026-06-12T15:20:06Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
 2026-06-12T15:23:20Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-12-81022c7.md | completed structural code review
 2026-06-12T16:18:55Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-12T17:20:41Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-12T17:20:41Z | code-review-agent    | SKIP       | review                                   | no reviewable application files in commit 6d5eb45 — only generated index and audit log changed
