@@ -177,3 +177,5 @@
 2026-06-12T06:36:50Z | tech-debt-agent | WRITE | docs/tech-debt/ | completed tech debt audit; filed 14 backlog rows (M-213/214/215, M-119-125, L-58-61); permission-check exit-2 overridden as known M-213 false negative
 2026-06-12T11:24:45Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — AWD-M-208 NERDC pedagogy integration
 2026-06-12T12:25:29Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-12T15:20:06Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-12T15:23:20Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-12-81022c7.md | completed structural code review
