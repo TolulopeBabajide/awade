@@ -705,6 +705,8 @@ class TestAssertUserAccessM173:
 
     def _make_user(self, user_id: int, role: UserRole) -> User:
         """Build an unsaved User stub with the given id and role."""
+        from sqlalchemy.orm import configure_mappers
+        configure_mappers()
         u = User.__new__(User)
         u.user_id = user_id
         u.role = role
