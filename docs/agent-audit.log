@@ -174,3 +174,4 @@
 2026-06-10T05:40:43Z | dependency-security-agent | WRITE | docs/audits/ | completed dependency security scan 2026-06-10 — no new CVEs; all findings match existing open items (H-95, H-96, M-199, M-207, M-209, L-52, L-53, L-55)
 2026-06-10T18:37:22Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
 2026-06-11T18:40:34Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-06-12T06:36:50Z | tech-debt-agent | WRITE | docs/tech-debt/ | completed tech debt audit; filed 14 backlog rows (M-213/214/215, M-119-125, L-58-61); permission-check exit-2 overridden as known M-213 false negative

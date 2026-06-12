@@ -459,6 +459,9 @@ class TestBuildGuideAIPayloadM185:
         curriculum_title="Nigerian Curriculum",
         objectives=None,
         contents=None,
+        student_activities=None,
+        teaching_materials=None,
+        evaluation_guide=None,
     ):
         cs = MagicMock()
         cs.subject.name = subject
@@ -476,6 +479,19 @@ class TestBuildGuideAIPayloadM185:
         c1 = MagicMock()
         c1.content_area = contents[0] if contents else "Introduction to fractions"
         topic.topic_contents = [c1]
+
+        # NERDC pedagogy collections (AWD-M-208)
+        def _items(values, field):
+            mocks = []
+            for value in values or []:
+                m = MagicMock()
+                setattr(m, field, value)
+                mocks.append(m)
+            return mocks
+
+        topic.student_activities = _items(student_activities, "activity")
+        topic.teaching_learning_materials = _items(teaching_materials, "material")
+        topic.evaluation_guides = _items(evaluation_guide, "guide_item")
         return topic
 
     def _mock_child(self, country_name="Nigeria"):
@@ -493,7 +509,32 @@ class TestBuildGuideAIPayloadM185:
         assert set(payload.keys()) == {
             "subject", "grade", "topic", "country", "curriculum",
             "objectives", "contents",
+            "student_activities", "teaching_learning_materials", "evaluation_guide",
         }
+
+    def test_payload_includes_pedagogy_fields(self):
+        """AWD-M-208: NERDC pedagogy collections flow into the AI payload."""
+        svc = ChildrenService(db=MagicMock())
+        topic = self._mock_topic(
+            student_activities=["Group counting game", "Sort objects by size"],
+            teaching_materials=["Counters", "Chart of shapes"],
+            evaluation_guide=["Ask the child to name three shapes"],
+        )
+        payload = svc._build_guide_ai_payload(self._mock_child(), topic)
+
+        assert payload["student_activities"] == [
+            "Group counting game", "Sort objects by size",
+        ]
+        assert payload["teaching_learning_materials"] == ["Counters", "Chart of shapes"]
+        assert payload["evaluation_guide"] == ["Ask the child to name three shapes"]
+
+    def test_payload_pedagogy_fields_default_empty(self):
+        """Topics imported before AWD-M-208 have no pedagogy rows — payload stays valid."""
+        svc = ChildrenService(db=MagicMock())
+        payload = svc._build_guide_ai_payload(self._mock_child(), self._mock_topic())
+        assert payload["student_activities"] == []
+        assert payload["teaching_learning_materials"] == []
+        assert payload["evaluation_guide"] == []
 
     def test_payload_values_match_topic_and_child(self):
         svc = ChildrenService(db=MagicMock())

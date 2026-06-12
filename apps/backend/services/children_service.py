@@ -476,6 +476,9 @@ class ChildrenService:
         country_name = child.country.country_name if child.country else "Nigeria"
         objectives = [obj.objective for obj in topic.learning_objectives]
         contents = [c.content_area for c in topic.topic_contents]
+        student_activities = [a.activity for a in topic.student_activities]
+        teaching_materials = [m.material for m in topic.teaching_learning_materials]
+        evaluation_guide = [e.guide_item for e in topic.evaluation_guides]
         return {
             "subject": subject_name,
             "grade": grade_name,
@@ -484,6 +487,9 @@ class ChildrenService:
             "curriculum": curriculum_title,
             "objectives": objectives,
             "contents": contents,
+            "student_activities": student_activities,
+            "teaching_learning_materials": teaching_materials,
+            "evaluation_guide": evaluation_guide,
         }
 
     def _persist_guide(self, child_id: int, topic_id: int, ai_content: str) -> ParentGuide:
@@ -563,6 +569,9 @@ class ChildrenService:
                 joinedload(Topic.curriculum_structure).joinedload(CurriculumStructure.grade_level),
                 joinedload(Topic.learning_objectives),
                 joinedload(Topic.topic_contents),
+                joinedload(Topic.student_activities),
+                joinedload(Topic.teaching_learning_materials),
+                joinedload(Topic.evaluation_guides),
             )
             .filter(Topic.topic_id == topic_id)
             .first()

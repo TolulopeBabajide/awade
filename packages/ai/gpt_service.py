@@ -572,10 +572,18 @@ class AwadeGPTService:
         curriculum: str,
         objectives: List[str],
         contents: Optional[List[str]] = None,
+        student_activities: Optional[List[str]] = None,
+        teaching_learning_materials: Optional[List[str]] = None,
+        evaluation_guide: Optional[List[str]] = None,
         model_tier: str = "standard",
     ) -> tuple[str, bool]:
         """
         Generate a 'How to Help' guide for a parent using the PARENT_HELPER_PROMPT.
+
+        The optional ``student_activities``, ``teaching_learning_materials`` and
+        ``evaluation_guide`` lists carry the NERDC pedagogy fields. They are
+        provided to the model as *inspiration* for home activities, materials
+        and understanding-checks — never reproduced verbatim as classroom plans.
 
         Returns:
             tuple[str, bool]: (JSON string of the guide, whether validation passed)
@@ -587,6 +595,18 @@ class AwadeGPTService:
             contents_str = (
                 ", ".join(contents) if contents
                 else "General topic content"
+            )
+            student_activities_str = (
+                ", ".join(student_activities) if student_activities
+                else "Not specified — suggest your own age-appropriate activities"
+            )
+            teaching_materials_str = (
+                ", ".join(teaching_learning_materials) if teaching_learning_materials
+                else "Everyday household items"
+            )
+            evaluation_str = (
+                ", ".join(evaluation_guide) if evaluation_guide
+                else "Ask the child to explain the idea in their own words"
             )
 
             # Pre-format: sanitise each curriculum field individually before
@@ -600,6 +620,9 @@ class AwadeGPTService:
                 "curriculum": self._sanitize_input(curriculum),
                 "learning_objectives": self._sanitize_input(objectives_str),
                 "contents": self._sanitize_input(contents_str),
+                "student_activities": self._sanitize_input(student_activities_str),
+                "teaching_materials": self._sanitize_input(teaching_materials_str),
+                "evaluation_methods": self._sanitize_input(evaluation_str),
             }
 
             prompt = PARENT_HELPER_PROMPT.format(**prompt_params)
