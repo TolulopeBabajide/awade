@@ -740,3 +740,4 @@ After removing it, the next hourly run will:
 | 2026-06-12T19:07:00Z | AWD-M-211 | feat(seo): add robots.txt and sitemap.xml | e560b88, merge develop | ✅ Done | CI:pending |
 2026-06-12T19:04:08Z | M-210 | psycopg2-binary 2.9.9→2.9.12 patch | 585b38d | ✅ Done | CI:pending
 2026-06-12T20:35:36Z | AWD-L-57 | Fix TestAssertUserAccessM173 SQLAlchemy mapper order-dependency | b5765e8 | ✅ Done | CI:pending
+2026-06-12T22:06:27Z | AWD-L-52 | fix pytest 8.3.5→9.0.3 (CVE-2025-71176) + pytest-asyncio 0.23.8→1.3.0 | c0c7913, merge 04ee3c4 | ✅ Done | CI:pending (push deferred, Tolu: `git push origin develop`)
