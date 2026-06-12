@@ -64,7 +64,13 @@ case "$cmd" in
     if [ "$#" -eq 0 ]; then
       echo "sync: push needs at least one path (stage specific paths — never git add -A)"; exit 1
     fi
-    git add -- "$@" || { echo "sync: git add failed"; exit 1; }
+    for _p in "$@"; do
+      if git check-ignore -q -- "$_p" 2>/dev/null; then
+        echo "sync: skipping gitignored path: $_p"
+      else
+        git add -- "$_p" || { echo "sync: git add failed for $_p"; exit 1; }
+      fi
+    done
 
     if git diff --cached --quiet; then
       # Nothing to commit — still sync down so the tree starts current.
