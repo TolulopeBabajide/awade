@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 try:
     from weasyprint import HTML, CSS
     WEASYPRINT_AVAILABLE = True
-except ImportError:
+except (ImportError, OSError):
     WEASYPRINT_AVAILABLE = False
     logger.warning("WeasyPrint not available — PDF generation will be disabled.")
 
