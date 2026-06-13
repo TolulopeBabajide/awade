@@ -78,9 +78,24 @@ def db_session():
 
 @pytest.fixture()
 def http_client(db_session):
-    """TestClient wired to the in-memory SQLite DB."""
+    """TestClient wired to the in-memory SQLite DB.
+
+    Creates a fresh session per HTTP request from the same engine so that each
+    request runs its SQLAlchemy session entirely within the ASGI thread —
+    avoiding the cross-thread session sharing that caused Python 3.10 CI
+    failures (AWD-H-108).  db_session is kept for test-thread seeding only;
+    committed data is visible to request sessions via the shared StaticPool
+    connection.
+    """
+    engine = db_session.get_bind()
+    _RequestSession = sessionmaker(bind=engine, autocommit=False, autoflush=False)
+
     def _override_db():
-        yield db_session
+        session = _RequestSession()
+        try:
+            yield session
+        finally:
+            session.close()
 
     app.dependency_overrides[get_db] = _override_db
     with TestClient(app) as client:
