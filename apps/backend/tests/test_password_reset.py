@@ -18,6 +18,7 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 
 from apps.backend.main import app
 from apps.backend.database import get_db
@@ -33,6 +34,7 @@ def _make_engine():
     engine = create_engine(
         "sqlite:///:memory:",
         connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
     )
     # Enable FK enforcement so cascades are exercised.
     @event.listens_for(engine, "connect")
