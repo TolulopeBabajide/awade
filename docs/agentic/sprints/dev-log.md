@@ -743,3 +743,4 @@ After removing it, the next hourly run will:
 2026-06-12T22:06:27Z | AWD-L-52 | fix pytest 8.3.5→9.0.3 (CVE-2025-71176) + pytest-asyncio 0.23.8→1.3.0 | c0c7913, merge 04ee3c4 | ✅ Done | CI:pending (push deferred, Tolu: `git push origin develop`)
 2026-06-13T03:05Z | L-58 | test(metrics): remove stale mock shim + conditional skip from test_metrics.py | 8b23be2 | ✅ Done | CI:pending
 2026-06-13T03:06:05Z | L-59 | Remove orphan skip-stub test files | de55eb7 | ✅ Done | CI:pending
+2026-06-13T05:03:00Z | AWD-C-15 | Backend CI tests NEVER run — add postgres service + DATABASE_URL to backend-test job | d88d0f6 | ✅ Done | CI:pending (push deferred)
