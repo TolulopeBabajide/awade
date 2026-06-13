@@ -1706,3 +1706,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | 2026-06-13 | AWD-H-100 | fix(tests): replace first_name/last_name/is_active with full_name/is_suspended in GRC-09 audit-log test _make_user() — 4 tests now pass. Commit 39b9167, merge 08d1a67. |
 | 2026-06-13 | AWD-M-229 | test(curriculum): fix UNION ALL execute count — replaced Session.execute() monkey-patch with before_cursor_execute engine event listener. Commit 958a561, merge cf287b3. |
 | 2026-06-13 | AWD-M-219 | Verified absent — User(first_name=...) not present in test_curriculum_structure_router.py; filed in error by QA agent. No code change needed. |
+| 2026-06-13 | AWD-H-107 | test(curriculum): cache FK IDs as plain ints before before_cursor_execute listener — prevents expired ORM attribute refreshes from inflating data-statement count. Commit 5c7432e. |
