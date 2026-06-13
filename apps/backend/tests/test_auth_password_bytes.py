@@ -127,9 +127,9 @@ class TestUserCreatePasswordBytesValidator:
         """Registration with a 73-ASCII-byte password must return 422 (schema
         rejection) rather than reaching bcrypt and returning 500."""
         payload = {**self._BASE_PAYLOAD, "password": self._OVERLONG_ASCII}
-        response = client.post("/api/auth/register", json=payload)
+        response = client.post("/api/auth/signup", json=payload)
         assert response.status_code == 422, (
-            f"Expected 422 for overlong ASCII password at /register, "
+            f"Expected 422 for overlong ASCII password at /signup, "
             f"got {response.status_code}: {response.text}"
         )
         assert response.status_code != 500, (
@@ -140,9 +140,9 @@ class TestUserCreatePasswordBytesValidator:
         """Registration with a multi-byte password whose UTF-8 encoding exceeds
         72 bytes must be rejected at schema validation (HTTP 422)."""
         payload = {**self._BASE_PAYLOAD, "password": self._OVERLONG_UNICODE}
-        response = client.post("/api/auth/register", json=payload)
+        response = client.post("/api/auth/signup", json=payload)
         assert response.status_code == 422, (
-            f"Expected 422 for overlong unicode password at /register, "
+            f"Expected 422 for overlong unicode password at /signup, "
             f"got {response.status_code}: {response.text}"
         )
 
@@ -151,7 +151,7 @@ class TestUserCreatePasswordBytesValidator:
         pass schema validation — response should be 200 or 409 (duplicate email),
         never 422 or 500."""
         payload = {**self._BASE_PAYLOAD, "password": self._BOUNDARY_ASCII}
-        response = client.post("/api/auth/register", json=payload)
+        response = client.post("/api/auth/signup", json=payload)
         assert response.status_code not in (422, 500), (
             f"72-byte password must not be rejected by schema or crash bcrypt "
             f"(AWD-M-72), got {response.status_code}: {response.text}"
@@ -160,7 +160,7 @@ class TestUserCreatePasswordBytesValidator:
     def test_register_overlong_password_returns_422_not_500(self, client):
         """Regression guard: a password > 72 bytes must yield 422, not 500."""
         payload = {**self._BASE_PAYLOAD, "password": "X" * 100}
-        response = client.post("/api/auth/register", json=payload)
+        response = client.post("/api/auth/signup", json=payload)
         assert response.status_code == 422, (
             f"Overlong password must yield 422, not {response.status_code} (AWD-M-72 regression guard)"
         )

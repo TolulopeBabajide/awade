@@ -111,7 +111,7 @@ class TestPasswordMaxLengthUpperBoundCap:
         monkeypatch.setenv("PASSWORD_MAX_LENGTH", "200")
 
         response = client.post(
-            "/api/auth/register",
+            "/api/auth/signup",
             json={
                 "email": "newuser_h70@example.com",
                 "password": "A" * 73,
