@@ -51,10 +51,9 @@ def _make_user(db, email="admin@example.com", role=UserRole.ADMIN):
     user = User(
         email=email,
         password_hash="hashed",
-        first_name="Admin",
-        last_name="User",
+        full_name="Admin User",
         role=role,
-        is_active=True,
+        is_suspended=0,
     )
     db.add(user)
     db.commit()
