@@ -744,3 +744,4 @@ After removing it, the next hourly run will:
 2026-06-13T03:05Z | L-58 | test(metrics): remove stale mock shim + conditional skip from test_metrics.py | 8b23be2 | ✅ Done | CI:pending
 2026-06-13T03:06:05Z | L-59 | Remove orphan skip-stub test files | de55eb7 | ✅ Done | CI:pending
 2026-06-13T05:03:00Z | AWD-C-15 | Backend CI tests NEVER run — add postgres service + DATABASE_URL to backend-test job | d88d0f6 | ✅ Done | CI:pending (push deferred)
+| 2026-06-13T06:10:00Z | AWD-H-99 | Fix 4 backend tests using /register instead of /signup | 56aff27 | ✅ Done | CI:pending |
