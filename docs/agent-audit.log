@@ -196,3 +196,5 @@
 2026-06-13T05:21:51Z | code-review-agent    | WRITE      | docs/private/code-reviews-archive/       | completed structural code review — archive write denied, review logged to audit trail
 2026-06-13T06:32:24Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-13-c10ed3c.md | completed structural code review — verdict ✅ Clean, M-220 filed
 2026-06-13T07:35:55Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-13-3c240e6.md | completed structural code review — AWD-H-103 fix clean, AWD-M-221 filed
+2026-06-13T08:26:11Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-13T08:34:28Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-13-bec9c8c.md | completed structural code review — AWD-H-103 fix reviewed, M-222 filed
