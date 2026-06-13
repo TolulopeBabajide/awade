@@ -489,14 +489,14 @@ class TestGetDataExportM176:
             svc.db = Mock()
             current_user = Mock()
             current_user.user_id = 1
-            current_user.role = "EDUCATOR"
+            current_user.role = UserRole.EDUCATOR
 
             # Stub DB queries to return minimal objects
             user_mock = Mock()
             user_mock.user_id = 1
             user_mock.email = "test@example.com"
             user_mock.name = "Test"
-            user_mock.role = "EDUCATOR"
+            user_mock.role = UserRole.EDUCATOR
             user_mock.subjects = None
             user_mock.grade_levels = None
             user_mock.created_at = datetime(2026, 1, 1, tzinfo=timezone.utc)

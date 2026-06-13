@@ -132,7 +132,7 @@ class TestGenerateGuideIdempotency:
             resp = c.post("/api/children/5/guides/generate?topic_id=7")
             MockAI.assert_not_called()
 
-        assert resp.status_code == 200
+        assert resp.status_code == 201
         assert resp.json()["guide_id"] == 20
 
 
