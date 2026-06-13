@@ -39,10 +39,13 @@ class TestAuthService:
             "_SELF_REGISTERABLE_ROLES must be a frozenset to prevent accidental mutation"
         )
 
-        # Must contain exactly the two self-registerable roles
-        assert _SELF_REGISTERABLE_ROLES == frozenset({UserRole.PARENT, UserRole.EDUCATOR}), (
-            "_SELF_REGISTERABLE_ROLES must contain exactly PARENT and EDUCATOR"
-        )
+        # Must contain exactly the two self-registerable roles.
+        # Use value-based comparison to avoid cross-module enum identity failures
+        # (conftest.py adds both repo root and apps/backend to sys.path, producing
+        # two distinct UserRole enum classes that are not == even for same members).
+        assert {r.value for r in _SELF_REGISTERABLE_ROLES} == {
+            UserRole.PARENT.value, UserRole.EDUCATOR.value
+        }, "_SELF_REGISTERABLE_ROLES must contain exactly PARENT and EDUCATOR"
 
         # ADMIN and SUPER_ADMIN must NOT be in the set
         assert UserRole.ADMIN not in _SELF_REGISTERABLE_ROLES
