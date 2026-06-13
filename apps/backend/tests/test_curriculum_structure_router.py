@@ -118,6 +118,13 @@ class TestValidateFkTargetsBatch:
         housekeeping (autobegin, SAVEPOINT, PRAGMA) that inflated the count
         when patching ``Session.execute`` directly (AWD-M-229).
         """
+        # Cache IDs as plain ints before registering the listener — accessing
+        # expired ORM attributes inside the listener window triggers individual
+        # SELECT refreshes that inflate the data-statement count (AWD-H-107).
+        c_id = sample_curriculum.curricula_id
+        g_id = sample_grade_level.grade_level_id
+        s_id = sample_subject.subject_id
+
         engine = test_db.get_bind()
         statements: list[str] = []
 
@@ -128,9 +135,9 @@ class TestValidateFkTargetsBatch:
         try:
             _validate_fk_targets(
                 test_db,
-                curricula_id=sample_curriculum.curricula_id,
-                grade_level_id=sample_grade_level.grade_level_id,
-                subject_id=sample_subject.subject_id,
+                curricula_id=c_id,
+                grade_level_id=g_id,
+                subject_id=s_id,
             )
         finally:
             sa_event.remove(engine, "before_cursor_execute", _record)
