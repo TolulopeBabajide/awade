@@ -1701,3 +1701,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | 2026-06-13 | AWD-H-102 | fix(ci): add .gitignore exception for populate_nerdc_curriculum.py + track file; pytest can now collect test_nerdc_importer.py without ModuleNotFoundError. Commit 24c6875, merge 492d41b. |
 | 2026-06-13 | AWD-H-103 | fix(testing): replace User.__new__(User) with MagicMock(spec=User) in TestAssertUserAccessM173._make_user — 5 tests now pass, 36 in test_users_router.py green. Commit 0f64d90, merge on develop. |
 | 2026-06-13 | H-105 | Fix pytz import in test_security.py | 66668bc | dev-agent |
+| 2026-06-13 | AWD-H-106 | test(auth): use value-based enum comparison in roles constant test — avoids cross-module enum identity failure caused by dual sys.path in conftest.py. Commit c14e004. |
