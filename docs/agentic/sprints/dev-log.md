@@ -750,3 +750,4 @@ After removing it, the next hourly run will:
 | 2026-06-13T00:00:00Z | AWD-H-105 | Fix pytz import in test_security.py | 66668bc, merge 0608b1c | ✅ Done | CI:pending (Tolu: `git push origin develop`) | Replaced `import datetime, pytz` with `import datetime` and `datetime.datetime.now(pytz.UTC)` with `datetime.datetime.now(datetime.timezone.utc)` in `test_security.py:396/405`. pytz not in requirements.txt — caused ModuleNotFoundError in CI Python 3.10 for TestGoogleOAuthRoleWhitelist. Python syntax ✅ · TS 0 errors · lint 0 errors. |
 | 2026-06-13T12:30Z | H-106 | test(auth): value-based enum comparison in roles constant test | c14e004 | ✅ Done | CI:pending |
 2026-06-13T13:04Z | H-101 | ci(backend-test): AWD-H-101 install WeasyPrint system libs before pip | 27911e5 | ✅ Done | CI:pending
+2026-06-13T13:04:27Z | H-100 | Fix GRC-09 audit-log tests: invalid User model fields | 39b9167 | ✅ Done | CI:pending
