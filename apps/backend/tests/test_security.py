@@ -393,7 +393,7 @@ class TestGoogleOAuthRoleWhitelist:
         from unittest.mock import patch
         from apps.backend.services.auth_service import AuthService
         from apps.backend.models import User, UserRole
-        import datetime, pytz
+        import datetime
 
         existing_email = "existing_admin@example.com"
         existing_user = User(
@@ -402,7 +402,7 @@ class TestGoogleOAuthRoleWhitelist:
             full_name="Existing Admin",
             role=UserRole.ADMIN,  # already elevated in DB (set by a SUPER_ADMIN, not self-assigned)
             country="",
-            created_at=datetime.datetime.now(pytz.UTC),
+            created_at=datetime.datetime.now(datetime.timezone.utc),
         )
         test_db.add(existing_user)
         test_db.commit()
