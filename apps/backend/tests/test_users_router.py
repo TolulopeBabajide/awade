@@ -31,6 +31,7 @@ Verifies that:
 import pytest
 import jwt
 from datetime import datetime, timedelta, timezone
+from unittest.mock import MagicMock
 
 from sqlalchemy import event
 
@@ -703,11 +704,9 @@ class TestAssertUserAccessM173:
         from apps.backend.services.user_service import UserService
         return UserService(test_db)
 
-    def _make_user(self, user_id: int, role: UserRole) -> User:
-        """Build an unsaved User stub with the given id and role."""
-        from sqlalchemy.orm import configure_mappers
-        configure_mappers()
-        u = User.__new__(User)
+    def _make_user(self, user_id: int, role: UserRole) -> MagicMock:
+        """Build a User stub with the given id and role (MagicMock avoids SA init)."""
+        u = MagicMock(spec=User)
         u.user_id = user_id
         u.role = role
         return u
