@@ -1699,3 +1699,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | 2026-06-13 | AWD-C-15 | fix(ci): add postgres service block and DATABASE_URL env var to backend-test job; remove || echo fallback so failures surface. Backend tests now actually run in CI. Commit d88d0f6. |
 | 2026-06-13 | AWD-H-99 | test(auth): fix 4 tests using /api/auth/register (404) — replaced with /api/auth/signup. All 25 tests in test_auth_password_bytes.py + test_auth_password_config.py pass. Commit 56aff27, merge 65f50e4. |
 | 2026-06-13 | AWD-H-102 | fix(ci): add .gitignore exception for populate_nerdc_curriculum.py + track file; pytest can now collect test_nerdc_importer.py without ModuleNotFoundError. Commit 24c6875, merge 492d41b. |
+| 2026-06-13 | AWD-H-103 | fix(testing): replace User.__new__(User) with MagicMock(spec=User) in TestAssertUserAccessM173._make_user — 5 tests now pass, 36 in test_users_router.py green. Commit 0f64d90, merge on develop. |
