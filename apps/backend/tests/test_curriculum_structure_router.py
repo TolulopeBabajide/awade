@@ -12,6 +12,7 @@ Author: Lead Dev Agent (AWD-M-63)
 
 import pytest
 from fastapi import HTTPException
+from sqlalchemy import event as sa_event
 
 from apps.backend.routers.curriculum_structure import _validate_fk_targets
 
@@ -110,26 +111,20 @@ class TestValidateFkTargetsBatch:
         sample_grade_level,
         sample_subject,
     ):
-        """The helper issues a single ``execute()`` call (UNION ALL), not three.
+        """The helper issues a single SQL UNION ALL statement, not three.
 
-        We instrument ``Session.execute`` and ``Session.query`` and assert the
-        helper does not fall back to per-table queries.
+        Uses ``before_cursor_execute`` engine events to count actual SQL
+        statements sent to the DB driver — correctly ignoring session-level
+        housekeeping (autobegin, SAVEPOINT, PRAGMA) that inflated the count
+        when patching ``Session.execute`` directly (AWD-M-229).
         """
-        execute_calls = {"count": 0}
-        query_calls = {"count": 0}
-        real_execute = test_db.execute
-        real_query = test_db.query
+        engine = test_db.get_bind()
+        statements: list[str] = []
 
-        def counting_execute(*args, **kwargs):
-            execute_calls["count"] += 1
-            return real_execute(*args, **kwargs)
+        def _record(conn, cursor, statement, parameters, context, executemany):
+            statements.append(statement)
 
-        def counting_query(*args, **kwargs):
-            query_calls["count"] += 1
-            return real_query(*args, **kwargs)
-
-        test_db.execute = counting_execute  # type: ignore[method-assign]
-        test_db.query = counting_query  # type: ignore[method-assign]
+        sa_event.listen(engine, "before_cursor_execute", _record)
         try:
             _validate_fk_targets(
                 test_db,
@@ -138,13 +133,17 @@ class TestValidateFkTargetsBatch:
                 subject_id=sample_subject.subject_id,
             )
         finally:
-            test_db.execute = real_execute  # type: ignore[method-assign]
-            test_db.query = real_query  # type: ignore[method-assign]
+            sa_event.remove(engine, "before_cursor_execute", _record)
 
-        assert execute_calls["count"] == 1, (
-            f"AWD-M-63 expects 1 UNION ALL execute(); got {execute_calls['count']}"
+        # Exclude transaction-management statements from the count.
+        _TXN_PREFIXES = ("BEGIN", "SAVEPOINT", "RELEASE", "ROLLBACK", "PRAGMA", "COMMIT")
+        data_stmts = [
+            s for s in statements
+            if not s.strip().upper().startswith(_TXN_PREFIXES)
+        ]
+        assert len(data_stmts) == 1, (
+            f"AWD-M-63 expects 1 UNION ALL execute(); got {len(data_stmts)}: {data_stmts}"
         )
-        assert query_calls["count"] == 0, (
-            "AWD-M-63 helper must not fall back to db.query(); "
-            f"got {query_calls['count']} db.query() calls"
+        assert "UNION ALL" in data_stmts[0].upper(), (
+            f"AWD-M-63 expects a UNION ALL query; got: {data_stmts[0]}"
         )
