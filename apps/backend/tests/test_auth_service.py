@@ -89,6 +89,7 @@ class TestAuthService:
             password="ValidPass1!",
             full_name="Payload Test",
             role=UserRole.EDUCATOR,
+            country="NG",
         )
         service.register_user(user_data)
 

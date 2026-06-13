@@ -523,7 +523,7 @@ class TestGetOptionalCurrentUserCookieFallback:
         mock_request.headers = {"Authorization": f"Bearer {token}"}
         mock_request.cookies = {}
 
-        result = asyncio.get_event_loop().run_until_complete(
+        result = asyncio.run(
             get_optional_current_user(request=mock_request, db=test_db)
         )
         assert result is not None
@@ -555,7 +555,7 @@ class TestGetOptionalCurrentUserCookieFallback:
         mock_request.headers = {}
         mock_request.cookies = {"access_token": token}
 
-        result = asyncio.get_event_loop().run_until_complete(
+        result = asyncio.run(
             get_optional_current_user(request=mock_request, db=test_db)
         )
         assert result is not None
@@ -572,7 +572,7 @@ class TestGetOptionalCurrentUserCookieFallback:
         mock_request.headers = {}
         mock_request.cookies = {}
 
-        result = asyncio.get_event_loop().run_until_complete(
+        result = asyncio.run(
             get_optional_current_user(request=mock_request, db=test_db)
         )
         assert result is None
@@ -588,7 +588,7 @@ class TestGetOptionalCurrentUserCookieFallback:
         mock_request.headers = {}
         mock_request.cookies = {"access_token": "not.a.valid.jwt"}
 
-        result = asyncio.get_event_loop().run_until_complete(
+        result = asyncio.run(
             get_optional_current_user(request=mock_request, db=test_db)
         )
         assert result is None
@@ -629,7 +629,7 @@ class TestGetOptionalCurrentUserCookieFallback:
         mock_request.headers = {"Authorization": f"Bearer {token_a}"}
         mock_request.cookies = {"access_token": token_b}
 
-        result = asyncio.get_event_loop().run_until_complete(
+        result = asyncio.run(
             get_optional_current_user(request=mock_request, db=test_db)
         )
         assert result is not None
