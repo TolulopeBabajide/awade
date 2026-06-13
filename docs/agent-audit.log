@@ -202,3 +202,4 @@
 2026-06-13T11:23:30Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
 2026-06-13T12:22:18Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
 2026-06-13T13:21:48Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-13T14:20:13Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/review-2026-06-13-cf287b3.md | write denied by permission manifest
