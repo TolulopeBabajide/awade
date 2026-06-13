@@ -586,3 +586,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-06-12T06:36:50Z | awade-tech-debt | done | 15 active (0 resolved, +1 net-new M-215 sync.sh ignored-path abort); drift stopped; stall day 24 (M-208 Tolu-gated); filed all 14 unfiled items to backlog ending 10-collision cycle; report debt-report-2026-06-12.md
 2026-06-12T18:38:36Z | awade-analytics-daily | done | Friday weekly report written (degraded — no analytics MCP; Mixpanel scope error day 9; Amplitude OAuth blocked); daily-log appended; morning-brief updated
 2026-06-12T22:03:29Z | awade-nightly-monitor | done | morning-brief written; 9 issues shipped today; 6 high open (2 security CVEs); TS+frontend tests green; CI green
+2026-06-13T22:04:38Z | awade-nightly-monitor | done | all checks green; CI green run 27478994006; 0C/7H/39M/11L open; brief written
