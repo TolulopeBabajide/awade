@@ -754,3 +754,4 @@ After removing it, the next hourly run will:
 2026-06-13T15:11Z | M-229 | test(curriculum): fix UNION ALL execute count via before_cursor_execute | 958a561, merge cf287b3 | ✅ Done | CI:pending
 2026-06-13T15:11Z | M-219 | verified absent — User(first_name=...) not in codebase; no code change | — | ✅ Done | CI:n/a
 2026-06-13T15:04Z | AWD-H-107 | test_single_round_trip_uses_union_all: cache FK IDs before listener | 5c7432e | ✅ Done | CI:pending
+2026-06-13T16:14Z | M-226 | test(auth): use StaticPool in password reset HTTP test fixtures | cb0c3f7 | ✅ Done | CI:pending
