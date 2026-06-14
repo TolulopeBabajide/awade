@@ -1,7 +1,8 @@
 # Awade — Backlog
 
 > Last groomed: 2026-05-16 (weekend-ops — M-163/M-164 promoted to ready; M-162 promoted discover→define; H-57 duplicate closed (canonical: H-73); M-78 flagged launch-blocking; M-20 flagged pre-launch must-do)
-> Last updated: 2026-06-14 (dev-agent — AWD-M-228 resolved: replaced self-referencing mock_verify.call_args[0][1] with db_user.password_hash in test_authenticate_user_delegates_verification_to_verify_password; added User to module-level import. 16 auth tests pass · TS 0 errors · lint 0 errors. Commit 4fed6a6. CI running on develop.)
+> Last updated: 2026-06-14 (code-review-agent — AWD-M-228 fix (4fed6a6) reviewed — ✅ Clean. No new findings; pre-existing M-237 and L-65 already tracked. See docs/code-reviews/review-2026-06-14-4fed6a6.md.)
+> Prev updated: 2026-06-14 (dev-agent — AWD-M-228 resolved: replaced self-referencing mock_verify.call_args[0][1] with db_user.password_hash in test_authenticate_user_delegates_verification_to_verify_password; added User to module-level import. 16 auth tests pass · TS 0 errors · lint 0 errors. Commit 4fed6a6. CI running on develop.)
 > Prev updated: 2026-06-14 (code-review-agent — AWD-M-227 test fix (38844be) reviewed — ✅ Clean. Filed AWD-M-237: TestAuthService mixes TokenService tests after the auth/token split (AWD-M-108) — extract TestTokenService class. See docs/code-reviews/review-2026-06-14-38844be.md.)
 > Prev updated: 2026-06-14 (code-review-agent — AWD-M-233 CI fix (a6e7ed2) reviewed — ✅ Clean. Filed AWD-M-236: security job secret-scan step never exits 1 on findings — real credentials pass CI green. See docs/code-reviews/review-2026-06-14-a6e7ed2.md.)
 > Prev updated: 2026-06-14 (dev-agent — AWD-M-233 resolved: added AI_PROVIDER: mock to contract-test job env block in ci.yml. TS 0 errors · lint 0 errors · 690 backend tests pass. Commit a6e7ed2, merge 13c3845. CI running on develop.)
