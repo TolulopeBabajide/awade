@@ -178,7 +178,7 @@ class PDFService:
             info_parts.append("🌍 <strong>Local Context:</strong> Content has been adapted for the specified local context and classroom environment.")
         
         if lesson_resource.status:
-            info_parts.append(f"📊 <strong>Status:</strong> {lesson_resource.status.title()}")
+            info_parts.append(f"📊 <strong>Status:</strong> {self._h(lesson_resource.status.title())}")
         
         if not info_parts:
             info_parts.append("ℹ️ <strong>Note:</strong> Content source information not available.")

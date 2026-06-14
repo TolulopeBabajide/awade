@@ -220,3 +220,32 @@ class TestGenerateHtmlContentEscaping:
         assert "R & D notes" not in html
         assert "R &amp; D notes" in html
         assert "<br>" in html
+
+
+class TestGetContentSourceInfoEscaping:
+    """AWD-M-234: _get_content_source_info must HTML-escape the status field."""
+
+    def test_html_chars_in_status_are_escaped(self):
+        # .title() runs first ("Complete" with caps), then _h() escapes angle brackets
+        service = PDFService()
+        lr = MagicMock()
+        lr.user_edited_content = None
+        lr.ai_generated_content = None
+        lr.context_input = None
+        lr.status = "<script>xss</script>"
+        result = service._get_content_source_info(lr)
+        assert "<script>" not in result
+        assert "<Script>" not in result
+        assert "&lt;" in result
+
+    def test_ampersand_in_status_is_escaped(self):
+        # .title() runs first ("Draft & Pending"), then _h() escapes the ampersand
+        service = PDFService()
+        lr = MagicMock()
+        lr.user_edited_content = None
+        lr.ai_generated_content = None
+        lr.context_input = None
+        lr.status = "draft & pending"
+        result = service._get_content_source_info(lr)
+        assert "draft & pending" not in result
+        assert "Draft &amp; Pending" in result
