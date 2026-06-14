@@ -764,3 +764,4 @@ After removing it, the next hourly run will:
 | 2026-06-14T00:00:00Z | AWD-M-46 | Verify venv resolved — no code change needed | verified (no commit) | ✅ Done | venv/bin/python → Python 3.12.4 via /opt/anaconda3; 688 backend tests pass. Issue self-healed. Marked done in backlog. |
 2026-06-14T09:20Z | AWD-M-234 | fix(pdf): HTML-escape status in _get_content_source_info | a465325 | ✅ Done | CI:pending (Tolu: git push origin develop)
 2026-06-14T05:09:30Z | AWD-M-235 | Fix MagicMock(name=...) kwarg in TestGenerateHtmlContentDbParam | 5e019a7 | ✅ Done | CI:pending
+2026-06-14T07:30Z | AWD-M-233 | chore(ci): add AI_PROVIDER: mock to contract-test job | a6e7ed2 | ✅ Done | CI:pending
