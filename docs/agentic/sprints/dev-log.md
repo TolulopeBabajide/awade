@@ -759,3 +759,4 @@ After removing it, the next hourly run will:
 2026-06-13T22:05:15Z | H-109 | fix(pdf): catch OSError from missing WeasyPrint native libs | 57b5cbb | ✅ Done | CI:pending (push deferred)
 2026-06-14T00:03Z | AWD-L-56 | feat(seo): ship Awade favicon + apple-touch-icon | e2bf0a3 | ✅ Done | CI:pending
 2026-06-14T00:05Z | H-110 | fix(pdf): pass db to _generate_html_content, remove _sa_instance_state access | c033a64 | ✅ Done | CI:pending
+2026-06-14T08:30Z | AWD-M-218 | fix(ci): add AI_PROVIDER: mock to backend-test env | TBD | ✅ Done | CI:pending
