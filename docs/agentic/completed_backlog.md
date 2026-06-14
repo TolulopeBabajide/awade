@@ -1724,3 +1724,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | 2026-06-14 | AWD-H-95 | fix(deps): upgrade cryptography 46.0.6→48.0.0 fixing confirmed PYSEC-2026-36 (non-contiguous buffer overflow); app uses HS256 JWT (no direct cryptography import), no breaking-change risk. Commit 6f03b4c, merge on develop. |
 
 | M-238 | Testing / Config | Add `clearMocks: true` to vitest.config.ts to globally enforce mock cleanup | acba1c5 | 2026-06-14 |
+| 2026-06-14 | AWD-M-237 | test(auth): extract TestTokenService class from TestAuthService in test_auth_service.py; moved 3 TokenService-direct methods (build_token_payload ×2, is_refresh_token_blacklisted). 16 tests pass. Commit 7b40af3, merge 1f70e6a. |
