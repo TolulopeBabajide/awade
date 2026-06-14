@@ -35,6 +35,8 @@ from unittest.mock import MagicMock
 
 from sqlalchemy import event
 
+from fastapi import HTTPException
+
 from apps.backend.models import User, UserRole, ChildProfile, ParentGuide, Topic
 from apps.backend.dependencies import get_jwt_secret_key, get_jwt_algorithm
 
@@ -606,8 +608,7 @@ class TestAccountDeletion:
         assert response.json()["message"] == "Account deleted successfully"
 
         # Verify the user is actually gone from the DB
-        from apps.backend.models import User as UserModel
-        remaining = test_db.query(UserModel).filter(UserModel.user_id == uid).first()
+        remaining = test_db.query(User).filter(User.user_id == uid).first()
         assert remaining is None, "User record should be deleted from the database"
 
     def test_parent_can_delete_own_account(self, client, test_db, parent_user):
@@ -619,8 +620,7 @@ class TestAccountDeletion:
         )
         assert response.json()["message"] == "Account deleted successfully"
 
-        from apps.backend.models import User as UserModel
-        remaining = test_db.query(UserModel).filter(UserModel.user_id == uid).first()
+        remaining = test_db.query(User).filter(User.user_id == uid).first()
         assert remaining is None
 
     def test_account_deletion_cascades_to_child_profiles(
@@ -720,7 +720,6 @@ class TestAssertUserAccessM173:
 
     def test_non_owner_educator_raises_403(self, test_db):
         """EDUCATOR accessing a different user's resource must get 403."""
-        from fastapi import HTTPException
         svc = self._make_service(test_db)
         caller = self._make_user(1, UserRole.EDUCATOR)
         with pytest.raises(HTTPException) as exc_info:
@@ -729,7 +728,6 @@ class TestAssertUserAccessM173:
 
     def test_non_owner_parent_raises_403(self, test_db):
         """PARENT accessing a different user's resource must get 403."""
-        from fastapi import HTTPException
         svc = self._make_service(test_db)
         caller = self._make_user(1, UserRole.PARENT)
         with pytest.raises(HTTPException) as exc_info:
