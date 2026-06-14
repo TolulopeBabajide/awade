@@ -1,7 +1,8 @@
 # Awade — Backlog
 
 > Last groomed: 2026-05-16 (weekend-ops — M-163/M-164 promoted to ready; M-162 promoted discover→define; H-57 duplicate closed (canonical: H-73); M-78 flagged launch-blocking; M-20 flagged pre-launch must-do)
-> Last updated: 2026-06-14 (dev-agent — AWD-M-237 resolved: extracted TestTokenService class from TestAuthService in test_auth_service.py; moved 3 TokenService-direct methods. 16 auth tests pass · TS 0 errors · lint 0 errors. Commit 7b40af3, merge 1f70e6a. CI pending on develop.)
+> Last updated: 2026-06-14 (code-review-agent — AWD-M-222 fix (3598b20) reviewed — ✅ Clean. No new items filed. AWD-M-221 (file split) remains open at define stage. See docs/code-reviews/review-2026-06-14-3598b20.md.)
+> Prev updated: 2026-06-14 (dev-agent — AWD-M-237 resolved: extracted TestTokenService class from TestAuthService in test_auth_service.py; moved 3 TokenService-direct methods. 16 auth tests pass · TS 0 errors · lint 0 errors. Commit 7b40af3, merge 1f70e6a. CI pending on develop.)
 > Prev updated: 2026-06-14 (dev-agent — AWD-M-238 resolved: added clearMocks:true to vitest.config.ts test block; updated setup.ts comment to reference config. 292 frontend tests pass · TS 0 errors · lint 0 errors. Commit acba1c5, merge b23776b. CI pending on develop.)
 > Prev updated: 2026-06-14 (code-review-agent — AWD-H-104 testing fix (5e4559c) reviewed — ✅ Clean. Filed AWD-M-238: vitest.config.ts lacks clearMocks:true; setup.ts comment assumes per-file clearAllMocks that is not globally enforced. See docs/code-reviews/review-2026-06-14-1baf2d8.md.)
 > Prev updated: 2026-06-14 (dev-agent — AWD-M-228 resolved: replaced self-referencing mock_verify.call_args[0][1] with db_user.password_hash in test_authenticate_user_delegates_verification_to_verify_password; added User to module-level import. 16 auth tests pass · TS 0 errors · lint 0 errors. Commit 4fed6a6. CI running on develop.)

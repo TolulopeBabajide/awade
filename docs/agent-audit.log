@@ -230,3 +230,4 @@
 2026-06-14T14:22:13Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-6f03b4c.md | completed structural code review
 2026-06-14T15:20:01Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
 2026-06-14T15:21:53Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-acba1c5.md | completed structural code review — verdict: Clean, 0 findings, 0 backlog items filed
+2026-06-14T18:22:09Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-3598b20.md | completed structural code review — AWD-M-222 fix (3598b20) — ✅ Clean
