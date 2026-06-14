@@ -772,3 +772,4 @@ After removing it, the next hourly run will:
 
 2026-06-14T16:05:00Z | M-238 | Add clearMocks:true to vitest.config.ts | acba1c5 | ✅ Done | CI:pending
 2026-06-14T16:06:11Z | AWD-M-237 | Extract TestTokenService from TestAuthService | 7b40af3 | ✅ Done | CI:pending
+2026-06-14T19:07:00Z | AWD-M-222 | Promote deferred imports to module level in test_users_router.py | 3598b20 | ✅ Done | CI:pending (Tolu: git push origin develop)

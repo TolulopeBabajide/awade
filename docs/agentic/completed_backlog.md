@@ -1725,3 +1725,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 
 | M-238 | Testing / Config | Add `clearMocks: true` to vitest.config.ts to globally enforce mock cleanup | acba1c5 | 2026-06-14 |
 | 2026-06-14 | AWD-M-237 | test(auth): extract TestTokenService class from TestAuthService in test_auth_service.py; moved 3 TokenService-direct methods (build_token_payload ×2, is_refresh_token_blacklisted). 16 tests pass. Commit 7b40af3, merge 1f70e6a. |
+| 2026-06-14 | AWD-M-222 | test(users): promote 4 deferred local imports to module level in test_users_router.py — added `from fastapi import HTTPException` at module level; removed 2 inline `User as UserModel` imports and replaced alias with `User`; removed 2 inline `HTTPException` imports. 690 backend tests pass. Commit 3598b20, merge 43071ef. |
