@@ -18,7 +18,7 @@ import requests as requests_lib
 
 from services.auth_service import AuthService, _SELF_REGISTERABLE_ROLES
 from services.token_service import TokenService
-from models import UserRole
+from models import User, UserRole
 from schemas.users import UserCreate, UserLogin
 
 
@@ -254,11 +254,16 @@ class TestAuthService:
             password="SecureVerify999!",
         )
 
+        db_user = test_db.query(User).filter_by(
+            email="verify_delegation_test@example.com"
+        ).first()
+        assert db_user is not None
+
         with patch.object(service, "_verify_password", wraps=service._verify_password) as mock_verify:
             auth_response, _ = service.authenticate_user(login_payload)
             mock_verify.assert_called_once_with(
                 login_payload.password,
-                mock_verify.call_args[0][1],  # hashed_password arg — value from DB
+                db_user.password_hash,
             )
 
         assert auth_response.user.email == "verify_delegation_test@example.com"
