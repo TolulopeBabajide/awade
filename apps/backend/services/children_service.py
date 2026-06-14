@@ -17,7 +17,7 @@ import logging
 
 from pydantic import ValidationError
 
-from packages.ai.gpt_service import AwadeGPTService
+from packages.ai.gpt_service import AwadeGPTService, ParentGuideRequest
 from apps.backend.models import (
     ChildProfile, ParentGuide, ParentalConsent, User, UserRole,
     Country, Curriculum, GradeLevel, Subject, Topic,
@@ -463,11 +463,11 @@ class ChildrenService:
 
         return self._guide_to_response(guide)
 
-    def _build_guide_ai_payload(self, child: ChildProfile, topic: Topic) -> dict:
-        """
-        Assemble the keyword-argument dict for AwadeGPTService.generate_parent_guide().
+    def _build_guide_ai_payload(self, child: ChildProfile, topic: Topic) -> ParentGuideRequest:
+        """Assemble the ParentGuideRequest for AwadeGPTService.generate_parent_guide().
 
         Extracted from generate_guide (AWD-M-185) to reduce cyclomatic complexity.
+        Typed as ParentGuideRequest (AWD-H-98) for call-site type safety.
         """
         cs = topic.curriculum_structure
         subject_name = cs.subject.name if cs and cs.subject else "Unknown Subject"
@@ -582,7 +582,7 @@ class ChildrenService:
         # Call AI service
         ai_service = AwadeGPTService()
         ai_content, is_valid = ai_service.generate_parent_guide(
-            **self._build_guide_ai_payload(child, topic)
+            self._build_guide_ai_payload(child, topic)
         )
 
         if not is_valid:

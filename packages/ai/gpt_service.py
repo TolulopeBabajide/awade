@@ -11,13 +11,33 @@ import os
 import json
 import logging
 import re
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, TypedDict
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 from .prompts import COMPREHENSIVE_LESSON_RESOURCE_PROMPT, PARENT_HELPER_PROMPT
+
+
+class ParentGuideRequest(TypedDict):
+    """Typed input bag for generate_parent_guide (AWD-H-98).
+
+    Groups all 10 curriculum/pedagogy arguments so callers have a single,
+    type-checked object rather than a 10-positional-parameter call site.
+    """
+
+    subject: str
+    grade: str
+    topic: str
+    country: str
+    curriculum: str
+    objectives: List[str]
+    contents: List[str]
+    student_activities: List[str]
+    teaching_learning_materials: List[str]
+    evaluation_guide: List[str]
+
 
 # ---------------------------------------------------------------------------
 # Input-sanitisation constants — applied to user-supplied text BEFORE it is
@@ -565,22 +585,17 @@ class AwadeGPTService:
 
     def generate_parent_guide(
         self,
-        subject: str,
-        grade: str,
-        topic: str,
-        country: str,
-        curriculum: str,
-        objectives: List[str],
-        contents: Optional[List[str]] = None,
-        student_activities: Optional[List[str]] = None,
-        teaching_learning_materials: Optional[List[str]] = None,
-        evaluation_guide: Optional[List[str]] = None,
+        request: ParentGuideRequest,
         model_tier: str = "standard",
     ) -> tuple[str, bool]:
-        """
-        Generate a 'How to Help' guide for a parent using the PARENT_HELPER_PROMPT.
+        """Generate a 'How to Help' guide for a parent using the PARENT_HELPER_PROMPT.
 
-        The optional ``student_activities``, ``teaching_learning_materials`` and
+        Args:
+            request: Typed dict containing all 10 curriculum/pedagogy fields
+                     (AWD-H-98 — replaces 10-positional-parameter signature).
+            model_tier: "standard" or "basic" — selects the LLM tier.
+
+        The ``student_activities``, ``teaching_learning_materials`` and
         ``evaluation_guide`` lists carry the NERDC pedagogy fields. They are
         provided to the model as *inspiration* for home activities, materials
         and understanding-checks — never reproduced verbatim as classroom plans.
@@ -588,6 +603,17 @@ class AwadeGPTService:
         Returns:
             tuple[str, bool]: (JSON string of the guide, whether validation passed)
         """
+        subject = request["subject"]
+        grade = request["grade"]
+        topic = request["topic"]
+        country = request["country"]
+        curriculum = request["curriculum"]
+        objectives = request["objectives"]
+        contents = request["contents"]
+        student_activities = request["student_activities"]
+        teaching_learning_materials = request["teaching_learning_materials"]
+        evaluation_guide = request["evaluation_guide"]
+
         try:
             logger.info(f"Generating parent guide for {subject} {grade} - {topic} ({country})")
 

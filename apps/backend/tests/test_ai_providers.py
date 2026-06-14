@@ -12,6 +12,7 @@ from packages.ai.providers.gemini_provider import GeminiProvider
 from packages.ai.cache import ContentCache
 from packages.ai.gpt_service import (
     AwadeGPTService,
+    ParentGuideRequest,
     _SHARED_INJECTION_PATTERNS,
     _INPUT_INJECTION_PATTERNS,
     _OUTPUT_INJECTION_PATTERNS,
@@ -431,14 +432,18 @@ class TestParentHelperPromptInjectionSandboxing:
         svc = AwadeGPTService(api_key="test", provider_type="openai")
 
         # Embed a fake API key in a curriculum field value
-        svc.generate_parent_guide(
+        svc.generate_parent_guide(ParentGuideRequest(
             subject="Mathematics",
             grade="Grade 4",
             topic="sk-abc123abc123abc123abc123abc123abc123",  # fake key in topic
             country="Nigeria",
             curriculum="NERDC",
             objectives=["Understand fractions"],
-        )
+            contents=[],
+            student_activities=[],
+            teaching_learning_materials=[],
+            evaluation_guide=[],
+        ))
 
         call_args = mock_provider.generate_content.call_args
         rendered_prompt = call_args[1].get("prompt") or call_args[0][0]

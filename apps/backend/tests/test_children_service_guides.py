@@ -21,6 +21,7 @@ from children_service_factories import (
 
 from apps.backend.models import ChildProfile, ParentGuide, Topic
 from apps.backend.services.children_service import ChildrenService
+from packages.ai.gpt_service import ParentGuideRequest
 
 
 # ---------------------------------------------------------------------------
@@ -602,6 +603,92 @@ class TestBuildGuideAIPayloadM185:
         payload = svc._build_guide_ai_payload(child, topic)
         assert payload["objectives"] == ["Explain the process", "Identify reactants"]
         assert payload["contents"] == ["Light energy", "Chlorophyll"]
+
+
+# ---------------------------------------------------------------------------
+# AWD-H-98 — ParentGuideRequest TypedDict + single-arg call site
+# ---------------------------------------------------------------------------
+
+class TestParentGuideRequestH98:
+    """Verify ParentGuideRequest TypedDict and the refactored call surface."""
+
+    _REQUIRED_KEYS = {
+        "subject", "grade", "topic", "country", "curriculum",
+        "objectives", "contents", "student_activities",
+        "teaching_learning_materials", "evaluation_guide",
+    }
+
+    def _minimal_request(self) -> ParentGuideRequest:
+        return ParentGuideRequest(
+            subject="Mathematics",
+            grade="JSS1",
+            topic="Fractions",
+            country="Nigeria",
+            curriculum="NERDC",
+            objectives=["Understand halves"],
+            contents=["Intro to fractions"],
+            student_activities=[],
+            teaching_learning_materials=[],
+            evaluation_guide=[],
+        )
+
+    def test_parent_guide_request_has_all_required_keys(self):
+        req = self._minimal_request()
+        assert set(req.keys()) == self._REQUIRED_KEYS
+
+    def test_build_guide_ai_payload_returns_parent_guide_request_shape(self):
+        """_build_guide_ai_payload always returns the full ParentGuideRequest key-set."""
+        svc = ChildrenService(db=MagicMock())
+        cs = MagicMock()
+        cs.subject.name = "Science"
+        cs.grade_level.name = "SS2"
+        cs.curriculum.curricula_title = "Federal"
+        topic = MagicMock()
+        topic.topic_title = "Photosynthesis"
+        topic.curriculum_structure = cs
+        topic.learning_objectives = []
+        topic.topic_contents = []
+        topic.student_activities = []
+        topic.teaching_learning_materials = []
+        topic.evaluation_guides = []
+        child = MagicMock()
+        child.country.country_name = "Nigeria"
+
+        payload = svc._build_guide_ai_payload(child, topic)
+        assert set(payload.keys()) == self._REQUIRED_KEYS
+
+    def test_build_guide_ai_payload_result_is_valid_parent_guide_request(self):
+        """_build_guide_ai_payload returns a dict usable as ParentGuideRequest directly."""
+        svc = ChildrenService(db=MagicMock())
+        cs = MagicMock()
+        cs.subject.name = "Mathematics"
+        cs.grade_level.name = "JSS1"
+        cs.curriculum.curricula_title = "NERDC"
+        topic = MagicMock()
+        topic.topic_title = "Fractions"
+        topic.curriculum_structure = cs
+        o = MagicMock(); o.objective = "Understand halves"
+        topic.learning_objectives = [o]
+        c = MagicMock(); c.content_area = "Intro to fractions"
+        topic.topic_contents = [c]
+        a = MagicMock(); a.activity = "Counting game"
+        topic.student_activities = [a]
+        topic.teaching_learning_materials = []
+        topic.evaluation_guides = []
+        child = MagicMock()
+        child.country.country_name = "Nigeria"
+
+        payload = svc._build_guide_ai_payload(child, topic)
+        # Should be directly passable as a ParentGuideRequest (same key set)
+        req: ParentGuideRequest = payload
+        assert req["subject"] == "Mathematics"
+        assert req["grade"] == "JSS1"
+        assert req["topic"] == "Fractions"
+        assert req["country"] == "Nigeria"
+        assert req["curriculum"] == "NERDC"
+        assert req["objectives"] == ["Understand halves"]
+        assert req["contents"] == ["Intro to fractions"]
+        assert req["student_activities"] == ["Counting game"]
 
 
 class TestPersistGuideM185:
