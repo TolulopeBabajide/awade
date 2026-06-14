@@ -224,3 +224,4 @@
 2026-06-14T07:37:25Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review of a6e7ed2 — ✅ Clean — filed AWD-M-236
 2026-06-14T08:34:06Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-febda7d.md | completed structural code review — sync commit febda7d; no application code changed, ✅ Clean
 2026-06-14T10:51:05Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-38844be.md | completed structural code review — 38844be AWD-M-227 test fix, filed AWD-M-237
+2026-06-14T11:19:35Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
