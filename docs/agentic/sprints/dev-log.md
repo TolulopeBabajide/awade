@@ -774,3 +774,4 @@ After removing it, the next hourly run will:
 2026-06-14T16:06:11Z | AWD-M-237 | Extract TestTokenService from TestAuthService | 7b40af3 | ✅ Done | CI:pending
 2026-06-14T19:07:00Z | AWD-M-222 | Promote deferred imports to module level in test_users_router.py | 3598b20 | ✅ Done | CI:pending (Tolu: git push origin develop)
 2026-06-14T20:10:00Z | H-98 | refactor(ai): AWD-H-98 introduce ParentGuideRequest TypedDict for generate_parent_guide | 425d98a | ✅ Done | CI:pending
+2026-06-14T21:13:00Z | M-239 | Fix three intermittent frontend vitest failures | a35533a | ✅ Done | CI:pending
