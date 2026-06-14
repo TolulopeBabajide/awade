@@ -280,6 +280,7 @@ jobs:
           DATABASE_URL: postgresql://awade_user:awade_password@localhost:5432/awade
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AI_PROVIDER: mock
           DEBUG: "True"
           ENVIRONMENT: "testing"
         run: |
