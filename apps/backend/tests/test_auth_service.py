@@ -5,6 +5,9 @@ Split from test_services.py (AWD-M-110) — was 656 lines across 7 classes.
 Covers: JWT payload construction, password hashing/verification, Google OAuth,
 role whitelist enforcement, delegation contracts, and Redis error handling.
 
+TestTokenService extracted from TestAuthService (AWD-M-237) to mirror the
+auth/token service split (AWD-M-108).
+
 Author: Tolulope Babajide
 """
 
@@ -51,34 +54,6 @@ class TestAuthService:
         # Use value-based comparison — same cross-module identity issue as above.
         assert not any(r.value == UserRole.ADMIN.value for r in _SELF_REGISTERABLE_ROLES)
         assert not any(r.value == UserRole.SUPER_ADMIN.value for r in _SELF_REGISTERABLE_ROLES)
-
-    def test_build_token_payload_returns_sub_and_email(self, test_db):
-        """AWD-M-109 / AWD-M-108: _build_token_payload must return a dict with 'sub' and 'email'.
-        Delegated to TokenService as part of the auth/token split."""
-        service = TokenService(test_db)
-        user = Mock(spec=["user_id", "email"])
-        user.user_id = 42
-        user.email = "tolu@example.com"
-
-        payload = service._build_token_payload(user)
-
-        assert payload == {"sub": "42", "email": "tolu@example.com"}, (
-            "_build_token_payload must return {'sub': str(user.user_id), 'email': user.email}"
-        )
-
-    def test_build_token_payload_sub_is_string(self, test_db):
-        """AWD-M-109 / AWD-M-108: 'sub' claim must always be a str, not an int — JWT spec requires string."""
-        service = TokenService(test_db)
-        user = Mock(spec=["user_id", "email"])
-        user.user_id = 99
-        user.email = "test@awade.ng"
-
-        payload = service._build_token_payload(user)
-
-        assert isinstance(payload["sub"], str), (
-            "'sub' must be str(user.user_id) — integers are not valid JWT subject claims"
-        )
-        assert payload["sub"] == "99"
 
     def test_build_token_payload_called_by_authenticate_user(self, test_db):
         """AWD-M-109: authenticate_user must delegate payload construction to _build_token_payload."""
@@ -325,6 +300,42 @@ class TestAuthService:
             mock_profile.assert_called_once()
 
         assert auth_response.user.email == "profile_delegation_login@example.com"
+
+
+class TestTokenService:
+    """Tests for TokenService — extracted from TestAuthService (AWD-M-237).
+
+    Mirrors the auth/token service split (AWD-M-108): TokenService owns JWT
+    payload construction and refresh token blacklist checks.
+    """
+
+    def test_build_token_payload_returns_sub_and_email(self, test_db):
+        """AWD-M-109 / AWD-M-108: _build_token_payload must return a dict with 'sub' and 'email'.
+        Delegated to TokenService as part of the auth/token split."""
+        service = TokenService(test_db)
+        user = Mock(spec=["user_id", "email"])
+        user.user_id = 42
+        user.email = "tolu@example.com"
+
+        payload = service._build_token_payload(user)
+
+        assert payload == {"sub": "42", "email": "tolu@example.com"}, (
+            "_build_token_payload must return {'sub': str(user.user_id), 'email': user.email}"
+        )
+
+    def test_build_token_payload_sub_is_string(self, test_db):
+        """AWD-M-109 / AWD-M-108: 'sub' claim must always be a str, not an int — JWT spec requires string."""
+        service = TokenService(test_db)
+        user = Mock(spec=["user_id", "email"])
+        user.user_id = 99
+        user.email = "test@awade.ng"
+
+        payload = service._build_token_payload(user)
+
+        assert isinstance(payload["sub"], str), (
+            "'sub' must be str(user.user_id) — integers are not valid JWT subject claims"
+        )
+        assert payload["sub"] == "99"
 
     def test_is_refresh_token_blacklisted_redis_error_logs_warning(self, test_db):
         """is_refresh_token_blacklisted returns False and logs a warning when
