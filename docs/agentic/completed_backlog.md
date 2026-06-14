@@ -1722,3 +1722,5 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | 2026-06-14 | AWD-M-228 | test(auth): fix no-op verify_password delegation assertion — replaced self-referencing mock_verify.call_args[0][1] with db_user.password_hash; added User to module-level import. Commit 4fed6a6. |
 | 2026-06-14 | AWD-H-104 | fix(testing): drain global fetch mock after each test — added afterEach with cleanup() + globalThis.fetch.mockReset() to apps/frontend/src/test/setup.ts; prevents stale mockResolvedValueOnce queues bleeding across vitest tests. Commit 5e4559c, merge on develop. |
 | 2026-06-14 | AWD-H-95 | fix(deps): upgrade cryptography 46.0.6→48.0.0 fixing confirmed PYSEC-2026-36 (non-contiguous buffer overflow); app uses HS256 JWT (no direct cryptography import), no breaking-change risk. Commit 6f03b4c, merge on develop. |
+
+| M-238 | Testing / Config | Add `clearMocks: true` to vitest.config.ts to globally enforce mock cleanup | acba1c5 | 2026-06-14 |

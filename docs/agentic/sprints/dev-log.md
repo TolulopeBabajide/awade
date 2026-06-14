@@ -769,3 +769,5 @@ After removing it, the next hourly run will:
 2026-06-14T11:22:32Z | AWD-M-228 | fix no-op verify_password delegation assertion in test_auth_service.py | 4fed6a6 | ✅ Done | CI:pending
 2026-06-14T14:11Z | AWD-H-104 | fix(testing): drain global fetch mock after each test to prevent once-value bleed | 5e4559c | ✅ Done | CI:pending (Tolu: git push origin develop)
 2026-06-14T15:10:24Z | H-95 | fix(deps): AWD-H-95 upgrade cryptography to 48.0.0 fixing PYSEC-2026-36 | 6f03b4c | ✅ Done | CI:pending
+
+2026-06-14T16:05:00Z | M-238 | Add clearMocks:true to vitest.config.ts | acba1c5 | ✅ Done | CI:pending
