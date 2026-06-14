@@ -274,9 +274,7 @@ describe('ChildrenPage — children grid', () => {
 
   it('renders an "Add another child" card', async () => {
     renderWithProviders(<ChildrenPage />)
-    await waitFor(() =>
-      expect(screen.getByRole('button', { name: /Add another child/i })).toBeInTheDocument()
-    )
+    expect(await screen.findByRole('button', { name: /Add another child/i })).toBeInTheDocument()
   })
 
   it('shows "Curriculum not set" nudge for profiles missing curriculum/grade', async () => {

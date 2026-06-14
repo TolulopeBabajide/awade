@@ -38,10 +38,10 @@ describe('App', () => {
     expect(screen.getByRole('heading', { name: /Understand what your child is learning/i })).toBeInTheDocument()
   })
 
-  it('renders parent landing page CTA', () => {
+  it('renders parent landing page CTA', async () => {
     render(<AppWithRouter />)
     // Primary CTA uses aria-label "Sign up as a parent" (visible text: "Get Started Free")
-    const ctaLink = screen.getByRole('link', { name: /Sign up as a parent/i })
+    const ctaLink = await screen.findByRole('link', { name: /Sign up as a parent/i })
     expect(ctaLink).toBeInTheDocument()
     expect(ctaLink).toHaveAttribute('href', '/signup')
   })
