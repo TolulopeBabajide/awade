@@ -68,3 +68,6 @@ PUSH_DEFERRED 2026-06-13T23:03:54Z develop bb748c89fa22ada230bf31e598ccb8c5ea662
 2026-06-14T00:01:13Z | PULL_REBASE_FAILED | develop
 2026-06-14T00:05:50Z | PULL_REBASE_FAILED | develop
 2026-06-14T01:01:13Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-14T01:08Z — develop not pushed (git push denied by Claude Code permissions). Pending commit: 015c82e fix(ci): AWD-M-218 add AI_PROVIDER: mock to backend-test env
+2026-06-14T02:01:12Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-14T02:05:58Z — fix/pdf/AWD-M-232 6c6d9ce permission denied on git push
