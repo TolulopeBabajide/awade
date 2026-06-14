@@ -73,7 +73,8 @@ class PDFService:
             topic=topic,
             subject=subject,
             grade_level=grade_level,
-            curriculum=curriculum
+            curriculum=curriculum,
+            db=db,
         )
         
         # Generate PDF
@@ -184,15 +185,16 @@ class PDFService:
         
         return "<br>".join(info_parts)
     
-    def _generate_html_content(self, lesson_resource: LessonResource, topic: Topic, 
-                             subject: Any, grade_level: Any, curriculum: Any) -> str:
+    def _generate_html_content(self, lesson_resource: LessonResource, topic: Topic,
+                             subject: Any, grade_level: Any, curriculum: Any,
+                             db: Session) -> str:
         """Generate HTML content for PDF generation."""
-        
+
         # Get combined content
         combined_content = self.include_ai_and_user_content(lesson_resource)
-        
+
         # Get curriculum alignment
-        curriculum_alignment = self.format_curriculum_alignment(topic, lesson_resource.lesson_plan._sa_instance_state.session)
+        curriculum_alignment = self.format_curriculum_alignment(topic, db)
         
         # Format creation date
         created_date = lesson_resource.created_at.strftime("%B %d, %Y") if lesson_resource.created_at else "Unknown"
