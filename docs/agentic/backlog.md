@@ -1,7 +1,8 @@
 # Awade — Backlog
 
 > Last groomed: 2026-05-16 (weekend-ops — M-163/M-164 promoted to ready; M-162 promoted discover→define; H-57 duplicate closed (canonical: H-73); M-78 flagged launch-blocking; M-20 flagged pre-launch must-do)
-> Last updated: 2026-06-14 (code-review-agent — AWD-M-233 CI fix (a6e7ed2) reviewed — ✅ Clean. Filed AWD-M-236: security job secret-scan step never exits 1 on findings — real credentials pass CI green. See docs/code-reviews/review-2026-06-14-a6e7ed2.md.)
+> Last updated: 2026-06-14 (code-review-agent — sync commit febda7d reviewed — ✅ Clean. All changed files are operational metadata (heartbeats, logs, generated index, backlog update); no application code changed. See docs/code-reviews/review-2026-06-14-febda7d.md.)
+> Prev updated: 2026-06-14 (code-review-agent — AWD-M-233 CI fix (a6e7ed2) reviewed — ✅ Clean. Filed AWD-M-236: security job secret-scan step never exits 1 on findings — real credentials pass CI green. See docs/code-reviews/review-2026-06-14-a6e7ed2.md.)
 > Prev updated: 2026-06-14 (dev-agent — AWD-M-233 resolved: added AI_PROVIDER: mock to contract-test job env block in ci.yml. TS 0 errors · lint 0 errors · 690 backend tests pass. Commit a6e7ed2, merge 13c3845. CI running on develop.)
 > Prev updated: 2026-06-14 (dev-agent — AWD-M-235 resolved: replaced MagicMock(name="Math"/"JSS1") with attribute-style assignment in TestGenerateHtmlContentDbParam (lines 47–48, 104–105); added Math/JSS1 html assertions. 690 backend tests pass. Commit 5e019a7, merge 2c563f7. Tolu: run `git push origin develop` to trigger CI.)
 > Prev updated: 2026-06-14 (dev-agent — AWD-M-234 resolved: wrapped status.title() with self._h() in _get_content_source_info() (pdf_service.py:181); added TestGetContentSourceInfoEscaping (2 tests). 690 backend tests pass. Commit a465325, merge 9af4fa5. Tolu: run `git push origin develop` to trigger CI.)
