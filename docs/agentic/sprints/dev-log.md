@@ -766,3 +766,4 @@ After removing it, the next hourly run will:
 2026-06-14T05:09:30Z | AWD-M-235 | Fix MagicMock(name=...) kwarg in TestGenerateHtmlContentDbParam | 5e019a7 | ✅ Done | CI:pending
 2026-06-14T07:30Z | AWD-M-233 | chore(ci): add AI_PROVIDER: mock to contract-test job | a6e7ed2 | ✅ Done | CI:pending
 2026-06-14T09:14:28Z | M-227 | fix vacuous ADMIN/SUPER_ADMIN enum exclusion assertions in test_auth_service.py | 38844be | ✅ Done | CI:pending
+2026-06-14T11:22:32Z | AWD-M-228 | fix no-op verify_password delegation assertion in test_auth_service.py | 4fed6a6 | ✅ Done | CI:pending
