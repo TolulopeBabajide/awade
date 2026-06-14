@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom'
-import { vi } from 'vitest'
+import { vi, afterEach } from 'vitest'
+import { cleanup } from '@testing-library/react'
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -46,4 +47,13 @@ beforeAll(() => {
 
 afterAll(() => {
   console.error = originalError
+})
+
+// Ensure React components unmount and the global fetch mock is drained after each test.
+// cleanup() is auto-registered by @testing-library/react but explicit here for clarity.
+// globalThis.fetch.mockReset() clears any unconsumed mockResolvedValueOnce queues that
+// vi.clearAllMocks() (per-file beforeEach) skips — prevents stale values bleeding across tests (AWD-H-104).
+afterEach(() => {
+  cleanup()
+  ;(globalThis.fetch as ReturnType<typeof vi.fn>).mockReset()
 })
