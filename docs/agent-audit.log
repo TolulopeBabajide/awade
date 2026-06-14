@@ -218,3 +218,4 @@
 2026-06-14T03:20:38Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-4a18927.md | no-code-commit review: AWD-M-46 marked done (venv self-healed), no app source files changed
 2026-06-14T04:19:49Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
 2026-06-14T04:22:29Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-686da82.md | completed structural code review — ✅ Clean, 0 findings, 2 files reviewed
+2026-06-14T05:23:55Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-653ba87.md | completed structural code review — ✅ Clean — AWD-M-235 MagicMock kwarg fix
