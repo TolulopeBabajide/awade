@@ -44,8 +44,10 @@ class TestGenerateHtmlContentDbParam:
         service = PDFService()
         lr = self._make_lesson_resource()
         topic = self._make_topic()
-        subject = MagicMock(name="Math")
-        grade_level = MagicMock(name="JSS1")
+        subject = MagicMock()
+        subject.name = "Math"
+        grade_level = MagicMock()
+        grade_level.name = "JSS1"
         curriculum = MagicMock(curricula_title="NERDC")
         db = self._make_db()
 
@@ -62,6 +64,8 @@ class TestGenerateHtmlContentDbParam:
         # db must be forwarded to format_curriculum_alignment, never via ORM internals
         mock_align.assert_called_once_with(topic, db)
         assert "Fractions" in html
+        assert "Math" in html
+        assert "JSS1" in html
 
     def test_generate_html_content_does_not_access_sa_instance_state(self):
         """Calling _generate_html_content must not touch _sa_instance_state on lesson_resource."""
@@ -101,8 +105,10 @@ class TestGenerateHtmlContentDbParam:
         # Stub out all DB queries
         mock_lesson_plan = MagicMock(topic_id=10)
         mock_topic = self._make_topic()
-        mock_subject = MagicMock(name="Math")
-        mock_grade_level = MagicMock(name="JSS1")
+        mock_subject = MagicMock()
+        mock_subject.name = "Math"
+        mock_grade_level = MagicMock()
+        mock_grade_level.name = "JSS1"
         mock_curriculum = MagicMock(curricula_title="NERDC")
 
         db.query.return_value.filter.return_value.first.side_effect = [
