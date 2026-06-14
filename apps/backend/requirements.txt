@@ -21,7 +21,7 @@ Pillow==12.2.0  # Upgraded from 10.4.0 — fixes CVE-2026-40192 (FITS GZIP decom
 alembic==1.13.3
 
 # Additional security dependencies
-cryptography==46.0.6  # Fix CVE-2024-12797, CVE-2026-26007, CVE-2026-34073 (AWD-M-113)
+cryptography==48.0.0  # Fix CVE-2024-12797, CVE-2026-26007, CVE-2026-34073 (AWD-M-113); Fix PYSEC-2026-36 (non-contiguous buffer overflow, affects 45.0.0-46.0.6, fixed at 46.0.7, bumped to 48.0.0) (AWD-H-95)
 setuptools==78.1.1  # Fix CVE-2025-47273, CVE-2024-6345
 
 # Testing dependencies
