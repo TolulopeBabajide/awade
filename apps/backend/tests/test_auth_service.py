@@ -47,9 +47,10 @@ class TestAuthService:
             UserRole.PARENT.value, UserRole.EDUCATOR.value
         }, "_SELF_REGISTERABLE_ROLES must contain exactly PARENT and EDUCATOR"
 
-        # ADMIN and SUPER_ADMIN must NOT be in the set
-        assert UserRole.ADMIN not in _SELF_REGISTERABLE_ROLES
-        assert UserRole.SUPER_ADMIN not in _SELF_REGISTERABLE_ROLES
+        # ADMIN and SUPER_ADMIN must NOT be in the set.
+        # Use value-based comparison — same cross-module identity issue as above.
+        assert not any(r.value == UserRole.ADMIN.value for r in _SELF_REGISTERABLE_ROLES)
+        assert not any(r.value == UserRole.SUPER_ADMIN.value for r in _SELF_REGISTERABLE_ROLES)
 
     def test_build_token_payload_returns_sub_and_email(self, test_db):
         """AWD-M-109 / AWD-M-108: _build_token_payload must return a dict with 'sub' and 'email'.
