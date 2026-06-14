@@ -97,3 +97,5 @@ PUSH_DEFERRED: 2026-06-14T02:05:58Z — fix/pdf/AWD-M-232 6c6d9ce permission den
 2026-06-14T18:01:30Z | PULL_REBASE_FAILED | develop
 2026-06-14T18:09:21Z | PULL_FAILED | develop
 PUSH_DEFERRED 2026-06-14T18:09:31Z develop merge 43071ef (AWD-M-222 — permission denied)
+2026-06-14T19:02:26Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-14T19:10:37Z AWD-H-98 425d98a push blocked by sandbox permissions
