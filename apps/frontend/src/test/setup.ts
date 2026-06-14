@@ -52,7 +52,7 @@ afterAll(() => {
 // Ensure React components unmount and the global fetch mock is drained after each test.
 // cleanup() is auto-registered by @testing-library/react but explicit here for clarity.
 // globalThis.fetch.mockReset() clears any unconsumed mockResolvedValueOnce queues that
-// vi.clearAllMocks() (per-file beforeEach) skips — prevents stale values bleeding across tests (AWD-H-104).
+// clearMocks:true (vitest.config.ts) skips — prevents stale values bleeding across tests (AWD-H-104).
 afterEach(() => {
   cleanup()
   ;(globalThis.fetch as ReturnType<typeof vi.fn>).mockReset()
