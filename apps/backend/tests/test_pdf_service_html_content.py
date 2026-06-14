@@ -1,6 +1,10 @@
 """
 AWD-H-110 regression: _generate_html_content must accept db: Session explicitly
 rather than mining it from ORM internals (_sa_instance_state.session).
+
+AWD-M-232 regression: all database-sourced values interpolated into the HTML
+must be escaped via _h() to prevent HTML injection from field values like
+"Science & Technology" (ampersand) or attacker-controlled topic titles.
 """
 from unittest.mock import MagicMock, patch, PropertyMock
 from datetime import datetime
@@ -123,3 +127,96 @@ class TestGenerateHtmlContentDbParam:
         assert kwargs.get("db") is db, (
             "_generate_html_content was not called with the db parameter"
         )
+
+
+class TestGenerateHtmlContentEscaping:
+    """AWD-M-232: _generate_html_content must HTML-escape all database-sourced values."""
+
+    def _make_lesson_resource(self, **overrides):
+        lr = MagicMock()
+        lr.lesson_plan_id = 1
+        lr.lesson_resources_id = 99
+        lr.ai_generated_content = "AI content"
+        lr.user_edited_content = None
+        lr.context_input = None
+        lr.status = "draft"
+        lr.created_at = datetime(2026, 6, 14)
+        for k, v in overrides.items():
+            setattr(lr, k, v)
+        return lr
+
+    def _make_topic(self, title="Fractions"):
+        topic = MagicMock()
+        topic.topic_id = 10
+        topic.topic_title = title
+        topic.learning_objectives = []
+        topic.topic_contents = []
+        return topic
+
+    def _render(self, topic_title="Fractions", subject_name="Mathematics",
+                grade_name="Grade 3", curricula_title="NERDC",
+                alignment="obj1\nobj2", content="para1\npara2"):
+        service = PDFService()
+        lr = self._make_lesson_resource()
+        topic = self._make_topic(title=topic_title)
+        subject = MagicMock()
+        subject.name = subject_name
+        grade_level = MagicMock()
+        grade_level.name = grade_name
+        curriculum = MagicMock()
+        curriculum.curricula_title = curricula_title
+        db = MagicMock()
+        with patch.object(service, "format_curriculum_alignment", return_value=alignment), \
+             patch.object(service, "include_ai_and_user_content", return_value=content):
+            return service._generate_html_content(
+                lesson_resource=lr,
+                topic=topic,
+                subject=subject,
+                grade_level=grade_level,
+                curriculum=curriculum,
+                db=db,
+            )
+
+    def test_ampersand_in_topic_title_is_escaped(self):
+        html = self._render(topic_title="Science & Technology")
+        assert "Science & Technology" not in html
+        assert "Science &amp; Technology" in html
+
+    def test_ampersand_in_subject_name_is_escaped(self):
+        html = self._render(subject_name="Arts & Crafts")
+        assert "Arts & Crafts" not in html
+        assert "Arts &amp; Crafts" in html
+
+    def test_ampersand_in_curricula_title_is_escaped(self):
+        html = self._render(curricula_title="Lagos & FCT Curriculum")
+        assert "Lagos & FCT Curriculum" not in html
+        assert "Lagos &amp; FCT Curriculum" in html
+
+    def test_lt_gt_in_grade_name_is_escaped(self):
+        html = self._render(grade_name="<JSS1>")
+        assert "<JSS1>" not in html
+        assert "&lt;JSS1&gt;" in html
+
+    def test_newlines_in_alignment_become_br_tags(self):
+        html = self._render(alignment="line1\nline2")
+        assert "<br>" in html
+        assert "line1" in html
+        assert "line2" in html
+
+    def test_ampersand_in_alignment_is_escaped_before_br_substitution(self):
+        html = self._render(alignment="Obj A & B\nObj C")
+        assert "Obj A & B" not in html
+        assert "Obj A &amp; B" in html
+        assert "<br>" in html
+
+    def test_newlines_in_combined_content_become_br_tags(self):
+        html = self._render(content="Para 1\nPara 2")
+        assert "<br>" in html
+        assert "Para 1" in html
+        assert "Para 2" in html
+
+    def test_ampersand_in_combined_content_is_escaped_before_br_substitution(self):
+        html = self._render(content="R & D notes\nMore text")
+        assert "R & D notes" not in html
+        assert "R &amp; D notes" in html
+        assert "<br>" in html

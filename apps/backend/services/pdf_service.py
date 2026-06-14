@@ -205,7 +205,7 @@ class PDFService:
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Lesson Resource - {topic.topic_title}</title>
+            <title>Lesson Resource - {self._h(topic.topic_title)}</title>
         </head>
         <body>
             <div class="container">
@@ -216,44 +216,44 @@ class PDFService:
                     </div>
                     <div class="metadata">
                         <p><strong>Generated:</strong> {created_date}</p>
-                        <p><strong>Resource ID:</strong> {lesson_resource.lesson_resources_id}</p>
+                        <p><strong>Resource ID:</strong> {self._h(lesson_resource.lesson_resources_id)}</p>
                     </div>
                 </header>
-                
+
                 <div class="content">
                     <div class="curriculum-info">
                         <h2>Curriculum Information</h2>
                         <table class="info-table">
                             <tr>
                                 <td><strong>Curriculum:</strong></td>
-                                <td>{curriculum.curricula_title if curriculum else 'N/A'}</td>
+                                <td>{self._h(curriculum.curricula_title) if curriculum else 'N/A'}</td>
                             </tr>
                             <tr>
                                 <td><strong>Subject:</strong></td>
-                                <td>{subject.name if subject else 'N/A'}</td>
+                                <td>{self._h(subject.name) if subject else 'N/A'}</td>
                             </tr>
                             <tr>
                                 <td><strong>Grade Level:</strong></td>
-                                <td>{grade_level.name if grade_level else 'N/A'}</td>
+                                <td>{self._h(grade_level.name) if grade_level else 'N/A'}</td>
                             </tr>
                             <tr>
                                 <td><strong>Topic:</strong></td>
-                                <td>{topic.topic_title}</td>
+                                <td>{self._h(topic.topic_title)}</td>
                             </tr>
                         </table>
                     </div>
-                    
+
                     <div class="curriculum-alignment">
                         <h2>Curriculum Alignment</h2>
                         <div class="alignment-content">
-                            {curriculum_alignment.replace(chr(10), '<br>')}
+                            {self._h(curriculum_alignment).replace(chr(10), '<br>')}
                         </div>
                     </div>
-                    
+
                     <div class="lesson-content">
                         <h2>Lesson Resource Content</h2>
                         <div class="content-text">
-                            {combined_content.replace(chr(10), '<br>')}
+                            {self._h(combined_content).replace(chr(10), '<br>')}
                         </div>
                     </div>
                     
