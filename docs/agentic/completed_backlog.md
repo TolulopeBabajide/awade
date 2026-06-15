@@ -1830,3 +1830,11 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: n/a (no code change required)
 - **Files**: `apps/frontend/src/pages/ParentDashboardPage.delete.test.tsx`
 - **Summary**: All 13 tests in the file already pass. AWD-H-114 previously added `{ timeout: 5000 }` to all bare `waitFor`/`findBy*` calls; AWD-H-117 reduced stacked helper timeouts from 5000ms → 3000ms. Dev-agent verified 13/13 pass on 2026-06-15 run — no further action needed.
+
+---
+
+### AWD-M-246 — Add `{ timeout: 5000 }` to bare `waitFor` calls in `LessonPlanDetailPage.generate.test.tsx`
+- **Date**: 2026-06-16
+- **Commit**: debdb53 (merge bad2eeb)
+- **Files**: `apps/frontend/src/pages/LessonPlanDetailPage.generate.test.tsx`
+- **Summary**: Added `{ timeout: 5000 }` to all 12 bare `waitFor` calls (10 multi-line awaiting 'Introduction to Fractions', 2 single-line checking mock call counts). File's `findBy*` calls are absent — those tests use direct `expect` + fake timers per AWD-H-82 pattern, so no changes needed there. 292/292 frontend tests pass.
