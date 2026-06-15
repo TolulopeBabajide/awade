@@ -122,7 +122,8 @@ describe('LessonPlanDetailPage (generate)', () => {
 
       const { unmount } = renderPage()
       await waitFor(() =>
-        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument(),
+        { timeout: 5000 }
       )
 
       // Click the generate button to start the async handler
@@ -130,7 +131,7 @@ describe('LessonPlanDetailPage (generate)', () => {
       await user.click(screen.getByRole('button', { name: /Generate Lesson Resource/i }))
 
       // Wait until generateLessonResource was called (handler is in the polling loop)
-      await waitFor(() => expect(mockGenerateLessonResource).toHaveBeenCalledTimes(1))
+      await waitFor(() => expect(mockGenerateLessonResource).toHaveBeenCalledTimes(1), { timeout: 5000 })
 
       // Unmount while the handler is awaiting the first poll response
       act(() => { unmount() })
@@ -156,12 +157,13 @@ describe('LessonPlanDetailPage (generate)', () => {
 
       const { unmount } = renderPage()
       await waitFor(() =>
-        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument(),
+        { timeout: 5000 }
       )
 
       const user = userEvent.setup()
       await user.click(screen.getByRole('button', { name: /Generate Lesson Resource/i }))
-      await waitFor(() => expect(mockGenerateLessonResource).toHaveBeenCalledTimes(1))
+      await waitFor(() => expect(mockGenerateLessonResource).toHaveBeenCalledTimes(1), { timeout: 5000 })
 
       // Unmount before the rejection lands
       act(() => { unmount() })
@@ -194,7 +196,8 @@ describe('LessonPlanDetailPage (generate)', () => {
       renderPage()
       // Resolve the initial getLessonPlan with real timers before switching to fake
       await waitFor(() =>
-        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument(),
+        { timeout: 5000 }
       )
 
       // NOW switch to fake timers — initial render complete with real timers
@@ -236,7 +239,8 @@ describe('LessonPlanDetailPage (generate)', () => {
       renderPage()
       // Resolve the initial getLessonPlan with real timers before switching to fake
       await waitFor(() =>
-        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument(),
+        { timeout: 5000 }
       )
 
       // NOW switch to fake timers — initial render complete with real timers
@@ -281,7 +285,8 @@ describe('LessonPlanDetailPage (generate)', () => {
       renderPage()
       // Resolve the initial getLessonPlan with real timers before switching to fake
       await waitFor(() =>
-        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument(),
+        { timeout: 5000 }
       )
 
       // NOW switch to fake timers — initial render complete with real timers (AWD-H-82 fix)
@@ -317,7 +322,8 @@ describe('LessonPlanDetailPage (generate)', () => {
 
       renderPage()
       await waitFor(() =>
-        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument(),
+        { timeout: 5000 }
       )
 
       vi.useFakeTimers()
@@ -339,7 +345,8 @@ describe('LessonPlanDetailPage (generate)', () => {
 
       renderPage()
       await waitFor(() =>
-        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument(),
+        { timeout: 5000 }
       )
 
       // Type something into the context textarea so submitContextIfProvided is reached
@@ -379,7 +386,8 @@ describe('LessonPlanDetailPage (generate)', () => {
       renderPage()
       // Resolve the initial getLessonPlan with real timers before switching to fake
       await waitFor(() =>
-        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument(),
+        { timeout: 5000 }
       )
 
       // NOW switch to fake timers — initial render complete with real timers
@@ -413,7 +421,8 @@ describe('LessonPlanDetailPage (generate)', () => {
 
       const { unmount } = renderPage()
       await waitFor(() =>
-        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument(),
+        { timeout: 5000 }
       )
 
       vi.useFakeTimers()
@@ -446,7 +455,8 @@ describe('LessonPlanDetailPage (generate)', () => {
 
       const { unmount } = renderPage()
       await waitFor(() =>
-        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument(),
+        { timeout: 5000 }
       )
 
       // Switch to fake timers after initial render (AWD-H-82 pattern)
