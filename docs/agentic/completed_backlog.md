@@ -1794,3 +1794,12 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 899cdfe (merged to develop)
 - **Files**: `apps/frontend/src/pages/ParentDashboardPage.render.test.tsx`
 - **Summary**: Added intermediate `await waitFor(() => expect(screen.getByText('Test Child 01')).toBeTruthy(), { timeout: 5000 })` before the topics-error assertion — pins the child-selection step so the error render gets a fresh 5000ms window. 19/19 tests pass under isolation; under parallel load the 3-step mock chain (getChildren resolves → auto-selects child → getChildTopics returns error) now has sequenced budget instead of a shared 5000ms window.
+
+---
+
+## AWD-H-119 — `GuideViewPage.interactions.test.tsx` WhatsApp share button test timeout under parallel load
+
+- **Date**: 2026-06-15
+- **Commit**: 2971139 (merged to develop)
+- **Files**: `apps/frontend/src/pages/GuideViewPage.interactions.test.tsx`
+- **Summary**: Added `{ timeout: 5000 }` to `waitFor` at line 51 (the failing `renders the WhatsApp share button` test) and `undefined, { timeout: 5000 }` as the third argument to all 8 `findByLabelText` calls and 4 `findByTitle` calls across the file. 14/14 interaction tests pass. All 292 frontend tests pass · TS 0 errors · lint 0 errors.
