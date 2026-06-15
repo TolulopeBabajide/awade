@@ -783,3 +783,4 @@ After removing it, the next hourly run will:
 2026-06-15T16:00:00Z | AWD-H-113 | fix(security): raise RuntimeError when ALLOWED_HOSTS yields empty host list | afb638c | ✅ Done | CI:pending
 2026-06-15T06:11:00Z | M-241 | Extract _require_explicit_hosts helper from _get_allowed_hosts() | f0f114c | ✅ Done | CI:pending
 2026-06-15T07:06:00Z | AWD-M-199 | fix(security): bump urllib3 2.6.3→2.7.0 patch PYSEC-2026-142/141 | 7a386a0 | ✅ Done | CI:pending (push deferred — permission denied)
+2026-06-15T09:10:00Z | AWD-M-203 | chore(routers): remove unused get_optional_current_user import from 3 routers | 826d08a | ✅ Done | CI:pending

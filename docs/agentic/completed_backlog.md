@@ -1747,3 +1747,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 7a386a0
 - **Files**: `apps/backend/requirements.txt`
 - **Summary**: Bumped `urllib3==2.6.3` → `2.7.0`, patching PYSEC-2026-142 (Brotli decompression amplification — whole-body decompression on second `read(amt=N)` call) and PYSEC-2026-141 (cross-origin redirect header leak via low-level ProxyManager API). No app-code change needed. 710 backend tests pass · 292 frontend tests pass.
+
+## AWD-M-203 — Remove unused get_optional_current_user import from 3 routers
+- **Completed**: 2026-06-15
+- **Commit**: 826d08a
+- **Files**: `apps/backend/routers/curriculum.py`, `apps/backend/routers/curriculum_structure.py`, `apps/backend/routers/lesson_plans.py`
+- **Summary**: Removed the dead `get_optional_current_user` import from all 3 routers — it was imported but never invoked, risking reviewer confusion about optional-auth routes existing in these files. No logic change. 710 backend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
