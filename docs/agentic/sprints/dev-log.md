@@ -790,3 +790,4 @@ After removing it, the next hourly run will:
 2026-06-15T17:00:00Z | AWD-H-117 | fix(testing): reduce stacked waitFor timeouts in delete test | 6ae3670 | ✅ Done | CI:pending
 2026-06-15T19:48:00Z | AWD-H-118 | test(dashboard): pin child-selection before topics error assertion | 899cdfe | ✅ Done | CI:pending
 2026-06-15T21:09:00Z | AWD-H-119 | test(guide): add explicit timeout to findBy/waitFor in interactions test | 2971139 | ✅ Done | CI:pending
+2026-06-15T22:06:00Z | AWD-H-120 | test(admin): add explicit timeout to ModerationList waitFor calls | 5d3e6d1 | ✅ Done | CI:pending

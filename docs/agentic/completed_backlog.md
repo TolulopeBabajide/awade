@@ -1803,3 +1803,12 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 2971139 (merged to develop)
 - **Files**: `apps/frontend/src/pages/GuideViewPage.interactions.test.tsx`
 - **Summary**: Added `{ timeout: 5000 }` to `waitFor` at line 51 (the failing `renders the WhatsApp share button` test) and `undefined, { timeout: 5000 }` as the third argument to all 8 `findByLabelText` calls and 4 `findByTitle` calls across the file. 14/14 interaction tests pass. All 292 frontend tests pass · TS 0 errors · lint 0 errors.
+
+---
+
+### H-120 — admin/ModerationList.test.tsx waitFor timeout fixes
+
+- **Date**: 2026-06-15
+- **Commit**: 5d3e6d1 (merged 7b0f464 to develop)
+- **Files**: `apps/frontend/src/pages/admin/ModerationList.test.tsx`
+- **Summary**: Added `{ timeout: 5000 }` to all 20 `waitFor` calls in `admin/ModerationList.test.tsx`. Both multi-line form (`}, { timeout: 5000 })`) and single-line inline form updated. 15/15 tests in the file pass. All 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
