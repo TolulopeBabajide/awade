@@ -109,10 +109,10 @@ describe('ParentDashboardPage — delete & consent', () => {
     }
 
     const triggerConsentSubmit = async () => {
-      await waitFor(() => expect(screen.getByText(/Add Your Child/i)).toBeTruthy(), { timeout: 5000 })
+      await waitFor(() => expect(screen.getByText(/Add Your Child/i)).toBeTruthy(), { timeout: 3000 })
       fireEvent.click(screen.getByText(/Add Your Child/i))
 
-      const checkbox = await screen.findByRole('checkbox', undefined, { timeout: 5000 })
+      const checkbox = await screen.findByRole('checkbox', undefined, { timeout: 3000 })
       fireEvent.click(checkbox)
 
       const submitBtn = screen.getByRole('button', { name: /I Agree — Add a Child/i })
@@ -128,7 +128,7 @@ describe('ParentDashboardPage — delete & consent', () => {
       await waitFor(() => {
         const alert = screen.getByRole('alert')
         expect(alert.textContent).toContain('Network down')
-      }, { timeout: 5000 })
+      }, { timeout: 3000 })
     })
 
     it('falls back to the generic message when a non-Error value is thrown', async () => {
