@@ -589,3 +589,5 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-06-13T22:04:38Z | awade-nightly-monitor | done | all checks green; CI green run 27478994006; 0C/7H/39M/11L open; brief written
 2026-06-15T03:08:09Z | awade-growth-daily | done | Mon parent 2-post draft (effort praise + expert-on-the-kid); BIP number post held (no analytics); content-log updated
 2026-06-15T07:10:02Z | awade-daily-health-check | done | All green: TS/lint/OpenAPI pass, FE 292 pass, BE 710 pass/1 skip, 0 Critical / 3 High (pre-build)
+2026-06-15T08:11:09Z | awade-weekly-review | done | 188 commits/~52 issues closed; dev loop unfroze; health 🟡 (analytics+finance gaps); top risk H-96
+2026-06-15T08:34:11Z | awade-sprint-planning | done | sprint-2026-06-15 written; dev loop healthy (~50 issues/wk), ready queue drained — sprint = promote 10-item security/hygiene batch + flag launch-blockers M-78/M-212/M-20
