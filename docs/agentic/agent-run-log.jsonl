@@ -592,3 +592,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-06-15T08:11:09Z | awade-weekly-review | done | 188 commits/~52 issues closed; dev loop unfroze; health 🟡 (analytics+finance gaps); top risk H-96
 2026-06-15T08:34:11Z | awade-sprint-planning | done | sprint-2026-06-15 written; dev loop healthy (~50 issues/wk), ready queue drained — sprint = promote 10-item security/hygiene batch + flag launch-blockers M-78/M-212/M-20
 2026-06-15T18:33:26Z | awade-analytics-daily | done | 2026-06-15 daily: N/A (Mixpanel scope error day 11; Amplitude OAuth; no ANALYTICS_TOOL); daily-log.md appended; morning-brief.md updated; circuit-breaker logged
+2026-06-15T22:04:07Z | awade-nightly-monitor | done | morning-brief written; 292 frontend tests pass; 5 High open; 7 agents CRITICAL

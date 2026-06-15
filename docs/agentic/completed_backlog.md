@@ -1812,3 +1812,21 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 5d3e6d1 (merged 7b0f464 to develop)
 - **Files**: `apps/frontend/src/pages/admin/ModerationList.test.tsx`
 - **Summary**: Added `{ timeout: 5000 }` to all 20 `waitFor` calls in `admin/ModerationList.test.tsx`. Both multi-line form (`}, { timeout: 5000 })`) and single-line inline form updated. 15/15 tests in the file pass. All 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+---
+
+## AWD-H-122 — `GuideViewPage.render.test.tsx` — 8 bare waitFor calls missing explicit timeout
+
+- **Date**: 2026-06-15
+- **Commit**: dc27ab7 (merged a97b5d8 to develop)
+- **Files**: `apps/frontend/src/pages/GuideViewPage.render.test.tsx`
+- **Summary**: Added `{ timeout: 5000 }` to all 8 bare `waitFor` calls in `GuideViewPage.render.test.tsx` — error state, fallback JSON error, success state heading (×2), generateGuide flow (×2), GuidePageShell error/success layout states. 11/11 tests in the file pass. All 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+---
+
+## AWD-H-121 — `ParentDashboardPage.delete.test.tsx` — 6 tests timeout (pre-existing fix confirmed)
+
+- **Date**: 2026-06-15
+- **Commit**: n/a (no code change required)
+- **Files**: `apps/frontend/src/pages/ParentDashboardPage.delete.test.tsx`
+- **Summary**: All 13 tests in the file already pass. AWD-H-114 previously added `{ timeout: 5000 }` to all bare `waitFor`/`findBy*` calls; AWD-H-117 reduced stacked helper timeouts from 5000ms → 3000ms. Dev-agent verified 13/13 pass on 2026-06-15 run — no further action needed.
