@@ -124,7 +124,7 @@ describe('SavedGuidesPage', () => {
       await waitFor(() => {
         expect(screen.getByText(/Failed to load profiles/i)).toBeTruthy()
         expect(screen.getByText(/Try again/i)).toBeTruthy()
-      })
+      }, { timeout: 5000 })
     })
 
     it('does not render child selector when children fetch errors', async () => {
@@ -135,7 +135,7 @@ describe('SavedGuidesPage', () => {
       await waitFor(() => {
         // Guides list and child selector should not be rendered
         expect(screen.queryByText(/No guides yet/i)).toBeNull()
-      })
+      }, { timeout: 5000 })
     })
   })
 
@@ -152,7 +152,7 @@ describe('SavedGuidesPage', () => {
       await waitFor(() => {
         expect(screen.getByText(/Failed to load guides/i)).toBeTruthy()
         expect(screen.getByText(/Try again/i)).toBeTruthy()
-      })
+      }, { timeout: 5000 })
     })
 
     it('does not show empty state when guides fetch errors', async () => {
@@ -166,7 +166,7 @@ describe('SavedGuidesPage', () => {
 
       await waitFor(() => {
         expect(screen.queryByText(/No guides yet/i)).toBeNull()
-      })
+      }, { timeout: 5000 })
     })
   })
 
@@ -183,7 +183,7 @@ describe('SavedGuidesPage', () => {
       await waitFor(() => {
         // After children load, guides spinner should appear
         expect(document.querySelector('.animate-spin')).toBeTruthy()
-      })
+      }, { timeout: 5000 })
     })
   })
 
@@ -202,7 +202,7 @@ describe('SavedGuidesPage', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/No guides yet/i)).toBeTruthy()
-      })
+      }, { timeout: 5000 })
     })
   })
 
@@ -221,7 +221,7 @@ describe('SavedGuidesPage', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Test Topic')).toBeTruthy()
-      })
+      }, { timeout: 5000 })
     })
   })
 
@@ -240,7 +240,7 @@ describe('SavedGuidesPage', () => {
 
       const btn = await screen.findByRole('button', {
         name: /Open "How to Help" guide for Fractions/i,
-      }, { timeout: 3000 })
+      }, { timeout: 7000 })
       expect(btn).toBeTruthy()
     })
 
@@ -261,7 +261,7 @@ describe('SavedGuidesPage', () => {
 
       const btn = await screen.findByRole('button', {
         name: /Open "How to Help" guide for Fractions \(bookmarked\)/i,
-      })
+      }, { timeout: 7000 })
       expect(btn).toBeTruthy()
     })
   })

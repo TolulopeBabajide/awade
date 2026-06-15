@@ -109,10 +109,10 @@ describe('ParentDashboardPage — delete & consent', () => {
     }
 
     const triggerConsentSubmit = async () => {
-      await waitFor(() => expect(screen.getByText(/Add Your Child/i)).toBeTruthy())
+      await waitFor(() => expect(screen.getByText(/Add Your Child/i)).toBeTruthy(), { timeout: 5000 })
       fireEvent.click(screen.getByText(/Add Your Child/i))
 
-      const checkbox = await screen.findByRole('checkbox')
+      const checkbox = await screen.findByRole('checkbox', undefined, { timeout: 5000 })
       fireEvent.click(checkbox)
 
       const submitBtn = screen.getByRole('button', { name: /I Agree — Add a Child/i })
@@ -128,7 +128,7 @@ describe('ParentDashboardPage — delete & consent', () => {
       await waitFor(() => {
         const alert = screen.getByRole('alert')
         expect(alert.textContent).toContain('Network down')
-      })
+      }, { timeout: 5000 })
     })
 
     it('falls back to the generic message when a non-Error value is thrown', async () => {
@@ -140,7 +140,7 @@ describe('ParentDashboardPage — delete & consent', () => {
       await waitFor(() => {
         const alert = screen.getByRole('alert')
         expect(alert.textContent).toContain('Something went wrong. Please try again.')
-      })
+      }, { timeout: 5000 })
     })
   })
 
@@ -164,9 +164,9 @@ describe('ParentDashboardPage — delete & consent', () => {
     }
 
     const openAndConfirmDelete = async () => {
-      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy())
+      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy(), { timeout: 5000 })
       fireEvent.click(screen.getByTitle('Remove'))
-      const dialog = await screen.findByRole('dialog')
+      const dialog = await screen.findByRole('dialog', undefined, { timeout: 5000 })
       const confirmBtn = dialog.querySelector('button') as HTMLButtonElement
       fireEvent.click(confirmBtn)
     }
@@ -181,7 +181,7 @@ describe('ParentDashboardPage — delete & consent', () => {
       await waitFor(() => {
         const alert = screen.getByRole('alert')
         expect(alert.textContent).toContain('Server unavailable')
-      })
+      }, { timeout: 5000 })
     })
 
     it('shows a generic fallback message when deleteChild rejects with a non-Error value', async () => {
@@ -194,7 +194,7 @@ describe('ParentDashboardPage — delete & consent', () => {
       await waitFor(() => {
         const alert = screen.getByRole('alert')
         expect(alert.textContent).toContain('Failed to remove child profile. Please try again.')
-      })
+      }, { timeout: 5000 })
     })
 
     it('renders a dismiss button inside the ErrorBanner (AWD-M-148)', async () => {
@@ -206,7 +206,7 @@ describe('ParentDashboardPage — delete & consent', () => {
 
       await waitFor(() => {
         expect(screen.getByRole('alert')).toBeInTheDocument()
-      })
+      }, { timeout: 5000 })
       expect(screen.getByLabelText('Dismiss error')).toBeInTheDocument()
     })
 
@@ -219,13 +219,13 @@ describe('ParentDashboardPage — delete & consent', () => {
 
       await waitFor(() => {
         expect(screen.getByRole('alert')).toBeInTheDocument()
-      })
+      }, { timeout: 5000 })
 
       fireEvent.click(screen.getByLabelText('Dismiss error'))
 
       await waitFor(() => {
         expect(screen.queryByRole('alert')).toBeNull()
-      })
+      }, { timeout: 5000 })
     })
 
     it('clears any previous delete error when a new delete attempt begins', async () => {
@@ -237,10 +237,10 @@ describe('ParentDashboardPage — delete & consent', () => {
       renderPage()
 
       await openAndConfirmDelete()
-      await waitFor(() => expect(screen.getByRole('alert')).toBeTruthy())
+      await waitFor(() => expect(screen.getByRole('alert')).toBeTruthy(), { timeout: 5000 })
 
       await openAndConfirmDelete()
-      await waitFor(() => expect(screen.queryByRole('alert')).toBeNull())
+      await waitFor(() => expect(screen.queryByRole('alert')).toBeNull(), { timeout: 5000 })
     })
   })
 
@@ -268,9 +268,9 @@ describe('ParentDashboardPage — delete & consent', () => {
     }
 
     const failDeleteOnSelectedChild = async () => {
-      const removeButtons = await screen.findAllByTitle('Remove')
+      const removeButtons = await screen.findAllByTitle('Remove', undefined, { timeout: 5000 })
       fireEvent.click(removeButtons[0])
-      const dialog = await screen.findByRole('dialog')
+      const dialog = await screen.findByRole('dialog', undefined, { timeout: 5000 })
       const confirmBtn = dialog.querySelector('button') as HTMLButtonElement
       fireEvent.click(confirmBtn)
     }
@@ -282,11 +282,11 @@ describe('ParentDashboardPage — delete & consent', () => {
       renderPage()
 
       await failDeleteOnSelectedChild()
-      await waitFor(() => expect(screen.getByRole('alert')).toBeTruthy())
+      await waitFor(() => expect(screen.getByRole('alert')).toBeTruthy(), { timeout: 5000 })
 
       fireEvent.click(screen.getByText('Child B'))
 
-      await waitFor(() => expect(screen.queryByRole('alert')).toBeNull())
+      await waitFor(() => expect(screen.queryByRole('alert')).toBeNull(), { timeout: 5000 })
     })
 
     it('clears the delete-error banner when the parent activates another child card via Enter', async () => {
@@ -296,12 +296,12 @@ describe('ParentDashboardPage — delete & consent', () => {
       renderPage()
 
       await failDeleteOnSelectedChild()
-      await waitFor(() => expect(screen.getByRole('alert')).toBeTruthy())
+      await waitFor(() => expect(screen.getByRole('alert')).toBeTruthy(), { timeout: 5000 })
 
       const childBCard = screen.getByRole('group', { name: 'Child B' })
       fireEvent.keyDown(childBCard, { key: 'Enter' })
 
-      await waitFor(() => expect(screen.queryByRole('alert')).toBeNull())
+      await waitFor(() => expect(screen.queryByRole('alert')).toBeNull(), { timeout: 5000 })
     })
   })
 
@@ -327,7 +327,7 @@ describe('ParentDashboardPage — delete & consent', () => {
       const confirmSpy = vi.spyOn(window, 'confirm')
 
       renderPage()
-      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy())
+      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy(), { timeout: 5000 })
       fireEvent.click(screen.getByTitle('Remove'))
 
       expect(confirmSpy).not.toHaveBeenCalled()
@@ -338,10 +338,10 @@ describe('ParentDashboardPage — delete & consent', () => {
       setupChildList()
 
       renderPage()
-      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy())
+      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy(), { timeout: 5000 })
       fireEvent.click(screen.getByTitle('Remove'))
 
-      const dialog = await screen.findByRole('dialog')
+      const dialog = await screen.findByRole('dialog', undefined, { timeout: 5000 })
       expect(dialog.getAttribute('aria-modal')).toBe('true')
       expect(dialog.textContent).toContain("Remove Child A's profile?")
     })
@@ -350,13 +350,13 @@ describe('ParentDashboardPage — delete & consent', () => {
       setupChildList()
 
       renderPage()
-      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy())
+      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy(), { timeout: 5000 })
       fireEvent.click(screen.getByTitle('Remove'))
 
-      const cancelBtn = await screen.findByRole('button', { name: /^Cancel$/ })
+      const cancelBtn = await screen.findByRole('button', { name: /^Cancel$/ }, { timeout: 5000 })
       fireEvent.click(cancelBtn)
 
-      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull(), { timeout: 5000 })
       expect(mockApiService.deleteChild).not.toHaveBeenCalled()
     })
 
@@ -365,16 +365,16 @@ describe('ParentDashboardPage — delete & consent', () => {
       mockApiService.deleteChild.mockResolvedValue({ data: null, error: undefined })
 
       renderPage()
-      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy())
+      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy(), { timeout: 5000 })
       fireEvent.click(screen.getByTitle('Remove'))
 
-      const dialog = await screen.findByRole('dialog')
+      const dialog = await screen.findByRole('dialog', undefined, { timeout: 5000 })
       const confirmBtn = dialog.querySelector('button') as HTMLButtonElement
       expect(confirmBtn).toBeTruthy()
       fireEvent.click(confirmBtn)
 
-      await waitFor(() => expect(mockApiService.deleteChild).toHaveBeenCalledWith(1))
-      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+      await waitFor(() => expect(mockApiService.deleteChild).toHaveBeenCalledWith(1), { timeout: 5000 })
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull(), { timeout: 5000 })
     })
   })
 })

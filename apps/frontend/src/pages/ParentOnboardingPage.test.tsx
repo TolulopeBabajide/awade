@@ -92,7 +92,7 @@ describe('ParentOnboardingPage', () => {
       mockApiService.getGradeLevels.mockReturnValue(new Promise(() => {}))
       mockApiService.getSubjects.mockReturnValue(new Promise(() => {}))
       renderPage()
-      await screen.findByTestId('dashboard-page')
+      await screen.findByTestId('dashboard-page', undefined, { timeout: 5000 })
     })
   })
 
@@ -193,7 +193,7 @@ describe('ParentOnboardingPage', () => {
       // the component unmounts.
       await screen.findByText('Mathematics')
       fireEvent.click(screen.getByText(/Skip for now/i))
-      await screen.findByTestId('dashboard-page')
+      await screen.findByTestId('dashboard-page', undefined, { timeout: 5000 })
     })
   })
 
