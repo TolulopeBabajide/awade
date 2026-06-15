@@ -676,3 +676,26 @@ class TestGetAllowedHosts:
         monkeypatch.setenv("ENVIRONMENT", "production")
         with pytest.raises(RuntimeError, match="ALLOWED_HOSTS"):
             _get_allowed_hosts()
+
+    def test_comma_only_raises_in_production(self, monkeypatch):
+        """AWD-H-113: ALLOWED_HOSTS=',' must raise RuntimeError in production, not silently return ['*']."""
+        from apps.backend.main import _get_allowed_hosts
+        monkeypatch.setenv("ALLOWED_HOSTS", ",")
+        monkeypatch.setenv("ENVIRONMENT", "production")
+        with pytest.raises(RuntimeError, match="ALLOWED_HOSTS"):
+            _get_allowed_hosts()
+
+    def test_all_whitespace_segments_raises_in_production(self, monkeypatch):
+        """AWD-H-113: ALLOWED_HOSTS=', , ,' (all-blank segments) must raise RuntimeError in production."""
+        from apps.backend.main import _get_allowed_hosts
+        monkeypatch.setenv("ALLOWED_HOSTS", ", , ,")
+        monkeypatch.setenv("ENVIRONMENT", "production")
+        with pytest.raises(RuntimeError, match="ALLOWED_HOSTS"):
+            _get_allowed_hosts()
+
+    def test_comma_only_returns_wildcard_in_development(self, monkeypatch):
+        """AWD-H-113: ALLOWED_HOSTS=',' in development should fall back to ['*'] safely."""
+        from apps.backend.main import _get_allowed_hosts
+        monkeypatch.setenv("ALLOWED_HOSTS", ",")
+        monkeypatch.setenv("ENVIRONMENT", "development")
+        assert _get_allowed_hosts() == ["*"]

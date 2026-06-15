@@ -222,7 +222,20 @@ def _get_allowed_hosts() -> list[str]:
                 "development, test, testing."
             )
         return ["*"]
-    return [h.strip() for h in raw.split(",") if h.strip()] or ["*"]
+    hosts = [h.strip() for h in raw.split(",") if h.strip()]
+    if not hosts:
+        environment = os.getenv("ENVIRONMENT", "development")
+        if environment not in _TRUSTED_HOST_SAFE_ENVIRONMENTS:
+            raise RuntimeError(
+                f"ALLOWED_HOSTS environment variable must be set to a specific "
+                f"host list when ENVIRONMENT='{environment}'. "
+                "Set ALLOWED_HOSTS to a comma-separated list of valid hostnames "
+                "(e.g. 'awade.app,www.awade.app') before starting the server. "
+                "The wildcard '*' is only allowed when ENVIRONMENT is one of: "
+                "development, test, testing."
+            )
+        return ["*"]
+    return hosts
 
 
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=_get_allowed_hosts())
