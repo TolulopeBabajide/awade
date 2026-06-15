@@ -776,3 +776,4 @@ After removing it, the next hourly run will:
 2026-06-14T20:10:00Z | H-98 | refactor(ai): AWD-H-98 introduce ParentGuideRequest TypedDict for generate_parent_guide | 425d98a | ✅ Done | CI:pending
 2026-06-14T21:13:00Z | M-239 | Fix three intermittent frontend vitest failures | a35533a | ✅ Done | CI:pending
 2026-06-15T00:06:00Z | H-111 | vitest: add pool:forks and isolate:true to prevent module pollution in full-suite runs | 9a7ba2d | ✅ Done | CI:pending
+| 2026-06-15T00:06:57Z | AWD-M-230 | Promote inline imports to module level in test_password_reset.py | 59c3c5d | ✅ Done | CI:pending (push deferred — sandbox permission denied) |
