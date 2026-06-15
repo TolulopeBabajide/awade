@@ -668,3 +668,11 @@ class TestGetAllowedHosts:
         monkeypatch.setenv("ENVIRONMENT", "production")
         with pytest.raises(RuntimeError, match="ALLOWED_HOSTS"):
             _get_allowed_hosts()
+
+    def test_whitespace_only_raises_in_production(self, monkeypatch):
+        """AWD-H-112: ALLOWED_HOSTS='  ' (whitespace-only) must raise RuntimeError, not silently return ['*']."""
+        from apps.backend.main import _get_allowed_hosts
+        monkeypatch.setenv("ALLOWED_HOSTS", "  ")
+        monkeypatch.setenv("ENVIRONMENT", "production")
+        with pytest.raises(RuntimeError, match="ALLOWED_HOSTS"):
+            _get_allowed_hosts()

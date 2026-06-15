@@ -210,7 +210,7 @@ def _get_allowed_hosts() -> list[str]:
     guard in dependencies.py (AWD-L-54).
     """
     raw = os.getenv("ALLOWED_HOSTS", "")
-    if not raw or raw.strip() == "*":
+    if not raw.strip() or raw.strip() == "*":
         environment = os.getenv("ENVIRONMENT", "development")
         if environment not in _TRUSTED_HOST_SAFE_ENVIRONMENTS:
             raise RuntimeError(
