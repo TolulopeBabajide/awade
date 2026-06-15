@@ -786,3 +786,4 @@ After removing it, the next hourly run will:
 2026-06-15T09:10:00Z | AWD-M-203 | chore(routers): remove unused get_optional_current_user import from 3 routers | 826d08a | ✅ Done | CI:pending
 2026-06-15T10:25:00Z | AWD-H-114 | fix(testing): harden async queries against race conditions under load | cd8b4c1 | ✅ Done | CI:pending
 2026-06-15T12:30:00Z | AWD-H-116 | fix(testing): increase SavedGuidesPage a11y timeout + global testTimeout to 15s | aca739b | ✅ Done | CI:pending
+2026-06-15T14:35:00Z | AWD-H-115 | fix(testing): waitFor timeouts in ParentDashboard render tests | 2f5bbb2 | ✅ Done | CI:pending

@@ -1773,3 +1773,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: aca739b (as part of H-116)
 - **Files**: `apps/frontend/vitest.config.ts`
 - **Summary**: Resolved by raising `testTimeout` to 15000ms in vitest.config.ts as part of AWD-H-116 fix. Stacked 5000ms assertions can no longer exceed the global ceiling.
+
+## AWD-H-115 — ParentDashboardPage.render.test.tsx missing explicit waitFor timeouts
+- **Date**: 2026-06-15
+- **Commit**: 2f5bbb2
+- **Files**: `apps/frontend/src/pages/ParentDashboardPage.render.test.tsx`
+- **Summary**: Added `{ timeout: 5000 }` to all 20 `waitFor`/`findBy*` calls. Replaced `findByRole('button', { name: /.../ })` with `waitFor + getByText + closest + aria-label assertion` to fix ARIA name computation overhead blocking React state updates. All 19 tests pass in isolation.
