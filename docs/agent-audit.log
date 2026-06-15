@@ -249,3 +249,4 @@
 2026-06-15T09:24:14Z | code-review-agent | WRITE | docs/code-reviews/review-2026-06-15-edc9795.md | completed structural code review — AWD-H-114 working-tree fix, filed AWD-M-244
 2026-06-15T10:32:12Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-15-cd8b4c1.md | completed structural code review of cd8b4c1 AWD-H-114 merge commit
 2026-06-15T11:30:42Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-15T11:35:18Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — aca739b AWD-H-116 fix
