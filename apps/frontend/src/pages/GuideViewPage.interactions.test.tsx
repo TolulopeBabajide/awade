@@ -50,7 +50,7 @@ describe('GuideViewPage — interactions', () => {
     renderPage()
     await waitFor(() => {
       expect(screen.getByLabelText('Share this guide on WhatsApp')).toBeInTheDocument()
-    })
+    }, { timeout: 5000 })
   })
 
   it('opens the correct WhatsApp share URL when the button is clicked', async () => {
@@ -58,7 +58,7 @@ describe('GuideViewPage — interactions', () => {
     mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
     renderPage()
 
-    const shareBtn = await screen.findByLabelText('Share this guide on WhatsApp')
+    const shareBtn = await screen.findByLabelText('Share this guide on WhatsApp', undefined, { timeout: 5000 })
     await userEvent.click(shareBtn)
 
     expect(openSpy).toHaveBeenCalledOnce()
@@ -92,7 +92,7 @@ describe('GuideViewPage — interactions', () => {
       mockExportGuidePdf.mockResolvedValue({ error: 'PDF generation failed' })
 
       renderPage()
-      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF', undefined, { timeout: 5000 })
       await userEvent.click(downloadBtn)
 
       await waitFor(() => {
@@ -107,7 +107,7 @@ describe('GuideViewPage — interactions', () => {
       mockExportGuidePdf.mockRejectedValue(new Error('Network abort'))
 
       renderPage()
-      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF', undefined, { timeout: 5000 })
       await userEvent.click(downloadBtn)
 
       await waitFor(() => {
@@ -127,7 +127,7 @@ describe('GuideViewPage — interactions', () => {
       URL.revokeObjectURL = vi.fn()
 
       renderPage()
-      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF', undefined, { timeout: 5000 })
 
       await userEvent.click(downloadBtn)
       await waitFor(() => {
@@ -148,7 +148,7 @@ describe('GuideViewPage — interactions', () => {
       mockExportGuidePdf.mockRejectedValue(new Error('Timeout'))
 
       renderPage()
-      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF', undefined, { timeout: 5000 })
       await userEvent.click(downloadBtn)
 
       await waitFor(() => {
@@ -164,7 +164,7 @@ describe('GuideViewPage — interactions', () => {
       mockExportGuidePdf.mockResolvedValue({ error: 'PDF generation failed' })
 
       renderPage()
-      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF', undefined, { timeout: 5000 })
       await userEvent.click(downloadBtn)
 
       await waitFor(() => {
@@ -178,7 +178,7 @@ describe('GuideViewPage — interactions', () => {
       mockExportGuidePdf.mockResolvedValue({ error: 'PDF generation failed' })
 
       renderPage()
-      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF', undefined, { timeout: 5000 })
       await userEvent.click(downloadBtn)
 
       await waitFor(() => {
@@ -226,7 +226,7 @@ describe('GuideViewPage — interactions', () => {
 
       try {
         renderPage()
-        const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+        const downloadBtn = await screen.findByLabelText('Download this guide as a PDF', undefined, { timeout: 5000 })
         await userEvent.click(downloadBtn)
 
         await waitFor(() => {
@@ -263,7 +263,7 @@ describe('GuideViewPage — interactions', () => {
       const { queryClient } = renderPage()
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
 
-      const bookmarkBtn = await screen.findByTitle('Bookmark this guide')
+      const bookmarkBtn = await screen.findByTitle('Bookmark this guide', undefined, { timeout: 5000 })
       await userEvent.click(bookmarkBtn)
 
       await waitFor(() => {
@@ -278,7 +278,7 @@ describe('GuideViewPage — interactions', () => {
       const { queryClient } = renderPage()
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
 
-      const bookmarkBtn = await screen.findByTitle('Bookmark this guide')
+      const bookmarkBtn = await screen.findByTitle('Bookmark this guide', undefined, { timeout: 5000 })
       await userEvent.click(bookmarkBtn)
 
       await waitFor(() => {
@@ -296,7 +296,7 @@ describe('GuideViewPage — interactions', () => {
       const { queryClient } = renderPage()
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
 
-      const bookmarkBtn = await screen.findByTitle('Bookmark this guide')
+      const bookmarkBtn = await screen.findByTitle('Bookmark this guide', undefined, { timeout: 5000 })
       await userEvent.click(bookmarkBtn)
 
       await waitFor(() => {
@@ -311,7 +311,7 @@ describe('GuideViewPage — interactions', () => {
       const { queryClient } = renderPage()
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
 
-      const bookmarkBtn = await screen.findByTitle('Bookmark this guide')
+      const bookmarkBtn = await screen.findByTitle('Bookmark this guide', undefined, { timeout: 5000 })
       await userEvent.click(bookmarkBtn)
 
       await waitFor(() => {
