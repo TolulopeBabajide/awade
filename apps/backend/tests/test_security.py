@@ -612,3 +612,59 @@ class TestGetOptionalCurrentUserCookieFallback:
         )
         assert result is not None
         assert result.user_id == user_a.user_id, "Authorization header should take precedence over cookie"
+
+
+class TestGetAllowedHosts:
+    """AWD-L-54: _get_allowed_hosts() must mirror JWT_SECRET_KEY guard pattern."""
+
+    def test_returns_wildcard_in_development(self, monkeypatch):
+        """ALLOWED_HOSTS unset in development environment returns ['*']."""
+        from apps.backend.main import _get_allowed_hosts
+        monkeypatch.delenv("ALLOWED_HOSTS", raising=False)
+        monkeypatch.setenv("ENVIRONMENT", "development")
+        assert _get_allowed_hosts() == ["*"]
+
+    def test_returns_wildcard_in_testing(self, monkeypatch):
+        """ALLOWED_HOSTS unset in testing environment returns ['*']."""
+        from apps.backend.main import _get_allowed_hosts
+        monkeypatch.delenv("ALLOWED_HOSTS", raising=False)
+        monkeypatch.setenv("ENVIRONMENT", "testing")
+        assert _get_allowed_hosts() == ["*"]
+
+    def test_returns_wildcard_in_test(self, monkeypatch):
+        """ALLOWED_HOSTS unset when ENVIRONMENT='test' returns ['*']."""
+        from apps.backend.main import _get_allowed_hosts
+        monkeypatch.delenv("ALLOWED_HOSTS", raising=False)
+        monkeypatch.setenv("ENVIRONMENT", "test")
+        assert _get_allowed_hosts() == ["*"]
+
+    def test_raises_in_production_without_allowed_hosts(self, monkeypatch):
+        """ALLOWED_HOSTS unset in production must raise RuntimeError."""
+        from apps.backend.main import _get_allowed_hosts
+        monkeypatch.delenv("ALLOWED_HOSTS", raising=False)
+        monkeypatch.setenv("ENVIRONMENT", "production")
+        with pytest.raises(RuntimeError, match="ALLOWED_HOSTS"):
+            _get_allowed_hosts()
+
+    def test_raises_in_staging_without_allowed_hosts(self, monkeypatch):
+        """ALLOWED_HOSTS unset in staging must raise RuntimeError."""
+        from apps.backend.main import _get_allowed_hosts
+        monkeypatch.delenv("ALLOWED_HOSTS", raising=False)
+        monkeypatch.setenv("ENVIRONMENT", "staging")
+        with pytest.raises(RuntimeError, match="ALLOWED_HOSTS"):
+            _get_allowed_hosts()
+
+    def test_returns_parsed_list_when_set(self, monkeypatch):
+        """Explicit ALLOWED_HOSTS value is parsed and returned in any environment."""
+        from apps.backend.main import _get_allowed_hosts
+        monkeypatch.setenv("ALLOWED_HOSTS", "awade.app,www.awade.app")
+        monkeypatch.setenv("ENVIRONMENT", "production")
+        assert _get_allowed_hosts() == ["awade.app", "www.awade.app"]
+
+    def test_wildcard_env_var_raises_in_production(self, monkeypatch):
+        """ALLOWED_HOSTS='*' explicit wildcard in production still raises RuntimeError."""
+        from apps.backend.main import _get_allowed_hosts
+        monkeypatch.setenv("ALLOWED_HOSTS", "*")
+        monkeypatch.setenv("ENVIRONMENT", "production")
+        with pytest.raises(RuntimeError, match="ALLOWED_HOSTS"):
+            _get_allowed_hosts()

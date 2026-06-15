@@ -192,14 +192,40 @@ from apps.backend.middleware import AuditMiddleware
 app.add_middleware(AuditMiddleware)
 
 # ---------------------------------------------------------------------------
-# AWD-L-04: TrustedHostMiddleware guards against HTTP Host header injection
-# (OWASP A05 — Security Misconfiguration).
+# AWD-L-04 / AWD-L-54: TrustedHostMiddleware guards against HTTP Host header
+# injection (OWASP A05 — Security Misconfiguration).
 # Set ALLOWED_HOSTS to a comma-separated list of valid host(s) in production
 # (e.g. "awade.app,www.awade.app"). Defaults to "*" (allow all) in dev/test.
 # ---------------------------------------------------------------------------
-_raw_allowed_hosts = os.getenv("ALLOWED_HOSTS", "*")
-_allowed_hosts = [h.strip() for h in _raw_allowed_hosts.split(",") if h.strip()] or ["*"]
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=_allowed_hosts)
+_TRUSTED_HOST_SAFE_ENVIRONMENTS: frozenset[str] = frozenset(
+    {"development", "test", "testing"}
+)
+
+
+def _get_allowed_hosts() -> list[str]:
+    """Return the allowed-host list for TrustedHostMiddleware.
+
+    Raises RuntimeError when ENVIRONMENT is not in the safe-fallback set and
+    ALLOWED_HOSTS is unset or a bare wildcard, mirroring the JWT_SECRET_KEY
+    guard in dependencies.py (AWD-L-54).
+    """
+    raw = os.getenv("ALLOWED_HOSTS", "")
+    if not raw or raw.strip() == "*":
+        environment = os.getenv("ENVIRONMENT", "development")
+        if environment not in _TRUSTED_HOST_SAFE_ENVIRONMENTS:
+            raise RuntimeError(
+                f"ALLOWED_HOSTS environment variable must be set to a specific "
+                f"host list when ENVIRONMENT='{environment}'. "
+                "Set ALLOWED_HOSTS to a comma-separated list of valid hostnames "
+                "(e.g. 'awade.app,www.awade.app') before starting the server. "
+                "The wildcard '*' is only allowed when ENVIRONMENT is one of: "
+                "development, test, testing."
+            )
+        return ["*"]
+    return [h.strip() for h in raw.split(",") if h.strip()] or ["*"]
+
+
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=_get_allowed_hosts())
 
 # CORS middleware
 # In production, set ALLOWED_ORIGINS to your frontend domain(s)
