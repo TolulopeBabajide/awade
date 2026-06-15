@@ -12,9 +12,13 @@ These tests exercise the full HTTP layer (via TestClient) to ensure:
 """
 
 import hashlib
+import re
+import secrets
+import bcrypt
 import pytest
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
+from fastapi import HTTPException
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
@@ -133,7 +137,6 @@ class TestRequestPasswordResetUnit:
 
     def test_does_not_store_raw_token(self, db_session):
         """The stored value must be a SHA-256 hex digest, not the raw URL-safe token."""
-        import re
         user = _make_user(db_session)
         service = AuthService(db_session)
         service.request_password_reset(user.email)
@@ -150,7 +153,6 @@ class TestResetPasswordUnit:
 
     def _generate_token_for(self, service: AuthService, db_session, user: User):
         """Helper: store a valid reset token on the user and return the raw token."""
-        import secrets
         raw = secrets.token_urlsafe(32)
         user.password_reset_token = AuthService._hash_reset_token(raw)
         user.password_reset_expires = datetime.now(timezone.utc) + timedelta(hours=1)
@@ -158,7 +160,6 @@ class TestResetPasswordUnit:
         return raw
 
     def test_valid_token_resets_password(self, db_session):
-        import bcrypt
         user = _make_user(db_session)
         service = AuthService(db_session)
         raw = self._generate_token_for(service, db_session, user)
@@ -184,11 +185,9 @@ class TestResetPasswordUnit:
 
     def test_expired_token_rejected(self, db_session):
         """Token past its expiry window returns HTTP 400."""
-        from fastapi import HTTPException
         user = _make_user(db_session)
         service = AuthService(db_session)
 
-        import secrets
         raw = secrets.token_urlsafe(32)
         user.password_reset_token = AuthService._hash_reset_token(raw)
         # Set expiry in the past.
@@ -202,7 +201,6 @@ class TestResetPasswordUnit:
 
     def test_invalid_token_rejected(self, db_session):
         """An unrecognised token string returns HTTP 400."""
-        from fastapi import HTTPException
         _make_user(db_session)
         service = AuthService(db_session)
 
@@ -212,7 +210,6 @@ class TestResetPasswordUnit:
 
     def test_replay_rejected_after_successful_reset(self, db_session):
         """Re-using the same raw token after a successful reset must fail."""
-        from fastapi import HTTPException
         user = _make_user(db_session)
         service = AuthService(db_session)
         raw = self._generate_token_for(service, db_session, user)
@@ -252,7 +249,6 @@ class TestForgotPasswordHTTP:
 class TestResetPasswordHTTP:
     def _plant_token(self, db_session, email: str = "user@example.com"):
         """Create a user with a live reset token; return (user, raw_token)."""
-        import secrets
         user = _make_user(db_session, email=email)
         raw = secrets.token_urlsafe(32)
         user.password_reset_token = AuthService._hash_reset_token(raw)
