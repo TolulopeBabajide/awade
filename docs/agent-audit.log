@@ -242,3 +242,4 @@
 2026-06-15T02:25:10Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-15-48651f4.md | completed structural code review — AWD-L-54 fix; filed H-112, M-240
 2026-06-15T03:23:22Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
 2026-06-15T04:23:47Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-15-afb638c.md | completed structural code review — commit afb638c (AWD-H-113)
+2026-06-15T05:21:22Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
