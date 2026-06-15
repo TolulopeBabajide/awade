@@ -3,7 +3,7 @@ from sqlalchemy import literal, select, union_all
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from apps.backend.database import get_db
-from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator, get_optional_current_user
+from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator
 from apps.backend.models import CurriculumStructure, Curriculum, GradeLevel, Subject, User
 from pydantic import BaseModel, ConfigDict
 

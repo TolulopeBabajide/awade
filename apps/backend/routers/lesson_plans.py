@@ -24,7 +24,7 @@ from datetime import datetime
 
 from apps.backend.database import get_db
 from apps.backend.models import User
-from apps.backend.dependencies import get_current_user, require_educator, require_admin_or_educator, get_optional_current_user
+from apps.backend.dependencies import get_current_user, require_educator, require_admin_or_educator
 from apps.backend.limiter import limiter
 from apps.backend.services.lesson_plan_service import LessonPlanService
 from apps.backend.services.lesson_resource_service import LessonResourceService
