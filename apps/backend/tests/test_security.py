@@ -8,9 +8,18 @@ This module contains tests for security features:
 - Input sanitization
 """
 
+import asyncio
+import os
+
+import jwt as pyjwt
 import pytest
+from fastapi import Request
 from fastapi.testclient import TestClient
+from unittest.mock import MagicMock
+
+from apps.backend.dependencies import get_optional_current_user
 from apps.backend.main import app
+from apps.backend.models import User, UserRole
 from apps.backend.utils.sanitizer import sanitize_input
 
 client = TestClient(app)
@@ -491,20 +500,11 @@ class TestGetOptionalCurrentUserCookieFallback:
 
     def _make_token(self, user_id: int) -> str:
         """Mint a valid JWT for the given user_id using the test secret."""
-        import jwt as pyjwt
-        import os
         secret = os.getenv("JWT_SECRET_KEY", "test_jwt_secret")
         return pyjwt.encode({"sub": str(user_id)}, secret, algorithm="HS256")
 
     def test_returns_user_from_authorization_header(self, test_db):
         """Bearer token in Authorization header still resolves the user."""
-        from apps.backend.dependencies import get_optional_current_user
-        from apps.backend.models import User, UserRole
-        from sqlalchemy.orm import Session
-        from fastapi import Request
-        from unittest.mock import MagicMock
-        import asyncio
-
         user = User(
             full_name="Header User",
             email="header@example.com",
@@ -531,12 +531,6 @@ class TestGetOptionalCurrentUserCookieFallback:
 
     def test_returns_user_from_cookie(self, test_db):
         """Cookie-only request (no Authorization header) resolves the user."""
-        from apps.backend.dependencies import get_optional_current_user
-        from apps.backend.models import User, UserRole
-        from fastapi import Request
-        from unittest.mock import MagicMock
-        import asyncio
-
         user = User(
             full_name="Cookie User",
             email="cookie@example.com",
@@ -563,11 +557,6 @@ class TestGetOptionalCurrentUserCookieFallback:
 
     def test_returns_none_for_unauthenticated_request(self, test_db):
         """No header and no cookie → returns None (not an exception)."""
-        from apps.backend.dependencies import get_optional_current_user
-        from fastapi import Request
-        from unittest.mock import MagicMock
-        import asyncio
-
         mock_request = MagicMock(spec=Request)
         mock_request.headers = {}
         mock_request.cookies = {}
@@ -579,11 +568,6 @@ class TestGetOptionalCurrentUserCookieFallback:
 
     def test_returns_none_for_invalid_cookie_token(self, test_db):
         """A malformed or expired cookie token returns None without raising."""
-        from apps.backend.dependencies import get_optional_current_user
-        from fastapi import Request
-        from unittest.mock import MagicMock
-        import asyncio
-
         mock_request = MagicMock(spec=Request)
         mock_request.headers = {}
         mock_request.cookies = {"access_token": "not.a.valid.jwt"}
@@ -595,12 +579,6 @@ class TestGetOptionalCurrentUserCookieFallback:
 
     def test_header_takes_precedence_over_cookie(self, test_db):
         """When both Authorization header and cookie are present, header wins."""
-        from apps.backend.dependencies import get_optional_current_user
-        from apps.backend.models import User, UserRole
-        from fastapi import Request
-        from unittest.mock import MagicMock
-        import asyncio
-
         user_a = User(
             full_name="User A",
             email="usera@example.com",
