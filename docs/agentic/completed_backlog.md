@@ -1785,3 +1785,12 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 6ae3670 (merge 0c4f7d8)
 - **Files**: `apps/frontend/src/pages/ParentDashboardPage.delete.test.tsx`, `apps/frontend/src/test/App.test.tsx`
 - **Summary**: Reduced stacked `{ timeout: 5000 }` → `{ timeout: 3000 }` in `triggerConsentSubmit` helper (lines 112, 115) and assertion waitFor (line 128) — stacked ceiling now 9000ms, safely within 15000ms testTimeout. App.test.tsx async/findByRole conversion (QA spec part b) was tested and rejected: React Router `v7_startTransition: true` keeps async test promises pending, causing testTimeout; synchronous queries confirmed working in isolation.
+
+---
+
+### AWD-H-118 — ParentDashboardPage.render.test.tsx topics error state timeout
+
+- **Date**: 2026-06-15
+- **Commit**: 899cdfe (merged to develop)
+- **Files**: `apps/frontend/src/pages/ParentDashboardPage.render.test.tsx`
+- **Summary**: Added intermediate `await waitFor(() => expect(screen.getByText('Test Child 01')).toBeTruthy(), { timeout: 5000 })` before the topics-error assertion — pins the child-selection step so the error render gets a fresh 5000ms window. 19/19 tests pass under isolation; under parallel load the 3-step mock chain (getChildren resolves → auto-selects child → getChildTopics returns error) now has sequenced budget instead of a shared 5000ms window.
