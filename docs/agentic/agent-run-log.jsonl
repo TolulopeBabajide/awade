@@ -587,3 +587,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-06-12T18:38:36Z | awade-analytics-daily | done | Friday weekly report written (degraded — no analytics MCP; Mixpanel scope error day 9; Amplitude OAuth blocked); daily-log appended; morning-brief updated
 2026-06-12T22:03:29Z | awade-nightly-monitor | done | morning-brief written; 9 issues shipped today; 6 high open (2 security CVEs); TS+frontend tests green; CI green
 2026-06-13T22:04:38Z | awade-nightly-monitor | done | all checks green; CI green run 27478994006; 0C/7H/39M/11L open; brief written
+2026-06-15T03:08:09Z | awade-growth-daily | done | Mon parent 2-post draft (effort praise + expert-on-the-kid); BIP number post held (no analytics); content-log updated

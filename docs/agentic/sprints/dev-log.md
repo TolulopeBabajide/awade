@@ -779,3 +779,4 @@ After removing it, the next hourly run will:
 | 2026-06-15T00:06:57Z | AWD-M-230 | Promote inline imports to module level in test_password_reset.py | 59c3c5d | ✅ Done | CI:pending (push deferred — sandbox permission denied) |
 2026-06-15T02:10:00Z | AWD-L-67 | test(security): promote inline imports to module level in test_security.py | ecdddf4 | ✅ Done | CI:pending
 2026-06-15T03:09:00Z | AWD-L-54 | fix(security): extract _get_allowed_hosts() — RuntimeError when ALLOWED_HOSTS unset in production | 47a3ce7 | ✅ Done | CI:pending (push deferred — sandbox permission denied)
+2026-06-15T04:05:00Z | AWD-H-112 | fix(security): strip ALLOWED_HOSTS before empty/wildcard guard — whitespace-only value no longer bypasses RuntimeError in production | 5ee9fed | ✅ Done | CI:pending (push deferred — permission denied)
