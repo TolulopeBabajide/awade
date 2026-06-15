@@ -1741,3 +1741,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: f0f114c
 - **Files**: `apps/backend/main.py`, `apps/backend/tests/test_security.py`
 - **Summary**: Extracted `_require_explicit_hosts(environment: str) -> None` helper from `_get_allowed_hosts()`; reads ENVIRONMENT once at function top; both empty/wildcard guard branches delegate to helper — eliminates copy-pasted RuntimeError block and double os.getenv call. 6 new unit tests in TestRequireExplicitHosts.
+
+## AWD-M-199 — Bump urllib3 2.6.3→2.7.0 patch PYSEC-2026-142/141
+- **Completed**: 2026-06-15
+- **Commit**: 7a386a0
+- **Files**: `apps/backend/requirements.txt`
+- **Summary**: Bumped `urllib3==2.6.3` → `2.7.0`, patching PYSEC-2026-142 (Brotli decompression amplification — whole-body decompression on second `read(amt=N)` call) and PYSEC-2026-141 (cross-origin redirect header leak via low-level ProxyManager API). No app-code change needed. 710 backend tests pass · 292 frontend tests pass.
