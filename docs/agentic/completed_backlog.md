@@ -1779,3 +1779,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 2f5bbb2
 - **Files**: `apps/frontend/src/pages/ParentDashboardPage.render.test.tsx`
 - **Summary**: Added `{ timeout: 5000 }` to all 20 `waitFor`/`findBy*` calls. Replaced `findByRole('button', { name: /.../ })` with `waitFor + getByText + closest + aria-label assertion` to fix ARIA name computation overhead blocking React state updates. All 19 tests pass in isolation.
+
+## AWD-H-117 — delete test + App.test.tsx timeout regressions after H-116 testTimeout increase
+- **Date**: 2026-06-15
+- **Commit**: 6ae3670 (merge 0c4f7d8)
+- **Files**: `apps/frontend/src/pages/ParentDashboardPage.delete.test.tsx`, `apps/frontend/src/test/App.test.tsx`
+- **Summary**: Reduced stacked `{ timeout: 5000 }` → `{ timeout: 3000 }` in `triggerConsentSubmit` helper (lines 112, 115) and assertion waitFor (line 128) — stacked ceiling now 9000ms, safely within 15000ms testTimeout. App.test.tsx async/findByRole conversion (QA spec part b) was tested and rejected: React Router `v7_startTransition: true` keeps async test promises pending, causing testTimeout; synchronous queries confirmed working in isolation.
