@@ -133,6 +133,9 @@ describe('ParentDashboardPage — render', () => {
 
       renderPage()
 
+      // Pin child-selection step so the error render gets a fresh 5000ms window (AWD-H-118)
+      await waitFor(() => expect(screen.getByText('Test Child 01')).toBeTruthy(), { timeout: 5000 })
+
       await waitFor(() => {
         expect(screen.getByText(/Failed to load topics/i)).toBeTruthy()
         expect(screen.getByText(/Try again/i)).toBeTruthy()
