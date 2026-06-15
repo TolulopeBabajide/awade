@@ -1753,3 +1753,11 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 826d08a
 - **Files**: `apps/backend/routers/curriculum.py`, `apps/backend/routers/curriculum_structure.py`, `apps/backend/routers/lesson_plans.py`
 - **Summary**: Removed the dead `get_optional_current_user` import from all 3 routers — it was imported but never invoked, risking reviewer confusion about optional-auth routes existing in these files. No logic change. 710 backend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+---
+
+## AWD-H-114 — Frontend vitest flakiness (race conditions under load)
+- **Date**: 2026-06-15
+- **Commit**: cd8b4c1
+- **Files**: `apps/frontend/vitest.config.ts`, `apps/frontend/src/test/App.test.tsx`, `apps/frontend/src/pages/ChildrenPage.test.tsx`, `apps/frontend/src/pages/SavedGuidesPage.test.tsx`, `apps/frontend/src/pages/ParentDashboardPage.delete.test.tsx`, `apps/frontend/src/pages/admin/UserList.test.tsx`, `apps/frontend/src/pages/ParentOnboardingPage.test.tsx`
+- **Summary**: Eliminated load-induced race conditions (18 intermittent failures in QA). Set global `testTimeout: 10000ms` in vitest.config.ts. Added explicit `{ timeout: 5000 }` options to `waitFor`/`findBy*` calls across 7 test files. Converted App CTA test from async `findByRole` to synchronous `getByRole` (link is synchronously rendered at initial render — consistent with the other two App tests that already use sync queries). All 292 tests now pass reliably under CPU load.
