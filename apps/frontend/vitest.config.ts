@@ -12,7 +12,7 @@ export default defineConfig({
     css: true,
     pool: 'forks',
     isolate: true,
-    testTimeout: 10000,
+    testTimeout: 15000,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

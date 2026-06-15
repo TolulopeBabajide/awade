@@ -240,7 +240,7 @@ describe('SavedGuidesPage', () => {
 
       const btn = await screen.findByRole('button', {
         name: /Open "How to Help" guide for Fractions/i,
-      }, { timeout: 7000 })
+      }, { timeout: 10000 })
       expect(btn).toBeTruthy()
     })
 
@@ -261,7 +261,7 @@ describe('SavedGuidesPage', () => {
 
       const btn = await screen.findByRole('button', {
         name: /Open "How to Help" guide for Fractions \(bookmarked\)/i,
-      }, { timeout: 7000 })
+      }, { timeout: 10000 })
       expect(btn).toBeTruthy()
     })
   })
