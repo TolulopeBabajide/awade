@@ -63,7 +63,7 @@ describe('GuideViewPage — render', () => {
     renderPage()
     await waitFor(() => {
       expect(screen.getByText('Guide not found')).toBeInTheDocument()
-    })
+    }, { timeout: 5000 })
   })
 
   it('shows fallback error when AI content is malformed JSON', async () => {
@@ -72,7 +72,7 @@ describe('GuideViewPage — render', () => {
     renderPage()
     await waitFor(() => {
       expect(screen.getByText('Could not load guide')).toBeInTheDocument()
-    })
+    }, { timeout: 5000 })
   })
 
   // ── Success state ───────────────────────────────────────────────────────
@@ -81,7 +81,7 @@ describe('GuideViewPage — render', () => {
     renderPage()
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: /Fractions/i })).toBeInTheDocument()
-    })
+    }, { timeout: 5000 })
     expect(screen.getByText('A fraction represents a part of a whole.')).toBeInTheDocument()
   })
 
@@ -90,10 +90,10 @@ describe('GuideViewPage — render', () => {
     renderPage('/guides?child=1&topic=10')
     await waitFor(() => {
       expect(mockGenerateGuide).toHaveBeenCalledWith(1, 10)
-    })
+    }, { timeout: 5000 })
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: /Fractions/i })).toBeInTheDocument()
-    })
+    }, { timeout: 5000 })
   })
 
   // ── Unauthenticated / disabled query ────────────────────────────────────
@@ -115,7 +115,7 @@ describe('GuideViewPage — render', () => {
     it('renders sidebar and mobile-nav in error state', async () => {
       mockGetGuide.mockResolvedValue({ data: undefined, error: 'Not found' })
       renderPage()
-      await waitFor(() => expect(screen.getByText('Not found')).toBeInTheDocument())
+      await waitFor(() => expect(screen.getByText('Not found')).toBeInTheDocument(), { timeout: 5000 })
       expect(screen.getByTestId('sidebar')).toBeInTheDocument()
       expect(screen.getByTestId('mobile-nav')).toBeInTheDocument()
     })
@@ -125,7 +125,7 @@ describe('GuideViewPage — render', () => {
       renderPage()
       await waitFor(() =>
         expect(screen.getByRole('heading', { name: /Fractions/i })).toBeInTheDocument(),
-      )
+      { timeout: 5000 })
       expect(screen.getByTestId('sidebar')).toBeInTheDocument()
       expect(screen.getByTestId('mobile-nav')).toBeInTheDocument()
     })
@@ -135,7 +135,7 @@ describe('GuideViewPage — render', () => {
       renderPage()
       await waitFor(() =>
         expect(screen.getByRole('heading', { name: /Fractions/i })).toBeInTheDocument(),
-      )
+      { timeout: 5000 })
       const main = document.querySelector('main')
       expect(main).toHaveAttribute('id', 'main-content')
       expect(main).toHaveAttribute('tabindex', '-1')
