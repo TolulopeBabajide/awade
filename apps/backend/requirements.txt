@@ -16,7 +16,7 @@ weasyprint==68.0  # Upgraded from 62.3 — fix CVE-2025-68616 (SSRF via HTTP red
 PyJWT==2.13.0  # Upgraded from 2.12.1 — fixes PYSEC-2026-175/177/178/179 (CVE-2026-48522/48524/48525/48526); algorithm-confusion vector N/A (single explicit HS256); PyJWKClient vectors N/A (not used) (AWD-M-207)
 email-validator==2.1.0
 requests==2.33.0  # Fix CVE-2024-47081, CVE-2026-25645 (insecure temp file reuse) (AWD-M-114)
-urllib3==2.6.3  # Fix CVE-2025-50181, CVE-2025-50182, CVE-2025-66471, CVE-2026-21441, CVE-2026-66418 (AWD-H-75)
+urllib3==2.7.0  # Fix CVE-2025-50181, CVE-2025-50182, CVE-2025-66471, CVE-2026-21441, CVE-2026-66418 (AWD-H-75); Fix PYSEC-2026-142 (Brotli decompression amplification), PYSEC-2026-141 (cross-origin redirect header leak, fixed in 2.7.0) (AWD-M-199)
 Pillow==12.2.0  # Upgraded from 10.4.0 — fixes CVE-2026-40192 (FITS GZIP decompression bomb, AV:N), CVE-2026-25990, CVE-2026-42311, CVE-2026-42310, CVE-2026-42308; API compat confirmed: Image.open/.convert/.thumbnail/.save + Image.Resampling.LANCZOS all stable 10→12 (AWD-M-112)
 alembic==1.13.3
 
