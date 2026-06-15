@@ -1761,3 +1761,15 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: cd8b4c1
 - **Files**: `apps/frontend/vitest.config.ts`, `apps/frontend/src/test/App.test.tsx`, `apps/frontend/src/pages/ChildrenPage.test.tsx`, `apps/frontend/src/pages/SavedGuidesPage.test.tsx`, `apps/frontend/src/pages/ParentDashboardPage.delete.test.tsx`, `apps/frontend/src/pages/admin/UserList.test.tsx`, `apps/frontend/src/pages/ParentOnboardingPage.test.tsx`
 - **Summary**: Eliminated load-induced race conditions (18 intermittent failures in QA). Set global `testTimeout: 10000ms` in vitest.config.ts. Added explicit `{ timeout: 5000 }` options to `waitFor`/`findBy*` calls across 7 test files. Converted App CTA test from async `findByRole` to synchronous `getByRole` (link is synchronously rendered at initial render — consistent with the other two App tests that already use sync queries). All 292 tests now pass reliably under CPU load.
+
+## AWD-H-116 — SavedGuidesPage a11y test timeouts (still at 7000ms after H-114)
+- **Date**: 2026-06-15
+- **Commit**: aca739b (merge abb6512)
+- **Files**: `apps/frontend/src/pages/SavedGuidesPage.test.tsx`, `apps/frontend/vitest.config.ts`
+- **Summary**: H-114 raised SavedGuidesPage a11y timeouts from 3000ms → 7000ms but 2-step async chain (getChildren → useEffect → getChildGuides) still consumed the full 7s budget under 26-fork load. Changed `{ timeout: 7000 }` → `{ timeout: 10000 }` at both call sites. Also raised global `testTimeout` from 10000ms → 15000ms to give stacked-assertion helpers headroom. Both a11y tests now pass (12.6s and 9.9s — comfortably within 15s ceiling). Also resolves M-244.
+
+## AWD-M-244 — testTimeout stacking risk in ParentDashboardPage.delete.test.tsx helpers
+- **Date**: 2026-06-15
+- **Commit**: aca739b (as part of H-116)
+- **Files**: `apps/frontend/vitest.config.ts`
+- **Summary**: Resolved by raising `testTimeout` to 15000ms in vitest.config.ts as part of AWD-H-116 fix. Stacked 5000ms assertions can no longer exceed the global ceiling.
