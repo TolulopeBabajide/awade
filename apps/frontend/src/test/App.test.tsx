@@ -41,7 +41,7 @@ describe('App', () => {
   it('renders parent landing page CTA', () => {
     render(<AppWithRouter />)
     // Primary CTA uses aria-label "Sign up as a parent" (visible text: "Get Started Free")
-    // Synchronous query matches tests 1 & 2: link is in the DOM at initial render
+    // Synchronous query: link is statically rendered, exists immediately in DOM
     const ctaLink = screen.getByRole('link', { name: /Sign up as a parent/i })
     expect(ctaLink).toBeInTheDocument()
     expect(ctaLink).toHaveAttribute('href', '/signup')
