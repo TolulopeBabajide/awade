@@ -699,3 +699,40 @@ class TestGetAllowedHosts:
         monkeypatch.setenv("ALLOWED_HOSTS", ",")
         monkeypatch.setenv("ENVIRONMENT", "development")
         assert _get_allowed_hosts() == ["*"]
+
+
+class TestRequireExplicitHosts:
+    """AWD-M-241: _require_explicit_hosts() extracted helper — unit tests."""
+
+    def test_raises_for_production(self):
+        """Non-safe environment raises RuntimeError."""
+        from apps.backend.main import _require_explicit_hosts
+        with pytest.raises(RuntimeError, match="ALLOWED_HOSTS"):
+            _require_explicit_hosts("production")
+
+    def test_raises_for_staging(self):
+        """Non-safe environment raises RuntimeError."""
+        from apps.backend.main import _require_explicit_hosts
+        with pytest.raises(RuntimeError, match="ALLOWED_HOSTS"):
+            _require_explicit_hosts("staging")
+
+    def test_does_not_raise_for_development(self):
+        """Safe environment returns without raising."""
+        from apps.backend.main import _require_explicit_hosts
+        _require_explicit_hosts("development")
+
+    def test_does_not_raise_for_test(self):
+        """Safe environment returns without raising."""
+        from apps.backend.main import _require_explicit_hosts
+        _require_explicit_hosts("test")
+
+    def test_does_not_raise_for_testing(self):
+        """Safe environment returns without raising."""
+        from apps.backend.main import _require_explicit_hosts
+        _require_explicit_hosts("testing")
+
+    def test_error_message_includes_environment(self):
+        """Error message includes the offending environment value."""
+        from apps.backend.main import _require_explicit_hosts
+        with pytest.raises(RuntimeError, match="ENVIRONMENT='production'"):
+            _require_explicit_hosts("production")

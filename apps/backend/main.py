@@ -202,6 +202,19 @@ _TRUSTED_HOST_SAFE_ENVIRONMENTS: frozenset[str] = frozenset(
 )
 
 
+def _require_explicit_hosts(environment: str) -> None:
+    """Raise RuntimeError when a non-safe environment uses an unset/wildcard ALLOWED_HOSTS."""
+    if environment not in _TRUSTED_HOST_SAFE_ENVIRONMENTS:
+        raise RuntimeError(
+            f"ALLOWED_HOSTS environment variable must be set to a specific "
+            f"host list when ENVIRONMENT='{environment}'. "
+            "Set ALLOWED_HOSTS to a comma-separated list of valid hostnames "
+            "(e.g. 'awade.app,www.awade.app') before starting the server. "
+            "The wildcard '*' is only allowed when ENVIRONMENT is one of: "
+            "development, test, testing."
+        )
+
+
 def _get_allowed_hosts() -> list[str]:
     """Return the allowed-host list for TrustedHostMiddleware.
 
@@ -209,31 +222,14 @@ def _get_allowed_hosts() -> list[str]:
     ALLOWED_HOSTS is unset or a bare wildcard, mirroring the JWT_SECRET_KEY
     guard in dependencies.py (AWD-L-54).
     """
+    environment = os.getenv("ENVIRONMENT", "development")
     raw = os.getenv("ALLOWED_HOSTS", "")
     if not raw.strip() or raw.strip() == "*":
-        environment = os.getenv("ENVIRONMENT", "development")
-        if environment not in _TRUSTED_HOST_SAFE_ENVIRONMENTS:
-            raise RuntimeError(
-                f"ALLOWED_HOSTS environment variable must be set to a specific "
-                f"host list when ENVIRONMENT='{environment}'. "
-                "Set ALLOWED_HOSTS to a comma-separated list of valid hostnames "
-                "(e.g. 'awade.app,www.awade.app') before starting the server. "
-                "The wildcard '*' is only allowed when ENVIRONMENT is one of: "
-                "development, test, testing."
-            )
+        _require_explicit_hosts(environment)
         return ["*"]
     hosts = [h.strip() for h in raw.split(",") if h.strip()]
     if not hosts:
-        environment = os.getenv("ENVIRONMENT", "development")
-        if environment not in _TRUSTED_HOST_SAFE_ENVIRONMENTS:
-            raise RuntimeError(
-                f"ALLOWED_HOSTS environment variable must be set to a specific "
-                f"host list when ENVIRONMENT='{environment}'. "
-                "Set ALLOWED_HOSTS to a comma-separated list of valid hostnames "
-                "(e.g. 'awade.app,www.awade.app') before starting the server. "
-                "The wildcard '*' is only allowed when ENVIRONMENT is one of: "
-                "development, test, testing."
-            )
+        _require_explicit_hosts(environment)
         return ["*"]
     return hosts
 
