@@ -781,3 +781,4 @@ After removing it, the next hourly run will:
 2026-06-15T03:09:00Z | AWD-L-54 | fix(security): extract _get_allowed_hosts() — RuntimeError when ALLOWED_HOSTS unset in production | 47a3ce7 | ✅ Done | CI:pending (push deferred — sandbox permission denied)
 2026-06-15T04:05:00Z | AWD-H-112 | fix(security): strip ALLOWED_HOSTS before empty/wildcard guard — whitespace-only value no longer bypasses RuntimeError in production | 5ee9fed | ✅ Done | CI:pending (push deferred — permission denied)
 2026-06-15T16:00:00Z | AWD-H-113 | fix(security): raise RuntimeError when ALLOWED_HOSTS yields empty host list | afb638c | ✅ Done | CI:pending
+2026-06-15T06:11:00Z | M-241 | Extract _require_explicit_hosts helper from _get_allowed_hosts() | f0f114c | ✅ Done | CI:pending

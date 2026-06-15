@@ -1735,3 +1735,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | 2026-06-15 | AWD-H-112 | fix(security): strip ALLOWED_HOSTS before empty/wildcard guard in _get_allowed_hosts() — changed `if not raw or ...` to `if not raw.strip() or ...` so whitespace-only ALLOWED_HOSTS raises RuntimeError in production instead of silently returning ["*"]. 701 backend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. Commit 5ee9fed, merge f768f79. |
 | 2026-06-15 | AWD-M-240 | test(security): add test_whitespace_only_raises_in_production to TestGetAllowedHosts — asserts ALLOWED_HOSTS="  " + ENVIRONMENT=production raises RuntimeError. Bundled with AWD-H-112 fix in commit 5ee9fed. |
 | 2026-06-15 | AWD-H-113 | fix(security): AWD-H-113 raise RuntimeError when ALLOWED_HOSTS yields empty host list — added `if not hosts:` guard after list comprehension in `_get_allowed_hosts()` so comma-only/all-blank-segment values (e.g. `","`, `", , ,"`) raise RuntimeError in production instead of falling back to `["*"]` wildcard. 3 new tests. 704 backend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. Commit afb638c, merge a774406. |
+
+## AWD-M-241 — Extract _require_explicit_hosts helper
+- **Completed**: 2026-06-15
+- **Commit**: f0f114c
+- **Files**: `apps/backend/main.py`, `apps/backend/tests/test_security.py`
+- **Summary**: Extracted `_require_explicit_hosts(environment: str) -> None` helper from `_get_allowed_hosts()`; reads ENVIRONMENT once at function top; both empty/wildcard guard branches delegate to helper — eliminates copy-pasted RuntimeError block and double os.getenv call. 6 new unit tests in TestRequireExplicitHosts.
