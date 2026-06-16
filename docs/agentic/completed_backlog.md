@@ -1844,3 +1844,10 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 53d8329 (merge cfbe45d)
 - **Files**: `apps/frontend/src/pages/ParentDashboardPage.render.test.tsx`
 - **Summary**: Added `expect(btn).not.toBeNull()` before `expect(btn!.getAttribute('aria-label')).toMatch(...)` in the "topic button exposes a descriptive aria-label" test. Previously, if `closest('button')` returned null, `btn?.getAttribute` silently produced `undefined` and `.toMatch()` would throw a confusing TypeError instead of a meaningful assertion failure. 292/292 frontend tests pass.
+
+---
+
+### AWD-M-249 — Pin child-selection before topics error absence check (2026-06-16)
+- **Commit**: 2ad414a (merge fec3436)
+- **Files**: `apps/frontend/src/pages/ParentDashboardPage.render.test.tsx`
+- **Summary**: Added `await waitFor(() => expect(screen.getByText('Test Child 01')).toBeTruthy(), { timeout: 5000 })` before the `queryByText(/No topics found/i)` absence assertion in the `topics error state > does not show "No topics found"` test. Without the pin, the absence check could pass trivially in the loading phase (before topics were ever requested), giving a false-positive that didn't verify error-state behaviour. The sibling test at line 127 had already been fixed by AWD-H-118; this fix brings the two tests into symmetry. 292/292 frontend tests pass.
