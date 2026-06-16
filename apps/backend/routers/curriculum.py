@@ -206,7 +206,10 @@ def update_learning_objective(
     Requires admin authentication.
     """
     service = LearningObjectiveService(db)
-    return service.update_learning_objective(objective_id, objective_data)
+    result = service.update_learning_objective(objective_id, objective_data)
+    if not result:
+        raise HTTPException(status_code=404, detail="Learning objective not found")
+    return result
 
 @router.delete("/learning-objectives/{objective_id}")
 def delete_learning_objective(
@@ -219,7 +222,10 @@ def delete_learning_objective(
     Requires admin authentication.
     """
     service = LearningObjectiveService(db)
-    return service.delete_learning_objective(objective_id)
+    success = service.delete_learning_objective(objective_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Learning objective not found")
+    return {"message": "Learning objective deleted successfully"}
 
 # Content endpoints
 @router.post("/contents", response_model=ContentResponse)
@@ -260,7 +266,10 @@ def update_content(
     Requires admin authentication.
     """
     service = TopicContentService(db)
-    return service.update_content(content_id, content_data)
+    result = service.update_content(content_id, content_data)
+    if not result:
+        raise HTTPException(status_code=404, detail="Content not found")
+    return result
 
 @router.delete("/contents/{content_id}")
 def delete_content(
@@ -273,7 +282,10 @@ def delete_content(
     Requires admin authentication.
     """
     service = TopicContentService(db)
-    return service.delete_content(content_id)
+    success = service.delete_content(content_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Content not found")
+    return {"message": "Content deleted successfully"}
 
 @router.get("/{curriculum_id}", response_model=CurriculumResponse)
 def get_curriculum(
