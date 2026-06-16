@@ -802,3 +802,4 @@ After removing it, the next hourly run will:
 2026-06-16T10:30:00Z | H-123 | Cap vitest fork workers (maxForks: 5) to reduce onTaskUpdate RPC timeouts; filed H-124 for App.test.tsx GC root cause | 023f6ff | ✅ Done | CI:pending — TS 0 errors · lint 0 errors · openapi.json ✅ · frontend tests not runnable locally (machine under load; pre-existing failures exist in isolation; CI validates)
 2026-06-16T12:30:00Z | H-124 | Mock LandingPage in App.test.tsx to eliminate GC escalation | 06e698f | ✅ Done | CI:pending
 2026-06-16T13:50Z | M-253 | Add 404 guards to get_curriculum/get_topic GET-by-ID handlers in curriculum.py | 062bc5d | ✅ Done | CI:pending
+2026-06-16T18:20Z | M-231 | Fix favicon.svg dominant-baseline cross-platform vertical shift | 28a09de | ✅ Done | CI:pending (push deferred — requires Tolu approval)

@@ -1886,3 +1886,8 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 062bc5d
 - **Files**: `apps/backend/routers/curriculum.py`, `apps/backend/tests/test_curriculum_router.py`
 - **Summary**: GET-by-ID handlers `get_topic` (line 135) and `get_curriculum` (line 300) were returning the `service.get_*()` result directly. When the service returned `None` (record not found), FastAPI would attempt Pydantic validation of `None` against the declared `response_model` and raise a 500 instead of a 404. Added `if not result: raise HTTPException(status_code=404, detail="X not found")` to both handlers. Added 4 new tests (`TestGetTopicM253`, `TestGetCurriculumM253`) — 12/12 curriculum router tests pass.
+
+### AWD-M-231 — Fix favicon.svg dominant-baseline cross-platform vertical shift (2026-06-16)
+- **Commit**: 28a09de
+- **Files**: `apps/frontend/public/favicon.svg`
+- **Summary**: `dominant-baseline="auto"` anchors text to the alphabetic baseline, causing the "A" lettermark to shift 1–3px vertically on Windows and Linux relative to macOS at 16px favicon size. Changed to `dominant-baseline="central"` and set `y="16"` (vertical midpoint of the 32×32 viewBox) so the lettermark is consistently centered on all platforms.
