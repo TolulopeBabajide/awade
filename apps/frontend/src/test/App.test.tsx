@@ -18,6 +18,19 @@ vi.mock('../contexts/AuthContext', () => ({
   })
 }))
 
+// Mock LandingPage to avoid rendering HeroSectionParent (picture/img) 3× in the same
+// worker, which causes exponential GC pause escalation (7s → 25s → 53s per test).
+// The stub satisfies all App.test assertions; LandingPage content is tested separately.
+vi.mock('../pages/LandingPage', () => ({
+  default: () => (
+    <div>
+      <span>Awade</span>
+      <h1>Understand what your child is learning</h1>
+      <a href="/signup" aria-label="Sign up as a parent">Get Started Free</a>
+    </div>
+  ),
+}))
+
 const AppWithRouter = () => (
   <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
     <App />
