@@ -1881,3 +1881,8 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 06e698f
 - **Files**: `apps/frontend/src/test/App.test.tsx`
 - **Summary**: Added `vi.mock('../pages/LandingPage', () => ({ default: () => <stub /> }))` with a lightweight stub that satisfies all 3 test assertions (Awade text, heading, CTA link). Eliminates the full import cascade through LandingPage → HeroSectionParent → picture/img, which was causing exponential GC pause escalation (7s → 25s → 53s per test when rendered 3× in the same worker). Fix reduced escalation to 4s → 9s → 6s with no exponential growth.
+
+### AWD-M-253 — Add 404 guards to get_curriculum/get_topic GET-by-ID handlers (2026-06-16)
+- **Commit**: 062bc5d
+- **Files**: `apps/backend/routers/curriculum.py`, `apps/backend/tests/test_curriculum_router.py`
+- **Summary**: GET-by-ID handlers `get_topic` (line 135) and `get_curriculum` (line 300) were returning the `service.get_*()` result directly. When the service returned `None` (record not found), FastAPI would attempt Pydantic validation of `None` against the declared `response_model` and raise a 500 instead of a 404. Added `if not result: raise HTTPException(status_code=404, detail="X not found")` to both handlers. Added 4 new tests (`TestGetTopicM253`, `TestGetCurriculumM253`) — 12/12 curriculum router tests pass.
