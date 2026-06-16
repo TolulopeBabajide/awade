@@ -15,7 +15,6 @@ Author: Tolulope Babajide
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from datetime import datetime
 
 from apps.backend.database import get_db
 from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator
@@ -27,7 +26,7 @@ from apps.backend.schemas.curriculum import (
     LearningObjectiveCreate, LearningObjectiveUpdate, LearningObjectiveResponse,
     ContentCreate, ContentUpdate, ContentResponse,
 )
-from apps.backend.models import Topic, User
+from apps.backend.models import User
 
 router = APIRouter(prefix="/api/curriculum", tags=["curriculum"])
 
