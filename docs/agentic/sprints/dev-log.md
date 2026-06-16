@@ -794,3 +794,4 @@ After removing it, the next hourly run will:
 2026-06-15T23:07:00Z | AWD-H-122 | fix(testing): add explicit timeout to GuideViewPage.render.test.tsx waitFor calls | dc27ab7 | ✅ Done | CI:pending
 2026-06-15T23:07:00Z | AWD-H-121 | (no commit) confirmed resolved by AWD-H-114 — all 13 tests pass | n/a | ✅ Done | CI:n/a
 2026-06-16T00:08:00Z | AWD-M-246 | test(frontend): add { timeout: 5000 } to all waitFor calls in LessonPlanDetailPage.generate.test.tsx | debdb53 | ✅ Done | CI:pending
+2026-06-16T01:08:00Z | M-248 | Add null check before btn.getAttribute in topic a11y test | 53d8329 | ✅ Done | CI:pending

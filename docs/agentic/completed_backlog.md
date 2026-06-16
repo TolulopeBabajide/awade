@@ -1838,3 +1838,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: debdb53 (merge bad2eeb)
 - **Files**: `apps/frontend/src/pages/LessonPlanDetailPage.generate.test.tsx`
 - **Summary**: Added `{ timeout: 5000 }` to all 12 bare `waitFor` calls (10 multi-line awaiting 'Introduction to Fractions', 2 single-line checking mock call counts). File's `findBy*` calls are absent — those tests use direct `expect` + fake timers per AWD-H-82 pattern, so no changes needed there. 292/292 frontend tests pass.
+
+### AWD-M-248 — Add null check before btn.getAttribute in topic a11y test
+- **Date**: 2026-06-16
+- **Commit**: 53d8329 (merge cfbe45d)
+- **Files**: `apps/frontend/src/pages/ParentDashboardPage.render.test.tsx`
+- **Summary**: Added `expect(btn).not.toBeNull()` before `expect(btn!.getAttribute('aria-label')).toMatch(...)` in the "topic button exposes a descriptive aria-label" test. Previously, if `closest('button')` returned null, `btn?.getAttribute` silently produced `undefined` and `.toMatch()` would throw a confusing TypeError instead of a meaningful assertion failure. 292/292 frontend tests pass.
