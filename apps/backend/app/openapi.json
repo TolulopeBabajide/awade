@@ -687,14 +687,14 @@
         }
       }
     },
-    "/api/curriculum/{curricula_id}": {
+    "/api/curriculum/{curriculum_id}": {
       "put": {
         "tags": [
           "curriculum"
         ],
         "summary": "Update Curriculum",
         "description": "Update a curriculum by ID.\nRequires admin authentication.",
-        "operationId": "update_curriculum_api_curriculum__curricula_id__put",
+        "operationId": "update_curriculum_api_curriculum__curriculum_id__put",
         "security": [
           {
             "HTTPBearer": []
@@ -702,12 +702,12 @@
         ],
         "parameters": [
           {
-            "name": "curricula_id",
+            "name": "curriculum_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "integer",
-              "title": "Curricula Id"
+              "title": "Curriculum Id"
             }
           }
         ],
@@ -750,7 +750,7 @@
         ],
         "summary": "Delete Curriculum",
         "description": "Delete a curriculum by ID.\nRequires admin authentication.",
-        "operationId": "delete_curriculum_api_curriculum__curricula_id__delete",
+        "operationId": "delete_curriculum_api_curriculum__curriculum_id__delete",
         "security": [
           {
             "HTTPBearer": []
@@ -758,12 +758,12 @@
         ],
         "parameters": [
           {
-            "name": "curricula_id",
+            "name": "curriculum_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "integer",
-              "title": "Curricula Id"
+              "title": "Curriculum Id"
             }
           }
         ],
@@ -773,6 +773,52 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "curriculum"
+        ],
+        "summary": "Get Curriculum",
+        "description": "Retrieve a specific curriculum by ID.\nRequires authentication.",
+        "operationId": "get_curriculum_api_curriculum__curriculum_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "curriculum_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Curriculum Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurriculumResponse"
+                }
               }
             }
           },
@@ -1450,54 +1496,6 @@
             "content": {
               "application/json": {
                 "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/curriculum/{curriculum_id}": {
-      "get": {
-        "tags": [
-          "curriculum"
-        ],
-        "summary": "Get Curriculum",
-        "description": "Retrieve a specific curriculum by ID.\nRequires authentication.",
-        "operationId": "get_curriculum_api_curriculum__curriculum_id__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "curriculum_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Curriculum Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CurriculumResponse"
-                }
               }
             }
           },
@@ -4932,7 +4930,7 @@
           "children"
         ],
         "summary": "Create Child",
-        "description": "Create a new child profile for the current parent.",
+        "description": "Create a new child profile for the current parent.\n\nRate-limited to 20 requests/minute per IP to prevent profile-spam abuse.",
         "operationId": "create_child_api_children_post",
         "requestBody": {
           "content": {
@@ -5358,7 +5356,7 @@
           "children"
         ],
         "summary": "Toggle Bookmark",
-        "description": "Toggle the bookmark status of a guide.",
+        "description": "Toggle the bookmark status of a guide.\n\nRate-limited to 30 requests/minute per IP to prevent rapid-fire toggle abuse.",
         "operationId": "toggle_bookmark_api_guides__guide_id__bookmark_post",
         "security": [
           {
@@ -5406,7 +5404,7 @@
           "children"
         ],
         "summary": "Export Guide Pdf",
-        "description": "Export a parent guide as a downloadable PDF for offline printing.\n\nReturns a PDF binary with Content-Disposition: attachment.\nRequires the guide to belong to the current parent (404 otherwise).",
+        "description": "Export a parent guide as a downloadable PDF for offline printing.\n\nReturns a PDF binary with Content-Disposition: attachment.\nRequires the guide to belong to the current parent (404 otherwise).\nRate-limited to 5 requests/minute per IP \u2014 WeasyPrint is CPU-intensive\nand unbounded export requests can degrade the worker process.",
         "operationId": "export_guide_pdf_api_guides__guide_id__export_get",
         "security": [
           {
@@ -6185,6 +6183,8 @@
         "properties": {
           "content_area": {
             "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
             "title": "Content Area",
             "description": "Content area text"
           }
@@ -6799,6 +6799,8 @@
         "properties": {
           "objective": {
             "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
             "title": "Objective",
             "description": "Learning objective text"
           }
@@ -7193,8 +7195,7 @@
         "type": "object",
         "required": [
           "name",
-          "version",
-          "schema_json"
+          "version"
         ],
         "title": "LessonTemplateCreate"
       },
@@ -7243,7 +7244,6 @@
         "required": [
           "name",
           "version",
-          "schema_json",
           "template_id",
           "created_at",
           "updated_at"

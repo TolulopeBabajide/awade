@@ -10,7 +10,14 @@ AWD-M-253: get_curriculum and get_topic GET-by-ID handlers also lacked 404
 guards — service returns None on miss, FastAPI 500s on Pydantic validation of
 None against the declared response_model.
 
+AWD-M-251: update_curriculum and delete_curriculum path param renamed from
+curricula_id to curriculum_id for OpenAPI consistency with get_curriculum.
+
 Covers:
+- update_curriculum:         service returns None  → 404 "Curriculum not found"
+- update_curriculum:         service returns ORM obj → that obj is returned
+- delete_curriculum:         service returns False → 404 "Curriculum not found"
+- delete_curriculum:         service returns True  → {"message": "...deleted..."}
 - update_learning_objective: service returns None → 404 "Learning objective not found"
 - update_learning_objective: service returns ORM obj → that obj is returned
 - delete_learning_objective: service returns False → 404 "Learning objective not found"
@@ -38,6 +45,8 @@ from unittest.mock import MagicMock, patch
 from fastapi import HTTPException
 
 from apps.backend.routers.curriculum import (
+    update_curriculum,
+    delete_curriculum,
     update_learning_objective,
     delete_learning_objective,
     update_content,
@@ -45,7 +54,90 @@ from apps.backend.routers.curriculum import (
     get_topic,
     get_curriculum,
 )
-from apps.backend.schemas.curriculum import LearningObjectiveUpdate, ContentUpdate
+from apps.backend.schemas.curriculum import (
+    CurriculumCreate,
+    LearningObjectiveUpdate,
+    ContentUpdate,
+)
+
+
+class TestUpdateCurriculumM251:
+    """AWD-M-251: update_curriculum uses curriculum_id param; raises 404 when service returns None."""
+
+    def test_not_found_raises_404(self):
+        mock_db = MagicMock()
+        mock_user = MagicMock()
+        data = CurriculumCreate(curricula_title="Test Curriculum", country_id=1)
+
+        with patch(
+            "apps.backend.routers.curriculum.CurriculumService"
+        ) as MockService:
+            MockService.return_value.update_curriculum.return_value = None
+            with pytest.raises(HTTPException) as exc_info:
+                update_curriculum(
+                    curriculum_id=999,
+                    curriculum_data=data,
+                    current_user=mock_user,
+                    db=mock_db,
+                )
+            assert exc_info.value.status_code == 404
+            assert "curriculum" in exc_info.value.detail.lower()
+
+    def test_found_returns_result(self):
+        mock_db = MagicMock()
+        mock_user = MagicMock()
+        data = CurriculumCreate(curricula_title="Test Curriculum", country_id=1)
+        fake_obj = MagicMock()
+
+        with patch(
+            "apps.backend.routers.curriculum.CurriculumService"
+        ) as MockService:
+            MockService.return_value.update_curriculum.return_value = fake_obj
+            result = update_curriculum(
+                curriculum_id=1,
+                curriculum_data=data,
+                current_user=mock_user,
+                db=mock_db,
+            )
+            assert result is fake_obj
+
+
+class TestDeleteCurriculumM251:
+    """AWD-M-251: delete_curriculum uses curriculum_id param; raises 404 when service returns False."""
+
+    def test_not_found_raises_404(self):
+        mock_db = MagicMock()
+        mock_user = MagicMock()
+
+        with patch(
+            "apps.backend.routers.curriculum.CurriculumService"
+        ) as MockService:
+            MockService.return_value.delete_curriculum.return_value = False
+            with pytest.raises(HTTPException) as exc_info:
+                delete_curriculum(
+                    curriculum_id=999,
+                    current_user=mock_user,
+                    db=mock_db,
+                )
+            assert exc_info.value.status_code == 404
+            assert "curriculum" in exc_info.value.detail.lower()
+
+    def test_success_returns_message(self):
+        mock_db = MagicMock()
+        mock_user = MagicMock()
+
+        with patch(
+            "apps.backend.routers.curriculum.CurriculumService"
+        ) as MockService:
+            MockService.return_value.delete_curriculum.return_value = True
+            result = delete_curriculum(
+                curriculum_id=1,
+                current_user=mock_user,
+                db=mock_db,
+            )
+            assert isinstance(result, dict)
+            assert "message" in result
+            assert "deleted" in result["message"].lower()
 
 
 class TestUpdateLearningObjectiveM252:
