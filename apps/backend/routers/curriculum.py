@@ -26,10 +26,6 @@ from apps.backend.schemas.curriculum import (
     CurriculumCreate, CurriculumResponse, TopicCreate, TopicResponse,
     LearningObjectiveCreate, LearningObjectiveUpdate, LearningObjectiveResponse,
     ContentCreate, ContentUpdate, ContentResponse,
-    # TeacherActivityCreate, TeacherActivityUpdate, TeacherActivityResponse,
-    # StudentActivityCreate, StudentActivityUpdate, StudentActivityResponse,
-    # TeachingMaterialCreate, TeachingMaterialUpdate, TeachingMaterialResponse,
-    # EvaluationGuideCreate, EvaluationGuideUpdate, EvaluationGuideResponse
 )
 from apps.backend.models import Topic, User
 
