@@ -1896,3 +1896,8 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 3153ee2 (merge 82de257)
 - **Files**: `apps/backend/routers/curriculum.py`, `apps/backend/tests/test_curriculum_router.py`, `apps/backend/app/openapi.json`
 - **Summary**: PUT and DELETE handlers declared path param as `curricula_id` while GET used `curriculum_id`, causing the OpenAPI spec to expose two separate `/api/curriculum/{curricula_id}` and `/api/curriculum/{curriculum_id}` paths. Renamed both to `curriculum_id` so all three handlers share a single path entry. Regenerated openapi.json. Added TestUpdateCurriculumM251 and TestDeleteCurriculumM251 (4 tests total).
+
+### AWD-M-243 — Move CurriculumStructureCreate/Response from router to schemas/ (2026-06-17)
+- **Commit**: f207541 (merge b2dd923)
+- **Files**: `apps/backend/schemas/curriculum_structure.py` (new), `apps/backend/routers/curriculum_structure.py`
+- **Summary**: Extracted `CurriculumStructureCreate` and `CurriculumStructureResponse` Pydantic models from inline router definition into new `apps/backend/schemas/curriculum_structure.py`. Router now imports from schemas/ module, restoring SRP and matching codebase convention. No API surface change — schema names and fields identical.
