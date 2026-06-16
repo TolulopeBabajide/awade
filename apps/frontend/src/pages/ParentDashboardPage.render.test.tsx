@@ -298,7 +298,8 @@ describe('ParentDashboardPage — render', () => {
         expect(screen.getByText('Fractions')).toBeTruthy()
       }, { timeout: 5000 })
       const btn = screen.getByText('Fractions').closest('button')
-      expect(btn?.getAttribute('aria-label')).toMatch(/Generate "How to Help" guide for Fractions/i)
+      expect(btn).not.toBeNull()
+      expect(btn!.getAttribute('aria-label')).toMatch(/Generate "How to Help" guide for Fractions/i)
     })
 
     it('reveal hint includes group-focus-within so keyboard users can see it on focus', async () => {
