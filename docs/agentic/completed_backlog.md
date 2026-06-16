@@ -1891,3 +1891,8 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 28a09de
 - **Files**: `apps/frontend/public/favicon.svg`
 - **Summary**: `dominant-baseline="auto"` anchors text to the alphabetic baseline, causing the "A" lettermark to shift 1–3px vertically on Windows and Linux relative to macOS at 16px favicon size. Changed to `dominant-baseline="central"` and set `y="16"` (vertical midpoint of the 32×32 viewBox) so the lettermark is consistently centered on all platforms.
+
+### AWD-M-251 — Normalise curricula_id → curriculum_id in curriculum.py PUT/DELETE handlers (2026-06-16)
+- **Commit**: 3153ee2 (merge 82de257)
+- **Files**: `apps/backend/routers/curriculum.py`, `apps/backend/tests/test_curriculum_router.py`, `apps/backend/app/openapi.json`
+- **Summary**: PUT and DELETE handlers declared path param as `curricula_id` while GET used `curriculum_id`, causing the OpenAPI spec to expose two separate `/api/curriculum/{curricula_id}` and `/api/curriculum/{curriculum_id}` paths. Renamed both to `curriculum_id` so all three handlers share a single path entry. Regenerated openapi.json. Added TestUpdateCurriculumM251 and TestDeleteCurriculumM251 (4 tests total).

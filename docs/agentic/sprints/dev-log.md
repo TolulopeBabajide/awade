@@ -803,3 +803,4 @@ After removing it, the next hourly run will:
 2026-06-16T12:30:00Z | H-124 | Mock LandingPage in App.test.tsx to eliminate GC escalation | 06e698f | ✅ Done | CI:pending
 2026-06-16T13:50Z | M-253 | Add 404 guards to get_curriculum/get_topic GET-by-ID handlers in curriculum.py | 062bc5d | ✅ Done | CI:pending
 2026-06-16T18:20Z | M-231 | Fix favicon.svg dominant-baseline cross-platform vertical shift | 28a09de | ✅ Done | CI:pending (push deferred — requires Tolu approval)
+2026-06-16T22:20Z | M-251 | Normalise curricula_id → curriculum_id in curriculum.py PUT/DELETE handlers; regenerate openapi.json | 3153ee2 | ✅ Done | CI:pending (push deferred)
