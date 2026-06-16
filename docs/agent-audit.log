@@ -290,3 +290,4 @@
 2026-06-16T20:44:12Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
 2026-06-16T21:13:26Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
 2026-06-16T21:18:20Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-16T22:25:57Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-16-3153ee2.md | completed structural code review — AWD-M-251 fix — verdict ✅ Clean — M-254 filed
