@@ -123,7 +123,7 @@ def get_topics(
 
 @router.get("/topics/{topic_id}", response_model=TopicResponse)
 def get_topic(
-    topic_id: int, 
+    topic_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -132,7 +132,10 @@ def get_topic(
     Requires authentication.
     """
     service = CurriculumService(db)
-    return service.get_topic(topic_id)
+    topic = service.get_topic(topic_id)
+    if not topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+    return topic
 
 @router.put("/topics/{topic_id}", response_model=TopicResponse)
 def update_topic(
@@ -289,7 +292,7 @@ def delete_content(
 
 @router.get("/{curriculum_id}", response_model=CurriculumResponse)
 def get_curriculum(
-    curriculum_id: int, 
+    curriculum_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -298,4 +301,7 @@ def get_curriculum(
     Requires authentication.
     """
     service = CurriculumService(db)
-    return service.get_curriculum(curriculum_id) 
+    curriculum = service.get_curriculum(curriculum_id)
+    if not curriculum:
+        raise HTTPException(status_code=404, detail="Curriculum not found")
+    return curriculum
