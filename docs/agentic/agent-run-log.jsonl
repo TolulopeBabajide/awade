@@ -1,3 +1,4 @@
+2026-06-16T08:00:00Z | awade-daily-health-check | done | 🟡 Attention Needed — TS 0 errors, lint 0, 718 backend/292 frontend tests green (per dev-agent logs); CI pending push; H-123 vitest flakes stage=ready; bash sandbox blocked (AWD-H-77 recurrence); 0 Critical, 6 High open
 2026-06-11T08:00:00Z | awade-daily-health-check | done | morning-brief written: 🔴 sandbox unavailable (day 6 ENOSPC) + AWD-M-208 dirty tree day 6; all shell checks blocked; last CI green 2026-06-05; C=1 H=5 M=~20 L=24 open; top actions: commit M-208 tree, then M-207+M-209 security patches
 2026-06-05T20:35:00Z | awade-support-digest | done | first digest run: 0 support messages (support-log.md created, Slack/Gmail empty, Intercom unauthenticated); digest-2026-06-05.md written; no queue additions; 2 setup gaps flagged for Tolu (no support intake channel; support-agent SKILL.md missing from repo)
 2026-05-18T00:00:00Z | awade-dev-execution | done | AWD-M-185 resolved: extracted _build_guide_ai_payload + _persist_guide helpers from generate_guide in children_service.py; CC 12→~5; 9 new tests; Tolu: git push origin develop
@@ -595,3 +596,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-06-15T22:04:07Z | awade-nightly-monitor | done | morning-brief written; 292 frontend tests pass; 5 High open; 7 agents CRITICAL
 2026-06-16T03:08:41Z | awade-growth-daily | done | Curriculum Insights thread (6 tweets, Both audience) — NERDC 543 topics/156 themes/48 docs, numbers verified against code review + test corpus
 2026-06-16T06:14:08Z | awade-architecture-review | skip | idempotency check fired — ran 9222m ago (window=20160m)
+2026-06-16T08:43:01Z | awade-support-digest | done | 0 messages across all sources; digest written to docs/agentic/support/digest-2026-06-16.md

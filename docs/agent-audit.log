@@ -276,3 +276,5 @@
 2026-06-16T05:27:22Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
 2026-06-16T06:12:59Z | architecture-agent   | SKIP       | idempotency                              | ran within 14-day window — skipping
 2026-06-16T06:41:57Z | code-review-agent | WRITE | docs/code-reviews/review-2026-06-16-44f3985.md | completed structural code review
+2026-06-16T07:37:04Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-16-badd74f.md | completed structural code review — sync commit, no reviewable app code
+2026-06-16T08:42:59Z | support-agent | WRITE | docs/agentic/support/ | support digest 2026-06-16
