@@ -1871,3 +1871,8 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 2c54ef3 (merge ffa7894)
 - **Files**: `apps/backend/routers/curriculum.py`, `apps/backend/tests/test_curriculum_router.py`
 - **Summary**: `update_learning_objective`, `delete_learning_objective`, `update_content`, and `delete_content` were returning service `None`/`False` directly — FastAPI would 500 on `None` (failed `response_model` validation) or return JSON `false` on 200 for not-found deletes. Added `if not result: raise HTTPException(status_code=404)` guards consistent with the `update_curriculum`/`delete_topic` pattern. Added `test_curriculum_router.py` (8 tests). 718 backend tests pass.
+
+### AWD-H-123 — Cap vitest fork workers to reduce onTaskUpdate RPC timeouts (2026-06-16)
+- **Commit**: 023f6ff
+- **Files**: `apps/frontend/vitest.config.ts`
+- **Summary**: Added `poolOptions.forks.maxForks: 5, minForks: 1, singleFork: false` to vitest.config.ts, capping parallel workers from default 11 to 5 (54% reduction in concurrent RPC messages). Investigation found: `idleTimeout` is not a vitest-level config option; `singleFork` is not the issue — App.test.tsx fails in isolation (1 file, 1 worker) due to GC pressure from repeated full-app renders. Filed AWD-H-124 for the deeper App.test.tsx fix.
