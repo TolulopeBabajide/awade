@@ -6,6 +6,10 @@ and delete_content were returning the service result directly (None or False whe
 not found), causing FastAPI to 500 (on None) or return JSON false on 200 (on
 False) instead of raising a 404.  These tests verify the guards are in place.
 
+AWD-M-253: get_curriculum and get_topic GET-by-ID handlers also lacked 404
+guards — service returns None on miss, FastAPI 500s on Pydantic validation of
+None against the declared response_model.
+
 Covers:
 - update_learning_objective: service returns None → 404 "Learning objective not found"
 - update_learning_objective: service returns ORM obj → that obj is returned
@@ -15,6 +19,10 @@ Covers:
 - update_content:            service returns ORM obj → that obj is returned
 - delete_content:            service returns False → 404 "Content not found"
 - delete_content:            service returns True  → {"message": "...deleted..."}
+- get_topic:                 service returns None  → 404 "Topic not found"
+- get_topic:                 service returns ORM obj → that obj is returned
+- get_curriculum:            service returns None  → 404 "Curriculum not found"
+- get_curriculum:            service returns ORM obj → that obj is returned
 """
 
 import sys
@@ -34,6 +42,8 @@ from apps.backend.routers.curriculum import (
     delete_learning_objective,
     update_content,
     delete_content,
+    get_topic,
+    get_curriculum,
 )
 from apps.backend.schemas.curriculum import LearningObjectiveUpdate, ContentUpdate
 
@@ -202,3 +212,81 @@ class TestDeleteContentM252:
             assert isinstance(result, dict)
             assert "message" in result
             assert "deleted" in result["message"].lower()
+
+
+class TestGetTopicM253:
+    """AWD-M-253: get_topic raises 404 when service returns None."""
+
+    def test_not_found_raises_404(self):
+        """Service returning None must raise HTTPException 404."""
+        mock_db = MagicMock()
+        mock_user = MagicMock()
+
+        with patch(
+            "apps.backend.routers.curriculum.CurriculumService"
+        ) as MockService:
+            MockService.return_value.get_topic.return_value = None
+            with pytest.raises(HTTPException) as exc_info:
+                get_topic(
+                    topic_id=999,
+                    current_user=mock_user,
+                    db=mock_db,
+                )
+            assert exc_info.value.status_code == 404
+            assert "topic" in exc_info.value.detail.lower()
+
+    def test_found_returns_result(self):
+        """Service returning an ORM object must be returned directly."""
+        mock_db = MagicMock()
+        mock_user = MagicMock()
+        fake_topic = MagicMock()
+
+        with patch(
+            "apps.backend.routers.curriculum.CurriculumService"
+        ) as MockService:
+            MockService.return_value.get_topic.return_value = fake_topic
+            result = get_topic(
+                topic_id=1,
+                current_user=mock_user,
+                db=mock_db,
+            )
+            assert result is fake_topic
+
+
+class TestGetCurriculumM253:
+    """AWD-M-253: get_curriculum raises 404 when service returns None."""
+
+    def test_not_found_raises_404(self):
+        """Service returning None must raise HTTPException 404."""
+        mock_db = MagicMock()
+        mock_user = MagicMock()
+
+        with patch(
+            "apps.backend.routers.curriculum.CurriculumService"
+        ) as MockService:
+            MockService.return_value.get_curriculum.return_value = None
+            with pytest.raises(HTTPException) as exc_info:
+                get_curriculum(
+                    curriculum_id=999,
+                    current_user=mock_user,
+                    db=mock_db,
+                )
+            assert exc_info.value.status_code == 404
+            assert "curriculum" in exc_info.value.detail.lower()
+
+    def test_found_returns_result(self):
+        """Service returning an ORM object must be returned directly."""
+        mock_db = MagicMock()
+        mock_user = MagicMock()
+        fake_curriculum = MagicMock()
+
+        with patch(
+            "apps.backend.routers.curriculum.CurriculumService"
+        ) as MockService:
+            MockService.return_value.get_curriculum.return_value = fake_curriculum
+            result = get_curriculum(
+                curriculum_id=1,
+                current_user=mock_user,
+                db=mock_db,
+            )
+            assert result is fake_curriculum
