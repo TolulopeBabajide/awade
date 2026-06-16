@@ -59,9 +59,9 @@ def get_curriculums(
     service = CurriculumService(db)
     return service.get_curriculums(skip=skip, limit=limit, country_id=country_id)
 
-@router.put("/{curricula_id}", response_model=CurriculumResponse)
+@router.put("/{curriculum_id}", response_model=CurriculumResponse)
 def update_curriculum(
-    curricula_id: int,
+    curriculum_id: int,
     curriculum_data: CurriculumCreate,
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
@@ -71,14 +71,14 @@ def update_curriculum(
     Requires admin authentication.
     """
     service = CurriculumService(db)
-    updated_curriculum = service.update_curriculum(curricula_id, curriculum_data)
+    updated_curriculum = service.update_curriculum(curriculum_id, curriculum_data)
     if not updated_curriculum:
         raise HTTPException(status_code=404, detail="Curriculum not found")
     return updated_curriculum
 
-@router.delete("/{curricula_id}")
+@router.delete("/{curriculum_id}")
 def delete_curriculum(
-    curricula_id: int,
+    curriculum_id: int,
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
@@ -87,7 +87,7 @@ def delete_curriculum(
     Requires admin authentication.
     """
     service = CurriculumService(db)
-    success = service.delete_curriculum(curricula_id)
+    success = service.delete_curriculum(curriculum_id)
     if not success:
         raise HTTPException(status_code=404, detail="Curriculum not found")
     return {"message": "Curriculum deleted successfully"}
