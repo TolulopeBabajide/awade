@@ -1856,3 +1856,13 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: ac28e0e (merge 19e200d)
 - **Files**: `apps/backend/routers/curriculum.py`
 - **Summary**: Deleted 4 commented-out import lines (TeacherActivityCreate/Update/Response, StudentActivityCreate/Update/Response, TeachingMaterialCreate/Update/Response, EvaluationGuideCreate/Update/Response) from the `from apps.backend.schemas.curriculum import (...)` block. These were dead code left over when AWD-M-161 removed the corresponding CRUD endpoints and service methods in May 2026. No endpoints exist for these schemas; no behaviour change. 710 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+### AWD-L-71 — Remove unused Topic import from curriculum router (2026-06-16)
+- **Commit**: ba35f83 (merge 4ecc84d)
+- **Files**: `apps/backend/routers/curriculum.py`
+- **Summary**: Removed `Topic` from `from apps.backend.models import Topic, User` — the SQLAlchemy model class was never referenced in any handler; all topic-related type hints use `TopicCreate`/`TopicResponse` from schemas. `User` retained for dependency injection annotations. Also removed `from datetime import datetime` (AWD-L-72 bundled): unused remnant with no handler referencing `datetime`. 710 backend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+### AWD-L-72 — Remove unused datetime import from curriculum router (2026-06-16)
+- **Commit**: ba35f83 (merge 4ecc84d)
+- **Files**: `apps/backend/routers/curriculum.py`
+- **Summary**: Bundled with AWD-L-71. See above.

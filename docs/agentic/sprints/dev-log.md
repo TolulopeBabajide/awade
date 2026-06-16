@@ -797,3 +797,4 @@ After removing it, the next hourly run will:
 2026-06-16T01:08:00Z | M-248 | Add null check before btn.getAttribute in topic a11y test | 53d8329 | ✅ Done | CI:pending
 2026-06-16T01:07:21Z | M-249 | Pin child-selection before topics error absence check | 2ad414a | ✅ Done | CI:pending
 2026-06-16T03:04Z | M-242 | Remove dead commented-out schema imports from curriculum router | ac28e0e | ✅ Done | CI:pending (push deferred)
+2026-06-16T03:22:54Z | L-71 + L-72 | Remove unused Topic and datetime imports from curriculum.py | ba35f83 | ✅ Done | CI:pending
