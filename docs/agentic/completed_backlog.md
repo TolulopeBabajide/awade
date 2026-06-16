@@ -1851,3 +1851,8 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 2ad414a (merge fec3436)
 - **Files**: `apps/frontend/src/pages/ParentDashboardPage.render.test.tsx`
 - **Summary**: Added `await waitFor(() => expect(screen.getByText('Test Child 01')).toBeTruthy(), { timeout: 5000 })` before the `queryByText(/No topics found/i)` absence assertion in the `topics error state > does not show "No topics found"` test. Without the pin, the absence check could pass trivially in the loading phase (before topics were ever requested), giving a false-positive that didn't verify error-state behaviour. The sibling test at line 127 had already been fixed by AWD-H-118; this fix brings the two tests into symmetry. 292/292 frontend tests pass.
+
+### AWD-M-242 — Remove dead commented-out schema imports from curriculum router (2026-06-16)
+- **Commit**: ac28e0e (merge 19e200d)
+- **Files**: `apps/backend/routers/curriculum.py`
+- **Summary**: Deleted 4 commented-out import lines (TeacherActivityCreate/Update/Response, StudentActivityCreate/Update/Response, TeachingMaterialCreate/Update/Response, EvaluationGuideCreate/Update/Response) from the `from apps.backend.schemas.curriculum import (...)` block. These were dead code left over when AWD-M-161 removed the corresponding CRUD endpoints and service methods in May 2026. No endpoints exist for these schemas; no behaviour change. 710 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
