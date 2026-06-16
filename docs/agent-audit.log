@@ -279,3 +279,5 @@
 2026-06-16T07:37:04Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-16-badd74f.md | completed structural code review — sync commit, no reviewable app code
 2026-06-16T08:42:59Z | support-agent | WRITE | docs/agentic/support/ | support digest 2026-06-16
 2026-06-16T09:33:56Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-16T10:40:17Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-16T10:50:40Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — no application code in scope (sync-only commit 895bf25)
