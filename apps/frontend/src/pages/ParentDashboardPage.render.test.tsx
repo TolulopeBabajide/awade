@@ -151,6 +151,9 @@ describe('ParentDashboardPage — render', () => {
 
       renderPage()
 
+      // Pin child-selection step so the absence check runs in error state, not loading (AWD-M-249)
+      await waitFor(() => expect(screen.getByText('Test Child 01')).toBeTruthy(), { timeout: 5000 })
+
       await waitFor(() => {
         expect(screen.queryByText(/No topics found/i)).toBeNull()
       }, { timeout: 5000 })
