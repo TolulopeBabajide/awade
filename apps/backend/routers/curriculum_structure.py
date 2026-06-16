@@ -5,7 +5,7 @@ from typing import List, Optional
 from apps.backend.database import get_db
 from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator
 from apps.backend.models import CurriculumStructure, Curriculum, GradeLevel, Subject, User
-from pydantic import BaseModel, ConfigDict
+from apps.backend.schemas.curriculum_structure import CurriculumStructureCreate, CurriculumStructureResponse
 
 router = APIRouter(prefix="/api/curriculum-structures", tags=["curriculum-structures"])
 
@@ -46,20 +46,6 @@ def _validate_fk_targets(
         raise HTTPException(status_code=404, detail="Grade level not found")
     if "subject" not in found:
         raise HTTPException(status_code=404, detail="Subject not found")
-
-class CurriculumStructureCreate(BaseModel):
-    """Schema for creating a new curriculum structure."""
-    curricula_id: int
-    grade_level_id: int
-    subject_id: int
-
-class CurriculumStructureResponse(BaseModel):
-    """Schema for curriculum structure response data."""
-    curriculum_structure_id: int
-    curricula_id: int
-    grade_level_id: int
-    subject_id: int
-    model_config = ConfigDict(from_attributes=True)
 
 @router.get("/", response_model=List[CurriculumStructureResponse])
 def list_curriculum_structures(
