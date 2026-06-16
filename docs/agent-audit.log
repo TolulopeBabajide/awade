@@ -284,3 +284,4 @@
 2026-06-16T12:12:50Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
 2026-06-16T12:41:15Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
 2026-06-16T15:21:36Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-16-062bc5d.md | completed structural code review — ✅ Clean — AWD-M-253 fix (062bc5d/5699290)
+2026-06-16T16:23:03Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-16-f49159e.md | completed structural code review — ✅ Clean — no application code in scope (sync/records commits f49159e/78b70e9)
