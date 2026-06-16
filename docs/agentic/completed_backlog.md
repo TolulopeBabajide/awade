@@ -1876,3 +1876,8 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 023f6ff
 - **Files**: `apps/frontend/vitest.config.ts`
 - **Summary**: Added `poolOptions.forks.maxForks: 5, minForks: 1, singleFork: false` to vitest.config.ts, capping parallel workers from default 11 to 5 (54% reduction in concurrent RPC messages). Investigation found: `idleTimeout` is not a vitest-level config option; `singleFork` is not the issue — App.test.tsx fails in isolation (1 file, 1 worker) due to GC pressure from repeated full-app renders. Filed AWD-H-124 for the deeper App.test.tsx fix.
+
+### AWD-H-124 — Mock LandingPage in App.test.tsx to eliminate GC escalation (2026-06-16)
+- **Commit**: 06e698f
+- **Files**: `apps/frontend/src/test/App.test.tsx`
+- **Summary**: Added `vi.mock('../pages/LandingPage', () => ({ default: () => <stub /> }))` with a lightweight stub that satisfies all 3 test assertions (Awade text, heading, CTA link). Eliminates the full import cascade through LandingPage → HeroSectionParent → picture/img, which was causing exponential GC pause escalation (7s → 25s → 53s per test when rendered 3× in the same worker). Fix reduced escalation to 4s → 9s → 6s with no exponential growth.

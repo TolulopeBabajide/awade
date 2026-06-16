@@ -800,3 +800,4 @@ After removing it, the next hourly run will:
 2026-06-16T03:22:54Z | L-71 + L-72 | Remove unused Topic and datetime imports from curriculum.py | ba35f83 | ✅ Done | CI:pending
 2026-06-16T06:50:00Z | M-252 | Fix 404 guards for update/delete handlers in curriculum.py (learning objectives + content) | 2c54ef3 | ✅ Done | CI:pending
 2026-06-16T10:30:00Z | H-123 | Cap vitest fork workers (maxForks: 5) to reduce onTaskUpdate RPC timeouts; filed H-124 for App.test.tsx GC root cause | 023f6ff | ✅ Done | CI:pending — TS 0 errors · lint 0 errors · openapi.json ✅ · frontend tests not runnable locally (machine under load; pre-existing failures exist in isolation; CI validates)
+2026-06-16T12:30:00Z | H-124 | Mock LandingPage in App.test.tsx to eliminate GC escalation | 06e698f | ✅ Done | CI:pending
