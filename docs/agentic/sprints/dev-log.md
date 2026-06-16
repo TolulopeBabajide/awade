@@ -798,3 +798,4 @@ After removing it, the next hourly run will:
 2026-06-16T01:07:21Z | M-249 | Pin child-selection before topics error absence check | 2ad414a | ✅ Done | CI:pending
 2026-06-16T03:04Z | M-242 | Remove dead commented-out schema imports from curriculum router | ac28e0e | ✅ Done | CI:pending (push deferred)
 2026-06-16T03:22:54Z | L-71 + L-72 | Remove unused Topic and datetime imports from curriculum.py | ba35f83 | ✅ Done | CI:pending
+2026-06-16T06:50:00Z | M-252 | Fix 404 guards for update/delete handlers in curriculum.py (learning objectives + content) | 2c54ef3 | ✅ Done | CI:pending

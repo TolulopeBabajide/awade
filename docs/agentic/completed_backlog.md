@@ -1866,3 +1866,8 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: ba35f83 (merge 4ecc84d)
 - **Files**: `apps/backend/routers/curriculum.py`
 - **Summary**: Bundled with AWD-L-71. See above.
+
+### AWD-M-252 — Add 404 guards to curriculum router update/delete handlers (2026-06-16)
+- **Commit**: 2c54ef3 (merge ffa7894)
+- **Files**: `apps/backend/routers/curriculum.py`, `apps/backend/tests/test_curriculum_router.py`
+- **Summary**: `update_learning_objective`, `delete_learning_objective`, `update_content`, and `delete_content` were returning service `None`/`False` directly — FastAPI would 500 on `None` (failed `response_model` validation) or return JSON `false` on 200 for not-found deletes. Added `if not result: raise HTTPException(status_code=404)` guards consistent with the `update_curriculum`/`delete_topic` pattern. Added `test_curriculum_router.py` (8 tests). 718 backend tests pass.
