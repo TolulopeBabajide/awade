@@ -13,8 +13,13 @@ Author: Lead Dev Agent (AWD-M-63)
 import pytest
 from fastapi import HTTPException
 from sqlalchemy import event as sa_event
+from sqlalchemy.exc import IntegrityError
+from unittest.mock import MagicMock, patch
 
-from apps.backend.routers.curriculum_structure import _validate_fk_targets
+from apps.backend.routers.curriculum_structure import (
+    _validate_fk_targets,
+    delete_curriculum_structure,
+)
 
 
 class TestValidateFkTargetsBatch:
@@ -154,3 +159,44 @@ class TestValidateFkTargetsBatch:
         assert "UNION ALL" in data_stmts[0].upper(), (
             f"AWD-M-63 expects a UNION ALL query; got: {data_stmts[0]}"
         )
+
+
+class TestDeleteCurriculumStructureM255:
+    """``delete_curriculum_structure`` — IntegrityError → 409 (AWD-M-255)."""
+
+    def test_delete_returns_success_message(
+        self, test_db, sample_curriculum_structure, sample_user
+    ):
+        """Deleting an unreferenced structure returns the success dict."""
+        result = delete_curriculum_structure(
+            structure_id=sample_curriculum_structure.curriculum_structure_id,
+            current_user=sample_user,
+            db=test_db,
+        )
+        assert result == {"message": "Curriculum structure deleted successfully"}
+
+    def test_delete_nonexistent_structure_raises_404(self, test_db, sample_user):
+        """Deleting a structure that does not exist raises HTTP 404."""
+        with pytest.raises(HTTPException) as excinfo:
+            delete_curriculum_structure(
+                structure_id=999_999,
+                current_user=sample_user,
+                db=test_db,
+            )
+        assert excinfo.value.status_code == 404
+        assert excinfo.value.detail == "Curriculum structure not found"
+
+    def test_delete_with_fk_reference_raises_409(
+        self, test_db, sample_curriculum_structure, sample_user
+    ):
+        """FK constraint violation on commit is caught and raised as HTTP 409."""
+        orig_statement = MagicMock(side_effect=IntegrityError("FK", {}, None))
+        with patch.object(test_db, "commit", orig_statement):
+            with pytest.raises(HTTPException) as excinfo:
+                delete_curriculum_structure(
+                    structure_id=sample_curriculum_structure.curriculum_structure_id,
+                    current_user=sample_user,
+                    db=test_db,
+                )
+        assert excinfo.value.status_code == 409
+        assert "associated records" in excinfo.value.detail

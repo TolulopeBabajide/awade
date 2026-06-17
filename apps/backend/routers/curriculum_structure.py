@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import literal, select, union_all
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from apps.backend.database import get_db
@@ -167,6 +168,13 @@ def delete_curriculum_structure(
         raise HTTPException(status_code=404, detail="Curriculum structure not found")
     
 
-    db.delete(db_structure)
-    db.commit()
-    return {"message": "Curriculum structure deleted successfully"} 
+    try:
+        db.delete(db_structure)
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail="Cannot delete — this curriculum structure has associated records.",
+        )
+    return {"message": "Curriculum structure deleted successfully"}
