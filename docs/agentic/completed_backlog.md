@@ -1921,3 +1921,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 2abd7a1
 - **Files**: `apps/backend/tests/test_curriculum_structure_router.py`
 - **Summary**: Renamed misleading `orig_statement` variable to `mock_commit` in `TestDeleteCurriculumStructureM255.test_delete_with_fk_reference_raises_409`. The variable patches `test_db.commit`, not a SQL statement; the old name caused reader confusion. 731 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
+
+### AWD-H-119 — GuideViewPage.interactions.test.tsx: add { timeout: 5000 } to remaining bare waitFor calls
+- **Date**: 2026-06-17
+- **Commit**: df763f2
+- **Files**: `apps/frontend/src/pages/GuideViewPage.interactions.test.tsx`
+- **Summary**: Added `{ timeout: 5000 }` to all 13 remaining bare `waitFor` calls in GuideViewPage.interactions.test.tsx (lines 98, 113, 133, 138, 154, 170, 184, 191, 232, 269, 284, 302, 317). Prior commit 2971139 addressed findBy calls and line 51; this commit completes the issue. 292 frontend tests pass · TS 0 errors · lint 0 errors.
