@@ -814,3 +814,4 @@ After removing it, the next hourly run will:
 2026-06-17T11:10:00Z | M-193 | Extract _assert_lesson_plan_ownership helper in LessonResourceService | 4a69962 | ✅ Done | CI:pending
 2026-06-17T12:10:46Z | M-217 | Fix check-permissions.sh glob stripping for final-component globs | e73a38e | ✅ Done | CI:pending
 2026-06-17T14:04:00Z | H-127 | test_check_permissions.py _run() tests bash script directly | 3d4de20 | ✅ Done | CI:pending
+| 2026-06-17T15:10:00Z | AWD-M-258 | Deduplicate bookmark mutation tests with it.each | 6370ec8 | ✅ Done | CI:pending (Tolu: `git push origin develop`) |

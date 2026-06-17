@@ -1959,3 +1959,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 3d4de20 (merge 56280bd)
 - **Files**: `scripts/check-permissions.sh`, `apps/backend/tests/test_check_permissions.py`
 - **Summary**: Added optional `$3` manifest-path arg to `check-permissions.sh` (`MANIFEST="${3:-$(dirname "$0")/../agent-permissions.json}"`). Rewrote `_run()` in `test_check_permissions.py` to call `bash SCRIPT agent target manifest_path` directly, removing the dead first `subprocess.run` call, the unused `_MANIFEST_OVERRIDE` env var, and the 33-line inline Python duplicate of the script logic. Tests now exercise the real bash script on every run. 11/11 tests pass · 746 backend tests pass · TS 0 errors · lint 0 errors.
+
+## AWD-M-258 — Deduplicate bookmark mutation tests with it.each
+- **Completed**: 2026-06-17
+- **Commit**: 6370ec8
+- **Files**: `apps/frontend/src/pages/GuideViewPage.interactions.test.tsx`
+- **Summary**: Replaced 4 near-identical bookmark invalidation test bodies with 2 `it.each<[string]>([['parentGuide'], ['childGuides']])` parameterised calls — one inside `bookmarkMutation onError (AWD-M-83)` and one inside `bookmarkMutation onSuccess (AWD-M-130)`. Each `it.each` varies only `queryKey` across the 2 rows. Reduces ~62 lines to ~30. 292 frontend tests pass · TS 0 errors · lint 0 errors.
