@@ -599,3 +599,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-06-16T06:14:08Z | awade-architecture-review | skip | idempotency check fired — ran 9222m ago (window=20160m)
 2026-06-16T08:43:01Z | awade-support-digest | done | 0 messages across all sources; digest written to docs/agentic/support/digest-2026-06-16.md
 2026-06-16T22:02:48Z | awade-nightly-monitor | done | morning brief written — 0 critical, 4 high open; TS clean, 292 FE tests pass, CI green; H-96 CVEs and H-125 vitest timeouts flagged for tomorrow
+2026-06-17T03:08:01Z | awade-growth-daily | done | LinkedIn draft written: BTS/BIP founder post, both audiences, drop-off insight + bookmark feature mention
