@@ -144,10 +144,8 @@ def update_curriculum_structure(
     if existing_structure:
         raise HTTPException(status_code=400, detail="Curriculum structure already exists")
     
-    # Update fields
-    db_structure.curricula_id = structure.curricula_id
-    db_structure.grade_level_id = structure.grade_level_id
-    db_structure.subject_id = structure.subject_id
+    for key, value in structure.model_dump().items():
+        setattr(db_structure, key, value)
     
     db.commit()
     db.refresh(db_structure)
