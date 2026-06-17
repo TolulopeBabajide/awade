@@ -1977,3 +1977,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: b0a9e35 (AWD-M-259 split — no dedicated commit)
 - **Files**: `apps/backend/tests/test_lesson_resource_generate.py`
 - **Summary**: Resolved as part of AWD-M-259. The parent file `test_lesson_resource_service.py` was deleted and `_db_for_generate` rebuilt in `test_lesson_resource_generate.py` — the `query_num = call_count[0]` assignment (line 67) replaces the single-letter `n`. No dedicated fix commit needed.
+
+## AWD-M-261 — Extract TestToLessonResourceResponse to test_lesson_resource_dto.py
+- **Completed**: 2026-06-17
+- **Commit**: 541dbcb
+- **Files**: `apps/backend/tests/test_lesson_resource_read.py`, `apps/backend/tests/test_lesson_resource_dto.py`
+- **Summary**: Extracted `TestToLessonResourceResponse` (3 tests, ~66 lines) from `test_lesson_resource_read.py` to a new `test_lesson_resource_dto.py`. Removed now-unused `LessonResourceResponse` and `_to_lesson_resource_response` imports from read file. File drops from 440 → 367 lines; new dto file is 105 lines. 746 backend tests pass.
