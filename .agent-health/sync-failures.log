@@ -178,3 +178,6 @@ PUSH_DEFERRED 2026-06-16T23:07:06Z — git push origin develop blocked by sandbo
 2026-06-17T00:01:14Z | PULL_REBASE_FAILED | develop
 2026-06-17T00:05:04Z | PULL_FAILED | develop
 PUSH_DEFERRED 2026-06-17T00:05:11Z develop — AWD-M-255 fix(curriculum): handle IntegrityError in delete_curriculum_structure
+2026-06-17T01:04:13Z | PULL_REBASE_FAILED | develop
+2026-06-17T02:03:16Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-17T02:08:08Z develop 2e851db AWD-M-256 push denied (sandbox permission)

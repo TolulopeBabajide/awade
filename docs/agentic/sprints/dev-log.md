@@ -806,3 +806,4 @@ After removing it, the next hourly run will:
 2026-06-16T22:20Z | M-251 | Normalise curricula_id → curriculum_id in curriculum.py PUT/DELETE handlers; regenerate openapi.json | 3153ee2 | ✅ Done | CI:pending (push deferred)
 2026-06-17T00:07Z | M-243 | Move CurriculumStructureCreate/Response from router to schemas/ | f207541 | ✅ Done | CI:pending (push deferred — sandbox)
 2026-06-17T00:05:39Z | M-255 | handle IntegrityError in delete_curriculum_structure | 9272519 | ✅ Done | CI:pending
+2026-06-17T03:08:00Z | M-256 | use model_dump().items() in update_curriculum_structure | ffc89fe | ✅ Done | CI:pending

@@ -1909,3 +1909,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 9272519 (merge 5cad3ec)
 - **Files**: `apps/backend/routers/curriculum_structure.py`, `apps/backend/tests/test_curriculum_structure_router.py`
 - **Summary**: Imported `sqlalchemy.exc.IntegrityError`; wrapped `db.delete`/`db.commit` in try/except — on IntegrityError calls `db.rollback()` and raises `HTTPException(409)` with a generic message ("Cannot delete — this curriculum structure has associated records."). Prevents FK constraint violations from leaking internal DB details as unhandled 500s (OWASP A05). 3 new tests: success path, 404 not-found, 409 FK violation. 729/729 backend tests pass.
+
+### AWD-M-256 — use model_dump().items() in update_curriculum_structure
+- **Date**: 2026-06-17
+- **Commit**: ffc89fe (merge 2e851db)
+- **Files**: `apps/backend/routers/curriculum_structure.py`, `apps/backend/tests/test_curriculum_structure_router.py`
+- **Summary**: Replaced 3-line field-by-field assignment (`db_structure.curricula_id = ...`, `db_structure.grade_level_id = ...`, `db_structure.subject_id = ...`) with `for key, value in structure.model_dump().items(): setattr(db_structure, key, value)`. Now consistent with the `create` handler (`**structure.model_dump()`) and safe against silent regressions when new fields are added to `CurriculumStructureCreate`. 2 new tests in `TestUpdateCurriculumStructureM256`: setattr-all-fields mock test and 404 not-found integration test. 731/731 backend tests pass.
