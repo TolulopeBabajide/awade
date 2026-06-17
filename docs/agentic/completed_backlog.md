@@ -1927,3 +1927,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: df763f2
 - **Files**: `apps/frontend/src/pages/GuideViewPage.interactions.test.tsx`
 - **Summary**: Added `{ timeout: 5000 }` to all 13 remaining bare `waitFor` calls in GuideViewPage.interactions.test.tsx (lines 98, 113, 133, 138, 154, 170, 184, 191, 232, 269, 284, 302, 317). Prior commit 2971139 addressed findBy calls and line 51; this commit completes the issue. 292 frontend tests pass · TS 0 errors · lint 0 errors.
+
+### AWD-M-194 — Promote inline asyncio imports to module level in test_lesson_resource_service.py
+- **Date**: 2026-06-17
+- **Commit**: 3871b83 (merge a4c6c68)
+- **Files**: `apps/backend/tests/test_lesson_resource_service.py`
+- **Summary**: Promoted `import asyncio` from inside 4 `TestGenerateLessonResource` method bodies (lines 516, 529, 549, 567) to module level (line 13). Per AWD-L-24 precedent. 731 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.

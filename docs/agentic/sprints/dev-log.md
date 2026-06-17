@@ -809,3 +809,4 @@ After removing it, the next hourly run will:
 2026-06-17T03:08:00Z | M-256 | use model_dump().items() in update_curriculum_structure | ffc89fe | ✅ Done | CI:pending
 2026-06-17T04:10Z | M-257 | rename orig_statement to mock_commit in test_delete_with_fk_reference_raises_409 | 2abd7a1 | ✅ Done | CI:pending (push deferred — sandbox)
 2026-06-17T07:50Z | H-119 | Add { timeout: 5000 } to 13 bare waitFor calls in GuideViewPage.interactions.test.tsx | df763f2 | ✅ Done | CI:pending (push deferred — sandbox)
+2026-06-17T10:10:00Z | M-194 | Promote inline asyncio imports to module level in test_lesson_resource_service.py | 3871b83 | ✅ Done | CI:pending
