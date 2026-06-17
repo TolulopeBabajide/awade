@@ -1971,3 +1971,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: b0a9e35 (merge ab841c1)
 - **Files**: `apps/backend/tests/lesson_resource_factories.py` (new), `apps/backend/tests/test_lesson_resource_read.py` (new), `apps/backend/tests/test_lesson_resource_generate.py` (new), `apps/backend/tests/test_lesson_resource_service.py` (deleted)
 - **Summary**: Split 615-line monolith into 3 focused files: `lesson_resource_factories.py` (84 lines, shared factories following `children_factories.py` pattern), `test_lesson_resource_read.py` (440 lines, 6 classes: TestAssertLessonPlanOwnership + 5 read/DTO tests), `test_lesson_resource_generate.py` (142 lines, TestGenerateLessonResource). 746 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
+
+## AWD-L-73 — Rename single-letter variable `n` in `_db_for_generate` closure
+- **Completed**: 2026-06-17
+- **Commit**: b0a9e35 (AWD-M-259 split — no dedicated commit)
+- **Files**: `apps/backend/tests/test_lesson_resource_generate.py`
+- **Summary**: Resolved as part of AWD-M-259. The parent file `test_lesson_resource_service.py` was deleted and `_db_for_generate` rebuilt in `test_lesson_resource_generate.py` — the `query_num = call_count[0]` assignment (line 67) replaces the single-letter `n`. No dedicated fix commit needed.
