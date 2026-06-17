@@ -256,67 +256,43 @@ describe('GuideViewPage — interactions', () => {
 
   // ── AWD-M-83: bookmarkMutation onError — cache invalidation on failure ──
   describe('bookmarkMutation onError (AWD-M-83)', () => {
-    it('invalidates parentGuide query when bookmark toggle fails', async () => {
-      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
-      mockToggleBookmark.mockRejectedValue(new Error('Network error'))
+    it.each<[string]>([['parentGuide'], ['childGuides']])(
+      'invalidates %s query when bookmark toggle fails',
+      async (queryKey) => {
+        mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
+        mockToggleBookmark.mockRejectedValue(new Error('Network error'))
 
-      const { queryClient } = renderPage()
-      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
+        const { queryClient } = renderPage()
+        const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
 
-      const bookmarkBtn = await screen.findByTitle('Bookmark this guide', undefined, { timeout: 5000 })
-      await userEvent.click(bookmarkBtn)
+        const bookmarkBtn = await screen.findByTitle('Bookmark this guide', undefined, { timeout: 5000 })
+        await userEvent.click(bookmarkBtn)
 
-      await waitFor(() => {
-        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['parentGuide'] })
-      }, { timeout: 5000 })
-    })
-
-    it('invalidates childGuides query when bookmark toggle fails', async () => {
-      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
-      mockToggleBookmark.mockRejectedValue(new Error('Network error'))
-
-      const { queryClient } = renderPage()
-      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
-
-      const bookmarkBtn = await screen.findByTitle('Bookmark this guide', undefined, { timeout: 5000 })
-      await userEvent.click(bookmarkBtn)
-
-      await waitFor(() => {
-        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['childGuides'] })
-      }, { timeout: 5000 })
-    })
+        await waitFor(() => {
+          expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: [queryKey] })
+        }, { timeout: 5000 })
+      }
+    )
   })
 
   // ── AWD-M-130: invalidateBookmarkQueries shared callback ──────────────────
   describe('bookmarkMutation onSuccess (AWD-M-130)', () => {
-    it('invalidates parentGuide query when bookmark toggle succeeds', async () => {
-      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
-      mockToggleBookmark.mockResolvedValue({ data: { ...MOCK_GUIDE, is_bookmarked: true }, error: undefined })
+    it.each<[string]>([['parentGuide'], ['childGuides']])(
+      'invalidates %s query when bookmark toggle succeeds',
+      async (queryKey) => {
+        mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
+        mockToggleBookmark.mockResolvedValue({ data: { ...MOCK_GUIDE, is_bookmarked: true }, error: undefined })
 
-      const { queryClient } = renderPage()
-      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
+        const { queryClient } = renderPage()
+        const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
 
-      const bookmarkBtn = await screen.findByTitle('Bookmark this guide', undefined, { timeout: 5000 })
-      await userEvent.click(bookmarkBtn)
+        const bookmarkBtn = await screen.findByTitle('Bookmark this guide', undefined, { timeout: 5000 })
+        await userEvent.click(bookmarkBtn)
 
-      await waitFor(() => {
-        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['parentGuide'] })
-      }, { timeout: 5000 })
-    })
-
-    it('invalidates childGuides query when bookmark toggle succeeds', async () => {
-      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
-      mockToggleBookmark.mockResolvedValue({ data: { ...MOCK_GUIDE, is_bookmarked: true }, error: undefined })
-
-      const { queryClient } = renderPage()
-      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
-
-      const bookmarkBtn = await screen.findByTitle('Bookmark this guide', undefined, { timeout: 5000 })
-      await userEvent.click(bookmarkBtn)
-
-      await waitFor(() => {
-        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['childGuides'] })
-      }, { timeout: 5000 })
-    })
+        await waitFor(() => {
+          expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: [queryKey] })
+        }, { timeout: 5000 })
+      }
+    )
   })
 })
