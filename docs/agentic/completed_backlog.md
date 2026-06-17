@@ -1965,3 +1965,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 6370ec8
 - **Files**: `apps/frontend/src/pages/GuideViewPage.interactions.test.tsx`
 - **Summary**: Replaced 4 near-identical bookmark invalidation test bodies with 2 `it.each<[string]>([['parentGuide'], ['childGuides']])` parameterised calls — one inside `bookmarkMutation onError (AWD-M-83)` and one inside `bookmarkMutation onSuccess (AWD-M-130)`. Each `it.each` varies only `queryKey` across the 2 rows. Reduces ~62 lines to ~30. 292 frontend tests pass · TS 0 errors · lint 0 errors.
+
+## AWD-M-259 — Split test_lesson_resource_service.py into read/generate files
+- **Completed**: 2026-06-17
+- **Commit**: b0a9e35 (merge ab841c1)
+- **Files**: `apps/backend/tests/lesson_resource_factories.py` (new), `apps/backend/tests/test_lesson_resource_read.py` (new), `apps/backend/tests/test_lesson_resource_generate.py` (new), `apps/backend/tests/test_lesson_resource_service.py` (deleted)
+- **Summary**: Split 615-line monolith into 3 focused files: `lesson_resource_factories.py` (84 lines, shared factories following `children_factories.py` pattern), `test_lesson_resource_read.py` (440 lines, 6 classes: TestAssertLessonPlanOwnership + 5 read/DTO tests), `test_lesson_resource_generate.py` (142 lines, TestGenerateLessonResource). 746 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
