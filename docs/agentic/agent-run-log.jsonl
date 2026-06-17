@@ -600,3 +600,6 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-06-16T08:43:01Z | awade-support-digest | done | 0 messages across all sources; digest written to docs/agentic/support/digest-2026-06-16.md
 2026-06-16T22:02:48Z | awade-nightly-monitor | done | morning brief written — 0 critical, 4 high open; TS clean, 292 FE tests pass, CI green; H-96 CVEs and H-125 vitest timeouts flagged for tomorrow
 2026-06-17T03:08:01Z | awade-growth-daily | done | LinkedIn draft written: BTS/BIP founder post, both audiences, drop-off insight + bookmark feature mention
+2026-06-17T07:38:10Z | awade-daily-health-check | done | OpenAPI ✅ · last known TS/lint/tests ✅ (dev-agent 2026-06-17) · sandbox Node.js timeout prevented re-run · push pending
+2026-06-17T07:39:07Z | awade-daily-health-check | done | OpenAPI valid; last TS/lint/tests clean per dev-agent; sandbox Node.js timeout; git push pending
+2026-06-17T08:07:19Z | awade-content-calendar | done | content-calendar-2026-06-17.md written — Mon-Fri Jun 22-26, 5 posts planned (parent study env, educator assessment thread, LinkedIn student-teacher ratio, teacher onboarding email, week-3 BIP check-in)
