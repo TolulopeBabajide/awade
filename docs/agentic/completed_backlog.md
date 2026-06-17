@@ -1951,3 +1951,11 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: e73a38e (merge 8d0abab)
 - **Files**: `scripts/check-permissions.sh`, `apps/backend/tests/test_check_permissions.py`
 - **Summary**: Added `elif "*" in allowed.rsplit("/", 1)[-1]:` branch alongside the existing `/**` and `/*` strip logic. Patterns with globs in the final path component (e.g. `alembic/versions/*.py`, `sprint-plans/sprint-*.md`, `.agent-health/*.last-run`) now strip to their parent directory before prefix matching, fixing DENY responses for valid write targets. 11 new tests in `TestCheckPermissionsGlobM217`. 746 backend tests pass · TS 0 errors · lint 0 errors.
+
+---
+
+## AWD-H-127 — `test_check_permissions.py` `_run()` tests bash script directly
+- **Completed**: 2026-06-17
+- **Commit**: 3d4de20 (merge 56280bd)
+- **Files**: `scripts/check-permissions.sh`, `apps/backend/tests/test_check_permissions.py`
+- **Summary**: Added optional `$3` manifest-path arg to `check-permissions.sh` (`MANIFEST="${3:-$(dirname "$0")/../agent-permissions.json}"`). Rewrote `_run()` in `test_check_permissions.py` to call `bash SCRIPT agent target manifest_path` directly, removing the dead first `subprocess.run` call, the unused `_MANIFEST_OVERRIDE` env var, and the 33-line inline Python duplicate of the script logic. Tests now exercise the real bash script on every run. 11/11 tests pass · 746 backend tests pass · TS 0 errors · lint 0 errors.
