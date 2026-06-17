@@ -54,9 +54,16 @@ write_list = agents[agent].get("writes", agents[agent].get("write", []))
 # Glob suffixes (/** or /*) are stripped to their directory prefix before comparison so
 # that "docs/tech-debt/**" matches "docs/tech-debt/report.md" without a startswith that
 # could match sibling prefixes (e.g. docs/agentic/specs-evil vs docs/agentic/specs).
+# Final-component globs (e.g. *.py, sprint-*.md, *.last-run) are also stripped so that
+# "alembic/versions/*.py" matches "alembic/versions/0001_foo.py".
 for allowed in write_list:
     # Strip trailing glob components before normalization
     if allowed.endswith("/**") or allowed.endswith("/*"):
+        allowed = allowed.rsplit("/", 1)[0]
+    elif "*" in allowed.rsplit("/", 1)[-1]:
+        # e.g. alembic/versions/*.py  → alembic/versions
+        #      sprint-plans/sprint-*.md → sprint-plans
+        #      .agent-health/*.last-run → .agent-health
         allowed = allowed.rsplit("/", 1)[0]
     allowed = os.path.normpath(allowed.rstrip("/"))
     if target == allowed or target.startswith(allowed + "/"):
