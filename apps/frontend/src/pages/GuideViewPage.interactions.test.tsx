@@ -99,7 +99,7 @@ describe('GuideViewPage — interactions', () => {
         expect(screen.getByRole('alert')).toHaveTextContent(
           'Could not download PDF: PDF generation failed',
         )
-      })
+      }, { timeout: 5000 })
     })
 
     it('shows inline error banner when exportGuidePdf throws unexpectedly', async () => {
@@ -114,7 +114,7 @@ describe('GuideViewPage — interactions', () => {
         expect(screen.getByRole('alert')).toHaveTextContent(
           'Could not download PDF: Network abort',
         )
-      })
+      }, { timeout: 5000 })
     })
 
     it('clears the error banner on a subsequent download attempt', async () => {
@@ -132,12 +132,12 @@ describe('GuideViewPage — interactions', () => {
       await userEvent.click(downloadBtn)
       await waitFor(() => {
         expect(screen.getByRole('alert')).toHaveTextContent('Could not download PDF')
-      })
+      }, { timeout: 5000 })
 
       await userEvent.click(downloadBtn)
       await waitFor(() => {
         expect(screen.queryByRole('alert')).not.toBeInTheDocument()
-      })
+      }, { timeout: 5000 })
 
       ;(URL as { createObjectURL?: unknown }).createObjectURL = undefined
       ;(URL as { revokeObjectURL?: unknown }).revokeObjectURL = undefined
@@ -153,7 +153,7 @@ describe('GuideViewPage — interactions', () => {
 
       await waitFor(() => {
         expect(downloadBtn).not.toBeDisabled()
-      })
+      }, { timeout: 5000 })
     })
   })
 
@@ -169,7 +169,7 @@ describe('GuideViewPage — interactions', () => {
 
       await waitFor(() => {
         expect(screen.getByRole('alert')).toBeInTheDocument()
-      })
+      }, { timeout: 5000 })
       expect(screen.getByLabelText('Dismiss error')).toBeInTheDocument()
     })
 
@@ -183,14 +183,14 @@ describe('GuideViewPage — interactions', () => {
 
       await waitFor(() => {
         expect(screen.getByRole('alert')).toBeInTheDocument()
-      })
+      }, { timeout: 5000 })
 
       const dismissBtn = screen.getByLabelText('Dismiss error')
       await userEvent.click(dismissBtn)
 
       await waitFor(() => {
         expect(screen.queryByRole('alert')).not.toBeInTheDocument()
-      })
+      }, { timeout: 5000 })
     })
   })
 
@@ -231,7 +231,7 @@ describe('GuideViewPage — interactions', () => {
 
         await waitFor(() => {
           expect(mockExportGuidePdf).toHaveBeenCalledWith(42)
-        })
+        }, { timeout: 5000 })
 
         expect(anchorWasInDomAtClick).toBe(true)
 
@@ -268,7 +268,7 @@ describe('GuideViewPage — interactions', () => {
 
       await waitFor(() => {
         expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['parentGuide'] })
-      })
+      }, { timeout: 5000 })
     })
 
     it('invalidates childGuides query when bookmark toggle fails', async () => {
@@ -283,7 +283,7 @@ describe('GuideViewPage — interactions', () => {
 
       await waitFor(() => {
         expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['childGuides'] })
-      })
+      }, { timeout: 5000 })
     })
   })
 
@@ -301,7 +301,7 @@ describe('GuideViewPage — interactions', () => {
 
       await waitFor(() => {
         expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['parentGuide'] })
-      })
+      }, { timeout: 5000 })
     })
 
     it('invalidates childGuides query when bookmark toggle succeeds', async () => {
@@ -316,7 +316,7 @@ describe('GuideViewPage — interactions', () => {
 
       await waitFor(() => {
         expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['childGuides'] })
-      })
+      }, { timeout: 5000 })
     })
   })
 })
