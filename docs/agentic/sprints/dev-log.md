@@ -810,3 +810,4 @@ After removing it, the next hourly run will:
 2026-06-17T04:10Z | M-257 | rename orig_statement to mock_commit in test_delete_with_fk_reference_raises_409 | 2abd7a1 | ✅ Done | CI:pending (push deferred — sandbox)
 2026-06-17T07:50Z | H-119 | Add { timeout: 5000 } to 13 bare waitFor calls in GuideViewPage.interactions.test.tsx | df763f2 | ✅ Done | CI:pending (push deferred — sandbox)
 2026-06-17T10:10:00Z | M-194 | Promote inline asyncio imports to module level in test_lesson_resource_service.py | 3871b83 | ✅ Done | CI:pending
+2026-06-17T10:10:00Z | H-96 | Bump fastapi to 0.121.3 and pin starlette 0.49.3 (CVE-2025-54121, CVE-2025-62727) | 42ba00c | ✅ Done | CI:pending (push deferred — Tolu: run git push origin develop)

@@ -1933,3 +1933,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 3871b83 (merge a4c6c68)
 - **Files**: `apps/backend/tests/test_lesson_resource_service.py`
 - **Summary**: Promoted `import asyncio` from inside 4 `TestGenerateLessonResource` method bodies (lines 516, 529, 549, 567) to module level (line 13). Per AWD-L-24 precedent. 731 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
+
+### AWD-H-96 — Bump fastapi to 0.121.3 and pin starlette 0.49.3 (CVE-2025-54121, CVE-2025-62727)
+- **Date**: 2026-06-17
+- **Commit**: 42ba00c (merge f380f01)
+- **Files**: `apps/backend/requirements.txt`
+- **Summary**: Bumped `fastapi==0.115.12` → `0.121.3` (allows starlette<0.51.0,>=0.40.0) and added explicit `starlette==0.49.3` pin. Fixes CVE-2025-54121 (multipart spool-file DoS; fixed at 0.47.2) and CVE-2025-62727 (Range header quadratic CPU DoS; fixed at 0.49.1). PYSEC-2026-161 (Host header injection; requires starlette 1.0.1+) deferred — requires fastapi 0.137.x+ bump. 731 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
