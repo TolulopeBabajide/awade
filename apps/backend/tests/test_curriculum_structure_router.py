@@ -19,7 +19,9 @@ from unittest.mock import MagicMock, patch
 from apps.backend.routers.curriculum_structure import (
     _validate_fk_targets,
     delete_curriculum_structure,
+    update_curriculum_structure,
 )
+from apps.backend.schemas.curriculum_structure import CurriculumStructureCreate
 
 
 class TestValidateFkTargetsBatch:
@@ -200,3 +202,43 @@ class TestDeleteCurriculumStructureM255:
                 )
         assert excinfo.value.status_code == 409
         assert "associated records" in excinfo.value.detail
+
+
+class TestUpdateCurriculumStructureM256:
+    """update_curriculum_structure applies all schema fields via model_dump() (AWD-M-256)."""
+
+    def test_update_applies_all_schema_fields_via_setattr(self, sample_user):
+        """Every field in CurriculumStructureCreate.model_dump() is applied via setattr."""
+        mock_db = MagicMock()
+        db_structure = MagicMock()
+        # First query returns the existing record; second (conflict check) returns None.
+        mock_db.query.return_value.filter.return_value.first.side_effect = [db_structure, None]
+
+        new_values = CurriculumStructureCreate(curricula_id=10, grade_level_id=20, subject_id=30)
+
+        with patch("apps.backend.routers.curriculum_structure._validate_fk_targets"):
+            update_curriculum_structure(
+                structure_id=1,
+                structure=new_values,
+                current_user=sample_user,
+                db=mock_db,
+            )
+
+        for key, value in new_values.model_dump().items():
+            assert getattr(db_structure, key) == value, (
+                f"Field '{key}' was not applied: expected {value}, "
+                f"got {getattr(db_structure, key)}"
+            )
+
+    def test_update_nonexistent_structure_raises_404(self, test_db, sample_user):
+        """Updating a non-existent structure raises HTTP 404."""
+        new_values = CurriculumStructureCreate(curricula_id=1, grade_level_id=1, subject_id=1)
+        with pytest.raises(HTTPException) as excinfo:
+            update_curriculum_structure(
+                structure_id=999_999,
+                structure=new_values,
+                current_user=sample_user,
+                db=test_db,
+            )
+        assert excinfo.value.status_code == 404
+        assert excinfo.value.detail == "Curriculum structure not found"
