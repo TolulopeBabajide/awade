@@ -1,21 +1,20 @@
 """
-Tests for LessonResourceService — AWD-M-117 extraction.
+Tests for LessonResourceService read paths — AWD-M-259 split.
 
-Covers all resource service methods (moved from test_lesson_plan_service.py):
+Split from test_lesson_resource_service.py (575 lines) into focused modules.
+Covers:
+- _assert_lesson_plan_ownership (shared 403 guard — AWD-M-193)
 - get_all_lesson_resources (empty, populated, field mapping)
 - get_lesson_plan_resources (404 no plan, 403 wrong user, 200, admin/super_admin bypass)
 - get_lesson_resource (404, 404 cross-user, 200, admin/super_admin bypass, field mapping)
 - get_lesson_resource_orm (same access-control guarantees, raw ORM return)
 - _to_lesson_resource_response (all fields mapped, optional fields as None, end-to-end)
-- generate_lesson_resource (403 wrong user, super_admin bypass)
 """
 
-import asyncio
 import pytest
 import sys
 import os
-from datetime import datetime, timezone
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import MagicMock
 from fastapi import HTTPException
 
 # --------------------------------------------------------------------------
@@ -32,16 +31,16 @@ import datetime as _dt
 if not hasattr(_dt, "UTC"):
     _dt.UTC = _dt.timezone.utc
 
-from apps.backend.models import (
-    LessonPlan, LessonResource, User, UserRole,
-    Topic,
-)
-from apps.backend.schemas.lesson_plans import (
-    LessonResourceCreate, LessonResourceResponse,
-)
+from apps.backend.models import LessonResource
+from apps.backend.schemas.lesson_plans import LessonResourceResponse
 from apps.backend.services.lesson_resource_service import (
     LessonResourceService,
     _to_lesson_resource_response,
+)
+from lesson_resource_factories import (
+    _educator, _admin, _super_admin,
+    _make_lesson_plan, _make_resource,
+    _db_all_returning,
 )
 
 # ==========================================================================
@@ -83,73 +82,6 @@ class TestAssertLessonPlanOwnership:
         lp = _make_lesson_plan(plan_id=1, user_id=1)
         super_admin = _super_admin(user_id=100)
         svc._assert_lesson_plan_ownership(lp, super_admin)  # must not raise
-
-
-# --------------------------------------------------------------------------
-# Factories
-# --------------------------------------------------------------------------
-
-def _now():
-    return datetime.now(timezone.utc)
-
-
-def _make_user(user_id: int, role: UserRole) -> User:
-    u = User()
-    u.user_id = user_id
-    u.email = f"user{user_id}@example.com"
-    u.role = role
-    u.is_active = True
-    u.is_suspended = False
-    return u
-
-
-def _educator(user_id: int = 1) -> User:
-    return _make_user(user_id, UserRole.EDUCATOR)
-
-
-def _admin(user_id: int = 99) -> User:
-    return _make_user(user_id, UserRole.ADMIN)
-
-
-def _super_admin(user_id: int = 100) -> User:
-    return _make_user(user_id, UserRole.SUPER_ADMIN)
-
-
-def _make_lesson_plan(plan_id: int = 1, user_id: int = 1) -> MagicMock:
-    lp = MagicMock()
-    lp.lesson_plan_id = plan_id
-    lp.user_id = user_id
-    lp.created_at = _now()
-    lp.topic_id = 1
-    return lp
-
-
-def _make_resource(
-    resource_id: int = 1, lesson_plan_id: int = 1, user_id: int = 1
-) -> LessonResource:
-    r = LessonResource()
-    r.lesson_resources_id = resource_id
-    r.lesson_plan_id = lesson_plan_id
-    r.user_id = user_id
-    r.context_input = "Some context"
-    r.ai_generated_content = "AI content"
-    r.user_edited_content = None
-    r.export_format = None
-    r.status = "draft"
-    r.created_at = _now()
-    return r
-
-
-# --------------------------------------------------------------------------
-# DB helpers
-# --------------------------------------------------------------------------
-
-def _db_all_returning(items) -> MagicMock:
-    """DB mock whose all() returns items."""
-    db = MagicMock()
-    db.query.return_value.filter.return_value.order_by.return_value.all.return_value = items
-    db.query.return_value.filter.return_value.all.return_value = items
-    return db
 
 
 # ==========================================================================
@@ -506,109 +438,3 @@ class TestToLessonResourceResponse:
         from_helper = _to_lesson_resource_response(resource)
 
         assert from_service.model_dump() == from_helper.model_dump()
-
-
-# ==========================================================================
-# TestGenerateLessonResource
-# ==========================================================================
-
-class TestGenerateLessonResource:
-    """generate_lesson_resource — 403 wrong user, SUPER_ADMIN bypass."""
-
-    def _db_for_generate(self, plan_obj) -> MagicMock:
-        """DB mock that drives the full generate_lesson_resource query sequence.
-
-        Query order inside generate_lesson_resource (AWD-H-94: dead CS/Subject/GradeLevel
-        queries removed — sequence is now 3 queries instead of 6):
-          1. LessonPlan  .filter().first()
-          2. Topic       .filter().first()
-          3. Context     .filter().all()
-        Then: db.add / db.commit / db.refresh
-        """
-        db = MagicMock()
-        call_count = [0]
-
-        topic = MagicMock()
-        topic.topic_id = 1
-        topic.learning_objectives = []
-        topic.topic_contents = []
-
-        def query_side(_model):
-            q = MagicMock()
-            call_count[0] += 1
-            n = call_count[0]
-            if n == 1:
-                q.filter.return_value.first.return_value = plan_obj
-            elif n == 2:
-                q.filter.return_value.first.return_value = topic
-            else:
-                q.filter.return_value.all.return_value = []
-            return q
-
-        db.query.side_effect = query_side
-
-        def _refresh(obj):
-            obj.lesson_resources_id = 99
-
-        db.refresh.side_effect = _refresh
-        return db
-
-    def test_wrong_user_raises_403(self):
-        user = _educator(user_id=2)
-        lp = _make_lesson_plan(plan_id=1, user_id=1)  # owned by user 1
-        lp.topic_id = 1
-        db = self._db_for_generate(lp)
-        svc = LessonResourceService(db=db)
-        data = LessonResourceCreate(lesson_plan_id=1)
-        with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(svc.generate_lesson_resource(lesson_id=1, data=data, current_user=user))
-        assert exc_info.value.status_code == 403
-
-    def test_super_admin_can_generate_resource(self):
-        """AWD-H-62: SUPER_ADMIN must bypass ownership check in generate_lesson_resource."""
-        super_admin = _super_admin(user_id=100)
-        lp = _make_lesson_plan(plan_id=1, user_id=1)  # owned by user 1, not super_admin
-        lp.topic_id = 1
-        db = self._db_for_generate(lp)
-        svc = LessonResourceService(db=db)
-        data = LessonResourceCreate(lesson_plan_id=1)
-        result = asyncio.run(
-            svc.generate_lesson_resource(lesson_id=1, data=data, current_user=super_admin)
-        )
-        assert result.status == "processing"
-
-    def test_only_three_db_queries_made(self):
-        """AWD-H-94: generate_lesson_resource must make exactly 3 DB queries.
-
-        Before the fix, 6 queries were issued (LessonPlan, Topic, CurriculumStructure,
-        Subject, GradeLevel, Context). The CS/Subject/GradeLevel results were fetched
-        but never used — only resource_id flows to the Redis worker. This test
-        asserts the dead queries are gone.
-        """
-        super_admin = _super_admin(user_id=100)
-        lp = _make_lesson_plan(plan_id=1, user_id=1)
-        lp.topic_id = 1
-        db = self._db_for_generate(lp)
-        svc = LessonResourceService(db=db)
-        data = LessonResourceCreate(lesson_plan_id=1)
-        asyncio.run(
-            svc.generate_lesson_resource(lesson_id=1, data=data, current_user=super_admin)
-        )
-        assert db.query.call_count == 3, (
-            f"Expected 3 DB queries (LessonPlan, Topic, Context) but got "
-            f"{db.query.call_count}. Stale CurriculumStructure/Subject/GradeLevel "
-            f"queries may have been re-introduced."
-        )
-
-    def test_lesson_plan_not_found_raises_404(self):
-        """AWD-H-94: 404 raised when lesson plan does not exist."""
-        db = MagicMock()
-        db.query.return_value.filter.return_value.first.return_value = None
-        svc = LessonResourceService(db=db)
-        data = LessonResourceCreate(lesson_plan_id=99)
-        with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(
-                svc.generate_lesson_resource(lesson_id=99, data=data, current_user=_educator(user_id=1))
-            )
-        assert exc_info.value.status_code == 404
-        assert "Lesson plan not found" in exc_info.value.detail
