@@ -44,6 +44,46 @@ from apps.backend.services.lesson_resource_service import (
     _to_lesson_resource_response,
 )
 
+# ==========================================================================
+# TestAssertLessonPlanOwnership — AWD-M-193
+# ==========================================================================
+
+class TestAssertLessonPlanOwnership:
+    """_assert_lesson_plan_ownership — shared 403 guard for lesson-plan access.
+
+    AWD-M-193: extracted from the inline guards that were duplicated in
+    generate_lesson_resource and get_lesson_plan_resources.
+    """
+
+    def _svc(self) -> LessonResourceService:
+        return LessonResourceService(db=MagicMock())
+
+    def test_owner_passes(self):
+        svc = self._svc()
+        lp = _make_lesson_plan(plan_id=1, user_id=1)
+        user = _educator(user_id=1)
+        svc._assert_lesson_plan_ownership(lp, user)  # must not raise
+
+    def test_wrong_user_raises_403(self):
+        svc = self._svc()
+        lp = _make_lesson_plan(plan_id=1, user_id=1)
+        other = _educator(user_id=2)
+        with pytest.raises(HTTPException) as exc_info:
+            svc._assert_lesson_plan_ownership(lp, other)
+        assert exc_info.value.status_code == 403
+
+    def test_admin_passes_even_for_other_user_plan(self):
+        svc = self._svc()
+        lp = _make_lesson_plan(plan_id=1, user_id=1)
+        admin = _admin(user_id=99)
+        svc._assert_lesson_plan_ownership(lp, admin)  # must not raise
+
+    def test_super_admin_passes_even_for_other_user_plan(self):
+        svc = self._svc()
+        lp = _make_lesson_plan(plan_id=1, user_id=1)
+        super_admin = _super_admin(user_id=100)
+        svc._assert_lesson_plan_ownership(lp, super_admin)  # must not raise
+
 
 # --------------------------------------------------------------------------
 # Factories

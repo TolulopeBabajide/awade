@@ -77,6 +77,23 @@ class LessonResourceService:
         self.db = db
         self.redis = redis_pool
 
+    def _assert_lesson_plan_ownership(
+        self, lesson_plan: LessonPlan, current_user: User
+    ) -> None:
+        """Raise 403 if current_user neither owns lesson_plan nor is ADMIN/SUPER_ADMIN.
+
+        AWD-M-193: extracted from the identical inline guards in
+        generate_lesson_resource and get_lesson_plan_resources.
+        AWD-H-62: SUPER_ADMIN has the same elevated access as ADMIN.
+        """
+        if lesson_plan.user_id != current_user.user_id and current_user.role not in (
+            UserRole.ADMIN, UserRole.SUPER_ADMIN
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail="You can only access resources for your own lesson plans",
+            )
+
     async def generate_lesson_resource(
         self,
         lesson_id: int,
@@ -105,15 +122,7 @@ class LessonResourceService:
             if not lesson_plan:
                 raise HTTPException(status_code=404, detail="Lesson plan not found")
 
-            # Check if user owns the lesson plan or is admin
-            # AWD-H-62: SUPER_ADMIN has the same elevated access as ADMIN.
-            if lesson_plan.user_id != current_user.user_id and current_user.role not in (
-                UserRole.ADMIN, UserRole.SUPER_ADMIN
-            ):
-                raise HTTPException(
-                    status_code=403,
-                    detail="You can only generate resources for your own lesson plans",
-                )
+            self._assert_lesson_plan_ownership(lesson_plan, current_user)
 
             # Get topic and curriculum data
             topic = self.db.query(Topic).filter(
@@ -241,15 +250,7 @@ class LessonResourceService:
             if not lesson_plan:
                 raise HTTPException(status_code=404, detail="Lesson plan not found")
 
-            # Check if user is the lesson plan author or admin
-            # AWD-H-62: SUPER_ADMIN has the same elevated access as ADMIN.
-            if current_user.user_id != lesson_plan.user_id and current_user.role not in (
-                UserRole.ADMIN, UserRole.SUPER_ADMIN
-            ):
-                raise HTTPException(
-                    status_code=403,
-                    detail="You can only view resources for your own lesson plans",
-                )
+            self._assert_lesson_plan_ownership(lesson_plan, current_user)
 
             lesson_resources = (
                 self.db.query(LessonResource)
