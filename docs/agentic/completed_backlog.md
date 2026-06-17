@@ -1915,3 +1915,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: ffc89fe (merge 2e851db)
 - **Files**: `apps/backend/routers/curriculum_structure.py`, `apps/backend/tests/test_curriculum_structure_router.py`
 - **Summary**: Replaced 3-line field-by-field assignment (`db_structure.curricula_id = ...`, `db_structure.grade_level_id = ...`, `db_structure.subject_id = ...`) with `for key, value in structure.model_dump().items(): setattr(db_structure, key, value)`. Now consistent with the `create` handler (`**structure.model_dump()`) and safe against silent regressions when new fields are added to `CurriculumStructureCreate`. 2 new tests in `TestUpdateCurriculumStructureM256`: setattr-all-fields mock test and 404 not-found integration test. 731/731 backend tests pass.
+
+### AWD-M-257 — rename orig_statement to mock_commit in test_delete_with_fk_reference_raises_409
+- **Date**: 2026-06-17
+- **Commit**: 2abd7a1
+- **Files**: `apps/backend/tests/test_curriculum_structure_router.py`
+- **Summary**: Renamed misleading `orig_statement` variable to `mock_commit` in `TestDeleteCurriculumStructureM255.test_delete_with_fk_reference_raises_409`. The variable patches `test_db.commit`, not a SQL statement; the old name caused reader confusion. 731 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
