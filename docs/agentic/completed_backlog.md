@@ -1939,3 +1939,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 42ba00c (merge f380f01)
 - **Files**: `apps/backend/requirements.txt`
 - **Summary**: Bumped `fastapi==0.115.12` → `0.121.3` (allows starlette<0.51.0,>=0.40.0) and added explicit `starlette==0.49.3` pin. Fixes CVE-2025-54121 (multipart spool-file DoS; fixed at 0.47.2) and CVE-2025-62727 (Range header quadratic CPU DoS; fixed at 0.49.1). PYSEC-2026-161 (Host header injection; requires starlette 1.0.1+) deferred — requires fastapi 0.137.x+ bump. 731 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
+
+### AWD-M-193 — Extract _assert_lesson_plan_ownership helper in LessonResourceService
+- **Date**: 2026-06-17
+- **Commit**: 4a69962 (merge 6b60d68)
+- **Files**: `apps/backend/services/lesson_resource_service.py`, `apps/backend/tests/test_lesson_resource_service.py`
+- **Summary**: Extracted `_assert_lesson_plan_ownership(lesson_plan, current_user)` as a private method on `LessonResourceService`; replaced near-identical inline guards in `generate_lesson_resource` and `get_lesson_plan_resources`. 4 new tests in `TestAssertLessonPlanOwnership` (owner passes, wrong user → 403, admin bypass, super_admin bypass). 735 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
