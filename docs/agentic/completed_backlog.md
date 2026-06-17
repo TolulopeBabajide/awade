@@ -1945,3 +1945,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 4a69962 (merge 6b60d68)
 - **Files**: `apps/backend/services/lesson_resource_service.py`, `apps/backend/tests/test_lesson_resource_service.py`
 - **Summary**: Extracted `_assert_lesson_plan_ownership(lesson_plan, current_user)` as a private method on `LessonResourceService`; replaced near-identical inline guards in `generate_lesson_resource` and `get_lesson_plan_resources`. 4 new tests in `TestAssertLessonPlanOwnership` (owner passes, wrong user → 403, admin bypass, super_admin bypass). 735 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
+
+### AWD-M-217 — Fix check-permissions.sh glob stripping for final-component globs
+- **Date**: 2026-06-17
+- **Commit**: e73a38e (merge 8d0abab)
+- **Files**: `scripts/check-permissions.sh`, `apps/backend/tests/test_check_permissions.py`
+- **Summary**: Added `elif "*" in allowed.rsplit("/", 1)[-1]:` branch alongside the existing `/**` and `/*` strip logic. Patterns with globs in the final path component (e.g. `alembic/versions/*.py`, `sprint-plans/sprint-*.md`, `.agent-health/*.last-run`) now strip to their parent directory before prefix matching, fixing DENY responses for valid write targets. 11 new tests in `TestCheckPermissionsGlobM217`. 746 backend tests pass · TS 0 errors · lint 0 errors.
