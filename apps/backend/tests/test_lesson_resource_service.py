@@ -10,6 +10,7 @@ Covers all resource service methods (moved from test_lesson_plan_service.py):
 - generate_lesson_resource (403 wrong user, super_admin bypass)
 """
 
+import asyncio
 import pytest
 import sys
 import os
@@ -513,7 +514,6 @@ class TestGenerateLessonResource:
         return db
 
     def test_wrong_user_raises_403(self):
-        import asyncio
         user = _educator(user_id=2)
         lp = _make_lesson_plan(plan_id=1, user_id=1)  # owned by user 1
         lp.topic_id = 1
@@ -526,7 +526,6 @@ class TestGenerateLessonResource:
 
     def test_super_admin_can_generate_resource(self):
         """AWD-H-62: SUPER_ADMIN must bypass ownership check in generate_lesson_resource."""
-        import asyncio
         super_admin = _super_admin(user_id=100)
         lp = _make_lesson_plan(plan_id=1, user_id=1)  # owned by user 1, not super_admin
         lp.topic_id = 1
@@ -546,7 +545,6 @@ class TestGenerateLessonResource:
         but never used — only resource_id flows to the Redis worker. This test
         asserts the dead queries are gone.
         """
-        import asyncio
         super_admin = _super_admin(user_id=100)
         lp = _make_lesson_plan(plan_id=1, user_id=1)
         lp.topic_id = 1
@@ -564,7 +562,6 @@ class TestGenerateLessonResource:
 
     def test_lesson_plan_not_found_raises_404(self):
         """AWD-H-94: 404 raised when lesson plan does not exist."""
-        import asyncio
         db = MagicMock()
         db.query.return_value.filter.return_value.first.return_value = None
         svc = LessonResourceService(db=db)
