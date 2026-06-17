@@ -192,8 +192,8 @@ class TestDeleteCurriculumStructureM255:
         self, test_db, sample_curriculum_structure, sample_user
     ):
         """FK constraint violation on commit is caught and raised as HTTP 409."""
-        orig_statement = MagicMock(side_effect=IntegrityError("FK", {}, None))
-        with patch.object(test_db, "commit", orig_statement):
+        mock_commit = MagicMock(side_effect=IntegrityError("FK", {}, None))
+        with patch.object(test_db, "commit", mock_commit):
             with pytest.raises(HTTPException) as excinfo:
                 delete_curriculum_structure(
                     structure_id=sample_curriculum_structure.curriculum_structure_id,
