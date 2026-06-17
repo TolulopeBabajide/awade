@@ -1,6 +1,6 @@
 
 # Core FastAPI dependencies - Updated for security
-fastapi==0.115.12  # Upgraded from 0.109.2 — patches CVE-2024-24762 (DoS via multipart) and 6 minor security releases (AWD-M-64)
+fastapi==0.121.3  # Upgraded from 0.115.12 — allows starlette>=0.49.1 fixing CVE-2025-54121 and CVE-2025-62727 (AWD-H-96)
 uvicorn[standard]==0.34.0  # Upgraded from 0.27.1 — 7 minor security hardening releases (AWD-M-64)
 pydantic==2.10.6  # Upgraded from 2.6.4 — 4 minor versions of security hardening; covers CVE-2024-3772 (ReDoS in email validation, patched at 2.6.2) and further hardening in 2.7–2.10 (AWD-M-151)
 sqlalchemy==2.0.41  # Upgraded from 2.0.29 — 12 patch releases of ORM correctness fixes and minor security hardening (AWD-M-152)
@@ -21,6 +21,7 @@ Pillow==12.2.0  # Upgraded from 10.4.0 — fixes CVE-2026-40192 (FITS GZIP decom
 alembic==1.13.3
 
 # Additional security dependencies
+starlette==0.49.3  # Explicit pin: fixes CVE-2025-54121 (multipart DoS; fixed at 0.47.2) and CVE-2025-62727 (Range header CPU DoS; fixed at 0.49.1). PYSEC-2026-161 (Host header injection) requires starlette 1.0.1+ — tracked separately. (AWD-H-96)
 cryptography==48.0.0  # Fix CVE-2024-12797, CVE-2026-26007, CVE-2026-34073 (AWD-M-113); Fix PYSEC-2026-36 (non-contiguous buffer overflow, affects 45.0.0-46.0.6, fixed at 46.0.7, bumped to 48.0.0) (AWD-H-95)
 setuptools==78.1.1  # Fix CVE-2025-47273, CVE-2024-6345
 
