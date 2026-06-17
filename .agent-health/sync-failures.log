@@ -172,3 +172,9 @@ PUSH_DEFERRED 2026-06-16T14:01Z develop HEAD=78b70e9 chore(records): AWD-M-253 u
 2026-06-16T21:12:11Z | PULL_REBASE_FAILED | develop
 PUSH_DEFERRED 2026-06-16T21:16:34Z — git push origin develop blocked by sandbox
 2026-06-16T22:01:12Z | PULL_REBASE_FAILED | develop
+2026-06-16T23:01:18Z | PULL_REBASE_FAILED | develop
+2026-06-16T23:06:53Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-06-16T23:07:06Z — git push origin develop blocked by sandbox
+2026-06-17T00:01:14Z | PULL_REBASE_FAILED | develop
+2026-06-17T00:05:04Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-06-17T00:05:11Z develop — AWD-M-255 fix(curriculum): handle IntegrityError in delete_curriculum_structure

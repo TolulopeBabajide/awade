@@ -1901,3 +1901,11 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: f207541 (merge b2dd923)
 - **Files**: `apps/backend/schemas/curriculum_structure.py` (new), `apps/backend/routers/curriculum_structure.py`
 - **Summary**: Extracted `CurriculumStructureCreate` and `CurriculumStructureResponse` Pydantic models from inline router definition into new `apps/backend/schemas/curriculum_structure.py`. Router now imports from schemas/ module, restoring SRP and matching codebase convention. No API surface change — schema names and fields identical.
+
+---
+
+### AWD-M-255 — handle IntegrityError in delete_curriculum_structure
+- **Date**: 2026-06-17
+- **Commit**: 9272519 (merge 5cad3ec)
+- **Files**: `apps/backend/routers/curriculum_structure.py`, `apps/backend/tests/test_curriculum_structure_router.py`
+- **Summary**: Imported `sqlalchemy.exc.IntegrityError`; wrapped `db.delete`/`db.commit` in try/except — on IntegrityError calls `db.rollback()` and raises `HTTPException(409)` with a generic message ("Cannot delete — this curriculum structure has associated records."). Prevents FK constraint violations from leaking internal DB details as unhandled 500s (OWASP A05). 3 new tests: success path, 404 not-found, 409 FK violation. 729/729 backend tests pass.
