@@ -2,7 +2,7 @@
 # check-permissions.sh — Verify an agent is permitted to write to a target path.
 #
 # Usage:
-#   ./scripts/check-permissions.sh <agent-name> <target-file-or-dir>
+#   ./scripts/check-permissions.sh <agent-name> <target-file-or-dir> [manifest-path]
 #
 # Exit codes:
 #   0 — write is permitted (target path matches an entry in the agent's write list)
@@ -12,14 +12,15 @@
 # Example:
 #   ./scripts/check-permissions.sh "dev-agent" "docs/agentic/sprints/dev-log.md"
 #   ./scripts/check-permissions.sh "marketing-agent" "docs/agentic/specs/foo-spec.md"  # exits 1
+#   ./scripts/check-permissions.sh "dev-agent" "docs/agentic/backlog.md" /tmp/custom-manifest.json
 #
-# The manifest lives at: agent-permissions.json (repo root)
+# The manifest defaults to: agent-permissions.json (repo root)
 
 set -euo pipefail
 
 AGENT="${1:-}"
 TARGET="${2:-}"
-MANIFEST="$(dirname "$0")/../agent-permissions.json"
+MANIFEST="${3:-$(dirname "$0")/../agent-permissions.json}"
 
 if [[ -z "$AGENT" || -z "$TARGET" ]]; then
   echo "Usage: $0 <agent-name> <target-file-or-dir>" >&2

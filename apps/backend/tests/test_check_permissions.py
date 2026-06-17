@@ -8,7 +8,6 @@ resolved to their directory prefix so that valid write targets are ALLOW-ed.
 import json
 import os
 import subprocess
-import sys
 import tempfile
 
 import pytest
@@ -25,38 +24,8 @@ def _run(agent: str, target: str, manifest: dict) -> int:
         json.dump(manifest, f)
         manifest_path = f.name
     try:
-        env = os.environ.copy()
         result = subprocess.run(
-            ["bash", SCRIPT, agent, target],
-            env={**env, "_MANIFEST_OVERRIDE": manifest_path},
-            capture_output=True,
-        )
-        # Script reads manifest from argv[3]; patch it by calling the embedded Python inline
-        py_script = f"""
-import sys, json, os
-agent = "{agent}"
-target = os.path.normpath("{target}".lstrip("/"))
-with open("{manifest_path}") as f:
-    manifest = json.load(f)
-agents = manifest.get("agents", manifest)
-if agent not in agents:
-    print("[check-permissions] DENY: agent not found", file=sys.stderr)
-    sys.exit(2)
-write_list = agents[agent].get("writes", agents[agent].get("write", []))
-for allowed in write_list:
-    if allowed.endswith("/**") or allowed.endswith("/*"):
-        allowed = allowed.rsplit("/", 1)[0]
-    elif "*" in allowed.rsplit("/", 1)[-1]:
-        allowed = allowed.rsplit("/", 1)[0]
-    allowed = os.path.normpath(allowed.rstrip("/"))
-    if target == allowed or target.startswith(allowed + "/"):
-        print(f"[check-permissions] ALLOW")
-        sys.exit(0)
-print("[check-permissions] DENY", file=sys.stderr)
-sys.exit(1)
-"""
-        result = subprocess.run(
-            [sys.executable, "-c", py_script],
+            ["bash", SCRIPT, agent, target, manifest_path],
             capture_output=True,
         )
         return result.returncode
