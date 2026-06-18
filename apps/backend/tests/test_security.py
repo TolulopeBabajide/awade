@@ -24,6 +24,16 @@ from apps.backend.utils.sanitizer import sanitize_input
 
 client = TestClient(app)
 
+
+def _extract_csp_directive(csp: str, name: str) -> str:
+    """Return the first CSP directive that starts with *name*, or empty string."""
+    for directive in csp.split(";"):
+        directive = directive.strip()
+        if directive.startswith(name):
+            return directive
+    return ""
+
+
 def test_security_headers():
     """Test that security headers are present in responses."""
     response = client.get("/")
@@ -63,12 +73,7 @@ def test_csp_script_src_no_unsafe_inline():
 
     # Locate the script-src directive value
     # Format: "...; script-src 'self' ...; ..."
-    script_src_value = ""
-    for directive in csp.split(";"):
-        directive = directive.strip()
-        if directive.startswith("script-src"):
-            script_src_value = directive
-            break
+    script_src_value = _extract_csp_directive(csp, "script-src")
 
     assert script_src_value, "script-src directive must be present in the CSP header"
     assert "'unsafe-inline'" not in script_src_value, (
@@ -94,12 +99,7 @@ def test_csp_style_src_no_unsafe_inline():
 
     csp = response.headers.get("Content-Security-Policy", "")
 
-    style_src_value = ""
-    for directive in csp.split(";"):
-        directive = directive.strip()
-        if directive.startswith("style-src"):
-            style_src_value = directive
-            break
+    style_src_value = _extract_csp_directive(csp, "style-src")
 
     assert style_src_value, "style-src directive must be present in the CSP header"
     assert "'unsafe-inline'" not in style_src_value, (
@@ -122,12 +122,7 @@ def test_csp_font_src_google_fonts():
 
     csp = response.headers.get("Content-Security-Policy", "")
 
-    font_src_value = ""
-    for directive in csp.split(";"):
-        directive = directive.strip()
-        if directive.startswith("font-src"):
-            font_src_value = directive
-            break
+    font_src_value = _extract_csp_directive(csp, "font-src")
 
     assert font_src_value, (
         "font-src directive must be present in the CSP header — "
