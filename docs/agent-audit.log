@@ -309,3 +309,4 @@
 2026-06-17T15:20:06Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
 2026-06-17T15:26:28Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
 2026-06-17T16:22:31Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-18T21:52:56Z | code-review-agent    | SKIP       | idempotency                              | no new commits since last run at Thu Jun 18 22:32:09 BST 2026 — skipping
