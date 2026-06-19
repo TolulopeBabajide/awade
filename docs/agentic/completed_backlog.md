@@ -2028,3 +2028,12 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 81bddb1 (merge 4b02a3a)
 - **Files**: `packages/ai/gpt_service.py`, `apps/backend/tests/test_ai_providers.py`
 - **Summary**: Removed the post-format `self._sanitize_input(prompt)` call from both `generate_lesson_resource` and `generate_parent_guide`. AWD-M-198 introduced these calls to strip delimiter tags from user-supplied text but applied them to the *assembled* prompt, stripping the template's own `<user_context>` and `<curriculum_data>` tags before the prompt reached the LLM. This voided the sandboxing preamble that depends on those tags being present. User-supplied fields are already sanitised pre-format (via `_sanitize_user_context` / individual `_sanitize_input` calls), making the post-format pass redundant for PII and destructive to the delimiter structure. 3 new regression tests in `TestDelimiterTagsSurviveInRenderedPromptH128`. 760 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+---
+
+## M-265 — Add token_service.py characterization tests
+
+- **Date**: 2026-06-19
+- **Commit**: cb07b3e (merge develop)
+- **Files**: `apps/backend/tests/test_token_service.py` (new, 420 lines)
+- **Summary**: Added 40 characterization tests across 6 classes for the security-critical `TokenService` JWT lifecycle — `_build_user_response` (8 tests), `create_access_token` (6), `create_refresh_token` (6), `_get_jwt_expires_minutes` (2), `refresh_access_token` (8), `blacklist_refresh_token` (4), `is_refresh_token_blacklisted` (6). Fixed test issues: short-form imports (`schemas.users`) mismatched the long-form imports in the service (`apps.backend.schemas.users`); JWT decode used hardcoded `"dev-secret"` but dotenv loads a real key at startup; `redis.exists()` returns an int, not a bool. 800 backend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
