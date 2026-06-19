@@ -48,6 +48,18 @@ class ParentGuideRequest(TypedDict):
 # Longer inputs are truncated to prevent token-stuffing / prompt DoS.
 _MAX_USER_CONTEXT_CHARS: int = 2000
 
+# Prompt delimiter tags used in COMPREHENSIVE_LESSON_RESOURCE_PROMPT and
+# PARENT_HELPER_PROMPT.  Stripping these from user-supplied text prevents a
+# fake closing tag (e.g. </user_context>) from escaping the data section and
+# injecting instructions outside the delimiter boundary (AWD-M-198 / OWASP
+# LLM01).
+_PROMPT_DELIMITER_TAGS: tuple[str, ...] = (
+    "<user_context>",
+    "</user_context>",
+    "<curriculum_data>",
+    "</curriculum_data>",
+)
+
 # ---------------------------------------------------------------------------
 # Shared injection patterns (AWD-M-158) — jailbreak variants that must be
 # detected by BOTH the input sanitiser and the output gate.  Maintaining a
@@ -263,13 +275,19 @@ class AwadeGPTService:
         """
         if not text:
             return text
-            
+
+        # Strip prompt delimiter tags to prevent template-injection via fake
+        # closing tags (e.g. </user_context>) that could escape the data
+        # section of a prompt (AWD-M-198 / OWASP LLM01).
+        for tag in _PROMPT_DELIMITER_TAGS:
+            text = text.replace(tag, "")
+
         # Remove potential API keys (simple heuristic)
         text = re.sub(r'(sk-[a-zA-Z0-9]{32,})', '[REDACTED_KEY]', text)
-        
+
         # Remove potential email addresses
         text = re.sub(r'[\w\.-]+@[\w\.-]+\.\w+', '[REDACTED_EMAIL]', text)
-        
+
         # Remove potential phone numbers (simple international format)
         text = re.sub(r'\+?\d{10,15}', '[REDACTED_PHONE]', text)
 
