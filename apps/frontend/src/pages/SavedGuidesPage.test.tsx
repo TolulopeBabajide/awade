@@ -234,7 +234,7 @@ describe('SavedGuidesPage', () => {
 
       const btn = await screen.findByRole('button', {
         name: /Open "How to Help" guide for Fractions/i,
-      }, { timeout: 10000 })
+      }, { timeout: 10000 }) // 2-step async chain: getChildren → getChildGuides
       expect(btn).toBeTruthy()
     })
 
@@ -251,7 +251,7 @@ describe('SavedGuidesPage', () => {
 
       const btn = await screen.findByRole('button', {
         name: /Open "How to Help" guide for Fractions \(bookmarked\)/i,
-      }, { timeout: 10000 })
+      }, { timeout: 10000 }) // 2-step async chain: getChildren → getChildGuides
       expect(btn).toBeTruthy()
     })
   })
