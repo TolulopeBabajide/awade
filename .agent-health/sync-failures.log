@@ -201,3 +201,13 @@ PUSH_DEFERRED: 2026-06-17T02:08:08Z develop 2e851db AWD-M-256 push denied (sandb
 2026-06-17T14:12:41Z | PUSH_DEFERRED | develop | chore(records): AWD-M-258 update backlog, completed log, dev-log
 2026-06-17T15:01:48Z | PULL_REBASE_FAILED | develop
 2026-06-17T15:10:00Z | PULL_FAILED | develop
+2026-06-17T16:03:49Z | PULL_REBASE_FAILED | develop
+2026-06-17T16:08:41Z | PULL_FAILED | develop
+2026-06-17T17:01:52Z | PULL_REBASE_FAILED | develop
+2026-06-18T22:45:05Z | PULL_REBASE_FAILED | develop
+2026-06-18T22:46:00Z | PUSH_DEFERRED | develop | chore(sync): commit pending agent outputs
+2026-06-18T23:33:54Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-18T23:38:58Z — git push denied by sandbox permissions. Commit 51251d1 (AWD-M-224) merged to develop but not pushed. Tolu: run git push origin develop.
+2026-06-19T00:07:50Z | PULL_REBASE_FAILED | develop
+2026-06-19T01:07:50Z | PULL_REBASE_FAILED | develop
+2026-06-19T02:07:47Z | PULL_REBASE_FAILED | develop
