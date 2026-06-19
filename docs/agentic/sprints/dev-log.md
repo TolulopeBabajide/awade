@@ -821,3 +821,4 @@ After removing it, the next hourly run will:
 | 2026-06-19T02:17:00Z | AWD-M-262 | Fix _extract_csp_directive prefix token boundary | c6b7b97 | ✅ Done | CI:pending (Tolu: `git push origin develop`) |
 | 2026-06-19T03:13:00Z | AWD-M-247 | Extract setupChildrenLoaded() helper in SavedGuidesPage.test.tsx | c8c5e78 | ✅ Done | CI:pending |
 | 2026-06-19T04:14:00Z | AWD-M-245 | Add inline comment explaining { timeout: 10000 } in SavedGuidesPage a11y tests | 912e5a6 | ✅ Done | CI:pending (Tolu: `git push origin develop`) |
+2026-06-19T05:11:00Z | L-74 | Remove dead _make_service_with_mock_google helper from test_security.py | fd48003 | ✅ Done | CI:pending

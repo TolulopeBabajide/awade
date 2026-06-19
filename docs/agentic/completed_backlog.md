@@ -2007,3 +2007,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 912e5a6 (merge develop)
 - **Files**: `apps/frontend/src/pages/SavedGuidesPage.test.tsx`
 - **Summary**: Added `// 2-step async chain: getChildren → getChildGuides` inline comment to the two `screen.findByRole` calls that use `{ timeout: 10000 }` (lines 237, 254 post-M-247). All other `waitFor` sites use `{ timeout: 5000 }`; this comment documents the intentional higher ceiling. 292 frontend tests pass · TS 0 errors · lint 0 errors.
+
+## AWD-L-74 — Remove dead `_make_service_with_mock_google()` helper from test_security.py
+- **Completed**: 2026-06-19
+- **Commit**: fd48003 (merge e415526)
+- **Files**: `apps/backend/tests/test_security.py`
+- **Summary**: Removed the unused `_make_service_with_mock_google()` instance method from `TestGoogleOAuthRoleWhitelist`. The helper was defined at line 377 but never called — both `test_role_whitelist` and `test_existing_user_role_not_changed_by_oauth` inline their own setup. The helper also had a latent bug: it returned an unstarted patcher, so any naive caller would have found the mock silently unapplied. 750 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
