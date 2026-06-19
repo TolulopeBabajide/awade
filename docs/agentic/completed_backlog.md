@@ -2001,3 +2001,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: c8c5e78 (merge develop)
 - **Files**: `apps/frontend/src/pages/SavedGuidesPage.test.tsx`
 - **Summary**: Extracted `setupChildrenLoaded()` helper eliminating 7× duplicate `getChildren.mockResolvedValue(...)` blocks. Scoped `beforeEach` in `guides error state` and `guide card a11y` describe blocks; direct call in 3 single-test describes. 292 frontend tests pass · TS 0 errors · lint 0 errors.
+
+## AWD-M-245 — Add inline comment explaining { timeout: 10000 } in SavedGuidesPage guide card a11y tests
+- **Completed**: 2026-06-19
+- **Commit**: 912e5a6 (merge develop)
+- **Files**: `apps/frontend/src/pages/SavedGuidesPage.test.tsx`
+- **Summary**: Added `// 2-step async chain: getChildren → getChildGuides` inline comment to the two `screen.findByRole` calls that use `{ timeout: 10000 }` (lines 237, 254 post-M-247). All other `waitFor` sites use `{ timeout: 5000 }`; this comment documents the intentional higher ceiling. 292 frontend tests pass · TS 0 errors · lint 0 errors.
