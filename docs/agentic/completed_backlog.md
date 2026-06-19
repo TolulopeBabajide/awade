@@ -2047,3 +2047,19 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 9555ce5 (merge develop)
 - **Files**: `packages/ai/gpt_service.py`, `apps/backend/tests/test_ai_providers.py`
 - **Summary**: Applied `self._sanitize_input(...)` to all 7 fields in `prompt_params` within `generate_lesson_resource` (topic, subject, grade_level, country, local_context, learning_objectives, contents) — matching the pre-format per-field pattern already established in `generate_parent_guide`. The post-format catch-all removed by AWD-H-128 was the only redaction pass on these fields; this fix closes the gap. Added `TestLessonResourceInjectionSandboxingM268.test_api_key_not_in_lesson_resource_prompt` asserting `[REDACTED_KEY]` replaces `sk-*` strings in rendered prompts. 801 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+## M-272 — generate_lesson_resource sanitizes contents_val after template_schema appended
+
+- **Area**: Security / Code Quality
+- **Date**: 2026-06-20
+- **Commit**: 10a27d9 (merge develop)
+- **Files**: `packages/ai/gpt_service.py`
+- **Summary**: Moved `_sanitize_input` call to sanitize only the user-supplied `contents` string before `template_schema` is appended. Previously `_sanitize_input(contents_val)` ran on the combined string (contents + template_schema), risking silent removal of delimiter tags from server-controlled template rules. Fix: call `self._sanitize_input(", ".join(contents) if contents else "…")` first, then append `template_schema`, then use the result directly in `prompt_params` without a second sanitize pass. 805 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+## M-273 — TestLessonResourceInjectionSandboxingM268 covers only topic field
+
+- **Area**: Testing / Security
+- **Date**: 2026-06-20
+- **Commit**: 10a27d9 (merge develop)
+- **Files**: `apps/backend/tests/test_ai_providers.py`
+- **Summary**: Extended `TestLessonResourceInjectionSandboxingM268` with `@pytest.mark.parametrize` covering `subject`, `contents`, and `learning_objectives` injection vectors (3 new parametrized test cases). Added M-272 regression test verifying that `<curriculum_data>` tags inside `template_schema` survive sanitization and reach the rendered prompt intact. 805 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
