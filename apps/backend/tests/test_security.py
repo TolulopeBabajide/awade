@@ -26,10 +26,14 @@ client = TestClient(app)
 
 
 def _extract_csp_directive(csp: str, name: str) -> str:
-    """Return the first CSP directive that starts with *name*, or empty string."""
+    """Return the first CSP directive matching *name*, or empty string.
+
+    Matches on a token boundary so "script-src" does not accidentally match
+    "script-src-elem" when the latter appears first in the CSP string.
+    """
     for directive in csp.split(";"):
         directive = directive.strip()
-        if directive.startswith(name):
+        if directive == name or directive.startswith(name + " "):
             return directive
     return ""
 
@@ -132,6 +136,29 @@ def test_csp_font_src_google_fonts():
     assert "https://fonts.gstatic.com" in font_src_value.split(), (
         "font-src must include https://fonts.gstatic.com for Google Fonts — AWD-M-43."
     )
+
+
+class TestExtractCspDirectiveM262:
+    """Regression tests for AWD-M-262: _extract_csp_directive prefix ambiguity."""
+
+    def test_matches_directive_with_values(self):
+        csp = "default-src 'self'; script-src 'self' https://cdn.example.com"
+        assert _extract_csp_directive(csp, "script-src") == "script-src 'self' https://cdn.example.com"
+
+    def test_matches_value_free_directive(self):
+        csp = "upgrade-insecure-requests; script-src 'self'"
+        assert _extract_csp_directive(csp, "upgrade-insecure-requests") == "upgrade-insecure-requests"
+
+    def test_does_not_match_longer_prefixed_directive(self):
+        csp = "script-src-elem 'self'; script-src 'self'"
+        result = _extract_csp_directive(csp, "script-src")
+        assert result == "script-src 'self'", (
+            "script-src must not match script-src-elem even when it precedes script-src in the CSP"
+        )
+
+    def test_returns_empty_when_absent(self):
+        csp = "default-src 'self'; script-src 'self'"
+        assert _extract_csp_directive(csp, "font-src") == ""
 
 
 def test_cors_headers():
