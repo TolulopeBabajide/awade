@@ -92,6 +92,13 @@ function makeGuide(overrides: Partial<ParentGuide> = {}): ParentGuide {
   }
 }
 
+function setupChildrenLoaded() {
+  mockApiService.getChildren.mockResolvedValue({
+    error: undefined,
+    data: { children: [makeChild()], total: 1 },
+  })
+}
+
 // ---------------------------------------------------------------------------
 // Setup
 // ---------------------------------------------------------------------------
@@ -140,11 +147,11 @@ describe('SavedGuidesPage', () => {
   })
 
   describe('guides error state', () => {
+    beforeEach(() => {
+      setupChildrenLoaded()
+    })
+
     it('shows error message and retry button when guides fetch fails', async () => {
-      mockApiService.getChildren.mockResolvedValue({
-        error: undefined,
-        data: { children: [makeChild()], total: 1 },
-      })
       mockApiService.getChildGuides.mockResolvedValue({ error: 'Server error', data: undefined })
 
       renderWithProviders(<SavedGuidesPage />)
@@ -156,10 +163,6 @@ describe('SavedGuidesPage', () => {
     })
 
     it('does not show empty state when guides fetch errors', async () => {
-      mockApiService.getChildren.mockResolvedValue({
-        error: undefined,
-        data: { children: [makeChild()], total: 1 },
-      })
       mockApiService.getChildGuides.mockResolvedValue({ error: 'Server error', data: undefined })
 
       renderWithProviders(<SavedGuidesPage />)
@@ -172,10 +175,7 @@ describe('SavedGuidesPage', () => {
 
   describe('guides loading state', () => {
     it('shows spinner while guides are loading', async () => {
-      mockApiService.getChildren.mockResolvedValue({
-        error: undefined,
-        data: { children: [makeChild()], total: 1 },
-      })
+      setupChildrenLoaded()
       mockApiService.getChildGuides.mockReturnValue(new Promise(() => {}))
 
       renderWithProviders(<SavedGuidesPage />)
@@ -189,10 +189,7 @@ describe('SavedGuidesPage', () => {
 
   describe('empty guides state', () => {
     it('shows empty state message when no guides exist', async () => {
-      mockApiService.getChildren.mockResolvedValue({
-        error: undefined,
-        data: { children: [makeChild()], total: 1 },
-      })
+      setupChildrenLoaded()
       mockApiService.getChildGuides.mockResolvedValue({
         error: undefined,
         data: { guides: [], total: 0 },
@@ -208,10 +205,7 @@ describe('SavedGuidesPage', () => {
 
   describe('success state', () => {
     it('renders guide cards when guides load successfully', async () => {
-      mockApiService.getChildren.mockResolvedValue({
-        error: undefined,
-        data: { children: [makeChild()], total: 1 },
-      })
+      setupChildrenLoaded()
       mockApiService.getChildGuides.mockResolvedValue({
         error: undefined,
         data: { guides: [makeGuide()], total: 1 },
@@ -226,11 +220,11 @@ describe('SavedGuidesPage', () => {
   })
 
   describe('guide card a11y (AWD-H-55)', () => {
+    beforeEach(() => {
+      setupChildrenLoaded()
+    })
+
     it('guide card exposes a descriptive aria-label naming the action', async () => {
-      mockApiService.getChildren.mockResolvedValue({
-        error: undefined,
-        data: { children: [makeChild()], total: 1 },
-      })
       mockApiService.getChildGuides.mockResolvedValue({
         error: undefined,
         data: { guides: [makeGuide({ topic_title: 'Fractions' })], total: 1 },
@@ -245,10 +239,6 @@ describe('SavedGuidesPage', () => {
     })
 
     it('aria-label notes when a guide is bookmarked', async () => {
-      mockApiService.getChildren.mockResolvedValue({
-        error: undefined,
-        data: { children: [makeChild()], total: 1 },
-      })
       mockApiService.getChildGuides.mockResolvedValue({
         error: undefined,
         data: {
