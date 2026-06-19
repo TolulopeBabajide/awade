@@ -298,6 +298,7 @@ AWD-M-96 remain open. Verdict: ✅ Clean.)
 
 | # | Area | Issue | File(s) | Effort | Stage |
 |---|------|-------|---------|--------|-------|
+| M-269 | SEO / Content | No SEO content surface exists — app is fully client-rendered with no blog/article pages in `apps/frontend/src/pages/`, so GTM Channel 4 keyword clusters ("how to help child with [topic] in Nigeria", "JSS1 maths explained for parents", "BECE preparation for parents" — see `docs/agentic/gtm/strategy-2026-05-06.md`) are unclaimed and the 3–6mo compounding window has not opened 2.5wk post-launch. **⚠️ Needs Tolu's product decision: blog subdomain vs. prerendered routes**, then scaffold the surface so cluster briefs can be commissioned. Filed 2026-06-19 seo-agent | `apps/frontend/src/pages/`, `apps/frontend/index.html` | M | define |
 | ~~C-15~~ | CI / Testing | ✅ resolved 2026-06-13 (commit d88d0f6). Added postgres service block and `DATABASE_URL`/`SECRET_KEY`/`OPENAI_API_KEY`/`DEBUG`/`ENVIRONMENT` env vars to `backend-test` job; removed `\|\| echo` fallback so failures surface. Backend tests now actually run in CI. Tolu: `git push origin develop` to trigger CI. | `.github/workflows/ci.yml` | XS | done |
 
 ---
