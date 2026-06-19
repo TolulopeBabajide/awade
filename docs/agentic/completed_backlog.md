@@ -2019,3 +2019,12 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: dee0ac4 (merge 8acff0a)
 - **Files**: `packages/ai/gpt_service.py`, `apps/backend/tests/test_ai_providers.py`
 - **Summary**: Added `_PROMPT_DELIMITER_TAGS = ("<user_context>", "</user_context>", "<curriculum_data>", "</curriculum_data>")` constant and a stripping loop at the top of `_sanitize_input`. Prevents an educator-supplied closing tag (e.g. `</user_context>`) from escaping the data section of a prompt template and injecting instructions outside the delimiter boundary. Covers both the `_sanitize_user_context` call chain and the `generate_parent_guide` per-field sanitisation. 7 new tests in `TestSanitizeInputDelimiterTagsM198` (each tag variant stripped, unrelated `<` preserved, empty/None passthrough). 757 backend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+---
+
+## H-128 — Security / Architecture: restore prompt delimiter tag sandboxing
+
+- **Date**: 2026-06-19
+- **Commit**: 81bddb1 (merge 4b02a3a)
+- **Files**: `packages/ai/gpt_service.py`, `apps/backend/tests/test_ai_providers.py`
+- **Summary**: Removed the post-format `self._sanitize_input(prompt)` call from both `generate_lesson_resource` and `generate_parent_guide`. AWD-M-198 introduced these calls to strip delimiter tags from user-supplied text but applied them to the *assembled* prompt, stripping the template's own `<user_context>` and `<curriculum_data>` tags before the prompt reached the LLM. This voided the sandboxing preamble that depends on those tags being present. User-supplied fields are already sanitised pre-format (via `_sanitize_user_context` / individual `_sanitize_input` calls), making the post-format pass redundant for PII and destructive to the delimiter structure. 3 new regression tests in `TestDelimiterTagsSurviveInRenderedPromptH128`. 760 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
