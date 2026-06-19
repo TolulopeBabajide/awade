@@ -556,9 +556,13 @@ class AwadeGPTService:
             }
             
             # Generate prompt
+            # Do NOT call _sanitize_input here — the assembled prompt contains
+            # the template's own <user_context> delimiter tags, which must reach
+            # the LLM intact so the sandboxing preamble is honoured (AWD-H-128).
+            # User-supplied context was already sanitised via _sanitize_user_context
+            # above (line ~533); curriculum fields come from the database.
             prompt = COMPREHENSIVE_LESSON_RESOURCE_PROMPT.format(**prompt_params)
-            prompt = self._sanitize_input(prompt)
-            
+
             # Construct metadata for caching
             # We use the prompt_params as the unique identifier for the request logic
             # This satisfies "Include Context Input in cache hash" since context is in prompt_params["local_context"]
@@ -669,8 +673,12 @@ class AwadeGPTService:
                 "evaluation_methods": self._sanitize_input(evaluation_str),
             }
 
+            # Do NOT call _sanitize_input here — the assembled prompt contains
+            # the template's own <curriculum_data> delimiter tags, which must
+            # reach the LLM intact so the sandboxing preamble is honoured
+            # (AWD-H-128).  All individual fields were sanitised via
+            # _sanitize_input above (lines ~660–670) before format().
             prompt = PARENT_HELPER_PROMPT.format(**prompt_params)
-            prompt = self._sanitize_input(prompt)  # post-format pass retained
 
             prompt_metadata = {
                 "type": "parent_guide",
