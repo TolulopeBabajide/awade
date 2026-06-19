@@ -540,6 +540,70 @@ class TestLessonResourceInjectionSandboxingM268:
         )
         assert "[REDACTED_KEY]" in rendered_prompt
 
+    _FAKE_KEY = "sk-abc123abc123abc123abc123abc123abc123"
+
+    @pytest.mark.parametrize("field_name,call_kwargs", [
+        ("subject", {"subject": "sk-abc123abc123abc123abc123abc123abc123", "topic": "Fractions", "grade": "Grade 4"}),
+        ("contents", {"subject": "Maths", "topic": "Fractions", "grade": "Grade 4",
+                      "contents": ["sk-abc123abc123abc123abc123abc123abc123"]}),
+        ("learning_objectives", {"subject": "Maths", "topic": "Fractions", "grade": "Grade 4",
+                                  "objectives": ["sk-abc123abc123abc123abc123abc123abc123"]}),
+    ])
+    @patch("packages.ai.gpt_service.OpenAIProvider")
+    @patch("packages.ai.gpt_service.ContentCache")
+    def test_api_key_redacted_in_all_injected_fields(
+        self, MockCache, MockProvider, field_name, call_kwargs
+    ):
+        """API-key-like strings in any of the 7 sanitised fields must be redacted
+        before prompt assembly (AWD-M-273 — extends AWD-M-268 topic-only coverage)."""
+        MockCache.return_value.get.return_value = None
+        MockProvider.return_value.generate_content.return_value = (
+            '{"title_header": {}, "learning_objectives": [], "lesson_content": {}}'
+        )
+        svc = AwadeGPTService(api_key="test", provider_type="openai")
+
+        merged = {"subject": "Mathematics", "topic": "Fractions", "grade": "Grade 4",
+                  "objectives": ["Understand fractions"], "context": "Standard classroom"}
+        merged.update(call_kwargs)
+        svc.generate_lesson_resource(**merged)
+
+        call_args = MockProvider.return_value.generate_content.call_args
+        rendered_prompt = call_args[1].get("prompt") or call_args[0][0]
+        assert "sk-abc123" not in rendered_prompt, (
+            f"API-key-like string in '{field_name}' field survived into the rendered "
+            "prompt — per-field _sanitize_input pre-format guard is missing (AWD-M-273)"
+        )
+        assert "[REDACTED_KEY]" in rendered_prompt
+
+    @patch("packages.ai.gpt_service.OpenAIProvider")
+    @patch("packages.ai.gpt_service.ContentCache")
+    def test_template_schema_delimiter_tags_survive_sanitization(self, MockCache, MockProvider):
+        """Delimiter tags inside server-controlled template_schema must not be
+        stripped by _sanitize_input — contents is sanitised before template_schema
+        is appended (AWD-M-272 regression)."""
+        MockCache.return_value.get.return_value = None
+        MockProvider.return_value.generate_content.return_value = (
+            '{"title_header": {}, "learning_objectives": [], "lesson_content": {}}'
+        )
+        svc = AwadeGPTService(api_key="test", provider_type="openai")
+
+        schema_with_tag = "Use <curriculum_data> tags to wrap curriculum references."
+        svc.generate_lesson_resource(
+            subject="Mathematics",
+            grade="Grade 4",
+            topic="Fractions",
+            objectives=["Understand fractions"],
+            context="Standard classroom",
+            template_schema=schema_with_tag,
+        )
+
+        call_args = MockProvider.return_value.generate_content.call_args
+        rendered_prompt = call_args[1].get("prompt") or call_args[0][0]
+        assert "<curriculum_data>" in rendered_prompt, (
+            "<curriculum_data> tag in template_schema was stripped — "
+            "_sanitize_input is incorrectly applied to server-controlled data (AWD-M-272)"
+        )
+
 
 class TestDelimiterTagsSurviveInRenderedPromptH128:
     """AWD-H-128: the assembled prompt must retain the template's own delimiter

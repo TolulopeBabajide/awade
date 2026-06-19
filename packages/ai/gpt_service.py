@@ -541,7 +541,12 @@ class AwadeGPTService:
                 elif "kenya" in context_lower: country = "Kenya"
 
             # Prepare prompt parameters
-            contents_val = ", ".join(contents) if contents else "Comprehensive lesson content including introduction, main concepts, examples, and activities"
+            # Sanitise user-supplied contents before appending server-controlled
+            # template_schema — running _sanitize_input on the combined string would
+            # strip delimiter tags from template_schema, corrupting its rules (AWD-M-272).
+            contents_val = self._sanitize_input(
+                ", ".join(contents) if contents else "Comprehensive lesson content including introduction, main concepts, examples, and activities"
+            )
             if template_schema:
                 contents_val = f"{contents_val}\n\nSTRICT TEMPLATE STRUCTURE RULES:\n{template_schema}"
 
@@ -550,6 +555,7 @@ class AwadeGPTService:
             # (AWD-M-268 defence-in-depth, parallel to generate_parent_guide lines ~660-670).
             # local_context was already through _sanitize_user_context (line ~533);
             # applying _sanitize_input additionally catches API-key-like patterns.
+            # contents_val is already sanitised above (AWD-M-272).
             prompt_params = {
                 "topic": self._sanitize_input(topic),
                 "subject": self._sanitize_input(subject),
@@ -557,7 +563,7 @@ class AwadeGPTService:
                 "country": self._sanitize_input(country),
                 "local_context": self._sanitize_input(safe_context or "Standard classroom with basic resources"),
                 "learning_objectives": self._sanitize_input(objectives_str),
-                "contents": self._sanitize_input(contents_val)
+                "contents": contents_val
             }
 
             # Do NOT call _sanitize_input here — the assembled prompt contains
