@@ -545,22 +545,25 @@ class AwadeGPTService:
             if template_schema:
                 contents_val = f"{contents_val}\n\nSTRICT TEMPLATE STRUCTURE RULES:\n{template_schema}"
 
+            # Pre-format: sanitise each field individually before template substitution
+            # so PII / key-like strings are redacted before being embedded in the prompt
+            # (AWD-M-268 defence-in-depth, parallel to generate_parent_guide lines ~660-670).
+            # local_context was already through _sanitize_user_context (line ~533);
+            # applying _sanitize_input additionally catches API-key-like patterns.
             prompt_params = {
-                "topic": topic,
-                "subject": subject,
-                "grade_level": grade,
-                "country": country,
-                "local_context": safe_context or "Standard classroom with basic resources",
-                "learning_objectives": objectives_str,
-                "contents": contents_val
+                "topic": self._sanitize_input(topic),
+                "subject": self._sanitize_input(subject),
+                "grade_level": self._sanitize_input(grade),
+                "country": self._sanitize_input(country),
+                "local_context": self._sanitize_input(safe_context or "Standard classroom with basic resources"),
+                "learning_objectives": self._sanitize_input(objectives_str),
+                "contents": self._sanitize_input(contents_val)
             }
-            
-            # Generate prompt
+
             # Do NOT call _sanitize_input here — the assembled prompt contains
             # the template's own <user_context> delimiter tags, which must reach
             # the LLM intact so the sandboxing preamble is honoured (AWD-H-128).
-            # User-supplied context was already sanitised via _sanitize_user_context
-            # above (line ~533); curriculum fields come from the database.
+            # All individual fields were sanitised via _sanitize_input above.
             prompt = COMPREHENSIVE_LESSON_RESOURCE_PROMPT.format(**prompt_params)
 
             # Construct metadata for caching

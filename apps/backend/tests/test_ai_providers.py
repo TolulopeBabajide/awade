@@ -507,6 +507,40 @@ class TestParentHelperPromptInjectionSandboxing:
         assert "[REDACTED_KEY]" in rendered_prompt
 
 
+class TestLessonResourceInjectionSandboxingM268:
+    """AWD-M-268: generate_lesson_resource must sanitise individual curriculum
+    fields before format() so API-key-like strings are redacted even when the
+    post-format catch-all is absent (removed by AWD-H-128)."""
+
+    @patch("packages.ai.gpt_service.OpenAIProvider")
+    @patch("packages.ai.gpt_service.ContentCache")
+    def test_api_key_not_in_lesson_resource_prompt(self, MockCache, MockProvider):
+        """API-key-like strings in curriculum fields are redacted before the
+        lesson-resource prompt is assembled (pre-format defence-in-depth)."""
+        MockCache.return_value.get.return_value = None
+        mock_provider = MockProvider.return_value
+        mock_provider.generate_content.return_value = (
+            '{"title_header": {}, "learning_objectives": [], "lesson_content": {}}'
+        )
+        svc = AwadeGPTService(api_key="test", provider_type="openai")
+
+        svc.generate_lesson_resource(
+            subject="Mathematics",
+            grade="Grade 4",
+            topic="sk-abc123abc123abc123abc123abc123abc123",  # fake API key in topic
+            objectives=["Understand fractions"],
+            context="Standard classroom",
+        )
+
+        call_args = mock_provider.generate_content.call_args
+        rendered_prompt = call_args[1].get("prompt") or call_args[0][0]
+        assert "sk-abc123" not in rendered_prompt, (
+            "API-key-like string in topic field survived into the rendered prompt — "
+            "per-field _sanitize_input pre-format is missing (AWD-M-268)"
+        )
+        assert "[REDACTED_KEY]" in rendered_prompt
+
+
 class TestDelimiterTagsSurviveInRenderedPromptH128:
     """AWD-H-128: the assembled prompt must retain the template's own delimiter
     tags so the LLM sandboxing preamble is honoured.  The post-format
