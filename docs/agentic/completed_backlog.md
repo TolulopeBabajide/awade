@@ -1983,3 +1983,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 541dbcb
 - **Files**: `apps/backend/tests/test_lesson_resource_read.py`, `apps/backend/tests/test_lesson_resource_dto.py`
 - **Summary**: Extracted `TestToLessonResourceResponse` (3 tests, ~66 lines) from `test_lesson_resource_read.py` to a new `test_lesson_resource_dto.py`. Removed now-unused `LessonResourceResponse` and `_to_lesson_resource_response` imports from read file. File drops from 440 → 367 lines; new dto file is 105 lines. 746 backend tests pass.
+
+## AWD-M-224 — Extract _extract_csp_directive helper in test_security.py
+- **Completed**: 2026-06-19
+- **Commit**: 51251d1
+- **Files**: `apps/backend/tests/test_security.py`
+- **Summary**: Extracted `_extract_csp_directive(csp: str, name: str) -> str` helper to remove 3 duplicate for-loop blocks (script-src, style-src, font-src). 746 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.

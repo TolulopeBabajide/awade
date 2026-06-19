@@ -817,3 +817,4 @@ After removing it, the next hourly run will:
 | 2026-06-17T15:10:00Z | AWD-M-258 | Deduplicate bookmark mutation tests with it.each | 6370ec8 | ✅ Done | CI:pending (Tolu: `git push origin develop`) |
 | 2026-06-17T16:15:00Z | AWD-M-259 | Split test_lesson_resource_service.py into read/generate files | b0a9e35 | ✅ Done | CI:pending (Tolu: `git push origin develop`) |
 | 2026-06-17T17:10:00Z | AWD-M-261 | Extract TestToLessonResourceResponse to test_lesson_resource_dto.py | 541dbcb | ✅ Done | CI:pending (Tolu: `git push origin develop`) |
+2026-06-18T23:39:24Z | M-224 | AWD-M-224 extract _extract_csp_directive helper in test_security.py | 51251d1 | ✅ Done | CI:pending

@@ -5,7 +5,13 @@
 # Exit 0 = all agents OK or WARNING only. Exit 1 = at least one CRITICAL agent.
 #
 # Expected windows:
-#   Hourly agents  (dev-agent, qa-agent, code-review-agent):     70 min
+#   Hourly agent   (dev-agent):                                  70 min
+#   Event-driven   (qa-agent, code-review-agent):               1500 min
+#                  — these now run only inside the dev-loop, when the dev
+#                    agent picks up a stage=ready item, so they legitimately
+#                    go quiet during idle hours. Treated as a daily window to
+#                    avoid false CRITICALs; a genuinely stuck reviewer still
+#                    surfaces within a day.
 #   Daily agents   (security-agent, analytics-agent,
 #                   support-agent, growth-agent, marketing-agent,
 #                   finance-agent, nightly-monitor,
@@ -25,8 +31,8 @@ HAS_CRITICAL=0
 get_window() {
   case "$1" in
     dev-agent)         echo 70 ;;
-    qa-agent)          echo 70 ;;
-    code-review-agent) echo 70 ;;
+    qa-agent)          echo 1500 ;;   # event-driven: runs only inside the dev-loop
+    code-review-agent) echo 1500 ;;   # event-driven: runs only inside the dev-loop
     security-agent)    echo 1500 ;;
     analytics-agent)   echo 1500 ;;
     support-agent)     echo 1500 ;;
