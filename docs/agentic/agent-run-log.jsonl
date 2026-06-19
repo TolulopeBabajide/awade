@@ -604,3 +604,5 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-06-17T07:39:07Z | awade-daily-health-check | done | OpenAPI valid; last TS/lint/tests clean per dev-agent; sandbox Node.js timeout; git push pending
 2026-06-17T08:07:19Z | awade-content-calendar | done | content-calendar-2026-06-17.md written — Mon-Fri Jun 22-26, 5 posts planned (parent study env, educator assessment thread, LinkedIn student-teacher ratio, teacher onboarding email, week-3 BIP check-in)
 2026-06-19T03:07:36Z | awade-growth-daily | done | Parent Product Spotlight email on bookmark feature drafted (2026-06-19-email.md); feature verified in children.py + SavedGuidesPage.tsx
+2026-06-19T06:13:07Z | awade-tech-debt | done | stall ended 06-13; 5 resolved (M-213/M-215/L-58/L-59/M-67), M-123 re-scoped, M-265 net-new; active 15->12
+2026-06-19T07:07:24Z | awade-daily-health-check | done | FE green (ts/lint/292 tests); backend not runnable in sandbox; 0 Crit / 4 High open

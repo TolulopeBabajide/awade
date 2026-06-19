@@ -318,3 +318,5 @@
 2026-06-19T03:21:47Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-19-ed05d12.md | completed structural code review — AWD-M-245 commit cycle — verdict: Clean
 2026-06-19T04:22:20Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
 2026-06-19T05:23:59Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-19-3030c8a.md | completed structural code review — AWD-M-198 fix · verdict: ✅ Clean · filed M-263 M-264
+2026-06-19T06:13:07Z | tech-debt-agent | WRITE | docs/tech-debt/ | completed tech debt audit
+2026-06-19T06:26:14Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-19-dee0ac4.md | completed structural code review of AWD-M-198 (dee0ac4)
