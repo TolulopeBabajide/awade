@@ -2013,3 +2013,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: fd48003 (merge e415526)
 - **Files**: `apps/backend/tests/test_security.py`
 - **Summary**: Removed the unused `_make_service_with_mock_google()` instance method from `TestGoogleOAuthRoleWhitelist`. The helper was defined at line 377 but never called — both `test_role_whitelist` and `test_existing_user_role_not_changed_by_oauth` inline their own setup. The helper also had a latent bug: it returned an unstarted patcher, so any naive caller would have found the mock silently unapplied. 750 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
+
+## AWD-M-198 — Strip prompt delimiter tags from `_sanitize_input` (OWASP LLM01)
+- **Completed**: 2026-06-19
+- **Commit**: dee0ac4 (merge 8acff0a)
+- **Files**: `packages/ai/gpt_service.py`, `apps/backend/tests/test_ai_providers.py`
+- **Summary**: Added `_PROMPT_DELIMITER_TAGS = ("<user_context>", "</user_context>", "<curriculum_data>", "</curriculum_data>")` constant and a stripping loop at the top of `_sanitize_input`. Prevents an educator-supplied closing tag (e.g. `</user_context>`) from escaping the data section of a prompt template and injecting instructions outside the delimiter boundary. Covers both the `_sanitize_user_context` call chain and the `generate_parent_guide` per-field sanitisation. 7 new tests in `TestSanitizeInputDelimiterTagsM198` (each tag variant stripped, unrelated `<` preserved, empty/None passthrough). 757 backend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
