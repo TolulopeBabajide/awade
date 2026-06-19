@@ -2037,3 +2037,13 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: cb07b3e (merge develop)
 - **Files**: `apps/backend/tests/test_token_service.py` (new, 420 lines)
 - **Summary**: Added 40 characterization tests across 6 classes for the security-critical `TokenService` JWT lifecycle — `_build_user_response` (8 tests), `create_access_token` (6), `create_refresh_token` (6), `_get_jwt_expires_minutes` (2), `refresh_access_token` (8), `blacklist_refresh_token` (4), `is_refresh_token_blacklisted` (6). Fixed test issues: short-form imports (`schemas.users`) mismatched the long-form imports in the service (`apps.backend.schemas.users`); JWT decode used hardcoded `"dev-secret"` but dotenv loads a real key at startup; `redis.exists()` returns an int, not a bool. 800 backend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+---
+
+## M-268 — generate_lesson_resource missing per-field _sanitize_input before format()
+
+- **Area**: Security / Code Quality
+- **Date**: 2026-06-19
+- **Commit**: 9555ce5 (merge develop)
+- **Files**: `packages/ai/gpt_service.py`, `apps/backend/tests/test_ai_providers.py`
+- **Summary**: Applied `self._sanitize_input(...)` to all 7 fields in `prompt_params` within `generate_lesson_resource` (topic, subject, grade_level, country, local_context, learning_objectives, contents) — matching the pre-format per-field pattern already established in `generate_parent_guide`. The post-format catch-all removed by AWD-H-128 was the only redaction pass on these fields; this fix closes the gap. Added `TestLessonResourceInjectionSandboxingM268.test_api_key_not_in_lesson_resource_prompt` asserting `[REDACTED_KEY]` replaces `sk-*` strings in rendered prompts. 801 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
