@@ -374,19 +374,6 @@ class TestGoogleOAuthRoleWhitelist:
     regardless of what the client sends in the `role` field.
     """
 
-    def _make_service_with_mock_google(self, test_db, google_email="newuser@example.com"):
-        """Return an AuthService whose verify_google_token is mocked."""
-        from unittest.mock import patch, Mock
-        from apps.backend.services.auth_service import AuthService
-
-        mock_google_data = {
-            "aud": "test_google_client_id",
-            "email": google_email,
-            "name": "New User",
-        }
-        patcher = patch.object(AuthService, "verify_google_token", return_value=mock_google_data)
-        return AuthService(test_db), patcher
-
     @pytest.mark.parametrize("requested_role,expected_role", [
         ("PARENT", "PARENT"),
         ("EDUCATOR", "EDUCATOR"),
