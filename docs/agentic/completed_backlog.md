@@ -1989,3 +1989,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 51251d1
 - **Files**: `apps/backend/tests/test_security.py`
 - **Summary**: Extracted `_extract_csp_directive(csp: str, name: str) -> str` helper to remove 3 duplicate for-loop blocks (script-src, style-src, font-src). 746 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
+
+## AWD-M-262 — Fix _extract_csp_directive prefix token boundary
+- **Completed**: 2026-06-19
+- **Commit**: c6b7b97 (merge 9db4978)
+- **Files**: `apps/backend/tests/test_security.py`
+- **Summary**: Changed `directive.startswith(name)` → `directive == name or directive.startswith(name + " ")` to prevent `script-src` matching `script-src-elem` (or similar) when the longer directive appears first in the CSP string. Added `TestExtractCspDirectiveM262` (4 tests). 750 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
