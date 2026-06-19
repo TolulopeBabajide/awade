@@ -324,3 +324,4 @@
 2026-06-19T10:09:45Z | code-review-agent    | SKIP       | idempotency                              | no new application code commits since last review (e7d7562 is sync-only docs commit; 81bddb1 already reviewed)
 2026-06-19T10:41:29Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
 2026-06-19T11:01:38Z | seo-agent | WRITE | docs/agentic/seo/ | weekly SEO report
+2026-06-19T16:00:00Z | analytics-agent | WRITE | docs/agentic/analytics/ | weekly analytics report (week 3 of launch month — degraded, Mixpanel scope error day 14)
