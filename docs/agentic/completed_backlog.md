@@ -2099,3 +2099,12 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 199990d (merge 78556ee)
 - **Files**: `packages/ai/gpt_service.py`
 - **Summary**: Updated `_sanitize_input(self, text: str) -> str` to `_sanitize_input(self, text: Optional[str]) -> Optional[str]`. The annotation now matches the documented None-pass-through behaviour (when `not text`, the input is returned unchanged — returning None when text is None). `Optional` was already imported; one-line change. 809 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+---
+
+## AWD-H-129 — Fix exception-path is_valid=False in AI generation fallbacks
+
+- **Date**: 2026-06-20
+- **Commit**: 24ae4a2 (merge into develop)
+- **Files**: `packages/ai/gpt_service.py`, `apps/backend/tests/test_ai_providers.py`
+- **Summary**: Changed both exception-handler returns in `generate_lesson_resource` (line 615) and `generate_parent_guide` (line 726) from `(mock_data, True)` to `(mock_data, False)`. The `True` was incorrectly signalling "validation passed" to callers on AI API failure paths — callers could persist mock data as valid AI content. Added `TestExceptionHandlerIsValidFlagH129` with 2 regression tests that patch `_make_api_call` to raise and assert `is_valid is False`. 811 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
