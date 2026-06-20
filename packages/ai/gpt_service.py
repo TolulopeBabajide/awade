@@ -269,7 +269,7 @@ class AwadeGPTService:
             # Fallback to mock on critical failure
             return self._generate_mock_lesson_resource(topic, subject, grade)
             
-    def _sanitize_input(self, text: str) -> str:
+    def _sanitize_input(self, text: Optional[str]) -> Optional[str]:
         """
         Sanitize input to remove potentially sensitive information.
         """
