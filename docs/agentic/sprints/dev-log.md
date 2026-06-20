@@ -832,3 +832,4 @@ After removing it, the next hourly run will:
 2026-06-20T01:15:00Z | M-266 | Case-insensitive delimiter tag stripping in _sanitize_input | 9fac597 | ✅ Done | CI:pending
 2026-06-20T02:14:00Z | M-263 | Fix `_sanitize_input` type annotation to Optional[str] | 199990d | ✅ Done | CI:pending
 2026-06-20T03:12:00Z | H-129 | Fix exception-path is_valid=False in AI generation fallbacks | 24ae4a2 | ✅ Done | CI:pending
+2026-06-20T00:00:00Z | M-277 | Remove logging.basicConfig from gpt_service.py library module | 6a3cb47 | ✅ Done | CI:pending (push deferred — sandbox git push blocked)

@@ -2108,3 +2108,12 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 24ae4a2 (merge into develop)
 - **Files**: `packages/ai/gpt_service.py`, `apps/backend/tests/test_ai_providers.py`
 - **Summary**: Changed both exception-handler returns in `generate_lesson_resource` (line 615) and `generate_parent_guide` (line 726) from `(mock_data, True)` to `(mock_data, False)`. The `True` was incorrectly signalling "validation passed" to callers on AI API failure paths — callers could persist mock data as valid AI content. Added `TestExceptionHandlerIsValidFlagH129` with 2 regression tests that patch `_make_api_call` to raise and assert `is_valid is False`. 811 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
+
+---
+
+## AWD-M-277 — Remove `logging.basicConfig` from `gpt_service.py` library module
+
+- **Completed**: 2026-06-20
+- **Commit**: 6a3cb47 (merge 512af2c into develop)
+- **Files**: `packages/ai/gpt_service.py`, `apps/backend/tests/test_ai_providers.py`
+- **Summary**: Removed `logging.basicConfig(level=logging.INFO)` and its `# Configure logging` comment from the module level of `gpt_service.py`. As a library package imported by the backend, calling `basicConfig()` at import time was globally configuring the root logger and silently overriding any logging setup the host app (or Sentry integration) applied after import. Added `TestLoggingRootHandlerNotPollutedM277` regression test that reloads the module and asserts no new root handlers are added. 812 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
