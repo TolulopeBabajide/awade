@@ -820,3 +820,31 @@ class TestLoggingRootHandlerNotPollutedM277:
         importlib.reload(svc_module)
         handler_count_after = len(root.handlers)
         assert handler_count_after == handler_count_before
+
+    def test_initial_import_does_not_add_root_handlers(self):
+        # Reload-based test misses first-import: basicConfig() skips when handlers already
+        # exist, so a reload always passes. Subprocess isolation forces a truly fresh import
+        # where root.handlers is empty and basicConfig() would actually fire (AWD-M-278).
+        import subprocess
+        import sys
+        import os
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
+        env = {**os.environ, "PYTHONPATH": repo_root}
+        script = (
+            "import logging, sys;"
+            "root = logging.getLogger();"
+            "before = len(root.handlers);"
+            "import packages.ai.gpt_service;"
+            "after = len(root.handlers);"
+            "raise SystemExit(0 if after == before else 1)"
+        )
+        result = subprocess.run(
+            [sys.executable, "-c", script],
+            capture_output=True,
+            timeout=30,
+            env=env,
+        )
+        assert result.returncode == 0, (
+            "Fresh import of gpt_service added root-logger handlers.\n"
+            f"stderr: {result.stderr.decode()!r}"
+        )
