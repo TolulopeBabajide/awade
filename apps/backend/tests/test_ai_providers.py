@@ -805,3 +805,17 @@ class TestExceptionHandlerIsValidFlagH129:
             ))
 
         assert is_valid is False
+
+
+class TestLoggingRootHandlerNotPollutedM277:
+    """Importing gpt_service must not install handlers on the root logger (AWD-M-277)."""
+
+    def test_import_does_not_add_root_handlers(self):
+        import logging
+        import importlib
+        import packages.ai.gpt_service as svc_module
+        root = logging.getLogger()
+        handler_count_before = len(root.handlers)
+        importlib.reload(svc_module)
+        handler_count_after = len(root.handlers)
+        assert handler_count_after == handler_count_before
