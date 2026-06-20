@@ -612,7 +612,7 @@ class AwadeGPTService:
                 
         except Exception as e:
             logger.error(f"Error generating lesson resource: {e}")
-            return self._generate_mock_lesson_resource(topic, subject, grade), True
+            return self._generate_mock_lesson_resource(topic, subject, grade), False
 
     # ─── Parent Guide Generation ──────────────────────────────────────
 
@@ -723,7 +723,7 @@ class AwadeGPTService:
 
         except Exception as e:
             logger.error(f"Error generating parent guide: {e}")
-            return self._generate_mock_parent_guide(topic, subject, grade, country, curriculum), True
+            return self._generate_mock_parent_guide(topic, subject, grade, country, curriculum), False
 
     def _validate_parent_guide(self, content: str) -> tuple[bool, Optional[str]]:
         """Validate a parent-guide AI output.
