@@ -2146,3 +2146,12 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 0dcc714 (merge 944e9b2 into develop)
 - **Files**: `apps/backend/tests/test_ai_providers.py`
 - **Summary**: Added `test_initial_import_does_not_add_root_handlers` to `TestLoggingRootHandlerNotPollutedM277`. The existing reload-based test captured `handler_count_before` after the module was already imported, so `logging.basicConfig()` (which skips when handlers exist) would not fire on reload even if the fix regressed. The new test spawns a subprocess with a fresh Python process, imports `gpt_service` for the first time, and asserts the root-logger handler count is unchanged. 814 backend tests pass · TS 0 errors · lint 0 errors.
+
+---
+
+## M-271 — Remove TestGetJwtExpiresMinutesM265 private-method test class
+- **Area**: Testing / Code Quality
+- **Resolved**: 2026-06-20
+- **Commit**: 11c3ea2 (merge 94e1b39 into develop)
+- **Files**: `apps/backend/tests/test_token_service.py`
+- **Summary**: Removed `TestGetJwtExpiresMinutesM265` class (2 tests, 14 lines including section comment). The private method `_get_jwt_expires_minutes` was already exercised end-to-end by `TestCreateAccessTokenM265.test_exp_claim_is_approximately_60_minutes_out` and `test_env_var_overrides_expiry`. Private-method tests are fragile and break on renames without behavioral change. 812 backend tests pass · 1 skipped · 0 failing · openapi.json ✅ · mcp.json ✅.

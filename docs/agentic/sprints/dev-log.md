@@ -836,3 +836,4 @@ After removing it, the next hourly run will:
 | 2026-06-20T05:12:00Z | M-274 | Add grade_level parametrize case to injection sandboxing test | 5e0926a | ✅ Done | CI:pending (push deferred) |
 | 2026-06-20T10:05:00Z | M-275 | Remove inline import re from _clean_and_repair in gpt_service.py | 0ea1a76 | ✅ Done | CI:pending (push deferred — sandbox git push blocked) |
 2026-06-20T12:22:49Z | M-278 | subprocess-isolate initial-import root-handler test | 0dcc714 | ✅ Done | CI:pending
+2026-06-20T15:07:50Z | M-271 | Remove TestGetJwtExpiresMinutesM265 private-method test class | 11c3ea2 | ✅ Done | CI:pending
