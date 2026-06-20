@@ -338,3 +338,4 @@
 2026-06-20T04:23:51Z | code-review-agent | WRITE | docs/code-reviews/review-2026-06-20-d23a6c3.md | completed structural code review
 2026-06-20T10:49:16Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
 2026-06-20T12:43:53Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-20T15:33:59Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-20-944e9b2.md | completed structural code review — AWD-M-278 subprocess isolation test — verdict: Clean
