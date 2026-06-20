@@ -2136,3 +2136,13 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 0ea1a76 (merge 76a46fd into develop)
 - **Files**: `packages/ai/gpt_service.py`
 - **Summary**: Removed redundant `import re` from inside `_clean_and_repair` function body. The `re` module was already imported at module level (line 13). Python caches imports so there was no runtime bug, but the inline import misled readers and was inconsistent with the rest of the file. 813 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
+
+---
+
+## AWD-M-278 — Subprocess-isolate initial-import root-handler test
+
+- **Area**: Testing / Code Quality
+- **Resolved**: 2026-06-20
+- **Commit**: 0dcc714 (merge 944e9b2 into develop)
+- **Files**: `apps/backend/tests/test_ai_providers.py`
+- **Summary**: Added `test_initial_import_does_not_add_root_handlers` to `TestLoggingRootHandlerNotPollutedM277`. The existing reload-based test captured `handler_count_before` after the module was already imported, so `logging.basicConfig()` (which skips when handlers exist) would not fire on reload even if the fix regressed. The new test spawns a subprocess with a fresh Python process, imports `gpt_service` for the first time, and asserts the root-logger handler count is unchanged. 814 backend tests pass · TS 0 errors · lint 0 errors.
