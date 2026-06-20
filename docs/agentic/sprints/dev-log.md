@@ -830,3 +830,4 @@ After removing it, the next hourly run will:
 2026-06-20T01:15:00Z | H-65 | venv PyJWT below security-remediated pin | N/A (no code change) | ✅ Done | CI:N/A
 2026-06-20T01:15:00Z | M-77 | venv openai SDK behind pinned version | N/A (no code change) | ✅ Done | CI:N/A
 2026-06-20T01:15:00Z | M-266 | Case-insensitive delimiter tag stripping in _sanitize_input | 9fac597 | ✅ Done | CI:pending
+2026-06-20T02:14:00Z | M-263 | Fix `_sanitize_input` type annotation to Optional[str] | 199990d | ✅ Done | CI:pending

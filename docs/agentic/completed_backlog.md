@@ -2090,3 +2090,12 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 9fac597 (merge 58b3cf3)
 - **Files**: `packages/ai/gpt_service.py`, `apps/backend/tests/test_ai_providers.py`
 - **Summary**: Replaced `text.replace(tag, "")` with `re.sub(re.escape(tag), "", text, flags=re.IGNORECASE)` in `_sanitize_input` for all 4 `_PROMPT_DELIMITER_TAGS`. Mixed-case bypass attempts (`</USER_CONTEXT>`, `<Curriculum_Data>`, etc.) are now stripped. Added `TestSanitizeInputDelimiterTagsCaseInsensitiveM266` (4 tests). 809 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+---
+
+### AWD-M-263 — Fix `_sanitize_input` type annotation to `Optional[str]`
+- **Area**: Code Quality / Types
+- **Date**: 2026-06-20
+- **Commit**: 199990d (merge 78556ee)
+- **Files**: `packages/ai/gpt_service.py`
+- **Summary**: Updated `_sanitize_input(self, text: str) -> str` to `_sanitize_input(self, text: Optional[str]) -> Optional[str]`. The annotation now matches the documented None-pass-through behaviour (when `not text`, the input is returned unchanged — returning None when text is None). `Optional` was already imported; one-line change. 809 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
