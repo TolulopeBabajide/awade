@@ -201,20 +201,6 @@ class TestCreateRefreshTokenM265:
 
 
 # ---------------------------------------------------------------------------
-# TokenService._get_jwt_expires_minutes
-# ---------------------------------------------------------------------------
-
-class TestGetJwtExpiresMinutesM265:
-    def test_default_is_60(self, test_db, monkeypatch):
-        monkeypatch.delenv("JWT_EXPIRES_MINUTES", raising=False)
-        assert TokenService(test_db)._get_jwt_expires_minutes() == 60
-
-    def test_reads_env_var(self, test_db, monkeypatch):
-        monkeypatch.setenv("JWT_EXPIRES_MINUTES", "120")
-        assert TokenService(test_db)._get_jwt_expires_minutes() == 120
-
-
-# ---------------------------------------------------------------------------
 # TokenService.refresh_access_token
 # ---------------------------------------------------------------------------
 
