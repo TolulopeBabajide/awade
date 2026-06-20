@@ -2117,3 +2117,12 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 6a3cb47 (merge 512af2c into develop)
 - **Files**: `packages/ai/gpt_service.py`, `apps/backend/tests/test_ai_providers.py`
 - **Summary**: Removed `logging.basicConfig(level=logging.INFO)` and its `# Configure logging` comment from the module level of `gpt_service.py`. As a library package imported by the backend, calling `basicConfig()` at import time was globally configuring the root logger and silently overriding any logging setup the host app (or Sentry integration) applied after import. Added `TestLoggingRootHandlerNotPollutedM277` regression test that reloads the module and asserts no new root handlers are added. 812 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
+
+---
+
+## AWD-M-274 — Add grade_level parametrize case to injection sandboxing test
+
+- **Completed**: 2026-06-20
+- **Commit**: 5e0926a (merge into develop)
+- **Files**: `apps/backend/tests/test_ai_providers.py`
+- **Summary**: Added 4th parametrize case `("grade_level", {"grade": "sk-..."})` to `test_api_key_redacted_in_all_injected_fields` in `TestLessonResourceInjectionSandboxingM268`. The `grade` field is sanitised via `_sanitize_input(grade)` at `gpt_service.py:562` but had no regression test; a future breakage would go undetected. 813 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
