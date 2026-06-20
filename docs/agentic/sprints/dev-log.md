@@ -827,3 +827,6 @@ After removing it, the next hourly run will:
 | 2026-06-19T15:50:00Z | M-265 | Add token_service.py characterization tests | cb07b3e | ✅ Done | CI:pending |
 | 2026-06-19T23:30:00Z | AWD-M-268 | Sanitise per-field inputs in generate_lesson_resource before format() | 9555ce5 | ✅ Done | CI:pending (Tolu: `git push origin develop`) |
 | 2026-06-20T00:08:00Z | AWD-M-272 + AWD-M-273 | Sanitize contents before template_schema; extend injection test coverage | 10a27d9 | ✅ Done | CI:pending (Tolu: `git push origin develop`) |
+2026-06-20T01:15:00Z | H-65 | venv PyJWT below security-remediated pin | N/A (no code change) | ✅ Done | CI:N/A
+2026-06-20T01:15:00Z | M-77 | venv openai SDK behind pinned version | N/A (no code change) | ✅ Done | CI:N/A
+2026-06-20T01:15:00Z | M-266 | Case-insensitive delimiter tag stripping in _sanitize_input | 9fac597 | ✅ Done | CI:pending

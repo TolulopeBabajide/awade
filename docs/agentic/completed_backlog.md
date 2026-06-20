@@ -2063,3 +2063,30 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 10a27d9 (merge develop)
 - **Files**: `apps/backend/tests/test_ai_providers.py`
 - **Summary**: Extended `TestLessonResourceInjectionSandboxingM268` with `@pytest.mark.parametrize` covering `subject`, `contents`, and `learning_objectives` injection vectors (3 new parametrized test cases). Added M-272 regression test verifying that `<curriculum_data>` tags inside `template_schema` survive sanitization and reach the rendered prompt intact. 805 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+---
+
+## AWD-H-65 — venv PyJWT below security-remediated pin
+- **Area**: Security / DX
+- **Date**: 2026-06-20
+- **Commit**: N/A (venv already updated — no code change required)
+- **Files**: `venv/`
+- **Summary**: Dev-agent verified `venv/bin/pip show PyJWT` → `Version: 2.13.0` (exceeds the 2.12.1 target; bumped as part of AWD-M-207). Resolved alongside AWD-M-77.
+
+---
+
+## AWD-M-77 — venv openai SDK behind pinned version
+- **Area**: Security / DX
+- **Date**: 2026-06-20
+- **Commit**: N/A (venv already updated — no code change required)
+- **Files**: `venv/`
+- **Summary**: Dev-agent verified `venv/bin/pip show openai` → `Version: 1.109.1` (exact target). Resolved alongside AWD-H-65.
+
+---
+
+## AWD-M-266 — Case-insensitive delimiter tag stripping in _sanitize_input
+- **Area**: Security / Code Quality
+- **Date**: 2026-06-20
+- **Commit**: 9fac597 (merge 58b3cf3)
+- **Files**: `packages/ai/gpt_service.py`, `apps/backend/tests/test_ai_providers.py`
+- **Summary**: Replaced `text.replace(tag, "")` with `re.sub(re.escape(tag), "", text, flags=re.IGNORECASE)` in `_sanitize_input` for all 4 `_PROMPT_DELIMITER_TAGS`. Mixed-case bypass attempts (`</USER_CONTEXT>`, `<Curriculum_Data>`, etc.) are now stripped. Added `TestSanitizeInputDelimiterTagsCaseInsensitiveM266` (4 tests). 809 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.

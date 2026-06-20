@@ -1,7 +1,8 @@
 # Awade — Backlog
 
 > Last groomed: 2026-05-16 (weekend-ops — M-163/M-164 promoted to ready; M-162 promoted discover→define; H-57 duplicate closed (canonical: H-73); M-78 flagged launch-blocking; M-20 flagged pre-launch must-do)
-> Last updated: 2026-06-20 (dev-agent — AWD-M-272 + AWD-M-273 resolved: sanitize user-supplied contents before appending template_schema; extended injection sandboxing tests to cover subject, contents, learning_objectives fields + M-272 regression. 805 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors. Commit 10a27d9. Tolu: run `git push origin develop` to trigger CI.)
+> Last updated: 2026-06-20 (dev-agent — AWD-M-266 resolved: replaced `str.replace` with `re.sub(..., flags=re.IGNORECASE)` in `_sanitize_input` for all 4 delimiter tags; added `TestSanitizeInputDelimiterTagsCaseInsensitiveM266` (4 tests). AWD-H-65 + AWD-M-77 closed — venv confirmed at PyJWT 2.13.0, openai 1.109.1. 809 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. Commit 9fac597, merge 58b3cf3. Tolu: run `git push origin develop` to trigger CI.)
+> Prev updated: 2026-06-20 (dev-agent — AWD-M-272 + AWD-M-273 resolved: sanitize user-supplied contents before appending template_schema; extended injection sandboxing tests to cover subject, contents, learning_objectives fields + M-272 regression. 805 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors. Commit 10a27d9. Tolu: run `git push origin develop` to trigger CI.)
 > Prev updated: 2026-06-19 (dev-agent — AWD-M-268 resolved: applied `_sanitize_input` to all 7 fields in `generate_lesson_resource` prompt_params; added `TestLessonResourceInjectionSandboxingM268` regression test. 801 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. Commit 9555ce5, merge develop. Tolu: run `git push origin develop` to trigger CI.)
 > Prev updated: 2026-06-19 (code-review-agent — AWD-M-265 merge (cb07b3e) reviewed — ✅ Clean. Filed AWD-M-270: `TestCreateAccessTokenM265`/`TestCreateRefreshTokenM265`/`TestGetJwtExpiresMinutesM265` pull `test_db` (real SQLite) for methods that don't touch DB. Filed AWD-M-271: `TestGetJwtExpiresMinutesM265` directly tests private `_get_jwt_expires_minutes` — redundant with higher-level coverage. See docs/code-reviews/review-2026-06-19-3cdc86c.md.)
 > Prev updated: 2026-06-19 (code-review-agent — AWD-H-128 merge (81bddb1) reviewed — ✅ Clean. Filed AWD-M-268: `generate_lesson_resource` missing pre-format `_sanitize_input` on individual prompt fields after post-format catch-all removed. Filed AWD-L-77: dead `_make_service_with_provider` helper in `TestDelimiterTagsSurviveInRenderedPromptH128`. See docs/code-reviews/review-2026-06-19-81bddb1.md.)
@@ -355,16 +356,7 @@ AWD-M-96 remain open. Verdict: ✅ Clean.)
 
 ---
 
-**AWD-H-65 — venv PyJWT 2.10.1 below security-remediated pin 2.12.1**
-**Problem**: `requirements.txt` pins `PyJWT==2.12.1` (AWD-H-23: large CVE surface between 2.3.0 and 2.12.1). The active `venv/` has `PyJWT==2.10.1` — never updated to the remediated pin. CVEs patched between 2.10.1 and 2.12.1 are present in the dev environment. Production on Render installs from `requirements.txt` fresh (likely correct), but dev venv divergence creates risk.
-**Acceptance criteria**:
-- [ ] `source venv/bin/activate && pip install -r apps/backend/requirements.txt` run on dev machine
-- [ ] `pip show PyJWT | grep Version` → `2.12.1`
-- [ ] Resolve alongside M-77 (openai SDK)
-**Files**: `venv/`, `apps/backend/requirements.txt`
-**Effort**: S
-**Audience**: internal / dev
-**Stage**: ready
+~~**AWD-H-65 — venv PyJWT 2.10.1 below security-remediated pin 2.12.1**~~ — ✅ resolved 2026-06-20 (dev-agent verified). `venv/bin/pip show PyJWT` → `Version: 2.13.0` (exceeds 2.12.1 target; PyJWT was bumped to 2.13.0 in AWD-M-207). `venv/bin/pip show openai` → `Version: 1.109.1` (M-77 resolved simultaneously). No code change required. **Stage**: done
 
 ---
 
@@ -411,7 +403,7 @@ AWD-M-96 remain open. Verdict: ✅ Clean.)
 | ~~M-272~~ | Security / Code Quality | ✅ resolved 2026-06-20 (commit 10a27d9, merge develop). `contents_val` is now sanitised before `template_schema` is appended — `_sanitize_input` is called on the user-supplied portion only; the combined string goes into `prompt_params` directly (unsanitised). 805 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. Tolu: run `git push origin develop` to trigger CI. | `packages/ai/gpt_service.py` lines 544–560 | XS | done |
 | ~~M-273~~ | Testing / Security | ✅ resolved 2026-06-20 (commit 10a27d9, merge develop). Extended `TestLessonResourceInjectionSandboxingM268` with `@pytest.mark.parametrize` covering `subject`, `contents`, and `learning_objectives` fields. Added M-272 regression test verifying `template_schema` delimiter tags survive sanitization. 805 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. | `apps/backend/tests/test_ai_providers.py` lines 510–541 | XS | done |
 | ~~M-268~~ | Security / Code Quality | ✅ resolved 2026-06-19 (commit 9555ce5, merge develop). Applied `self._sanitize_input(...)` to all 7 fields in `prompt_params` in `generate_lesson_resource` (topic, subject, grade_level, country, local_context, learning_objectives, contents) — matching the pre-format pattern from `generate_parent_guide`. Added `TestLessonResourceInjectionSandboxingM268.test_api_key_not_in_lesson_resource_prompt` asserting `[REDACTED_KEY]` replaces fake `sk-*` string in the rendered prompt. 801 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. Tolu: run `git push origin develop` to trigger CI. | `packages/ai/gpt_service.py` lines 548–556, `apps/backend/tests/test_ai_providers.py` | XS | done |
-| M-266 | Security / Code Quality | `_PROMPT_DELIMITER_TAGS` stripping in `_sanitize_input` uses `str.replace(tag, "")` which is case-sensitive — an attacker can bypass with `</USER_CONTEXT>`, `</Curriculum_Data>`, or any mixed-case variant. The LLM would then receive the tag verbatim in the assembled prompt and treat the following text as instruction context. Fix: replace `text.replace(tag, "")` with `re.sub(re.escape(tag), "", text, flags=re.IGNORECASE)` for each tag, and add test cases asserting `</USER_CONTEXT>` and `</CURRICULUM_DATA>` (uppercased) are also stripped. Filed 2026-06-19 code-review-agent, commit dee0ac4. | `packages/ai/gpt_service.py` line 282-283 | XS | define |
+| ~~M-266~~ | Security / Code Quality | ✅ resolved 2026-06-20 (commit 9fac597, merge 58b3cf3). Replaced `text.replace(tag, "")` with `re.sub(re.escape(tag), "", text, flags=re.IGNORECASE)` in `_sanitize_input` — mixed-case variants (`</USER_CONTEXT>`, `<Curriculum_Data>`, etc.) are now stripped. Added `TestSanitizeInputDelimiterTagsCaseInsensitiveM266` (4 tests: all-caps user_context closing, all-caps curriculum_data closing, mixed-case user_context opening, mixed-case curriculum_data opening). 809 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. Tolu: run `git push origin develop` to trigger CI. | `packages/ai/gpt_service.py` line 282-283 | XS | done |
 | ~~M-265~~ | Code / Testing | ✅ resolved 2026-06-19 (commit cb07b3e, merge develop). Added `apps/backend/tests/test_token_service.py` — 40 tests across 6 classes covering `_build_user_response`, `create_access_token`, `create_refresh_token`, `_get_jwt_expires_minutes`, `refresh_access_token` (happy path + 5 error paths), `blacklist_refresh_token`, and `is_refresh_token_blacklisted`. Fixed import path mismatches (short vs long form), JWT secret mismatch caused by dotenv loading at startup, and int vs bool identity checks on `redis.exists()`. 800 backend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. | `apps/backend/tests/test_token_service.py` | S | done |
 | ~~M-261~~ | Testing / Architecture | ✅ resolved 2026-06-17 (commit 541dbcb, merge develop). Extracted `TestToLessonResourceResponse` (3 tests, 66 lines) to `test_lesson_resource_dto.py`; removed unused `LessonResourceResponse` and `_to_lesson_resource_response` imports from read file. `test_lesson_resource_read.py` drops from 440 → 367 lines (well under threshold). 746 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. Tolu: run `git push origin develop` to trigger CI. | `apps/backend/tests/test_lesson_resource_read.py`, `apps/backend/tests/test_lesson_resource_dto.py` | XS | done |
 | M-260 | Tooling / Agent Infra | `check-permissions.sh` glob-stripping logic handles final-component wildcards (`*.py`, `sprint-*.md`) but silently mishandles mid-path wildcards (e.g. `docs/*/report.md`). For a mid-path pattern, `rsplit("/", 1)[-1]` returns the last component without a `*`, so neither the `/**`/`/*` branch nor the `elif` branch fires — the path reaches `os.path.normpath` as a literal and would DENY any valid target. No current manifest entry uses a mid-path glob, so not an active bug, but a latent hazard as the write-list grows. Fix: add a comment documenting the unsupported pattern, or add an explicit loop that strips until all `*` components are removed from non-final positions. Filed 2026-06-17 code-review-agent, review 6706acb. | `scripts/check-permissions.sh` | XS | define |
@@ -532,14 +524,7 @@ AWD-M-96 remain open. Verdict: ✅ Clean.)
 
 ---
 
-**AWD-M-77 — venv openai SDK 1.93.1 behind pinned 1.109.1**
-**Problem**: `requirements.txt` pins `openai==1.109.1` (upgraded per AWD-M-39). The `venv/` has `openai==1.93.1` — 16 minor versions behind. Resolve alongside AWD-H-65 with a full `pip install -r apps/backend/requirements.txt` while venv is active on Tolu's machine.
-**Acceptance criteria**:
-- [ ] `pip show openai | grep Version` → `1.109.1` after running `pip install -r apps/backend/requirements.txt`
-**Files**: `venv/`, `apps/backend/requirements.txt`
-**Effort**: S
-**Audience**: internal / dev
-**Stage**: ready
+~~**AWD-M-77 — venv openai SDK 1.93.1 behind pinned 1.109.1**~~ — ✅ resolved 2026-06-20 (dev-agent verified). `venv/bin/pip show openai` → `Version: 1.109.1` (exact target). Resolved alongside AWD-H-65. No code change required. **Stage**: done
 
 ---
 
