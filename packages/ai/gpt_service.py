@@ -13,8 +13,6 @@ import logging
 import re
 from typing import List, Dict, Any, Optional, TypedDict
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 from .prompts import COMPREHENSIVE_LESSON_RESOURCE_PROMPT, PARENT_HELPER_PROMPT
