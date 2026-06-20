@@ -279,8 +279,10 @@ class AwadeGPTService:
         # Strip prompt delimiter tags to prevent template-injection via fake
         # closing tags (e.g. </user_context>) that could escape the data
         # section of a prompt (AWD-M-198 / OWASP LLM01).
+        # re.IGNORECASE covers mixed-case bypass attempts such as
+        # </USER_CONTEXT> or </Curriculum_Data> (AWD-M-266).
         for tag in _PROMPT_DELIMITER_TAGS:
-            text = text.replace(tag, "")
+            text = re.sub(re.escape(tag), "", text, flags=re.IGNORECASE)
 
         # Remove potential API keys (simple heuristic)
         text = re.sub(r'(sk-[a-zA-Z0-9]{32,})', '[REDACTED_KEY]', text)
