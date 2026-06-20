@@ -590,6 +590,7 @@ class TestLessonResourceInjectionSandboxingM268:
                       "contents": ["sk-abc123abc123abc123abc123abc123abc123"]}),
         ("learning_objectives", {"subject": "Maths", "topic": "Fractions", "grade": "Grade 4",
                                   "objectives": ["sk-abc123abc123abc123abc123abc123abc123"]}),
+        ("grade_level", {"grade": "sk-abc123abc123abc123abc123abc123abc123"}),
     ])
     @patch("packages.ai.gpt_service.OpenAIProvider")
     @patch("packages.ai.gpt_service.ContentCache")
