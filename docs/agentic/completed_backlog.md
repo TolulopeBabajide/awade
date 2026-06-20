@@ -2155,3 +2155,10 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 11c3ea2 (merge 94e1b39 into develop)
 - **Files**: `apps/backend/tests/test_token_service.py`
 - **Summary**: Removed `TestGetJwtExpiresMinutesM265` class (2 tests, 14 lines including section comment). The private method `_get_jwt_expires_minutes` was already exercised end-to-end by `TestCreateAccessTokenM265.test_exp_claim_is_approximately_60_minutes_out` and `test_env_var_overrides_expiry`. Private-method tests are fragile and break on renames without behavioral change. 812 backend tests pass · 1 skipped · 0 failing · openapi.json ✅ · mcp.json ✅.
+
+## M-270 — Replace test_db with MagicMock in token creation tests
+- **Area**: Testing / Code Quality
+- **Resolved**: 2026-06-21
+- **Commit**: c10dfdd (merge 8ad48f6 into develop)
+- **Files**: `apps/backend/tests/test_token_service.py`
+- **Summary**: Added module-level `_make_svc()` helper returning `TokenService(MagicMock())`. Replaced `test_db` fixture with `_make_svc()` in `TestCreateAccessTokenM265` (6 tests) and `TestCreateRefreshTokenM265` (6 tests). `create_access_token` and `create_refresh_token` never touch the DB session; coupling them to real SQLite infrastructure was unnecessary. `TestGetJwtExpiresMinutesM265` was already removed by M-271. 812 backend tests pass · 1 skipped · 0 failing · openapi.json ✅ · mcp.json ✅.

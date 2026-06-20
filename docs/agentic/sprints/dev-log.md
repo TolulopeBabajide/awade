@@ -837,3 +837,4 @@ After removing it, the next hourly run will:
 | 2026-06-20T10:05:00Z | M-275 | Remove inline import re from _clean_and_repair in gpt_service.py | 0ea1a76 | ✅ Done | CI:pending (push deferred — sandbox git push blocked) |
 2026-06-20T12:22:49Z | M-278 | subprocess-isolate initial-import root-handler test | 0dcc714 | ✅ Done | CI:pending
 2026-06-20T15:07:50Z | M-271 | Remove TestGetJwtExpiresMinutesM265 private-method test class | 11c3ea2 | ✅ Done | CI:pending
+2026-06-21T00:00:00Z | M-270 | Replace test_db with MagicMock in TestCreateAccessTokenM265 and TestCreateRefreshTokenM265 | c10dfdd | ✅ Done | CI:pending
