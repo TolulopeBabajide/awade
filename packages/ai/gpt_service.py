@@ -441,7 +441,6 @@ class AwadeGPTService:
         
         # 2. Extract JSON payload if surrounded by text
         if "{" in clean_content:
-            import re
             match = re.search(r'(\{.*\})', clean_content, re.DOTALL)
             if match:
                 clean_content = match.group(1)
