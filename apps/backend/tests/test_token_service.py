@@ -54,6 +54,15 @@ def _decode(token: str) -> dict:
     return jwt.decode(token, get_jwt_secret_key(), algorithms=[get_jwt_algorithm()])
 
 
+def _make_svc() -> "TokenService":
+    """Return a TokenService backed by a MagicMock DB.
+
+    Used by tests that exercise crypto/env-var paths only and have no need
+    for a real database session.
+    """
+    return TokenService(MagicMock())
+
+
 def _make_refresh_jwt(sub: str = "1", token_type: str = "refresh", include_jti: bool = True) -> str:
     payload: dict = {
         "sub": sub,
@@ -114,20 +123,20 @@ class TestBuildUserResponseM265:
 # ---------------------------------------------------------------------------
 
 class TestCreateAccessTokenM265:
-    def test_returns_string(self, test_db):
-        svc = TokenService(test_db)
+    def test_returns_string(self):
+        svc = _make_svc()
         token = svc.create_access_token({"sub": "1", "email": "u@awade.ng"})
         assert isinstance(token, str)
         assert len(token) > 0
 
-    def test_type_claim_is_access(self, test_db):
-        svc = TokenService(test_db)
+    def test_type_claim_is_access(self):
+        svc = _make_svc()
         token = svc.create_access_token({"sub": "1"})
         payload = _decode(token)
         assert payload["type"] == "access"
 
-    def test_exp_claim_is_approximately_60_minutes_out(self, test_db):
-        svc = TokenService(test_db)
+    def test_exp_claim_is_approximately_60_minutes_out(self):
+        svc = _make_svc()
         before = datetime.now(timezone.utc)
         token = svc.create_access_token({"sub": "1"})
         after = datetime.now(timezone.utc)
@@ -135,21 +144,21 @@ class TestCreateAccessTokenM265:
         exp = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
         assert before + timedelta(minutes=59) < exp < after + timedelta(minutes=61)
 
-    def test_sub_claim_preserved(self, test_db):
-        svc = TokenService(test_db)
+    def test_sub_claim_preserved(self):
+        svc = _make_svc()
         token = svc.create_access_token({"sub": "42", "email": "u@awade.ng"})
         assert _decode(token)["sub"] == "42"
 
-    def test_original_data_dict_not_mutated(self, test_db):
-        svc = TokenService(test_db)
+    def test_original_data_dict_not_mutated(self):
+        svc = _make_svc()
         data = {"sub": "1"}
         svc.create_access_token(data)
         assert "exp" not in data
         assert "type" not in data
 
-    def test_env_var_overrides_expiry(self, test_db, monkeypatch):
+    def test_env_var_overrides_expiry(self, monkeypatch):
         monkeypatch.setenv("JWT_EXPIRES_MINUTES", "30")
-        svc = TokenService(test_db)
+        svc = _make_svc()
         before = datetime.now(timezone.utc)
         token = svc.create_access_token({"sub": "1"})
         after = datetime.now(timezone.utc)
@@ -162,38 +171,38 @@ class TestCreateAccessTokenM265:
 # ---------------------------------------------------------------------------
 
 class TestCreateRefreshTokenM265:
-    def test_returns_string(self, test_db):
-        svc = TokenService(test_db)
+    def test_returns_string(self):
+        svc = _make_svc()
         token = svc.create_refresh_token({"sub": "1"})
         assert isinstance(token, str)
 
-    def test_type_claim_is_refresh(self, test_db):
-        svc = TokenService(test_db)
+    def test_type_claim_is_refresh(self):
+        svc = _make_svc()
         payload = _decode(svc.create_refresh_token({"sub": "1"}))
         assert payload["type"] == "refresh"
 
-    def test_exp_claim_is_approximately_7_days_out(self, test_db):
-        svc = TokenService(test_db)
+    def test_exp_claim_is_approximately_7_days_out(self):
+        svc = _make_svc()
         before = datetime.now(timezone.utc)
         token = svc.create_refresh_token({"sub": "1"})
         after = datetime.now(timezone.utc)
         exp = datetime.fromtimestamp(_decode(token)["exp"], tz=timezone.utc)
         assert before + timedelta(days=6, hours=23) < exp < after + timedelta(days=7, hours=1)
 
-    def test_jti_claim_present_and_non_empty(self, test_db):
-        svc = TokenService(test_db)
+    def test_jti_claim_present_and_non_empty(self):
+        svc = _make_svc()
         payload = _decode(svc.create_refresh_token({"sub": "1"}))
         assert "jti" in payload
         assert payload["jti"]
 
-    def test_consecutive_tokens_have_unique_jtis(self, test_db):
-        svc = TokenService(test_db)
+    def test_consecutive_tokens_have_unique_jtis(self):
+        svc = _make_svc()
         p1 = _decode(svc.create_refresh_token({"sub": "1"}))
         p2 = _decode(svc.create_refresh_token({"sub": "1"}))
         assert p1["jti"] != p2["jti"]
 
-    def test_original_data_dict_not_mutated(self, test_db):
-        svc = TokenService(test_db)
+    def test_original_data_dict_not_mutated(self):
+        svc = _make_svc()
         data = {"sub": "1"}
         svc.create_refresh_token(data)
         assert "jti" not in data
