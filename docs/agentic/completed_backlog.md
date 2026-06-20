@@ -2126,3 +2126,13 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 5e0926a (merge into develop)
 - **Files**: `apps/backend/tests/test_ai_providers.py`
 - **Summary**: Added 4th parametrize case `("grade_level", {"grade": "sk-..."})` to `test_api_key_redacted_in_all_injected_fields` in `TestLessonResourceInjectionSandboxingM268`. The `grade` field is sanitised via `_sanitize_input(grade)` at `gpt_service.py:562` but had no regression test; a future breakage would go undetected. 813 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
+
+---
+
+## M-275 — Remove inline `import re` from `_clean_and_repair` (2026-06-20)
+
+- **Area**: Code Hygiene
+- **Resolved**: 2026-06-20
+- **Commit**: 0ea1a76 (merge 76a46fd into develop)
+- **Files**: `packages/ai/gpt_service.py`
+- **Summary**: Removed redundant `import re` from inside `_clean_and_repair` function body. The `re` module was already imported at module level (line 13). Python caches imports so there was no runtime bug, but the inline import misled readers and was inconsistent with the rest of the file. 813 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.

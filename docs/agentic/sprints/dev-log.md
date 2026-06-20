@@ -834,3 +834,4 @@ After removing it, the next hourly run will:
 2026-06-20T03:12:00Z | H-129 | Fix exception-path is_valid=False in AI generation fallbacks | 24ae4a2 | ✅ Done | CI:pending
 2026-06-20T00:00:00Z | M-277 | Remove logging.basicConfig from gpt_service.py library module | 6a3cb47 | ✅ Done | CI:pending (push deferred — sandbox git push blocked)
 | 2026-06-20T05:12:00Z | M-274 | Add grade_level parametrize case to injection sandboxing test | 5e0926a | ✅ Done | CI:pending (push deferred) |
+| 2026-06-20T10:05:00Z | M-275 | Remove inline import re from _clean_and_repair in gpt_service.py | 0ea1a76 | ✅ Done | CI:pending (push deferred — sandbox git push blocked) |
