@@ -582,8 +582,6 @@ class TestLessonResourceInjectionSandboxingM268:
         )
         assert "[REDACTED_KEY]" in rendered_prompt
 
-    _FAKE_KEY = "sk-abc123abc123abc123abc123abc123abc123"
-
     @pytest.mark.parametrize("field_name,call_kwargs", [
         ("subject", {"subject": "sk-abc123abc123abc123abc123abc123abc123", "topic": "Fractions", "grade": "Grade 4"}),
         ("contents", {"subject": "Maths", "topic": "Fractions", "grade": "Grade 4",
@@ -653,18 +651,6 @@ class TestDelimiterTagsSurviveInRenderedPromptH128:
     tags so the LLM sandboxing preamble is honoured.  The post-format
     _sanitize_input call was silently stripping these tags, voiding the
     structural sandboxing established by AWD-M-128."""
-
-    def _make_service_with_provider(self):
-        """Return (service, mock_provider) — provider records generate_content calls."""
-        with patch("packages.ai.gpt_service.OpenAIProvider") as MockProvider, \
-             patch("packages.ai.gpt_service.ContentCache") as MockCache:
-            MockCache.return_value.get.return_value = None
-            svc = AwadeGPTService(api_key="test", provider_type="openai")
-            mock_provider = MockProvider.return_value
-            mock_provider.generate_content.return_value = (
-                '{"title_header": {}, "learning_objectives": [], "lesson_content": {}}'
-            )
-            return svc, mock_provider
 
     @patch("packages.ai.gpt_service.OpenAIProvider")
     @patch("packages.ai.gpt_service.ContentCache")
