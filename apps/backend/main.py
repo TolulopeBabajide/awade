@@ -204,6 +204,11 @@ if _pfi_available:
                         )
                         if result is not None:
                             return result
+                    else:
+                        logger.warning(
+                            "_pfi_compat: _IncludedRouter without callable effective_candidates"
+                            " — metrics gap"
+                        )
                     continue
                 route_name = route.path
                 child_scope = {**scope, **child_scope}

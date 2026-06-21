@@ -1,3 +1,4 @@
+import logging
 import pytest
 from fastapi.testclient import TestClient
 
@@ -52,3 +53,70 @@ class TestPrometheusImportErrorGuardM280:
         monkeypatch.delattr(pfi_routing, "_get_route_name")
         with pytest.raises(RuntimeError, match="pfi internals changed"):
             main_module._check_pfi_routing_compat()
+
+
+class TestPfiRouteNameCompatMetricsGapM281:
+    """logger.warning emitted when _IncludedRouter lacks callable effective_candidates (AWD-M-281)."""
+
+    def _make_no_path_route(self, candidates_value):
+        """Return a mock route that matches FULL but has no .path attribute."""
+        from starlette.routing import Match
+
+        class FakeIncludedRouter:
+            def matches(self, scope):
+                return Match.FULL, {}
+
+        route = FakeIncludedRouter()
+        if candidates_value is not None:
+            # Set on the instance to avoid Python binding a callable class attribute
+            # as a bound method (which would add an unexpected `self` argument).
+            route.effective_candidates = candidates_value
+        return route
+
+    def test_warns_when_effective_candidates_absent(self, caplog):
+        pytest.importorskip(
+            "prometheus_fastapi_instrumentator",
+            reason="prometheus-fastapi-instrumentator not installed",
+        )
+        from apps.backend import main as main_module
+
+        route = self._make_no_path_route(None)
+        with caplog.at_level(logging.WARNING, logger="apps.backend.main"):
+            result = main_module._pfi_get_route_name_compat({}, [route])
+        assert result is None
+        assert any(
+            "_pfi_compat" in r.message and "metrics gap" in r.message
+            for r in caplog.records
+        )
+
+    def test_warns_when_effective_candidates_not_callable(self, caplog):
+        pytest.importorskip(
+            "prometheus_fastapi_instrumentator",
+            reason="prometheus-fastapi-instrumentator not installed",
+        )
+        from apps.backend import main as main_module
+
+        route = self._make_no_path_route("not_callable")
+        with caplog.at_level(logging.WARNING, logger="apps.backend.main"):
+            result = main_module._pfi_get_route_name_compat({}, [route])
+        assert result is None
+        assert any(
+            "_pfi_compat" in r.message and "metrics gap" in r.message
+            for r in caplog.records
+        )
+
+    def test_no_warning_when_effective_candidates_callable(self, caplog):
+        pytest.importorskip(
+            "prometheus_fastapi_instrumentator",
+            reason="prometheus-fastapi-instrumentator not installed",
+        )
+        from apps.backend import main as main_module
+
+        route = self._make_no_path_route(lambda: [])
+        with caplog.at_level(logging.WARNING, logger="apps.backend.main"):
+            result = main_module._pfi_get_route_name_compat({}, [route])
+        assert result is None
+        assert not any(
+            "_pfi_compat" in r.message and "metrics gap" in r.message
+            for r in caplog.records
+        )
