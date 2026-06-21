@@ -2225,3 +2225,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 7e92a9b (merge 3965090 into develop)
 - **Files**: `apps/backend/tests/test_metrics.py`
 - **Summary**: Changed `or` to `and` in line 13 — both `"# HELP"` and `"http_requests_total"` must be present in the Prometheus metrics response. Prevents a degraded partial response from passing the test. 816 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+### M-282 — Add path assertion to `_tags_used_in_prompts`
+- **Completed**: 2026-06-21
+- **Commit**: df73c41 (merge ff61ee0 into develop)
+- **Files**: `apps/backend/tests/test_ai_providers.py`
+- **Summary**: Added `assert prompts_path.exists(), f"prompts.py not found at {prompts_path}"` before `.read_text()` in `_tags_used_in_prompts` and documented the 4-level depth assumption with a comment. Prevents a silent `FileNotFoundError` with no useful assertion message if the file moves. 816 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.

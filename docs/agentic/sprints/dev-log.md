@@ -847,3 +847,4 @@ After removing it, the next hourly run will:
 2026-06-21T14:11:00Z | H-131 | Add hasattr guard to pfi monkey-patch in main.py | fb36e11 | ✅ Done | CI:pending
 2026-06-21T15:12:00Z | M-284 | Replace assert hasattr with RuntimeError guard in main.py | 637e237 | ✅ Done | CI:pending
 2026-06-21T17:10:00Z | M-285 | Strengthen test_metrics_endpoint_exists disjunctive assertion | 7e92a9b | ✅ Done | CI:pending (push deferred)
+2026-06-21T18:10:00Z | M-282 | Add path assertion to _tags_used_in_prompts | df73c41 | ✅ Done | CI:pending
