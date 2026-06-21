@@ -363,3 +363,4 @@
 2026-06-21T19:22:29Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-21-1999ed7.md | completed structural code review — AWD-M-280 merge 1999ed7 — verdict Clean
 2026-06-21T20:24:25Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-21-709c39e.md | completed structural code review — ✅ Clean — filed AWD-M-287
 2026-06-21T21:23:17Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — 981baf3 (AWD-M-281) ✅ Clean
+2026-06-21T22:22:02Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — ✅ Clean — commits e980cb7 d06e097 — AWD-M-287 dedup reviewed

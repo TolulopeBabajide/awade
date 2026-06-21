@@ -2251,3 +2251,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 8664add (merge 981baf3 into develop)
 - **Files**: `apps/backend/main.py`, `apps/backend/tests/test_metrics.py`
 - **Summary**: Added `else: logger.warning("_pfi_compat: _IncludedRouter without callable effective_candidates — metrics gap")` in `_pfi_get_route_name_compat` so silent skips become visible in logs. Added `TestPfiRouteNameCompatMetricsGapM281` (3 tests: absent effective_candidates, non-callable effective_candidates, callable effective_candidates emits no warning). 821 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+### AWD-M-287 — merge duplicate pfi guard tests after M-286 extraction
+- **Completed**: 2026-06-21
+- **Commit**: e980cb7 (merge d06e097 into develop)
+- **Files**: `apps/backend/tests/test_metrics.py`
+- **Summary**: Removed structurally identical `test_non_import_error_propagates_from_setup` from `TestPrometheusImportErrorGuardM280`; updated `TestPfiMonkeyPatchGuardOptimizeM284.test_guard_raises_runtime_error_when_attribute_missing` docstring to cover both AWD-M-284 (RuntimeError not assert) and AWD-M-280 (error propagates outside ImportError guard). 820 backend tests pass, 2 skipped · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
