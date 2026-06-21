@@ -355,3 +355,5 @@
 2026-06-21T12:24:38Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
 2026-06-21T13:23:58Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-21-27afc7d.md | completed structural code review (AWD-H-131 fix fb36e11/27afc7d — ✅ Clean, filed M-284)
 2026-06-21T14:22:15Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-21-96eb83f.md | completed structural code review
+2026-06-21T15:22:30Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-21T15:27:47Z | code-review-agent | WRITE | docs/code-reviews/review-2026-06-21-9de9889.md | completed structural code review
