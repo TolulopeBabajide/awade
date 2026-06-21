@@ -28,7 +28,12 @@ class TestPfiMonkeyPatchGuardH131:
 
 class TestPfiMonkeyPatchGuardOptimizeM284:
     def test_guard_raises_runtime_error_when_attribute_missing(self, monkeypatch):
-        """Guard raises RuntimeError via main.py's _check_pfi_routing_compat (AWD-M-284, AWD-M-286)."""
+        """Guard raises RuntimeError (not assert) so it survives -O and propagates at startup.
+
+        Covers AWD-M-284 (RuntimeError not assert) and AWD-M-280 (error propagates
+        through the ImportError guard — _check_pfi_routing_compat is called outside
+        the except ImportError block).
+        """
         import prometheus_fastapi_instrumentator.routing as pfi_routing
         from apps.backend import main as main_module
         monkeypatch.delattr(pfi_routing, "_get_route_name")
@@ -45,14 +50,6 @@ class TestPrometheusImportErrorGuardM280:
         )
         from apps.backend import main as main_module
         assert getattr(main_module, "_pfi_available", None) is True
-
-    def test_non_import_error_propagates_from_setup(self, monkeypatch):
-        """RuntimeError from _check_pfi_routing_compat propagates at startup (AWD-M-280, AWD-M-286)."""
-        import prometheus_fastapi_instrumentator.routing as pfi_routing
-        from apps.backend import main as main_module
-        monkeypatch.delattr(pfi_routing, "_get_route_name")
-        with pytest.raises(RuntimeError, match="pfi internals changed"):
-            main_module._check_pfi_routing_compat()
 
 
 class TestPfiRouteNameCompatMetricsGapM281:
