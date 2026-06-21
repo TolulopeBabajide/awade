@@ -2207,3 +2207,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 20a73f1 (merge 53425e0 into develop)
 - **Files**: `apps/backend/tests/test_ai_providers.py`
 - **Summary**: Added `_PROMPT_DELIMITER_TAGS` to imports and `TestPromptDelimiterTagsCoverage` class (3 tests: all XML delimiter tags in prompts.py must appear in `_PROMPT_DELIMITER_TAGS`, tuple must have ≥4 entries, every opening tag must have a closing counterpart). Prevents silent bypass when a new prompt delimiter pair is added without a matching stripping entry. 814 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+### H-131 — Add hasattr guard to pfi monkey-patch in main.py
+- **Completed**: 2026-06-21
+- **Commit**: fb36e11 (merge into develop)
+- **Files**: `apps/backend/main.py`, `apps/backend/tests/test_metrics.py`
+- **Summary**: Added `assert hasattr(_pfi_routing, "_get_route_name"), "pfi internals changed — update AWD-H-131 shim"` before the monkey-patch assignment in `main.py:212`; added comment directing removal once prometheus-fastapi-instrumentator officially supports fastapi>=0.137. Added `TestPfiMonkeyPatchGuardH131::test_pfi_routing_has_get_route_name_attribute` CI sentinel in `test_metrics.py` using `pytest.importorskip`. 815 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
