@@ -2231,3 +2231,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: df73c41 (merge ff61ee0 into develop)
 - **Files**: `apps/backend/tests/test_ai_providers.py`
 - **Summary**: Added `assert prompts_path.exists(), f"prompts.py not found at {prompts_path}"` before `.read_text()` in `_tags_used_in_prompts` and documented the 4-level depth assumption with a comment. Prevents a silent `FileNotFoundError` with no useful assertion message if the file moves. 816 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+### M-280 — Separate ImportError guard from Prometheus monkey-patch setup
+- **Completed**: 2026-06-21
+- **Commit**: f019f80 (merge 1999ed7 into develop)
+- **Files**: `apps/backend/main.py`, `apps/backend/tests/test_metrics.py`
+- **Summary**: Separated `except ImportError` to guard only the 5 prometheus import lines; moved `_pfi_get_route_name_compat`, the `_get_route_name` guard, and `Instrumentator().instrument()` into an `if _pfi_available:` block. RuntimeError/AttributeError from a failed monkey-patch now propagates at startup (fail-fast) instead of being silently swallowed. Added `TestPrometheusImportErrorGuardM280` (2 tests: flag set when installed, non-ImportError propagates). 818 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
