@@ -2178,3 +2178,12 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 17dd432 (merge into develop)
 - **Files**: `apps/backend/tests/test_ai_providers.py`
 - **Summary**: Removed two items of dead code: (1) `_FAKE_KEY = "sk-abc123..."` class attribute on `TestLessonResourceInjectionSandboxingM268` — never referenced, as parametrize decorators are evaluated before class body; (2) `_make_service_with_provider()` helper (11 lines) on `TestDelimiterTagsSurviveInRenderedPromptH128` — all three test methods use `@patch` decorators directly and never call it. File reduced from 850 to 836 lines. 812 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+---
+
+## AWD-H-126 — starlette PYSEC-2026-161 host header injection
+
+- **Completed**: 2026-06-21
+- **Commit**: 71b5d7a (merge 8b4eb1d into develop)
+- **Files**: `apps/backend/requirements.txt`, `apps/backend/main.py`
+- **Summary**: Bumped fastapi 0.121.3→0.137.1 (drops starlette upper bound), starlette 0.49.3→1.3.1 (fixes PYSEC-2026-161 Host header URL injection), prometheus-fastapi-instrumentator 6.1.0→8.0.0 (starlette 1.x compatible). Added monkey-patch in main.py for fastapi 0.137's new `_IncludedRouter` BaseRoute (no `.path` attribute) that broke PFI routing. Pinned new transitive deps: annotated-doc==0.0.4, typing-inspection==0.4.2. 812 backend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
