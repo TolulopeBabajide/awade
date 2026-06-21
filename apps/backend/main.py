@@ -176,6 +176,40 @@ app = FastAPI(
 # Prometheus Metrics
 try:
     from prometheus_fastapi_instrumentator import Instrumentator
+    import prometheus_fastapi_instrumentator.routing as _pfi_routing
+    from starlette.routing import Match, Mount as _Mount
+    from typing import List as _List, Optional as _Optional
+    from starlette.types import Scope as _Scope
+
+    def _pfi_get_route_name_compat(
+        scope: _Scope, routes: _List, route_name: _Optional[str] = None
+    ) -> _Optional[str]:
+        # Patched for fastapi>=0.137 compatibility: _IncludedRouter is a BaseRoute
+        # that has no .path attribute; skip it gracefully (AWD-H-126).
+        for route in routes:
+            match, child_scope = route.matches(scope)
+            if match == Match.FULL:
+                if not hasattr(route, "path"):
+                    candidates = getattr(route, "effective_candidates", None)
+                    if callable(candidates):
+                        result = _pfi_get_route_name_compat(
+                            {**scope, **child_scope}, candidates()
+                        )
+                        if result is not None:
+                            return result
+                    continue
+                route_name = route.path
+                child_scope = {**scope, **child_scope}
+                if isinstance(route, _Mount) and route.routes:
+                    child = _pfi_get_route_name_compat(child_scope, route.routes, route_name)
+                    route_name = None if child is None else route_name + child
+                return route_name
+            elif match == Match.PARTIAL and route_name is None:
+                if hasattr(route, "path"):
+                    route_name = route.path
+        return None
+
+    _pfi_routing._get_route_name = _pfi_get_route_name_compat
     Instrumentator().instrument(app).expose(app)
 except ImportError:
     logger.warning("Prometheus Instrumentator not found, skipping metrics exposure")
