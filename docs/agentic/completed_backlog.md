@@ -2195,3 +2195,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: a40c0e0 (merge into develop)
 - **Files**: `apps/backend/tests/test_ai_providers.py`
 - **Summary**: Added `@pytest.mark.skip(reason="AWD-H-130 subprocess SIGKILL in sandbox — passes in CI")` to `TestLoggingRootHandlerNotPollutedM277::test_initial_import_does_not_add_root_handlers`. The subprocess-isolation test spawned by `subprocess.run` is consistently SIGKILL'd in the Claude Code sandbox. CI is unaffected (dedicated resources). 811 backend tests pass, 2 skipped · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+### L-76 — Extract duplicate _make_service() factory to module-level helper in test_ai_providers.py
+- **Completed**: 2026-06-21
+- **Commit**: 7d488e0 (merge 96cebdd into develop)
+- **Files**: `apps/backend/tests/test_ai_providers.py`
+- **Summary**: Added module-level `_make_service()` after imports; removed 4 identical class-method definitions from TestSanitizeUserContext, TestSanitizeInputDelimiterTagsM198, TestSanitizeInputDelimiterTagsCaseInsensitiveM266, TestCheckContentSafetyOutputGate; updated all 35 `self._make_service()` call sites. 811 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
