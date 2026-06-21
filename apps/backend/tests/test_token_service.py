@@ -267,8 +267,7 @@ class TestRefreshAccessTokenM265:
         assert exc_info.value.status_code == 401
 
     def test_expired_jwt_raises_401(self):
-        db = MagicMock()
-        svc = TokenService(db)
+        svc = _make_svc()
         expired = jwt.encode(
             {"sub": "1", "type": "refresh", "exp": datetime(2000, 1, 1, tzinfo=timezone.utc)},
             get_jwt_secret_key(),
@@ -280,8 +279,7 @@ class TestRefreshAccessTokenM265:
         assert "expired" in exc_info.value.detail.lower()
 
     def test_invalid_jwt_raises_401(self):
-        db = MagicMock()
-        svc = TokenService(db)
+        svc = _make_svc()
         with pytest.raises(Exception) as exc_info:
             asyncio.run(svc.refresh_access_token("not.a.jwt", redis_pool=None))
         assert exc_info.value.status_code == 401
@@ -302,8 +300,7 @@ class TestRefreshAccessTokenM265:
 
 class TestBlacklistRefreshTokenM265:
     def test_happy_path_calls_setex_with_correct_key(self):
-        db = MagicMock()
-        svc = TokenService(db)
+        svc = _make_svc()
         token = _make_refresh_jwt()
         payload = _decode(token)
         jti = payload["jti"]
@@ -317,8 +314,7 @@ class TestBlacklistRefreshTokenM265:
         assert call_args[2] == "true"
 
     def test_no_jti_in_payload_skips_redis(self):
-        db = MagicMock()
-        svc = TokenService(db)
+        svc = _make_svc()
         token = _make_refresh_jwt(include_jti=False)
         mock_redis = AsyncMock()
         mock_redis.setex = AsyncMock()
@@ -326,8 +322,7 @@ class TestBlacklistRefreshTokenM265:
         mock_redis.setex.assert_not_called()
 
     def test_already_expired_token_skips_redis(self):
-        db = MagicMock()
-        svc = TokenService(db)
+        svc = _make_svc()
         expired_payload = {
             "sub": "1",
             "type": "refresh",
@@ -344,8 +339,7 @@ class TestBlacklistRefreshTokenM265:
         mock_redis.setex.assert_not_called()
 
     def test_redis_error_does_not_raise(self):
-        db = MagicMock()
-        svc = TokenService(db)
+        svc = _make_svc()
         token = _make_refresh_jwt()
         mock_redis = AsyncMock()
         mock_redis.setex = AsyncMock(side_effect=Exception("Redis down"))
@@ -358,8 +352,7 @@ class TestBlacklistRefreshTokenM265:
 
 class TestIsRefreshTokenBlacklistedM265:
     def test_redis_none_returns_false_and_warns(self):
-        db = MagicMock()
-        svc = TokenService(db)
+        svc = _make_svc()
         with patch("apps.backend.services.token_service.logger") as mock_log:
             result = asyncio.run(svc.is_refresh_token_blacklisted("any.token", redis_pool=None))
         assert result is False
@@ -367,8 +360,7 @@ class TestIsRefreshTokenBlacklistedM265:
         assert "Redis unavailable" in mock_log.warning.call_args[0][0]
 
     def test_not_blacklisted_returns_false(self):
-        db = MagicMock()
-        svc = TokenService(db)
+        svc = _make_svc()
         token = _make_refresh_jwt()
         mock_redis = AsyncMock()
         mock_redis.exists = AsyncMock(return_value=0)
@@ -376,8 +368,7 @@ class TestIsRefreshTokenBlacklistedM265:
         assert not result
 
     def test_blacklisted_returns_true(self):
-        db = MagicMock()
-        svc = TokenService(db)
+        svc = _make_svc()
         token = _make_refresh_jwt()
         mock_redis = AsyncMock()
         mock_redis.exists = AsyncMock(return_value=1)
@@ -385,8 +376,7 @@ class TestIsRefreshTokenBlacklistedM265:
         assert result
 
     def test_no_jti_in_payload_returns_false(self):
-        db = MagicMock()
-        svc = TokenService(db)
+        svc = _make_svc()
         fake_payload = {"sub": "1", "type": "refresh"}
         mock_redis = AsyncMock()
         with patch("apps.backend.services.token_service.jwt.decode", return_value=fake_payload):
@@ -395,8 +385,7 @@ class TestIsRefreshTokenBlacklistedM265:
         mock_redis.exists.assert_not_called()
 
     def test_redis_exception_returns_false(self):
-        db = MagicMock()
-        svc = TokenService(db)
+        svc = _make_svc()
         token = _make_refresh_jwt()
         mock_redis = AsyncMock()
         mock_redis.exists = AsyncMock(side_effect=Exception("connection reset"))
@@ -404,8 +393,7 @@ class TestIsRefreshTokenBlacklistedM265:
         assert result is False
 
     def test_correct_redis_key_pattern_used(self):
-        db = MagicMock()
-        svc = TokenService(db)
+        svc = _make_svc()
         token = _make_refresh_jwt()
         jti = _decode(token)["jti"]
         mock_redis = AsyncMock()
