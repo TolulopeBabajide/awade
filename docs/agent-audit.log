@@ -349,3 +349,4 @@
 2026-06-21T01:22:17Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-21-e966039.md | completed structural code review — AWD-M-279 merge (e966039) — verdict: Clean
 2026-06-21T02:24:41Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — ✅ Clean, f475e05
 2026-06-21T03:28:54Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — no reviewable code changes in f950c09 sync commit
+2026-06-21T10:58:48Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-21-6f68740.md | completed structural code review — AWD-H-126/H-130 commits; verdict ⚠️ Refactor Recommended; filed H-131, M-280, M-281
