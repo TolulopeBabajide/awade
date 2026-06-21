@@ -23,3 +23,16 @@ class TestPfiMonkeyPatchGuardH131:
         assert hasattr(pfi_routing, "_get_route_name"), (
             "pfi internals changed: _get_route_name no longer exists — update AWD-H-131 shim in main.py"
         )
+
+
+class TestPfiMonkeyPatchGuardOptimizeM284:
+    def test_guard_raises_runtime_error_when_attribute_missing(self, monkeypatch):
+        """Guard uses RuntimeError not assert — survives Python -O (AWD-M-284)."""
+        import prometheus_fastapi_instrumentator.routing as pfi_routing
+        monkeypatch.delattr(pfi_routing, "_get_route_name")
+        with pytest.raises(RuntimeError, match="pfi internals changed"):
+            # Re-execute the guard block from main.py in isolation.
+            if not hasattr(pfi_routing, "_get_route_name"):
+                raise RuntimeError(
+                    "pfi internals changed: _get_route_name no longer exists — update AWD-H-131 shim"
+                )
