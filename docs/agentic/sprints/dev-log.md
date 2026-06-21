@@ -849,3 +849,4 @@ After removing it, the next hourly run will:
 2026-06-21T17:10:00Z | M-285 | Strengthen test_metrics_endpoint_exists disjunctive assertion | 7e92a9b | ✅ Done | CI:pending (push deferred)
 2026-06-21T18:10:00Z | M-282 | Add path assertion to _tags_used_in_prompts | df73c41 | ✅ Done | CI:pending
 2026-06-21T20:11:00Z | M-280 | Separate ImportError guard from Prometheus monkey-patch setup | f019f80 | ✅ Done | CI:pending
+2026-06-21T21:11:00Z | M-286 | Fix test duplicating production guard — call real main.py code path | eb498a1 | ✅ Done | CI:pending

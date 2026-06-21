@@ -2237,3 +2237,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: f019f80 (merge 1999ed7 into develop)
 - **Files**: `apps/backend/main.py`, `apps/backend/tests/test_metrics.py`
 - **Summary**: Separated `except ImportError` to guard only the 5 prometheus import lines; moved `_pfi_get_route_name_compat`, the `_get_route_name` guard, and `Instrumentator().instrument()` into an `if _pfi_available:` block. RuntimeError/AttributeError from a failed monkey-patch now propagates at startup (fail-fast) instead of being silently swallowed. Added `TestPrometheusImportErrorGuardM280` (2 tests: flag set when installed, non-ImportError propagates). 818 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+### M-286 — Fix test duplicating production guard — call real main.py code path
+- **Completed**: 2026-06-21
+- **Commit**: eb498a1 (merge 709c39e into develop)
+- **Files**: `apps/backend/main.py`, `apps/backend/tests/test_metrics.py`
+- **Summary**: Extracted `_check_pfi_routing_compat()` from the inline guard in `main.py`'s `if _pfi_available:` block. `TestPfiMonkeyPatchGuardOptimizeM284.test_guard_raises_runtime_error_when_attribute_missing` and `TestPrometheusImportErrorGuardM280.test_non_import_error_propagates_from_setup` now call `main_module._check_pfi_routing_compat()` directly — if the guard is refactored the tests will track the change instead of silently passing on an inline copy. 818 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
