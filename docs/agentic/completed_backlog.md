@@ -2169,3 +2169,12 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 27e0d6b (merge e966039 into develop)
 - **Files**: `apps/backend/tests/test_token_service.py`
 - **Summary**: Replaced 12 inline `db = MagicMock(); svc = TokenService(db)` pairs with `svc = _make_svc()` across `TestBlacklistRefreshTokenM265` (4 methods), `TestIsRefreshTokenBlacklistedM265` (6 methods), and `test_expired_jwt_raises_401` + `test_invalid_jwt_raises_401` in `TestRefreshAccessTokenM265`. None of these methods configured custom DB behaviour — the inline pattern was noise. 812 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+---
+
+### AWD-L-77 + AWD-L-78 — Remove dead code in `test_ai_providers.py`
+- **Area**: Testing / Code Hygiene
+- **Resolved**: 2026-06-21
+- **Commit**: 17dd432 (merge into develop)
+- **Files**: `apps/backend/tests/test_ai_providers.py`
+- **Summary**: Removed two items of dead code: (1) `_FAKE_KEY = "sk-abc123..."` class attribute on `TestLessonResourceInjectionSandboxingM268` — never referenced, as parametrize decorators are evaluated before class body; (2) `_make_service_with_provider()` helper (11 lines) on `TestDelimiterTagsSurviveInRenderedPromptH128` — all three test methods use `@patch` decorators directly and never call it. File reduced from 850 to 836 lines. 812 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
