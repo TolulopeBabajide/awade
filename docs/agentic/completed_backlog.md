@@ -2201,3 +2201,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 7d488e0 (merge 96cebdd into develop)
 - **Files**: `apps/backend/tests/test_ai_providers.py`
 - **Summary**: Added module-level `_make_service()` after imports; removed 4 identical class-method definitions from TestSanitizeUserContext, TestSanitizeInputDelimiterTagsM198, TestSanitizeInputDelimiterTagsCaseInsensitiveM266, TestCheckContentSafetyOutputGate; updated all 35 `self._make_service()` call sites. 811 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+### M-264 — Add TestPromptDelimiterTagsCoverage test to guard delimiter tag drift in prompts.py
+- **Completed**: 2026-06-21
+- **Commit**: 20a73f1 (merge 53425e0 into develop)
+- **Files**: `apps/backend/tests/test_ai_providers.py`
+- **Summary**: Added `_PROMPT_DELIMITER_TAGS` to imports and `TestPromptDelimiterTagsCoverage` class (3 tests: all XML delimiter tags in prompts.py must appear in `_PROMPT_DELIMITER_TAGS`, tuple must have ≥4 entries, every opening tag must have a closing counterpart). Prevents silent bypass when a new prompt delimiter pair is added without a matching stripping entry. 814 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.

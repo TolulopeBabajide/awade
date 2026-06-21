@@ -351,3 +351,5 @@
 2026-06-21T03:28:54Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — no reviewable code changes in f950c09 sync commit
 2026-06-21T10:58:48Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-21-6f68740.md | completed structural code review — AWD-H-126/H-130 commits; verdict ⚠️ Refactor Recommended; filed H-131, M-280, M-281
 2026-06-21T11:19:35Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-21T12:24:05Z | validate-output      | WRITE      | /Users/tolulopebabajide/Desktop/Projects/awade/awade/docs/agentic/backlog.md | filed C-2027: secret pattern detected — output rejected from code-review-agent
+2026-06-21T12:24:38Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
