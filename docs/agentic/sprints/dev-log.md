@@ -838,3 +838,4 @@ After removing it, the next hourly run will:
 2026-06-20T12:22:49Z | M-278 | subprocess-isolate initial-import root-handler test | 0dcc714 | ✅ Done | CI:pending
 2026-06-20T15:07:50Z | M-271 | Remove TestGetJwtExpiresMinutesM265 private-method test class | 11c3ea2 | ✅ Done | CI:pending
 2026-06-21T00:00:00Z | M-270 | Replace test_db with MagicMock in TestCreateAccessTokenM265 and TestCreateRefreshTokenM265 | c10dfdd | ✅ Done | CI:pending
+| 2026-06-21T02:14:00Z | M-279 | Replace remaining inline MagicMock pairs with _make_svc() in token tests | 27e0d6b | ✅ Done | CI:pending (push deferred — run `git push origin develop` to trigger CI) |

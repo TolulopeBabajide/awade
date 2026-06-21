@@ -2162,3 +2162,10 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: c10dfdd (merge 8ad48f6 into develop)
 - **Files**: `apps/backend/tests/test_token_service.py`
 - **Summary**: Added module-level `_make_svc()` helper returning `TokenService(MagicMock())`. Replaced `test_db` fixture with `_make_svc()` in `TestCreateAccessTokenM265` (6 tests) and `TestCreateRefreshTokenM265` (6 tests). `create_access_token` and `create_refresh_token` never touch the DB session; coupling them to real SQLite infrastructure was unnecessary. `TestGetJwtExpiresMinutesM265` was already removed by M-271. 812 backend tests pass · 1 skipped · 0 failing · openapi.json ✅ · mcp.json ✅.
+
+## M-279 — Replace remaining inline MagicMock pairs with _make_svc() in token tests
+- **Area**: Testing / Code Quality
+- **Resolved**: 2026-06-21
+- **Commit**: 27e0d6b (merge e966039 into develop)
+- **Files**: `apps/backend/tests/test_token_service.py`
+- **Summary**: Replaced 12 inline `db = MagicMock(); svc = TokenService(db)` pairs with `svc = _make_svc()` across `TestBlacklistRefreshTokenM265` (4 methods), `TestIsRefreshTokenBlacklistedM265` (6 methods), and `test_expired_jwt_raises_401` + `test_invalid_jwt_raises_401` in `TestRefreshAccessTokenM265`. None of these methods configured custom DB behaviour — the inline pattern was noise. 812 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
