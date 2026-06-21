@@ -216,14 +216,18 @@ if _pfi_available:
                     route_name = route.path
         return None
 
-    # Fail fast if pfi renames this internal — the monkey-patch would silently no-op
-    # and broken PFI routing would return with no error. Remove shim once pfi
-    # officially supports fastapi>=0.137 (AWD-H-131).
-    # RuntimeError (not assert) so the guard survives Python -O optimization (AWD-M-284).
-    if not hasattr(_pfi_routing, "_get_route_name"):
-        raise RuntimeError(
-            "pfi internals changed: _get_route_name no longer exists — update AWD-H-131 shim"
-        )
+    def _check_pfi_routing_compat() -> None:
+        # Fail fast if pfi renames this internal — the monkey-patch would silently no-op
+        # and broken PFI routing would return with no error. Remove shim once pfi
+        # officially supports fastapi>=0.137 (AWD-H-131).
+        # RuntimeError (not assert) so the guard survives Python -O optimization (AWD-M-284).
+        # Extracted to a callable so tests exercise this path directly (AWD-M-286).
+        if not hasattr(_pfi_routing, "_get_route_name"):
+            raise RuntimeError(
+                "pfi internals changed: _get_route_name no longer exists — update AWD-H-131 shim"
+            )
+
+    _check_pfi_routing_compat()
     _pfi_routing._get_route_name = _pfi_get_route_name_compat
     Instrumentator().instrument(app).expose(app)
 
