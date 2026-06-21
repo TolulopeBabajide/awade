@@ -173,14 +173,21 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Prometheus Metrics
+# Prometheus Metrics — ImportError guard covers only the import lines so that
+# RuntimeError/AttributeError from a failed monkey-patch propagates at startup
+# (fail-fast) rather than being silently swallowed (AWD-M-280).
 try:
     from prometheus_fastapi_instrumentator import Instrumentator
     import prometheus_fastapi_instrumentator.routing as _pfi_routing
     from starlette.routing import Match, Mount as _Mount
     from typing import List as _List, Optional as _Optional
     from starlette.types import Scope as _Scope
+    _pfi_available = True
+except ImportError:
+    _pfi_available = False
+    logger.warning("Prometheus Instrumentator not found, skipping metrics exposure")
 
+if _pfi_available:
     def _pfi_get_route_name_compat(
         scope: _Scope, routes: _List, route_name: _Optional[str] = None
     ) -> _Optional[str]:
@@ -219,8 +226,6 @@ try:
         )
     _pfi_routing._get_route_name = _pfi_get_route_name_compat
     Instrumentator().instrument(app).expose(app)
-except ImportError:
-    logger.warning("Prometheus Instrumentator not found, skipping metrics exposure")
 
 # Register Rate Limiter
 app.state.limiter = limiter

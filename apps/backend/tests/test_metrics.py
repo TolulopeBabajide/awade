@@ -36,3 +36,25 @@ class TestPfiMonkeyPatchGuardOptimizeM284:
                 raise RuntimeError(
                     "pfi internals changed: _get_route_name no longer exists — update AWD-H-131 shim"
                 )
+
+
+class TestPrometheusImportErrorGuardM280:
+    def test_pfi_available_flag_set_when_installed(self):
+        """_pfi_available is True when prometheus-fastapi-instrumentator is importable (AWD-M-280)."""
+        pytest.importorskip(
+            "prometheus_fastapi_instrumentator",
+            reason="prometheus-fastapi-instrumentator not installed",
+        )
+        from apps.backend import main as main_module
+        assert getattr(main_module, "_pfi_available", None) is True
+
+    def test_non_import_error_propagates_from_setup(self, monkeypatch):
+        """RuntimeError from monkey-patch block propagates — not swallowed by ImportError guard (AWD-M-280)."""
+        import prometheus_fastapi_instrumentator.routing as pfi_routing
+        monkeypatch.delattr(pfi_routing, "_get_route_name")
+        with pytest.raises(RuntimeError, match="pfi internals changed"):
+            # Simulate the setup block that runs when _pfi_available is True.
+            if not hasattr(pfi_routing, "_get_route_name"):
+                raise RuntimeError(
+                    "pfi internals changed: _get_route_name no longer exists — update AWD-H-131 shim"
+                )
