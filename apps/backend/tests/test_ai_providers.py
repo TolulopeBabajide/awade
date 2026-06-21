@@ -490,9 +490,11 @@ class TestPromptDelimiterTagsCoverage:
     def _tags_used_in_prompts(self) -> set:
         import re
         import pathlib
+        # 4 levels up: tests/ → backend/ → apps/ → awade/ (repo root)
         prompts_path = (
             pathlib.Path(__file__).parent.parent.parent.parent / "packages" / "ai" / "prompts.py"
         )
+        assert prompts_path.exists(), f"prompts.py not found at {prompts_path}"
         return set(re.findall(r"</?[a-z_]+>", prompts_path.read_text()))
 
     def test_all_prompt_tags_covered_by_delimiter_tuple(self):
