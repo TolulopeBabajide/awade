@@ -13,6 +13,7 @@ from packages.ai.cache import ContentCache
 from packages.ai.gpt_service import (
     AwadeGPTService,
     ParentGuideRequest,
+    _PROMPT_DELIMITER_TAGS,
     _SHARED_INJECTION_PATTERNS,
     _INPUT_INJECTION_PATTERNS,
     _OUTPUT_INJECTION_PATTERNS,
@@ -478,6 +479,43 @@ class TestSharedInjectionPatterns:
         shared_set = set(_SHARED_INJECTION_PATTERNS)
         assert shared_set.issubset(set(_INPUT_INJECTION_PATTERNS))
         assert shared_set.issubset(set(_OUTPUT_INJECTION_PATTERNS))
+
+
+class TestPromptDelimiterTagsCoverage:
+    """AWD-M-264: Every XML-style delimiter tag in prompts.py must be in
+    _PROMPT_DELIMITER_TAGS so _sanitize_input strips it before prompt injection.
+    Prevents silent bypass when a new delimiter pair is added to prompts.py
+    without a matching entry in the stripping tuple."""
+
+    def _tags_used_in_prompts(self) -> set:
+        import re
+        import pathlib
+        prompts_path = (
+            pathlib.Path(__file__).parent.parent.parent.parent / "packages" / "ai" / "prompts.py"
+        )
+        return set(re.findall(r"</?[a-z_]+>", prompts_path.read_text()))
+
+    def test_all_prompt_tags_covered_by_delimiter_tuple(self):
+        """Every <tag> found in prompts.py must appear in _PROMPT_DELIMITER_TAGS."""
+        for tag in self._tags_used_in_prompts():
+            assert tag in _PROMPT_DELIMITER_TAGS, (
+                f"Tag {tag!r} used in prompts.py but missing from _PROMPT_DELIMITER_TAGS — "
+                "add it so _sanitize_input strips it before prompt injection"
+            )
+
+    def test_delimiter_tuple_non_empty(self):
+        """_PROMPT_DELIMITER_TAGS must contain at least 4 entries (2 pairs minimum)."""
+        assert len(_PROMPT_DELIMITER_TAGS) >= 4
+
+    def test_each_opening_tag_has_closing_counterpart(self):
+        """Every opening tag in _PROMPT_DELIMITER_TAGS has a matching closing pair."""
+        opening_tags = [t for t in _PROMPT_DELIMITER_TAGS if not t.startswith("</")]
+        for tag in opening_tags:
+            tag_name = tag[1:-1]
+            closing = f"</{tag_name}>"
+            assert closing in _PROMPT_DELIMITER_TAGS, (
+                f"Opening tag {tag!r} in _PROMPT_DELIMITER_TAGS has no closing pair {closing!r}"
+            )
 
 
 class TestParentHelperPromptInjectionSandboxing:
