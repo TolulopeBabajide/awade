@@ -5,7 +5,8 @@ internal error details in HTTPException.detail.
 Covers:
 - 404 when resource not found
 - 404 when educator tries to export another user's resource (AWD-M-67: no 403 leakage)
-- 400 for unsupported export format
+- 422 for unsupported export format (AWD-M-195: Pydantic validation)
+- 422 for missing format field defaults to "pdf" via Pydantic default
 - 500 for unexpected export failure uses static detail (no str(e))
 - 200 PDF happy path
 - 200 DOCX happy path
@@ -151,16 +152,30 @@ class TestExportLessonResource:
             )
         assert resp.status_code == 200
 
-    # ── 400 ──────────────────────────────────────────────────────────────────
+    # ── 422 (AWD-M-195: Pydantic rejects invalid format before handler runs) ──
 
-    def test_unsupported_format_returns_400(self, educator, resource):
+    def test_unsupported_format_returns_422(self, educator, resource):
         db = self._db_with_resource(resource)
         client = _client_for_user(educator, db)
         resp = client.post(
             f"/api/lesson-plans/resources/{resource.lesson_resources_id}/export",
             json={"format": "xlsx"},
         )
-        assert resp.status_code == 400
+        assert resp.status_code == 422
+
+    def test_missing_format_defaults_to_pdf(self, educator, resource):
+        db = self._db_with_resource(resource)
+        client = _client_for_user(educator, db)
+        with patch(
+            "apps.backend.services.pdf_service.PDFService.generate_lesson_resource_pdf",
+            return_value=b"%PDF-1.4 fake",
+        ):
+            resp = client.post(
+                f"/api/lesson-plans/resources/{resource.lesson_resources_id}/export",
+                json={},
+            )
+        assert resp.status_code == 200
+        assert resp.headers["content-type"] == "application/pdf"
 
     # ── 500 — AWD-H-40 core assertion ────────────────────────────────────────
 

@@ -34,7 +34,8 @@ from apps.backend.schemas.lesson_plans import (
     LessonPlanUpdate,
     LessonResourceCreate,
     LessonResourceUpdate,
-    LessonResourceResponse
+    LessonResourceResponse,
+    ExportFormatRequest,
 )
 
 logger = logging.getLogger(__name__)
@@ -175,7 +176,7 @@ async def generate_lesson_resource(
 @router.post("/resources/{resource_id}/export")
 async def export_lesson_resource(
     resource_id: int,
-    format_data: dict,
+    format_data: ExportFormatRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -193,12 +194,9 @@ async def export_lesson_resource(
         resource_id, current_user
     )
     
-    # Get export format
-    export_format = format_data.get("format", "pdf").lower()
-    
-    # Initialize PDF service
+    export_format = format_data.format
     pdf_service = PDFService()
-    
+
     try:
         if export_format == "pdf":
             pdf_content = pdf_service.generate_lesson_resource_pdf(lesson_resource, db)
@@ -207,15 +205,13 @@ async def export_lesson_resource(
                 media_type="application/pdf",
                 headers={"Content-Disposition": f"attachment; filename=lesson_resource_{resource_id}.pdf"}
             )
-        elif export_format == "docx":
+        else:
             docx_content = pdf_service.export_to_docx(lesson_resource, db)
             return Response(
                 content=docx_content,
                 media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 headers={"Content-Disposition": f"attachment; filename=lesson_resource_{resource_id}.docx"}
             )
-        else:
-            raise HTTPException(status_code=400, detail="Unsupported export format. Use 'pdf' or 'docx'")
             
     except HTTPException:
         raise
