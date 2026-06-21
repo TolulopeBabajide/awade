@@ -845,3 +845,4 @@ After removing it, the next hourly run will:
 | 2026-06-21T11:56:00Z | AWD-L-76 | Extract duplicate _make_service() factory to module-level helper | 7d488e0, merge 96cebdd | ✅ Done | CI:pending (Tolu: `git push origin develop`) · reviewers clean (no blocking issues) · no new files created (codebase-map unchanged) · 811 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅ |
 2026-06-21T13:14Z | M-264 | Add TestPromptDelimiterTagsCoverage to guard delimiter tag drift | 20a73f1 | ✅ Done | CI:pending
 2026-06-21T14:11:00Z | H-131 | Add hasattr guard to pfi monkey-patch in main.py | fb36e11 | ✅ Done | CI:pending
+2026-06-21T15:12:00Z | M-284 | Replace assert hasattr with RuntimeError guard in main.py | 637e237 | ✅ Done | CI:pending

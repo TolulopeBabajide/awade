@@ -2213,3 +2213,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: fb36e11 (merge into develop)
 - **Files**: `apps/backend/main.py`, `apps/backend/tests/test_metrics.py`
 - **Summary**: Added `assert hasattr(_pfi_routing, "_get_route_name"), "pfi internals changed — update AWD-H-131 shim"` before the monkey-patch assignment in `main.py:212`; added comment directing removal once prometheus-fastapi-instrumentator officially supports fastapi>=0.137. Added `TestPfiMonkeyPatchGuardH131::test_pfi_routing_has_get_route_name_attribute` CI sentinel in `test_metrics.py` using `pytest.importorskip`. 815 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+### M-284 — Replace assert hasattr with RuntimeError guard in main.py
+- **Completed**: 2026-06-21
+- **Commit**: 637e237 (merge 7992c28 into develop)
+- **Files**: `apps/backend/main.py`, `apps/backend/tests/test_metrics.py`
+- **Summary**: Replaced `assert hasattr(_pfi_routing, "_get_route_name")` with `if not hasattr(...): raise RuntimeError(...)` so the guard survives Python `-O` optimization flag. Added `TestPfiMonkeyPatchGuardOptimizeM284` regression test using `monkeypatch.delattr` to verify `RuntimeError` is raised when the attribute is absent. 816 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
