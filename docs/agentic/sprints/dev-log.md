@@ -846,3 +846,4 @@ After removing it, the next hourly run will:
 2026-06-21T13:14Z | M-264 | Add TestPromptDelimiterTagsCoverage to guard delimiter tag drift | 20a73f1 | ✅ Done | CI:pending
 2026-06-21T14:11:00Z | H-131 | Add hasattr guard to pfi monkey-patch in main.py | fb36e11 | ✅ Done | CI:pending
 2026-06-21T15:12:00Z | M-284 | Replace assert hasattr with RuntimeError guard in main.py | 637e237 | ✅ Done | CI:pending
+2026-06-21T17:10:00Z | M-285 | Strengthen test_metrics_endpoint_exists disjunctive assertion | 7e92a9b | ✅ Done | CI:pending (push deferred)

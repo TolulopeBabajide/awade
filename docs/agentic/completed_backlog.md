@@ -2219,3 +2219,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 637e237 (merge 7992c28 into develop)
 - **Files**: `apps/backend/main.py`, `apps/backend/tests/test_metrics.py`
 - **Summary**: Replaced `assert hasattr(_pfi_routing, "_get_route_name")` with `if not hasattr(...): raise RuntimeError(...)` so the guard survives Python `-O` optimization flag. Added `TestPfiMonkeyPatchGuardOptimizeM284` regression test using `monkeypatch.delattr` to verify `RuntimeError` is raised when the attribute is absent. 816 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+### M-285 — Strengthen test_metrics_endpoint_exists assertion
+- **Completed**: 2026-06-21
+- **Commit**: 7e92a9b (merge 3965090 into develop)
+- **Files**: `apps/backend/tests/test_metrics.py`
+- **Summary**: Changed `or` to `and` in line 13 — both `"# HELP"` and `"http_requests_total"` must be present in the Prometheus metrics response. Prevents a degraded partial response from passing the test. 816 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
