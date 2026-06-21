@@ -2243,3 +2243,11 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: eb498a1 (merge 709c39e into develop)
 - **Files**: `apps/backend/main.py`, `apps/backend/tests/test_metrics.py`
 - **Summary**: Extracted `_check_pfi_routing_compat()` from the inline guard in `main.py`'s `if _pfi_available:` block. `TestPfiMonkeyPatchGuardOptimizeM284.test_guard_raises_runtime_error_when_attribute_missing` and `TestPrometheusImportErrorGuardM280.test_non_import_error_propagates_from_setup` now call `main_module._check_pfi_routing_compat()` directly — if the guard is refactored the tests will track the change instead of silently passing on an inline copy. 818 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+---
+
+### AWD-M-281 — warn on _IncludedRouter without callable effective_candidates
+- **Completed**: 2026-06-21
+- **Commit**: 8664add (merge 981baf3 into develop)
+- **Files**: `apps/backend/main.py`, `apps/backend/tests/test_metrics.py`
+- **Summary**: Added `else: logger.warning("_pfi_compat: _IncludedRouter without callable effective_candidates — metrics gap")` in `_pfi_get_route_name_compat` so silent skips become visible in logs. Added `TestPfiRouteNameCompatMetricsGapM281` (3 tests: absent effective_candidates, non-callable effective_candidates, callable effective_candidates emits no warning). 821 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
