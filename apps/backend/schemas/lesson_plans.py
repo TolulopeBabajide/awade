@@ -67,7 +67,7 @@ class LessonResourceCreate(BaseModel):
     """Schema for creating lesson resources."""
     lesson_plan_id: int
     context_input: Optional[str] = None
-    export_format: Optional[str] = None
+    export_format: Optional[ResourceType] = None
 
 class LessonResourceUpdate(BaseModel):
     """Schema for updating lesson resources."""
