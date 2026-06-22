@@ -174,7 +174,9 @@ async def generate_lesson_resource(
     return await service.generate_lesson_resource(lesson_id, data, current_user)
 
 @router.post("/resources/{resource_id}/export")
+@limiter.limit("10/minute")
 async def export_lesson_resource(
+    request: Request,
     resource_id: int,
     format_data: ExportFormatRequest,
     current_user: User = Depends(get_current_user),

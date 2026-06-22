@@ -229,3 +229,20 @@ class TestExportLessonResource:
             )
         assert resp.status_code == 200
         assert "wordprocessingml" in resp.headers["content-type"]
+
+
+class TestExportLessonResourceRateLimit:
+    """AWD-H-132 — export endpoint must carry the @limiter.limit decorator."""
+
+    def test_export_handler_is_registered_in_limiter(self):
+        from apps.backend.routers.lesson_plans import export_lesson_resource
+        from apps.backend.limiter import limiter
+
+        registered_names = list(limiter._route_limits.keys())
+        # SlowAPI keys the registry by "<module>.<qualname>" of the original function
+        handler_name = getattr(export_lesson_resource, "__name__", "")
+        matched = any(handler_name in key for key in registered_names)
+        assert matched, (
+            f"H-132: export_lesson_resource not in limiter._route_limits. "
+            f"Registered: {registered_names}"
+        )
