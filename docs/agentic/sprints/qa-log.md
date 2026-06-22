@@ -9767,3 +9767,17 @@ Commits: 9db6c7b refactor(backend): AWD-L-79 promote PDFService import to module
 Issues: None
 Backlog items filed: None
 Verdict: Ship
+
+## QA — 2026-06-22T21:19:00Z
+Result: ✅ PASS
+Commits: fd965d4 fix(deps): AWD-L-75 patch 5 npm dev-dependency CVEs via audit fix + esbuild override | Files: apps/frontend/package.json (overrides: esbuild ^0.28.1), apps/frontend/package-lock.json (24 packages bumped by npm audit fix)
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 292 passing, 0 failing (27 test files) |
+| Backend tests | ✅ skipped — no backend files changed |
+| OpenAPI valid | ✅ |
+| MCP JSON valid | ✅ |
+| Spot-check | ✅ package.json: no secrets, no console.log, no @ts-ignore, no TODOs. `"overrides": {"esbuild": "^0.28.1"}` is valid npm syntax; all 5 CVEs resolved (npm audit: 0 vulnerabilities, dev+prod). Lock file is generated — no manual edits detected. |
+Issues: None
+Backlog items filed: None
+Verdict: Ship

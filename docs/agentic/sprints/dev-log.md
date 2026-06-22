@@ -870,3 +870,4 @@ After removing it, the next hourly run will:
 2026-06-22T17:20:00Z | M-267 | Split test_ai_providers.py into 5 focused modules + gpt_service conftest fixture | 6c4065a | ✅ Done (reviewers clean) | CI:pending
 2026-06-22T20:12:00Z | M-236 | Enforce hardcoded-secrets check with exit 1 | c704ce3 | ✅ Done (reviewers clean) | CI:pending
 2026-06-22T20:16:00Z | L-79 | Promote PDFService import to module level in lesson_plans.py | 9db6c7b | ✅ Done (reviewers clean) | CI:pending
+2026-06-22T21:22:00Z | L-75 | DepSec: patch 5 npm dev-dependency CVEs via audit fix + esbuild override | 71a9085 | ✅ Done (reviewers clean) | CI:pending
