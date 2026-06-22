@@ -29,7 +29,7 @@ import datetime as _dt
 if not hasattr(_dt, "UTC"):
     _dt.UTC = _dt.timezone.utc
 
-from apps.backend.schemas.lesson_plans import LessonResourceCreate
+from apps.backend.schemas.lesson_plans import LessonResourceCreate, ResourceType
 from apps.backend.services.lesson_resource_service import LessonResourceService
 from lesson_resource_factories import (
     _educator, _super_admin,
@@ -127,6 +127,18 @@ class TestGenerateLessonResource:
             f"{db.query.call_count}. Stale CurriculumStructure/Subject/GradeLevel "
             f"queries may have been re-introduced."
         )
+
+    def test_invalid_export_format_rejected_by_pydantic(self):
+        """AWD-M-288: export_format typed as Optional[ResourceType] — invalid strings raise."""
+        import pydantic
+        with pytest.raises((pydantic.ValidationError, ValueError)):
+            LessonResourceCreate(lesson_plan_id=1, export_format="xlsx")
+
+    def test_valid_export_formats_accepted(self):
+        """AWD-M-288: 'pdf' and 'docx' are valid ResourceType values."""
+        for fmt, expected in [("pdf", ResourceType.PDF), ("docx", ResourceType.DOCX)]:
+            obj = LessonResourceCreate(lesson_plan_id=1, export_format=fmt)
+            assert obj.export_format == expected
 
     def test_lesson_plan_not_found_raises_404(self):
         """AWD-H-94: 404 raised when lesson plan does not exist."""

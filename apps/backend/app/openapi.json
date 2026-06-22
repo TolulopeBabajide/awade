@@ -531,9 +531,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "additionalProperties": true,
-                "title": "Format Data"
+                "$ref": "#/components/schemas/ExportFormatRequest"
               }
             }
           }
@@ -6655,6 +6653,16 @@
         ],
         "title": "DashboardMetrics"
       },
+      "ExportFormatRequest": {
+        "properties": {
+          "format": {
+            "$ref": "#/components/schemas/ResourceType",
+            "default": "pdf"
+          }
+        },
+        "type": "object",
+        "title": "ExportFormatRequest"
+      },
       "GoogleAuthRequest": {
         "properties": {
           "credential": {
@@ -7058,13 +7066,12 @@
           "export_format": {
             "anyOf": [
               {
-                "type": "string"
+                "$ref": "#/components/schemas/ResourceType"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Export Format"
+            ]
           }
         },
         "type": "object",
@@ -7442,6 +7449,15 @@
           "status"
         ],
         "title": "ResourceModerationUpdate"
+      },
+      "ResourceType": {
+        "type": "string",
+        "enum": [
+          "pdf",
+          "docx"
+        ],
+        "title": "ResourceType",
+        "description": "Enumeration of resource file types."
       },
       "SubjectCreate": {
         "properties": {
@@ -8044,6 +8060,13 @@
           "type": {
             "type": "string",
             "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
           }
         },
         "type": "object",
