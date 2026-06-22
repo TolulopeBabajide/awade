@@ -2257,3 +2257,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: e980cb7 (merge d06e097 into develop)
 - **Files**: `apps/backend/tests/test_metrics.py`
 - **Summary**: Removed structurally identical `test_non_import_error_propagates_from_setup` from `TestPrometheusImportErrorGuardM280`; updated `TestPfiMonkeyPatchGuardOptimizeM284.test_guard_raises_runtime_error_when_attribute_missing` docstring to cover both AWD-M-284 (RuntimeError not assert) and AWD-M-280 (error propagates outside ImportError guard). 820 backend tests pass, 2 skipped · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+### AWD-M-195 — add Pydantic schema for export_lesson_resource format parameter
+- **Completed**: 2026-06-22
+- **Commit**: 94e0730 (merge on develop)
+- **Files**: `apps/backend/schemas/lesson_plans.py`, `apps/backend/routers/lesson_plans.py`, `apps/backend/tests/test_lesson_plans_router.py`
+- **Summary**: Added `ExportFormatRequest(BaseModel)` with `format: ResourceType = ResourceType.PDF` to schemas; replaced untyped `dict` parameter in `export_lesson_resource` route; removed dead `else: HTTPException(400)` branch; updated 400-test to 422; added default-pdf test. 821 backend tests pass, 2 skipped · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.

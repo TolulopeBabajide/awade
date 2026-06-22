@@ -852,3 +852,4 @@ After removing it, the next hourly run will:
 2026-06-21T21:11:00Z | M-286 | Fix test duplicating production guard — call real main.py code path | eb498a1 | ✅ Done | CI:pending
 2026-06-21T22:13:00Z | M-281 | warn on _IncludedRouter without callable effective_candidates | 8664add | ✅ Done | CI:pending
 2026-06-21T23:12:37Z | M-287 | merge duplicate pfi guard tests after M-286 extraction | e980cb7 | ✅ Done | CI:pending
+2026-06-22T00:12:50Z | M-195 | add Pydantic schema for export_lesson_resource format parameter | 94e0730 | ✅ Done | CI:pending
