@@ -2311,3 +2311,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 8c347ac (merge d730b74)
 - **Files**: `apps/backend/tests/test_ai_providers.py` line 496
 - **Summary**: Changed `_tags_used_in_prompts` regex from `</?[a-z_]+>` to `</?[a-z][a-z_]*_[a-z_]+>` — requires at least one underscore so plain HTML tags (`<br>`, `<em>`, `<b>`) in docstrings/comments no longer trigger spurious test failures in `test_all_prompt_tags_covered_by_delimiter_tuple`. 825 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+## AWD-M-276 — Group _make_api_call params into _ApiCallConfig TypedDict
+- **Date**: 2026-06-22
+- **Commit**: b8fed24 (merge 9f69706)
+- **Files**: `packages/ai/gpt_service.py`, `apps/backend/tests/test_ai_providers.py`
+- **Summary**: Introduced `_ApiCallConfig(TypedDict)` grouping `topic`, `subject`, `grade`, `model_tier`, `prompt_metadata`, and `response_format`. Updated `_make_api_call` signature from 8 params to `(self, prompt, config, temperature=None)`. Updated both call sites. Added 4 new tests in `TestApiCallConfigM276`. 829 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
