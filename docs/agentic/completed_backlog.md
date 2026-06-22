@@ -2269,3 +2269,11 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: e75c4c3 (merge 30bdbf3 on develop)
 - **Files**: `apps/backend/routers/lesson_plans.py`, `apps/backend/tests/test_lesson_plans_router.py`
 - **Summary**: Added `@limiter.limit("10/minute")` decorator and `request: Request` first parameter to `export_lesson_resource` in `lesson_plans.py`; added `TestExportLessonResourceRateLimit` CI sentinel. 822 backend tests pass, 2 skipped · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+---
+
+## AWD-M-288 — LessonResourceCreate.export_format typed as Optional[ResourceType]
+- **Date**: 2026-06-22
+- **Commit**: 1ebe5b0 (merge develop)
+- **Files**: `apps/backend/schemas/lesson_plans.py`, `apps/backend/tests/test_lesson_resource_generate.py`, `apps/backend/app/openapi.json`
+- **Summary**: Changed `LessonResourceCreate.export_format` from `Optional[str]` to `Optional[ResourceType]`, ensuring invalid format strings (e.g. "xlsx") are rejected by Pydantic at the API boundary. Added 2 tests. openapi.json regenerated — `export_format` now references the ResourceType enum in the schema. 824 backend tests pass, 2 skipped · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
