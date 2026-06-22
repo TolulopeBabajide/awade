@@ -28,6 +28,7 @@ from apps.backend.dependencies import get_current_user, require_educator, requir
 from apps.backend.limiter import limiter
 from apps.backend.services.lesson_plan_service import LessonPlanService
 from apps.backend.services.lesson_resource_service import LessonResourceService
+from apps.backend.services.pdf_service import PDFService
 from apps.backend.schemas.lesson_plans import (
     LessonPlanCreate,
     LessonPlanResponse,
@@ -187,8 +188,6 @@ async def export_lesson_resource(
     Export a lesson resource to PDF or DOCX format.
     Requires authentication and ownership.
     """
-    from apps.backend.services.pdf_service import PDFService
-
     # AWD-M-70: delegate access-control to LessonResourceService so the
     # ADMIN/SUPER_ADMIN/owner-scoped query lives in one place. AWD-M-67
     # (uniform 404 for unauthorised callers) and AWD-H-61 (SUPER_ADMIN bypass)
