@@ -3,15 +3,32 @@
 
 AWD-M-267: split from test_ai_providers.py.
 Covers: _SHARED_INJECTION_PATTERNS subset invariants, _PROMPT_DELIMITER_TAGS
-coverage vs prompts.py.
+coverage vs prompts.py, _format_list_or_default helper (AWD-L-62).
 """
 
 from packages.ai.gpt_service import (
+    AwadeGPTService,
     _PROMPT_DELIMITER_TAGS,
     _SHARED_INJECTION_PATTERNS,
     _INPUT_INJECTION_PATTERNS,
     _OUTPUT_INJECTION_PATTERNS,
 )
+
+
+class TestFormatListOrDefault:
+    """AWD-L-62: unit tests for AwadeGPTService._format_list_or_default."""
+
+    def test_non_empty_list_is_joined(self):
+        assert AwadeGPTService._format_list_or_default(["a", "b", "c"], "fallback") == "a, b, c"
+
+    def test_single_item_list_has_no_comma(self):
+        assert AwadeGPTService._format_list_or_default(["only"], "fallback") == "only"
+
+    def test_empty_list_returns_default(self):
+        assert AwadeGPTService._format_list_or_default([], "my default") == "my default"
+
+    def test_none_returns_default(self):
+        assert AwadeGPTService._format_list_or_default(None, "my default") == "my default"
 
 
 class TestSharedInjectionPatterns:

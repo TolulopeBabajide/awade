@@ -667,22 +667,19 @@ class AwadeGPTService:
         try:
             logger.info(f"Generating parent guide for {subject} {grade} - {topic} ({country})")
 
-            objectives_str = ", ".join(objectives) if objectives else "To be determined"
-            contents_str = (
-                ", ".join(contents) if contents
-                else "General topic content"
+            objectives_str = self._format_list_or_default(objectives, "To be determined")
+            contents_str = self._format_list_or_default(contents, "General topic content")
+            student_activities_str = self._format_list_or_default(
+                student_activities,
+                "Not specified — suggest your own age-appropriate activities",
             )
-            student_activities_str = (
-                ", ".join(student_activities) if student_activities
-                else "Not specified — suggest your own age-appropriate activities"
+            teaching_materials_str = self._format_list_or_default(
+                teaching_learning_materials,
+                "Everyday household items",
             )
-            teaching_materials_str = (
-                ", ".join(teaching_learning_materials) if teaching_learning_materials
-                else "Everyday household items"
-            )
-            evaluation_str = (
-                ", ".join(evaluation_guide) if evaluation_guide
-                else "Ask the child to explain the idea in their own words"
+            evaluation_str = self._format_list_or_default(
+                evaluation_guide,
+                "Ask the child to explain the idea in their own words",
             )
 
             # Pre-format: sanitise each curriculum field individually before
@@ -743,6 +740,10 @@ class AwadeGPTService:
         except Exception as e:
             logger.error(f"Error generating parent guide: {e}")
             return self._generate_mock_parent_guide(topic, subject, grade, country, curriculum), False
+
+    @staticmethod
+    def _format_list_or_default(items: Optional[List[str]], default: str) -> str:
+        return ", ".join(items) if items else default
 
     def _validate_parent_guide(self, content: str) -> tuple[bool, Optional[str]]:
         """Validate a parent-guide AI output.
