@@ -9795,3 +9795,17 @@ Commits: 7719584 refactor(ai): AWD-L-62 extract _format_list_or_default helper |
 Issues: None
 Backlog items filed: None
 Verdict: Ship
+
+## QA — 2026-06-23T00:15:00Z
+Result: ✅ PASS
+Commits: 094f807 fix(ci): AWD-L-70 remove OPENAI_API_KEY from backend-test env — unused since AI_PROVIDER=mock | Files: .github/workflows/ci.yml (1 line deleted)
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 292 passing, 0 failing (27 test files) — no frontend files changed |
+| Backend tests | ✅ 838 passed, 2 skipped, 0 failures — no backend files changed |
+| OpenAPI valid | ✅ |
+| MCP JSON valid | ✅ |
+| Spot-check | ✅ Pure CI YAML change. No console.log, @ts-ignore, hardcoded secrets, or TODO added. The removed line is `OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}` — a vault reference being eliminated (less exposure), not introduced. No async error handling changed. |
+Issues: None
+Backlog items filed: None
+Verdict: Ship
