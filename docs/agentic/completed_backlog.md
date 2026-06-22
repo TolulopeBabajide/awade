@@ -2330,3 +2330,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | M-220 | Code / Complexity | Extract _import_theme and _import_topic_children from import_file | 953a7bb | 2026-06-22 |
 | M-223 | Testing / Architecture | Split test_security.py into 5 focused test modules | 41fda60 | 2026-06-22 |
 | M-267 | Testing / Architecture | Split test_ai_providers.py into 5 focused modules + gpt_service conftest fixture | 6c4065a | 2026-06-22 |
+| M-236 | CI / Security | Enforce hardcoded-secrets check with exit 1 (targeted patterns: sk-, AKIA, PEM) | c704ce3 | 2026-06-22 |

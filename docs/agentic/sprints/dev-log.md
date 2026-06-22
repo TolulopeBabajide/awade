@@ -868,3 +868,4 @@ After removing it, the next hourly run will:
 2026-06-22T15:18:00Z | M-223 | Split test_security.py into 5 focused test modules | 41fda60 | ✅ Done (reviewers clean) | CI:pending
 
 2026-06-22T17:20:00Z | M-267 | Split test_ai_providers.py into 5 focused modules + gpt_service conftest fixture | 6c4065a | ✅ Done (reviewers clean) | CI:pending
+2026-06-22T20:12:00Z | M-236 | Enforce hardcoded-secrets check with exit 1 | c704ce3 | ✅ Done (reviewers clean) | CI:pending
