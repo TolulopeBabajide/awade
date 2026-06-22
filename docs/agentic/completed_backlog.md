@@ -2297,3 +2297,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 1211648 (merge 220bde9)
 - **Files**: `apps/backend/tests/test_lesson_plans_router.py`
 - **Summary**: Replaced `handler = getattr(export_lesson_resource, "__wrapped__", ...)` + `asyncio.run(handler(...))` with `patch.object(limiter, "enabled", False)` + `asyncio.run(export_lesson_resource(...))`. SlowAPI's `async_wrapper` skips rate-checking (including `isinstance(request, Request)`) when `enabled=False`, allowing the decorated handler to accept a `MagicMock()` request without depending on the `__wrapped__` functools/SlowAPI internal. 825 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+### M-291 — Testing / Coupling — add hasattr guard for limiter._route_limits
+- **Completed**: 2026-06-22
+- **Commit**: 0e72b8c (merge 744beb1)
+- **Files**: `apps/backend/tests/test_lesson_plans_router.py`
+- **Summary**: Replaced direct `limiter._route_limits.keys()` access with `getattr(limiter, "_route_limits", None)` plus an `assert route_limits is not None` guard with a descriptive message. If SlowAPI renames or removes `_route_limits`, the test now produces a clear `AssertionError` pointing to the API change rather than an `AttributeError`. 825 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.

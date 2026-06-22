@@ -369,3 +369,5 @@
 2026-06-22T02:23:25Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review of 11949bc — ✅ Clean, 1 🟡 filed (AWD-M-292)
 2026-06-22T03:21:43Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-22-e3f323e.md | completed structural code review — AWD-M-290 — verdict: Clean
 2026-06-22T04:21:37Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — sync-only commits, no reviewable code
+2026-06-22T05:58:27Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-22T06:03:47Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
