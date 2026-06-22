@@ -872,4 +872,4 @@ After removing it, the next hourly run will:
 2026-06-22T20:16:00Z | L-79 | Promote PDFService import to module level in lesson_plans.py | 9db6c7b | ✅ Done (reviewers clean) | CI:pending
 2026-06-22T21:22:00Z | L-75 | DepSec: patch 5 npm dev-dependency CVEs via audit fix + esbuild override | 71a9085 | ✅ Done (reviewers clean) | CI:pending
 
-2026-06-22T23:15:00Z | L-62 | Extract _format_list_or_default helper on AwadeGPTService | d8fe9c3 | ✅ Done (reviewers clean) | CI:pending
+2026-06-22T23:15:00Z | L-62 | Extract _format_list_or_default helper on AwadeGPTService | d8fe9c3 | ✅ Done (reviewers clean) | CI:pending2026-06-23T00:15:00Z | L-70 | Remove OPENAI_API_KEY from backend-test CI step — unused since AI_PROVIDER=mock | 09d7053 | ✅ Done (reviewers clean) | CI:pending
