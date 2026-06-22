@@ -855,3 +855,4 @@ After removing it, the next hourly run will:
 2026-06-22T00:12:50Z | M-195 | add Pydantic schema for export_lesson_resource format parameter | 94e0730 | ✅ Done | CI:pending
 2026-06-22T00:13:34Z | H-132 | add rate limit to export_lesson_resource endpoint | e75c4c3 | ✅ Done | CI:pending
 2026-06-22T01:19:20Z | M-288 | LessonResourceCreate.export_format typed as Optional[ResourceType] | 1ebe5b0 | ✅ Done | CI:pending
+2026-06-22T03:14:00Z | M-289 | Replace else branch with elif + unhandled format guard in export_lesson_resource | 11949bc | ✅ Done | CI:pending

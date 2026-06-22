@@ -2277,3 +2277,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 1ebe5b0 (merge develop)
 - **Files**: `apps/backend/schemas/lesson_plans.py`, `apps/backend/tests/test_lesson_resource_generate.py`, `apps/backend/app/openapi.json`
 - **Summary**: Changed `LessonResourceCreate.export_format` from `Optional[str]` to `Optional[ResourceType]`, ensuring invalid format strings (e.g. "xlsx") are rejected by Pydantic at the API boundary. Added 2 tests. openapi.json regenerated — `export_format` now references the ResourceType enum in the schema. 824 backend tests pass, 2 skipped · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+## AWD-M-289 — Replace else branch with elif + unhandled format guard
+- **Date**: 2026-06-22
+- **Commit**: 11949bc (merge 52e4c64)
+- **Files**: `apps/backend/routers/lesson_plans.py`, `apps/backend/tests/test_lesson_plans_router.py`
+- **Summary**: Replaced bare `else:` branch in `export_lesson_resource` with `elif export_format == ResourceType.DOCX:` and added `else: raise HTTPException(status_code=500, detail="Unhandled export format.")` defense-in-depth guard. Also imported `ResourceType` into the router and changed the PDF comparison from string literal `"pdf"` to enum value `ResourceType.PDF`. Added `test_unhandled_format_raises_500_guard` using `__wrapped__` to bypass the rate-limiter decorator for direct handler invocation. 825 backend tests pass, 2 skipped · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
