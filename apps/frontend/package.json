@@ -55,6 +55,9 @@
       "eslint --fix --max-warnings 0"
     ]
   },
+  "overrides": {
+    "esbuild": "^0.28.1"
+  },
   "optionalDependencies": {
     "@rollup/rollup-linux-arm64-gnu": "4.60.2",
     "@rollup/rollup-linux-arm64-musl": "4.60.2",
