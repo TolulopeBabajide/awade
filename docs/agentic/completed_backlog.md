@@ -2317,3 +2317,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: b8fed24 (merge 9f69706)
 - **Files**: `packages/ai/gpt_service.py`, `apps/backend/tests/test_ai_providers.py`
 - **Summary**: Introduced `_ApiCallConfig(TypedDict)` grouping `topic`, `subject`, `grade`, `model_tier`, `prompt_metadata`, and `response_format`. Updated `_make_api_call` signature from 8 params to `(self, prompt, config, temperature=None)`. Updated both call sites. Added 4 new tests in `TestApiCallConfigM276`. 829 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+| M-260 | Tooling / Agent Infra | Document unsupported mid-path wildcard pattern in check-permissions.sh | 0186cd9 | 2026-06-22 |
