@@ -66,6 +66,12 @@ for allowed in write_list:
         #      sprint-plans/sprint-*.md → sprint-plans
         #      .agent-health/*.last-run → .agent-health
         allowed = allowed.rsplit("/", 1)[0]
+    # NOTE: mid-path wildcards (e.g. docs/*/report.md) are NOT supported.
+    # rsplit("/", 1)[-1] returns the final component ("report.md"), which contains
+    # no "*", so neither branch above fires and the literal path reaches normpath —
+    # where it will never match a real target.  No current manifest entry uses this
+    # pattern; if one is ever added, extend this logic to detect and strip mid-path
+    # wildcard components before reaching normpath.
     allowed = os.path.normpath(allowed.rstrip("/"))
     if target == allowed or target.startswith(allowed + "/"):
         print(f"[check-permissions] ALLOW: '{target}' permitted for {agent}")
