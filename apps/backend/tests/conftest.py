@@ -284,6 +284,19 @@ def data_structure_manager():
     return DataStructureManager(cache_capacity=100, queue_capacity=50)
 
 
+@pytest.fixture
+def gpt_service():
+    """Return a mock-backed AwadeGPTService (no real API calls).
+
+    AWD-M-267: shared factory replacing the module-level _make_service() helper
+    that was duplicated across test_ai_providers.py split files.
+    """
+    from packages.ai.gpt_service import AwadeGPTService
+    with patch("packages.ai.gpt_service.OpenAIProvider"), \
+         patch("packages.ai.gpt_service.ContentCache"):
+        return AwadeGPTService(api_key="test", provider_type="openai")
+
+
 @pytest.fixture(scope="function")
 def mock_openai():
     """Mock OpenAI API for testing."""
