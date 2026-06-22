@@ -2283,3 +2283,11 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 11949bc (merge 52e4c64)
 - **Files**: `apps/backend/routers/lesson_plans.py`, `apps/backend/tests/test_lesson_plans_router.py`
 - **Summary**: Replaced bare `else:` branch in `export_lesson_resource` with `elif export_format == ResourceType.DOCX:` and added `else: raise HTTPException(status_code=500, detail="Unhandled export format.")` defense-in-depth guard. Also imported `ResourceType` into the router and changed the PDF comparison from string literal `"pdf"` to enum value `ResourceType.PDF`. Added `test_unhandled_format_raises_500_guard` using `__wrapped__` to bypass the rate-limiter decorator for direct handler invocation. 825 backend tests pass, 2 skipped · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+---
+
+### M-290 — Code / Hygiene — promote in-method imports to module level
+- **Completed**: 2026-06-22
+- **Commit**: e3f323e (merge ab20584)
+- **Files**: `apps/backend/tests/test_lesson_plans_router.py`
+- **Summary**: Promoted `from apps.backend.routers.lesson_plans import export_lesson_resource` and `from apps.backend.limiter import limiter` from inside method bodies to module-level imports. Removed duplicate in-method import of `export_lesson_resource` from `test_unhandled_format_raises_500_guard`. 825 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
