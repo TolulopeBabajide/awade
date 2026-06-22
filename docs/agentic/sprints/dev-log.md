@@ -862,3 +862,4 @@ After removing it, the next hourly run will:
 2026-06-22T09:04:50Z | M-283 | Tighten prompt tag regex to require underscore | 8c347ac | ✅ Done | CI:pending
 2026-06-22T10:12:00Z | M-276 | Group _make_api_call params into _ApiCallConfig TypedDict | b8fed24 | ✅ Done | CI:pending
 2026-06-22T11:11:00Z | M-260 | Document unsupported mid-path wildcard in check-permissions.sh | 0186cd9 | ✅ Done | CI:pending
+2026-06-22T12:14:00Z | M-221 | Split test_users_router.py into 5 focused test files | 270a303 | ✅ Done | CI:pending

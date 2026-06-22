@@ -2318,3 +2318,11 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Files**: `packages/ai/gpt_service.py`, `apps/backend/tests/test_ai_providers.py`
 - **Summary**: Introduced `_ApiCallConfig(TypedDict)` grouping `topic`, `subject`, `grade`, `model_tier`, `prompt_metadata`, and `response_format`. Updated `_make_api_call` signature from 8 params to `(self, prompt, config, temperature=None)`. Updated both call sites. Added 4 new tests in `TestApiCallConfigM276`. 829 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
 | M-260 | Tooling / Agent Infra | Document unsupported mid-path wildcard pattern in check-permissions.sh | 0186cd9 | 2026-06-22 |
+
+## M-221 — Split test_users_router.py into 5 focused test files
+
+- **Date**: 2026-06-22
+- **Commit**: 270a303 (merge 123fd73)
+- **Files**: `apps/backend/tests/test_users_router.py` (deleted), `apps/backend/tests/test_users_ownership.py`, `apps/backend/tests/test_users_data_export.py`, `apps/backend/tests/test_users_super_admin.py`, `apps/backend/tests/test_users_account_deletion.py`, `apps/backend/tests/test_users_service_unit.py`, `apps/backend/tests/users_test_helpers.py`, `apps/backend/tests/conftest.py`
+- **Summary**: Split 749-line monolithic test file into 5 focused files (all under 300 lines). Shared fixtures promoted to conftest.py; helper functions extracted to users_test_helpers.py. 36 tests preserved, all passing. 829 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
+| M-221 | Testing / Architecture | Split test_users_router.py into 5 focused files | 270a303 | 2026-06-22 |
