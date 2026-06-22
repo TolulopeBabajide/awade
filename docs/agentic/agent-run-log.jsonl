@@ -617,3 +617,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-06-22T07:23:39Z | awade-daily-health-check | done | 🟡 attention: 0 crit/3 high, all tests green per QA 06:48, CI green, no stage=ready items
 2026-06-22T08:04:23Z | awade-weekly-review | done | review-2026-06-22 written; 🟡 health, ~55 issues closed, WAU unmeasured, analytics decision flagged
 2026-06-22T08:34:10Z | awade-sprint-planning | done | sprint plan written; 17 well-scoped items promoted to stage=ready to unblock starved dev loop; 7 launch-blocking decisions flagged for Tolu
+2026-06-22T18:37:36Z | awade-analytics-daily | done | degraded — Mixpanel MCP scope error day 14; daily-log.md updated; morning-brief already current

@@ -321,11 +321,35 @@ jobs:
 
       - name: Check for hardcoded secrets
         run: |
-          if grep -r "password\|secret\|key\|token" --include="*.py" --include="*.js" --include="*.md" . | grep -v "example\|test\|TODO"; then
-            echo "⚠️  Potential hardcoded secrets found - review manually"
-          else
-            echo "✅ No obvious hardcoded secrets found"
+          FAILED=0
+          # OpenAI API keys (sk- prefix, 20+ alphanumeric chars) — exclude test dirs which use intentional fake keys
+          if grep -rEn 'sk-[A-Za-z0-9_-]{20,}' \
+              --include="*.py" --include="*.ts" --include="*.tsx" \
+              --exclude-dir=".git" --exclude-dir="node_modules" \
+              . | grep -v '/tests/\|test_\|_test\.\|conftest'; then
+            echo "❌ Possible OpenAI API key detected in source"
+            FAILED=1
           fi
+          # AWS IAM Access Key IDs
+          if grep -rEn 'AKIA[0-9A-Z]{16}' \
+              --include="*.py" --include="*.ts" --include="*.tsx" --include="*.js" \
+              --exclude-dir=".git" --exclude-dir="node_modules" \
+              .; then
+            echo "❌ Possible AWS access key detected"
+            FAILED=1
+          fi
+          # PEM private key material
+          if grep -rn 'BEGIN.*PRIVATE KEY' \
+              --include="*.py" --include="*.ts" --include="*.tsx" --include="*.json" \
+              --exclude-dir=".git" --exclude-dir="node_modules" \
+              .; then
+            echo "❌ Private key material detected"
+            FAILED=1
+          fi
+          if [ "$FAILED" -ne 0 ]; then
+            exit 1
+          fi
+          echo "✅ No hardcoded secrets found"
 
       - name: Validate environment template
         run: |
