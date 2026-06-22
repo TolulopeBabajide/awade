@@ -381,3 +381,5 @@
 2026-06-22T12:19:57Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
 2026-06-22T13:12:29Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-22-953a7bb.md | completed structural code review — AWD-M-220
 2026-06-22T14:15:50Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — AWD-M-223 split, verdict ✅ Clean
+2026-06-22T16:14:38Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-22T16:16:13Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — AWD-M-267 branch
