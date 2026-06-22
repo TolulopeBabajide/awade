@@ -2333,3 +2333,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | M-236 | CI / Security | Enforce hardcoded-secrets check with exit 1 (targeted patterns: sk-, AKIA, PEM) | c704ce3 | 2026-06-22 |
 | L-79 | Code / Hygiene | Promote PDFService import to module level in lesson_plans.py | 9db6c7b | 2026-06-22 |
 | L-75 | DepSec / DevDep | Patch 5 npm dev-dependency CVEs via audit fix + esbuild override | fd965d4 | 2026-06-22 |
+| L-62 | Code / Duplication | Extract _format_list_or_default helper on AwadeGPTService | 7719584 | 2026-06-22 |
