@@ -36,6 +36,7 @@ from apps.backend.schemas.lesson_plans import (
     LessonResourceUpdate,
     LessonResourceResponse,
     ExportFormatRequest,
+    ResourceType,
 )
 
 logger = logging.getLogger(__name__)
@@ -200,20 +201,22 @@ async def export_lesson_resource(
     pdf_service = PDFService()
 
     try:
-        if export_format == "pdf":
+        if export_format == ResourceType.PDF:
             pdf_content = pdf_service.generate_lesson_resource_pdf(lesson_resource, db)
             return Response(
                 content=pdf_content,
                 media_type="application/pdf",
                 headers={"Content-Disposition": f"attachment; filename=lesson_resource_{resource_id}.pdf"}
             )
-        else:
+        elif export_format == ResourceType.DOCX:
             docx_content = pdf_service.export_to_docx(lesson_resource, db)
             return Response(
                 content=docx_content,
                 media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 headers={"Content-Disposition": f"attachment; filename=lesson_resource_{resource_id}.docx"}
             )
+        else:
+            raise HTTPException(status_code=500, detail="Unhandled export format.")
             
     except HTTPException:
         raise

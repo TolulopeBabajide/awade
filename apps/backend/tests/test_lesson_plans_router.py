@@ -12,6 +12,7 @@ Covers:
 - 200 DOCX happy path
 """
 
+import asyncio
 import pytest
 from unittest.mock import MagicMock, patch
 from fastapi.testclient import TestClient
@@ -229,6 +230,36 @@ class TestExportLessonResource:
             )
         assert resp.status_code == 200
         assert "wordprocessingml" in resp.headers["content-type"]
+
+    def test_unhandled_format_raises_500_guard(self, educator, resource):
+        """AWD-M-289 — defense-in-depth: any format not matched by elif raises 500."""
+        from fastapi import HTTPException as FastAPIHTTPException
+        from apps.backend.routers.lesson_plans import export_lesson_resource
+
+        db = self._db_with_resource(resource)
+
+        format_data = MagicMock()
+        format_data.format = "html"  # not a valid ResourceType — bypasses Pydantic at HTTP layer
+
+        # Use __wrapped__ to skip the @limiter.limit decorator (which requires a real
+        # starlette.requests.Request instance) and call the underlying handler directly.
+        handler = getattr(export_lesson_resource, "__wrapped__", export_lesson_resource)
+
+        with patch(
+            "apps.backend.services.lesson_resource_service.LessonResourceService.get_lesson_resource_orm",
+            return_value=resource,
+        ), patch("apps.backend.services.pdf_service.PDFService"):
+            with pytest.raises(FastAPIHTTPException) as exc_info:
+                asyncio.run(handler(
+                    request=MagicMock(),
+                    resource_id=resource.lesson_resources_id,
+                    format_data=format_data,
+                    current_user=educator,
+                    db=db,
+                ))
+
+        assert exc_info.value.status_code == 500
+        assert exc_info.value.detail == "Unhandled export format."
 
 
 class TestExportLessonResourceRateLimit:
