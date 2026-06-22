@@ -864,3 +864,4 @@ After removing it, the next hourly run will:
 2026-06-22T11:11:00Z | M-260 | Document unsupported mid-path wildcard in check-permissions.sh | 0186cd9 | ✅ Done | CI:pending
 2026-06-22T12:14:00Z | M-221 | Split test_users_router.py into 5 focused test files | 270a303 | ✅ Done | CI:pending
 2026-06-22T13:16:00Z | M-250 | Split LessonPlanDetailPage.generate.test.tsx — extract unmount/AbortController tests | 7699610 | ✅ Done | CI:pending
+2026-06-22T13:14:00Z | M-220 | Extract _import_theme and _import_topic_children from populate_nerdc_curriculum.py import_file | 953a7bb | ✅ Done (reviewers clean) | CI:pending

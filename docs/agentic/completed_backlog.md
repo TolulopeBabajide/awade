@@ -2327,3 +2327,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Summary**: Split 749-line monolithic test file into 5 focused files (all under 300 lines). Shared fixtures promoted to conftest.py; helper functions extracted to users_test_helpers.py. 36 tests preserved, all passing. 829 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors.
 | M-221 | Testing / Architecture | Split test_users_router.py into 5 focused files | 270a303 | 2026-06-22 |
 | M-250 | Testing / Architecture | Split LessonPlanDetailPage.generate.test.tsx — extract unmount/AbortController tests | 7699610 | 2026-06-22 |
+| M-220 | Code / Complexity | Extract _import_theme and _import_topic_children from import_file | 953a7bb | 2026-06-22 |
