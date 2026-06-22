@@ -13,6 +13,7 @@ from packages.ai.cache import ContentCache
 from packages.ai.gpt_service import (
     AwadeGPTService,
     ParentGuideRequest,
+    _ApiCallConfig,
     _PROMPT_DELIMITER_TAGS,
     _SHARED_INJECTION_PATTERNS,
     _INPUT_INJECTION_PATTERNS,
@@ -821,6 +822,82 @@ class TestExceptionHandlerIsValidFlagH129:
             ))
 
         assert is_valid is False
+
+
+class TestApiCallConfigM276:
+    """_ApiCallConfig TypedDict groups the 6 generation-context params (AWD-M-276)."""
+
+    def test_config_construction(self):
+        config = _ApiCallConfig(
+            topic="Fractions",
+            subject="Mathematics",
+            grade="Grade 4",
+            model_tier="standard",
+            prompt_metadata={"type": "lesson"},
+            response_format="json",
+        )
+        assert config["topic"] == "Fractions"
+        assert config["subject"] == "Mathematics"
+        assert config["grade"] == "Grade 4"
+        assert config["model_tier"] == "standard"
+        assert config["prompt_metadata"] == {"type": "lesson"}
+        assert config["response_format"] == "json"
+
+    def test_config_with_none_prompt_metadata(self):
+        config = _ApiCallConfig(
+            topic="Forces",
+            subject="Physics",
+            grade="Grade 7",
+            model_tier="basic",
+            prompt_metadata=None,
+            response_format="text",
+        )
+        assert config["prompt_metadata"] is None
+
+    @patch("packages.ai.gpt_service.OpenAIProvider")
+    @patch("packages.ai.gpt_service.ContentCache")
+    def test_make_api_call_uses_config_fields(self, MockCache, MockProvider):
+        """_make_api_call unpacks config fields and passes them to the provider."""
+        MockCache.return_value.get.return_value = None
+        mock_provider_instance = MockProvider.return_value
+        mock_provider_instance.generate_content.return_value = '{"title_header": "t", "learning_objectives": [], "lesson_content": {}}'
+        svc = AwadeGPTService(api_key="test", provider_type="openai")
+
+        config = _ApiCallConfig(
+            topic="Quadratic Equations",
+            subject="Mathematics",
+            grade="Grade 10",
+            model_tier="premium",
+            prompt_metadata=None,
+            response_format="json",
+        )
+        result = svc._make_api_call(prompt="test prompt", config=config)
+
+        mock_provider_instance.generate_content.assert_called_once()
+        call_kwargs = mock_provider_instance.generate_content.call_args.kwargs
+        assert call_kwargs["model_tier"] == "premium"
+        assert call_kwargs["response_format"] == "json"
+        assert isinstance(result, str)
+
+    @patch("packages.ai.gpt_service.OpenAIProvider")
+    @patch("packages.ai.gpt_service.ContentCache")
+    def test_make_api_call_returns_mock_when_no_provider(self, MockCache, MockProvider):
+        """_make_api_call returns a mock response when provider is unavailable."""
+        MockCache.return_value.get.return_value = None
+        svc = AwadeGPTService(api_key="test", provider_type="mock")
+
+        config = _ApiCallConfig(
+            topic="Cells",
+            subject="Biology",
+            grade="Grade 8",
+            model_tier="standard",
+            prompt_metadata=None,
+            response_format="text",
+        )
+        result = svc._make_api_call(prompt="test prompt", config=config)
+
+        assert isinstance(result, str)
+        assert len(result) > 0
 
 
 class TestLoggingRootHandlerNotPollutedM277:

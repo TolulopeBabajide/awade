@@ -37,6 +37,22 @@ class ParentGuideRequest(TypedDict):
     evaluation_guide: List[str]
 
 
+class _ApiCallConfig(TypedDict):
+    """Generation-context bag for _make_api_call (AWD-M-276).
+
+    Groups the 6 non-prompt parameters that together describe a single
+    generation request: which content to generate, at which model tier,
+    with what cache key, and in what output format.
+    """
+
+    topic: str
+    subject: str
+    grade: str
+    model_tier: str
+    prompt_metadata: Optional[Dict[str, Any]]
+    response_format: str
+
+
 # ---------------------------------------------------------------------------
 # Input-sanitisation constants — applied to user-supplied text BEFORE it is
 # inserted into a prompt template (AWD-M-12)
@@ -198,33 +214,35 @@ class AwadeGPTService:
             self.provider = None
     
     def _make_api_call(
-        self, 
-        prompt: str, 
-        temperature: Optional[float] = None, 
-        model_tier: str = "standard",
-        topic: str = "General Topic", 
-        subject: str = "Mathematics", 
-        grade: str = "Grade 4",
-        prompt_metadata: Optional[Dict[str, Any]] = None,
-        response_format: str = "text"
+        self,
+        prompt: str,
+        config: _ApiCallConfig,
+        temperature: Optional[float] = None,
     ) -> str:
         """
         Make an API call to the configured provider or return mock response.
         Handles caching automatically.
         """
+        topic = config["topic"]
+        subject = config["subject"]
+        grade = config["grade"]
+        model_tier = config["model_tier"]
+        prompt_metadata = config["prompt_metadata"]
+        response_format = config["response_format"]
+
         # 1. Check if we should use Mock
         if not self.provider:
             logger.info("Using mock response (Provider not available)")
             return self._generate_mock_response(prompt, topic, subject, grade)
-        
+
         temp = temperature if temperature is not None else self.temperature
-        
+
         # 2. Check Cache
         if prompt_metadata:
             # Add tier to metadata to ensure distinct cache keys for different tiers
             cache_metadata = prompt_metadata.copy()
             cache_metadata["model_tier"] = model_tier
-            
+
             cached_content = self.cache.get(
                 provider=self.provider_type,
                 model=model_tier, # We use abstract model name in key
@@ -232,11 +250,11 @@ class AwadeGPTService:
             )
             if cached_content:
                 return cached_content
-        
+
         # 3. Call Provider
         try:
             system_instruction = "You are an expert educational content creator specializing in African curriculum development. You create comprehensive, locally contextual lesson resources that are age-appropriate, culturally relevant, and practical for teachers to implement."
-            
+
             logger.info(f"Generating content using {self.provider_type} (Tier: {model_tier})")
             content = self.provider.generate_content(
                 prompt=prompt,
@@ -246,11 +264,11 @@ class AwadeGPTService:
                 max_tokens=self.max_tokens,
                 response_format=response_format
             )
-            
+
             # Check if response is empty
             if not content or not content.strip():
                 return self._generate_mock_lesson_resource(topic, subject, grade)
-            
+
             # 4. Save to Cache
             if prompt_metadata:
                 self.cache.set(
@@ -259,9 +277,9 @@ class AwadeGPTService:
                     prompt_data=cache_metadata,
                     content=content
                 )
-                
+
             return content
-            
+
         except Exception as e:
             logger.error(f"Error in AI generation: {e}")
             # Fallback to mock on critical failure
@@ -585,13 +603,15 @@ class AwadeGPTService:
             
             # Make API call
             response = self._make_api_call(
-                prompt=prompt, 
-                topic=topic, 
-                subject=subject, 
-                grade=grade,
-                model_tier=model_tier,
-                prompt_metadata=prompt_metadata,
-                response_format="json"  # Enforce JSON mode
+                prompt=prompt,
+                config=_ApiCallConfig(
+                    topic=topic,
+                    subject=subject,
+                    grade=grade,
+                    model_tier=model_tier,
+                    prompt_metadata=prompt_metadata,
+                    response_format="json",
+                ),
             )
             
             # Clean and repair the response before validation
@@ -700,12 +720,14 @@ class AwadeGPTService:
 
             response = self._make_api_call(
                 prompt=prompt,
-                topic=topic,
-                subject=subject,
-                grade=grade,
-                model_tier=model_tier,
-                prompt_metadata=prompt_metadata,
-                response_format="json",
+                config=_ApiCallConfig(
+                    topic=topic,
+                    subject=subject,
+                    grade=grade,
+                    model_tier=model_tier,
+                    prompt_metadata=prompt_metadata,
+                    response_format="json",
+                ),
             )
 
             cleaned = self._clean_and_repair(response)
