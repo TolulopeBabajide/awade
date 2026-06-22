@@ -267,7 +267,12 @@ class TestExportLessonResourceRateLimit:
     """AWD-H-132 — export endpoint must carry the @limiter.limit decorator."""
 
     def test_export_handler_is_registered_in_limiter(self):
-        registered_names = list(limiter._route_limits.keys())
+        route_limits = getattr(limiter, "_route_limits", None)
+        assert route_limits is not None, (
+            "M-291: limiter._route_limits attribute missing — SlowAPI internals may have changed. "
+            "Verify the limiter registration API and update this test accordingly."
+        )
+        registered_names = list(route_limits.keys())
         # SlowAPI keys the registry by "<module>.<qualname>" of the original function
         handler_name = getattr(export_lesson_resource, "__name__", "")
         matched = any(handler_name in key for key in registered_names)
