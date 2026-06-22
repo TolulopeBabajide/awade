@@ -2263,3 +2263,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: 94e0730 (merge on develop)
 - **Files**: `apps/backend/schemas/lesson_plans.py`, `apps/backend/routers/lesson_plans.py`, `apps/backend/tests/test_lesson_plans_router.py`
 - **Summary**: Added `ExportFormatRequest(BaseModel)` with `format: ResourceType = ResourceType.PDF` to schemas; replaced untyped `dict` parameter in `export_lesson_resource` route; removed dead `else: HTTPException(400)` branch; updated 400-test to 422; added default-pdf test. 821 backend tests pass, 2 skipped · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+### AWD-H-132 — add rate limit to export_lesson_resource endpoint
+- **Completed**: 2026-06-22
+- **Commit**: e75c4c3 (merge 30bdbf3 on develop)
+- **Files**: `apps/backend/routers/lesson_plans.py`, `apps/backend/tests/test_lesson_plans_router.py`
+- **Summary**: Added `@limiter.limit("10/minute")` decorator and `request: Request` first parameter to `export_lesson_resource` in `lesson_plans.py`; added `TestExportLessonResourceRateLimit` CI sentinel. 822 backend tests pass, 2 skipped · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
