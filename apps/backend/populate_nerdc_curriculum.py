@@ -126,6 +126,53 @@ def _get_or_create(db, model, defaults: Optional[dict] = None, **filters):
     return instance, True
 
 
+def _import_topic_children(db, topic, topic_data: dict, stats: dict) -> None:
+    """Upsert pedagogy child rows (objectives, contents, activities, etc.) for a topic."""
+    for json_key, _attr, child_model, field in PEDAGOGY_MAP:
+        for item in topic_data.get(json_key, []) or []:
+            text = str(item).strip()
+            if not text:
+                continue
+            db.add(child_model(topic_id=topic.topic_id, **{field: text}))
+            stats[json_key] += 1
+
+
+def _import_theme(db, theme_data: dict, structure, stats: dict) -> None:
+    """Upsert a theme and all its topics (with pedagogy children) under a structure."""
+    theme, created = _get_or_create(
+        db, Theme,
+        defaults={"theme_title": theme_data.get("theme", "")},
+        curriculum_structure_id=structure.curriculum_structure_id,
+        theme_number=theme_data.get("theme_number"),
+    )
+    stats["themes"] += int(created)
+
+    for topic_data in theme_data.get("topics", []):
+        title = (topic_data.get("topic") or "").strip()
+        if not title:
+            continue
+        existing = db.query(Topic).filter_by(
+            curriculum_structure_id=structure.curriculum_structure_id,
+            topic_title=title,
+        ).first()
+        if existing is not None:
+            # Backfill the theme link on a legacy topic that lacked one.
+            if existing.theme_id is None:
+                existing.theme_id = theme.theme_id
+            stats["topics_skipped"] += 1
+            continue
+
+        topic = Topic(
+            curriculum_structure_id=structure.curriculum_structure_id,
+            theme_id=theme.theme_id,
+            topic_title=title,
+        )
+        db.add(topic)
+        db.flush()
+        stats["topics"] += 1
+        _import_topic_children(db, topic, topic_data, stats)
+
+
 def import_file(db, data: dict, stats: dict) -> None:
     """Idempotently import a single parsed curriculum document."""
     class_level = str(data["class_level"]).strip()
@@ -155,46 +202,7 @@ def import_file(db, data: dict, stats: dict) -> None:
     stats["structures"] += int(created)
 
     for theme_data in data.get("themes", []):
-        theme_number = theme_data.get("theme_number")
-        theme, created = _get_or_create(
-            db, Theme,
-            defaults={"theme_title": theme_data.get("theme", "")},
-            curriculum_structure_id=structure.curriculum_structure_id,
-            theme_number=theme_number,
-        )
-        stats["themes"] += int(created)
-
-        for topic_data in theme_data.get("topics", []):
-            title = (topic_data.get("topic") or "").strip()
-            if not title:
-                continue
-            existing = db.query(Topic).filter_by(
-                curriculum_structure_id=structure.curriculum_structure_id,
-                topic_title=title,
-            ).first()
-            if existing is not None:
-                # Backfill the theme link on a legacy topic that lacked one.
-                if existing.theme_id is None:
-                    existing.theme_id = theme.theme_id
-                stats["topics_skipped"] += 1
-                continue
-
-            topic = Topic(
-                curriculum_structure_id=structure.curriculum_structure_id,
-                theme_id=theme.theme_id,
-                topic_title=title,
-            )
-            db.add(topic)
-            db.flush()
-            stats["topics"] += 1
-
-            for json_key, _attr, child_model, field in PEDAGOGY_MAP:
-                for item in topic_data.get(json_key, []) or []:
-                    text = str(item).strip()
-                    if not text:
-                        continue
-                    db.add(child_model(topic_id=topic.topic_id, **{field: text}))
-                    stats[json_key] += 1
+        _import_theme(db, theme_data, structure, stats)
 
 
 def import_all(db, directory: str = DEFAULT_CURRICULUM_DIR) -> dict:

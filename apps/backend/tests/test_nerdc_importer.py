@@ -23,7 +23,9 @@ from models import (
     LearningObjective, TopicContent, TeacherActivity, StudentActivity,
     TeachingLearningMaterial, EvaluationGuide,
 )
-from populate_nerdc_curriculum import canon_subject, import_all
+from populate_nerdc_curriculum import (
+    canon_subject, import_all, _import_theme, _import_topic_children,
+)
 
 REAL_CORPUS_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))),
@@ -170,6 +172,114 @@ class TestImportHierarchy:
     def test_missing_directory_raises(self, db, tmp_path):
         with pytest.raises(FileNotFoundError):
             import_all(db, str(tmp_path / "nope"))
+
+
+class TestImportTopicChildren:
+    def test_inserts_all_pedagogy_rows(self, db, tmp_path):
+        """_import_topic_children creates one row per non-empty pedagogy item."""
+        _write_nerdc_file(tmp_path, "JSS 1", "Basic Science", [_sample_theme()])
+        import_all(db, str(tmp_path))
+        topic = db.query(Topic).one()
+        stats = {k: 0 for k in ("performance_objectives", "contents", "teachers_activities",
+                                 "students_activities", "teaching_learning_materials", "evaluation_guide")}
+        topic_data = {
+            "performance_objectives": ["obj A"],
+            "contents": ["c1", "c2"],
+            "teachers_activities": [],
+            "students_activities": ["s1"],
+            "teaching_learning_materials": ["m1"],
+            "evaluation_guide": ["e1", "e2", "e3"],
+        }
+        _import_topic_children(db, topic, topic_data, stats)
+        db.flush()
+        assert stats["performance_objectives"] == 1
+        assert stats["contents"] == 2
+        assert stats["teachers_activities"] == 0
+        assert stats["students_activities"] == 1
+        assert stats["teaching_learning_materials"] == 1
+        assert stats["evaluation_guide"] == 3
+
+    def test_skips_blank_items(self, db, tmp_path):
+        """_import_topic_children ignores empty-string and whitespace-only items."""
+        _write_nerdc_file(tmp_path, "JSS 1", "Basic Science", [_sample_theme()])
+        import_all(db, str(tmp_path))
+        topic = db.query(Topic).one()
+        stats = {k: 0 for k in ("performance_objectives", "contents", "teachers_activities",
+                                 "students_activities", "teaching_learning_materials", "evaluation_guide")}
+        _import_topic_children(db, topic, {"performance_objectives": ["", "  ", "real"]}, stats)
+        db.flush()
+        assert stats["performance_objectives"] == 1
+
+
+class TestImportTheme:
+    def test_creates_theme_and_topics(self, db, tmp_path):
+        """_import_theme upserts a theme row and its topic children."""
+        from populate_nerdc_curriculum import _get_or_create, CURRICULUM_TITLE, COUNTRY_NAME, COUNTRY_ISO, COUNTRY_REGION
+        from models import Country, Curriculum, CurriculumStructure, GradeLevel, Subject
+        country, _ = _get_or_create(db, Country, defaults={"iso_code": COUNTRY_ISO, "region": COUNTRY_REGION}, country_name=COUNTRY_NAME)
+        curriculum, _ = _get_or_create(db, Curriculum, defaults={"country_id": country.country_id}, curricula_title=CURRICULUM_TITLE)
+        grade, _ = _get_or_create(db, GradeLevel, name="JSS 1")
+        subject, _ = _get_or_create(db, Subject, name="Basic Science")
+        structure, _ = _get_or_create(db, CurriculumStructure,
+                                       curricula_id=curriculum.curricula_id,
+                                       grade_level_id=grade.grade_level_id,
+                                       subject_id=subject.subject_id)
+        db.flush()
+        stats = {"themes": 0, "topics": 0, "topics_skipped": 0,
+                 "performance_objectives": 0, "contents": 0, "teachers_activities": 0,
+                 "students_activities": 0, "teaching_learning_materials": 0, "evaluation_guide": 0}
+        _import_theme(db, _sample_theme(), structure, stats)
+        db.flush()
+        assert stats["themes"] == 1
+        assert stats["topics"] == 1
+        assert db.query(Theme).count() == 1
+        assert db.query(Topic).count() == 1
+
+    def test_idempotent_theme_skips_existing_topic(self, db, tmp_path):
+        """_import_theme called twice creates the topic only once."""
+        from populate_nerdc_curriculum import _get_or_create, CURRICULUM_TITLE, COUNTRY_NAME, COUNTRY_ISO, COUNTRY_REGION
+        from models import Country, Curriculum, CurriculumStructure, GradeLevel, Subject
+        country, _ = _get_or_create(db, Country, defaults={"iso_code": COUNTRY_ISO, "region": COUNTRY_REGION}, country_name=COUNTRY_NAME)
+        curriculum, _ = _get_or_create(db, Curriculum, defaults={"country_id": country.country_id}, curricula_title=CURRICULUM_TITLE)
+        grade, _ = _get_or_create(db, GradeLevel, name="JSS 1")
+        subject, _ = _get_or_create(db, Subject, name="Basic Science")
+        structure, _ = _get_or_create(db, CurriculumStructure,
+                                       curricula_id=curriculum.curricula_id,
+                                       grade_level_id=grade.grade_level_id,
+                                       subject_id=subject.subject_id)
+        db.flush()
+        stats = {"themes": 0, "topics": 0, "topics_skipped": 0,
+                 "performance_objectives": 0, "contents": 0, "teachers_activities": 0,
+                 "students_activities": 0, "teaching_learning_materials": 0, "evaluation_guide": 0}
+        _import_theme(db, _sample_theme(), structure, stats)
+        db.flush()
+        _import_theme(db, _sample_theme(), structure, stats)
+        db.flush()
+        assert db.query(Topic).count() == 1
+        assert stats["topics"] == 1
+        assert stats["topics_skipped"] == 1
+
+    def test_skips_topics_with_empty_title(self, db, tmp_path):
+        """_import_theme ignores topic entries with blank titles."""
+        from populate_nerdc_curriculum import _get_or_create, CURRICULUM_TITLE, COUNTRY_NAME, COUNTRY_ISO, COUNTRY_REGION
+        from models import Country, Curriculum, CurriculumStructure, GradeLevel, Subject
+        country, _ = _get_or_create(db, Country, defaults={"iso_code": COUNTRY_ISO, "region": COUNTRY_REGION}, country_name=COUNTRY_NAME)
+        curriculum, _ = _get_or_create(db, Curriculum, defaults={"country_id": country.country_id}, curricula_title=CURRICULUM_TITLE)
+        grade, _ = _get_or_create(db, GradeLevel, name="JSS 1")
+        subject, _ = _get_or_create(db, Subject, name="Basic Science")
+        structure, _ = _get_or_create(db, CurriculumStructure,
+                                       curricula_id=curriculum.curricula_id,
+                                       grade_level_id=grade.grade_level_id,
+                                       subject_id=subject.subject_id)
+        db.flush()
+        stats = {"themes": 0, "topics": 0, "topics_skipped": 0,
+                 "performance_objectives": 0, "contents": 0, "teachers_activities": 0,
+                 "students_activities": 0, "teaching_learning_materials": 0, "evaluation_guide": 0}
+        theme_data = {"theme_number": 1, "theme": "Empty Topics", "topics": [{"topic": "  ", "performance_objectives": []}]}
+        _import_theme(db, theme_data, structure, stats)
+        db.flush()
+        assert db.query(Topic).count() == 0
+        assert stats["topics"] == 0
 
 
 @pytest.mark.integration
