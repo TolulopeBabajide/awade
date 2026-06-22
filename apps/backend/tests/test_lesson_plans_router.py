@@ -242,16 +242,16 @@ class TestExportLessonResource:
         format_data = MagicMock()
         format_data.format = "html"  # not a valid ResourceType — bypasses Pydantic at HTTP layer
 
-        # Use __wrapped__ to skip the @limiter.limit decorator (which requires a real
-        # starlette.requests.Request instance) and call the underlying handler directly.
-        handler = getattr(export_lesson_resource, "__wrapped__", export_lesson_resource)
-
-        with patch(
+        # Disable the rate-limiter so the decorated handler accepts a fake request
+        # without the isinstance(request, Request) check that SlowAPI enforces.
+        # This avoids coupling to __wrapped__ (a functools/SlowAPI internal that
+        # breaks when a second decorator is stacked above @limiter.limit).
+        with patch.object(limiter, "enabled", False), patch(
             "apps.backend.services.lesson_resource_service.LessonResourceService.get_lesson_resource_orm",
             return_value=resource,
         ), patch("apps.backend.services.pdf_service.PDFService"):
             with pytest.raises(FastAPIHTTPException) as exc_info:
-                asyncio.run(handler(
+                asyncio.run(export_lesson_resource(
                     request=MagicMock(),
                     resource_id=resource.lesson_resources_id,
                     format_data=format_data,
