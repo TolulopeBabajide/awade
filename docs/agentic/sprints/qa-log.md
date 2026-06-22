@@ -9781,3 +9781,17 @@ Commits: fd965d4 fix(deps): AWD-L-75 patch 5 npm dev-dependency CVEs via audit f
 Issues: None
 Backlog items filed: None
 Verdict: Ship
+
+## QA — 2026-06-22T23:10:00Z
+Result: ✅ PASS
+Commits: 7719584 refactor(ai): AWD-L-62 extract _format_list_or_default helper | Files: packages/ai/gpt_service.py (new @staticmethod + 5 call-sites updated), apps/backend/tests/test_gpt_service_patterns.py (4 new tests)
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 292 passing, 0 failing (27 test files) — no frontend files changed |
+| Backend tests | ✅ 838 passed, 2 skipped, 0 failures (test_gpt_service_patterns.py::TestFormatListOrDefault — 4 new tests all pass) |
+| OpenAPI valid | ✅ |
+| MCP JSON valid | ✅ |
+| Spot-check | ✅ Pure Python refactor. No console.log, @ts-ignore, hardcoded secrets, or TODO added. _format_list_or_default is a @staticmethod with correct Optional[List[str]] typing; truthiness check handles both None and [] as intended. All 5 call-sites in generate_parent_guide() correctly updated. Tests cover all 4 meaningful paths (non-empty, single-item, empty, None). |
+Issues: None
+Backlog items filed: None
+Verdict: Ship

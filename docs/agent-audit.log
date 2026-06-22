@@ -386,3 +386,5 @@
 2026-06-22T18:37:36Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
 2026-06-22T19:15:07Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-22-9db6c7b.md | completed structural code review — AWD-L-79 clean
 2026-06-22T21:12:51Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-22-7719584.md | completed structural code review — AWD-L-62 branch clean
+2026-06-22T22:10:28Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-22T22:11:28Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — AWD-L-62 ✅ Clean
