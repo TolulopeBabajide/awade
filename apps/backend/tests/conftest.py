@@ -37,7 +37,7 @@ sys.path.insert(0, root_dir)
 
 from apps.backend.main import app
 from apps.backend.database import get_db
-from apps.backend.models import Base, User, Country, Curriculum, Subject, GradeLevel, CurriculumStructure, Topic, LessonPlan
+from apps.backend.models import Base, User, UserRole, Country, Curriculum, Subject, GradeLevel, CurriculumStructure, Topic, LessonPlan
 from apps.backend.services.data_structures import DataStructureManager, CacheStrategy
 
 
@@ -197,6 +197,85 @@ def sample_lesson_plan(test_db, sample_topic, sample_user):
     test_db.commit()
     test_db.refresh(lesson_plan)
     return lesson_plan
+
+
+# ---------------------------------------------------------------------------
+# Shared user fixtures (AWD-M-221) — used by test_users_*.py split files
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def educator_user(test_db):
+    u = User(
+        full_name="Educator One",
+        email="educator1@example.com",
+        password_hash="hashed",
+        role=UserRole.EDUCATOR,
+        country="Nigeria",
+    )
+    test_db.add(u)
+    test_db.commit()
+    test_db.refresh(u)
+    return u
+
+
+@pytest.fixture
+def other_educator(test_db):
+    u = User(
+        full_name="Educator Two",
+        email="educator2@example.com",
+        password_hash="hashed",
+        role=UserRole.EDUCATOR,
+        country="Nigeria",
+    )
+    test_db.add(u)
+    test_db.commit()
+    test_db.refresh(u)
+    return u
+
+
+@pytest.fixture
+def parent_user(test_db):
+    u = User(
+        full_name="Parent One",
+        email="parent1@example.com",
+        password_hash="hashed",
+        role=UserRole.PARENT,
+        country="Nigeria",
+    )
+    test_db.add(u)
+    test_db.commit()
+    test_db.refresh(u)
+    return u
+
+
+@pytest.fixture
+def admin_user(test_db):
+    u = User(
+        full_name="Admin One",
+        email="admin1@example.com",
+        password_hash="hashed",
+        role=UserRole.ADMIN,
+        country="Nigeria",
+    )
+    test_db.add(u)
+    test_db.commit()
+    test_db.refresh(u)
+    return u
+
+
+@pytest.fixture
+def super_admin_user(test_db):
+    u = User(
+        full_name="SuperAdmin One",
+        email="superadmin1@example.com",
+        password_hash="hashed",
+        role=UserRole.SUPER_ADMIN,
+        country="Nigeria",
+    )
+    test_db.add(u)
+    test_db.commit()
+    test_db.refresh(u)
+    return u
 
 
 @pytest.fixture(scope="function")
