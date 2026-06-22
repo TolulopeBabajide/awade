@@ -2328,3 +2328,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | M-221 | Testing / Architecture | Split test_users_router.py into 5 focused files | 270a303 | 2026-06-22 |
 | M-250 | Testing / Architecture | Split LessonPlanDetailPage.generate.test.tsx — extract unmount/AbortController tests | 7699610 | 2026-06-22 |
 | M-220 | Code / Complexity | Extract _import_theme and _import_topic_children from import_file | 953a7bb | 2026-06-22 |
+| M-223 | Testing / Architecture | Split test_security.py into 5 focused test modules | 41fda60 | 2026-06-22 |
