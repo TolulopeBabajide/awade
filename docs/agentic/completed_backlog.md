@@ -2291,3 +2291,9 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 - **Commit**: e3f323e (merge ab20584)
 - **Files**: `apps/backend/tests/test_lesson_plans_router.py`
 - **Summary**: Promoted `from apps.backend.routers.lesson_plans import export_lesson_resource` and `from apps.backend.limiter import limiter` from inside method bodies to module-level imports. Removed duplicate in-method import of `export_lesson_resource` from `test_unhandled_format_raises_500_guard`. 825 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.
+
+### M-292 — Testing / Coupling — replace __wrapped__ coupling with limiter.enabled=False
+- **Completed**: 2026-06-22
+- **Commit**: 1211648 (merge 220bde9)
+- **Files**: `apps/backend/tests/test_lesson_plans_router.py`
+- **Summary**: Replaced `handler = getattr(export_lesson_resource, "__wrapped__", ...)` + `asyncio.run(handler(...))` with `patch.object(limiter, "enabled", False)` + `asyncio.run(export_lesson_resource(...))`. SlowAPI's `async_wrapper` skips rate-checking (including `isinstance(request, Request)`) when `enabled=False`, allowing the decorated handler to accept a `MagicMock()` request without depending on the `__wrapped__` functools/SlowAPI internal. 825 backend tests pass · 292 frontend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅.

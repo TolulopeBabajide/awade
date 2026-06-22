@@ -857,3 +857,4 @@ After removing it, the next hourly run will:
 2026-06-22T01:19:20Z | M-288 | LessonResourceCreate.export_format typed as Optional[ResourceType] | 1ebe5b0 | ✅ Done | CI:pending
 2026-06-22T03:14:00Z | M-289 | Replace else branch with elif + unhandled format guard in export_lesson_resource | 11949bc | ✅ Done | CI:pending
 2026-06-22T04:15:00Z | M-290 | promote in-method imports to module level in test_lesson_plans_router.py | e3f323e | ✅ Done | CI:pending
+2026-06-22T05:22:00Z | M-292 | replace __wrapped__ coupling with limiter.enabled=False | 1211648 | ✅ Done | CI:pending
