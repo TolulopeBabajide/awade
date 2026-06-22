@@ -30,6 +30,8 @@ from apps.backend.main import app
 from apps.backend.database import get_db
 from apps.backend.models import User, UserRole, LessonResource
 from apps.backend.dependencies import get_current_user
+from apps.backend.routers.lesson_plans import export_lesson_resource
+from apps.backend.limiter import limiter
 
 
 def _make_user(user_id: int, role: UserRole = UserRole.EDUCATOR) -> User:
@@ -234,7 +236,6 @@ class TestExportLessonResource:
     def test_unhandled_format_raises_500_guard(self, educator, resource):
         """AWD-M-289 — defense-in-depth: any format not matched by elif raises 500."""
         from fastapi import HTTPException as FastAPIHTTPException
-        from apps.backend.routers.lesson_plans import export_lesson_resource
 
         db = self._db_with_resource(resource)
 
@@ -266,9 +267,6 @@ class TestExportLessonResourceRateLimit:
     """AWD-H-132 — export endpoint must carry the @limiter.limit decorator."""
 
     def test_export_handler_is_registered_in_limiter(self):
-        from apps.backend.routers.lesson_plans import export_lesson_resource
-        from apps.backend.limiter import limiter
-
         registered_names = list(limiter._route_limits.keys())
         # SlowAPI keys the registry by "<module>.<qualname>" of the original function
         handler_name = getattr(export_lesson_resource, "__name__", "")
