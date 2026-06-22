@@ -859,3 +859,4 @@ After removing it, the next hourly run will:
 2026-06-22T04:15:00Z | M-290 | promote in-method imports to module level in test_lesson_plans_router.py | e3f323e | ✅ Done | CI:pending
 2026-06-22T05:22:00Z | M-292 | replace __wrapped__ coupling with limiter.enabled=False | 1211648 | ✅ Done | CI:pending
 2026-06-22T07:02:00Z | M-291 | add hasattr guard for limiter._route_limits | 0e72b8c | ✅ Done | CI:pending
+2026-06-22T09:04:50Z | M-283 | Tighten prompt tag regex to require underscore | 8c347ac | ✅ Done | CI:pending
