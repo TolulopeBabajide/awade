@@ -154,7 +154,7 @@ class TestResetPasswordUnit:
     def _generate_token_for(self, service: AuthService, db_session, user: User):
         """Helper: store a valid reset token on the user and return the raw token."""
         raw = secrets.token_urlsafe(32)
-        user.password_reset_token = AuthService._hash_reset_token(raw)
+        user.password_reset_token = AuthService.hash_reset_token(raw)
         user.password_reset_expires = datetime.now(timezone.utc) + timedelta(hours=1)
         db_session.commit()
         return raw
@@ -189,7 +189,7 @@ class TestResetPasswordUnit:
         service = AuthService(db_session)
 
         raw = secrets.token_urlsafe(32)
-        user.password_reset_token = AuthService._hash_reset_token(raw)
+        user.password_reset_token = AuthService.hash_reset_token(raw)
         # Set expiry in the past.
         user.password_reset_expires = datetime.now(timezone.utc) - timedelta(minutes=1)
         db_session.commit()
@@ -251,7 +251,7 @@ class TestResetPasswordHTTP:
         """Create a user with a live reset token; return (user, raw_token)."""
         user = _make_user(db_session, email=email)
         raw = secrets.token_urlsafe(32)
-        user.password_reset_token = AuthService._hash_reset_token(raw)
+        user.password_reset_token = AuthService.hash_reset_token(raw)
         user.password_reset_expires = datetime.now(timezone.utc) + timedelta(hours=1)
         db_session.commit()
         return user, raw

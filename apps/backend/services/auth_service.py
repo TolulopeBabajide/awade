@@ -395,7 +395,7 @@ class AuthService:
             )
     
     @staticmethod
-    def _hash_reset_token(raw_token: str) -> str:
+    def hash_reset_token(raw_token: str) -> str:
         """Return the SHA-256 hex digest of a raw reset token for safe DB storage."""
         return hashlib.sha256(raw_token.encode('utf-8')).hexdigest()
 
@@ -426,7 +426,7 @@ class AuthService:
             raw_token = secrets.token_urlsafe(32)
 
             # Store the SHA-256 hash — the raw token is never persisted.
-            user.password_reset_token = self._hash_reset_token(raw_token)
+            user.password_reset_token = self.hash_reset_token(raw_token)
             user.password_reset_expires = datetime.now(timezone.utc) + timedelta(hours=1)
             self.db.commit()
 
@@ -470,7 +470,7 @@ class AuthService:
             HTTPException 500: Unexpected DB / hashing failure.
         """
         try:
-            token_hash = self._hash_reset_token(token)
+            token_hash = self.hash_reset_token(token)
             now = datetime.now(timezone.utc)
 
             user = (
