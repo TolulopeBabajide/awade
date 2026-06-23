@@ -622,3 +622,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-06-23T03:07:26Z | awade-growth-daily | done | educator thread on end-of-term test questions drafted; content-log updated
 2026-06-23T06:11:57Z | awade-architecture-review | skip | idempotency window active (ran 10077m ago, window 20160m)
 2026-06-23T08:08:01Z | awade-support-digest | done | 0 messages; Slack/Intercom checked, Intercom unavailable; intake channel + SKILL.md gaps still open
+2026-06-23T18:37:41Z | awade-analytics-daily | done | degraded — Mixpanel MCP down (day 15); daily-log.md appended; no metrics available
