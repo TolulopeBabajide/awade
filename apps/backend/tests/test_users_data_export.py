@@ -9,9 +9,46 @@ AWD-M-172: subjects/grade_levels JSON list fields must be deserialised.
 import pytest
 from sqlalchemy import event
 
-from apps.backend.models import User, UserRole, ChildProfile, ParentGuide
+from apps.backend.models import User, UserRole, ChildProfile, ParentGuide, Topic
 
 from users_test_helpers import _auth
+
+
+def _seed_n_plus_one_scenario(test_db, parent_user, sample_curriculum_structure):
+    """Seed 3 children × 2 topics × 6 guides for the AWD-H-83 N+1 regression test."""
+    topics = []
+    for i in range(2):
+        t = Topic(
+            curriculum_structure_id=sample_curriculum_structure.curriculum_structure_id,
+            topic_title=f"H-83 Topic {i}",
+        )
+        test_db.add(t)
+        topics.append(t)
+    test_db.commit()
+    for t in topics:
+        test_db.refresh(t)
+
+    children = []
+    for i in range(3):
+        c = ChildProfile(
+            parent_id=parent_user.user_id,
+            name=f"H-83 Child {i}",
+            age=7 + i,
+        )
+        test_db.add(c)
+        children.append(c)
+    test_db.commit()
+    for c in children:
+        test_db.refresh(c)
+        for t in topics:
+            test_db.add(ParentGuide(
+                child_id=c.child_id,
+                topic_id=t.topic_id,
+                ai_generated_content='{"steps": []}',
+                is_bookmarked=False,
+            ))
+    test_db.commit()
+    return topics
 
 
 class TestDataExport:
@@ -131,47 +168,11 @@ class TestDataExport:
         one per guide for topic). The eager-load fix should fetch the entire child→guide→topic
         tree in a single SELECT regardless of N and M.
 
-        This test seeds a parent with 3 children · 2 guides each (6 guides total, 6 topic rows)
-        and counts the SQL statements emitted while assembling the export. The count must stay
-        well below the old ``1 + 3 + 6 = 10`` baseline. We assert an upper bound of 4 SQL
-        statements for the children/guides/topics block — that bound holds whether SQLAlchemy
-        bundles the joinedload into one statement or splits it into a few, and it fails loudly
-        if anyone reintroduces a per-child or per-guide loop query.
+        Seeding (3 children × 2 topics × 6 guides) is isolated in ``_seed_n_plus_one_scenario``.
+        The count must stay well below the old ``1 + 3 + 6 = 10`` baseline — we assert ≤4 SQL
+        statements for the children/guides/topics block (AWD-M-297).
         """
-        from apps.backend.models import Topic
-
-        topics = []
-        for i in range(2):
-            t = Topic(
-                curriculum_structure_id=sample_curriculum_structure.curriculum_structure_id,
-                topic_title=f"H-83 Topic {i}",
-            )
-            test_db.add(t)
-            topics.append(t)
-        test_db.commit()
-        for t in topics:
-            test_db.refresh(t)
-
-        children = []
-        for i in range(3):
-            c = ChildProfile(
-                parent_id=parent_user.user_id,
-                name=f"H-83 Child {i}",
-                age=7 + i,
-            )
-            test_db.add(c)
-            children.append(c)
-        test_db.commit()
-        for c in children:
-            test_db.refresh(c)
-            for t in topics:
-                test_db.add(ParentGuide(
-                    child_id=c.child_id,
-                    topic_id=t.topic_id,
-                    ai_generated_content='{"steps": []}',
-                    is_bookmarked=False,
-                ))
-        test_db.commit()
+        topics = _seed_n_plus_one_scenario(test_db, parent_user, sample_curriculum_structure)
 
         engine = test_engine
         statements: list[str] = []
