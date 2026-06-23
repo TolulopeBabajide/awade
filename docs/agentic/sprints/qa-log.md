@@ -4,6 +4,23 @@
 
 ---
 
+## QA — 2026-06-23T06:18:00Z
+Result: ✅ PASS
+Commits: d852f90 chore(ci): AWD-L-64 note duplicate Postgres service blocks in ci.yml | Files: .github/workflows/ci.yml (8 lines added — YAML comments only)
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 292 passing, 0 failing (27 test files) — no frontend files changed |
+| Backend tests | ✅ 838 passed, 2 skipped, 0 failures — no backend files changed |
+| OpenAPI valid | ✅ (no API endpoint changes) |
+| MCP JSON valid | ✅ |
+| YAML valid | ✅ python3 yaml.safe_load parse succeeded |
+| Spot-check | ✅ Pure CI documentation change. No console.log, @ts-ignore, hardcoded secrets, or TODO added. All `${{ secrets.X }}` references are pre-existing vault lookups. Comments correctly cross-reference backend-test ↔ contract-test and explain the GitHub Actions YAML anchor limitation. |
+Issues: None
+Backlog items filed: None
+Verdict: Ship
+
+---
+
 ## QA — 2026-06-22T13:45:00Z
 Result: ✅ PASS
 Commits: 738cc3f chore(sync): AWD-M-250 update records | 11a92a3 chore(sync): commit pending agent outputs | 7699610 test(lesson-plans): AWD-M-250 extract unmount/AbortController tests to separate file | 7e75033 chore(sync): commit pending agent outputs | Files: apps/frontend/src/pages/LessonPlanDetailPage.generate.test.tsx, apps/frontend/src/pages/LessonPlanDetailPage.generate.unmount.test.tsx, docs/agentic/backlog.md, docs/agentic/completed_backlog.md, docs/agentic/sprints/dev-log.md
