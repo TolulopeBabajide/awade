@@ -52,6 +52,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: validate
     services:
+      # NOTE: identical Postgres block also exists in the contract-test job below.
+      # GitHub Actions YAML does not support anchors, so this definition is
+      # intentionally duplicated. If credentials or health-check config change,
+      # update BOTH blocks in sync.
       postgres:
         image: postgres:15
         env:
@@ -238,6 +242,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [validate, backend-test]
     services:
+      # NOTE: identical Postgres block also exists in the backend-test job above.
+      # GitHub Actions YAML does not support anchors, so this definition is
+      # intentionally duplicated. If credentials or health-check config change,
+      # update BOTH blocks in sync.
       postgres:
         image: postgres:15
         env:
