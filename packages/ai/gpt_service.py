@@ -11,7 +11,7 @@ import os
 import json
 import logging
 import re
-from typing import List, Dict, Any, Optional, TypedDict
+from typing import List, Dict, Any, Literal, Optional, TypedDict
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +50,7 @@ class _ApiCallConfig(TypedDict):
     grade: str
     model_tier: str
     prompt_metadata: Optional[Dict[str, Any]]
-    response_format: str
+    response_format: Literal["json", "text"]
 
 
 # ---------------------------------------------------------------------------
