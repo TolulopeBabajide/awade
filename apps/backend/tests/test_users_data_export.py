@@ -123,7 +123,7 @@ class TestDataExport:
         assert other_child.child_id not in child_ids
 
     def test_parent_export_eager_loads_children_guides_and_topics_no_n_plus_one(
-        self, client, test_db, parent_user, sample_curriculum_structure
+        self, client, test_db, test_engine, parent_user, sample_curriculum_structure
     ):
         """AWD-H-83: ``get_data_export`` must not grow SQL query count with N children · M guides.
 
@@ -173,7 +173,7 @@ class TestDataExport:
                 ))
         test_db.commit()
 
-        engine = test_db.get_bind()
+        engine = test_engine
         statements: list[str] = []
 
         def _record(conn, cursor, statement, parameters, context, executemany):
