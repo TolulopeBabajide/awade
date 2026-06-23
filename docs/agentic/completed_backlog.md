@@ -2347,3 +2347,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | ~~M-295~~ | Error Handling / Tooling | Guard json.load in check-permissions.sh against malformed manifest | e9e2057 | 2026-06-23 |
 | M-298 | CI / Security | Fix CI secrets grep exclusion to operate on file paths, not output-line content | d3e3646 | 2026-06-23 |
 | M-297 | Complexity / Testing | Extract `_seed_n_plus_one_scenario` helper from N+1 test in test_users_data_export.py | c7ab17a | 2026-06-23 |
+| L-80 | Code / Hygiene | Merge duplicate if/elif glob branches in check-permissions.sh | d0a734d | 2026-06-24 |

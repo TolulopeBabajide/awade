@@ -885,3 +885,4 @@ After removing it, the next hourly run will:
 2026-06-23T17:20:00Z | M-295 | Guard json.load in check-permissions.sh against malformed manifest | e9e2057 (merge bf5ddc3) | ✅ Done (reviewers clean) | CI:pending (push deferred — sandbox permission)
 2026-06-23T19:15:00Z | M-298 | Fix CI secrets grep exclusion — path-based not line-content-based | d3e3646 | ✅ Done (reviewers clean) | CI:pending
 2026-06-23T22:00:00Z | M-297 | Extract _seed_n_plus_one_scenario helper from N+1 test in test_users_data_export.py | c7ab17a | ✅ Done (reviewers clean) | CI:pending
+2026-06-24T00:18:00Z | L-80 | Merge duplicate if/elif glob branches in check-permissions.sh | d0a734d | ✅ Done (reviewers clean) | CI:pending
