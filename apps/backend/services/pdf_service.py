@@ -8,7 +8,7 @@ for lesson resources, including both AI-generated and user-edited content.
 import logging
 import os
 import tempfile
-from datetime import date, datetime
+from datetime import date
 from typing import Optional, Dict, Any
 from pathlib import Path
 
