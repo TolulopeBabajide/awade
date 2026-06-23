@@ -9924,3 +9924,18 @@ Commits: beca32a fix(testing): AWD-M-296 replace test_db.get_bind() with test_en
 Issues: None
 Backlog items filed: None
 Verdict: Ship
+
+## QA — 2026-06-23T17:17:00Z
+Result: ✅ PASS
+Commits: e9e2057 fix(tooling): AWD-M-295 guard json.load in check-permissions.sh against malformed manifest | Files: scripts/check-permissions.sh (wrap json.load in try/except json.JSONDecodeError; print path+error to stderr; sys.exit(2)), apps/backend/tests/test_check_permissions.py (add TestCheckPermissionsJsonErrorM295: test_malformed_json_exits_2 + test_malformed_json_stderr_includes_manifest_path)
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 292 passed (27 test files) |
+| Backend tests | ✅ 840 passed, 2 skipped, 0 failures |
+| check-permissions tests | ✅ 13 passed (11 existing glob tests + 2 new JSON-error tests) |
+| OpenAPI valid | ✅ (no API endpoint changes) |
+| MCP JSON valid | ✅ |
+| Spot-check | ✅ No console.log, @ts-ignore, hardcoded secrets, or TODO added. Pure error-handling guard — wraps json.load in try/except json.JSONDecodeError, emits structured stderr message with manifest path and parse error, exits 2 (consistent with existing exit-2 contract). New tests call bash SCRIPT directly via subprocess — no inline Python duplication. Proper finally: os.unlink() cleanup in both test methods. |
+Issues: None
+Backlog items filed: None
+Verdict: Ship
