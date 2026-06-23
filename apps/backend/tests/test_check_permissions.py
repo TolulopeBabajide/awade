@@ -37,6 +37,35 @@ def _manifest(writes: list) -> dict:
     return {"agents": {"test-agent": {"writes": writes}}}
 
 
+class TestCheckPermissionsJsonErrorM295:
+    def test_malformed_json_exits_2(self):
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            f.write("{not valid json}")
+            manifest_path = f.name
+        try:
+            result = subprocess.run(
+                ["bash", SCRIPT, "dev-agent", "docs/agentic/backlog.md", manifest_path],
+                capture_output=True,
+            )
+            assert result.returncode == 2
+            assert b"invalid JSON" in result.stderr
+        finally:
+            os.unlink(manifest_path)
+
+    def test_malformed_json_stderr_includes_manifest_path(self):
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            f.write("{oops}")
+            manifest_path = f.name
+        try:
+            result = subprocess.run(
+                ["bash", SCRIPT, "dev-agent", "docs/agentic/backlog.md", manifest_path],
+                capture_output=True,
+            )
+            assert manifest_path.encode() in result.stderr
+        finally:
+            os.unlink(manifest_path)
+
+
 class TestCheckPermissionsGlobM217:
     def test_double_star_glob_still_matches_nested_file(self):
         manifest = _manifest(["apps/backend/**"])

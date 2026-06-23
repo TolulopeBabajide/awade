@@ -42,7 +42,11 @@ target = os.path.normpath(sys.argv[2].lstrip("/"))
 manifest_path = sys.argv[3]
 
 with open(manifest_path) as f:
-    manifest = json.load(f)
+    try:
+        manifest = json.load(f)
+    except json.JSONDecodeError as e:
+        print(f"[check-permissions] ERROR: invalid JSON in manifest {manifest_path}: {e}", file=sys.stderr)
+        sys.exit(2)
 
 agents = manifest.get("agents", manifest)
 if agent not in agents:
