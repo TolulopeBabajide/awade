@@ -9910,3 +9910,17 @@ Commits: faec0bf refactor(ai): AWD-M-293 narrow _ApiCallConfig.response_format t
 Issues: None
 Backlog items filed: None
 Verdict: Ship
+
+## QA — 2026-06-23T15:12:00Z
+Result: ✅ PASS
+Commits: beca32a fix(testing): AWD-M-296 replace test_db.get_bind() with test_engine fixture | Files: apps/backend/tests/test_users_data_export.py (add `test_engine` parameter to `test_parent_export_eager_loads_children_guides_and_topics_no_n_plus_one`; replace `test_db.get_bind()` → `test_engine`)
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 292 passed (27 test files) |
+| Backend tests | ✅ 838 passed, 2 skipped, 0 failures |
+| OpenAPI valid | ✅ (no API endpoint changes) |
+| MCP JSON valid | ✅ |
+| Spot-check | ✅ No console.log, @ts-ignore, hardcoded secrets, or TODO added. Test-only change — two lines: fixture param added, legacy `Session.get_bind()` (SA 1.x, removed in SA 2.0) replaced with `test_engine` fixture injection. No production code touched. Fixture scoping is correct: `test_engine` is session-scoped, `test_db` is function-scoped and already depends on it — requesting both in the same test function is valid pytest. |
+Issues: None
+Backlog items filed: None
+Verdict: Ship
