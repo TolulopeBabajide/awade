@@ -8,7 +8,7 @@ for lesson resources, including both AI-generated and user-edited content.
 import logging
 import os
 import tempfile
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional, Dict, Any
 from pathlib import Path
 
@@ -553,8 +553,7 @@ class PDFService:
             f'<div class="tip">{self._h(t)}</div>' for t in (tips or [])
         )
 
-        from datetime import date as _date
-        today = _date.today().strftime("%B %d, %Y")
+        today = date.today().strftime("%B %d, %Y")
 
         return f"""<!DOCTYPE html>
 <html lang="en">
