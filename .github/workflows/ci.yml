@@ -332,7 +332,8 @@ jobs:
           if grep -rEn 'sk-[A-Za-z0-9_-]{20,}' \
               --include="*.py" --include="*.ts" --include="*.tsx" \
               --exclude-dir=".git" --exclude-dir="node_modules" \
-              . | grep -v '/tests/\|test_\|_test\.\|conftest'; then
+              --exclude-dir=tests --exclude="test_*.py" --exclude="conftest.py" \
+              .; then
             echo "❌ Possible OpenAI API key detected in source"
             FAILED=1
           fi
