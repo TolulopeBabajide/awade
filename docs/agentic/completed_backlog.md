@@ -2338,3 +2338,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | L-81 | CI / Code Hygiene | Remove OPENAI_API_KEY from contract-test CI step — unused since AI_PROVIDER=mock | 25a092c | 2026-06-23 |
 | L-69 | Code / Hygiene | Move `date` import from method body to module level in pdf_service.py | 67513e9 | 2026-06-23 |
 | L-82 | Code / Hygiene | Remove unused `datetime` from pdf_service.py module-level import | 7f1be8d | 2026-06-23 |
+| L-64 | CI / Maintainability | Add sync comments to duplicate Postgres service blocks in ci.yml noting twin and GitHub Actions anchor limitation | d852f90 | 2026-06-23 |

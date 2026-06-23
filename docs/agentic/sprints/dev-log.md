@@ -876,3 +876,4 @@ After removing it, the next hourly run will:
 2026-06-23T02:15:00Z | L-81 | Remove OPENAI_API_KEY from contract-test CI step | 25a092c (merge 8fa137d) | ✅ Done (reviewers clean) | CI:pending (push deferred — awaiting user approval to push origin/develop)
 2026-06-23T05:15:00Z | L-69 | Move date import to module level in pdf_service.py | 67513e9 | ✅ Done (reviewers clean) | CI:pending
 2026-06-23T05:15:00Z | L-82 | Remove unused datetime from pdf_service.py module import | 7f1be8d | ✅ Done (reviewers clean) | CI:pending
+2026-06-23T06:20:00Z | L-64 | Note duplicate Postgres service blocks in ci.yml | d852f90 (merge ef92d90) | ✅ Done (reviewers clean) | CI:pending
