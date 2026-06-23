@@ -178,7 +178,7 @@ class PDFService:
             info_parts.append("🌍 <strong>Local Context:</strong> Content has been adapted for the specified local context and classroom environment.")
         
         if lesson_resource.status:
-            info_parts.append(f"📊 <strong>Status:</strong> {self._h(lesson_resource.status.title())}")
+            info_parts.append(f"📊 <strong>Status:</strong> {self._escape_html(lesson_resource.status.title())}")
         
         if not info_parts:
             info_parts.append("ℹ️ <strong>Note:</strong> Content source information not available.")
@@ -205,7 +205,7 @@ class PDFService:
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Lesson Resource - {self._h(topic.topic_title)}</title>
+            <title>Lesson Resource - {self._escape_html(topic.topic_title)}</title>
         </head>
         <body>
             <div class="container">
@@ -216,7 +216,7 @@ class PDFService:
                     </div>
                     <div class="metadata">
                         <p><strong>Generated:</strong> {created_date}</p>
-                        <p><strong>Resource ID:</strong> {self._h(lesson_resource.lesson_resources_id)}</p>
+                        <p><strong>Resource ID:</strong> {self._escape_html(lesson_resource.lesson_resources_id)}</p>
                     </div>
                 </header>
 
@@ -226,19 +226,19 @@ class PDFService:
                         <table class="info-table">
                             <tr>
                                 <td><strong>Curriculum:</strong></td>
-                                <td>{self._h(curriculum.curricula_title) if curriculum else 'N/A'}</td>
+                                <td>{self._escape_html(curriculum.curricula_title) if curriculum else 'N/A'}</td>
                             </tr>
                             <tr>
                                 <td><strong>Subject:</strong></td>
-                                <td>{self._h(subject.name) if subject else 'N/A'}</td>
+                                <td>{self._escape_html(subject.name) if subject else 'N/A'}</td>
                             </tr>
                             <tr>
                                 <td><strong>Grade Level:</strong></td>
-                                <td>{self._h(grade_level.name) if grade_level else 'N/A'}</td>
+                                <td>{self._escape_html(grade_level.name) if grade_level else 'N/A'}</td>
                             </tr>
                             <tr>
                                 <td><strong>Topic:</strong></td>
-                                <td>{self._h(topic.topic_title)}</td>
+                                <td>{self._escape_html(topic.topic_title)}</td>
                             </tr>
                         </table>
                     </div>
@@ -246,14 +246,14 @@ class PDFService:
                     <div class="curriculum-alignment">
                         <h2>Curriculum Alignment</h2>
                         <div class="alignment-content">
-                            {self._h(curriculum_alignment).replace(chr(10), '<br>')}
+                            {self._escape_html(curriculum_alignment).replace(chr(10), '<br>')}
                         </div>
                     </div>
 
                     <div class="lesson-content">
                         <h2>Lesson Resource Content</h2>
                         <div class="content-text">
-                            {self._h(combined_content).replace(chr(10), '<br>')}
+                            {self._escape_html(combined_content).replace(chr(10), '<br>')}
                         </div>
                     </div>
                     
@@ -504,7 +504,7 @@ class PDFService:
         materials_html = ""
         if activity.get("materials_needed"):
             items = "".join(
-                f"<li>{self._h(m)}</li>" for m in activity["materials_needed"]
+                f"<li>{self._escape_html(m)}</li>" for m in activity["materials_needed"]
             )
             materials_html = f"<p class='label'>You'll need:</p><ul>{items}</ul>"
 
@@ -512,13 +512,13 @@ class PDFService:
         steps_html = ""
         if activity.get("steps"):
             items = "".join(
-                f"<li>{self._h(s)}</li>" for s in activity["steps"]
+                f"<li>{self._escape_html(s)}</li>" for s in activity["steps"]
             )
             steps_html = f"<ol>{items}</ol>"
 
         # Conversation starters
         starters_html = "".join(
-            f'<div class="quote">"{self._h(q)}"</div>' for q in starters
+            f'<div class="quote">"{self._escape_html(q)}"</div>' for q in starters
         )
 
         # Common mistakes
@@ -526,10 +526,10 @@ class PDFService:
         for m in mistakes:
             mistakes_html += f"""
             <div class="mistake-card">
-                <p class="mistake-title">{self._h(m.get('mistake', ''))}</p>
-                <p class="mistake-reason">{self._h(m.get('why_it_happens', ''))}</p>
+                <p class="mistake-title">{self._escape_html(m.get('mistake', ''))}</p>
+                <p class="mistake-reason">{self._escape_html(m.get('why_it_happens', ''))}</p>
                 <div class="how-to-help">
-                    <strong>How to help:</strong> {self._h(m.get('how_to_help', ''))}
+                    <strong>How to help:</strong> {self._escape_html(m.get('how_to_help', ''))}
                 </div>
             </div>"""
 
@@ -545,12 +545,12 @@ class PDFService:
                 ctx_html += f"""
                 <div class="ctx-card">
                     <p class="ctx-label">{label}</p>
-                    <p class="ctx-value">{self._h(val)}</p>
+                    <p class="ctx-value">{self._escape_html(val)}</p>
                 </div>"""
 
         # Encouragement tips
         tips_html = "".join(
-            f'<div class="tip">{self._h(t)}</div>' for t in (tips or [])
+            f'<div class="tip">{self._escape_html(t)}</div>' for t in (tips or [])
         )
 
         today = date.today().strftime("%B %d, %Y")
@@ -559,7 +559,7 @@ class PDFService:
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Awade Guide — {self._h(topic)}</title>
+    <title>Awade Guide — {self._escape_html(topic)}</title>
 </head>
 <body>
 <div class="page">
@@ -571,33 +571,33 @@ class PDFService:
       <span class="brand-tagline">How to Help Your Child</span>
     </div>
     <div class="guide-meta">
-      <span>{self._h(subject)}</span>
-      {'<span class="sep">·</span><span>' + self._h(grade) + '</span>' if grade else ''}
-      {'<span class="sep">·</span><span>' + self._h(country) + '</span>' if country else ''}
+      <span>{self._escape_html(subject)}</span>
+      {'<span class="sep">·</span><span>' + self._escape_html(grade) + '</span>' if grade else ''}
+      {'<span class="sep">·</span><span>' + self._escape_html(country) + '</span>' if country else ''}
     </div>
   </header>
 
   <!-- Topic title -->
-  <h1 class="topic-title">{self._h(topic)}</h1>
-  {'<p class="curriculum-label">' + self._h(curriculum) + '</p>' if curriculum else ''}
+  <h1 class="topic-title">{self._escape_html(topic)}</h1>
+  {'<p class="curriculum-label">' + self._escape_html(curriculum) + '</p>' if curriculum else ''}
 
   <!-- What is this topic? -->
   <section>
     <h2>💡 What is this topic about?</h2>
-    <p>{self._h(explanation.get('what_it_is', ''))}</p>
-    {'<p class="why-matters">' + self._h(explanation.get('why_it_matters', '')) + '</p>'
+    <p>{self._escape_html(explanation.get('what_it_is', ''))}</p>
+    {'<p class="why-matters">' + self._escape_html(explanation.get('why_it_matters', '')) + '</p>'
       if explanation.get('why_it_matters') else ''}
   </section>
 
   <!-- Home Activity -->
   <section>
-    <h2>🏠 {self._h(activity.get('title', 'Home Activity'))}</h2>
+    <h2>🏠 {self._escape_html(activity.get('title', 'Home Activity'))}</h2>
     <p class="activity-subtitle">Home activity · 15–30 minutes</p>
-    <p>{self._h(activity.get('description', ''))}</p>
+    <p>{self._escape_html(activity.get('description', ''))}</p>
     {materials_html}
     {steps_html}
     {'<div class="look-for"><strong>What to look for:</strong> '
-      + self._h(activity.get('what_to_look_for', '')) + '</div>'
+      + self._escape_html(activity.get('what_to_look_for', '')) + '</div>'
       if activity.get('what_to_look_for') else ''}
   </section>
 
@@ -631,7 +631,7 @@ class PDFService:
 </html>"""
 
     @staticmethod
-    def _h(text: str) -> str:
+    def _escape_html(text: str) -> str:
         """Escape HTML special characters."""
         if not isinstance(text, str):
             text = str(text) if text is not None else ""
