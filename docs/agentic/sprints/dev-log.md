@@ -877,3 +877,4 @@ After removing it, the next hourly run will:
 2026-06-23T05:15:00Z | L-69 | Move date import to module level in pdf_service.py | 67513e9 | ✅ Done (reviewers clean) | CI:pending
 2026-06-23T05:15:00Z | L-82 | Remove unused datetime from pdf_service.py module import | 7f1be8d | ✅ Done (reviewers clean) | CI:pending
 2026-06-23T06:20:00Z | L-64 | Note duplicate Postgres service blocks in ci.yml | d852f90 (merge ef92d90) | ✅ Done (reviewers clean) | CI:pending
+2026-06-23T08:35:00Z | L-68 | Rename _h → _escape_html static method on PDFService + update all 28 call sites | deba11b (merge 5495777) | ✅ Done (reviewers clean) | CI:pending (push deferred — sandbox permission)
