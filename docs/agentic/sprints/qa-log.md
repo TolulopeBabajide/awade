@@ -9823,3 +9823,17 @@ Commits: 25a092c fix(ci): AWD-L-81 remove OPENAI_API_KEY from contract-test env 
 Issues: None
 Backlog items filed: None
 Verdict: Ship
+
+## QA — 2026-06-23T05:12:00Z
+Result: ✅ PASS
+Commits: 67513e9 fix(hygiene): AWD-L-69 move date import to module level in pdf_service | 7f1be8d fix(hygiene): AWD-L-82 remove unused datetime from pdf_service module import | Files: apps/backend/services/pdf_service.py (2 lines changed)
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 292 passing, 0 failing (27 test files) — no frontend files changed |
+| Backend tests | ✅ 838 passed, 2 skipped, 0 failures — no backend files changed |
+| OpenAPI valid | ✅ (no API endpoint changes) |
+| MCP JSON valid | ✅ |
+| Spot-check | ✅ Pure import hygiene: removed method-level `from datetime import date as _date` (L-69) and removed unused `datetime` from module-level import (L-82). No console.log, @ts-ignore, hardcoded secrets, or TODO added. No async error handling changed. No logic altered. |
+Issues: None
+Backlog items filed: None
+Verdict: Ship
