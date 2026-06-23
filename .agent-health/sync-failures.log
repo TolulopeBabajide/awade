@@ -334,3 +334,4 @@ PUSH_DEFERRED: 2026-06-22T09:12:48Z — develop — refactor(ai): AWD-M-276 grou
 2026-06-23T12:12:20Z | PUSH_DEFERRED | develop | AWD-M-293 merge — sandbox permission
 2026-06-23T13:07:46Z | PULL_REBASE_FAILED | develop
 2026-06-23T14:07:53Z | PULL_REBASE_FAILED | develop
+2026-06-23T14:16:19Z PUSH_DEFERRED develop dc60088 — sandbox permission denied
