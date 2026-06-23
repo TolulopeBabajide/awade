@@ -62,13 +62,12 @@ write_list = agents[agent].get("writes", agents[agent].get("write", []))
 # Final-component globs (e.g. *.py, sprint-*.md, *.last-run) are also stripped so that
 # "alembic/versions/*.py" matches "alembic/versions/0001_foo.py".
 for allowed in write_list:
-    # Strip trailing glob components before normalization
-    if allowed.endswith("/**") or allowed.endswith("/*"):
-        allowed = allowed.rsplit("/", 1)[0]
-    elif "*" in allowed.rsplit("/", 1)[-1]:
-        # e.g. alembic/versions/*.py  → alembic/versions
-        #      sprint-plans/sprint-*.md → sprint-plans
-        #      .agent-health/*.last-run → .agent-health
+    # Strip trailing glob components before normalization.
+    # Covers /** and /* suffixes as well as final-component globs (*.py, sprint-*.md, *.last-run).
+    # e.g. alembic/versions/*.py  → alembic/versions
+    #      sprint-plans/sprint-*.md → sprint-plans
+    #      .agent-health/*.last-run → .agent-health
+    if allowed.endswith("/**") or allowed.endswith("/*") or "*" in allowed.rsplit("/", 1)[-1]:
         allowed = allowed.rsplit("/", 1)[0]
     # NOTE: mid-path wildcards (e.g. docs/*/report.md) are NOT supported.
     # rsplit("/", 1)[-1] returns the final component ("report.md"), which contains
