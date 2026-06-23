@@ -880,3 +880,4 @@ After removing it, the next hourly run will:
 2026-06-23T08:35:00Z | L-68 | Rename _h → _escape_html static method on PDFService + update all 28 call sites | deba11b (merge 5495777) | ✅ Done (reviewers clean) | CI:pending (push deferred — sandbox permission)
 2026-06-23T10:15:00Z | L-65 | Replace inline __import__ with top-level User import in test_auth_service.py | 92304f0 (merge 44e7d52) | ✅ Done (reviewers clean) | CI:pending (push deferred — sandbox permission)
 2026-06-23T11:00:00Z | L-66 | Promote _hash_reset_token to public staticmethod on AuthService | 33742fb | ✅ Done (reviewers clean) | CI:pending
+2026-06-23T13:15:00Z | M-293 | Narrow _ApiCallConfig.response_format to Literal["json", "text"] | faec0bf (merge 28178d4) | ✅ Done (reviewers clean) | CI:pending (push deferred — sandbox permission)

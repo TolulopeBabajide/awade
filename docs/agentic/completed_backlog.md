@@ -2342,3 +2342,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | L-68 | Code / Naming | Rename `_h` → `_escape_html` static method on PDFService; update all 28 call sites | deba11b | 2026-06-23 |
 | L-65 | Code / Hygiene | Replace inline `__import__("models", fromlist=["User"]).User` with top-level `User` in test_auth_service.py | 92304f0 | 2026-06-23 |
 | L-66 | Testing / Coupling | Promote `_hash_reset_token` → `hash_reset_token` public @staticmethod on AuthService; update 3 test call sites | fd28cf1 | 2026-06-23 |
+| M-293 | Code Quality / Types | Narrow `_ApiCallConfig.response_format` from `str` to `Literal["json", "text"]`; add `Literal` to typing import | faec0bf | 2026-06-23 |
