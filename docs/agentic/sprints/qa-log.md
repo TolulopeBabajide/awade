@@ -9882,3 +9882,17 @@ Commits: 92304f0 refactor(tests): AWD-L-65 replace inline __import__ with top-le
 Issues: None
 Backlog items filed: None
 Verdict: Ship
+
+## QA — 2026-06-23T11:00:00Z
+Result: ✅ PASS
+Commits: fd28cf1 refactor(auth): AWD-L-66 promote _hash_reset_token to public staticmethod | Files: apps/backend/services/auth_service.py (rename `_hash_reset_token` → `hash_reset_token` @staticmethod + 2 internal call sites updated), apps/backend/tests/test_password_reset.py (3 call sites updated)
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ (no frontend files changed — skipped, confirmed passing from prior run) |
+| Backend tests | ✅ 838 passed, 2 skipped, 0 failures (13.47s) |
+| OpenAPI valid | ✅ (no API endpoint changes) |
+| MCP JSON valid | ✅ |
+| Spot-check | ✅ No remaining `_hash_reset_token` call sites. No console.log, @ts-ignore, hardcoded secrets, or TODO added. The `TODO(AWD-H-68)` on line 433 of auth_service.py is pre-existing (confirmed in develop). `secrets.token_urlsafe(32)` hits are stdlib import + usage — not leaked values. Pure rename — no logic altered, no branches added, no error handling changed. |
+Issues: None
+Backlog items filed: None
+Verdict: Ship
