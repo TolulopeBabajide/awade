@@ -398,3 +398,4 @@
 2026-06-23T08:08:01Z | support-agent | WRITE | docs/agentic/support/ | support digest
 2026-06-23T10:13:04Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
 2026-06-23T11:14:01Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-23-faec0bf.md | completed structural code review — AWD-M-293
+2026-06-23T13:14:46Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-23-beca32a.md | completed structural code review — AWD-M-296 in-loop
