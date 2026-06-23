@@ -395,3 +395,4 @@
 2026-06-23T05:21:29Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-23-d852f90.md | completed structural code review — AWD-L-64 branch, verdict: Clean
 2026-06-23T06:11:56Z | architecture-agent   | SKIP       | idempotency                              | ran within 14-day window — skipping
 2026-06-23T06:45:36Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-23-deba11b.md | completed structural code review — AWD-L-68 in-loop clean
+2026-06-23T08:08:01Z | support-agent | WRITE | docs/agentic/support/ | support digest
