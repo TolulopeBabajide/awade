@@ -9868,3 +9868,17 @@ Commits: deba11b refactor(pdf): AWD-L-68 rename _h to _escape_html in PDFService
 Issues: None
 Backlog items filed: None
 Verdict: Ship
+
+## QA — 2026-06-23T10:13:00Z
+Result: ✅ PASS
+Commits: 92304f0 refactor(tests): AWD-L-65 replace inline __import__ with top-level User import | Files: apps/backend/tests/test_auth_service.py (single line change — inline `__import__("models", fromlist=["User"]).User` replaced with top-level `User` already imported at line 23)
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 292 passing, 0 failing (27 test files) — no frontend files changed |
+| Backend tests | ✅ 838 passed, 2 skipped, 0 failures (15.36s) |
+| OpenAPI valid | ✅ (no API endpoint changes) |
+| MCP JSON valid | ✅ |
+| Spot-check | ✅ No remaining `__import__` calls in test_auth_service.py. No console.log, @ts-ignore, hardcoded secrets, or TODO added. No async error handling changed. No logic altered — pure import hygiene. Test passwords in file are fixture values (e.g. "SecurePass999!"), not secrets. |
+Issues: None
+Backlog items filed: None
+Verdict: Ship
