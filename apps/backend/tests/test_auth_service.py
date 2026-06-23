@@ -199,7 +199,7 @@ class TestAuthService:
             mock_hash.assert_called_once_with(payload.password)
 
         # The stored hash must be verifiable — confirms the delegation produced a real hash
-        db_user = test_db.query(__import__("models", fromlist=["User"]).User).filter_by(
+        db_user = test_db.query(User).filter_by(
             email="hash_delegation_test@example.com"
         ).first()
         assert db_user is not None
