@@ -9896,3 +9896,17 @@ Commits: fd28cf1 refactor(auth): AWD-L-66 promote _hash_reset_token to public st
 Issues: None
 Backlog items filed: None
 Verdict: Ship
+
+## QA — 2026-06-23T13:10:00Z
+Result: ✅ PASS
+Commits: faec0bf refactor(ai): AWD-M-293 narrow _ApiCallConfig.response_format to Literal["json", "text"] | Files: packages/ai/gpt_service.py (add `Literal` to typing import line 14; change `response_format: str` → `response_format: Literal["json", "text"]` in _ApiCallConfig line 53)
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 292 passed (27 test files) |
+| Backend tests | ✅ 838 passed, 2 skipped, 0 failures (13.72s) |
+| OpenAPI valid | ✅ (no API endpoint changes) |
+| MCP JSON valid | ✅ |
+| Spot-check | ✅ No console.log, @ts-ignore, hardcoded secrets, or TODO added. Pure type annotation narrowing — zero runtime behaviour change. Both existing call sites pass "json" which is within the Literal. TestApiCallConfigM276 exercises both "json" and "text" values. |
+Issues: None
+Backlog items filed: None
+Verdict: Ship
