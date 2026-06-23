@@ -2345,3 +2345,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | M-293 | Code Quality / Types | Narrow `_ApiCallConfig.response_format` from `str` to `Literal["json", "text"]`; add `Literal` to typing import | faec0bf | 2026-06-23 |
 | M-296 | Coupling / Testing | Replace `test_db.get_bind()` with `test_engine` fixture in N+1 test (SA 2.0 API removal) | beca32a | 2026-06-23 |
 | ~~M-295~~ | Error Handling / Tooling | Guard json.load in check-permissions.sh against malformed manifest | e9e2057 | 2026-06-23 |
+| M-298 | CI / Security | Fix CI secrets grep exclusion to operate on file paths, not output-line content | d3e3646 | 2026-06-23 |
