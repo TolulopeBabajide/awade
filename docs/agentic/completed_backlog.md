@@ -2335,3 +2335,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | L-75 | DepSec / DevDep | Patch 5 npm dev-dependency CVEs via audit fix + esbuild override | fd965d4 | 2026-06-22 |
 | L-62 | Code / Duplication | Extract _format_list_or_default helper on AwadeGPTService | 7719584 | 2026-06-22 |
 | L-70 | CI / Code Hygiene | Remove OPENAI_API_KEY from backend-test CI step — unused since AI_PROVIDER=mock | 09d7053 | 2026-06-23 |
+| L-81 | CI / Code Hygiene | Remove OPENAI_API_KEY from contract-test CI step — unused since AI_PROVIDER=mock | 25a092c | 2026-06-23 |
