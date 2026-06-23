@@ -2341,3 +2341,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | L-64 | CI / Maintainability | Add sync comments to duplicate Postgres service blocks in ci.yml noting twin and GitHub Actions anchor limitation | d852f90 | 2026-06-23 |
 | L-68 | Code / Naming | Rename `_h` → `_escape_html` static method on PDFService; update all 28 call sites | deba11b | 2026-06-23 |
 | L-65 | Code / Hygiene | Replace inline `__import__("models", fromlist=["User"]).User` with top-level `User` in test_auth_service.py | 92304f0 | 2026-06-23 |
+| L-66 | Testing / Coupling | Promote `_hash_reset_token` → `hash_reset_token` public @staticmethod on AuthService; update 3 test call sites | fd28cf1 | 2026-06-23 |

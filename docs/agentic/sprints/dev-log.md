@@ -879,3 +879,4 @@ After removing it, the next hourly run will:
 2026-06-23T06:20:00Z | L-64 | Note duplicate Postgres service blocks in ci.yml | d852f90 (merge ef92d90) | ✅ Done (reviewers clean) | CI:pending
 2026-06-23T08:35:00Z | L-68 | Rename _h → _escape_html static method on PDFService + update all 28 call sites | deba11b (merge 5495777) | ✅ Done (reviewers clean) | CI:pending (push deferred — sandbox permission)
 2026-06-23T10:15:00Z | L-65 | Replace inline __import__ with top-level User import in test_auth_service.py | 92304f0 (merge 44e7d52) | ✅ Done (reviewers clean) | CI:pending (push deferred — sandbox permission)
+2026-06-23T11:00:00Z | L-66 | Promote _hash_reset_token to public staticmethod on AuthService | 33742fb | ✅ Done (reviewers clean) | CI:pending
