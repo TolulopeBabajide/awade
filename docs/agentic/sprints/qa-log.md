@@ -9953,3 +9953,16 @@ Commits: d3e3646 fix(ci): AWD-M-298 exclude test dirs by path, not by output-lin
 Issues: None
 Backlog items filed: None
 Verdict: Ship
+
+## QA — 2026-06-23T22:00:00Z
+Result: ✅ PASS
+Commits: c7ab17a refactor(testing): AWD-M-297 extract _seed_n_plus_one_scenario helper | Files: apps/backend/tests/test_users_data_export.py (helper extracted, Topic import promoted to module level, test body reduced 86→~48 lines)
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Backend tests | ✅ 840 passed, 2 skipped, 0 failures |
+| OpenAPI valid | ✅ (no API endpoint changes) |
+| MCP JSON valid | ✅ |
+| Spot-check | ✅ No console.log, @ts-ignore, hardcoded secrets, or TODO added. Pure test refactoring — _seed_n_plus_one_scenario module-level helper extracts seeding logic, returns topics list for use in caller. No production code touched. |
+Issues: None
+Backlog items filed: None
+Verdict: Ship
