@@ -9966,3 +9966,17 @@ Commits: c7ab17a refactor(testing): AWD-M-297 extract _seed_n_plus_one_scenario 
 Issues: None
 Backlog items filed: None
 Verdict: Ship
+
+## QA — 2026-06-24T00:17:00Z
+Result: ✅ PASS
+Commits: d0a734d refactor(tooling): AWD-L-80 merge duplicate if/elif glob branches in check-permissions.sh | Files: scripts/check-permissions.sh (6 lines changed: if/elif with identical bodies merged into single if condition — no logic change)
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 292 passed (27 test files) |
+| Backend tests | ✅ 840 passed, 2 skipped, 0 failures |
+| OpenAPI valid | ✅ (no API endpoint changes) |
+| MCP JSON valid | ✅ |
+| Spot-check | ✅ No console.log, @ts-ignore, hardcoded secrets, or TODO added. Pure code hygiene — if/elif branches with identical guard results and identical bodies (`allowed = allowed.rsplit("/", 1)[0]`) merged into a single condition. Logic equivalence verified: `/**` and `/*` patterns have `*` in their rsplit final component, so they were already caught by the elif; merging is safe with no behavioural change. |
+Issues: None
+Backlog items filed: None
+Verdict: Ship
