@@ -9854,3 +9854,17 @@ Commits: 67513e9 fix(hygiene): AWD-L-69 move date import to module level in pdf_
 Issues: None
 Backlog items filed: None
 Verdict: Ship
+
+## QA — 2026-06-23T08:30:00Z
+Result: ✅ PASS
+Commits: deba11b refactor(pdf): AWD-L-68 rename _h to _escape_html in PDFService | Files: apps/backend/services/pdf_service.py (pure rename — method definition + 28 call sites)
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 292 passing, 0 failing (27 test files) — no frontend files changed |
+| Backend tests | ✅ 838 passed, 2 skipped, 0 failures (12m 38s) |
+| OpenAPI valid | ✅ (no API endpoint changes) |
+| MCP JSON valid | ✅ |
+| Spot-check | ✅ Zero orphaned `_h(` call sites remain (grep confirms). 29 total `_escape_html` occurrences: 1 method definition + 28 call sites. No console.log, @ts-ignore, hardcoded secrets, or TODO added. Pure mechanical rename — no logic altered, no branches added. DeprecationWarning for `datetime.utcnow()` in test_parent_guide_validation.py (lines 105, 328, 329) is pre-existing, not introduced by this change. |
+Issues: None
+Backlog items filed: None
+Verdict: Ship
