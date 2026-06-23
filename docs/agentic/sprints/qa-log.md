@@ -9939,3 +9939,17 @@ Commits: e9e2057 fix(tooling): AWD-M-295 guard json.load in check-permissions.sh
 Issues: None
 Backlog items filed: None
 Verdict: Ship
+
+## QA — 2026-06-23T19:12:00Z
+Result: ✅ PASS
+Commits: d3e3646 fix(ci): AWD-M-298 exclude test dirs by path, not by output-line content in secrets grep | Files: .github/workflows/ci.yml (3 lines changed: removed `grep -v` pipe, added `--exclude-dir=tests --exclude="test_*.py" --exclude="conftest.py"` flags to primary grep)
+| TypeScript | ✅ 0 errors |
+| Lint | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ 292 passed (27 test files) |
+| Backend tests | ✅ 840 passed, 2 skipped, 0 failures |
+| OpenAPI valid | ✅ (no API endpoint changes) |
+| MCP JSON valid | ✅ |
+| Spot-check | ✅ No console.log, @ts-ignore, hardcoded secrets, or TODO added. Pure CI-config change — grep exclusion now operates on file path at the primary grep level rather than filtering output lines. Simulated new grep against current codebase: exits 1 (no matches) — no false positives. No application code touched. |
+Issues: None
+Backlog items filed: None
+Verdict: Ship
