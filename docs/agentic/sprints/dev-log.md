@@ -874,3 +874,5 @@ After removing it, the next hourly run will:
 
 2026-06-22T23:15:00Z | L-62 | Extract _format_list_or_default helper on AwadeGPTService | d8fe9c3 | ✅ Done (reviewers clean) | CI:pending2026-06-23T00:15:00Z | L-70 | Remove OPENAI_API_KEY from backend-test CI step — unused since AI_PROVIDER=mock | 09d7053 | ✅ Done (reviewers clean) | CI:pending
 2026-06-23T02:15:00Z | L-81 | Remove OPENAI_API_KEY from contract-test CI step | 25a092c (merge 8fa137d) | ✅ Done (reviewers clean) | CI:pending (push deferred — awaiting user approval to push origin/develop)
+2026-06-23T05:15:00Z | L-69 | Move date import to module level in pdf_service.py | 67513e9 | ✅ Done (reviewers clean) | CI:pending
+2026-06-23T05:15:00Z | L-82 | Remove unused datetime from pdf_service.py module import | 7f1be8d | ✅ Done (reviewers clean) | CI:pending
