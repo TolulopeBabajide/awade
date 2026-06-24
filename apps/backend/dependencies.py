@@ -155,6 +155,10 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    # Expose user_id on request.state so AuditMiddleware can attribute the
+    # request after call_next() returns (OWASP A09 / AWD-M-197).
+    request.state.user_id = user.user_id
+
     return user
 
 async def get_current_active_user(
