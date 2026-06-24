@@ -408,3 +408,5 @@
 2026-06-23T21:12:55Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-23-c7ab17a.md | completed structural code review — in-loop mode AWD-M-297
 2026-06-24T02:13:49Z | code-review-agent    | WRITE      | docs/agentic/backlog.md                  | filed M-299, L-83 from AWD-M-294 review — ✅ Clean verdict
 2026-06-24T04:10:40Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-24T05:18:58Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-24-3a9ab58.md | completed structural code review — AWD-M-197 — verdict: ✅ Clean
+2026-06-24T05:38:39Z | dependency-security-agent | WRITE | docs/audits/ | completed dependency security scan — 4 backend CVE findings (M-300,M-301), frontend clean
