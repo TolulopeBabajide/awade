@@ -10072,3 +10072,21 @@ Changed files: apps/backend/requirements.txt
 Issues found: None
 Backlog items filed: None
 Verdict: **Ship** ✅
+
+## QA — 2026-06-24T11:15:00Z
+Result: ✅ PASS
+Branch: fix/security/AWD-M-300-dep-bumps · Commit: bb43424
+Changed files: apps/backend/requirements.txt
+
+| Check      | Result | Detail |
+|------------|--------|--------|
+| TypeScript | ✅ | 0 errors |
+| Lint       | ✅ | 0 errors, 0 warnings |
+| Backend tests | ✅ | 850 passed, 2 skipped, 0 failed |
+| Frontend tests | ✅ | 292 passed, 0 failed |
+| Spot-check | ✅ | No secrets, debug prints, TODOs, or type suppressions in diff. Two patch-level dep bumps only: python-multipart 0.0.27→0.0.31, cryptography 48.0.0→48.0.1. CVE comment annotations accurate. |
+| Contracts  | ✅ | openapi.json ✅ · mcp.json ✅ |
+
+Issues found: None
+Backlog items filed: None
+Verdict: **Ship** ✅
