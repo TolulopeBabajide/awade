@@ -2352,3 +2352,5 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | M-299 | Duplication / Architecture | Extract `_build_cache_metadata` @staticmethod to DRY up `_get_cached_response` + `_call_provider_with_cache` | f9b4351 | 2026-06-24 |
 | L-83 | Testing / Code Quality | Add exception-with-valid-metadata test variant for `_call_provider_with_cache` | f9b4351 | 2026-06-24 |
 | M-197 | Security / OWASP A09 | Set `request.state.user_id` in `get_current_user` so AuditMiddleware correctly attributes authenticated requests | 3a9ab58 | 2026-06-24 |
+| M-300 | Security / DepSec | DepSec: bump `python-multipart` 0.0.27→0.0.31 — CVE-2026-53540, CVE-2026-53539, CVE-2026-53538 | bb43424 | 2026-06-24 |
+| M-301 | Security / DepSec | DepSec: bump `cryptography` 48.0.0→48.0.1 — GHSA-537c-gmf6-5ccf | bb43424 | 2026-06-24 |
