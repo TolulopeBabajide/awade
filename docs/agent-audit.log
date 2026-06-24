@@ -415,3 +415,4 @@
 2026-06-24T09:13:00Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest — review logged inline only
 2026-06-24T11:36:08Z | code-review-agent    | WRITE      | docs/private/code-reviews-archive/review-2026-06-24-74ba274.md | completed structural code review for AWD-M-201 — verdict: Clean
 2026-06-24T12:30:58Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-24-74ba274.md | completed structural code review — AWD-M-201 branch 74ba274 — verdict ✅ Clean
+2026-06-24T13:32:43Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-24-fbd21d2.md | completed structural code review — AWD-M-201+M-303 branch fbd21d2 — verdict ✅ Clean
