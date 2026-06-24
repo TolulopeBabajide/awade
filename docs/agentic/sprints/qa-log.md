@@ -9980,3 +9980,21 @@ Commits: d0a734d refactor(tooling): AWD-L-80 merge duplicate if/elif glob branch
 Issues: None
 Backlog items filed: None
 Verdict: Ship
+
+## QA — 2026-06-24T03:15:00Z
+Result: ✅ PASS
+Branch: fix/ai/AWD-M-294-extract-make-api-call-helpers · Commit: d4f0028
+Changed files: packages/ai/gpt_service.py, apps/backend/tests/test_gpt_service_integration.py
+
+| Check      | Result | Detail |
+|------------|--------|--------|
+| TypeScript | ✅ | 0 errors |
+| Lint       | ✅ | 0 errors, 0 warnings |
+| Backend tests | ✅ | 844 passed, 2 skipped, 0 failed |
+| Frontend tests | ✅ | 292 passed, 0 failed |
+| Spot-check | ✅ | No secrets, debug prints, TODOs, or type suppressions in diff |
+| Contracts  | ✅ | openapi.json ✅ · mcp.json ✅ |
+
+Issues found: None
+Backlog items filed: None
+Verdict: **Ship** ✅
