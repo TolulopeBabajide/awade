@@ -213,6 +213,16 @@ class AwadeGPTService:
             logger.error(f"Failed to initialize provider {self.provider_type}: {e}")
             self.provider = None
     
+    @staticmethod
+    def _build_cache_metadata(
+        prompt_metadata: Dict[str, Any],
+        model_tier: str,
+    ) -> Dict[str, Any]:
+        """Return a copy of prompt_metadata with model_tier injected."""
+        cache_metadata = prompt_metadata.copy()
+        cache_metadata["model_tier"] = model_tier
+        return cache_metadata
+
     def _get_cached_response(
         self,
         prompt_metadata: Optional[Dict[str, Any]],
@@ -221,12 +231,10 @@ class AwadeGPTService:
         """Return cached content for this metadata+tier pair, or None on miss."""
         if not prompt_metadata:
             return None
-        cache_metadata = prompt_metadata.copy()
-        cache_metadata["model_tier"] = model_tier
         return self.cache.get(
             provider=self.provider_type,
             model=model_tier,
-            prompt_data=cache_metadata,
+            prompt_data=self._build_cache_metadata(prompt_metadata, model_tier),
         )
 
     def _call_provider_with_cache(
@@ -262,12 +270,10 @@ class AwadeGPTService:
             if not content or not content.strip():
                 return self._generate_mock_lesson_resource(topic, subject, grade)
             if prompt_metadata:
-                cache_metadata = prompt_metadata.copy()
-                cache_metadata["model_tier"] = model_tier
                 self.cache.set(
                     provider=self.provider_type,
                     model=model_tier,
-                    prompt_data=cache_metadata,
+                    prompt_data=self._build_cache_metadata(prompt_metadata, model_tier),
                     content=content,
                 )
             return content

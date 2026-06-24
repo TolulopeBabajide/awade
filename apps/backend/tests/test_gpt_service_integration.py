@@ -419,6 +419,51 @@ class TestMakeApiCallHelpersM294:
         assert len(result) > 0
         MockCache.return_value.set.assert_not_called()
 
+    @patch("packages.ai.gpt_service.OpenAIProvider")
+    @patch("packages.ai.gpt_service.ContentCache")
+    def test_call_provider_with_cache_skips_cache_write_on_exception_with_metadata(
+        self, MockCache, MockProvider
+    ):
+        """Cache write is skipped when generate_content raises, even with valid metadata (AWD-L-83)."""
+        MockCache.return_value.get.return_value = None
+        MockProvider.return_value.generate_content.side_effect = RuntimeError("timeout")
+        svc = AwadeGPTService(api_key="test", provider_type="openai")
+        config = _ApiCallConfig(
+            topic="Photosynthesis",
+            subject="Biology",
+            grade="Grade 10",
+            model_tier="basic",
+            prompt_metadata={"type": "lesson"},
+            response_format="text",
+        )
+        result = svc._call_provider_with_cache(prompt="test", config=config, temp=0.7)
+        assert isinstance(result, str)
+        assert len(result) > 0
+        MockCache.return_value.set.assert_not_called()
+
+
+class TestBuildCacheMetadataM299:
+    """_build_cache_metadata injects model_tier into a copy of prompt_metadata (AWD-M-299)."""
+
+    def test_returns_dict_with_model_tier_injected(self):
+        meta = {"type": "lesson", "topic": "Algebra"}
+        result = AwadeGPTService._build_cache_metadata(meta, "standard")
+        assert result["model_tier"] == "standard"
+        assert result["type"] == "lesson"
+        assert result["topic"] == "Algebra"
+
+    def test_does_not_mutate_original(self):
+        meta = {"type": "lesson"}
+        AwadeGPTService._build_cache_metadata(meta, "basic")
+        assert "model_tier" not in meta
+
+    def test_different_model_tiers_produce_different_results(self):
+        meta = {"type": "guide"}
+        r1 = AwadeGPTService._build_cache_metadata(meta, "standard")
+        r2 = AwadeGPTService._build_cache_metadata(meta, "basic")
+        assert r1["model_tier"] == "standard"
+        assert r2["model_tier"] == "basic"
+
 
 class TestLoggingRootHandlerNotPollutedM277:
     """Importing gpt_service must not install handlers on the root logger (AWD-M-277)."""
