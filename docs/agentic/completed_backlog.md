@@ -2351,3 +2351,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | M-294 | Complexity / Architecture | Extract `_get_cached_response` + `_call_provider_with_cache` from `_make_api_call` in gpt_service.py | d4f0028 | 2026-06-24 |
 | M-299 | Duplication / Architecture | Extract `_build_cache_metadata` @staticmethod to DRY up `_get_cached_response` + `_call_provider_with_cache` | f9b4351 | 2026-06-24 |
 | L-83 | Testing / Code Quality | Add exception-with-valid-metadata test variant for `_call_provider_with_cache` | f9b4351 | 2026-06-24 |
+| M-197 | Security / OWASP A09 | Set `request.state.user_id` in `get_current_user` so AuditMiddleware correctly attributes authenticated requests | 3a9ab58 | 2026-06-24 |

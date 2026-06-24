@@ -890,3 +890,4 @@ After removing it, the next hourly run will:
 2026-06-24T03:16:00Z | M-294 | Extract _get_cached_response and _call_provider_with_cache from _make_api_call in gpt_service.py | d4f0028 (merge ea4703a) | ✅ Done (reviewers clean) | CI:pending
 2026-06-24T05:20:00Z | M-299 | Extract `_build_cache_metadata` @staticmethod in gpt_service.py | f9b4351 | ✅ Done (reviewers clean) | CI:pending (push deferred — sandbox permission)
 2026-06-24T05:20:00Z | L-83 | Add exception-with-metadata test for `_call_provider_with_cache` | f9b4351 | ✅ Done (reviewers clean) | CI:pending (push deferred — sandbox permission)
+2026-06-24T08:20:00Z | M-197 | Set request.state.user_id in get_current_user for AuditMiddleware attribution (OWASP A09) | 3a9ab58 (merge c5628df) | ✅ Done (reviewers clean) | CI:pending (push deferred — sandbox permission)
