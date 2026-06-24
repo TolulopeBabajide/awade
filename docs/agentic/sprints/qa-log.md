@@ -10036,3 +10036,21 @@ Changed files: packages/ai/gpt_service.py, apps/backend/tests/test_gpt_service_i
 Issues found: None
 Backlog items filed: None
 Verdict: **Ship** ✅
+
+## QA — 2026-06-24T09:14:00Z
+Result: ✅ PASS
+Branch: fix/security/AWD-M-300-dep-bumps · Commit: bb43424
+Changed files: apps/backend/requirements.txt
+
+| Check      | Result | Detail |
+|------------|--------|--------|
+| TypeScript | ✅ | 0 errors (dev-agent CI mirror) |
+| Lint       | ✅ | 0 errors, 0 warnings (dev-agent CI mirror) |
+| Backend tests | ✅ | 850 passed, 2 skipped, 0 failed (dev-agent CI mirror) |
+| Frontend tests | ✅ | 292 passed, 0 failed (dev-agent CI mirror) |
+| Spot-check | ✅ | 2 lines changed — version pins only. No secrets, debug prints, TODOs, or type suppressions. No executable code touched. |
+| Contracts  | ✅ | openapi.json ✅ · mcp.json ✅ |
+
+Issues found: None
+Backlog items filed: None
+Verdict: **Ship** ✅
