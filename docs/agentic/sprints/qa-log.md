@@ -4,6 +4,26 @@
 
 ---
 
+## QA — 2026-06-24T08:17:00Z
+Result: ✅ PASS
+Branch: fix/security/AWD-M-197-audit-user-id · Commit: 3a9ab58
+Changed files: apps/backend/dependencies.py, apps/backend/tests/test_audit.py
+
+| Check      | Result | Detail |
+|------------|--------|--------|
+| TypeScript | ✅ | 0 errors |
+| Lint       | ✅ | 0 errors, 0 warnings |
+| Backend tests | ✅ | 850 passed, 2 skipped, 0 failed |
+| Frontend tests | ✅ | 292 passed, 0 failed |
+| Spot-check | ✅ | No secrets, debug prints, TODOs, or type suppressions in diff |
+| Contracts  | ✅ | openapi.json ✅ · mcp.json ✅ |
+
+Issues found: None
+Backlog items filed: None
+Verdict: **Ship** ✅
+
+---
+
 ## QA — 2026-06-23T06:18:00Z
 Result: ✅ PASS
 Commits: d852f90 chore(ci): AWD-L-64 note duplicate Postgres service blocks in ci.yml | Files: .github/workflows/ci.yml (8 lines added — YAML comments only)
