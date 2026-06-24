@@ -213,16 +213,29 @@ class AwadeGPTService:
             logger.error(f"Failed to initialize provider {self.provider_type}: {e}")
             self.provider = None
     
-    def _make_api_call(
+    def _get_cached_response(
+        self,
+        prompt_metadata: Optional[Dict[str, Any]],
+        model_tier: str,
+    ) -> Optional[str]:
+        """Return cached content for this metadata+tier pair, or None on miss."""
+        if not prompt_metadata:
+            return None
+        cache_metadata = prompt_metadata.copy()
+        cache_metadata["model_tier"] = model_tier
+        return self.cache.get(
+            provider=self.provider_type,
+            model=model_tier,
+            prompt_data=cache_metadata,
+        )
+
+    def _call_provider_with_cache(
         self,
         prompt: str,
         config: _ApiCallConfig,
-        temperature: Optional[float] = None,
+        temp: float,
     ) -> str:
-        """
-        Make an API call to the configured provider or return mock response.
-        Handles caching automatically.
-        """
+        """Call the provider, write to cache on success, fall back to mock on error."""
         topic = config["topic"]
         subject = config["subject"]
         grade = config["grade"]
@@ -230,31 +243,13 @@ class AwadeGPTService:
         prompt_metadata = config["prompt_metadata"]
         response_format = config["response_format"]
 
-        # 1. Check if we should use Mock
-        if not self.provider:
-            logger.info("Using mock response (Provider not available)")
-            return self._generate_mock_response(prompt, topic, subject, grade)
-
-        temp = temperature if temperature is not None else self.temperature
-
-        # 2. Check Cache
-        if prompt_metadata:
-            # Add tier to metadata to ensure distinct cache keys for different tiers
-            cache_metadata = prompt_metadata.copy()
-            cache_metadata["model_tier"] = model_tier
-
-            cached_content = self.cache.get(
-                provider=self.provider_type,
-                model=model_tier, # We use abstract model name in key
-                prompt_data=cache_metadata
-            )
-            if cached_content:
-                return cached_content
-
-        # 3. Call Provider
+        system_instruction = (
+            "You are an expert educational content creator specializing in African "
+            "curriculum development. You create comprehensive, locally contextual lesson "
+            "resources that are age-appropriate, culturally relevant, and practical for "
+            "teachers to implement."
+        )
         try:
-            system_instruction = "You are an expert educational content creator specializing in African curriculum development. You create comprehensive, locally contextual lesson resources that are age-appropriate, culturally relevant, and practical for teachers to implement."
-
             logger.info(f"Generating content using {self.provider_type} (Tier: {model_tier})")
             content = self.provider.generate_content(
                 prompt=prompt,
@@ -262,28 +257,48 @@ class AwadeGPTService:
                 model_tier=model_tier,
                 temperature=temp,
                 max_tokens=self.max_tokens,
-                response_format=response_format
+                response_format=response_format,
             )
-
-            # Check if response is empty
             if not content or not content.strip():
                 return self._generate_mock_lesson_resource(topic, subject, grade)
-
-            # 4. Save to Cache
             if prompt_metadata:
+                cache_metadata = prompt_metadata.copy()
+                cache_metadata["model_tier"] = model_tier
                 self.cache.set(
                     provider=self.provider_type,
                     model=model_tier,
                     prompt_data=cache_metadata,
-                    content=content
+                    content=content,
                 )
-
             return content
-
         except Exception as e:
             logger.error(f"Error in AI generation: {e}")
-            # Fallback to mock on critical failure
             return self._generate_mock_lesson_resource(topic, subject, grade)
+
+    def _make_api_call(
+        self,
+        prompt: str,
+        config: _ApiCallConfig,
+        temperature: Optional[float] = None,
+    ) -> str:
+        """Dispatch to mock, cache, or live provider; delegates caching to helpers."""
+        topic = config["topic"]
+        subject = config["subject"]
+        grade = config["grade"]
+        model_tier = config["model_tier"]
+        prompt_metadata = config["prompt_metadata"]
+
+        if not self.provider:
+            logger.info("Using mock response (Provider not available)")
+            return self._generate_mock_response(prompt, topic, subject, grade)
+
+        temp = temperature if temperature is not None else self.temperature
+
+        cached = self._get_cached_response(prompt_metadata, model_tier)
+        if cached:
+            return cached
+
+        return self._call_provider_with_cache(prompt, config, temp)
             
     def _sanitize_input(self, text: Optional[str]) -> Optional[str]:
         """
