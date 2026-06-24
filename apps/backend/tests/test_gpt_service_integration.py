@@ -352,6 +352,74 @@ class TestApiCallConfigM276:
         assert len(result) > 0
 
 
+class TestMakeApiCallHelpersM294:
+    """Extracted helpers from _make_api_call: _get_cached_response and
+    _call_provider_with_cache (AWD-M-294)."""
+
+    @patch("packages.ai.gpt_service.OpenAIProvider")
+    @patch("packages.ai.gpt_service.ContentCache")
+    def test_get_cached_response_returns_none_when_no_metadata(self, MockCache, MockProvider):
+        """_get_cached_response short-circuits to None when prompt_metadata is absent."""
+        svc = AwadeGPTService(api_key="test", provider_type="openai")
+        result = svc._get_cached_response(prompt_metadata=None, model_tier="standard")
+        assert result is None
+        MockCache.return_value.get.assert_not_called()
+
+    @patch("packages.ai.gpt_service.OpenAIProvider")
+    @patch("packages.ai.gpt_service.ContentCache")
+    def test_get_cached_response_returns_cached_content(self, MockCache, MockProvider):
+        """_get_cached_response returns content from cache on a hit."""
+        MockCache.return_value.get.return_value = "cached content"
+        svc = AwadeGPTService(api_key="test", provider_type="openai")
+        result = svc._get_cached_response(
+            prompt_metadata={"type": "lesson"}, model_tier="basic"
+        )
+        assert result == "cached content"
+        called_kwargs = MockCache.return_value.get.call_args.kwargs
+        assert called_kwargs["prompt_data"]["model_tier"] == "basic"
+
+    @patch("packages.ai.gpt_service.OpenAIProvider")
+    @patch("packages.ai.gpt_service.ContentCache")
+    def test_call_provider_with_cache_stores_result(self, MockCache, MockProvider):
+        """_call_provider_with_cache writes to cache when prompt_metadata is set."""
+        MockCache.return_value.get.return_value = None
+        MockProvider.return_value.generate_content.return_value = "provider content"
+        svc = AwadeGPTService(api_key="test", provider_type="openai")
+        config = _ApiCallConfig(
+            topic="Algebra",
+            subject="Mathematics",
+            grade="Grade 9",
+            model_tier="standard",
+            prompt_metadata={"type": "lesson"},
+            response_format="text",
+        )
+        result = svc._call_provider_with_cache(prompt="test", config=config, temp=0.7)
+        assert result == "provider content"
+        MockCache.return_value.set.assert_called_once()
+        set_kwargs = MockCache.return_value.set.call_args.kwargs
+        assert set_kwargs["prompt_data"]["model_tier"] == "standard"
+
+    @patch("packages.ai.gpt_service.OpenAIProvider")
+    @patch("packages.ai.gpt_service.ContentCache")
+    def test_call_provider_with_cache_falls_back_on_exception(self, MockCache, MockProvider):
+        """_call_provider_with_cache returns a mock string when the provider raises."""
+        MockCache.return_value.get.return_value = None
+        MockProvider.return_value.generate_content.side_effect = RuntimeError("timeout")
+        svc = AwadeGPTService(api_key="test", provider_type="openai")
+        config = _ApiCallConfig(
+            topic="Photosynthesis",
+            subject="Biology",
+            grade="Grade 10",
+            model_tier="basic",
+            prompt_metadata=None,
+            response_format="text",
+        )
+        result = svc._call_provider_with_cache(prompt="test", config=config, temp=0.7)
+        assert isinstance(result, str)
+        assert len(result) > 0
+        MockCache.return_value.set.assert_not_called()
+
+
 class TestLoggingRootHandlerNotPollutedM277:
     """Importing gpt_service must not install handlers on the root logger (AWD-M-277)."""
 
