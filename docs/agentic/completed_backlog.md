@@ -2354,3 +2354,5 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | M-197 | Security / OWASP A09 | Set `request.state.user_id` in `get_current_user` so AuditMiddleware correctly attributes authenticated requests | 3a9ab58 | 2026-06-24 |
 | M-300 | Security / DepSec | DepSec: bump `python-multipart` 0.0.27→0.0.31 — CVE-2026-53540, CVE-2026-53539, CVE-2026-53538 | bb43424 | 2026-06-24 |
 | M-301 | Security / DepSec | DepSec: bump `cryptography` 48.0.0→48.0.1 — GHSA-537c-gmf6-5ccf | bb43424 | 2026-06-24 |
+| M-201 | Security / OWASP A05 | Add CSP and security headers (X-Content-Type-Options, X-Frame-Options, HSTS, Referrer-Policy, Permissions-Policy, CSP) to `apps/frontend/vercel.json` | 74ba274 | 2026-06-24 |
+| M-303 | Security / CSP | Remove deprecated `X-XSS-Protection: 1; mode=block` header from `apps/frontend/vercel.json` | fbd21d2 | 2026-06-24 |

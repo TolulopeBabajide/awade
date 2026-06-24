@@ -893,3 +893,5 @@ After removing it, the next hourly run will:
 2026-06-24T08:20:00Z | M-197 | Set request.state.user_id in get_current_user for AuditMiddleware attribution (OWASP A09) | 3a9ab58 (merge c5628df) | ✅ Done (reviewers clean) | CI:pending (push deferred — sandbox permission)
 2026-06-24T11:20:00Z | M-300 | DepSec: bump python-multipart 0.0.27→0.0.31 (CVE-2026-53540/53539/53538) | bb43424 (merge cfbfe9b) | ✅ Done (reviewers clean) | CI:pending
 2026-06-24T11:20:00Z | M-301 | DepSec: bump cryptography 48.0.0→48.0.1 (GHSA-537c-gmf6-5ccf) | bb43424 (merge cfbfe9b) | ✅ Done (reviewers clean) | CI:pending
+2026-06-24T15:09:00Z | M-201 | Add CSP and security headers to vercel.json | 74ba274 (merge adff798) | ✅ Done (reviewers clean) | CI:pending
+2026-06-24T15:09:00Z | M-303 | Remove deprecated X-XSS-Protection header from vercel.json | fbd21d2 (merge adff798) | ✅ Done (reviewers clean) | CI:pending
