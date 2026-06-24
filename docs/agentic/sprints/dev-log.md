@@ -888,3 +888,5 @@ After removing it, the next hourly run will:
 2026-06-24T00:18:00Z | L-80 | Merge duplicate if/elif glob branches in check-permissions.sh | d0a734d | ✅ Done (reviewers clean) | CI:pending
 2026-06-24T05:00:00Z | — | No stage=ready item in backlog — skipped (all open items at define/discover stage) | — | ⏭ No-op run | CI:n/a
 2026-06-24T03:16:00Z | M-294 | Extract _get_cached_response and _call_provider_with_cache from _make_api_call in gpt_service.py | d4f0028 (merge ea4703a) | ✅ Done (reviewers clean) | CI:pending
+2026-06-24T05:20:00Z | M-299 | Extract `_build_cache_metadata` @staticmethod in gpt_service.py | f9b4351 | ✅ Done (reviewers clean) | CI:pending (push deferred — sandbox permission)
+2026-06-24T05:20:00Z | L-83 | Add exception-with-metadata test for `_call_provider_with_cache` | f9b4351 | ✅ Done (reviewers clean) | CI:pending (push deferred — sandbox permission)

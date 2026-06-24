@@ -2349,3 +2349,5 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | M-297 | Complexity / Testing | Extract `_seed_n_plus_one_scenario` helper from N+1 test in test_users_data_export.py | c7ab17a | 2026-06-23 |
 | L-80 | Code / Hygiene | Merge duplicate if/elif glob branches in check-permissions.sh | d0a734d | 2026-06-24 |
 | M-294 | Complexity / Architecture | Extract `_get_cached_response` + `_call_provider_with_cache` from `_make_api_call` in gpt_service.py | d4f0028 | 2026-06-24 |
+| M-299 | Duplication / Architecture | Extract `_build_cache_metadata` @staticmethod to DRY up `_get_cached_response` + `_call_provider_with_cache` | f9b4351 | 2026-06-24 |
+| L-83 | Testing / Code Quality | Add exception-with-valid-metadata test variant for `_call_provider_with_cache` | f9b4351 | 2026-06-24 |
