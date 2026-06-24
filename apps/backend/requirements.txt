@@ -11,7 +11,7 @@ python-dotenv==1.2.2  # Fix CVE-2026-28684 (symlink following in set_key) (AWD-M
 openai==1.109.1  # Upgraded from 1.12.0 — latest 1.x, stays below 2.x (breaking API changes); security patches (AWD-M-39)
 
 # Security fixes for vulnerable packages
-python-multipart==0.0.27  # Fix CVE-2024-53981, PVE-2024-99762, CVE-2026-24486, CVE-2026-40347 (AWD-H-76)
+python-multipart==0.0.31  # Fix CVE-2024-53981, PVE-2024-99762, CVE-2026-24486, CVE-2026-40347 (AWD-H-76); Fix CVE-2026-53540 (Content-Length DoS), CVE-2026-53539 (O(B²) parse DoS), CVE-2026-53538 (form-field smuggling) (AWD-M-300)
 jinja2==3.1.6  # Fix CVE-2025-27516, CVE-2024-34064, CVE-2024-56326, CVE-2024-56201, CVE-2024-22195
 bcrypt==4.3.0  # Upgraded from 4.0.0 — fix CVE-2024-52400 (DoS via large password in auth path) (AWD-M-62)
 weasyprint==68.0  # Upgraded from 62.3 — fix CVE-2025-68616 (SSRF via HTTP redirect to internal endpoints, CVSS:3.1/AV:N/AC:L/PR:N/UI:N/C:H); core API (HTML/CSS/write_pdf) unchanged (AWD-C-14)
@@ -24,7 +24,7 @@ alembic==1.13.3
 
 # Additional security dependencies
 starlette==1.3.1  # Upgraded from 0.49.3: fixes PYSEC-2026-161 (Host header URL injection via unvalidated Host header; fixed at 1.0.1). Also covers CVE-2025-54121 and CVE-2025-62727 from AWD-H-96. (AWD-H-126)
-cryptography==48.0.0  # Fix CVE-2024-12797, CVE-2026-26007, CVE-2026-34073 (AWD-M-113); Fix PYSEC-2026-36 (non-contiguous buffer overflow, affects 45.0.0-46.0.6, fixed at 46.0.7, bumped to 48.0.0) (AWD-H-95)
+cryptography==48.0.1  # Fix CVE-2024-12797, CVE-2026-26007, CVE-2026-34073 (AWD-M-113); Fix PYSEC-2026-36 (non-contiguous buffer overflow, affects 45.0.0-46.0.6, fixed at 46.0.7, bumped to 48.0.0) (AWD-H-95); Fix GHSA-537c-gmf6-5ccf (statically-linked OpenSSL advisory 2026-06-09) (AWD-M-301)
 setuptools==78.1.1  # Fix CVE-2025-47273, CVE-2024-6345
 
 # Testing dependencies
