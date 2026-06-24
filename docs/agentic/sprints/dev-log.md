@@ -886,3 +886,4 @@ After removing it, the next hourly run will:
 2026-06-23T19:15:00Z | M-298 | Fix CI secrets grep exclusion — path-based not line-content-based | d3e3646 | ✅ Done (reviewers clean) | CI:pending
 2026-06-23T22:00:00Z | M-297 | Extract _seed_n_plus_one_scenario helper from N+1 test in test_users_data_export.py | c7ab17a | ✅ Done (reviewers clean) | CI:pending
 2026-06-24T00:18:00Z | L-80 | Merge duplicate if/elif glob branches in check-permissions.sh | d0a734d | ✅ Done (reviewers clean) | CI:pending
+2026-06-24T05:00:00Z | — | No stage=ready item in backlog — skipped (all open items at define/discover stage) | — | ⏭ No-op run | CI:n/a
