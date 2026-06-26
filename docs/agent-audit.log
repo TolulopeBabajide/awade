@@ -418,3 +418,6 @@
 2026-06-24T13:32:43Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-24-fbd21d2.md | completed structural code review — AWD-M-201+M-303 branch fbd21d2 — verdict ✅ Clean
 2026-06-26T09:58:34Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
 2026-06-26T10:02:56Z | tech-debt-agent | WRITE | docs/tech-debt/ | completed tech debt audit
+2026-06-26T10:16:58Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-06-26T10:18:08Z | support-agent | WRITE | docs/agentic/support/ | support digest
+2026-06-26T10:19:48Z | seo-agent | WRITE | docs/agentic/seo/ | weekly SEO report
