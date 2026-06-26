@@ -895,3 +895,4 @@ After removing it, the next hourly run will:
 2026-06-24T11:20:00Z | M-301 | DepSec: bump cryptography 48.0.0→48.0.1 (GHSA-537c-gmf6-5ccf) | bb43424 (merge cfbfe9b) | ✅ Done (reviewers clean) | CI:pending
 2026-06-24T15:09:00Z | M-201 | Add CSP and security headers to vercel.json | 74ba274 (merge adff798) | ✅ Done (reviewers clean) | CI:pending
 2026-06-24T15:09:00Z | M-303 | Remove deprecated X-XSS-Protection header from vercel.json | fbd21d2 (merge adff798) | ✅ Done (reviewers clean) | CI:pending
+2026-06-26T11:00:00Z | M-304 | Tighten CSP img-src — remove https: wildcard from vercel.json | f258333 | ✅ Done (reviewers clean) | CI:pending
