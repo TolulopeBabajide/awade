@@ -44,6 +44,7 @@ import pytest
 from unittest.mock import MagicMock, patch
 from fastapi import HTTPException
 
+from apps.backend.limiter import limiter as rate_limiter
 from apps.backend.routers.curriculum import (
     update_curriculum,
     delete_curriculum,
@@ -314,12 +315,13 @@ class TestGetTopicM253:
         mock_db = MagicMock()
         mock_user = MagicMock()
 
-        with patch(
+        with patch.object(rate_limiter, "enabled", False), patch(
             "apps.backend.routers.curriculum.CurriculumService"
         ) as MockService:
             MockService.return_value.get_topic.return_value = None
             with pytest.raises(HTTPException) as exc_info:
                 get_topic(
+                    request=MagicMock(),
                     topic_id=999,
                     current_user=mock_user,
                     db=mock_db,
@@ -333,11 +335,12 @@ class TestGetTopicM253:
         mock_user = MagicMock()
         fake_topic = MagicMock()
 
-        with patch(
+        with patch.object(rate_limiter, "enabled", False), patch(
             "apps.backend.routers.curriculum.CurriculumService"
         ) as MockService:
             MockService.return_value.get_topic.return_value = fake_topic
             result = get_topic(
+                request=MagicMock(),
                 topic_id=1,
                 current_user=mock_user,
                 db=mock_db,
@@ -353,12 +356,13 @@ class TestGetCurriculumM253:
         mock_db = MagicMock()
         mock_user = MagicMock()
 
-        with patch(
+        with patch.object(rate_limiter, "enabled", False), patch(
             "apps.backend.routers.curriculum.CurriculumService"
         ) as MockService:
             MockService.return_value.get_curriculum.return_value = None
             with pytest.raises(HTTPException) as exc_info:
                 get_curriculum(
+                    request=MagicMock(),
                     curriculum_id=999,
                     current_user=mock_user,
                     db=mock_db,
@@ -372,11 +376,12 @@ class TestGetCurriculumM253:
         mock_user = MagicMock()
         fake_curriculum = MagicMock()
 
-        with patch(
+        with patch.object(rate_limiter, "enabled", False), patch(
             "apps.backend.routers.curriculum.CurriculumService"
         ) as MockService:
             MockService.return_value.get_curriculum.return_value = fake_curriculum
             result = get_curriculum(
+                request=MagicMock(),
                 curriculum_id=1,
                 current_user=mock_user,
                 db=mock_db,

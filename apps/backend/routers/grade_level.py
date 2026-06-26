@@ -14,12 +14,13 @@ Endpoints:
 Author: Tolulope Babajide
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from apps.backend.database import get_db
 from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator
+from apps.backend.limiter import limiter
 from apps.backend.services.grade_level_service import GradeLevelService
 from apps.backend.schemas.grade_level import GradeLevelCreate, GradeLevelResponse, GradeLevelUpdate
 from apps.backend.models import User
@@ -27,7 +28,9 @@ from apps.backend.models import User
 router = APIRouter(prefix="/api/grade-levels", tags=["grade-levels"])
 
 @router.get("/", response_model=List[GradeLevelResponse])
+@limiter.limit("60/minute")
 def list_grade_levels(
+    request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     current_user: User = Depends(get_current_user),
@@ -42,7 +45,7 @@ def list_grade_levels(
 
 @router.post("/", response_model=GradeLevelResponse)
 def create_grade_level(
-    grade_level: GradeLevelCreate, 
+    grade_level: GradeLevelCreate,
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
@@ -53,8 +56,61 @@ def create_grade_level(
     service = GradeLevelService(db)
     return service.create_grade_level(grade_level)
 
+@router.get("/search", response_model=List[GradeLevelResponse])
+@limiter.limit("60/minute")
+def search_grade_levels(
+    request: Request,
+    q: str = Query(..., description="Search term"),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Search grade levels by name.
+    Requires authentication.
+    """
+    service = GradeLevelService(db)
+    return service.search_grade_levels(q, skip, limit)
+
+@router.get("/curriculum/{curriculum_id}", response_model=List[GradeLevelResponse])
+@limiter.limit("60/minute")
+def get_grade_levels_by_curriculum(
+    request: Request,
+    curriculum_id: int,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get grade levels by curriculum.
+    Requires authentication.
+    """
+    service = GradeLevelService(db)
+    return service.get_grade_levels_by_curriculum(curriculum_id, skip, limit)
+
+@router.get("/subject/{subject_id}", response_model=List[GradeLevelResponse])
+@limiter.limit("60/minute")
+def get_grade_levels_by_subject(
+    request: Request,
+    subject_id: int,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get grade levels by subject.
+    Requires authentication.
+    """
+    service = GradeLevelService(db)
+    return service.get_grade_levels_by_subject(subject_id, skip, limit)
+
 @router.get("/{grade_level_id}", response_model=GradeLevelResponse)
+@limiter.limit("60/minute")
 def get_grade_level(
+    request: Request,
     grade_level_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -92,48 +148,3 @@ def delete_grade_level(
     """
     service = GradeLevelService(db)
     return service.delete_grade_level(grade_level_id)
-
-@router.get("/search", response_model=List[GradeLevelResponse])
-def search_grade_levels(
-    q: str = Query(..., description="Search term"),
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    Search grade levels by name.
-    Requires authentication.
-    """
-    service = GradeLevelService(db)
-    return service.search_grade_levels(q, skip, limit)
-
-@router.get("/curriculum/{curriculum_id}", response_model=List[GradeLevelResponse])
-def get_grade_levels_by_curriculum(
-    curriculum_id: int,
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    Get grade levels by curriculum.
-    Requires authentication.
-    """
-    service = GradeLevelService(db)
-    return service.get_grade_levels_by_curriculum(curriculum_id, skip, limit)
-
-@router.get("/subject/{subject_id}", response_model=List[GradeLevelResponse])
-def get_grade_levels_by_subject(
-    subject_id: int,
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    Get grade levels by subject.
-    Requires authentication.
-    """
-    service = GradeLevelService(db)
-    return service.get_grade_levels_by_subject(subject_id, skip, limit) 

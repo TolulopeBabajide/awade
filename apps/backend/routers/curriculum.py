@@ -12,12 +12,13 @@ Endpoints:
 Author: Tolulope Babajide
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from apps.backend.database import get_db
 from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator
+from apps.backend.limiter import limiter
 from apps.backend.services.curriculum_service import CurriculumService
 from apps.backend.services.learning_objective_service import LearningObjectiveService
 from apps.backend.services.topic_content_service import TopicContentService
@@ -45,7 +46,9 @@ def create_curriculum(
     return service.create_curriculum(curriculum_data)
 
 @router.get("/", response_model=List[CurriculumResponse])
+@limiter.limit("60/minute")
 def get_curriculums(
+    request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     country_id: Optional[int] = None,
@@ -107,7 +110,9 @@ def create_topic(
     return service.create_topic(topic_data)
 
 @router.get("/topics", response_model=List[TopicResponse])
+@limiter.limit("60/minute")
 def get_topics(
+    request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     curriculum_structure_id: Optional[int] = None,
@@ -122,7 +127,9 @@ def get_topics(
     return service.get_topics(skip=skip, limit=limit, curriculum_structure_id=curriculum_structure_id)
 
 @router.get("/topics/{topic_id}", response_model=TopicResponse)
+@limiter.limit("60/minute")
 def get_topic(
+    request: Request,
     topic_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -185,7 +192,9 @@ def create_learning_objective(
     return service.create_learning_objective(objective_data)
 
 @router.get("/topics/{topic_id}/learning-objectives", response_model=List[LearningObjectiveResponse])
+@limiter.limit("60/minute")
 def get_learning_objectives(
+    request: Request,
     topic_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -245,7 +254,9 @@ def create_content(
     return service.create_content(content_data)
 
 @router.get("/topics/{topic_id}/contents", response_model=List[ContentResponse])
+@limiter.limit("60/minute")
 def get_contents(
+    request: Request,
     topic_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -291,7 +302,9 @@ def delete_content(
     return {"message": "Content deleted successfully"}
 
 @router.get("/{curriculum_id}", response_model=CurriculumResponse)
+@limiter.limit("60/minute")
 def get_curriculum(
+    request: Request,
     curriculum_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
