@@ -898,3 +898,5 @@ After removing it, the next hourly run will:
 2026-06-24T15:09:00Z | M-303 | Remove deprecated X-XSS-Protection header from vercel.json | fbd21d2 (merge adff798) | ✅ Done (reviewers clean) | CI:pending
 2026-06-26T11:00:00Z | M-304 | Tighten CSP img-src — remove https: wildcard from vercel.json | f258333 | ✅ Done (reviewers clean) | CI:pending
 2026-06-26T12:20:00Z | M-200 | Rate-limit 17 GET endpoints in curriculum, curriculum_structure, grade_level, subject routers at 60/min | 1e1cf13 (merge develop) | ✅ Done (code-review ✅ QA ✅ security ✅) | CI:pending
+2026-06-26T14:20:00Z | M-202 | Upgrade @sentry/react ^8.0.0 → ^10.62.0 (DepSec: 2 major versions behind) | 447b10d (merge bf6b128) | ✅ Done (code-review ✅ QA ✅ security ✅) | CI:pending
+2026-06-26T14:20:00Z | M-196 | OWASP LLM09 AI-disclosure audit — both views already compliant, no code change needed | — | ✅ Done (audit only) | CI:n/a
