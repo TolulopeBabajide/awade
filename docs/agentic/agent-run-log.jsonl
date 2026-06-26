@@ -636,3 +636,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-06-26T10:18:08Z | awade-support-digest | done | 0 messages; Slack/Intercom checked, intake-channel gap now launch-blocking
 2026-06-26T10:19:48Z | awade-seo-weekly | done | degraded run (no GSC/analytics MCP, Mixpanel scope-blocked 16d); on-page healthy no regressions; M-212/M-269 carried forward, no new rows filed
 2026-06-26T18:37:59Z | awade-analytics-daily | done | Friday weekly report — degraded (Mixpanel MCP down 17+ consecutive days); weekly-2026-06-26.md already written; daily log entry present; morning brief has analytics alert; launch month ends in 4 days
+2026-06-26T19:10:58Z | awade-friday-finance | done | snapshot-2026-06-26 written; MRR $0 pre-revenue; balance.md missing 66d, openai-costs.md absent (June closes 06-30, would be 3rd lost period); fleet STALLED dev-agent CRITICAL since 06-24 blocks M-78/Stripe; analytics dark 17d; launch month ends in 4d
