@@ -11,13 +11,7 @@ export default defineConfig({
     clearMocks: true,
     css: true,
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        minForks: 1,
-        maxForks: 5,
-        singleFork: false,
-      },
-    },
+    maxWorkers: 5,
     isolate: true,
     testTimeout: 15000,
     coverage: {

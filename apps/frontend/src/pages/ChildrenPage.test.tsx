@@ -48,7 +48,7 @@ import { useAuth } from '../contexts/AuthContext'
 import type { ChildProfile } from '../types/children'
 
 const mockApiService = vi.mocked(apiService)
-const mockUseAuth = useAuth as ReturnType<typeof vi.fn>
+const mockUseAuth = vi.mocked(useAuth)
 
 /** Build a fresh QueryClient for each test to avoid cache bleed-through. */
 function makeQueryClient() {
