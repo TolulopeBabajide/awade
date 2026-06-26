@@ -363,3 +363,6 @@ PUSH_DEFERRED: 2026-06-22T09:12:48Z — develop — refactor(ai): AWD-M-276 grou
 PUSH_DEFERRED: 2026-06-24T14:30:24Z — develop push denied (permission). AWD-M-201 AWD-M-303 merged, records updated. Tolu: run git push origin develop to trigger CI.
 2026-06-24T15:09:49Z | PULL_FAILED | develop
 2026-06-26T09:53:00Z | PULL_FAILED | develop
+2026-06-26T10:06:03Z | PULL_FAILED | develop
+2026-06-26T11:08:01Z | PULL_REBASE_FAILED | develop
+2026-06-26T11:24:09Z | PULL_REBASE_FAILED | develop
