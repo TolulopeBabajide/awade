@@ -2360,3 +2360,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | M-200 | Security / OWASP A01 | Added `@limiter.limit("60/minute")` to 17 GET endpoints in curriculum.py, curriculum_structure.py, grade_level.py, subject.py; 34 new tests | 1e1cf13 | 2026-06-26 |
 | M-202 | DepSec / Staleness | Upgrade `@sentry/react` `^8.0.0` → `^10.62.0`; all APIs preserved, 0 audit vulns | 447b10d | 2026-06-26 |
 | M-196 | Security / UX | OWASP LLM09: AI-generated disclosure audit — GuideViewPage.tsx (line 256) and EditLessonResourcePage.tsx (line 602) both already had disclosure banners; no code change needed | — | 2026-06-26 |
+| L-55 | DepSec / DevDep | Upgrade `vitest` ^3.2.4 → ^4.1.9 (+ @vitest/coverage-v8 + @vitest/ui); config migrated to v4 API (`maxWorkers: 5`); patches GHSA-5xrq-8626-4rwp CVSS 9.8 | e5b99b0 | 2026-06-26 |
