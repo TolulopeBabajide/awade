@@ -2357,3 +2357,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | M-201 | Security / OWASP A05 | Add CSP and security headers (X-Content-Type-Options, X-Frame-Options, HSTS, Referrer-Policy, Permissions-Policy, CSP) to `apps/frontend/vercel.json` | 74ba274 | 2026-06-24 |
 | M-303 | Security / CSP | Remove deprecated `X-XSS-Protection: 1; mode=block` header from `apps/frontend/vercel.json` | fbd21d2 | 2026-06-24 |
 | M-304 | Security / CSP | Removed broad `https:` wildcard from CSP `img-src` in `apps/frontend/vercel.json` — now `img-src 'self' data:` | f258333 | 2026-06-26 |
+| M-200 | Security / OWASP A01 | Added `@limiter.limit("60/minute")` to 17 GET endpoints in curriculum.py, curriculum_structure.py, grade_level.py, subject.py; 34 new tests | 1e1cf13 | 2026-06-26 |
