@@ -10108,3 +10108,14 @@ Changed files: apps/frontend/vercel.json
 Issues found: None
 Backlog items filed: None
 Verdict: **Ship** ✅
+
+## QA — 2026-06-26T10:59:00Z — AWD-M-304
+Branch: fix/security/AWD-M-304-tighten-img-src-csp
+Result: ✅ PASS
+| TypeScript | ✅ 0 errors |
+| Lint       | ✅ 0 errors |
+| Tests      | ✅ | 292 frontend passing, 850 backend passing, 2 skipped |
+| Spot-check | ✅ No secrets, console.logs, ts-ignore, TODO comments |
+Issues found: None
+Backlog items filed: None
+Notes: Config-only change — removes overly permissive `https:` wildcard from CSP `img-src`. All images in the app are same-origin (/assets/*). Blob URLs are used for PDF downloads (anchor, not img src). No external OAuth profile images rendered. Safe to merge.
