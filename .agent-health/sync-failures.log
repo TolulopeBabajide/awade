@@ -366,3 +366,6 @@ PUSH_DEFERRED: 2026-06-24T14:30:24Z — develop push denied (permission). AWD-M-
 2026-06-26T10:06:03Z | PULL_FAILED | develop
 2026-06-26T11:08:01Z | PULL_REBASE_FAILED | develop
 2026-06-26T11:24:09Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 1782473095 — 744739a (chore(sync): commit pending agent outputs) could not be pushed — permission denied
+2026-06-26T12:08:01Z | PULL_FAILED | develop
+2026-06-26T13:08:05Z | PULL_REBASE_FAILED | develop

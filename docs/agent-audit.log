@@ -421,3 +421,4 @@
 2026-06-26T10:16:58Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
 2026-06-26T10:18:08Z | support-agent | WRITE | docs/agentic/support/ | support digest
 2026-06-26T10:19:48Z | seo-agent | WRITE | docs/agentic/seo/ | weekly SEO report
+2026-06-26T13:17:24Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-26-447b10d.md | completed structural code review — AWD-M-202 sentry v10 upgrade

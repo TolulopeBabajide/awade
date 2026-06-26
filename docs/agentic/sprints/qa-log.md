@@ -10119,3 +10119,18 @@ Result: ✅ PASS
 Issues found: None
 Backlog items filed: None
 Notes: Config-only change — removes overly permissive `https:` wildcard from CSP `img-src`. All images in the app are same-origin (/assets/*). Blob URLs are used for PDF downloads (anchor, not img src). No external OAuth profile images rendered. Safe to merge.
+
+## QA — 2026-06-26T14:18:30Z — AWD-M-202
+Branch: fix/deps/AWD-M-202-sentry-v10
+Result: ✅ PASS
+| TypeScript | ✅ 0 errors |
+| Lint       | ✅ 0 errors, 0 warnings |
+| Frontend tests | ✅ | 292 passed (27 test files), 0 failed |
+| Backend tests  | ✅ | 884 passed, 2 skipped, 0 failed |
+| Spot-check | ✅ No secrets, console.log, ts-ignore, or TODO comments in changed files |
+| Contracts  | ✅ openapi.json ✅ · mcp.json ✅ |
+
+Issues found: None
+Backlog items filed: None
+Notes: Pure dependency upgrade — @sentry/react ^8.0.0 → ^10.62.0. No application code changed. All three APIs used by main.tsx (init, browserTracingIntegration, replayIntegration) verified present in v10. Package-lock updated, net -2 packages (4 added, 6 removed). Zero test regressions.
+Verdict: **Ship** ✅
