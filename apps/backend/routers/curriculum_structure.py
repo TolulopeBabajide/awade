@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import literal, select, union_all
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from apps.backend.database import get_db
 from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator
+from apps.backend.limiter import limiter
 from apps.backend.models import CurriculumStructure, Curriculum, GradeLevel, Subject, User
 from apps.backend.schemas.curriculum_structure import CurriculumStructureCreate, CurriculumStructureResponse
 
@@ -49,7 +50,9 @@ def _validate_fk_targets(
         raise HTTPException(status_code=404, detail="Subject not found")
 
 @router.get("/", response_model=List[CurriculumStructureResponse])
+@limiter.limit("60/minute")
 def list_curriculum_structures(
+    request: Request,
     curricula_id: Optional[int] = None,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -97,7 +100,9 @@ def create_curriculum_structure(
     return db_structure
 
 @router.get("/{structure_id}", response_model=CurriculumStructureResponse)
+@limiter.limit("60/minute")
 def get_curriculum_structure(
+    request: Request,
     structure_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
