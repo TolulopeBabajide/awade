@@ -10149,3 +10149,18 @@ Issues found: None
 Backlog items filed: None
 Notes: Pure devDependency bump (vitest 3.2.6 → 4.1.9). `poolOptions.forks` correctly migrated to top-level `maxWorkers: 5` per v4 migration guide. `vi.mocked(useAuth)` replaces the v3 force-cast (`useAuth as ReturnType<typeof vi.fn>`) — consistent with existing `vi.mocked(apiService)` pattern on the adjacent line. The two pre-existing "Not implemented: navigation" stderr lines are long-standing jsdom noise unrelated to this change. No deprecation warnings in v4 run output.
 Verdict: **Ship** ✅
+
+## QA — 2026-06-26T18:13:00Z — AWD-M-302
+Branch: fix/security/AWD-M-302-csp-remove-test-backend
+Result: ✅ PASS
+| TypeScript | ✅ | 0 errors |
+| Lint       | ✅ | 0 errors, 0 warnings |
+| Frontend tests | ✅ | 292 passed (27 test files), 0 failed |
+| Backend tests  | ⏭ | No backend files changed — skipped |
+| Spot-check | ✅ | No secrets, console.log, ts-ignore, or TODO comments in changed files |
+| Contracts  | ✅ | openapi.json ✅ · mcp.json ✅ |
+
+Issues found: None
+Backlog items filed: None
+Notes: Pure JSON config change — removed `https://awade-backend-test.onrender.com` and `wss://awade-backend-test.onrender.com` from CSP `connect-src` in `apps/frontend/vercel.json`. No application code changed. All 292 frontend tests pass. jsdom "Not implemented: navigation" stderr lines are pre-existing noise unrelated to this change.
+Verdict: **Ship** ✅
