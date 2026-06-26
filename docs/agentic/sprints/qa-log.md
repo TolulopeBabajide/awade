@@ -10134,3 +10134,18 @@ Issues found: None
 Backlog items filed: None
 Notes: Pure dependency upgrade — @sentry/react ^8.0.0 → ^10.62.0. No application code changed. All three APIs used by main.tsx (init, browserTracingIntegration, replayIntegration) verified present in v10. Package-lock updated, net -2 packages (4 added, 6 removed). Zero test regressions.
 Verdict: **Ship** ✅
+
+## QA — 2026-06-26T15:20:31Z — AWD-L-55
+Branch: fix/deps/AWD-L-55-vitest-v4
+Result: ✅ PASS
+| TypeScript | ✅ | 0 errors |
+| Lint       | ✅ | 0 errors, 0 warnings |
+| Frontend tests | ✅ | 292 passed (27 test files), 0 failed |
+| Backend tests  | ⏭ | No backend files changed — skipped |
+| Spot-check | ✅ | No secrets, console.log, ts-ignore, or TODO comments in changed files |
+| Contracts  | ✅ | openapi.json ✅ · mcp.json ✅ |
+
+Issues found: None
+Backlog items filed: None
+Notes: Pure devDependency bump (vitest 3.2.6 → 4.1.9). `poolOptions.forks` correctly migrated to top-level `maxWorkers: 5` per v4 migration guide. `vi.mocked(useAuth)` replaces the v3 force-cast (`useAuth as ReturnType<typeof vi.fn>`) — consistent with existing `vi.mocked(apiService)` pattern on the adjacent line. The two pre-existing "Not implemented: navigation" stderr lines are long-standing jsdom noise unrelated to this change. No deprecation warnings in v4 run output.
+Verdict: **Ship** ✅
