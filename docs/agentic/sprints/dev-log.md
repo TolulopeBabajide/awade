@@ -901,3 +901,4 @@ After removing it, the next hourly run will:
 2026-06-26T14:20:00Z | M-202 | Upgrade @sentry/react ^8.0.0 → ^10.62.0 (DepSec: 2 major versions behind) | 447b10d (merge bf6b128) | ✅ Done (code-review ✅ QA ✅ security ✅) | CI:pending
 2026-06-26T14:20:00Z | M-196 | OWASP LLM09 AI-disclosure audit — both views already compliant, no code change needed | — | ✅ Done (audit only) | CI:n/a
 2026-06-26T16:20:00Z | L-55 | DepSec: upgrade vitest ^3.2.4 → ^4.1.9 (GHSA-5xrq-8626-4rwp), config v4 migration | e5b99b0 (develop) | ✅ Done (code-review ✅ QA ✅ security ✅) | CI:pending
+2026-06-26T18:15:00Z | M-302 | Remove test backend URLs from production CSP connect-src | e58c9b2 (merge 4ce0cff) | ✅ Done (reviewers clean) | CI:pending — push deferred (sandbox)

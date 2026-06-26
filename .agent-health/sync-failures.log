@@ -369,3 +369,5 @@ PUSH_DEFERRED: 2026-06-24T14:30:24Z — develop push denied (permission). AWD-M-
 PUSH_DEFERRED 1782473095 — 744739a (chore(sync): commit pending agent outputs) could not be pushed — permission denied
 2026-06-26T12:08:01Z | PULL_FAILED | develop
 2026-06-26T13:08:05Z | PULL_REBASE_FAILED | develop
+2026-06-26T17:08:02Z | PULL_REBASE_FAILED | develop
+2026-06-26T17:14:39Z PUSH_DEFERRED — git push origin develop denied by sandbox (AWD-M-302 merge 4ce0cff)
