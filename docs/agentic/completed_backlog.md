@@ -2362,3 +2362,5 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | M-196 | Security / UX | OWASP LLM09: AI-generated disclosure audit — GuideViewPage.tsx (line 256) and EditLessonResourcePage.tsx (line 602) both already had disclosure banners; no code change needed | — | 2026-06-26 |
 | L-55 | DepSec / DevDep | Upgrade `vitest` ^3.2.4 → ^4.1.9 (+ @vitest/coverage-v8 + @vitest/ui); config migrated to v4 API (`maxWorkers: 5`); patches GHSA-5xrq-8626-4rwp CVSS 9.8 | e5b99b0 | 2026-06-26 |
 | M-302 | Security / CSP | Removed `https://awade-backend-test.onrender.com` and `wss://awade-backend-test.onrender.com` from production CSP `connect-src` in `apps/frontend/vercel.json` — least-privilege enforcement | e58c9b2 | 2026-06-26 |
+
+| H-125 | Testing / CI | vitest `onTaskUpdate` RPC timeout resolved as side effect of L-55 (vitest 3→4 upgrade, commit e5b99b0) — tinypool IPC regression eliminated; 27/27 files pass in 10s | e5b99b0 | 2026-06-27 |
