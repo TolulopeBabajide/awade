@@ -2364,3 +2364,5 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | M-302 | Security / CSP | Removed `https://awade-backend-test.onrender.com` and `wss://awade-backend-test.onrender.com` from production CSP `connect-src` in `apps/frontend/vercel.json` — least-privilege enforcement | e58c9b2 | 2026-06-26 |
 
 | H-125 | Testing / CI | vitest `onTaskUpdate` RPC timeout resolved as side effect of L-55 (vitest 3→4 upgrade, commit e5b99b0) — tinypool IPC regression eliminated; 27/27 files pass in 10s | e5b99b0 | 2026-06-27 |
+| H-133 | Security / OWASP A07 | Registration enumeration guard — replaced "Email already registered" with generic message; added TestRegistrationEnumerationProtection (2 tests) | 3bfaf11 | 2026-06-28 |
+| M-306 | Testing / Auth | Vacuous-pass guard — added `assert first.status_code == 200` before duplicate-email assertion in test_duplicate_email_returns_generic_error | db661f3 | 2026-06-28 |
