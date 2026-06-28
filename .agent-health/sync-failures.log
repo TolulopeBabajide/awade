@@ -375,3 +375,5 @@ PUSH_DEFERRED 1782473095 — 744739a (chore(sync): commit pending agent outputs)
 2026-06-27T16:42:16Z | PULL_REBASE_FAILED | develop
 2026-06-28T02:25:45Z | PULL_FAILED | develop
 2026-06-28T02:30:48Z PUSH_DEFERRED f136286 chore(heartbeat): dev-agent run complete — permission denied
+2026-06-28T03:08:08Z PUSH_DEFERRED 3c8c3da chore(sync): commit pending agent outputs — permission denied
+2026-06-28T03:13:03Z PUSH_DEFERRED 11ecece chore(heartbeat): dev-agent run complete — permission denied
