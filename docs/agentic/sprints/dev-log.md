@@ -913,3 +913,4 @@ After removing it, the next hourly run will:
 2026-06-27T17:40:00Z | H-125 | vitest onTaskUpdate timeout resolved as side effect of L-55 vitest 4 upgrade | e5b99b0 | ✅ Closed (audit only — no code change) | 27/27 frontend tests pass in 10.31s; 884 backend tests pass. All open items at discover/define or require Tolu decision.
 2026-06-28T03:12:45Z | — | No dev work this cycle | — | ⏸ No ready items | No stage=ready items in backlog. All open items at discover/define or require Tolu decision (H-73 key rotation, M-305 push credentials, M-254 curricula_title rename needs full-stack FE+BE scope). 884 backend tests · 292 frontend tests last known passing.
 2026-06-28T14:15:00Z | H-133 | Registration enumeration guard — generic duplicate-email message | 3bfaf11 | ✅ Done (reviewers clean) | CI:pending
+2026-06-28T16:15:00Z | M-307 | Registration timing oracle — hash before email check | 3db09c5 | ✅ Done (reviewers clean) | CI:running
