@@ -919,3 +919,5 @@ After removing it, the next hourly run will:
 2026-06-28T17:10:00Z | — | No ready items — skipped | — | ✅ No stage=ready item found (25 active items, all at define/discover) | CI:n/a
 
 2026-06-28T18:10:00Z | — | No ready items — skipped | — | ✅ No stage=ready item found | All active items at define/discover or require Tolu decision. M-254 (curricula_title rename) deferred — spec understates scope: 50+ occurrences across 6 FE components, 5 BE services, 4 test suites + Alembic migration. Code-review ✅ Clean (M-307 post-review).
+
+2026-06-28T22:09:49Z | — | No ready item | — | ✅ No work — no stage=ready items in backlog | CI:n/a
