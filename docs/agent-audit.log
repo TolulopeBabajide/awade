@@ -426,3 +426,5 @@
 2026-06-26T15:22:11Z | dev-agent | COMPLETE | AWD-L-55 vitest v4 upgrade merged to develop — records updated
 2026-06-26T16:12:07Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-26-e58c9b2.md | completed structural code review — AWD-M-302 in-loop
 2026-06-26T18:37:59Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-06-28T13:09:44Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-28T13:11:02Z | code-review-agent    | WRITE      | docs/agentic/backlog.md                  | filed M-306 test-robustness finding for AWD-H-133 review
