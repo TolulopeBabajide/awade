@@ -3,6 +3,7 @@ Tests for account enumeration protection on auth endpoints (AWD-M-129 split).
 
 Covers:
 - H-05: Login must not reveal whether an email is registered
+- H-133: Registration must not reveal whether an email is already registered
 - M-47: Refresh token must not reveal whether a user still exists
 """
 
@@ -65,6 +66,44 @@ class TestAccountEnumerationProtection:
         assert response.json()["detail"] == "Invalid email or password", (
             "Google OAuth account must not reveal its existence via a distinct error message"
         )
+
+
+# ---------------------------------------------------------------------------
+# H-133: Registration must not reveal whether an email is already registered
+# ---------------------------------------------------------------------------
+
+class TestRegistrationEnumerationProtection:
+    """Verify signup endpoint does not leak whether an email address is taken (AWD-H-133)."""
+
+    _VALID_PAYLOAD = {
+        "email": "existing@example.com",
+        "password": "ValidPass1!",
+        "full_name": "Test User",
+        "role": "PARENT",
+        "country": "NG",
+    }
+
+    def test_duplicate_email_returns_generic_error(self, client):
+        """Registering an already-used email must NOT return 'Email already registered'."""
+        # First registration succeeds
+        client.post("/api/auth/signup", json=self._VALID_PAYLOAD)
+
+        # Second attempt with same email
+        response = client.post("/api/auth/signup", json=self._VALID_PAYLOAD)
+        assert response.status_code == 400
+        detail = response.json().get("detail", "")
+        assert "already registered" not in detail.lower(), (
+            "Registration endpoint must not reveal whether the email is taken (AWD-H-133)"
+        )
+        assert "registration failed" in detail.lower(), (
+            f"Expected generic registration failure message, got: {detail!r}"
+        )
+
+    def test_unknown_email_registration_succeeds(self, client):
+        """A fresh email not in the DB should register successfully (sanity check)."""
+        payload = {**self._VALID_PAYLOAD, "email": "brand_new@example.com"}
+        response = client.post("/api/auth/signup", json=payload)
+        assert response.status_code == 200
 
 
 # ---------------------------------------------------------------------------

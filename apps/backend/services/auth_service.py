@@ -227,9 +227,13 @@ class AuthService:
                     detail=f"Password must be at least {PASSWORD_MIN_LENGTH} characters long"
                 )
 
-            # Check if user already exists
+            # Check if user already exists — return generic message to prevent
+            # account enumeration via distinct error responses (AWD-H-133)
             if self.db.query(User).filter(User.email == user_data.email).first():
-                raise HTTPException(status_code=400, detail="Email already registered")
+                raise HTTPException(
+                    status_code=400,
+                    detail="Registration failed — please check your details and try again"
+                )
 
             # Hash password — delegate to _hash_password() to avoid divergent bcrypt paths
             password_hash = self._hash_password(user_data.password)
