@@ -917,3 +917,5 @@ After removing it, the next hourly run will:
 2026-06-28T14:15:00Z | H-133 | Registration enumeration guard — generic duplicate-email message | 3bfaf11 | ✅ Done (reviewers clean) | CI:pending
 2026-06-28T16:15:00Z | M-307 | Registration timing oracle — hash before email check | 3db09c5 | ✅ Done (reviewers clean) | CI:running
 2026-06-28T17:10:00Z | — | No ready items — skipped | — | ✅ No stage=ready item found (25 active items, all at define/discover) | CI:n/a
+
+2026-06-28T18:10:00Z | — | No ready items — skipped | — | ✅ No stage=ready item found | All active items at define/discover or require Tolu decision. M-254 (curricula_title rename) deferred — spec understates scope: 50+ occurrences across 6 FE components, 5 BE services, 4 test suites + Alembic migration. Code-review ✅ Clean (M-307 post-review).
