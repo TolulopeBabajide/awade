@@ -10179,3 +10179,18 @@ Issues found: None
 Backlog items filed: None
 Notes: Pure backend change. auth_service.py line 233 replaces "Email already registered" with "Registration failed — please check your details and try again" — correct OWASP A07 account-enumeration mitigation. Two new tests added: test_duplicate_email_returns_generic_error (asserts first signup succeeds before checking duplicate error, resolves M-306) and test_unknown_email_registration_succeeds. No regressions detected.
 Verdict: **Ship** ✅
+
+## QA — 2026-06-28T16:10:00Z — AWD-M-307
+Branch: fix/security/AWD-M-307-registration-timing-oracle
+Result: ✅ PASS
+| TypeScript | ✅ | 0 errors |
+| Lint       | ✅ | 0 errors, 0 warnings |
+| Frontend tests | ⏭ | No frontend files changed — skipped |
+| Backend tests  | ✅ | 888 passed (2 skipped, pre-existing), 0 failed |
+| Spot-check | ✅ | No new secrets, console.log, ts-ignore, or new TODO comments in changed files (existing TODO at auth_service.py:440 is pre-existing AWD-H-68, not introduced by this change) |
+| Contracts  | ✅ | openapi.json ✅ · mcp.json ✅ |
+
+Issues found: None
+Backlog items filed: None
+Notes: Pure backend change — moved `_hash_password` call before email-existence check in `register_user`. Both changed files contain no secrets or suppression directives. Two new spy-based tests in `TestRegistrationTimingOracle` pass and correctly assert bcrypt always runs regardless of email state. 888 total backend tests pass cleanly.
+Verdict: **Ship** ✅
