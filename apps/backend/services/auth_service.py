@@ -227,16 +227,19 @@ class AuthService:
                     detail=f"Password must be at least {PASSWORD_MIN_LENGTH} characters long"
                 )
 
+            # Hash password before the email-existence check so bcrypt always runs.
+            # Without this, a taken email returns fast (no bcrypt) while a free email
+            # pays ~100-300 ms, leaking registration status via timing (AWD-M-307).
+            password_hash = self._hash_password(user_data.password)
+
             # Check if user already exists — return generic message to prevent
-            # account enumeration via distinct error responses (AWD-H-133)
+            # account enumeration via distinct error responses (AWD-H-133).
+            # The hash above has already run, so response time is uniform.
             if self.db.query(User).filter(User.email == user_data.email).first():
                 raise HTTPException(
                     status_code=400,
                     detail="Registration failed — please check your details and try again"
                 )
-
-            # Hash password — delegate to _hash_password() to avoid divergent bcrypt paths
-            password_hash = self._hash_password(user_data.password)
             
             # Whitelist only PARENT and EDUCATOR — coerce anything else (including
             # ADMIN / SUPER_ADMIN) to PARENT so clients cannot self-elevate at registration.

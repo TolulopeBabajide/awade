@@ -110,6 +110,80 @@ class TestRegistrationEnumerationProtection:
 
 
 # ---------------------------------------------------------------------------
+# M-307: Registration timing oracle — bcrypt must always run
+# ---------------------------------------------------------------------------
+
+class TestRegistrationTimingOracle:
+    """Verify that _hash_password is always called in register_user, regardless of
+    whether the email is already taken (AWD-M-307).
+
+    Without this fix, a taken email exits before bcrypt (~fast), while a free email
+    runs bcrypt (~100-300ms), leaking registration status via response latency.
+    """
+
+    _VALID_PAYLOAD = {
+        "email": "timing_oracle_test@example.com",
+        "password": "ValidPass1!",
+        "full_name": "Timing Test",
+        "role": "PARENT",
+        "country": "NG",
+    }
+
+    def test_hash_called_when_email_is_free(self, client):
+        """_hash_password must be called for a fresh email so bcrypt runs on the happy path."""
+        from unittest.mock import patch, MagicMock
+        from apps.backend.services import auth_service as auth_mod
+
+        call_log = []
+
+        original_hash = auth_mod.AuthService._hash_password
+
+        def spy_hash(self, password):
+            call_log.append(password)
+            return original_hash(self, password)
+
+        with patch.object(auth_mod.AuthService, "_hash_password", spy_hash):
+            response = client.post("/api/auth/signup", json={
+                **self._VALID_PAYLOAD,
+                "email": "timing_free@example.com",
+            })
+
+        assert response.status_code == 200
+        assert len(call_log) == 1, (
+            "_hash_password must be called exactly once for a free email"
+        )
+
+    def test_hash_called_when_email_is_taken(self, client):
+        """_hash_password must also be called when the email is already registered,
+        so response time is indistinguishable from the success path (AWD-M-307)."""
+        from unittest.mock import patch
+        from apps.backend.services import auth_service as auth_mod
+
+        # Register the email first
+        taken_payload = {**self._VALID_PAYLOAD, "email": "timing_taken@example.com"}
+        first = client.post("/api/auth/signup", json=taken_payload)
+        assert first.status_code == 200, (
+            f"Initial registration unexpectedly failed: {first.json()}"
+        )
+
+        call_log = []
+        original_hash = auth_mod.AuthService._hash_password
+
+        def spy_hash(self, password):
+            call_log.append(password)
+            return original_hash(self, password)
+
+        with patch.object(auth_mod.AuthService, "_hash_password", spy_hash):
+            response = client.post("/api/auth/signup", json=taken_payload)
+
+        assert response.status_code == 400
+        assert len(call_log) == 1, (
+            "_hash_password must be called even when the email is already taken "
+            "— skipping it leaks registration status via timing (AWD-M-307)"
+        )
+
+
+# ---------------------------------------------------------------------------
 # M-47: Token refresh must not leak "User not found" (account enumeration)
 # ---------------------------------------------------------------------------
 
