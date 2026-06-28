@@ -85,8 +85,11 @@ class TestRegistrationEnumerationProtection:
 
     def test_duplicate_email_returns_generic_error(self, client):
         """Registering an already-used email must NOT return 'Email already registered'."""
-        # First registration succeeds
-        client.post("/api/auth/signup", json=self._VALID_PAYLOAD)
+        # First registration must succeed — if it fails the duplicate-email branch is never reached
+        first = client.post("/api/auth/signup", json=self._VALID_PAYLOAD)
+        assert first.status_code == 200, (
+            f"Initial registration unexpectedly failed: {first.json()}"
+        )
 
         # Second attempt with same email
         response = client.post("/api/auth/signup", json=self._VALID_PAYLOAD)
