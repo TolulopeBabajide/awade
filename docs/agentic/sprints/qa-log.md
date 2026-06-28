@@ -10164,3 +10164,18 @@ Issues found: None
 Backlog items filed: None
 Notes: Pure JSON config change — removed `https://awade-backend-test.onrender.com` and `wss://awade-backend-test.onrender.com` from CSP `connect-src` in `apps/frontend/vercel.json`. No application code changed. All 292 frontend tests pass. jsdom "Not implemented: navigation" stderr lines are pre-existing noise unrelated to this change.
 Verdict: **Ship** ✅
+
+## QA — 2026-06-28T14:00:00Z — AWD-H-133
+Branch: fix/security/AWD-H-133-registration-enumeration-guard
+Result: ✅ PASS
+| TypeScript | ✅ | 0 errors |
+| Lint       | ✅ | 0 errors, 0 warnings |
+| Frontend tests | ⏭ | No frontend files changed — skipped |
+| Backend tests  | ✅ | 886 passed (2 skipped, pre-existing), 0 failed |
+| Spot-check | ✅ | No secrets, console.log, ts-ignore, or TODO comments in changed files |
+| Contracts  | ✅ | openapi.json ✅ · mcp.json ✅ |
+
+Issues found: None
+Backlog items filed: None
+Notes: Pure backend change. auth_service.py line 233 replaces "Email already registered" with "Registration failed — please check your details and try again" — correct OWASP A07 account-enumeration mitigation. Two new tests added: test_duplicate_email_returns_generic_error (asserts first signup succeeds before checking duplicate error, resolves M-306) and test_unknown_email_registration_succeeds. No regressions detected.
+Verdict: **Ship** ✅
