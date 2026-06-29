@@ -641,3 +641,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-06-28T02:29:26Z | awade-nightly-monitor | done | brief written; code green (TS+FE ✅, BE unverified=H-79); dev-agent gateway CRITICAL ~10h, fleet partially recovered
 2026-06-28T22:09:27Z | awade-nightly-monitor | done | morning-brief written; FE 292 pass, TS clean, tree clean; BE unverified (no deps/Postgres, H-79); 0 critical/5 high open
 2026-06-29T03:07:16Z | awade-growth-daily | done | Mon 29 Jun parent/BIP twitter 2-post draft written, content-log updated
+2026-06-29T06:13:39Z | awade-performance-audit | done | benchmarks 🟢 (initial JS 132,927B gz, N+1=0, deps 33/9+22); report blocked by manifest (M-308 filed), written to scratchpad
