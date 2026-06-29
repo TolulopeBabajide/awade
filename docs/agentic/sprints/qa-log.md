@@ -10194,3 +10194,18 @@ Issues found: None
 Backlog items filed: None
 Notes: Pure backend change — moved `_hash_password` call before email-existence check in `register_user`. Both changed files contain no secrets or suppression directives. Two new spy-based tests in `TestRegistrationTimingOracle` pass and correctly assert bcrypt always runs regardless of email state. 888 total backend tests pass cleanly.
 Verdict: **Ship** ✅
+
+## QA — 2026-06-30T00:00:00Z — AWD-M-308
+Branch: fix/tooling/AWD-M-308-performance-agent-permissions
+Result: ✅ PASS
+| TypeScript | ⏭ | No TS/TSX files changed — skipped |
+| Lint       | ⏭ | No frontend files changed — skipped |
+| Frontend tests | ⏭ | No frontend files changed — skipped |
+| Backend tests  | ⏭ | No backend files changed — skipped |
+| Spot-check | ✅ | No secrets, console.log, ts-ignore, or TODO comments in diff |
+| Contracts  | ✅ | openapi.json ✅ · mcp.json ✅ · agent-permissions.json ✅ (valid JSON) |
+
+Issues found: None
+Backlog items filed: None
+Notes: Config-only change. agent-permissions.json adds docs/performance/**, docs/agentic/feedback-log.md, docs/agent-audit.log, docs/agentic/agent-run-log.jsonl to performance-agent writes manifest. All 3 new write paths are standard agent operational files consistent with other agents in the manifest. No application code touched. All JSON config files valid.
+Verdict: **Ship** ✅
