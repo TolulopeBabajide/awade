@@ -258,10 +258,15 @@
         "apps/frontend/src/**",
         "apps/backend/services/**",
         "apps/backend/routers/**",
-        "docs/agentic/backlog.md"
+        "docs/agentic/backlog.md",
+        "docs/performance/**"
       ],
       "writes": [
         "docs/agentic/backlog.md",
+        "docs/performance/**",
+        "docs/agentic/feedback-log.md",
+        "docs/agent-audit.log",
+        "docs/agentic/agent-run-log.jsonl",
         ".agent-health/performance-agent.last-run"
       ],
       "forbidden": [

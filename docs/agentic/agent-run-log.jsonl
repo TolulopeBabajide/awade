@@ -642,3 +642,6 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-06-28T22:09:27Z | awade-nightly-monitor | done | morning-brief written; FE 292 pass, TS clean, tree clean; BE unverified (no deps/Postgres, H-79); 0 critical/5 high open
 2026-06-29T03:07:16Z | awade-growth-daily | done | Mon 29 Jun parent/BIP twitter 2-post draft written, content-log updated
 2026-06-29T06:13:39Z | awade-performance-audit | done | benchmarks 🟢 (initial JS 132,927B gz, N+1=0, deps 33/9+22); report blocked by manifest (M-308 filed), written to scratchpad
+2026-06-29T22:52:09Z | awade-sprint-planning | done | sprint-2026-06-29 written: 1 ready item (M-308); flagged M-305 origin-push blocker + starved ready queue; 8 items need Tolu decision
+2026-06-29T22:52:15Z | awade-weekly-review | done | week 2026-06-23→29: ~30 issues closed, 0C/2H open, SECURE; blocker=no analytics/finance visibility, parent funnel drop-off unfixed
+2026-06-29T23:03:20Z | awade-analytics-daily | done | degraded: Mixpanel scope error day 17+; launch month ends today; daily-log appended; morning-brief updated
