@@ -431,3 +431,4 @@
 2026-06-28T14:12:36Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-28-db661f3.md | completed structural code review — AWD-H-133 ✅ Clean
 2026-06-28T16:12:21Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural review — AWD-M-307 — verdict: Clean
 2026-06-29T06:13:39Z | performance-agent | PERMISSION_DENIED | docs/performance/ | manifest writes list omits docs/performance/** — report not persisted, filed M-308
+2026-06-29T06:33:33Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-29-93138cd.md | completed structural code review — AWD-M-308 ✅ Clean
