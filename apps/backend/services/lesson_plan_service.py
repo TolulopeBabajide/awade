@@ -101,7 +101,7 @@ class LessonPlanService:
                 author_id=author_id,
                 duration_minutes=duration_minutes,
                 created_at=lesson_plan.created_at,
-                updated_at=lesson_plan.created_at,  # Using created_at as updated_at
+                updated_at=lesson_plan.updated_at,
                 status=LessonStatus.DRAFT.value,  # Pass string value to match schema
                 curriculum_learning_objectives=curriculum_learning_objectives,
                 curriculum_contents=curriculum_contents

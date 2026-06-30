@@ -95,7 +95,7 @@ def _make_topic(topic_id: int = 1, title: str = "Fractions") -> MagicMock:
     return t
 
 
-def _make_lesson_plan(plan_id: int = 1, user_id: int = 1, topic=None) -> MagicMock:
+def _make_lesson_plan(plan_id: int = 1, user_id: int = 1, topic=None, updated_at=None) -> MagicMock:
     """Return a plain MagicMock standing in for a LessonPlan ORM object.
 
     Assigning a non-ORM object to ``LessonPlan.topic`` via the instrumented
@@ -105,6 +105,7 @@ def _make_lesson_plan(plan_id: int = 1, user_id: int = 1, topic=None) -> MagicMo
     lp.lesson_plan_id = plan_id
     lp.user_id = user_id
     lp.created_at = _now()
+    lp.updated_at = updated_at if updated_at is not None else _now()
     lp.topic_id = 1
     lp.topic = topic if topic is not None else _make_topic()
     return lp
@@ -446,3 +447,36 @@ class TestGetLessonPlansFilters:
         assert len(result) == 1
         # join should not have been called when no filter is active
         db.query.return_value.filter.return_value.join.assert_not_called()
+
+
+# ==========================================================================
+# TestLessonPlanUpdatedAt — AWD-M-192
+# ==========================================================================
+
+class TestLessonPlanUpdatedAt:
+    """updated_at in LessonPlanResponse comes from the model column, not created_at."""
+
+    def test_response_uses_updated_at_not_created_at(self):
+        """When updated_at differs from created_at the response reflects updated_at."""
+        now = datetime.now(timezone.utc)
+        later = datetime(2030, 1, 1, tzinfo=timezone.utc)
+        lp = _make_lesson_plan(updated_at=later)
+        lp.created_at = now
+        svc = LessonPlanService(db=MagicMock())
+        resp = svc.create_lesson_plan_response(lp)
+        assert resp.updated_at == later
+        assert resp.updated_at != resp.created_at
+
+    def test_response_updated_at_is_not_none(self):
+        """updated_at is always present in the response."""
+        lp = _make_lesson_plan()
+        svc = LessonPlanService(db=MagicMock())
+        resp = svc.create_lesson_plan_response(lp)
+        assert resp.updated_at is not None
+
+    def test_response_created_at_unchanged(self):
+        """Adding updated_at does not affect created_at in the response."""
+        lp = _make_lesson_plan()
+        svc = LessonPlanService(db=MagicMock())
+        resp = svc.create_lesson_plan_response(lp)
+        assert resp.created_at == lp.created_at

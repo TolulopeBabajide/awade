@@ -361,7 +361,8 @@ class LessonPlan(Base):
     topic_id = Column(Integer, ForeignKey('topics.topic_id', ondelete='CASCADE'), nullable=False)
     user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
     created_at = Column(DateTime, default=func.now(), nullable=False)
-    
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
+
     # Relationships
     topic = relationship("Topic", back_populates="lesson_plans")
     user = relationship("User", back_populates="lesson_plans")
