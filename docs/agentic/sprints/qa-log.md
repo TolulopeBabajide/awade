@@ -10224,3 +10224,18 @@ Issues found: None
 Backlog items filed: None
 Notes: Backend-only change. Added `updated_at` column to `LessonPlan` SQLAlchemy model with `server_default=func.now()` and `onupdate=func.now()`; updated `lesson_plan_service.py` to read `lesson_plan.updated_at` directly (removes `# Using created_at as updated_at` alias); 3 new targeted tests in `TestLessonPlanUpdatedAt` verify the response field reflects the model column rather than the alias. New Alembic migration `a9b3c5d8e2f1a4b6` adds column reversibly. No API contract change (`updated_at` was already in `LessonPlanResponse` schema). All 891 backend tests pass cleanly.
 Verdict: **Ship** ✅
+
+## QA — 2026-06-30T08:00:00Z — AWD-M-192 (post-commit re-validation)
+Branch: fix/lesson-plans/AWD-M-192-lesson-plan-updated-at
+Result: ✅ PASS
+| TypeScript | ⏭ | No TS/TSX files changed — skipped |
+| Lint       | ⏭ | No frontend files changed — skipped |
+| Frontend tests | ⏭ | No frontend files changed — skipped |
+| Backend tests  | ✅ | 891 passed, 2 skipped, 0 failures |
+| Spot-check | ✅ | No secrets, console.log, ts-ignore, or TODO comments in diff |
+| Contracts  | ✅ | openapi.json ✅ · mcp.json ✅ · agent-permissions.json ✅ (valid JSON) |
+
+Issues found: None
+Backlog items filed: None
+Notes: Re-validation after implementation commit cb8d5ef. Same diff as prior run — all 891 backend tests pass, contracts valid. Code-review-agent verdict was ✅ Clean (two 🟢 Low pre-existing findings, no backlog items filed). Ready to merge to develop.
+Verdict: **Ship** ✅
