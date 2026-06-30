@@ -2367,3 +2367,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | H-133 | Security / OWASP A07 | Registration enumeration guard — replaced "Email already registered" with generic message; added TestRegistrationEnumerationProtection (2 tests) | 3bfaf11 | 2026-06-28 |
 | M-306 | Testing / Auth | Vacuous-pass guard — added `assert first.status_code == 200` before duplicate-email assertion in test_duplicate_email_returns_generic_error | db661f3 | 2026-06-28 |
 | M-307 | Security / OWASP A07 | Registration timing oracle — moved `_hash_password()` before email-existence check so bcrypt always runs; added TestRegistrationTimingOracle (2 spy tests) | 3db09c5 | 2026-06-28 |
+| M-308 | Tooling / Permissions | performance-agent write manifest — added docs/performance/**, docs/agentic/feedback-log.md, docs/agent-audit.log, docs/agentic/agent-run-log.jsonl | dba3308 | 2026-06-30 |
