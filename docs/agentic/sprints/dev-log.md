@@ -931,3 +931,4 @@ After removing it, the next hourly run will:
 
 2026-06-29T00:00:00Z | — | No ready items — skipped | — | ✅ No stage=ready item found | All active items at define/discover. Backlog: 8 discover, 18 define, 1 design — no ready items to build. | CI:n/a
 2026-06-30T00:00:00Z | M-308 | performance-agent write manifest — add docs/performance/** and standard log paths | dba3308 | ✅ Done (reviewers clean) | CI:pending (push deferred — M-305)
+2026-06-30T08:00:00Z | — | No stage=ready items — idle cycle | — | ✅ Done (no work) | CI:N/A
