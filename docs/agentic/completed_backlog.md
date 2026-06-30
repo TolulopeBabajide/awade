@@ -2368,3 +2368,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | M-306 | Testing / Auth | Vacuous-pass guard — added `assert first.status_code == 200` before duplicate-email assertion in test_duplicate_email_returns_generic_error | db661f3 | 2026-06-28 |
 | M-307 | Security / OWASP A07 | Registration timing oracle — moved `_hash_password()` before email-existence check so bcrypt always runs; added TestRegistrationTimingOracle (2 spy tests) | 3db09c5 | 2026-06-28 |
 | M-308 | Tooling / Permissions | performance-agent write manifest — added docs/performance/**, docs/agentic/feedback-log.md, docs/agent-audit.log, docs/agentic/agent-run-log.jsonl | dba3308 | 2026-06-30 |
+| M-192 | API Design | Added `updated_at` column to `LessonPlan` model + Alembic migration `a9b3c5d8e2f1a4b6`; removed `created_at` alias workaround in `lesson_plan_service.py`; 3 new tests in TestLessonPlanUpdatedAt | cb8d5ef | 2026-06-30 |
