@@ -198,7 +198,7 @@ const ParentDashboardPage: React.FC = () => {
               </h1>
               {selectedChild && selectedChild.grade_level_name && (
                 <p className="text-sm text-gray-500 mt-0.5">
-                  {selectedChild.grade_level_name} • {selectedChild.curricula_title ?? 'Curriculum not set'}
+                  {selectedChild.grade_level_name} • {selectedChild.curriculum_title ?? 'Curriculum not set'}
                 </p>
               )}
             </div>

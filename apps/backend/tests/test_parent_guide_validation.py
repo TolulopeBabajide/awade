@@ -137,7 +137,7 @@ def _make_mock_topic():
     cs = MagicMock()
     cs.subject.name = "Mathematics"
     cs.grade_level.name = "Grade 5"
-    cs.curriculum.curricula_title = "Nigerian Curriculum"
+    cs.curriculum.curriculum_title = "Nigerian Curriculum"
     topic.curriculum_structure = cs
 
     topic.learning_objectives = []

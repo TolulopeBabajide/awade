@@ -217,7 +217,7 @@ class TestImportTheme:
         from populate_nerdc_curriculum import _get_or_create, CURRICULUM_TITLE, COUNTRY_NAME, COUNTRY_ISO, COUNTRY_REGION
         from models import Country, Curriculum, CurriculumStructure, GradeLevel, Subject
         country, _ = _get_or_create(db, Country, defaults={"iso_code": COUNTRY_ISO, "region": COUNTRY_REGION}, country_name=COUNTRY_NAME)
-        curriculum, _ = _get_or_create(db, Curriculum, defaults={"country_id": country.country_id}, curricula_title=CURRICULUM_TITLE)
+        curriculum, _ = _get_or_create(db, Curriculum, defaults={"country_id": country.country_id}, curriculum_title=CURRICULUM_TITLE)
         grade, _ = _get_or_create(db, GradeLevel, name="JSS 1")
         subject, _ = _get_or_create(db, Subject, name="Basic Science")
         structure, _ = _get_or_create(db, CurriculumStructure,
@@ -240,7 +240,7 @@ class TestImportTheme:
         from populate_nerdc_curriculum import _get_or_create, CURRICULUM_TITLE, COUNTRY_NAME, COUNTRY_ISO, COUNTRY_REGION
         from models import Country, Curriculum, CurriculumStructure, GradeLevel, Subject
         country, _ = _get_or_create(db, Country, defaults={"iso_code": COUNTRY_ISO, "region": COUNTRY_REGION}, country_name=COUNTRY_NAME)
-        curriculum, _ = _get_or_create(db, Curriculum, defaults={"country_id": country.country_id}, curricula_title=CURRICULUM_TITLE)
+        curriculum, _ = _get_or_create(db, Curriculum, defaults={"country_id": country.country_id}, curriculum_title=CURRICULUM_TITLE)
         grade, _ = _get_or_create(db, GradeLevel, name="JSS 1")
         subject, _ = _get_or_create(db, Subject, name="Basic Science")
         structure, _ = _get_or_create(db, CurriculumStructure,
@@ -264,7 +264,7 @@ class TestImportTheme:
         from populate_nerdc_curriculum import _get_or_create, CURRICULUM_TITLE, COUNTRY_NAME, COUNTRY_ISO, COUNTRY_REGION
         from models import Country, Curriculum, CurriculumStructure, GradeLevel, Subject
         country, _ = _get_or_create(db, Country, defaults={"iso_code": COUNTRY_ISO, "region": COUNTRY_REGION}, country_name=COUNTRY_NAME)
-        curriculum, _ = _get_or_create(db, Curriculum, defaults={"country_id": country.country_id}, curricula_title=CURRICULUM_TITLE)
+        curriculum, _ = _get_or_create(db, Curriculum, defaults={"country_id": country.country_id}, curriculum_title=CURRICULUM_TITLE)
         grade, _ = _get_or_create(db, GradeLevel, name="JSS 1")
         subject, _ = _get_or_create(db, Subject, name="Basic Science")
         structure, _ = _get_or_create(db, CurriculumStructure,

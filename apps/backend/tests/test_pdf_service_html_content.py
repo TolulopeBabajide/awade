@@ -48,7 +48,7 @@ class TestGenerateHtmlContentDbParam:
         subject.name = "Math"
         grade_level = MagicMock()
         grade_level.name = "JSS1"
-        curriculum = MagicMock(curricula_title="NERDC")
+        curriculum = MagicMock(curriculum_title="NERDC")
         db = self._make_db()
 
         with patch.object(service, "format_curriculum_alignment", return_value="alignment") as mock_align:
@@ -109,7 +109,7 @@ class TestGenerateHtmlContentDbParam:
         mock_subject.name = "Math"
         mock_grade_level = MagicMock()
         mock_grade_level.name = "JSS1"
-        mock_curriculum = MagicMock(curricula_title="NERDC")
+        mock_curriculum = MagicMock(curriculum_title="NERDC")
 
         db.query.return_value.filter.return_value.first.side_effect = [
             mock_lesson_plan,
@@ -160,7 +160,7 @@ class TestGenerateHtmlContentEscaping:
         return topic
 
     def _render(self, topic_title="Fractions", subject_name="Mathematics",
-                grade_name="Grade 3", curricula_title="NERDC",
+                grade_name="Grade 3", curriculum_title="NERDC",
                 alignment="obj1\nobj2", content="para1\npara2"):
         service = PDFService()
         lr = self._make_lesson_resource()
@@ -170,7 +170,7 @@ class TestGenerateHtmlContentEscaping:
         grade_level = MagicMock()
         grade_level.name = grade_name
         curriculum = MagicMock()
-        curriculum.curricula_title = curricula_title
+        curriculum.curriculum_title = curriculum_title
         db = MagicMock()
         with patch.object(service, "format_curriculum_alignment", return_value=alignment), \
              patch.object(service, "include_ai_and_user_content", return_value=content):
@@ -193,8 +193,8 @@ class TestGenerateHtmlContentEscaping:
         assert "Arts & Crafts" not in html
         assert "Arts &amp; Crafts" in html
 
-    def test_ampersand_in_curricula_title_is_escaped(self):
-        html = self._render(curricula_title="Lagos & FCT Curriculum")
+    def test_ampersand_in_curriculum_title_is_escaped(self):
+        html = self._render(curriculum_title="Lagos & FCT Curriculum")
         assert "Lagos & FCT Curriculum" not in html
         assert "Lagos &amp; FCT Curriculum" in html
 

@@ -66,7 +66,7 @@ def _make_country(db):
 
 
 def _make_curriculum(db, country_id, title="Test Curriculum"):
-    curriculum = Curriculum(curricula_title=title, country_id=country_id)
+    curriculum = Curriculum(curriculum_title=title, country_id=country_id)
     db.add(curriculum)
     db.commit()
     db.refresh(curriculum)
@@ -233,7 +233,7 @@ class TestSearchCurriculums:
     def test_match_by_curriculum_title(self, test_db, sample_curriculum):
         """Searching the curriculum title returns the matching curriculum."""
         service = CurriculumService(test_db)
-        # sample_curriculum.curricula_title == "Test Curriculum"
+        # sample_curriculum.curriculum_title == "Test Curriculum"
         results = service.search_curriculums("Test Curriculum")
         ids = [c.curricula_id for c in results]
         assert sample_curriculum.curricula_id in ids
@@ -510,7 +510,7 @@ class TestCurriculumCRUDH88:
         mock_db = self._mock_db()
         mock_db.add.side_effect = Exception("DB connection lost")
         service = CurriculumService(mock_db)
-        data = CurriculumCreate(curricula_title="Test", country_id=1)
+        data = CurriculumCreate(curriculum_title="Test", country_id=1)
         with pytest.raises(HTTPException) as exc_info:
             service.create_curriculum(data)
         assert exc_info.value.status_code == 500
@@ -524,7 +524,7 @@ class TestCurriculumCRUDH88:
         mock_db = self._mock_db()
         mock_db.query.side_effect = Exception("DB connection lost")
         service = CurriculumService(mock_db)
-        data = CurriculumCreate(curricula_title="Updated", country_id=1)
+        data = CurriculumCreate(curriculum_title="Updated", country_id=1)
         with pytest.raises(HTTPException) as exc_info:
             service.update_curriculum(curricula_id=1, curriculum_data=data)
         assert exc_info.value.status_code == 500

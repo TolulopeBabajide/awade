@@ -22,7 +22,7 @@ export interface ChildProfile {
   country_id: number | null;
   country_name: string | null;
   curricula_id: number | null;
-  curricula_title: string | null;
+  curriculum_title: string | null;
   grade_level_id: number | null;
   grade_level_name: string | null;
   subjects: number[] | null;

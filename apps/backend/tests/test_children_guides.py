@@ -154,7 +154,7 @@ class TestGenerateGuideMalformedAI:
         cs = MagicMock()
         cs.subject.name = "Mathematics"
         cs.grade_level.name = "Grade 5"
-        cs.curriculum.curricula_title = "Nigerian Curriculum"
+        cs.curriculum.curriculum_title = "Nigerian Curriculum"
         mock_topic.curriculum_structure = cs
         mock_topic.learning_objectives = []
         mock_topic.topic_contents = []

@@ -116,13 +116,13 @@ def test_basic_operations():
         # Test 2: Create a test curriculum
         print("  📚 Testing curriculum creation...")
         test_curriculum = Curriculum(
-            curricula_title="Test Curriculum",
+            curriculum_title="Test Curriculum",
             country_id=test_country.country_id
         )
         db.add(test_curriculum)
         db.commit()
         db.refresh(test_curriculum)
-        print(f"    ✅ Created curriculum: {test_curriculum.curricula_title} (ID: {test_curriculum.curricula_id})")
+        print(f"    ✅ Created curriculum: {test_curriculum.curriculum_title} (ID: {test_curriculum.curricula_id})")
         
         # Test 3: Query operations
         print("  🔍 Testing query operations...")
@@ -160,7 +160,7 @@ def cleanup_test_data():
         deleted_count = 0
         
         # Delete test curricula
-        test_curricula = db.query(Curriculum).filter(Curriculum.curricula_title.like("Test%")).all()
+        test_curricula = db.query(Curriculum).filter(Curriculum.curriculum_title.like("Test%")).all()
         for curriculum in test_curricula:
             db.delete(curriculum)
             deleted_count += 1

@@ -223,7 +223,7 @@ class TestCreateChildConsentGuard:
                 country_id=None,
                 country_name=None,
                 curricula_id=None,
-                curricula_title=None,
+                curriculum_title=None,
                 grade_level_id=None,
                 grade_level_name=None,
                 subjects=None,

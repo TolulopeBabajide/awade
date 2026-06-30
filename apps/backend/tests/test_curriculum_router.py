@@ -68,7 +68,7 @@ class TestUpdateCurriculumM251:
     def test_not_found_raises_404(self):
         mock_db = MagicMock()
         mock_user = MagicMock()
-        data = CurriculumCreate(curricula_title="Test Curriculum", country_id=1)
+        data = CurriculumCreate(curriculum_title="Test Curriculum", country_id=1)
 
         with patch(
             "apps.backend.routers.curriculum.CurriculumService"
@@ -87,7 +87,7 @@ class TestUpdateCurriculumM251:
     def test_found_returns_result(self):
         mock_db = MagicMock()
         mock_user = MagicMock()
-        data = CurriculumCreate(curricula_title="Test Curriculum", country_id=1)
+        data = CurriculumCreate(curriculum_title="Test Curriculum", country_id=1)
         fake_obj = MagicMock()
 
         with patch(

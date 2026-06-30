@@ -226,7 +226,7 @@ class PDFService:
                         <table class="info-table">
                             <tr>
                                 <td><strong>Curriculum:</strong></td>
-                                <td>{self._escape_html(curriculum.curricula_title) if curriculum else 'N/A'}</td>
+                                <td>{self._escape_html(curriculum.curriculum_title) if curriculum else 'N/A'}</td>
                             </tr>
                             <tr>
                                 <td><strong>Subject:</strong></td>

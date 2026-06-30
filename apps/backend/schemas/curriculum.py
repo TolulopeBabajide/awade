@@ -11,7 +11,7 @@ from enum import Enum
 # New normalized curriculum schemas
 class CurriculumBase(BaseModel):
     """Base schema for curriculum data."""
-    curricula_title: str
+    curriculum_title: str
     country_id: int
 
 class CurriculumCreate(CurriculumBase):

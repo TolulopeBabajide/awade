@@ -20,7 +20,7 @@ const ParentOnboardingPage: React.FC = () => {
     subjects: null,
   })
   const [countries, setCountries] = useState<Array<{ country_id: number; country_name: string }>>([])
-  const [curriculums, setCurriculums] = useState<Array<{ curricula_id: number; curricula_title: string }>>([])
+  const [curriculums, setCurriculums] = useState<Array<{ curricula_id: number; curriculum_title: string }>>([])
   const [gradeLevels, setGradeLevels] = useState<Array<{ grade_level_id: number; name: string }>>([])
   const [subjectOptions, setSubjectOptions] = useState<Array<{ subject_id: number; name: string }>>([])
   const [selectedSubjects, setSelectedSubjects] = useState<number[]>([])
@@ -250,7 +250,7 @@ const ParentOnboardingPage: React.FC = () => {
               >
                 <option value="">Select curriculum</option>
                 {curriculums.map(c => (
-                  <option key={c.curricula_id} value={c.curricula_id}>{c.curricula_title}</option>
+                  <option key={c.curricula_id} value={c.curricula_id}>{c.curriculum_title}</option>
                 ))}
               </select>
             </div>

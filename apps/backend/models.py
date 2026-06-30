@@ -60,7 +60,7 @@ class Curriculum(Base):
     __tablename__ = 'curricula'
     
     curricula_id = Column(Integer, primary_key=True, autoincrement=True)
-    curricula_title = Column(String(255), nullable=False)
+    curriculum_title = Column(String(255), nullable=False)
     country_id = Column(Integer, ForeignKey('countries.country_id'), nullable=False)
     created_at = Column(DateTime, default=func.now(), nullable=False)
     

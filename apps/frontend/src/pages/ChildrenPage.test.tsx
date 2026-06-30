@@ -88,7 +88,7 @@ function defaultChild(): ChildProfile {
     country_id: 1,
     country_name: 'TestLand',
     curricula_id: 2,
-    curricula_title: 'Test National Curriculum',
+    curriculum_title: 'Test National Curriculum',
     grade_level_id: 3,
     grade_level_name: 'Grade 3',
     subjects: [1, 2],

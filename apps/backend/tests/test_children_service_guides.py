@@ -97,7 +97,7 @@ class TestGenerateGuideAIValidation:
         cs = MagicMock()
         cs.subject.name = "Mathematics"
         cs.grade_level.name = "Grade 5"
-        cs.curriculum.curricula_title = "Nigerian Curriculum"
+        cs.curriculum.curriculum_title = "Nigerian Curriculum"
         mock_topic.curriculum_structure = cs
         mock_topic.learning_objectives = []
         mock_topic.topic_contents = []
@@ -467,7 +467,7 @@ class TestBuildGuideAIPayloadM185:
         cs = MagicMock()
         cs.subject.name = subject
         cs.grade_level.name = grade
-        cs.curriculum.curricula_title = curriculum_title
+        cs.curriculum.curriculum_title = curriculum_title
 
         topic = MagicMock()
         topic.topic_title = title
@@ -583,7 +583,7 @@ class TestBuildGuideAIPayloadM185:
         cs = MagicMock()
         cs.subject.name = "Science"
         cs.grade_level.name = "SS1"
-        cs.curriculum.curricula_title = "National"
+        cs.curriculum.curriculum_title = "National"
 
         topic = MagicMock()
         topic.topic_title = "Photosynthesis"
@@ -642,7 +642,7 @@ class TestParentGuideRequestH98:
         cs = MagicMock()
         cs.subject.name = "Science"
         cs.grade_level.name = "SS2"
-        cs.curriculum.curricula_title = "Federal"
+        cs.curriculum.curriculum_title = "Federal"
         topic = MagicMock()
         topic.topic_title = "Photosynthesis"
         topic.curriculum_structure = cs
@@ -663,7 +663,7 @@ class TestParentGuideRequestH98:
         cs = MagicMock()
         cs.subject.name = "Mathematics"
         cs.grade_level.name = "JSS1"
-        cs.curriculum.curricula_title = "NERDC"
+        cs.curriculum.curriculum_title = "NERDC"
         topic = MagicMock()
         topic.topic_title = "Fractions"
         topic.curriculum_structure = cs

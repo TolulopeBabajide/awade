@@ -93,30 +93,30 @@ def populate_from_export():
             if curriculum_data['country_name'] and curriculum_data['country_name'] in country_map:
                 country_id = country_map[curriculum_data['country_name']].country_id
                 existing = db.query(Curriculum).filter(
-                    Curriculum.curricula_title == curriculum_data['curricula_title']
+                    Curriculum.curriculum_title == curriculum_data['curriculum_title']
                 ).first()
                 if not existing:
                     curriculum = Curriculum(
-                        curricula_title=curriculum_data['curricula_title'],
+                        curriculum_title=curriculum_data['curriculum_title'],
                         country_id=country_id
                     )
                     db.add(curriculum)
                     db.flush()
-                    curriculum_map[curriculum_data['curricula_title']] = curriculum
-                    print(f"  ✅ Created: {curriculum_data['curricula_title']}")
+                    curriculum_map[curriculum_data['curriculum_title']] = curriculum
+                    print(f"  ✅ Created: {curriculum_data['curriculum_title']}")
                 else:
-                    curriculum_map[curriculum_data['curricula_title']] = existing
-                    print(f"  ⏭️  Found: {curriculum_data['curricula_title']}")
+                    curriculum_map[curriculum_data['curriculum_title']] = existing
+                    print(f"  ⏭️  Found: {curriculum_data['curriculum_title']}")
         
         # Step 5: Create curriculum structures
         print("\n🔗 Creating curriculum structures...")
         structure_map = {}
         for structure_data in export_data['curriculum_structures']:
-            if (structure_data['curricula_title'] in curriculum_map and
+            if (structure_data['curriculum_title'] in curriculum_map and
                 structure_data['grade_level_name'] in grade_map and
                 structure_data['subject_name'] in subject_map):
                 
-                curriculum_id = curriculum_map[structure_data['curricula_title']].curricula_id
+                curriculum_id = curriculum_map[structure_data['curriculum_title']].curricula_id
                 grade_id = grade_map[structure_data['grade_level_name']].grade_level_id
                 subject_id = subject_map[structure_data['subject_name']].subject_id
                 
@@ -147,12 +147,12 @@ def populate_from_export():
             # Find the curriculum structure
             structure_key = None
             for structure_data in export_data['curriculum_structures']:
-                if (structure_data['curricula_title'] == topic_data['curriculum_info']['curricula_title'] and
+                if (structure_data['curriculum_title'] == topic_data['curriculum_info']['curriculum_title'] and
                     structure_data['grade_level_name'] == topic_data['curriculum_info']['grade_level_name'] and
                     structure_data['subject_name'] == topic_data['curriculum_info']['subject_name']):
                     
-                    if structure_data['curricula_title'] in curriculum_map and structure_data['grade_level_name'] in grade_map and structure_data['subject_name'] in subject_map:
-                        curriculum_id = curriculum_map[structure_data['curricula_title']].curricula_id
+                    if structure_data['curriculum_title'] in curriculum_map and structure_data['grade_level_name'] in grade_map and structure_data['subject_name'] in subject_map:
+                        curriculum_id = curriculum_map[structure_data['curriculum_title']].curricula_id
                         grade_id = grade_map[structure_data['grade_level_name']].grade_level_id
                         subject_id = subject_map[structure_data['subject_name']].subject_id
                         structure_key = f"{curriculum_id}_{grade_id}_{subject_id}"

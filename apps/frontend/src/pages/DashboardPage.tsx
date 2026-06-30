@@ -312,7 +312,7 @@ const DashboardPage: React.FC = () => {
                       <option value="">Select Curriculum</option>
                       {curriculums.map((curr: any) => (
                         <option key={curr.curricula_id} value={curr.curricula_id} className="truncate">
-                          {curr.curricula_title}
+                          {curr.curriculum_title}
                         </option>
                       ))}
                     </select>

@@ -236,7 +236,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onSucces
               >
                 <option value="">Select curriculum</option>
                 {curriculums.map(c => (
-                  <option key={c.curricula_id} value={c.curricula_id}>{c.curricula_title}</option>
+                  <option key={c.curricula_id} value={c.curricula_id}>{c.curriculum_title}</option>
                 ))}
               </select>
             </div>

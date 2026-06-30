@@ -260,7 +260,7 @@ class CurriculumService:
         relationship attributes (Curriculum.country, Curriculum.subject) which
         raises AttributeError.  Fix: join Country for country_name lookup;
         outerjoin CurriculumStructure → Subject for subject name lookup;
-        also search Curriculum.curricula_title.  distinct() prevents duplicate
+        also search Curriculum.curriculum_title.  distinct() prevents duplicate
         rows when a curriculum has multiple structures.
 
         AWD-M-166: Guard against empty or whitespace-only search_term.
@@ -283,7 +283,7 @@ class CurriculumService:
                 )
                 .filter(
                     or_(
-                        Curriculum.curricula_title.ilike(f"%{search_term}%"),
+                        Curriculum.curriculum_title.ilike(f"%{search_term}%"),
                         Country.country_name.ilike(f"%{search_term}%"),
                         Subject.name.ilike(f"%{search_term}%"),
                     )

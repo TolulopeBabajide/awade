@@ -186,7 +186,7 @@ def import_file(db, data: dict, stats: dict) -> None:
     curriculum, _ = _get_or_create(
         db, Curriculum,
         defaults={"country_id": country.country_id},
-        curricula_title=CURRICULUM_TITLE,
+        curriculum_title=CURRICULUM_TITLE,
     )
     grade, created = _get_or_create(db, GradeLevel, name=class_level)
     stats["grade_levels"] += int(created)

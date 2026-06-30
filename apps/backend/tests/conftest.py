@@ -130,7 +130,7 @@ def sample_country(test_db):
 def sample_curriculum(test_db, sample_country):
     """Create a sample curriculum for testing."""
     curriculum = Curriculum(
-        curricula_title="Test Curriculum",
+        curriculum_title="Test Curriculum",
         country_id=sample_country.country_id
     )
     test_db.add(curriculum)

@@ -203,10 +203,10 @@ const ChildrenPage: React.FC = () => {
                         <span>{child.grade_level_name}</span>
                       </div>
                     )}
-                    {child.curricula_title && (
+                    {child.curriculum_title && (
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <FaGraduationCap className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                        <span className="truncate">{child.curricula_title}</span>
+                        <span className="truncate">{child.curriculum_title}</span>
                       </div>
                     )}
                   </div>

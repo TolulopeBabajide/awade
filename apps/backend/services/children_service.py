@@ -86,7 +86,7 @@ class ChildrenService:
             country_id=child.country_id,
             country_name=child.country.country_name if child.country else None,
             curricula_id=child.curricula_id,
-            curricula_title=child.curriculum.curricula_title if child.curriculum else None,
+            curriculum_title=child.curriculum.curriculum_title if child.curriculum else None,
             grade_level_id=child.grade_level_id,
             grade_level_name=child.grade_level.name if child.grade_level else None,
             subjects=subjects_list,
@@ -472,7 +472,7 @@ class ChildrenService:
         cs = topic.curriculum_structure
         subject_name = cs.subject.name if cs and cs.subject else "Unknown Subject"
         grade_name = cs.grade_level.name if cs and cs.grade_level else "Unknown Grade"
-        curriculum_title = cs.curriculum.curricula_title if cs and cs.curriculum else "National Curriculum"
+        curriculum_title = cs.curriculum.curriculum_title if cs and cs.curriculum else "National Curriculum"
         country_name = child.country.country_name if child.country else "Nigeria"
         objectives = [obj.objective for obj in topic.learning_objectives]
         contents = [c.content_area for c in topic.topic_contents]
