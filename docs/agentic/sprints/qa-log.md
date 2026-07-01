@@ -10299,3 +10299,18 @@ Issues found: None
 Backlog items filed: None
 Notes: Surgical XS change — added @limiter.limit() and request: Request to 8 endpoints in children.py (GET /consent/status, GET/PUT/DELETE /children/{id}, GET /children, GET /children/{id}/topics, GET /children/{id}/guides, GET /guides/{id}). All 22 tests in test_children_rate_limits.py pass including 11 new parametrized structural checks and 8 new route-registration checks. No API or schema changes — openapi.json and mcp.json unchanged. Code-review verdict: ✅ Clean.
 Verdict: **Ship** ✅
+
+## QA — 2026-07-01T09:11:00Z — AWD-L-84 (generic 403 detail in require_role/require_roles)
+Branch: fix/security/AWD-L-84-generic-403-detail
+Result: ✅ PASS
+| TypeScript     | ✅ | 0 errors |
+| Lint           | ✅ | 0 errors, 0 warnings |
+| Frontend tests | ✅ | 292 passed (27 test files) |
+| Backend tests  | ✅ | 918 passed, 2 skipped, 0 failures |
+| Spot-check     | ✅ | No secrets, console.log, @ts-ignore, TODO comments in diff |
+| Contracts      | ✅ | openapi.json ✅ · mcp.json ✅ |
+
+Issues found: None
+Backlog items filed: None
+Notes: XS security hardening — two f-string 403 detail messages in dependencies.py replaced with static "Access denied." to stop role name leakage. New test file test_dependencies_role_403.py (92 lines, 8 tests) covers happy path, wrong-role 403, exact detail string, and role-name absence assertions. Code-review verdict: ✅ Clean.
+Verdict: **Ship** ✅
