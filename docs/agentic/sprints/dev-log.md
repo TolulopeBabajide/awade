@@ -943,3 +943,4 @@ After removing it, the next hourly run will:
 2026-07-01T04:10:00Z | — | No stage=ready items — idle cycle | — | ✅ No work — no stage=ready items in backlog | All active items at discover/define or require Tolu decision. Define items: M-214/M-119–M-123/M-125 all effort L (>2d), M-122 underspecified (no tab breakdown), M-212/H-73/L-07/M-305/M-17 need Tolu. CI:N/A
 
 2026-07-01T05:15:00Z | — | No stage=ready items — idle cycle | — | ✅ No work — no stage=ready items in backlog | All active items at discover/define stages. Highest priority unblocked items: M-269 (Critical/define/SEO), H-73 (High/define/secrets rotation), M-305 (Medium/define/git-gateway). None can be picked up without spec completion. CI:N/A
+2026-07-01T08:15:00Z | M-311 | Add rate limits to children router GET/DELETE endpoints | 5647ad5 | ✅ Done (reviewers clean) | CI:pending
