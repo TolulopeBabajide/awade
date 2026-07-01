@@ -10239,3 +10239,18 @@ Issues found: None
 Backlog items filed: None
 Notes: Re-validation after implementation commit cb8d5ef. Same diff as prior run — all 891 backend tests pass, contracts valid. Code-review-agent verdict was ✅ Clean (two 🟢 Low pre-existing findings, no backlog items filed). Ready to merge to develop.
 Verdict: **Ship** ✅
+
+## QA — 2026-07-01T01:16:00Z — AWD-M-254 (curricula_title rename)
+Branch: fix/curriculum/AWD-M-254-rename-curricula-title
+Result: ✅ PASS
+| TypeScript     | ✅ | 0 errors |
+| Lint           | ✅ | 0 errors, 0 warnings |
+| Frontend tests | ✅ | 292 passed (27 test files) |
+| Backend tests  | ✅ | 891 passed, 2 skipped, 0 failures |
+| Spot-check     | ✅ | No secrets, console.log, @ts-ignore, TODO comments, or unhandled async calls in diff |
+| Contracts      | ✅ | openapi.json ✅ (0 remaining curricula_title occurrences, 5 curriculum_title) · mcp.json ✅ |
+
+Issues found: None
+Backlog items filed: None (M-309 filed by code-review-agent for pre-existing duplication in export scripts)
+Notes: Comprehensive rename of `curricula_title` → `curriculum_title` across 33 files. All production callsites confirmed updated. Alembic migration f4a5b6c7d8e9f0a1 has valid syntax, correct down_revision (a9b3c5d8e2f1a4b6), and reversible downgrade. openapi.json confirms 0 remaining old field name occurrences. Code-review verdict: ✅ Clean. Ready to merge to develop.
+Verdict: **Ship** ✅
