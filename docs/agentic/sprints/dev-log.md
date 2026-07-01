@@ -936,3 +936,4 @@ After removing it, the next hourly run will:
 2026-06-30T00:00:00Z | M-308 | performance-agent write manifest — add docs/performance/** and standard log paths | dba3308 | ✅ Done (reviewers clean) | CI:pending (push deferred — M-305)
 2026-06-30T08:00:00Z | — | No stage=ready items — idle cycle | — | ✅ Done (no work) | CI:N/A
 2026-07-01T00:00:00Z | — | No stage=ready items — idle cycle | — | ✅ No work — no stage=ready items in backlog | All active items at discover/define stages. CI:N/A
+2026-07-01T01:20:00Z | M-254 | AWD-M-254 rename curricula_title → curriculum_title — Alembic migration + model + schema + services + FE types/components | 62c0567 | ✅ Done (reviewers clean — code-review ✅ Clean, QA ✅ Ship, security ✅ Pass) | CI:pending (push deferred — M-305)
