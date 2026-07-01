@@ -197,7 +197,7 @@ def require_role(required_role: UserRole):
         if current_user.role != required_role:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Access denied. Required role: {required_role.value}"
+                detail="Access denied."
             )
         return current_user
     
@@ -217,7 +217,7 @@ def require_roles(required_roles: list[UserRole]):
         if current_user.role not in required_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Access denied. Required roles: {[role.value for role in required_roles]}"
+                detail="Access denied."
             )
         return current_user
     
