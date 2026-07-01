@@ -10254,3 +10254,18 @@ Issues found: None
 Backlog items filed: None (M-309 filed by code-review-agent for pre-existing duplication in export scripts)
 Notes: Comprehensive rename of `curricula_title` → `curriculum_title` across 33 files. All production callsites confirmed updated. Alembic migration f4a5b6c7d8e9f0a1 has valid syntax, correct down_revision (a9b3c5d8e2f1a4b6), and reversible downgrade. openapi.json confirms 0 remaining old field name occurrences. Code-review verdict: ✅ Clean. Ready to merge to develop.
 Verdict: **Ship** ✅
+
+## QA — 2026-07-01T02:19:00Z — AWD-M-309 (remove populate_from_export inline template)
+Branch: fix/scripts/AWD-M-309-remove-populate-duplicate
+Result: ✅ PASS
+| TypeScript     | ✅ | 0 errors |
+| Lint           | ✅ | 0 errors, 0 warnings |
+| Frontend tests | ✅ | 292 passed (27 test files) |
+| Backend tests  | ✅ | 894 passed, 2 skipped, 0 failures |
+| Spot-check     | ✅ | No secrets, console.log, @ts-ignore, TODO comments in diff |
+| Contracts      | ✅ | openapi.json ✅ · mcp.json ✅ |
+
+Issues found: None
+Backlog items filed: None (AWD-M-310 filed by code-review-agent for import placement)
+Notes: Replaced 249-line inline f-string template in create_population_script() with read-from-canonical + regex timestamp update. 3 new tests in TestCreatePopulationScriptM309 all pass. No API or schema changes — openapi.json and mcp.json unchanged. Code-review verdict: ✅ Clean. Ready to merge to develop.
+Verdict: **Ship** ✅
