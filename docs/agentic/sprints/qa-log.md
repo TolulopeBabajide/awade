@@ -10269,3 +10269,18 @@ Issues found: None
 Backlog items filed: None (AWD-M-310 filed by code-review-agent for import placement)
 Notes: Replaced 249-line inline f-string template in create_population_script() with read-from-canonical + regex timestamp update. 3 new tests in TestCreatePopulationScriptM309 all pass. No API or schema changes — openapi.json and mcp.json unchanged. Code-review verdict: ✅ Clean. Ready to merge to develop.
 Verdict: **Ship** ✅
+
+## QA — 2026-07-01T03:13:00Z — AWD-M-310 (promote import re to module level)
+Branch: fix/scripts/AWD-M-310-module-level-import-re
+Result: ✅ PASS
+| TypeScript     | ✅ | 0 errors |
+| Lint           | ✅ | 0 errors, 0 warnings |
+| Frontend tests | ✅ | 292 passed (27 test files) |
+| Backend tests  | ✅ | 894 passed, 2 skipped, 0 failures |
+| Spot-check     | ✅ | No secrets, console.log, @ts-ignore, TODO comments in diff |
+| Contracts      | ✅ | openapi.json ✅ · mcp.json ✅ |
+
+Issues found: None
+Backlog items filed: None
+Notes: XS import hygiene change — moved `import re as _re` from inside `create_population_script()` body to module-level stdlib block as plain `import re`. Single file changed, no logic modification, no API or schema changes. Code-review verdict: ✅ Clean.
+Verdict: **Ship** ✅
