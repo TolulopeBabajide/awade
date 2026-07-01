@@ -437,3 +437,4 @@
 2026-06-30T22:12:30Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
 2026-07-01T00:15:58Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-07-01-7ab96d8.md | completed structural code review — AWD-M-254 curricula_title rename — verdict: Clean
 2026-07-01T02:11:57Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-07-01-5846eb2.md | completed structural code review — AWD-M-310 in-loop
+2026-07-01T05:36:57Z | dependency-security-agent | WRITE | docs/audits/ | completed dependency security scan
