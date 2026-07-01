@@ -10284,3 +10284,18 @@ Issues found: None
 Backlog items filed: None
 Notes: XS import hygiene change — moved `import re as _re` from inside `create_population_script()` body to module-level stdlib block as plain `import re`. Single file changed, no logic modification, no API or schema changes. Code-review verdict: ✅ Clean.
 Verdict: **Ship** ✅
+
+## QA — 2026-07-01T08:12:00Z — AWD-M-311 (rate limits to children router GET/DELETE endpoints)
+Branch: fix/parents/AWD-M-311-rate-limit-children-endpoints
+Result: ✅ PASS
+| TypeScript     | ✅ | 0 errors |
+| Lint           | ✅ | 0 errors, 0 warnings |
+| Frontend tests | ✅ | 292 passed (27 test files) |
+| Backend tests  | ✅ | 910 passed, 2 skipped, 0 failures |
+| Spot-check     | ✅ | No secrets, console.log, @ts-ignore, TODO comments in diff |
+| Contracts      | ✅ | openapi.json ✅ · mcp.json ✅ |
+
+Issues found: None
+Backlog items filed: None
+Notes: Surgical XS change — added @limiter.limit() and request: Request to 8 endpoints in children.py (GET /consent/status, GET/PUT/DELETE /children/{id}, GET /children, GET /children/{id}/topics, GET /children/{id}/guides, GET /guides/{id}). All 22 tests in test_children_rate_limits.py pass including 11 new parametrized structural checks and 8 new route-registration checks. No API or schema changes — openapi.json and mcp.json unchanged. Code-review verdict: ✅ Clean.
+Verdict: **Ship** ✅
