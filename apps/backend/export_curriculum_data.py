@@ -23,6 +23,7 @@ Usage:
 """
 
 import os
+import re
 import sys
 import json
 from datetime import datetime
@@ -218,8 +219,7 @@ def create_population_script(export_data):
     with open(canonical, 'r', encoding='utf-8') as f:
         script_content = f.read()
 
-    import re as _re
-    script_content = _re.sub(
+    script_content = re.sub(
         r'(Generated:\s*)[\d\-T:.]+',
         rf'\g<1>{export_data["export_timestamp"]}',
         script_content,
