@@ -440,3 +440,4 @@
 2026-07-01T05:36:57Z | dependency-security-agent | WRITE | docs/audits/ | completed dependency security scan
 2026-07-01T06:13:46Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — AWD-M-311 ✅ Clean
 2026-07-01T07:11:06Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-07-01-6d286ed.md | completed structural code review — AWD-M-311 rate limits
+2026-07-01T08:11:36Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
