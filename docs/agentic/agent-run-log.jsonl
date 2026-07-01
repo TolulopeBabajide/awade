@@ -653,3 +653,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-07-01T07:03:35Z | awade-daily-health-check | done | 🟡 FE green (TS/lint/292 tests/OpenAPI), backend unverified (sandbox venv host-bound), 0 crit / 1 high open (H-73)
 2026-07-01T08:04:00Z | awade-content-calendar | done | planned wk 6-10 Jul: subject-identity+hardening BIP (Mon), end-of-term reflection (Tue), 3-languages LinkedIn (Wed), guide-anatomy email (Thu), wk5 review number-held (Fri)
 2026-07-01T18:41:15Z | awade-analytics-daily | done | degraded — Mixpanel scope error day 19+; daily-log appended; D30 window ~10 days; morning-brief updated
+2026-07-01T22:12:58Z | awade-nightly-monitor | done | morning-brief written for 2026-07-02; 🟢 all clear, 0C/2H/18M/3L open, tree clean, live sandbox checks blocked by H-79 (used today's green QA log)
