@@ -53,7 +53,9 @@ router = APIRouter(prefix="/api", tags=["children"])
 # ── COPPA Consent (AWD-GRC-01) ────────────────────────────────────────
 
 @router.get("/consent/status", response_model=ConsentStatusResponse)
+@limiter.limit("60/minute")
 def get_consent_status(
+    request: Request,
     current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
 ):
@@ -100,7 +102,9 @@ def create_child(
 
 
 @router.get("/children", response_model=ChildProfileListResponse)
+@limiter.limit("60/minute")
 def list_children(
+    request: Request,
     current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
 ):
@@ -110,7 +114,9 @@ def list_children(
 
 
 @router.get("/children/{child_id}", response_model=ChildProfileResponse)
+@limiter.limit("60/minute")
 def get_child(
+    request: Request,
     child_id: int,
     current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
@@ -121,7 +127,9 @@ def get_child(
 
 
 @router.put("/children/{child_id}", response_model=ChildProfileResponse)
+@limiter.limit("30/minute")
 def update_child(
+    request: Request,
     child_id: int,
     data: ChildProfileUpdate,
     current_user: User = Depends(require_parent),
@@ -133,7 +141,9 @@ def update_child(
 
 
 @router.delete("/children/{child_id}")
+@limiter.limit("30/minute")
 def delete_child(
+    request: Request,
     child_id: int,
     current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
@@ -146,7 +156,9 @@ def delete_child(
 # ── Child's Curriculum Topics ─────────────────────────────────────────
 
 @router.get("/children/{child_id}/topics")
+@limiter.limit("60/minute")
 def get_child_topics(
+    request: Request,
     child_id: int,
     subject_id: Optional[int] = Query(None, description="Filter topics by subject ID"),
     current_user: User = Depends(require_parent),
@@ -163,7 +175,9 @@ def get_child_topics(
 # ── Parent Guides ─────────────────────────────────────────────────────
 
 @router.get("/children/{child_id}/guides", response_model=ParentGuideListResponse)
+@limiter.limit("60/minute")
 def list_child_guides(
+    request: Request,
     child_id: int,
     bookmarked: bool = Query(False, description="Only return bookmarked guides"),
     current_user: User = Depends(require_parent),
@@ -193,7 +207,9 @@ def generate_guide(
 
 
 @router.get("/guides/{guide_id}", response_model=ParentGuideResponse)
+@limiter.limit("60/minute")
 def get_guide(
+    request: Request,
     guide_id: int,
     current_user: User = Depends(require_parent),
     db: Session = Depends(get_db),
