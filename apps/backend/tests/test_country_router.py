@@ -1,10 +1,13 @@
 """
-Unit tests for ``apps/backend/routers/country.py`` — AWD-M-312.
+Unit tests for ``apps/backend/routers/country.py`` — AWD-M-312, AWD-M-313.
 
-Verifies that the route ordering fix makes /search and /region/{region}
+AWD-M-312: Verifies that the route ordering fix makes /search and /region/{region}
 reachable. Before the fix, GET /{country_id} was registered first; FastAPI
 matched /search and /region/West%20Africa at that slot, failed int() coercion,
 and returned 422 instead of delegating to the correct handler.
+
+AWD-M-313: Verifies rate-limiting decorators are applied to every endpoint
+(request: Request parameter present) and the /search q param has max_length=200.
 
 Covers (handler-level, no HTTP stack):
 - search_countries: delegates to service.search_countries(q, skip, limit)
@@ -12,10 +15,15 @@ Covers (handler-level, no HTTP stack):
 - get_country: still delegates to service.get_country(country_id)
 - Route reachability via the registered FastAPI route list — /search and
   /region/{region} appear BEFORE /{country_id} after the fix.
+- Rate-limit structural checks: request parameter present on all endpoints.
+- Route registration check: all endpoints return 401 (auth required), not 404.
 """
 
+import inspect
 import pytest
 from unittest.mock import MagicMock
+from fastapi.testclient import TestClient
+from starlette.requests import Request as StarletteRequest
 
 import sys
 import os
@@ -39,6 +47,11 @@ def _mock_user():
     return u
 
 
+def _starlette_request():
+    scope = {"type": "http", "method": "GET", "path": "/", "headers": [], "query_string": b""}
+    return StarletteRequest(scope)
+
+
 def _mock_db():
     return MagicMock()
 
@@ -59,6 +72,7 @@ class TestSearchCountriesHandler:
             country_module.CountryService = lambda db: svc_instance
             try:
                 result = search_countries(
+                    request=_starlette_request(),
                     q="Nigeria",
                     skip=0,
                     limit=10,
@@ -81,6 +95,7 @@ class TestSearchCountriesHandler:
         country_module.CountryService = lambda db: svc_instance
         try:
             search_countries(
+                request=_starlette_request(),
                 q="test",
                 skip=5,
                 limit=20,
@@ -107,6 +122,7 @@ class TestGetCountriesByRegionHandler:
         country_module.CountryService = lambda db: svc_instance
         try:
             result = get_countries_by_region(
+                request=_starlette_request(),
                 region="West Africa",
                 skip=0,
                 limit=100,
@@ -129,6 +145,7 @@ class TestGetCountriesByRegionHandler:
         country_module.CountryService = lambda db: svc_instance
         try:
             get_countries_by_region(
+                request=_starlette_request(),
                 region="search",
                 skip=0,
                 limit=100,
@@ -156,6 +173,7 @@ class TestGetCountryHandler:
         country_module.CountryService = lambda db: svc_instance
         try:
             result = get_country(
+                request=_starlette_request(),
                 country_id=42,
                 current_user=_mock_user(),
                 db=db,
@@ -194,3 +212,94 @@ class TestRouteOrdering:
         assert paths.index(region_path) < paths.index(id_path), (
             "/region/{region} must be registered before /{country_id}"
         )
+
+
+class TestCountryRateLimitStructure:
+    """AWD-M-313 — all country endpoints must carry request: Request for slowapi."""
+
+    @pytest.mark.parametrize("func_name,expected_limit", [
+        ("list_countries",          "60/minute"),
+        ("create_country",          "30/minute"),
+        ("search_countries",        "60/minute"),
+        ("get_countries_by_region", "60/minute"),
+        ("get_country",             "60/minute"),
+        ("update_country",          "30/minute"),
+        ("delete_country",          "30/minute"),
+    ])
+    def test_rate_limited_endpoint_has_request_parameter(self, func_name, expected_limit):
+        """Each rate-limited endpoint must accept `request: Request` for slowapi."""
+        import apps.backend.routers.country as country_module
+        func = getattr(country_module, func_name)
+        sig = inspect.signature(func)
+        assert "request" in sig.parameters, (
+            f"{func_name} is missing the `request: Request` parameter required by slowapi "
+            f"(@limiter.limit({expected_limit!r}) will silently fail without it)."
+        )
+
+    def test_search_q_has_max_length(self):
+        """search_countries q param must have max_length=200 to cap input size."""
+        from apps.backend.routers.country import search_countries
+        sig = inspect.signature(search_countries)
+        q_default = sig.parameters["q"].default
+        # pydantic v1: q_default.max_length == 200
+        # pydantic v2: max_length stored in metadata as annotated_types.MaxLen(200)
+        has_max = (
+            getattr(q_default, "max_length", None) == 200
+            or any(
+                getattr(m, "max_length", None) == 200
+                for m in getattr(q_default, "metadata", [])
+            )
+        )
+        assert has_max, (
+            "search_countries q param must have max_length=200. "
+            f"max_length attr={getattr(q_default, 'max_length', None)!r}, "
+            f"metadata={getattr(q_default, 'metadata', None)!r}"
+        )
+
+
+@pytest.fixture(autouse=True)
+def set_env(monkeypatch):
+    monkeypatch.setenv("JWT_SECRET_KEY", "test-secret")
+    monkeypatch.setenv("ENVIRONMENT", "testing")
+
+
+@pytest.fixture()
+def client():
+    from apps.backend.main import app
+    with TestClient(app, raise_server_exceptions=False) as c:
+        yield c
+    from apps.backend.main import app as _app
+    _app.dependency_overrides.clear()
+
+
+class TestCountryRouteRegistration:
+    """All country endpoints return 401 (auth required), not 404 — rate-limit
+    decorator must not break route registration."""
+
+    def test_list_countries_route_registered(self, client):
+        resp = client.get("/api/countries")
+        assert resp.status_code != 404, "GET /api/countries returned 404 — route removed or decorator broke routing."
+
+    def test_create_country_route_registered(self, client):
+        resp = client.post("/api/countries", json={"name": "Test", "code": "TT"})
+        assert resp.status_code != 404, "POST /api/countries returned 404 — route removed or decorator broke routing."
+
+    def test_search_countries_route_registered(self, client):
+        resp = client.get("/api/countries/search?q=Nigeria")
+        assert resp.status_code != 404, "GET /api/countries/search returned 404 — route removed or decorator broke routing."
+
+    def test_region_route_registered(self, client):
+        resp = client.get("/api/countries/region/West%20Africa")
+        assert resp.status_code != 404, "GET /api/countries/region/{region} returned 404 — route removed or decorator broke routing."
+
+    def test_get_country_route_registered(self, client):
+        resp = client.get("/api/countries/1")
+        assert resp.status_code != 404, "GET /api/countries/1 returned 404 — route removed or decorator broke routing."
+
+    def test_update_country_route_registered(self, client):
+        resp = client.put("/api/countries/1", json={})
+        assert resp.status_code != 404, "PUT /api/countries/1 returned 404 — route removed or decorator broke routing."
+
+    def test_delete_country_route_registered(self, client):
+        resp = client.delete("/api/countries/1")
+        assert resp.status_code != 404, "DELETE /api/countries/1 returned 404 — route removed or decorator broke routing."

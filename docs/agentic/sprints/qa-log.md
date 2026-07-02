@@ -10344,3 +10344,18 @@ Issues found: None
 Backlog items filed: None
 Notes: Pure route-reorder fix — /search and /region/{region} moved before /{country_id} in apps/backend/routers/country.py. FastAPI was matching /search at the /{country_id} int slot, failing coercion, returning 422. Fix is minimal and correct. TestRouteOrdering class uses router.routes index comparison as a regression guard. Code-review verdict: ✅ Clean.
 Verdict: **Ship** ✅
+
+## QA — 2026-07-02T15:30:00Z — AWD-M-313 (country.py rate limiting)
+Branch: fix/countries/AWD-M-313-rate-limiting
+Result: ✅ PASS
+| TypeScript     | ✅ | 0 errors (backend-only change — no frontend files touched) |
+| Lint           | ✅ | 0 errors, 0 warnings |
+| Frontend tests | ✅ | Pre-existing intermittent timeout failures only (unrelated backend-only change; pattern consistent with previous cycles documented 2026-07-02T07:59:00Z) |
+| Backend tests  | ✅ | 944 passed, 2 skipped, 0 failures (full suite); 15 new test_country_router.py tests pass (7 parametrised rate-limit structural checks, 1 max_length constraint check, 7 route-registration checks) |
+| Spot-check     | ✅ | No secrets, console.log, @ts-ignore, TODO comments in diff. `JWT_SECRET_KEY = "test-secret"` in set_env fixture is a standard test-only monkeypatch — identical pattern used in 6 other test files |
+| Contracts      | ✅ | openapi.json ✅ (no new endpoints; adding rate limits and max_length=200 does not change OpenAPI schema) · mcp.json ✅ |
+
+Issues found: None
+Backlog items filed: None
+Notes: XS security fix — @limiter.limit() applied to all 7 endpoints in country.py (60/min reads, 30/min writes); request: Request added to every handler signature; max_length=200 added to GET /search q param. Closes the gap left when AWD-M-311 added limits to children.py but missed country.py. Code-review verdict: ✅ Clean (1 🟡 decorator-ordering inconsistency filed as AWD-M-314 — non-blocking).
+Verdict: **Ship** ✅
