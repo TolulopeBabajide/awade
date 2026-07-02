@@ -586,7 +586,14 @@ class ChildrenService:
         )
 
         if not is_valid:
-            logger.warning(f"Parent guide for topic {topic_id} failed light validation: AI key check")
+            logger.warning(
+                "Parent guide for topic %s failed safety/structural validation — rejecting",
+                topic_id,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail="AI service returned content that did not pass safety checks. Please try again.",
+            )
 
         # Validate JSON shape against Pydantic schema before persisting (H-06)
         try:
