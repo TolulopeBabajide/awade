@@ -656,3 +656,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-07-01T18:41:15Z | awade-analytics-daily | done | degraded — Mixpanel scope error day 19+; daily-log appended; D30 window ~10 days; morning-brief updated
 2026-07-01T22:12:58Z | awade-nightly-monitor | done | morning-brief written for 2026-07-02; 🟢 all clear, 0C/2H/18M/3L open, tree clean, live sandbox checks blocked by H-79 (used today's green QA log)
 2026-07-02T03:16:30Z | awade-growth-daily | done | Thu educator email draft (Local Context product spotlight) written; content-log updated
+2026-07-02T08:52:02Z | awade-support-digest | done | 0 support messages; intake-channel gap still open post-launch; SKILL.md still empty
