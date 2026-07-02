@@ -26,8 +26,8 @@ from apps.backend.models import User
 
 router = APIRouter(prefix="/api/countries", tags=["countries"])
 
-@limiter.limit("60/minute")
 @router.get("/", response_model=List[CountryResponse])
+@limiter.limit("60/minute")
 def list_countries(
     request: Request,
     skip: int = Query(0, ge=0),
@@ -42,8 +42,8 @@ def list_countries(
     service = CountryService(db)
     return service.get_countries(skip, limit)
 
-@limiter.limit("30/minute")
 @router.post("/", response_model=CountryResponse)
+@limiter.limit("30/minute")
 def create_country(
     request: Request,
     country: CountryCreate,
@@ -57,8 +57,8 @@ def create_country(
     service = CountryService(db)
     return service.create_country(country)
 
-@limiter.limit("60/minute")
 @router.get("/search", response_model=List[CountryResponse])
+@limiter.limit("60/minute")
 def search_countries(
     request: Request,
     q: str = Query(..., description="Search term", max_length=200),
@@ -74,8 +74,8 @@ def search_countries(
     service = CountryService(db)
     return service.search_countries(q, skip, limit)
 
-@limiter.limit("60/minute")
 @router.get("/region/{region}", response_model=List[CountryResponse])
+@limiter.limit("60/minute")
 def get_countries_by_region(
     request: Request,
     region: str,
@@ -91,8 +91,8 @@ def get_countries_by_region(
     service = CountryService(db)
     return service.get_countries_by_region(region, skip, limit)
 
-@limiter.limit("60/minute")
 @router.get("/{country_id}", response_model=CountryResponse)
+@limiter.limit("60/minute")
 def get_country(
     request: Request,
     country_id: int,
@@ -106,8 +106,8 @@ def get_country(
     service = CountryService(db)
     return service.get_country(country_id)
 
-@limiter.limit("30/minute")
 @router.put("/{country_id}", response_model=CountryResponse)
+@limiter.limit("30/minute")
 def update_country(
     request: Request,
     country_id: int,
@@ -122,8 +122,8 @@ def update_country(
     service = CountryService(db)
     return service.update_country(country_id, country)
 
-@limiter.limit("30/minute")
 @router.delete("/{country_id}")
+@limiter.limit("30/minute")
 def delete_country(
     request: Request,
     country_id: int,
