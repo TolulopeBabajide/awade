@@ -10314,3 +10314,18 @@ Issues found: None
 Backlog items filed: None
 Notes: XS security hardening — two f-string 403 detail messages in dependencies.py replaced with static "Access denied." to stop role name leakage. New test file test_dependencies_role_403.py (92 lines, 8 tests) covers happy path, wrong-role 403, exact detail string, and role-name absence assertions. Code-review verdict: ✅ Clean.
 Verdict: **Ship** ✅
+
+## QA — 2026-07-02T07:59:00Z — AWD-H-134 (AI safety validation bypass in generate_guide)
+Branch: fix/security/AWD-H-134-safety-validation-bypass
+Result: ✅ PASS
+| TypeScript     | ✅ | 0 errors |
+| Lint           | ✅ | 0 errors, 0 warnings |
+| Frontend tests | ✅ | 289 passed (3 pre-existing intermittent timing failures in ParentOnboardingPage.test.tsx × 2 and ParentDashboardPage.delete.test.tsx × 1 — all unrelated to this backend-only change; 292 was last CI-confirmed count on 2026-07-01) |
+| Backend tests  | ✅ | 922 passed, 2 skipped, 0 failures |
+| Spot-check     | ✅ | No secrets, console.log, @ts-ignore, TODO comments in diff |
+| Contracts      | ✅ | openapi.json ✅ · mcp.json ✅ (no API endpoint changes — service layer only) |
+
+Issues found: None
+Backlog items filed: None
+Notes: XS security fix — `generate_guide` now raises HTTP 502 immediately when `is_valid=False` (safety/structural validation), before Pydantic check. Fixes LLM02 bypass where PII/injection/harmful content in a structurally valid guide could pass Pydantic and be persisted. 4 new tests in `TestGenerateGuideSafetyGate` specifically cover structurally-complete JSON + safety fail → 502 + no DB persist. Code-review verdict: ✅ Clean.
+Verdict: **Ship** ✅
