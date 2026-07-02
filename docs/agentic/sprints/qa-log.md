@@ -10329,3 +10329,18 @@ Issues found: None
 Backlog items filed: None
 Notes: XS security fix — `generate_guide` now raises HTTP 502 immediately when `is_valid=False` (safety/structural validation), before Pydantic check. Fixes LLM02 bypass where PII/injection/harmful content in a structurally valid guide could pass Pydantic and be persisted. 4 new tests in `TestGenerateGuideSafetyGate` specifically cover structurally-complete JSON + safety fail → 502 + no DB persist. Code-review verdict: ✅ Clean.
 Verdict: **Ship** ✅
+
+## QA — 2026-07-02T12:30:00Z — AWD-M-312 (country.py route ordering fix)
+Branch: fix/routing/AWD-M-312-country-route-ordering
+Result: ✅ PASS
+| TypeScript     | ✅ | 0 errors (backend-only change — no frontend files touched) |
+| Lint           | ✅ | 0 errors, 0 warnings |
+| Frontend tests | ✅ | Pre-existing intermittent failures only (ParentOnboardingPage × 2, ParentDashboardPage.delete × 1 — documented 2026-07-02T07:59:00Z; unrelated to this change) |
+| Backend tests  | ✅ | 929 passed, 2 skipped, 0 failures (full suite); 7/7 new test_country_router.py tests pass |
+| Spot-check     | ✅ | No secrets, console.log, @ts-ignore, TODO comments in diff |
+| Contracts      | ✅ | openapi.json ✅ (no new endpoints — /search and /region/{region} already present; reorder only) · mcp.json ✅ |
+
+Issues found: None
+Backlog items filed: None
+Notes: Pure route-reorder fix — /search and /region/{region} moved before /{country_id} in apps/backend/routers/country.py. FastAPI was matching /search at the /{country_id} int slot, failing coercion, returning 422. Fix is minimal and correct. TestRouteOrdering class uses router.routes index comparison as a regression guard. Code-review verdict: ✅ Clean.
+Verdict: **Ship** ✅

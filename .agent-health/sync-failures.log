@@ -445,3 +445,4 @@ PUSH_DEFERRED: 2026-07-02T03:29:53Z — git push origin develop blocked by sandb
 PUSH_DEFERRED 2026-07-02T04:21:31Z develop c79b33a docs(dev-log): 2026-07-02 idle run
 2026-07-02T05:51:38Z | PULL_REBASE_FAILED | develop
 2026-07-02T08:19:04Z | PULL_FAILED | develop
+2026-07-02T12:29:46Z PUSH_DEFERRED develop a5d0d38 — sandbox permission denied
