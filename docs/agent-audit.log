@@ -447,3 +447,4 @@
 2026-07-02T08:52:01Z | support-agent | WRITE | docs/agentic/support/ | support digest
 2026-07-02T11:07:44Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
 2026-07-02T11:11:55Z | code-review-agent | WRITE | docs/private/code-reviews-archive/ | completed structural code review — AWD-M-312 (archive write denied, verdict logged here)
+2026-07-02T15:56:41Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review AWD-M-313 — ✅ Clean, 1 🟡 filed as M-314
