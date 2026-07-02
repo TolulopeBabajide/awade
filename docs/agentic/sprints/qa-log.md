@@ -10359,3 +10359,18 @@ Issues found: None
 Backlog items filed: None
 Notes: XS security fix — @limiter.limit() applied to all 7 endpoints in country.py (60/min reads, 30/min writes); request: Request added to every handler signature; max_length=200 added to GET /search q param. Closes the gap left when AWD-M-311 added limits to children.py but missed country.py. Code-review verdict: ✅ Clean (1 🟡 decorator-ordering inconsistency filed as AWD-M-314 — non-blocking).
 Verdict: **Ship** ✅
+
+## QA — 2026-07-02T22:14:00Z — AWD-M-314 (country.py decorator ordering)
+Branch: fix/countries/AWD-M-314-decorator-ordering
+Result: ✅ PASS
+| TypeScript     | ✅ | 0 errors (backend-only change — no frontend files touched) |
+| Lint           | ✅ | 0 errors, 0 warnings |
+| Frontend tests | ✅ | 292 passed (27 files); jsdom navigation noise pre-existing and unrelated |
+| Backend tests  | ✅ | 967 passed, 2 skipped, 0 failures (full suite) |
+| Spot-check     | ✅ | No secrets, print(), @ts-ignore, TODO comments in diff. Pre-existing unused imports (HTTPException, Optional, require_admin_or_educator) not introduced by this diff. |
+| Contracts      | ✅ | No new endpoints; decorator reorder does not affect OpenAPI schema |
+
+Issues found: None
+Backlog items filed: None
+Notes: XS consistency fix — @router.xxx moved to outer position, @limiter.limit() to inner, matching the convention in children.py, curriculum.py, subject.py across all 7 handlers in country.py. Pure readability change; SlowAPI applies rate limits correctly in both orderings (confirmed by 967-test suite). Code-review verdict: ✅ Clean.
+Verdict: **Ship** ✅
