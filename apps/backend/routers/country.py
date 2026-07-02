@@ -52,6 +52,36 @@ def create_country(
     service = CountryService(db)
     return service.create_country(country)
 
+@router.get("/search", response_model=List[CountryResponse])
+def search_countries(
+    q: str = Query(..., description="Search term"),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Search countries by name, ISO code, or region.
+    Requires authentication.
+    """
+    service = CountryService(db)
+    return service.search_countries(q, skip, limit)
+
+@router.get("/region/{region}", response_model=List[CountryResponse])
+def get_countries_by_region(
+    region: str,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get countries by region.
+    Requires authentication.
+    """
+    service = CountryService(db)
+    return service.get_countries_by_region(region, skip, limit)
+
 @router.get("/{country_id}", response_model=CountryResponse)
 def get_country(
     country_id: int,
@@ -91,33 +121,3 @@ def delete_country(
     """
     service = CountryService(db)
     return service.delete_country(country_id)
-
-@router.get("/search", response_model=List[CountryResponse])
-def search_countries(
-    q: str = Query(..., description="Search term"),
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    Search countries by name, ISO code, or region.
-    Requires authentication.
-    """
-    service = CountryService(db)
-    return service.search_countries(q, skip, limit)
-
-@router.get("/region/{region}", response_model=List[CountryResponse])
-def get_countries_by_region(
-    region: str,
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    Get countries by region.
-    Requires authentication.
-    """
-    service = CountryService(db)
-    return service.get_countries_by_region(region, skip, limit) 
