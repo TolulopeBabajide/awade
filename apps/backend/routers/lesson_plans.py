@@ -60,7 +60,9 @@ async def generate_lesson_plan(
     return service.generate_lesson_plan(data, current_user)
 
 @router.get("/resources", response_model=List[LessonResourceResponse])
+@limiter.limit("60/minute")
 async def get_all_lesson_resources(
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -72,7 +74,9 @@ async def get_all_lesson_resources(
     return service.get_all_lesson_resources(current_user)
 
 @router.get("/resources/{resource_id}", response_model=LessonResourceResponse)
+@limiter.limit("60/minute")
 async def get_lesson_resource(
+    request: Request,
     resource_id: int,
     response: Response,
     current_user: User = Depends(get_current_user),
@@ -90,7 +94,9 @@ async def get_lesson_resource(
     return service.get_lesson_resource(resource_id, current_user)
 
 @router.get("/", response_model=List[LessonPlanResponse])
+@limiter.limit("60/minute")
 async def get_lesson_plans(
+    request: Request,
     skip: int = 0,
     limit: int = 100,
     subject: Optional[str] = None,
@@ -106,8 +112,10 @@ async def get_lesson_plans(
     return service.get_lesson_plans(current_user, skip, limit, subject, grade_level)
 
 @router.get("/{lesson_id}", response_model=LessonPlanResponse)
+@limiter.limit("60/minute")
 async def get_lesson_plan(
-    lesson_id: int, 
+    request: Request,
+    lesson_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -119,9 +127,11 @@ async def get_lesson_plan(
     return service.get_lesson_plan(lesson_id, current_user)
 
 @router.put("/{lesson_id}", response_model=LessonPlanResponse)
+@limiter.limit("30/minute")
 async def update_lesson_plan(
+    request: Request,
     lesson_id: int,
-    request: LessonPlanUpdate,
+    lesson_plan_data: LessonPlanUpdate,
     current_user: User = Depends(require_admin_or_educator),
     db: Session = Depends(get_db)
 ):
@@ -130,11 +140,13 @@ async def update_lesson_plan(
     Requires educator or admin authentication and ownership.
     """
     service = LessonPlanService(db)
-    return service.update_lesson_plan(lesson_id, request, current_user)
+    return service.update_lesson_plan(lesson_id, lesson_plan_data, current_user)
 
 @router.delete("/{lesson_id}")
+@limiter.limit("30/minute")
 async def delete_lesson_plan(
-    lesson_id: int, 
+    request: Request,
+    lesson_id: int,
     current_user: User = Depends(require_admin_or_educator),
     db: Session = Depends(get_db)
 ):
@@ -146,7 +158,9 @@ async def delete_lesson_plan(
     return service.delete_lesson_plan(lesson_id, current_user)
 
 @router.get("/{lesson_id}/resources", response_model=List[LessonResourceResponse])
+@limiter.limit("60/minute")
 async def get_lesson_plan_resources(
+    request: Request,
     lesson_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
