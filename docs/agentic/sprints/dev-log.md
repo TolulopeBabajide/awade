@@ -983,3 +983,4 @@ After removing it, the next hourly run will:
 2026-07-03T11:15:00Z | M-316 | AWD-M-316 add rate limits to 6 unprotected users.py endpoints | b2507b3 | ✅ Done (Code-review: CLEAN, QA: SHIP, Security: PASS) | CI:pending (push pending sync)
 2026-07-03T12:20:00Z | M-317 | Add rate limits to 12 unprotected endpoints in admin.py | 4c8930a | ✅ Done (reviewers clean) | CI:pending
 2026-07-03T14:00:00Z | — | idle run — no stage=ready items remain | — | ✅ Nothing to build | CI:n/a
+2026-07-03T15:09:29Z | — | Dev agent idle — no stage=ready items in backlog (all items at discover/define). Sync pull also failed — branch is 1 commit ahead of origin/develop (PUSH_DEFERRED from prior run). | — | idle

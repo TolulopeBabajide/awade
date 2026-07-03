@@ -468,3 +468,6 @@ PUSH_DEFERRED 2026-07-03T08:11:40Z — permission denied during heartbeat commit
 2026-07-03T11:08:02Z | PULL_FAILED | develop
 2026-07-03T11:22:05Z | PULL_REBASE_FAILED | develop
 2026-07-03T12:08:06Z | PULL_FAILED | develop
+2026-07-03T14:08:00Z | PULL_REBASE_FAILED | develop
+2026-07-03T14:12:13Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run — no stage=ready items
+2026-07-03T15:08:04Z | PULL_FAILED | develop
