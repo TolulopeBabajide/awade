@@ -10389,3 +10389,18 @@ Issues found: None
 Backlog items filed: None
 Notes: XS security fix — @limiter.limit() applied to all 7 endpoints in contexts.py (60/min reads, 30/min writes); request: Request added to every handler signature; decorator order @router.xxx outer / @limiter.limit() inner per M-314 convention. Closes the gap when AWD-M-311 (children.py) and AWD-M-313 (country.py) were fixed but contexts.py was missed. Code-review verdict: ✅ Clean (1 🟢 test coverage observation — non-blocking).
 Verdict: **Ship** ✅
+
+## QA — 2026-07-03T08:09:00Z — AWD-H-135 (lesson_plans.py rate limits)
+Branch: fix/lesson-plans/AWD-H-135-rate-limits
+Result: ✅ PASS
+| TypeScript     | ✅ | 0 errors (backend-only change — no frontend files touched) |
+| Lint           | ✅ | 0 errors, 0 warnings |
+| Frontend tests | ✅ | 292 passed (27 files); jsdom navigation noise pre-existing and unrelated |
+| Backend tests  | ✅ | 962 passed, 2 skipped, 0 failures (full suite including 10 new TestLessonPlanRateLimitStructure tests) |
+| Spot-check     | ✅ | No secrets, print(), @ts-ignore, TODO comments, or console.log in diff. Clean adds: 7×@limiter.limit() + 7×request: Request param + body param rename (request→lesson_plan_data). |
+| Contracts      | ✅ | No new endpoints; rate limit decorators do not affect OpenAPI schema |
+
+Issues found: None
+Backlog items filed: None
+Notes: XS security fix — @limiter.limit() applied to all 7 previously unprotected endpoints in lesson_plans.py (60/min for 5 GET reads, 30/min for PUT/DELETE); request: Request added as first param to every handler; decorator order @router.xxx outer / @limiter.limit() inner per M-314 convention. Body param rename (request→lesson_plan_data) in update_lesson_plan correctly resolves the FastAPI parameter collision. Regression guards cover all 3 pre-existing limited endpoints. Code-review verdict: ✅ Clean (0 findings).
+Verdict: **Ship** ✅
