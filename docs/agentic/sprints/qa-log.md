@@ -10404,3 +10404,18 @@ Issues found: None
 Backlog items filed: None
 Notes: XS security fix — @limiter.limit() applied to all 7 previously unprotected endpoints in lesson_plans.py (60/min for 5 GET reads, 30/min for PUT/DELETE); request: Request added as first param to every handler; decorator order @router.xxx outer / @limiter.limit() inner per M-314 convention. Body param rename (request→lesson_plan_data) in update_lesson_plan correctly resolves the FastAPI parameter collision. Regression guards cover all 3 pre-existing limited endpoints. Code-review verdict: ✅ Clean (0 findings).
 Verdict: **Ship** ✅
+
+## QA — 2026-07-03T12:18:00Z — AWD-M-317 (admin.py rate limits)
+Branch: fix/admin/AWD-M-317-rate-limits
+Result: ✅ PASS
+| TypeScript     | ✅ | 0 errors (backend-only change — no frontend files touched) |
+| Lint           | ✅ | 0 errors, 0 warnings |
+| Frontend tests | ✅ | 292 passed (27 files); jsdom navigation noise pre-existing and unrelated |
+| Backend tests  | ✅ | 1003 passed, 2 skipped, 0 failures (full suite including 26 new TestAdminRateLimitStructure tests) |
+| Spot-check     | ✅ | No secrets, print(), @ts-ignore, TODO comments, or console.log in diff. Clean adds: 12×@limiter.limit() + from apps.backend.limiter import limiter + request: Request added to 6 handlers missing it; admin_list_children.request promoted from optional (= None) to required. |
+| Contracts      | ✅ | No new endpoints; rate limit decorators do not affect OpenAPI schema |
+
+Issues found: None
+Backlog items filed: None
+Notes: XS security fix — @limiter.limit() applied to all 12 previously unprotected endpoints in admin.py (60/min for 7 GET reads, 30/min for 5 POST/PATCH/DELETE writes); request: Request added as first param to the 5 GET handlers missing it and promoted from optional to required on admin_list_children; decorator order @router.xxx outer / @limiter.limit() inner per M-314 convention. admin.py was the last router in the sweep (M-311 children, M-313 country, M-315 contexts, M-316 users, H-135 lesson_plans all done). Code-review verdict: ✅ Clean (1 🟢 pre-existing style observation — non-blocking).
+Verdict: **Ship** ✅
