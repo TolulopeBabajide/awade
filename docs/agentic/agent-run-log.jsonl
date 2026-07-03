@@ -659,3 +659,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-07-02T08:52:02Z | awade-support-digest | done | 0 support messages; intake-channel gap still open post-launch; SKILL.md still empty
 2026-07-02T19:04:18Z | awade-analytics-daily | done | degraded: Mixpanel scope error day 21+; D30 window closes Jul 11; daily-log.md appended; morning-brief.md updated
 2026-07-02T22:03:24Z | awade-nightly-monitor | done | morning-brief written; tsc+frontend green, backend not runnable in sandbox (H-79), 2 stray '… 2.py' dup files flagged; open C0/H2/M18/L3
+2026-07-03T03:08:13Z | awade-growth-daily | done | Fri one-month week-in-review thread (BIP) drafted from calendar; features verified vs children.py; BIP numbers held; content-log updated
