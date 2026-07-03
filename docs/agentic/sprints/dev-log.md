@@ -994,3 +994,4 @@ After removing it, the next hourly run will:
 2026-07-03T21:09:24Z | — | dev-agent idle run — no stage=ready items | — | ✅ Idle (no work) | CI:n/a
 
 2026-07-03T22:08:07Z | — | idle run | — | No stage=ready items in backlog (15 define, 8 discover) | CI:n/a
+2026-07-04T00:00:00Z | — | dev-agent idle run — no stage=ready items in backlog; 0 active ready items (15 define, 8 discover); all open items require spec completion or Tolu decision | — | ✅ Idle (no work) | CI:n/a
