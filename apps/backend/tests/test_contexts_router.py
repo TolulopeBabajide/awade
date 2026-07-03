@@ -6,6 +6,7 @@ the fix: every route requires EDUCATOR/ADMIN auth and educators cannot access
 other users' contexts.
 """
 
+import inspect
 import pytest
 from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
@@ -236,3 +237,30 @@ class TestAdminBypass:
         c = self._setup(owner_id=99)
         resp = c.delete("/api/contexts/10")
         assert resp.status_code != 403
+
+
+# ---------------------------------------------------------------------------
+# AWD-M-315 — rate limit structure
+# ---------------------------------------------------------------------------
+
+class TestContextRateLimitStructure:
+    """AWD-M-315 — all context endpoints must carry request: Request for slowapi."""
+
+    @pytest.mark.parametrize("func_name,expected_limit", [
+        ("create_context",               "30/minute"),
+        ("get_contexts_by_lesson_plan",  "60/minute"),
+        ("get_all_contexts",             "60/minute"),
+        ("get_context",                  "60/minute"),
+        ("update_context",               "30/minute"),
+        ("delete_context",               "30/minute"),
+        ("submit_context",               "30/minute"),
+    ])
+    def test_rate_limited_endpoint_has_request_parameter(self, func_name, expected_limit):
+        """Each rate-limited endpoint must accept `request: Request` for slowapi."""
+        import apps.backend.routers.contexts as contexts_module
+        func = getattr(contexts_module, func_name)
+        sig = inspect.signature(func)
+        assert "request" in sig.parameters, (
+            f"{func_name} is missing the `request: Request` parameter required by slowapi "
+            f"(@limiter.limit({expected_limit!r}) will silently fail without it)."
+        )

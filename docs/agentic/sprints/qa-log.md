@@ -10374,3 +10374,18 @@ Issues found: None
 Backlog items filed: None
 Notes: XS consistency fix — @router.xxx moved to outer position, @limiter.limit() to inner, matching the convention in children.py, curriculum.py, subject.py across all 7 handlers in country.py. Pure readability change; SlowAPI applies rate limits correctly in both orderings (confirmed by 967-test suite). Code-review verdict: ✅ Clean.
 Verdict: **Ship** ✅
+
+## QA — 2026-07-03T06:14:00Z — AWD-M-315 (contexts.py rate limits)
+Branch: fix/contexts/AWD-M-315-rate-limits
+Result: ✅ PASS
+| TypeScript     | ✅ | 0 errors (backend-only change — no frontend files touched) |
+| Lint           | ✅ | 0 errors, 0 warnings |
+| Frontend tests | ✅ | 292 passed (27 files); jsdom navigation noise pre-existing and unrelated |
+| Backend tests  | ✅ | 951 passed, 2 skipped, 0 failures (full suite including 7 new TestContextRateLimitStructure tests) |
+| Spot-check     | ✅ | No secrets, print(), @ts-ignore, TODO comments in diff. Clean adds: 2 import lines + 7×@limiter.limit() + 7×request: Request param. |
+| Contracts      | ✅ | No new endpoints; rate limit decorators do not affect OpenAPI schema |
+
+Issues found: None
+Backlog items filed: None
+Notes: XS security fix — @limiter.limit() applied to all 7 endpoints in contexts.py (60/min reads, 30/min writes); request: Request added to every handler signature; decorator order @router.xxx outer / @limiter.limit() inner per M-314 convention. Closes the gap when AWD-M-311 (children.py) and AWD-M-313 (country.py) were fixed but contexts.py was missed. Code-review verdict: ✅ Clean (1 🟢 test coverage observation — non-blocking).
+Verdict: **Ship** ✅

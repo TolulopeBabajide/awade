@@ -16,11 +16,12 @@ Endpoints:
 Author: Tolulope Babajide
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, Request, status, Query
 from sqlalchemy.orm import Session
 from typing import List
 
 from apps.backend.database import get_db
+from apps.backend.limiter import limiter
 from apps.backend.models import Context, LessonPlan, User, UserRole
 from apps.backend.dependencies import require_admin_or_educator
 from apps.backend.services.context_service import ContextService
@@ -78,7 +79,9 @@ def _get_context_with_ownership(
 
 
 @router.post("/", response_model=ContextResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit("30/minute")
 async def create_context(
+    request: Request,
     context_data: ContextCreate,
     current_user: User = Depends(require_admin_or_educator),
     db: Session = Depends(get_db)
@@ -91,7 +94,9 @@ async def create_context(
 
 
 @router.get("/lesson-plan/{lesson_plan_id}", response_model=ContextListResponse)
+@limiter.limit("60/minute")
 async def get_contexts_by_lesson_plan(
+    request: Request,
     lesson_plan_id: int,
     current_user: User = Depends(require_admin_or_educator),
     db: Session = Depends(get_db)
@@ -104,7 +109,9 @@ async def get_contexts_by_lesson_plan(
 
 
 @router.get("/", response_model=List[ContextResponse])
+@limiter.limit("60/minute")
 async def get_all_contexts(
+    request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     current_user: User = Depends(require_admin_or_educator),
@@ -119,7 +126,9 @@ async def get_all_contexts(
 
 
 @router.get("/{context_id}", response_model=ContextResponse)
+@limiter.limit("60/minute")
 async def get_context(
+    request: Request,
     context_id: int,
     current_user: User = Depends(require_admin_or_educator),
     db: Session = Depends(get_db)
@@ -131,7 +140,9 @@ async def get_context(
 
 
 @router.put("/{context_id}", response_model=ContextResponse)
+@limiter.limit("30/minute")
 async def update_context(
+    request: Request,
     context_id: int,
     context_data: ContextUpdate,
     current_user: User = Depends(require_admin_or_educator),
@@ -144,7 +155,9 @@ async def update_context(
 
 
 @router.delete("/{context_id}")
+@limiter.limit("30/minute")
 async def delete_context(
+    request: Request,
     context_id: int,
     current_user: User = Depends(require_admin_or_educator),
     db: Session = Depends(get_db)
@@ -160,7 +173,9 @@ async def delete_context(
     response_model=ContextResponse,
     status_code=status.HTTP_201_CREATED
 )
+@limiter.limit("30/minute")
 async def submit_context(
+    request: Request,
     lesson_plan_id: int,
     context_data: ContextSubmissionRequest,
     current_user: User = Depends(require_admin_or_educator),
