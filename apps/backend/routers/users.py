@@ -82,7 +82,9 @@ async def delete_my_account(
 
 
 @router.get("/", response_model=List[UserResponse])
+@limiter.limit("60/minute")
 async def get_users(
+    request: Request,
     skip: int = 0,
     limit: int = 100,
     role: Optional[UserRole] = Query(None, description="Filter by user role"),
@@ -99,7 +101,9 @@ async def get_users(
     return service.get_users(skip, limit, role, country, search)
 
 @router.get("/{user_id}", response_model=UserResponse)
+@limiter.limit("60/minute")
 async def get_user(
+    request: Request,
     user_id: int,
     current_user: User = Depends(require_admin_or_educator),
     db: Session = Depends(get_db)
@@ -112,7 +116,9 @@ async def get_user(
     return service.get_user(user_id, current_user)
 
 @router.put("/{user_id}", response_model=UserResponse)
+@limiter.limit("30/minute")
 async def update_user(
+    request: Request,
     user_id: int,
     user_data: UserUpdate,
     current_user: User = Depends(require_admin_or_educator),
@@ -126,7 +132,9 @@ async def update_user(
     return service.update_user(user_id, user_data, current_user)
 
 @router.delete("/{user_id}")
+@limiter.limit("30/minute")
 async def delete_user(
+    request: Request,
     user_id: int,
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
@@ -139,7 +147,9 @@ async def delete_user(
     return service.delete_user(user_id, current_user)
 
 @router.get("/{user_id}/profile", response_model=UserProfileResponse)
+@limiter.limit("60/minute")
 async def get_user_profile(
+    request: Request,
     user_id: int,
     current_user: User = Depends(require_admin_or_educator),
     db: Session = Depends(get_db)
@@ -152,7 +162,9 @@ async def get_user_profile(
     return service.get_user_profile(user_id, current_user)
 
 @router.put("/{user_id}/profile", response_model=UserProfileResponse)
+@limiter.limit("30/minute")
 async def update_user_profile(
+    request: Request,
     user_id: int,
     profile_data: UserUpdate,
     current_user: User = Depends(require_admin_or_educator),
@@ -163,4 +175,4 @@ async def update_user_profile(
     Requires authentication and ownership or admin role.
     """
     service = UserService(db)
-    return service.update_user_profile(user_id, profile_data, current_user) 
+    return service.update_user_profile(user_id, profile_data, current_user)
