@@ -984,3 +984,4 @@ After removing it, the next hourly run will:
 2026-07-03T12:20:00Z | M-317 | Add rate limits to 12 unprotected endpoints in admin.py | 4c8930a | ✅ Done (reviewers clean) | CI:pending
 2026-07-03T14:00:00Z | — | idle run — no stage=ready items remain | — | ✅ Nothing to build | CI:n/a
 2026-07-03T15:09:29Z | — | Dev agent idle — no stage=ready items in backlog (all items at discover/define). Sync pull also failed — branch is 1 commit ahead of origin/develop (PUSH_DEFERRED from prior run). | — | idle
+2026-07-03T17:09:00Z | — | dev-agent idle run — no stage=ready items | — | ✅ Idle (no work) | CI:n/a
