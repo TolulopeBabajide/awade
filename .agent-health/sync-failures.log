@@ -477,3 +477,13 @@ PUSH_DEFERRED 2026-07-03T08:11:40Z — permission denied during heartbeat commit
 2026-07-03T17:08:07Z | PULL_FAILED | develop
 PUSH_DEFERRED | 2026-07-03T17:11:22Z | develop | chore(sync): dev-agent idle run — no stage=ready items
 2026-07-03T18:08:10Z | PULL_FAILED | develop
+PUSH_DEFERRED | 2026-07-03T18:11:06Z | develop | chore(sync): dev-agent idle run — no stage=ready items
+2026-07-03T19:08:04Z | PULL_REBASE_FAILED | develop
+2026-07-03T20:00:00Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run — no stage=ready items (git push denied in autonomous run)
+2026-07-03T20:08:03Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-03T20:10:35Z — dev-agent idle run chore(sync)
+2026-07-03T21:08:07Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-03T21:09:58Z — dev-agent idle run chore(sync)
+2026-07-03T22:07:27Z | PULL_REBASE_FAILED | develop
+2026-07-03T22:12:17Z | PULL_REBASE_FAILED | develop
+2026-07-03T23:07:31Z | PULL_FAILED | develop
