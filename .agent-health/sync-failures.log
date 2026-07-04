@@ -496,3 +496,8 @@ PUSH_DEFERRED 2026-07-04T03:09:58Z — develop chore(sync): dev-agent idle run (
 2026-07-04T04:07:29Z | PULL_FAILED | develop
 2026-07-04T05:12:57Z | PUSH_DEFERRED | develop — push denied by sandbox permissions
 2026-07-04T06:07:28Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-04T06:08:58Z — develop chore(sync): dev-agent idle run (git push denied in autonomous run)
+2026-07-04T07:07:31Z | PULL_FAILED | develop
+2026-07-04T08:07:39Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-04T08:11:55Z — develop chore(sync): dev-agent idle run — no stage=ready items (git push denied in autonomous run)
+2026-07-04T09:07:32Z | PULL_REBASE_FAILED | develop

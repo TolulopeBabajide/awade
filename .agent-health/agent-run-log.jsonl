@@ -1,0 +1,2 @@
+{"timestamp":"2026-05-15T00:00:00Z","agent":"dev-agent","task":"awade-dev-execution","status":"blocked","issue":"AWD-H-78","reason":"Target file does not exist; known infrastructure constraint (Cowork/virtiofs FUSE mount). Issue documented in dev-log.md. Blocker persists from previous attempts."}
+2026-05-16T22:05:17Z | awade-nightly-monitor | done | morning-brief written: TS✅ 22 commits today, qa-agent CRITICAL, 22 commits unpushed, 7 untracked files

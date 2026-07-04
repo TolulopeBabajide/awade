@@ -1,0 +1,33 @@
+2026-05-03T13:15:00Z | code-review-agent | mcp__workspace__bash | UNAVAILABLE | "No space left on device" (useradd /etc/passwd) — AWD-M-85 recurring sandbox disk exhaustion; degraded to file-tool-only mode
+2026-06-05T16:00:00Z | analytics-agent | mcp__mixpanel__Get-Business-Context | UNAVAILABLE | "Tool requires scopes: business_context" — Mixpanel MCP connected but missing required scope; degraded to no-data mode; ANALYTICS_TOOL also not yet wired per project-config
+2026-06-05T16:05:00Z | seo-agent | mcp__mixpanel__Get-Business-Context | UNAVAILABLE | missing business_context scope; Get-Projects returned only non-Awade project "Planacle" — no Awade analytics data; no GSC MCP connected; degraded to file-based weekly report
+2026-06-05T16:05:00Z | seo-agent | mcp__workspace__bash | UNAVAILABLE | shell tool absent from session — cannot run scripts/check-backlog-format.py; backlog rows validated manually against .claude/rules/backlog-filing.md
+2026-06-05T16:10:00Z | support-agent | mcp__intercom (plugin:design:intercom) | UNAVAILABLE | Intercom MCP installed but requires OAuth — cannot authenticate in unattended scheduled run; Slack searched (no support/awade/feedback channels), Gmail searched (no Awade threads 14d); degraded to support-log-only mode
+2026-06-05T16:10:00Z | support-agent | mcp__workspace__bash | UNAVAILABLE | no shell tool in session — sanitize-input.sh/idempotency-check.sh/audit-log.sh not executable; logs appended via file tools; heartbeat timestamp approximate
+2026-06-08T18:39:53Z | Mixpanel Get-Business-Context | ERROR: requires scopes: business_context
+2026-06-09T08:08:02Z | intercom | UNAVAILABLE | Intercom MCP not authenticated — continued degraded; Slack/Gmail checked (0 Awade messages)
+2026-06-09T18:37:00Z | analytics-agent | Mixpanel MCP | UNAVAILABLE | scope error persists (business_context); degraded to no-data mode for day 5
+2026-06-09T20:40:01Z | Mixpanel Get-Business-Context | FAIL | requires scopes: business_context
+2026-06-09T20:41:40Z | support-agent | Intercom MCP unavailable — not authenticated in unattended run
+2026-06-10T18:37:22Z | analytics-agent | Mixpanel MCP | UNAVAILABLE | scope error persists (business_context); degraded to no-data mode for day 7
+2026-06-11T18:39:56Z | mixpanel/Get-Business-Context | UNAVAILABLE | scope error: requires business_context scope
+2026-06-12T18:37:20Z | analytics-agent | Amplitude MCP | UNAVAILABLE | plugin requires OAuth authentication — cannot authenticate in unattended scheduled run; degraded to no-data mode
+2026-06-15T16:00:00Z | analytics-agent | Mixpanel MCP | UNAVAILABLE | scope error persists (business_context); 11th consecutive day; degraded to no-data mode
+2026-06-16T08:43:02Z | support-agent | Intercom MCP unavailable (unauthenticated) | continued degraded
+2026-06-16T16:00:00Z | analytics-agent | Mixpanel MCP (List-Organizations) | UNAVAILABLE | "connector's server isn't responding" — new error vs prior scope errors; 12th consecutive day degraded; no analytics data
+2026-06-19T16:00:00Z | analytics-agent | Mixpanel MCP (Get-Business-Context) | UNAVAILABLE | "Tool requires scopes: business_context" — scope error returned again (vs server-down on 06-16); 14th consecutive day degraded; no analytics data available
+2026-06-22T18:37:21Z | analytics-agent | Mixpanel MCP unavailable — scope error: requires 'business_context' scope (day 14 of consecutive failure)
+2026-06-23T08:07:38Z | support-agent | Intercom | UNAVAILABLE | OAuth not completable in unattended run
+2026-06-23T18:37:41Z | analytics-agent | Mixpanel MCP unavailable — server not responding (day 15 of consecutive failure; circuit-breaker degraded path active)
+2026-06-26T10:15:42Z | Mixpanel Get-Business-Context | FAILED | scope error: requires business_context scope | analytics-agent
+2026-06-26T10:17:43Z | support-agent | Intercom | UNAVAILABLE | OAuth not completable in unattended run
+2026-06-26T10:18:49Z | seo-agent | Mixpanel MCP unavailable — scope error: requires 'business_context' scope (no GSC MCP either; 16th+ consecutive day analytics unreachable)
+2026-06-26T18:37:51Z | analytics-agent | Mixpanel Get-Business-Context | ERROR: connector server error (17th+ consecutive failure)
+2026-06-29T23:02:50Z | analytics-agent | Mixpanel | Get-Business-Context failed: requires scopes: business_context (day 17+ consecutive)
+2026-06-30T19:23:30Z | Mixpanel List-Organizations | FAIL | scope error: requires business_context scope — 18th consecutive failure
+2026-07-01T18:41:15Z | analytics-agent | Mixpanel Get-Business-Context | UNAVAILABLE | scope error: requires business_context scope (19th+ consecutive failure; ANALYTICS_TOOL not wired)
+2026-07-02T08:00:00Z | awade-daily-health-check | mcp__workspace__bash | UNAVAILABLE | no shell tool in session — CI mirror (tsc/lint/pytest/git log/gh) not runnable; degraded to file-tool-only; brief written from last QA record; recurrence of AWD-H-77/H-79 sandbox blocker
+2026-07-02T08:52:00Z | support-agent | Intercom MCP | UNAVAILABLE | not connected in unattended session — degraded to support-log + Slack (0 signal)
+2026-07-02T19:03:50Z | analytics-agent | Mixpanel List-Organizations failed: Tool requires scopes: business_context. Persistent error — day 21+ consecutive
+2026-07-03T08:11:41Z | seo-agent | Mixpanel Get-Business-Context | UNAVAILABLE | scope error: requires business_context — analytics unreachable, degraded SEO run
+2026-07-03T16:00:00Z | analytics-agent | Mixpanel Get-Business-Context | UNAVAILABLE | scope error: requires business_context scope (22nd+ consecutive failure; ANALYTICS_TOOL not wired)
