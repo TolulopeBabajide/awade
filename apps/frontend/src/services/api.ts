@@ -72,7 +72,7 @@ class ApiService {
             return await retryCallback();
           }
         } catch (e) {
-          console.error("Refresh failed", e);
+          if (import.meta.env.DEV) console.error("Refresh failed", e);
         }
 
         // If refresh failed, logout
