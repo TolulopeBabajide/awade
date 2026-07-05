@@ -10419,3 +10419,17 @@ Issues found: None
 Backlog items filed: None
 Notes: XS security fix — @limiter.limit() applied to all 12 previously unprotected endpoints in admin.py (60/min for 7 GET reads, 30/min for 5 POST/PATCH/DELETE writes); request: Request added as first param to the 5 GET handlers missing it and promoted from optional to required on admin_list_children; decorator order @router.xxx outer / @limiter.limit() inner per M-314 convention. admin.py was the last router in the sweep (M-311 children, M-313 country, M-315 contexts, M-316 users, H-135 lesson_plans all done). Code-review verdict: ✅ Clean (1 🟢 pre-existing style observation — non-blocking).
 Verdict: **Ship** ✅
+
+## QA — 2026-07-05T06:23:00Z — AWD-L-85 (DEV guard on console.error in api.ts)
+Branch: fix/polish/AWD-L-85-dev-guard-console-error
+Result: ✅ PASS
+| TypeScript     | ✅ | 0 errors |
+| Lint           | ✅ | 0 errors, 0 warnings |
+| Frontend tests | ✅ | 293 passed (27 files); jsdom navigation noise pre-existing and unrelated |
+| Backend tests  | ✅ | No backend files changed — skipped |
+| Spot-check     | ✅ | No secrets, @ts-ignore, eslint-disable, TODO, or unguarded console.* in changed files. Single console.error at api.ts:75 is now properly guarded with `if (import.meta.env.DEV)`. No API changes; contracts not affected. |
+
+Issues found: None
+Backlog items filed: None
+Notes: XS hygiene fix — wraps the one bare `console.error` in `api.ts` with the same `if (import.meta.env.DEV)` guard used by all other console calls in the file (websocket.ts, admin/*.tsx). 1 new test added covering the refresh-throws path. Code-review verdict: ✅ Clean (0 findings).
+Verdict: **Ship** ✅
