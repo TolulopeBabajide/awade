@@ -525,3 +525,6 @@ PUSH_DEFERRED: 2026-07-05T08:12:26Z — permission denied on git push origin dev
 2026-07-05T09:07:33Z | PULL_FAILED | develop
 PUSH_DEFERRED: 2026-07-05T13:13:51Z — AWD-L-38 shipped, permission denied on git push origin develop
 2026-07-05T14:07:29Z | PULL_FAILED | develop
+2026-07-05T15:08:24Z | PUSH_DEFERRED | develop | post-rebase push denied
+2026-07-05T15:10:50Z | PUSH_DEFERRED | develop | dev-agent heartbeat commit push denied
+2026-07-05T16:07:34Z | PULL_FAILED | develop
