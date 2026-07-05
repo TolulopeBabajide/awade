@@ -530,3 +530,6 @@ PUSH_DEFERRED: 2026-07-05T13:13:51Z — AWD-L-38 shipped, permission denied on g
 2026-07-05T16:07:34Z | PULL_FAILED | develop
 PUSH_DEFERRED: 2026-07-05T16:09:34Z — dev-agent heartbeat commit push denied
 2026-07-05T17:07:31Z | PULL_FAILED | develop
+2026-07-05T19:07:35Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-05T19:09:10Z — dev-agent heartbeat commit 66cce07 pending push
+2026-07-05T20:07:32Z | PULL_FAILED | develop
