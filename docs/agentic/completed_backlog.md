@@ -2392,3 +2392,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | L-53 | DepSec / DevDep | ws bumped to 8.21.0 (≥8.20.1 fixes GHSA-58qx-3vcg-4xpx) — verified in package-lock.json | — | 2026-07-04 |
 | H-97 | Tooling / Repo Integrity | .git/refs/heads/ clean — stale develop.lock* ref files gone; git log --all healthy | — | 2026-07-04 |
 | L-85 | Security / Code Hygiene | console.error at api.ts:75 wrapped with if (import.meta.env.DEV) guard; 1 new test | — | 2026-07-05 |
+| L-38 | DepSec / Deps | react-icons 4.12.0 → 5.7.0 — v5 preserves fa/fi import paths; no icon renames needed; 0 npm audit vulns | apps/frontend/package.json | 2026-07-05 |

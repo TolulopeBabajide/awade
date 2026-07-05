@@ -757,16 +757,7 @@ AWD-M-96 remain open. Verdict: ✅ Clean.)
 
 ---
 
-**AWD-L-38 — DepSec: react-icons 4.12.0 → 5.x (major version, breaking API)**
-**Problem**: react-icons is one major version behind (5.x). v4 is in maintenance mode. v5 ships a new import path convention (`react-icons/fa6`, etc.) incompatible with v4 imports. No known CVEs in v4, but staying on maintenance track increases future CVE exposure window.
-**Acceptance criteria**:
-- [ ] Audit all `react-icons` imports across `apps/frontend/src/` (grep `from 'react-icons/`)
-- [ ] Map v4 icon names → v5 equivalents
-- [ ] Bump to latest 5.x; verify no visual regressions
-**Files**: `apps/frontend/src/**/*.tsx`, `apps/frontend/package.json`
-**Effort**: S
-**Audience**: internal
-**Stage**: define
+~~**AWD-L-38**~~ — ✅ resolved 2026-07-05 (commit 92ddd4d, merge 5f6929b). Bumped `react-icons` 4.12.0 → 5.7.0 in `apps/frontend/package.json`. v5 preserves `react-icons/fa` (FA4) and `react-icons/fi` (Feather) sub-packages with identical import paths and icon names — no import changes required. All 30 icon names used by the app verified present in v5.7.0 exports. TS 0 errors · lint 0 errors · 292 frontend tests pass · 1003 backend tests pass · npm audit --production: 0 vulnerabilities. Code-review ✅ Clean · QA ✅ Ship. **Stage**: done
 
 ---
 
