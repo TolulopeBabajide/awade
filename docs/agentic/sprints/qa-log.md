@@ -10420,16 +10420,19 @@ Backlog items filed: None
 Notes: XS security fix — @limiter.limit() applied to all 12 previously unprotected endpoints in admin.py (60/min for 7 GET reads, 30/min for 5 POST/PATCH/DELETE writes); request: Request added as first param to the 5 GET handlers missing it and promoted from optional to required on admin_list_children; decorator order @router.xxx outer / @limiter.limit() inner per M-314 convention. admin.py was the last router in the sweep (M-311 children, M-313 country, M-315 contexts, M-316 users, H-135 lesson_plans all done). Code-review verdict: ✅ Clean (1 🟢 pre-existing style observation — non-blocking).
 Verdict: **Ship** ✅
 
-## QA — 2026-07-05T06:23:00Z — AWD-L-85 (DEV guard on console.error in api.ts)
-Branch: fix/polish/AWD-L-85-dev-guard-console-error
+---
+
+## QA — 2026-07-05T13:55:00Z — AWD-L-38 (react-icons v4→v5)
+Branch: fix/polish/AWD-L-38-react-icons-v5
 Result: ✅ PASS
 | TypeScript     | ✅ | 0 errors |
 | Lint           | ✅ | 0 errors, 0 warnings |
-| Frontend tests | ✅ | 293 passed (27 files); jsdom navigation noise pre-existing and unrelated |
-| Backend tests  | ✅ | No backend files changed — skipped |
-| Spot-check     | ✅ | No secrets, @ts-ignore, eslint-disable, TODO, or unguarded console.* in changed files. Single console.error at api.ts:75 is now properly guarded with `if (import.meta.env.DEV)`. No API changes; contracts not affected. |
+| Frontend tests | ✅ | 292 passed (27 files); jsdom navigation noise pre-existing and unrelated |
+| Backend tests  | ✅ | 1003 passed, 2 skipped, 0 failures |
+| Spot-check     | ✅ | No secrets, print(), @ts-ignore, TODO comments, or console.log in diff. Clean change: package.json version bump + package-lock.json update only. Installed node_modules/react-icons at 5.7.0 confirmed. All 30 icon names (fa/fi families) verified present in v5.7.0 package exports. |
+| Contracts      | ✅ | No new endpoints; no API schema change |
 
 Issues found: None
 Backlog items filed: None
-Notes: XS hygiene fix — wraps the one bare `console.error` in `api.ts` with the same `if (import.meta.env.DEV)` guard used by all other console calls in the file (websocket.ts, admin/*.tsx). 1 new test added covering the refresh-throws path. Code-review verdict: ✅ Clean (0 findings).
+Notes: Additive upgrade — react-icons v5 preserves `react-icons/fa` (FA4) and `react-icons/fi` (Feather) sub-packages with identical import paths and icon names. The new `fa6` package (FA6) was added in v5 but the app does not use it. peerDependencies: `{"react":"*"}` — no new constraints. npm audit --production: 0 vulnerabilities. Code-review verdict: ✅ Clean (0 findings).
 Verdict: **Ship** ✅
