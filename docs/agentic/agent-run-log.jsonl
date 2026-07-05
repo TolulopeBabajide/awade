@@ -668,3 +668,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-07-03T22:07:08Z | awade-nightly-monitor | done | code health green (ts ok, FE 292, BE 1005/0 fail); flagged develop sync failures + 6 CRITICAL agent-health windows
 2026-07-04T09:06:14Z | awade-weekend-ops | done | retro-2026-07-04 + monday-prep written; groomed backlog (9 stale done rows archived, M-20 relabeled); 19 issues closed this week; 0 ready items — pipeline starved; M-305 push blocker persists
 2026-07-04T22:08:12Z | awade-nightly-monitor | done | code health green (ts 0 err, FE 292 pass, BE 1003 pass/2 skip); 0 ready items, dev-agent idling 24h; fresh PULL_FAILED cluster today (M-305); 7 agents CRITICAL
+2026-07-05T22:04:15Z | awade-nightly-monitor | done | morning-brief written; TS clean, frontend 293/293 pass, backend tests unverifiable (sandbox missing Python deps, H-79), gh unavailable
