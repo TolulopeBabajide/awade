@@ -670,3 +670,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-07-04T22:08:12Z | awade-nightly-monitor | done | code health green (ts 0 err, FE 292 pass, BE 1003 pass/2 skip); 0 ready items, dev-agent idling 24h; fresh PULL_FAILED cluster today (M-305); 7 agents CRITICAL
 2026-07-05T22:04:15Z | awade-nightly-monitor | done | morning-brief written; TS clean, frontend 293/293 pass, backend tests unverifiable (sandbox missing Python deps, H-79), gh unavailable
 2026-07-06T03:07:26Z | awade-growth-daily | done | Mon 2026-07-06 Twitter/X draft written (subject-identity reframe + hardening-week BIP), claims verified against completed_backlog.md and live code (children.py rate limits, vercel.json CSP), content-log updated
+2026-07-06T05:33:11Z | awade-compliance-audit | done | compliance audit re-run 2026-07-06, M-204 still open (unresolved 5+ weeks), no new findings
