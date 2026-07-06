@@ -537,3 +537,5 @@ PUSH_DEFERRED 2026-07-05T19:09:10Z — dev-agent heartbeat commit 66cce07 pendin
 2026-07-05T22:07:37Z | PULL_REBASE_FAILED | develop
 2026-07-05T22:09:35Z | PUSH_DEFERRED | develop | commit 6f3d4eb — dev-agent heartbeat no ready items
 2026-07-05T23:07:32Z | PULL_FAILED | develop
+2026-07-06T00:09:32Z PUSH_DEFERRED develop — sandbox permission denied
+2026-07-06T01:07:38Z | PULL_FAILED | develop
