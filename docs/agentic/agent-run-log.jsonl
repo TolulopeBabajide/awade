@@ -675,3 +675,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-07-06T07:05:57Z | awade-daily-health-check | done | TS/lint/frontend/backend/OpenAPI all green; 0 Critical, 2 High (H-73, H-79) open; backend tests ran successfully via split install+test workaround
 2026-07-06T08:41:51Z | awade-sprint-planning | done | sprint-2026-07-06.md written — 0 stage=ready items, 26 issues closed last week, M-305 push gateway still unresolved (2wk), recommend M-20/M-216 advance to ready
 2026-07-06T18:37:13Z | awade-analytics-daily | done | degraded run: Mixpanel MCP scope error day 23+; daily-log.md appended; morning-brief updated; D30 window ~5 days remaining
+2026-07-06T22:07:42Z | awade-nightly-monitor | done | code green (TS/lint/293 FE/1003 BE tests), 1 critical + 2 high open, no commits today, gh CLI unavailable for CI verdict
