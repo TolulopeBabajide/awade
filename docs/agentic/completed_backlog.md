@@ -2393,3 +2393,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | H-97 | Tooling / Repo Integrity | .git/refs/heads/ clean — stale develop.lock* ref files gone; git log --all healthy | — | 2026-07-04 |
 | L-85 | Security / Code Hygiene | console.error at api.ts:75 wrapped with if (import.meta.env.DEV) guard; 1 new test | — | 2026-07-05 |
 | L-38 | DepSec / Deps | react-icons 4.12.0 → 5.7.0 — v5 preserves fa/fi import paths; no icon renames needed; 0 npm audit vulns | apps/frontend/package.json | 2026-07-05 |
+| M-206 | Agent Infra / Permissions | access-review-agent manifest gaps closed: docs/audits/** + agent-run-log.jsonl added to writes; SKILL.md stale paths corrected locally; private copy marked non-authoritative | agent-permissions.json | 2026-07-07 |
