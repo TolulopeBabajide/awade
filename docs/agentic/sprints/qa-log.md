@@ -10447,3 +10447,22 @@ Issues found: None
 Backlog items filed: None
 Notes: AWD-M-122 branch (fix/settings/AWD-M-122-settings-page-split) — SettingsPage.tsx split into thin shell + SettingsPage.components.tsx tab components. Code-review agent found and fixed 🟠 EditableField-in-render anti-pattern (c899bd4) before QA ran; two 🟡 findings filed as M-319/M-320. All async calls properly guarded. 17 new tests (SettingsPage.test.tsx) cover shell, menu, ProfileTab, SecurityTab, LanguageTab flows. CI mirror: tsc ✅ · lint ✅ · 310/310 vitest ✅ · build ✅.
 Verdict: **Ship** ✅
+
+
+## QA — 2026-07-07T18:17 UTC
+**Branch**: fix/settings/AWD-M-319-security-tab-dedup
+**Issue**: AWD-M-319 — eliminate duplicate getCurrentUser call in SecurityTab
+Result: ✅ PASS
+
+| Check       | Result | Detail |
+|-------------|--------|--------|
+| TypeScript  | ✅     | 0 errors |
+| Lint        | ✅     | 0 errors, 0 warnings |
+| Tests       | ✅     | 311 passed, 0 failed (28 test files) |
+| Spot-check  | ✅     | No console.log, no @ts-ignore, no TODO, no suppression comments in changed files |
+| Contract    | ✅     | openapi.json and mcp.json valid |
+
+Issues found: None
+Backlog items filed: None
+
+**Verdict: Ship** — all checks green, no blocking findings. Safe to merge to develop.
