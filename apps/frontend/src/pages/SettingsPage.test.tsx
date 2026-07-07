@@ -182,6 +182,85 @@ describe('SettingsPage', () => {
       const fullNameSection = screen.getByText('Full Name').closest('div.flex')
       expect(fullNameSection).toBeTruthy()
     })
+
+    it('shows error banner when updateProfile returns an error', async () => {
+      mockApiService.updateProfile.mockResolvedValue({ data: undefined, error: 'Validation failed' })
+      renderPage()
+      await waitFor(() => expect(screen.getByText('Full Name')).toBeTruthy())
+
+      const fullNameLabel = screen.getByText('Full Name')
+      const fullNameRow = fullNameLabel.closest('div.flex')!
+      const editBtn = fullNameRow.querySelector('button')
+      fireEvent.click(editBtn!)
+
+      await waitFor(() => {
+        const saveBtn = screen.getAllByTitle('Save changes')[0]
+        expect(saveBtn).toBeTruthy()
+      })
+
+      await act(async () => {
+        fireEvent.click(screen.getAllByTitle('Save changes')[0])
+      })
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toBeTruthy()
+        expect(screen.getByText('Validation failed')).toBeTruthy()
+      })
+    })
+
+    it('shows generic error banner when updateProfile throws a network error', async () => {
+      mockApiService.updateProfile.mockRejectedValue(new Error('Network error'))
+      renderPage()
+      await waitFor(() => expect(screen.getByText('Full Name')).toBeTruthy())
+
+      const fullNameLabel = screen.getByText('Full Name')
+      const fullNameRow = fullNameLabel.closest('div.flex')!
+      const editBtn = fullNameRow.querySelector('button')
+      fireEvent.click(editBtn!)
+
+      await waitFor(() => {
+        expect(screen.getAllByTitle('Save changes').length).toBeGreaterThan(0)
+      })
+
+      await act(async () => {
+        fireEvent.click(screen.getAllByTitle('Save changes')[0])
+      })
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toBeTruthy()
+        expect(screen.getByText(/Failed to save changes/i)).toBeTruthy()
+      })
+    })
+
+    it('clears error banner when cancel is clicked after a failed save', async () => {
+      mockApiService.updateProfile.mockResolvedValue({ data: undefined, error: 'Server error' })
+      renderPage()
+      await waitFor(() => expect(screen.getByText('Full Name')).toBeTruthy())
+
+      const fullNameLabel = screen.getByText('Full Name')
+      const fullNameRow = fullNameLabel.closest('div.flex')!
+      const editBtn = fullNameRow.querySelector('button')!
+      fireEvent.click(editBtn)
+
+      await act(async () => {
+        fireEvent.click(screen.getAllByTitle('Save changes')[0])
+      })
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toBeTruthy()
+      })
+
+      // The cancel button is the untitled button beside "Save changes" in the editing field
+      const allButtons = screen.getAllByRole('button')
+      const cancelBtn = allButtons.find(
+        b => !b.getAttribute('title') && b.closest('div.flex.space-x-2.ml-3')
+      )!
+      fireEvent.click(cancelBtn)
+
+      await waitFor(() => {
+        expect(screen.queryByRole('alert')).toBeFalsy()
+      })
+    })
   })
 
   describe('SecurityTab', () => {

@@ -118,6 +118,7 @@ export const ProfileTab: React.FC = () => {
   const { user } = useAuth();
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
   const [editingField, setEditingField] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
     full_name: '',
     country: '',
@@ -163,8 +164,12 @@ export const ProfileTab: React.FC = () => {
       if (!profileData?.user_id) return;
       const updateData = { [field]: editForm[field as keyof typeof editForm] };
       const response = await apiService.updateProfile(updateData, profileData.user_id);
-      if (response.error) return;
+      if (response.error) {
+        setSaveError(response.error);
+        return;
+      }
       if (response.data) {
+        setSaveError(null);
         setProfileData(response.data);
         setEditingField(null);
         setEditForm(prev => ({
@@ -173,11 +178,12 @@ export const ProfileTab: React.FC = () => {
         }));
       }
     } catch {
-      // Silent error handling
+      setSaveError('Failed to save changes. Please try again.');
     }
   };
 
   const handleCancelEdit = (field: string) => {
+    setSaveError(null);
     setEditingField(null);
     if (profileData) {
       setEditForm(prev => ({
@@ -218,6 +224,11 @@ export const ProfileTab: React.FC = () => {
 
       <div className="mb-6 sm:mb-8">
         <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Personal Information</h3>
+        {saveError && (
+          <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg" role="alert">
+            <p className="text-red-600 text-sm">{saveError}</p>
+          </div>
+        )}
         <div className="space-y-4">
           <EditableField
             label="Full Name"
