@@ -281,7 +281,9 @@ export const ProfileTab: React.FC = () => {
 
 export const SecurityTab: React.FC = () => {
   const { user } = useAuth();
-  const [profileEmail, setProfileEmail] = useState<string | null>(null);
+  // Use email from auth context — avoids a duplicate getCurrentUser() call
+  // (ProfileTab already fetches on mount; email changes are not supported here).
+  const profileEmail = user?.email ?? null;
   const [isEditingLogin, setIsEditingLogin] = useState(false);
   const [loginForm, setLoginForm] = useState({
     email: '',
@@ -290,14 +292,6 @@ export const SecurityTab: React.FC = () => {
     confirmPassword: '',
   });
   const [loginErrors, setLoginErrors] = useState<{ [key: string]: string }>({});
-
-  useEffect(() => {
-    if (user?.user_id) {
-      apiService.getCurrentUser().then(response => {
-        if (response.data?.email) setProfileEmail(response.data.email);
-      }).catch(() => {});
-    }
-  }, [user?.user_id]);
 
   const handleEditLogin = () => {
     setIsEditingLogin(true);

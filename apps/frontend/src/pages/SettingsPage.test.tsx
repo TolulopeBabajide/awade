@@ -148,6 +148,17 @@ describe('SettingsPage', () => {
       })
     })
 
+    it('switching to SecurityTab does not fire a second getCurrentUser call', async () => {
+      renderPage()
+      await waitFor(() => {
+        expect(mockApiService.getCurrentUser).toHaveBeenCalledTimes(1)
+      })
+      clickCog()
+      fireEvent.click(screen.getByText('Security'))
+      await waitFor(() => expect(screen.getByText('Login Details')).toBeTruthy(), { timeout: 5000 })
+      expect(mockApiService.getCurrentUser).toHaveBeenCalledTimes(1)
+    })
+
     it('shows profile initials avatar', async () => {
       renderPage()
       await waitFor(() => {
@@ -217,7 +228,7 @@ describe('SettingsPage', () => {
       fireEvent.click(screen.getByText('Edit Login Details'))
       await waitFor(() => expect(screen.getByText('Current Password')).toBeTruthy())
 
-      // Allow async getCurrentUser to resolve so profileEmail is set
+      // Confirm ProfileTab's getCurrentUser has resolved (SecurityTab derives email from auth context directly)
       await waitFor(() => {
         expect(mockApiService.getCurrentUser).toHaveBeenCalled()
       })
