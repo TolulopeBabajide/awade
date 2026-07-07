@@ -682,3 +682,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-07-07T07:05:36Z | awade-daily-health-check | done | TS clean, lint clean, 293 FE + 1003 BE tests pass, OpenAPI valid; 1 open Critical (C-13), 1 open High (H-73); flagged persistent git push-deferred (develop unsynced ~10h) and stale dist_new/ artifact
 2026-07-07T08:05:41Z | awade-support-digest | done | zero support volume this period; Slack + support-log both empty; Intercom still unauthenticated; standing escalations (no intake channel, missing SKILL.md) repeated
 2026-07-07T18:37:50Z | awade-analytics-daily | done | degraded: Mixpanel scope error day 24+; D30 window closes ~2026-07-11 (4 days); daily-log appended; morning-brief updated with D30 urgency alert
+2026-07-07T22:09:06Z | awade-nightly-monitor | done | morning-brief written — TS clean, 314 FE tests / 995 BE tests pass, C-13 still open, sync-failures.log recurring PULL_FAILED
