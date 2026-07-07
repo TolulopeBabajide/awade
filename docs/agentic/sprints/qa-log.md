@@ -10466,3 +10466,22 @@ Issues found: None
 Backlog items filed: None
 
 **Verdict: Ship** — all checks green, no blocking findings. Safe to merge to develop.
+
+## QA — 2026-07-07T20:15 UTC
+**Branch**: fix/settings/AWD-M-320-handle-save-field-error
+**Issue**: AWD-M-320 — surface handleSaveField errors to user
+
+Result: ✅ PASS
+
+| Check       | Result | Detail |
+|-------------|--------|--------|
+| TypeScript  | ✅     | 0 errors |
+| Lint        | ✅     | 0 errors, 0 warnings |
+| Tests       | ✅     | 314 passed, 0 failed (28 test files) |
+| Spot-check  | ✅     | No console.log, no @ts-ignore, no TODO, no suppression comments in changed files |
+| Contract    | ✅     | openapi.json and mcp.json valid |
+
+Issues found: None
+Backlog items filed: None
+
+**Verdict: Ship** — all checks green. 3 new tests cover API error, network throw, and cancel-clears paths. Safe to merge to develop.
