@@ -18,6 +18,83 @@ import {
 
 // ── Shared types ────────────────────────────────────────────────────────────
 
+interface EditableFieldProps {
+  label: string;
+  value: string;
+  displayValue: string;
+  isEditing: boolean;
+  inputType?: string;
+  multiline?: boolean;
+  onEdit: () => void;
+  onSave: () => void;
+  onCancel: () => void;
+  onChange: (value: string) => void;
+}
+
+const EditableField: React.FC<EditableFieldProps> = ({
+  label,
+  value,
+  displayValue,
+  isEditing,
+  inputType = 'text',
+  multiline = false,
+  onEdit,
+  onSave,
+  onCancel,
+  onChange,
+}) => (
+  <div className={`flex ${multiline ? 'items-start' : 'items-center'} justify-between p-3 bg-gray-50 rounded-lg`}>
+    <div className="flex-1">
+      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      {isEditing ? (
+        multiline ? (
+          <textarea
+            value={value}
+            onChange={e => onChange(e.target.value)}
+            rows={3}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+          />
+        ) : (
+          <input
+            type={inputType}
+            value={value}
+            onChange={e => onChange(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
+          />
+        )
+      ) : (
+        <p className="text-gray-900">{displayValue || 'Not set'}</p>
+      )}
+    </div>
+    <div className="flex space-x-2 ml-3">
+      {isEditing ? (
+        <>
+          <button
+            onClick={onSave}
+            className="p-2 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors duration-200"
+            title="Save changes"
+          >
+            <FaCheck className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onCancel}
+            className="p-2 text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200"
+          >
+            <FaTimes className="w-4 h-4" />
+          </button>
+        </>
+      ) : (
+        <button
+          onClick={onEdit}
+          className="p-2 text-accent-600 hover:text-accent-700 hover:bg-accent-50 rounded-lg transition-colors duration-200"
+        >
+          <FaEdit className="w-4 h-4" />
+        </button>
+      )}
+    </div>
+  </div>
+);
+
 export interface UserProfile {
   user_id: number;
   email: string;
@@ -117,65 +194,6 @@ export const ProfileTab: React.FC = () => {
   const getInitials = (name: string) =>
     name.split(' ').map(n => n[0]).join('').toUpperCase();
 
-  const EditableField: React.FC<{
-    field: string;
-    label: string;
-    value: string;
-    inputType?: string;
-    multiline?: boolean;
-  }> = ({ field, label, value, inputType = 'text', multiline = false }) => (
-    <div className={`flex ${multiline ? 'items-start' : 'items-center'} justify-between p-3 bg-gray-50 rounded-lg`}>
-      <div className="flex-1">
-        <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-        {editingField === field ? (
-          multiline ? (
-            <textarea
-              value={value}
-              onChange={e => handleInputChange(field, e.target.value)}
-              rows={3}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
-            />
-          ) : (
-            <input
-              type={inputType}
-              value={value}
-              onChange={e => handleInputChange(field, e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
-            />
-          )
-        ) : (
-          <p className="text-gray-900">{profileData?.[field as keyof UserProfile]?.toString() || 'Not set'}</p>
-        )}
-      </div>
-      <div className="flex space-x-2 ml-3">
-        {editingField === field ? (
-          <>
-            <button
-              onClick={() => handleSaveField(field)}
-              className="p-2 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors duration-200"
-              title="Save changes"
-            >
-              <FaCheck className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => handleCancelEdit(field)}
-              className="p-2 text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200"
-            >
-              <FaTimes className="w-4 h-4" />
-            </button>
-          </>
-        ) : (
-          <button
-            onClick={() => setEditingField(field)}
-            className="p-2 text-accent-600 hover:text-accent-700 hover:bg-accent-50 rounded-lg transition-colors duration-200"
-          >
-            <FaEdit className="w-4 h-4" />
-          </button>
-        )}
-      </div>
-    </div>
-  );
-
   return (
     <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 md:p-6">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 sm:mb-6 gap-4">
@@ -201,11 +219,58 @@ export const ProfileTab: React.FC = () => {
       <div className="mb-6 sm:mb-8">
         <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Personal Information</h3>
         <div className="space-y-4">
-          <EditableField field="full_name" label="Full Name" value={editForm.full_name} />
-          <EditableField field="country" label="Country" value={editForm.country} />
-          <EditableField field="phone" label="Phone" value={editForm.phone} inputType="tel" />
-          <EditableField field="region" label="City/Region" value={editForm.region} />
-          <EditableField field="bio" label="Bio" value={editForm.bio} multiline />
+          <EditableField
+            label="Full Name"
+            value={editForm.full_name}
+            displayValue={profileData?.full_name?.toString() || ''}
+            isEditing={editingField === 'full_name'}
+            onEdit={() => setEditingField('full_name')}
+            onSave={() => handleSaveField('full_name')}
+            onCancel={() => handleCancelEdit('full_name')}
+            onChange={v => handleInputChange('full_name', v)}
+          />
+          <EditableField
+            label="Country"
+            value={editForm.country}
+            displayValue={profileData?.country?.toString() || ''}
+            isEditing={editingField === 'country'}
+            onEdit={() => setEditingField('country')}
+            onSave={() => handleSaveField('country')}
+            onCancel={() => handleCancelEdit('country')}
+            onChange={v => handleInputChange('country', v)}
+          />
+          <EditableField
+            label="Phone"
+            value={editForm.phone}
+            displayValue={profileData?.phone?.toString() || ''}
+            isEditing={editingField === 'phone'}
+            inputType="tel"
+            onEdit={() => setEditingField('phone')}
+            onSave={() => handleSaveField('phone')}
+            onCancel={() => handleCancelEdit('phone')}
+            onChange={v => handleInputChange('phone', v)}
+          />
+          <EditableField
+            label="City/Region"
+            value={editForm.region}
+            displayValue={profileData?.region?.toString() || ''}
+            isEditing={editingField === 'region'}
+            onEdit={() => setEditingField('region')}
+            onSave={() => handleSaveField('region')}
+            onCancel={() => handleCancelEdit('region')}
+            onChange={v => handleInputChange('region', v)}
+          />
+          <EditableField
+            label="Bio"
+            value={editForm.bio}
+            displayValue={profileData?.bio?.toString() || ''}
+            isEditing={editingField === 'bio'}
+            multiline
+            onEdit={() => setEditingField('bio')}
+            onSave={() => handleSaveField('bio')}
+            onCancel={() => handleCancelEdit('bio')}
+            onChange={v => handleInputChange('bio', v)}
+          />
         </div>
       </div>
     </div>
