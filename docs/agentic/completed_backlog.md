@@ -2395,3 +2395,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | L-38 | DepSec / Deps | react-icons 4.12.0 → 5.7.0 — v5 preserves fa/fi import paths; no icon renames needed; 0 npm audit vulns | apps/frontend/package.json | 2026-07-05 |
 | M-206 | Agent Infra / Permissions | access-review-agent manifest gaps closed: docs/audits/** + agent-run-log.jsonl added to writes; SKILL.md stale paths corrected locally; private copy marked non-authoritative | agent-permissions.json | 2026-07-07 |
 | M-309 | Code Quality / Scripts | populate_from_export() duplication removed from export_curriculum_data.py — read-from-canonical + regex timestamp substitution | `apps/backend/export_curriculum_data.py` | 2026-07-01 |
+| M-122 | Code / Architecture | `SettingsPage.tsx` 739 lines, no test — split into tab components with a thin page shell | `apps/frontend/src/pages/SettingsPage.tsx`, `SettingsPage.components.tsx`, `SettingsPage.test.tsx` | M | done | 2026-07-07 |
