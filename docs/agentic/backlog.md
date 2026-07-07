@@ -672,11 +672,12 @@ AWD-M-96 remain open. Verdict: ✅ Clean.)
 
 **AWD-M-205 — Live agents absent from `agent-permissions.json` — least privilege ungoverned**
 **Problem**: `docs/private/agent-permissions.json` declares 14 agents, but `.claude/skills/` contains 24 agent skills and `.agent-health/` holds active heartbeats for agents not in the manifest — notably `growth-agent` and `sprint-planning`, which are running on schedule yet have no declared read/write scope. Agents on disk with no manifest entry: analytics-agent, content-agent, devops-agent, growth-agent, incident-response-agent, legal-agent, ops-agent, pm-agent, seo-agent, sprint-planning, support-agent. Least privilege cannot be enforced for agents with no declared scope.
+**Update 2026-07-07 (access-review-agent)**: correction — the operative manifest is the git-tracked **root** `agent-permissions.json` (confirmed canonical by `scripts/check-permissions.sh`'s default path and by git history); `docs/private/agent-permissions.json` is untracked with zero commits and should not be treated as authoritative (see AWD-M-206 update). Still 14 agents declared; `.claude/skills/` now has 33 skills. Agents that have run **since** the last review and remain manifest-absent: `analytics-agent`, `sprint-planning`, `support-agent`, `seo-agent`, `daily-health-check`, `weekend-ops` (all heartbeats within the last 5 days as of 2026-07-07). `growth-agent` and `improvement-agent` are also manifest-absent but have gone ~32 days without a heartbeat — confirm with Tolu whether still active before scoping. Full detail in `docs/audits/access-review-2026-07-07.md`.
 **Acceptance criteria**:
-- [ ] Add manifest entries (reads/writes/forbidden + heartbeat path) for every actively-running agent — at minimum `growth-agent` and `sprint-planning` (both have current `.last-run` heartbeats)
+- [ ] Add manifest entries (reads/writes/forbidden + heartbeat path) for every actively-running agent — at minimum `analytics-agent`, `sprint-planning`, `support-agent`, `seo-agent`, `daily-health-check`, `weekend-ops` (all have current `.last-run` heartbeats as of 2026-07-07)
 - [ ] For skills that are not scheduled/active, either add a manifest entry or document that they are on-demand-only and retire unused ones
 - [ ] Update `_meta.agents_count` to match the true count
-**Files**: `docs/private/agent-permissions.json`, `.claude/skills/`, `.agent-health/`
+**Files**: `agent-permissions.json` (root, canonical), `.claude/skills/`, `.agent-health/`
 **Effort**: M
 **Audience**: internal / dev
 **Stage**: discover
@@ -685,11 +686,13 @@ AWD-M-96 remain open. Verdict: ✅ Clean.)
 
 **AWD-M-206 — access-review-agent SKILL/manifest path contradictions**
 **Problem**: Two self-referential inconsistencies surfaced during the 2026-06-02 access review. (1) `access-review-agent/SKILL.md` instructs filing backlog items to `docs/private/agentic-operational/backlog.md` — a path that does not exist and that the agent's own manifest `forbidden` list (`docs/private/**`) blocks it from writing; the canonical permitted backlog is `docs/agentic/backlog.md`. (2) The manifest `reads` list names `agent-permissions.json` (repo-root relative), but the real file is `docs/private/agent-permissions.json`, which the same entry forbids — so the agent cannot read its own source-of-truth manifest as configured.
+**Update 2026-07-07 (access-review-agent)**: correction to (2) above — this run confirmed the diagnosis was backwards. `agent-permissions.json` (repo root) is git-tracked with active commit history (most recently AWD-M-308) and is the default manifest path used by `scripts/check-permissions.sh`. `docs/private/agent-permissions.json` is untracked (`.gitignore:101`), has never been committed, and has drifted out of sync with the root file (missing several recently-added write paths, e.g. `docs/performance/**`, `docs/tech-debt/**`). The fix is the reverse of what acceptance criterion 2 originally said: point `SKILL.md`'s reads at the root `agent-permissions.json` (already permitted — it is not under `docs/private/**`), and delete or clearly mark the `docs/private/` copy as non-authoritative so it stops misleading future reviews. Also newly found: `access-review-agent`'s manifest `writes` list still lacks `docs/audits/**` (its own SKILL.md's designated output location) and `docs/agentic/agent-run-log.jsonl` (which the scheduled-task wrapper requires every run to append to). Full detail in `docs/audits/access-review-2026-07-07.md`.
 **Acceptance criteria**:
-- [ ] Update `access-review-agent/SKILL.md` to file backlog items to `docs/agentic/backlog.md` (or create the documented private path and grant scope intentionally)
-- [ ] Correct the manifest `reads` path to `docs/private/agent-permissions.json` and reconcile with the `docs/private/**` forbid (e.g. allow read of the single file)
+- [ ] Update `access-review-agent/SKILL.md` to read the root `agent-permissions.json` (not `docs/private/agent-permissions.json`) and continue filing backlog items to `docs/agentic/backlog.md`
+- [ ] Delete `docs/private/agent-permissions.json` or add an explicit header marking it non-authoritative / superseded by the root file
+- [ ] Add `docs/audits/**` and `docs/agentic/agent-run-log.jsonl` to `access-review-agent`'s `writes` list in the root `agent-permissions.json`
 - [ ] Verify other agents' SKILL.md backlog/output paths match their manifest scopes
-**Files**: `.claude/skills/access-review-agent/SKILL.md`, `docs/private/agent-permissions.json`
+**Files**: `.claude/skills/access-review-agent/SKILL.md`, `agent-permissions.json` (root), `docs/private/agent-permissions.json`
 **Effort**: S
 **Audience**: internal / dev
 **Stage**: discover
