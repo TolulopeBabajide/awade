@@ -316,10 +316,13 @@
         "env.test.template",
         ".agent-health/*.last-run",
         "docs/agentic/backlog.md",
+        "docs/audits/**",
         ".cursor/mcp.json"
       ],
       "writes": [
         "docs/agentic/backlog.md",
+        "docs/audits/**",
+        "docs/agentic/agent-run-log.jsonl",
         ".agent-health/access-review-agent.last-run"
       ],
       "forbidden": [
