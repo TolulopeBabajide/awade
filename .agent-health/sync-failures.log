@@ -614,3 +614,6 @@ PUSH_DEFERRED 2026-07-07T14:09:34Z — sandbox git push permission denied
 2026-07-08T09:08:06Z | PULL_FAILED | develop
 2026-07-08T10:09:13Z | PUSH_DEFERRED | develop | chore(sync): commit pending agent outputs
 2026-07-08T10:20:25Z | PUSH_DEFERRED | develop | fix(security): AWD-M-323 + agent outputs
+2026-07-08T10:21:36Z | PUSH_DEFERRED | develop | docs(backlog): AWD-M-323 mark done
+2026-07-08T11:08:05Z | PULL_FAILED | develop
+2026-07-08T11:08:53Z | PUSH_DEFERRED | develop | 5 commits pending — push denied in session
