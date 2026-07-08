@@ -10485,3 +10485,33 @@ Issues found: None
 Backlog items filed: None
 
 **Verdict: Ship** — all checks green. 3 new tests cover API error, network throw, and cancel-clears paths. Safe to merge to develop.
+
+## QA — 2026-07-08T07:12 UTC
+**Branch**: fix/security/AWD-M-321-require-educator-on-lesson-plan-reads
+**Issue**: AWD-M-321 — enforce require_educator on lesson plan read/export endpoints
+
+Result: ✅ PASS
+
+| Check       | Result | Detail |
+|-------------|--------|--------|
+| TypeScript  | ✅     | 0 errors |
+| Lint        | ✅     | 0 errors, 0 warnings |
+| Tests       | ✅     | 314 frontend passed, 1009 backend passed, 2 skipped (pre-existing), 0 failed |
+| Spot-check  | ✅     | No console.log, no @ts-ignore, no TODO, no secrets in changed files |
+| Contract    | ✅     | openapi.json and mcp.json valid |
+
+Issues found: None
+Backlog items filed: None
+
+**Verdict: Ship** — all checks green. 6 new role-enforcement tests cover 5 read endpoints + export endpoint for PARENT → 403. Safe to merge to develop.
+
+## QA — 2026-07-08T09:18Z (in-loop · AWD-M-321)
+Result: ✅ PASS
+| TypeScript  | ✅ | 0 errors |
+| Lint        | ✅ | 0 errors |
+| Tests       | ✅ | 314 frontend · 1009 backend (17 new M321 tests all green) · 2 skipped |
+| Spot-check  | ✅ | No secrets, no console.log, no suppressions, no TODO |
+| Contract    | ✅ | openapi.json valid · mcp.json valid |
+Issues found: None
+Backlog items filed: None
+Verdict: **SHIP** — all checks green; 6 new parametrized role-enforcement tests cover all 5 read routes + export. Merge to develop approved.

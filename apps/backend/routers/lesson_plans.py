@@ -24,7 +24,7 @@ from datetime import datetime
 
 from apps.backend.database import get_db
 from apps.backend.models import User
-from apps.backend.dependencies import get_current_user, require_educator, require_admin_or_educator
+from apps.backend.dependencies import require_educator, require_admin_or_educator
 from apps.backend.limiter import limiter
 from apps.backend.services.lesson_plan_service import LessonPlanService
 from apps.backend.services.lesson_resource_service import LessonResourceService
@@ -63,12 +63,12 @@ async def generate_lesson_plan(
 @limiter.limit("60/minute")
 async def get_all_lesson_resources(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_educator),
     db: Session = Depends(get_db)
 ):
     """
     Get all lesson resources for the current user.
-    Requires authentication.
+    Requires educator authentication.
     """
     service = LessonResourceService(db)
     return service.get_all_lesson_resources(current_user)
@@ -79,12 +79,12 @@ async def get_lesson_resource(
     request: Request,
     resource_id: int,
     response: Response,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_educator),
     db: Session = Depends(get_db)
 ):
     """
     Get a specific lesson resource.
-    Requires authentication.
+    Requires educator authentication.
     """
     # Prevent caching of polling results
     response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
@@ -101,12 +101,12 @@ async def get_lesson_plans(
     limit: int = 100,
     subject: Optional[str] = None,
     grade_level: Optional[str] = None,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_educator),
     db: Session = Depends(get_db)
 ):
     """
     Get lesson plans for the current user with optional filtering.
-    Requires authentication.
+    Requires educator authentication.
     """
     service = LessonPlanService(db)
     return service.get_lesson_plans(current_user, skip, limit, subject, grade_level)
@@ -116,12 +116,12 @@ async def get_lesson_plans(
 async def get_lesson_plan(
     request: Request,
     lesson_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_educator),
     db: Session = Depends(get_db)
 ):
     """
     Get a specific lesson plan by ID.
-    Requires authentication and ownership.
+    Requires educator authentication and ownership.
     """
     service = LessonPlanService(db)
     return service.get_lesson_plan(lesson_id, current_user)
@@ -162,12 +162,12 @@ async def delete_lesson_plan(
 async def get_lesson_plan_resources(
     request: Request,
     lesson_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_educator),
     db: Session = Depends(get_db)
 ):
     """
     Get all resources for a specific lesson plan.
-    Requires authentication and ownership.
+    Requires educator authentication and ownership.
     """
     service = LessonResourceService(db)
     return service.get_lesson_plan_resources(lesson_id, current_user)
@@ -195,12 +195,12 @@ async def export_lesson_resource(
     request: Request,
     resource_id: int,
     format_data: ExportFormatRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin_or_educator),
     db: Session = Depends(get_db)
 ):
     """
     Export a lesson resource to PDF or DOCX format.
-    Requires authentication and ownership.
+    Requires educator authentication (admins may export for moderation).
     """
     # AWD-M-70: delegate access-control to LessonResourceService so the
     # ADMIN/SUPER_ADMIN/owner-scoped query lives in one place. AWD-M-67

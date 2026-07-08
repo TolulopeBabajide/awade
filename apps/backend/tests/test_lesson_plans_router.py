@@ -263,6 +263,41 @@ class TestExportLessonResource:
         assert exc_info.value.detail == "Unhandled export format."
 
 
+@pytest.fixture()
+def parent_user():
+    return _make_user(user_id=4, role=UserRole.PARENT)
+
+
+class TestLessonPlanRoleEnforcementM321:
+    """AWD-M-321 — PARENT users must receive 403 on all lesson-plan endpoints."""
+
+    def teardown_method(self):
+        app.dependency_overrides.clear()
+
+    @pytest.mark.parametrize("path,method", [
+        ("/api/lesson-plans/resources", "get"),
+        ("/api/lesson-plans/resources/1", "get"),
+        ("/api/lesson-plans/", "get"),
+        ("/api/lesson-plans/1", "get"),
+        ("/api/lesson-plans/1/resources", "get"),
+    ])
+    def test_parent_is_forbidden_on_read_endpoint(self, parent_user, path, method):
+        db = MagicMock()
+        client = _client_for_user(parent_user, db)
+        resp = getattr(client, method)(path)
+        assert resp.status_code == 403, (
+            f"M-321: PARENT should get 403 on {method.upper()} {path}, got {resp.status_code}"
+        )
+
+    def test_parent_is_forbidden_on_export_endpoint(self, parent_user):
+        db = MagicMock()
+        client = _client_for_user(parent_user, db)
+        resp = client.post("/api/lesson-plans/resources/1/export", json={"format": "pdf"})
+        assert resp.status_code == 403, (
+            f"M-321: PARENT should get 403 on POST /export, got {resp.status_code}"
+        )
+
+
 class TestExportLessonResourceRateLimit:
     """AWD-H-132 — export endpoint must carry the @limiter.limit decorator."""
 
