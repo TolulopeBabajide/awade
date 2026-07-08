@@ -617,3 +617,5 @@ PUSH_DEFERRED 2026-07-07T14:09:34Z — sandbox git push permission denied
 2026-07-08T10:21:36Z | PUSH_DEFERRED | develop | docs(backlog): AWD-M-323 mark done
 2026-07-08T11:08:05Z | PULL_FAILED | develop
 2026-07-08T11:08:53Z | PUSH_DEFERRED | develop | 5 commits pending — push denied in session
+2026-07-08T12:15:59Z | PULL_REBASE_FAILED | develop
+2026-07-08T13:08:06Z | PULL_FAILED | develop

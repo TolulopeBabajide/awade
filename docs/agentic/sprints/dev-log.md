@@ -1104,3 +1104,4 @@ After removing it, the next hourly run will:
 2026-07-08T09:25Z | M-321 | AWD-M-321 enforce require_educator on lesson plan read/export endpoints | 16401d3 | ✅ Done (reviewers clean — code-review ✅ Clean · QA ✅ Ship · Security ✅ Pass) | CI:pending
 2026-07-08T11:20Z | M-323 | DepSec: add WeasyPrint presentational_hints regression tests | 1636368 | ✅ Done (reviewers clean) | CI:pending
 2026-07-08T13:14Z | L-86 | DepSec: upgrade pytest-cov 4.1.0 → 7.1.0 | cddff32 | ✅ Done (reviewers clean) | CI:pending
+2026-07-08T14:07Z | — | idle run — no stage=ready items | — | ✅ No action | CI:n/a
