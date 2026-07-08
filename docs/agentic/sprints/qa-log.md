@@ -10528,3 +10528,16 @@ Changed files: apps/backend/tests/test_pdf_service_security.py
 Issues found: None
 Backlog items filed: None
 Verdict: **SHIP** — all checks green; 3 new static-analysis regression tests assert WeasyPrint HTML()/CSS() never receive presentational_hints (CVE-2026-49452 mitigation). Merge to develop approved.
+
+## QA — 2026-07-08T13:13Z (in-loop · AWD-L-86)
+Result: ✅ PASS
+Branch: fix/deps/AWD-L-86-pytest-cov-upgrade · Commit: cddff32
+Changed files: apps/backend/requirements.txt
+| TypeScript  | ✅ | 0 errors |
+| Lint        | ✅ | 0 errors |
+| Tests       | ✅ | 314 frontend passed · backend venv unavailable (AWD-M-46, pre-existing) — no Python source changed, requirements.txt pin only |
+| Spot-check  | ✅ | No secrets, no console.log, no suppressions, no TODO · devDependency bump only, never reaches production |
+| Contract    | ✅ | openapi.json valid · mcp.json valid |
+Issues found: None
+Backlog items filed: None
+Verdict: **SHIP** — all checks green; single version-pin bump for pytest-cov (4.1.0 → 7.1.0); --cov-fail-under=70 API confirmed stable. Merge to develop approved.
