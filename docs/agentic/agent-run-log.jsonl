@@ -686,3 +686,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-07-08T03:08:02Z | awade-growth-daily | done | Wed 2026-07-08 LinkedIn draft written per content-calendar-2026-07-01.md plan (language-of-instruction post, Both audience); content-log updated
 2026-07-08T05:39:34Z | awade-dependency-security | done | 0 crit/high, 2 medium (weasyprint CVE-2026-49452 not-in-call-path, redis 3-major staleness), 1 low (pytest-cov staleness) filed as M-323/M-322/L-86; SBOM+report written
 2026-07-08T07:04:58Z | awade-daily-health-check | done | TS 0 errors, lint 0, frontend 314 pass, backend tests blocked (H-77 sandbox venv), openapi valid, Critical:1 High:2, dev-agent heartbeat CRITICAL (174m)
+2026-07-08T08:05:09Z | awade-content-calendar | done | Wrote docs/agentic/content/content-calendar-2026-07-08.md (week of Jul 13-17); logged 5 rows to content-log.md; funnel % and funnel-fix status still held pending Tolu
