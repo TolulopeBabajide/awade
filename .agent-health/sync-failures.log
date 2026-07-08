@@ -623,3 +623,13 @@ PUSH_DEFERRED 2026-07-07T14:09:34Z — sandbox git push permission denied
 2026-07-08T14:08:08Z | PULL_FAILED | develop
 2026-07-08T15:09:41Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-08T15:08Z — push denied in session
 2026-07-08T15:08:08Z | PULL_FAILED | develop
+2026-07-08T15:13:33Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-08T16:08Z — push denied in session
+2026-07-08T16:08:05Z | PULL_FAILED | develop
+2026-07-08T17:08:08Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-08T17:09Z
+2026-07-08T18:08:12Z | PULL_FAILED | develop
+2026-07-08T19:08:06Z | PULL_REBASE_FAILED | develop
+2026-07-08T19:10:31Z | PUSH_DEFERRED | develop | push blocked by sandbox permission
+2026-07-08T20:08:10Z | PULL_FAILED | develop
+2026-07-08T20:13:08Z | PUSH_DEFERRED | develop | push blocked by sandbox permission
+2026-07-08T21:08:06Z | PULL_FAILED | develop
