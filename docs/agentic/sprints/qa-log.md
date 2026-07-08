@@ -10515,3 +10515,16 @@ Result: ✅ PASS
 Issues found: None
 Backlog items filed: None
 Verdict: **SHIP** — all checks green; 6 new parametrized role-enforcement tests cover all 5 read routes + export. Merge to develop approved.
+
+## QA — 2026-07-08T11:17Z (in-loop · AWD-M-323)
+Result: ✅ PASS
+Branch: fix/security/AWD-M-323-weasyprint-presentational-hints · Commit: 3c29304
+Changed files: apps/backend/tests/test_pdf_service_security.py
+| TypeScript  | ✅ | 0 errors |
+| Lint        | ✅ | 0 errors |
+| Tests       | ✅ | 314 frontend passed · backend venv broken (AWD-M-46), test logic verified inline — all 3 assertions pass against current pdf_service.py · 2 skipped (pre-existing) |
+| Spot-check  | ✅ | No secrets, no console.log, no suppressions, no TODO · unused `import pytest` (🟢 non-blocking, noted by code-review-agent) |
+| Contract    | ✅ | openapi.json valid · mcp.json valid |
+Issues found: None
+Backlog items filed: None
+Verdict: **SHIP** — all checks green; 3 new static-analysis regression tests assert WeasyPrint HTML()/CSS() never receive presentational_hints (CVE-2026-49452 mitigation). Merge to develop approved.
