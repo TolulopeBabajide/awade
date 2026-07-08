@@ -34,3 +34,4 @@
 2026-07-06T16:00:00Z | analytics-agent | Mixpanel Get-Business-Context | UNAVAILABLE | scope error: requires business_context scope (23rd+ consecutive failure; ANALYTICS_TOOL not wired)
 2026-07-07T09:00:00Z | support-agent | Intercom MCP | UNAVAILABLE | requires authentication, not completable in unattended session — degraded to support-log + Slack (0 signal)
 2026-07-07T16:00:00Z | analytics-agent | Mixpanel Get-Business-Context | UNAVAILABLE | scope error: requires business_context scope (24th+ consecutive failure; ANALYTICS_TOOL not wired; D30 window closes ~2026-07-11 in 4 days)
+2026-07-08T18:37:26Z | Mixpanel Get-Business-Context | SCOPE_ERROR: requires business_context scope | analytics-agent

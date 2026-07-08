@@ -633,3 +633,6 @@ PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-08T17:09Z
 2026-07-08T20:08:10Z | PULL_FAILED | develop
 2026-07-08T20:13:08Z | PUSH_DEFERRED | develop | push blocked by sandbox permission
 2026-07-08T21:08:06Z | PULL_FAILED | develop
+2026-07-08T22:08:06Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-08T22:10Z — git push blocked by session permissions (sandbox)
+2026-07-08T23:08:06Z | PULL_FAILED | develop
