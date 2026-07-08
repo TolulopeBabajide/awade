@@ -10504,3 +10504,14 @@ Issues found: None
 Backlog items filed: None
 
 **Verdict: Ship** — all checks green. 6 new role-enforcement tests cover 5 read endpoints + export endpoint for PARENT → 403. Safe to merge to develop.
+
+## QA — 2026-07-08T09:18Z (in-loop · AWD-M-321)
+Result: ✅ PASS
+| TypeScript  | ✅ | 0 errors |
+| Lint        | ✅ | 0 errors |
+| Tests       | ✅ | 314 frontend · 1009 backend (17 new M321 tests all green) · 2 skipped |
+| Spot-check  | ✅ | No secrets, no console.log, no suppressions, no TODO |
+| Contract    | ✅ | openapi.json valid · mcp.json valid |
+Issues found: None
+Backlog items filed: None
+Verdict: **SHIP** — all checks green; 6 new parametrized role-enforcement tests cover all 5 read routes + export. Merge to develop approved.
