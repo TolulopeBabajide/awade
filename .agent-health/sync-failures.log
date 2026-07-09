@@ -640,3 +640,5 @@ PUSH_DEFERRED 2026-07-08T22:10Z — git push blocked by session permissions (san
 2026-07-09T07:07:23Z | PULL_REBASE_FAILED | develop
 2026-07-09T07:10:49Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-09T07:10Z — no stage=ready items
 2026-07-09T08:07:27Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-07-09T08:11Z develop — permission denied
+2026-07-09T09:07:32Z | PULL_REBASE_FAILED | develop
