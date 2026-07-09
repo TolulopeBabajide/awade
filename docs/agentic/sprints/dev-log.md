@@ -1129,3 +1129,4 @@ After removing it, the next hourly run will:
 2026-07-09T10:10Z | — | idle run — no stage=ready items (24 active: 16 define, 8 discover; all require Tolu decision or L-effort) | — | ⏸ Idle | CI:n/a2026-07-09T13:10Z | — | idle run — no stage=ready items (24 active: 16 define, 8 discover; all require Tolu decision or L-effort) | — | ⏸ Idle | CI:n/a
 2026-07-09T14:09Z | — | No stage=ready items — idle run | — | ✅ Idle | CI:n/a
 2026-07-09T15:10:59Z | — | Idle run — no stage=ready items | — | — | gate: all open items require Tolu action, are at discover stage, or are L effort
+2026-07-09T18:10Z | — | Idle run — no stage=ready items (16 define, 8 discover; all require Tolu decision or L-effort refactors) | — | ⏸ Idle | CI:n/a

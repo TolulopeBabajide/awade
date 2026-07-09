@@ -651,3 +651,5 @@ PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-09T11:10Z — 
 PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-09T12:10Z — no stage=ready items
 2026-07-09T13:09Z PUSH_DEFERRED develop dbc36f3 — permission denied in sandbox
 2026-07-09T14:07:26Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-07-09T17:10Z — permission denied in sandbox
+2026-07-09T18:07:28Z | PULL_FAILED | develop
