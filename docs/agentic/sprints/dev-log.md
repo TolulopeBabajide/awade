@@ -1117,3 +1117,5 @@ After removing it, the next hourly run will:
 2026-07-08T19:09Z | — | idle run — no stage=ready items in backlog (24 live items: 16 define, 8 discover) | — | ⏸ Idle | CI:n/a
 2026-07-08T21:09Z | — | dev-agent idle run 2026-07-08T21:09Z — no stage=ready items | — | —
 2026-07-09T00:09Z | — | idle run — no stage=ready items (16 define: all require Tolu decision or L-effort; 8 discover) | — | ⏸ Idle | CI:n/a
+
+2026-07-09T04:09Z | — | idle run — no stage=ready items (backlog has items at define/discover requiring Tolu decision or L-effort) | — | ⏸ Idle | CI:n/a
