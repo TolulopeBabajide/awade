@@ -476,3 +476,4 @@
 2026-07-09T08:05:50Z | support-agent | WRITE | docs/agentic/support/ | support digest
 2026-07-09T18:37:27Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
 2026-07-10T06:12:15Z | tech-debt-agent | WRITE | docs/tech-debt/ | completed tech debt audit
+2026-07-10T08:14:14Z | seo-agent | WRITE | docs/agentic/seo/ | weekly SEO report
