@@ -1139,3 +1139,5 @@ After removing it, the next hourly run will:
 
 2026-07-09T22:08Z | — | idle run — no stage=ready items | — | ✅ No ready item | CI:N/A
 2026-07-10T06:08Z | — | idle run | — | ✅ No ready item — nothing to build | 0 stage=ready items (16 at define, 8 at discover, 1 at design). Sync pull failed (see .agent-health/sync-failures.log — sandbox permission issue M-305 ongoing).
+
+2026-07-10T08:07Z | — | Idle run — no stage=ready items (all open items at define/discover or require Tolu decision) | — | ✅ No ready item — nothing to build | CI:N/A

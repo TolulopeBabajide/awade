@@ -658,3 +658,12 @@ PUSH_DEFERRED: 2026-07-09T18:10Z — permission denied in sandbox
 2026-07-09T21:07:28Z | PULL_REBASE_FAILED | develop
 PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-09T19:10Z — no stage=ready items
 2026-07-09T22:07:21Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-07-09T22:08Z — permission denied in sandbox
+2026-07-09T23:07:21Z | PULL_REBASE_FAILED | develop
+2026-07-09T23:10Z PUSH_DEFERRED dev-agent idle run commit 12656d5 — git push origin develop permission denied in sandbox (M-305)
+2026-07-10T00:07:22Z | PULL_REBASE_FAILED | develop
+2026-07-10T00:11:06Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-10T02:10Z — no stage=ready items
+2026-07-10T01:07:30Z | PULL_FAILED | develop
+2026-07-10T02:07:24Z | PULL_FAILED | develop
+2026-07-10T02:08Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-10T06:10Z — no stage=ready items
+2026-07-10T03:07:22Z | PULL_FAILED | develop
