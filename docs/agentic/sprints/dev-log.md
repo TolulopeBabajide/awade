@@ -1153,3 +1153,4 @@ After removing it, the next hourly run will:
 2026-07-10T12:08:33Z | — | dev-agent heartbeat — no stage=ready items available | — | no work this cycle
 
 2026-07-10T15:10Z | — | Idle run — no stage=ready items (17 define, 8 discover; several require Tolu decision, L-effort items exceed 2d limit) | — | ✅ No ready item — nothing to build | CI:N/A
+2026-07-10T15:09Z | — | dev-agent idle — no stage=ready items in backlog | — | ✅ Idle (no items)
