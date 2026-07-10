@@ -84,6 +84,7 @@ htmlcov/
 
 # Build outputs
 dist/
+dist_new/
 build/
 *.tgz
 *.tar.gz

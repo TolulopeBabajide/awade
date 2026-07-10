@@ -10541,3 +10541,16 @@ Changed files: apps/backend/requirements.txt
 Issues found: None
 Backlog items filed: None
 Verdict: **SHIP** — all checks green; single version-pin bump for pytest-cov (4.1.0 → 7.1.0); --cov-fail-under=70 API confirmed stable. Merge to develop approved.
+
+## QA — 2026-07-10T08:12Z (in-loop · AWD-M-324)
+Result: ✅ PASS
+Branch: fix/hygiene/AWD-M-324-delete-dist-new-debris · Commit: e082576
+Changed files: .gitignore (+1 line: dist_new/), docs/agentic/agent-run-log.jsonl (+1 log entry)
+| TypeScript  | ✅ | 0 errors |
+| Lint        | ✅ | 0 errors |
+| Tests       | ✅ | 314 frontend passed (28 files) · backend 1012 passed, 2 skipped — no source changed |
+| Spot-check  | ✅ | No secrets, no console.log, no suppressions, no TODO introduced · TODO.md in .gitignore is pre-existing |
+| Contract    | ✅ | openapi.json valid · mcp.json valid |
+Issues found: None
+Backlog items filed: None
+Verdict: **SHIP** — all checks green; gitignore-only change (dist_new/ added to build outputs section); untracked debris (apps/frontend/dist_new/, backlog 2.md, backlog 3.md) already deleted. Merge to develop approved.
