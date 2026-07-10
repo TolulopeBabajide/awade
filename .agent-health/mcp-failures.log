@@ -37,3 +37,4 @@
 2026-07-08T18:37:26Z | Mixpanel Get-Business-Context | SCOPE_ERROR: requires business_context scope | analytics-agent
 2026-07-09T08:05:08Z | support-agent | Intercom MCP | UNAVAILABLE | requires authentication, not completable in unattended session — degraded to support-log + Slack (0 signal)
 2026-07-09T18:36:54Z | Mixpanel MCP List-Organizations failed: requires 'business_context' scope — same persistent error as prior 25+ days; analytics-agent degraded path engaged
+2026-07-10T08:13:22Z | seo-agent | Mixpanel Get-Business-Context | FAIL | scope error: requires business_context (30+ consecutive days)
