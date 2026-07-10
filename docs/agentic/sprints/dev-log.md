@@ -1145,3 +1145,4 @@ After removing it, the next hourly run will:
 2026-07-10T08:07Z | — | Idle run — no stage=ready items (all open items at define/discover or require Tolu decision) | — | ✅ No ready item — nothing to build | CI:N/A
 | 2026-07-10T10:10Z | — | Idle run — no stage=ready items (all open items at define/discover or require Tolu decision) | 74a2633 | ✅ No ready item — nothing to build | CI:N/A |
 | 2026-07-10T16:10Z | — | Idle run — no stage=ready items (all open items at define/discover or require Tolu decision) | — | ✅ No ready item — nothing to build | CI:N/A |
+2026-07-10T08:13Z | M-324 | Hygiene: delete dist_new/ debris and add to .gitignore | 6c3a4c8 | ✅ Done (reviewers clean) | CI:pending
