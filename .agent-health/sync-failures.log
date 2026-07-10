@@ -673,3 +673,5 @@ PUSH_DEFERRED: 2026-07-09T22:08Z — permission denied in sandbox
 PUSH_DEFERRED: 2026-07-10T05:12Z — git push permission denied in session
 2026-07-10T06:07:23Z | PULL_FAILED | develop
 PUSH_DEFERRED: 2026-07-10T16:10Z — git push permission denied in session
+2026-07-10T07:07:27Z | PULL_REBASE_FAILED | develop
+2026-07-10T08:07:23Z | PULL_REBASE_FAILED | develop
