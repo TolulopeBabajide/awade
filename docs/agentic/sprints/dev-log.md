@@ -1185,3 +1185,5 @@ After removing it, the next hourly run will:
 2026-07-11T13:10Z | — | dev-agent idle run 2026-07-11T13:10Z — no ready items | — | ✅ Idle (0 stage=ready; all open items at define/discover) | CI:n/a
 2026-07-11T15:10Z | — | dev-agent idle run 2026-07-11T15:10Z — no ready items | — | ✅ Idle (0 stage=ready; all open items at define/discover) | CI:n/a
 2026-07-11T20:08Z | — | dev-agent idle run 2026-07-11T20:08Z — no ready items | — | ✅ Idle (0 stage=ready; all open items at define/discover) | CI:n/a
+
+2026-07-11T21:08Z | — | dev-agent idle run — no stage=ready items in backlog | — | skipped
