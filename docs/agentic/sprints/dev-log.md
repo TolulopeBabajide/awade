@@ -1175,3 +1175,4 @@ After removing it, the next hourly run will:
 2026-07-11T05:12Z | M-326 | AWD-M-326 replace get_current_user with get_current_active_user on 26 reference-data endpoints | — | 🔄 In progress | Security-agent filed M-326 (XS ready) + M-325 (XS ready) in this cycle. Picking up M-326 (OWASP A01 — suspended users bypass suspension on curriculum/country/grade_level/subject/curriculum_structure routers).
 2026-07-11T07:15Z | M-326 | AWD-M-326 replace get_current_user with get_current_active_user on 21 GET endpoints | 9da37bb | ✅ Done (reviewers clean) | CI:pending (push deferred — sandbox)
 2026-07-11T08:17Z | M-325 | AWD-M-325 bump weasyprint 68.0 → 69.0 fixing CVE-2026-49452 | 5a19e81 | ✅ Done (reviewers clean) | CI:pending (push deferred — sandbox)
+2026-07-11T11:10Z | — | dev-agent idle run 2026-07-11T11:10Z — no ready items | — | ✅ Idle (0 stage=ready; all open items at define/discover) | CI:n/a
