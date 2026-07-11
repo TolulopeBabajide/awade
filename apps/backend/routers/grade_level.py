@@ -19,7 +19,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from apps.backend.database import get_db
-from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator
+from apps.backend.dependencies import get_current_active_user, require_admin, require_admin_or_educator
 from apps.backend.limiter import limiter
 from apps.backend.services.grade_level_service import GradeLevelService
 from apps.backend.schemas.grade_level import GradeLevelCreate, GradeLevelResponse, GradeLevelUpdate
@@ -33,7 +33,7 @@ def list_grade_levels(
     request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -63,7 +63,7 @@ def search_grade_levels(
     q: str = Query(..., description="Search term"),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -80,7 +80,7 @@ def get_grade_levels_by_curriculum(
     curriculum_id: int,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -97,7 +97,7 @@ def get_grade_levels_by_subject(
     subject_id: int,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -112,7 +112,7 @@ def get_grade_levels_by_subject(
 def get_grade_level(
     request: Request,
     grade_level_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """

@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from apps.backend.database import get_db
-from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator
+from apps.backend.dependencies import get_current_active_user, require_admin, require_admin_or_educator
 from apps.backend.limiter import limiter
 from apps.backend.services.subject_service import SubjectService
 from apps.backend.schemas.subject import SubjectCreate, SubjectResponse, SubjectUpdate
@@ -32,7 +32,7 @@ def list_subjects(
     request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -62,7 +62,7 @@ def search_subjects(
     q: str = Query(..., description="Search term"),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -79,7 +79,7 @@ def get_subjects_by_curriculum(
     curriculum_id: int,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -94,7 +94,7 @@ def get_subjects_by_curriculum(
 def get_subject(
     request: Request,
     subject_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """

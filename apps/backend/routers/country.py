@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from apps.backend.database import get_db
-from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator
+from apps.backend.dependencies import get_current_active_user, require_admin, require_admin_or_educator
 from apps.backend.limiter import limiter
 from apps.backend.services.country_service import CountryService
 from apps.backend.schemas.country import CountryCreate, CountryResponse, CountryUpdate
@@ -32,7 +32,7 @@ def list_countries(
     request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -64,7 +64,7 @@ def search_countries(
     q: str = Query(..., description="Search term", max_length=200),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -81,7 +81,7 @@ def get_countries_by_region(
     region: str,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -96,7 +96,7 @@ def get_countries_by_region(
 def get_country(
     request: Request,
     country_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """

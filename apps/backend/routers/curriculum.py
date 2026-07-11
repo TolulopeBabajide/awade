@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from apps.backend.database import get_db
-from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator
+from apps.backend.dependencies import get_current_active_user, require_admin, require_admin_or_educator
 from apps.backend.limiter import limiter
 from apps.backend.services.curriculum_service import CurriculumService
 from apps.backend.services.learning_objective_service import LearningObjectiveService
@@ -52,7 +52,7 @@ def get_curriculums(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     country_id: Optional[int] = None,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -116,7 +116,7 @@ def get_topics(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     curriculum_structure_id: Optional[int] = None,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -131,7 +131,7 @@ def get_topics(
 def get_topic(
     request: Request,
     topic_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -196,7 +196,7 @@ def create_learning_objective(
 def get_learning_objectives(
     request: Request,
     topic_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -258,7 +258,7 @@ def create_content(
 def get_contents(
     request: Request,
     topic_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -306,7 +306,7 @@ def delete_content(
 def get_curriculum(
     request: Request,
     curriculum_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
