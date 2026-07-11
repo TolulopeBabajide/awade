@@ -1170,3 +1170,4 @@ After removing it, the next hourly run will:
 2026-07-11T03:10Z | — | dev-agent heartbeat 2026-07-11 no ready items | — | ✅ No ready item — nothing to build | CI:n/a
 2026-07-11T04:08Z | — | Heartbeat — no stage=ready item | — | ✅ Idle (0 ready items, 16 define, 8 discover)
 2026-07-11T05:12Z | M-326 | AWD-M-326 replace get_current_user with get_current_active_user on 26 reference-data endpoints | — | 🔄 In progress | Security-agent filed M-326 (XS ready) + M-325 (XS ready) in this cycle. Picking up M-326 (OWASP A01 — suspended users bypass suspension on curriculum/country/grade_level/subject/curriculum_structure routers).
+2026-07-11T07:15Z | M-326 | AWD-M-326 replace get_current_user with get_current_active_user on 21 GET endpoints | 9da37bb | ✅ Done (reviewers clean) | CI:pending (push deferred — sandbox)
