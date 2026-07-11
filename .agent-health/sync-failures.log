@@ -698,3 +698,5 @@ PUSH_DEFERRED: 2026-07-10T18:09Z — git push denied; heartbeat committed locall
 2026-07-10T23:07:27Z | PULL_REBASE_FAILED | develop
 PUSH_DEFERRED: 2026-07-11T00:11Z — git push permission denied by sandbox
 2026-07-11T01:07:25Z | PULL_FAILED | develop
+2026-07-11T03:11Z PUSH_DEFERRED — sandbox permission denied on git push origin develop (M-305 ongoing)
+2026-07-11T04:07:30Z | PULL_FAILED | develop
