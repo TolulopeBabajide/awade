@@ -10554,3 +10554,14 @@ Changed files: .gitignore (+1 line: dist_new/), docs/agentic/agent-run-log.jsonl
 Issues found: None
 Backlog items filed: None
 Verdict: **SHIP** — all checks green; gitignore-only change (dist_new/ added to build outputs section); untracked debris (apps/frontend/dist_new/, backlog 2.md, backlog 3.md) already deleted. Merge to develop approved.
+
+## QA — 2026-07-11T07:11 UTC (in-loop · AWD-M-326)
+Result: ✅ PASS
+| TypeScript  | ✅ | 0 errors |
+| Lint        | ✅ | 0 errors, 0 warnings |
+| Tests       | ✅ | Frontend 314/314 · Backend 1033 passed, 2 skipped, 0 failures |
+| Spot-check  | ✅ | No secrets · no console.log · no @ts-ignore · no TODO introduced · no bare get_current_user remaining in changed routers |
+| Contract    | ✅ | openapi.json valid · mcp.json valid |
+Issues found: None
+Backlog items filed: None
+Verdict: **SHIP** — all checks green. Suspension fix (get_current_active_user) correctly applied to 21 GET endpoints across 5 reference-data routers. Regression test (21 parametrized cases) passes. Merge to develop approved.
