@@ -10565,3 +10565,14 @@ Result: ✅ PASS
 Issues found: None
 Backlog items filed: None
 Verdict: **SHIP** — all checks green. Suspension fix (get_current_active_user) correctly applied to 21 GET endpoints across 5 reference-data routers. Regression test (21 parametrized cases) passes. Merge to develop approved.
+
+## QA — 2026-07-11T08:14 UTC (in-loop · AWD-M-325)
+Result: ✅ PASS
+| TypeScript  | ✅ | 0 errors |
+| Lint        | ✅ | 0 errors, 0 warnings |
+| Tests       | ✅ | Frontend 314/314 · Backend 1033 passed, 2 skipped, 0 failures |
+| Spot-check  | ✅ | No secrets · no console.log · no @ts-ignore · no TODO introduced · single-line version pin bump only |
+| Contract    | ✅ | openapi.json valid · mcp.json valid |
+Issues found: None
+Backlog items filed: None
+Verdict: **SHIP** — all checks green. weasyprint 68.0 → 69.0 pin bump; M-323 regression tests (3 cases) and M-326 regression tests (21 cases) all pass; no application code changed.
