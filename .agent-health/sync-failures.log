@@ -725,3 +725,4 @@ PUSH_DEFERRED 2026-07-11T17:08Z chore(sync): dev-agent idle run 2026-07-11T15:10
 2026-07-11T21:07:33Z | PULL_FAILED | develop
 2026-07-11T21:08Z PUSH_DEFERRED chore(sync): dev-agent idle run 2026-07-11T21:08Z — push permission denied (M-305 sandbox git restriction)
 2026-07-11T23:07:30Z | PULL_FAILED | develop
+2026-07-12T01:07:31Z | PULL_REBASE_FAILED | develop
