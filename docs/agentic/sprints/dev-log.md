@@ -1198,3 +1198,5 @@ After removing it, the next hourly run will:
 2026-07-12T05:10Z | idle | No stage=ready items in backlog — nothing to build | N/A | ✅ Idle
 
 2026-07-12T06:09Z | — | dev-agent idle run 2026-07-12T06:09Z — no ready items | — | ✅ No ready item — nothing to build | CI:n/a
+
+2026-07-13T08:07Z | L-87 | Console calls already guarded — false positive (no code change) | — | ✅ Done (no code change needed — DEV guards already in place since AWD-L-29) | CI:n/a
