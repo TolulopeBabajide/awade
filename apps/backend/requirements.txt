@@ -39,7 +39,7 @@ sentry-sdk[fastapi]==2.58.0  # Error monitoring (AWD-H-01)
 
 # Async Worker
 arq==0.25.0
-redis==5.2.1  # Upgraded from 5.0.0 — 2 minor releases with connection pooling security improvements and TLS hardening (AWD-M-153)
+redis==8.0.1  # Upgraded from 5.2.1 — closes 3-major-version staleness gap (AWD-M-322); API compat verified: Redis(), ping(), get(), setex() unchanged; arq 0.25.0 requires redis>=4.2.0 (no upper bound)
 prometheus-fastapi-instrumentator==8.0.0  # Upgraded from 6.1.0: requires starlette>=1.0.0 (compatible with AWD-H-126 starlette bump); routing patched in main.py for fastapi>=0.137 _IncludedRouter compat
 
 # AI Providers

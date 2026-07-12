@@ -92,3 +92,36 @@ class TestContentCache:
         result = cache.get("openai", "gpt-4", {"prompt": "hello"})
 
         assert result == "cached content"
+
+    @patch("packages.ai.cache.redis.Redis")
+    def test_cache_set_calls_setex(self, mock_redis_cls):
+        """ContentCache.set() must call setex(key, ttl, content) — API contract for redis 8.x."""
+        from unittest.mock import MagicMock
+        mock_client = MagicMock()
+        mock_redis_cls.return_value = mock_client
+
+        cache = ContentCache(host="localhost", ttl=3600)
+        cache.set("openai", "gpt-4", {"prompt": "hello"}, "generated text")
+
+        mock_client.setex.assert_called_once()
+        call_args = mock_client.setex.call_args
+        # setex(key, time, value) — key is a string, ttl matches constructor arg
+        key_arg, ttl_arg, value_arg = call_args.args
+        assert key_arg.startswith("ai_cache:")
+        assert ttl_arg == 3600
+        assert value_arg == "generated text"
+
+    @patch("packages.ai.cache.redis.Redis")
+    def test_cache_disabled_on_redis_connection_error(self, mock_redis_cls):
+        """When Redis.ping() raises, cache must disable itself and not surface the error."""
+        from unittest.mock import MagicMock
+        mock_client = MagicMock()
+        mock_redis_cls.return_value = mock_client
+        mock_client.ping.side_effect = Exception("connection refused")
+
+        cache = ContentCache(host="localhost")
+
+        assert cache.enabled is False
+        # get/set must be no-ops — must not raise
+        assert cache.get("openai", "gpt-4", {"prompt": "x"}) is None
+        cache.set("openai", "gpt-4", {"prompt": "x"}, "content")
