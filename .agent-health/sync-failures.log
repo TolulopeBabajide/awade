@@ -748,3 +748,5 @@ PUSH_DEFERRED: git push origin develop failed at 2026-07-12T12:09Z — permissio
 2026-07-12T15:07:40Z | PULL_FAILED | develop
 2026-07-12T15:09Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-12T14:10Z — no ready items
 2026-07-12T16:07:30Z | PULL_FAILED | develop
+2026-07-12T18:21:32Z | PUSH_DEFERRED | develop | docs(sync): AWD-M-322 mark done in backlog, dev-log entry
+2026-07-12T19:07:42Z | PULL_FAILED | develop
