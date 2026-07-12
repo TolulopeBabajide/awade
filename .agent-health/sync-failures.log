@@ -742,3 +742,5 @@ PUSH_DEFERRED 2026-07-12T09:09:18Z develop 90d0f2f chore(sync): dev-agent idle r
 2026-07-12T10:07:40Z | PULL_FAILED | develop
 PUSH_DEFERRED 2026-07-12T10:10Z develop fec6282 chore(sync): dev-agent idle run 2026-07-12T10:08Z — no ready items
 2026-07-12T11:07:30Z | PULL_FAILED | develop
+PUSH_DEFERRED: git push origin develop failed at 2026-07-12T12:09Z — permission denied in sandbox
+2026-07-12T13:07:34Z | PULL_FAILED | develop
