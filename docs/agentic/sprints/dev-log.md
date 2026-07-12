@@ -1194,3 +1194,4 @@ After removing it, the next hourly run will:
 
 2026-07-12T02:08:07Z | — | idle run | — | ✅ No ready item — nothing to build | CI:n/a
 2026-07-12T03:08:27Z | — | dev-agent idle run 2026-07-13T03:08Z — no ready items | — | ✅ No ready item — nothing to build | CI:n/a
+2026-07-12T05:10Z | idle | No stage=ready items in backlog — nothing to build | N/A | ✅ Idle
