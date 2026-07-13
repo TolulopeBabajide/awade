@@ -39,3 +39,4 @@
 2026-07-09T18:36:54Z | Mixpanel MCP List-Organizations failed: requires 'business_context' scope — same persistent error as prior 25+ days; analytics-agent degraded path engaged
 2026-07-10T08:13:22Z | seo-agent | Mixpanel Get-Business-Context | FAIL | scope error: requires business_context (30+ consecutive days)
 2026-07-10T18:38:50Z | analytics-agent | Mixpanel | SCOPE_ERROR: Tool requires scopes: business_context | day 27+
+2026-07-13T18:37:42Z | Mixpanel List-Organizations | SCOPE_ERROR: requires scopes: business_context | Day 28+ consecutive failure
