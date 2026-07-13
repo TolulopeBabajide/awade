@@ -1231,3 +1231,4 @@ After removing it, the next hourly run will:
 2026-07-13T19:10Z | — | dev-agent idle run 2026-07-13T19:10Z — no ready items | — | ✅ Idle (0 stage=ready; all open items at define/discover) | CI:n/a
 2026-07-13T17:11Z | M-327 | Gate /metrics behind METRICS_API_KEY bearer token | 421d032 | ✅ Done (reviewers clean — 2 QA passes) | CI:pending
 2026-07-13T18:10Z | — | dev-agent idle run 2026-07-13T18:10Z — no ready items | — | ✅ Idle (0 stage=ready; all open items at define/discover) | CI:n/a
+2026-07-13T20:10Z | — | dev-agent idle run 2026-07-13T20:10Z — no ready items | — | ✅ Idle (0 stage=ready; all open items at define/discover) | CI:n/a
