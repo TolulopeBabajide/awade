@@ -10576,3 +10576,14 @@ Result: ✅ PASS
 Issues found: None
 Backlog items filed: None
 Verdict: **SHIP** — all checks green. weasyprint 68.0 → 69.0 pin bump; M-323 regression tests (3 cases) and M-326 regression tests (21 cases) all pass; no application code changed.
+
+## QA — 2026-07-13T15:18 UTC (in-loop · AWD-M-327)
+Result: ✅ PASS
+| TypeScript  | ✅ | 0 errors |
+| Lint        | ✅ | 0 errors, 0 warnings |
+| Tests       | ✅ | Frontend 314/314 · Backend 1039 passed, 2 skipped, 0 failures |
+| Spot-check  | ✅ | No secrets · no console.log · no @ts-ignore · no TODO introduced · `test-secret-key` is a test fixture only (in test file, via monkeypatch) |
+| Contract    | ✅ | openapi.json valid · mcp.json valid |
+Issues found: None
+Backlog items filed: None
+Verdict: **SHIP** — all checks green. AWD-M-327 correctly gates /metrics behind METRICS_API_KEY bearer token (fail-closed: 403 when unconfigured, 401 on wrong/missing creds, 200 with valid key). 5 new auth tests pass. No regressions.
