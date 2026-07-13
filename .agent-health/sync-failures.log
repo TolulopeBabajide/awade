@@ -755,3 +755,5 @@ PUSH_DEFERRED 2026-07-12T22:11Z develop 4431e79
 2026-07-12T23:08:02Z | PULL_FAILED | develop
 2026-07-12T23:08Z | PUSH_DEFERRED | develop | pending commit + agent-health files
 2026-07-13T00:08:03Z | PULL_FAILED | develop
+2026-07-13T02:09Z PUSH_DEFERRED branch=develop commit=319603c802636538faf454cbc3264698a4c2c7d7 reason=permission-denied
+2026-07-13T03:08:06Z | PULL_FAILED | develop
