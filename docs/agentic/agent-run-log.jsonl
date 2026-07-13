@@ -709,3 +709,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-07-13T08:09:09Z | awade-weekly-review | done | 🟡 health; ~12 items closed (security hardening); AWD-M-305 git gateway still broken (CI dark); 0 ready items (loop starved); 6 agents CRITICAL; North Star HELD
 2026-07-13T08:33:34Z | awade-sprint-planning | done | Sprint 2026-07-13 written; 12 issues closed last week (incl M-122); ready queue still empty; nominated M-327/M-20/L-60; M-305 push still broken 3wk
 2026-07-13T18:38:19Z | awade-analytics-daily | done | D30 window closed Jul 11; day 28 dark; daily log + morning brief updated; Mixpanel scope error persists
+2026-07-13T22:03:52Z | awade-nightly-monitor | done | brief written; FE 314✅ TS✅ BE unverified(sandbox) last-green 1039; open H3/M17/L3; 8 agents CRITICAL
