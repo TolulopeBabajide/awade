@@ -17,13 +17,14 @@ Usage:
 
 Author: Tolulope Babajide
 """
-from fastapi import FastAPI, HTTPException, Depends, Body, Query
+from fastapi import FastAPI, HTTPException, Depends, Body, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Optional
 from sqlalchemy.orm import Session
 import os
+import secrets
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -173,6 +174,27 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# ---------------------------------------------------------------------------
+# AWD-M-327: Gate /metrics behind an API key (OWASP A05 — Security Misconfiguration).
+# Fail closed: if METRICS_API_KEY is not set, deny all access with 403.
+# Callers must pass: Authorization: Bearer <METRICS_API_KEY>
+# ---------------------------------------------------------------------------
+def _metrics_api_key_auth(request: Request) -> None:
+    api_key = os.getenv("METRICS_API_KEY", "")
+    if not api_key:
+        raise HTTPException(status_code=403, detail="Metrics endpoint not configured")
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=401,
+            detail="Metrics endpoint requires Authorization: Bearer <METRICS_API_KEY>",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    provided_key = auth_header[len("Bearer "):]
+    if not secrets.compare_digest(provided_key.encode(), api_key.encode()):
+        raise HTTPException(status_code=401, detail="Invalid metrics API key")
+
+
 # Prometheus Metrics — ImportError guard covers only the import lines so that
 # RuntimeError/AttributeError from a failed monkey-patch propagates at startup
 # (fail-fast) rather than being silently swallowed (AWD-M-280).
@@ -234,7 +256,7 @@ if _pfi_available:
 
     _check_pfi_routing_compat()
     _pfi_routing._get_route_name = _pfi_get_route_name_compat
-    Instrumentator().instrument(app).expose(app)
+    Instrumentator().instrument(app).expose(app, dependencies=[Depends(_metrics_api_key_auth)])
 
 # Register Rate Limiter
 app.state.limiter = limiter
