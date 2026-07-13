@@ -762,3 +762,5 @@ PUSH_DEFERRED 2026-07-13T03:09Z branch=develop commit=276368b802657f705ea8bcd348
 PUSH_DEFERRED 2026-07-13T04:09Z — git push denied in scheduled run
 2026-07-13T05:15:14Z | PULL_REBASE_FAILED | develop
 2026-07-13T06:08:07Z | PULL_REBASE_FAILED | develop
+2026-07-13T06:13:04Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-13T13:10Z — no ready items
+2026-07-13T07:08:10Z | PULL_FAILED | develop
