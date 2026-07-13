@@ -703,3 +703,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-07-10T22:15:04Z | awade-nightly-monitor | done | brief written: 🟡 — TS 0 errors, 314 frontend pass, backend 1012 pass (proxy, sandbox env unavailable H-79), 4 agents CRITICAL, M-305 push gateway still broken (2 ahead), 0 stage=ready
 2026-07-11T09:05:41Z | awade-weekend-ops | done | Retro + monday-prep written; 12 issues closed this wk; backlog groomed (M-269→Medium, H-79→High); 0 stage=ready; M-305 push deferral 3rd wk
 2026-07-12T22:05:24Z | awade-nightly-monitor | done | morning-brief written 2026-07-13; 🟡 tsc+FE tests green, BE green per QA-log, 2 High open, M-305 origin-push still failing
+2026-07-13T03:08:11Z | awade-growth-daily | done | Mon Twitter/X 2-post draft (parent unfamiliarity + WeasyPrint CVE/role-check BIP); verified M-321/M-323/M-325 in completed_backlog, updated Post 2 to note CVE now patched (M-325)
