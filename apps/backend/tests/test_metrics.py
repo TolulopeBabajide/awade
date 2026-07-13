@@ -7,11 +7,35 @@ from apps.backend.main import app
 client = TestClient(app)
 
 
-def test_metrics_endpoint_exists():
-    """Test that /metrics endpoint is exposed and returns Prometheus data."""
-    response = client.get("/metrics")
-    assert response.status_code == 200
-    assert "# HELP" in response.text and "http_requests_total" in response.text
+class TestMetricsAuthM327:
+    """AWD-M-327: /metrics must be gated behind METRICS_API_KEY (OWASP A05)."""
+
+    def test_metrics_returns_403_when_key_not_configured(self, monkeypatch):
+        monkeypatch.delenv("METRICS_API_KEY", raising=False)
+        response = client.get("/metrics")
+        assert response.status_code == 403
+
+    def test_metrics_returns_401_when_no_auth_header(self, monkeypatch):
+        monkeypatch.setenv("METRICS_API_KEY", "test-secret-key")
+        response = client.get("/metrics")
+        assert response.status_code == 401
+        assert response.headers.get("WWW-Authenticate") == "Bearer"
+
+    def test_metrics_returns_401_when_wrong_key(self, monkeypatch):
+        monkeypatch.setenv("METRICS_API_KEY", "test-secret-key")
+        response = client.get("/metrics", headers={"Authorization": "Bearer wrong-key"})
+        assert response.status_code == 401
+
+    def test_metrics_returns_401_when_non_bearer_scheme(self, monkeypatch):
+        monkeypatch.setenv("METRICS_API_KEY", "test-secret-key")
+        response = client.get("/metrics", headers={"Authorization": "Basic dXNlcjpwYXNz"})
+        assert response.status_code == 401
+
+    def test_metrics_returns_200_with_valid_key(self, monkeypatch):
+        monkeypatch.setenv("METRICS_API_KEY", "test-secret-key")
+        response = client.get("/metrics", headers={"Authorization": "Bearer test-secret-key"})
+        assert response.status_code == 200
+        assert "# HELP" in response.text and "http_requests_total" in response.text
 
 
 class TestPfiMonkeyPatchGuardH131:
