@@ -714,3 +714,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-07-14T06:10:22Z | awade-architecture-review | skip | idempotency window not elapsed (20085m of 20160m) — skipped
 2026-07-14T07:08:47Z | awade-daily-health-check | done | TS/lint/FE(314)/OpenAPI green; backend suite too slow to finish in sandbox (no failures seen); 0 crit 4 high
 2026-07-14T08:05:05Z | awade-support-digest | done | 0 support msgs; Slack+Intercom OAuth-unavailable; intake-gap escalation now 7 digests unresolved
+2026-07-14T18:38:14Z | awade-analytics-daily | done | analytics dark day 29+; D30 closed 2026-07-11; daily-log and morning-brief updated; MCP scope error logged
