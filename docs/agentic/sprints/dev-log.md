@@ -1257,3 +1257,5 @@ After removing it, the next hourly run will:
 2026-07-14T11:09Z | — | dev-agent idle run 2026-07-14T11:09Z — no ready items | — | ✅ Idle (0 stage=ready; all open items at define/discover — H-73/M-212/L-07/M-305/M-318 require Tolu decision, L-effort M-119/M-120/M-121/M-123/M-125/M-214 excluded by >2d gate, discover items need research/spec) | CI:n/a
 
 2026-07-14T17:09Z | — | dev-agent idle run 2026-07-14T17:09Z — no ready items | — | ✅ Idle (0 stage=ready; 23 open items: H-79/M-216/M-124/M-204/M-19/M-20/L-61/L-60 at discover; H-73/M-214/M-119/M-120/M-121/M-123/M-125/M-212/M-318/M-305/M-16/M-17/M-67/L-07 at define — all blocked by Tolu decisions or L-effort exclusion) | CI:n/a
+
+2026-07-14T18:09Z | — | dev-agent idle run 2026-07-14T18:09Z — no ready items | — | ✅ Idle (0 stage=ready; all open items at discover or define — blocked by Tolu decisions or L-effort gate; AWD-M-305 sync push still deferred) | CI:n/a
