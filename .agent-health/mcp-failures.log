@@ -40,3 +40,5 @@
 2026-07-10T08:13:22Z | seo-agent | Mixpanel Get-Business-Context | FAIL | scope error: requires business_context (30+ consecutive days)
 2026-07-10T18:38:50Z | analytics-agent | Mixpanel | SCOPE_ERROR: Tool requires scopes: business_context | day 27+
 2026-07-13T18:37:42Z | Mixpanel List-Organizations | SCOPE_ERROR: requires scopes: business_context | Day 28+ consecutive failure
+2026-07-14T08:05:05Z | support-agent | Slack MCP | UNAVAILABLE | requires OAuth, not completable in unattended session — degraded to support-log (0 signal)
+2026-07-14T08:05:05Z | support-agent | Intercom MCP | UNAVAILABLE | requires OAuth, not completable in unattended session
