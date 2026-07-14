@@ -711,3 +711,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-07-13T18:38:19Z | awade-analytics-daily | done | D30 window closed Jul 11; day 28 dark; daily log + morning brief updated; Mixpanel scope error persists
 2026-07-13T22:03:52Z | awade-nightly-monitor | done | brief written; FE 314✅ TS✅ BE unverified(sandbox) last-green 1039; open H3/M17/L3; 8 agents CRITICAL
 2026-07-14T03:07:45Z | awade-growth-daily | done | drafted Tue educator Local-Context thread per calendar; feature verified live (local_context field, lesson_plans schema)
+2026-07-14T06:10:22Z | awade-architecture-review | skip | idempotency window not elapsed (20085m of 20160m) — skipped
