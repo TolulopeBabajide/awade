@@ -784,3 +784,6 @@ PUSH_DEFERRED: git push origin develop failed at 2026-07-13T18:08Z
 2026-07-13T21:08:10Z | PULL_REBASE_FAILED | develop
 PUSH_DEFERRED: git push origin develop — permission denied at 2026-07-13T21:09:32Z
 2026-07-13T22:08:08Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-07-13T23:09:23Z — push blocked by sandbox permission
+2026-07-14T00:08:12Z | PULL_FAILED | develop
+2026-07-14T01:08:10Z | PULL_FAILED | develop
