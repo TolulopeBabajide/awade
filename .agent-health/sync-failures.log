@@ -806,3 +806,7 @@ PUSH_DEFERRED: 2026-07-13T23:09:23Z — push blocked by sandbox permission
 2026-07-14T13:08:10Z | PULL_REBASE_FAILED | develop
 2026-07-14T13:15:23Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-07-14T13:09Z
 2026-07-14T14:08:11Z | PULL_FAILED | develop
+2026-07-14T15:10:15Z | PUSH_DEFERRED | develop | commit d22cf0e (chore(heartbeat): dev-agent run 2026-07-14T15:09Z) kept locally — user permission denied git push
+2026-07-14T16:08:16Z | PULL_FAILED | develop
+2026-07-14T16:11:39Z | PULL_FAILED | develop
+2026-07-14T17:08:17Z | PULL_FAILED | develop
