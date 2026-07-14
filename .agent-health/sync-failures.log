@@ -810,3 +810,9 @@ PUSH_DEFERRED: 2026-07-13T23:09:23Z — push blocked by sandbox permission
 2026-07-14T16:08:16Z | PULL_FAILED | develop
 2026-07-14T16:11:39Z | PULL_FAILED | develop
 2026-07-14T17:08:17Z | PULL_FAILED | develop
+2026-07-14T17:10Z | PUSH_DEFERRED | develop | commit 058b7c5 (chore(heartbeat): dev-agent run 2026-07-14T17:09Z) kept locally — user permission denied git push
+2026-07-14T18:08:08Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-14T18:14:02Z develop 0f884bf chore(dev-log): idle run 2026-07-14T18:09Z — no ready items
+2026-07-14T19:08:13Z | PULL_REBASE_FAILED | develop
+2026-07-14T19:09:59Z | PUSH_DEFERRED | develop | chore(dev-log): idle run 2026-07-14T19:09Z
+2026-07-14T20:08:08Z | PULL_FAILED | develop
