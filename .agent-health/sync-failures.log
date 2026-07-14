@@ -798,3 +798,6 @@ PUSH_DEFERRED: 2026-07-13T23:09:23Z — push blocked by sandbox permission
 2026-07-14T08:08:13Z | PULL_REBASE_FAILED | develop
 2026-07-14T08:12:53Z | PULL_FAILED | develop
 2026-07-14T08:14:20Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-07-14T08:11Z (commits 917ab08+7f789c4; sync.sh only pushes when staging new content — piggyback on next run)
+2026-07-14T10:08:13Z | PULL_REBASE_FAILED | develop
+2026-07-14T10:10Z PUSH_DEFERRED develop 0bb203b — sandbox permission denied (M-305)
+2026-07-14T11:08:13Z | PULL_FAILED | develop
