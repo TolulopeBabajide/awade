@@ -1243,3 +1243,4 @@ After removing it, the next hourly run will:
 
 2026-07-14T04:11Z | — | dev-agent idle run 2026-07-14T04:11Z — no ready items | — | ✅ Idle (0 stage=ready; all open items at define/discover — 15 define items: S/XS blocked by Tolu decision or external action, L items >2d excluded, discover items need research/spec) | CI:n/a
 2026-07-14T05:11Z | — | dev-agent idle run 2026-07-14T05:11Z — no ready items | — | ✅ Idle (0 stage=ready; all open items at define/discover — H-136/H-79 discover, H-73/M-269/M-318/M-305 define all require Tolu decision or external action) | CI:n/a
+2026-07-14T06:09Z | H-136 + H-137 | Local dev venv refreshed: starlette 0.46.2→1.3.1, cryptography 46.0.6→48.0.1, python-multipart 0.0.27→0.0.31 | — | ✅ Done (no code commit — venv gitignored; 1039 backend tests pass) | CI:n/a
