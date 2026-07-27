@@ -10620,3 +10620,14 @@ Result: ✅ PASS
 Issues found: None
 Backlog items filed: None
 Verdict: **SHIP** — all checks green. Pillow 12.2→12.3 (AWD-H-138), setuptools 78.1→83.0 (AWD-M-329), httplib2 0.22→0.32 (AWD-M-330) pin bumps only; 1039 backend tests and 314 frontend tests pass with no regression.
+
+## QA — 2026-07-27T10:19 UTC (in-loop · AWD-M-328)
+Result: ✅ PASS
+| TypeScript  | ✅ | 0 errors |
+| Lint        | ✅ | 0 errors, 0 warnings |
+| Tests       | ✅ | Frontend 321/321 · Backend 1039 passed, 2 skipped, 0 failures |
+| Spot-check  | ✅ | No secrets · no console.log · no new @ts-ignore · no TODO introduced · eslint-disable-next-line no-control-regex in sanitizer.ts is pre-existing (line 36, not in diff) |
+| Contract    | ✅ | openapi.json valid · mcp.json valid |
+Issues found: None
+Backlog items filed: None
+Verdict: **SHIP** — all checks green. AWD-M-328: added `sanitizeRedirectPath` to sanitizer.ts, applied to LoginPage.tsx `from` path (GHSA-wrjc-x8rr-h8h6 open-redirect mitigation). 7 new tests. Frontend test count: 314 → 321. Backend unchanged. No regressions.
