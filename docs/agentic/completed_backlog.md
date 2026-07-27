@@ -2409,3 +2409,6 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | M-327 | Security / OWASP A05: Gated Prometheus `/metrics` behind `METRICS_API_KEY` bearer-token auth. Fail-closed: 403 when key not configured, 401 on missing/wrong creds, 200 on valid key. Added 5 regression tests. Commit 8a03170, merge 421d032. | 2026-07-13 |
 | H-137 | Security / DepSec: Local dev venv cryptography 46.0.6 → 48.0.1, python-multipart 0.0.27 → 0.0.31 via pip install -r requirements.txt. 1039 backend tests pass. No code commit (venv gitignored). | XS | done | 2026-07-14 |
 | H-136 | Security / DepSec: Local dev venv starlette 0.46.2 → 1.3.1, PYSEC-2026-161 resolved in local dev environment. Same pip install run as H-137. 1039 backend tests pass. No code commit (venv gitignored). | XS | done | 2026-07-14 |
+| H-138 | Security / DepSec: Bumped `Pillow==12.2.0` → `12.3.0`, fixing 13 CVEs (PYSEC-2026-2253/2254/2255/2256/2257 + PYSEC-2026-3451/3452/3453/3454/3493/3494/3495/3496). Commit f9260e9, merge 7a10482. Code-review ✅ · QA ✅ · Security ✅. | S | done | 2026-07-27 |
+| M-329 | Security / DepSec: Bumped `setuptools==78.1.1` → `83.0.0`, fixing PYSEC-2026-3447. Same commit f9260e9. | XS | done | 2026-07-27 |
+| M-330 | Security / DepSec: Bumped `httplib2==0.22.0` → `0.32.0`, fixing PYSEC-2026-3444. Same commit f9260e9. | XS | done | 2026-07-27 |
