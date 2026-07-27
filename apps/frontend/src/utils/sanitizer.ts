@@ -51,7 +51,7 @@ export const sanitizeInput = (input: string): string => {
 /**
  * Validates if the input contains any restricted patterns without modifying it.
  * Useful for rejecting input entirely.
- * 
+ *
  * @param input - The raw input string
  * @returns True if input is safe, False if it contains restricted patterns
  */
@@ -62,4 +62,25 @@ export const validateInput = (input: string): boolean => {
     ];
 
     return !injectionPatterns.some(pattern => pattern.test(input));
+};
+
+/**
+ * Sanitizes a redirect path to prevent open-redirect attacks.
+ *
+ * Rejects paths that react-router may interpret as external URLs:
+ * protocol-relative paths (//evil.com) and backslash-prefixed paths
+ * (\evil.com) which bypass the CVE-2025-68470 / GHSA-wrjc-x8rr-h8h6 fix
+ * in react-router 6.x.  Returns `fallback` for any non-relative path.
+ *
+ * @param path - The candidate redirect path (from route state, query param, etc.)
+ * @param fallback - Safe default returned when `path` is rejected (default '/dashboard')
+ * @returns A guaranteed-relative path safe to pass to navigate()
+ */
+export const sanitizeRedirectPath = (path: string | undefined | null, fallback = '/dashboard'): string => {
+    if (!path || typeof path !== 'string') return fallback;
+    // Normalise backslashes so \evil.com becomes /evil.com before further checks
+    const normalised = path.replace(/\\/g, '/');
+    // Accept only paths that start with exactly one '/' (reject // and external URLs)
+    if (!normalised.startsWith('/') || normalised.startsWith('//')) return fallback;
+    return normalised;
 };

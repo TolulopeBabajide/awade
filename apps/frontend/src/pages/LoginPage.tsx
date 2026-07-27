@@ -3,6 +3,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
+import { sanitizeRedirectPath } from '../utils/sanitizer';
 import { FaEye, FaEyeSlash, FaArrowLeft, FaEnvelope, FaLock } from 'react-icons/fa';
 
 
@@ -12,8 +13,8 @@ const LoginPage: React.FC = () => {
   const location = useLocation();
   const { login, googleAuth } = useAuth();
   
-  // Get the redirect path from location state, or default to dashboard
-  const from = (location.state as any)?.from?.pathname || '/dashboard';
+  // Sanitize the redirect path from route state to prevent open-redirect (GHSA-wrjc-x8rr-h8h6)
+  const from = sanitizeRedirectPath((location.state as any)?.from?.pathname);
   const isRedirected = (location.state as any)?.from;
   
   const [form, setForm] = useState({
