@@ -2412,3 +2412,4 @@ Commit TBD. Two related refactors to `apps/backend/services/user_service.py`:
 | H-138 | Security / DepSec: Bumped `Pillow==12.2.0` → `12.3.0`, fixing 13 CVEs (PYSEC-2026-2253/2254/2255/2256/2257 + PYSEC-2026-3451/3452/3453/3454/3493/3494/3495/3496). Commit f9260e9, merge 7a10482. Code-review ✅ · QA ✅ · Security ✅. | S | done | 2026-07-27 |
 | M-329 | Security / DepSec: Bumped `setuptools==78.1.1` → `83.0.0`, fixing PYSEC-2026-3447. Same commit f9260e9. | XS | done | 2026-07-27 |
 | M-330 | Security / DepSec: Bumped `httplib2==0.22.0` → `0.32.0`, fixing PYSEC-2026-3444. Same commit f9260e9. | XS | done | 2026-07-27 |
+| M-328 | Security / DepSec: Added `sanitizeRedirectPath` to sanitizer.ts; applied to LoginPage.tsx `from` redirect. Mitigates GHSA-wrjc-x8rr-h8h6 (react-router open-redirect via backslash). 7 new tests. Commit 53f0164, merge 2ecfd55. Code-review ✅ · QA ✅ · Security ✅. | M | done | 2026-07-27 |
