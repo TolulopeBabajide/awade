@@ -19,13 +19,13 @@ PyJWT==2.13.0  # Upgraded from 2.12.1 — fixes PYSEC-2026-175/177/178/179 (CVE-
 email-validator==2.1.0
 requests==2.33.0  # Fix CVE-2024-47081, CVE-2026-25645 (insecure temp file reuse) (AWD-M-114)
 urllib3==2.7.0  # Fix CVE-2025-50181, CVE-2025-50182, CVE-2025-66471, CVE-2026-21441, CVE-2026-66418 (AWD-H-75); Fix PYSEC-2026-142 (Brotli decompression amplification), PYSEC-2026-141 (cross-origin redirect header leak, fixed in 2.7.0) (AWD-M-199)
-Pillow==12.2.0  # Upgraded from 10.4.0 — fixes CVE-2026-40192 (FITS GZIP decompression bomb, AV:N), CVE-2026-25990, CVE-2026-42311, CVE-2026-42310, CVE-2026-42308; API compat confirmed: Image.open/.convert/.thumbnail/.save + Image.Resampling.LANCZOS all stable 10→12 (AWD-M-112)
+Pillow==12.3.0  # Upgraded from 10.4.0 — fixes CVE-2026-40192 (FITS GZIP decompression bomb, AV:N), CVE-2026-25990, CVE-2026-42311, CVE-2026-42310, CVE-2026-42308; API compat confirmed: Image.open/.convert/.thumbnail/.save + Image.Resampling.LANCZOS all stable 10→12 (AWD-M-112); bumped 12.2→12.3 — fixes PYSEC-2026-2253/2254/2255/2256/2257 + PYSEC-2026-3451/3452/3453/3454/3493/3494/3495/3496 (AWD-H-138)
 alembic==1.13.3
 
 # Additional security dependencies
 starlette==1.3.1  # Upgraded from 0.49.3: fixes PYSEC-2026-161 (Host header URL injection via unvalidated Host header; fixed at 1.0.1). Also covers CVE-2025-54121 and CVE-2025-62727 from AWD-H-96. (AWD-H-126)
 cryptography==48.0.1  # Fix CVE-2024-12797, CVE-2026-26007, CVE-2026-34073 (AWD-M-113); Fix PYSEC-2026-36 (non-contiguous buffer overflow, affects 45.0.0-46.0.6, fixed at 46.0.7, bumped to 48.0.0) (AWD-H-95); Fix GHSA-537c-gmf6-5ccf (statically-linked OpenSSL advisory 2026-06-09) (AWD-M-301)
-setuptools==78.1.1  # Fix CVE-2025-47273, CVE-2024-6345
+setuptools==83.0.0  # Fix CVE-2025-47273, CVE-2024-6345, PYSEC-2026-3447 (AWD-M-329)
 
 # Testing dependencies
 pytest==9.0.3  # Upgraded from 8.3.5 — fix CVE-2025-71176 (local privilege escalation via predictable /tmp/pytest-of-{user} dir); fixed at 9.0.3 (AWD-L-52)
@@ -44,4 +44,4 @@ prometheus-fastapi-instrumentator==8.0.0  # Upgraded from 6.1.0: requires starle
 
 # AI Providers
 google-genai==1.14.0  # Migrated from deprecated google-generativeai; pinned after local test pass
-httplib2==0.22.0
+httplib2==0.32.0  # Fix PYSEC-2026-3444 (AWD-M-330)
