@@ -873,3 +873,7 @@ PUSH_DEFERRED: 2026-07-29T01:09Z — git push origin develop failed (permission 
 2026-07-29T04:09:31Z PUSH_DEFERRED develop 937ad4c chore(heartbeat): dev-agent run 2026-07-29T04:09Z
 2026-07-29T05:09:35Z | PULL_FAILED | develop
 2026-07-29T06:07:39Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-29T06:12Z develop — permission denied at push step
+2026-07-29T07:07:37Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-29T07:09Z — dev-agent heartbeat run: push denied by permission policy
+2026-07-29T08:07:39Z | PULL_REBASE_FAILED | develop
