@@ -717,3 +717,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-07-14T18:38:14Z | awade-analytics-daily | done | analytics dark day 29+; D30 closed 2026-07-11; daily-log and morning-brief updated; MCP scope error logged
 2026-07-14T22:04:49Z | awade-nightly-monitor | done | brief written: 🟡 — TS+frontend green, backend carried from QA, 7 agents CRITICAL, 0 ready items, 23 open
 2026-07-28T03:08:16Z | awade-growth-daily | done | Parent-audience Twitter/X thread (understood vs memorised, conversation starters) drafted to docs/agentic/content/drafts/2026-07-28-twitter-x.md; content-log updated
+2026-07-29T03:09:02Z | awade-growth-daily | done | Wed 2026-07-29 LinkedIn draft (Educator, Curriculum Insights/Product Spotlight — curriculum-depth-vs-breadth honesty post) written; content-log appended
