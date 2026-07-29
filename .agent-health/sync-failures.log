@@ -889,3 +889,5 @@ PUSH_DEFERRED 2026-07-29T14:09Z chore(heartbeat): dev-agent run 2026-07-29T13:10
 2026-07-29T15:07:39Z | PULL_FAILED | develop
 PUSH_DEFERRED 2026-07-29T15:10Z — heartbeat commit a48cdab could not push (permission denied)
 2026-07-29T16:07:43Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-29T17:10Z — sandbox permission restriction (M-305)
+2026-07-29T18:07:43Z | PULL_FAILED | develop
