@@ -894,3 +894,5 @@ PUSH_DEFERRED 2026-07-29T17:10Z — sandbox permission restriction (M-305)
 PUSH_DEFERRED 2026-07-29T18:11Z — heartbeat commit dccdf55 could not push (permission denied)
 PUSH_DEFERRED 2026-07-29T19:09Z — permission denied (no PAT available)
 2026-07-29T20:07:39Z | PULL_FAILED | develop
+2026-07-29T21:11:29Z | PULL_REBASE_FAILED | develop
+2026-07-29T22:07:45Z | PULL_FAILED | develop
