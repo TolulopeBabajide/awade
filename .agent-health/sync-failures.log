@@ -882,3 +882,5 @@ PUSH_DEFERRED 2026-07-29T07:09Z — dev-agent heartbeat run: push denied by perm
 PUSH_DEFERRED: 2026-07-29T09:09Z — develop commit d126c36 (chore(heartbeat): dev-agent run 2026-07-29T08:14Z) — push permission denied
 2026-07-29T10:07:40Z | PULL_FAILED | develop
 PUSH_DEFERRED: 2026-07-29T10:10Z — develop commit c479891 (chore(heartbeat): dev-agent run 2026-07-29T10:10Z) — push permission denied
+PUSH_DEFERRED: 2026-07-29T12:09Z — heartbeat commit ae0a32b could not push (permission denied)
+2026-07-29T13:07:42Z | PULL_FAILED | develop
