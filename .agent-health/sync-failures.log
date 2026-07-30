@@ -900,3 +900,6 @@ PUSH_DEFERRED 2026-07-29T19:09Z — permission denied (no PAT available)
 2026-07-30T00:07:40Z | PULL_FAILED | develop
 PUSH_DEFERRED 2026-07-30T00:11:20Z — heartbeat commit 4ee4d69 could not push (permission denied in sandbox)
 2026-07-30T01:07:51Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-30T01:08:10Z — pending commits could not push (permission denied in sandbox)
+PUSH_DEFERRED 2026-07-30T01:10:41Z — heartbeat commit 75e58ed could not push (permission denied in sandbox)
+2026-07-30T02:07:48Z | PULL_FAILED | develop
