@@ -906,3 +906,10 @@ PUSH_DEFERRED 2026-07-30T01:10:41Z — heartbeat commit 75e58ed could not push (
 2026-07-30T04:07:43Z | PULL_REBASE_FAILED | develop
 PUSH_DEFERRED 2026-07-30T04:12:41Z — heartbeat commits 4a55fd2+3a3e869 could not push (permission denied in sandbox)
 2026-07-30T05:09:41Z | PULL_FAILED | develop
+2026-07-30T07:12:09Z | PULL_REBASE_FAILED | develop
+2026-07-30T08:07:52Z | PULL_FAILED | develop
+2026-07-30T09:07:43Z | PULL_FAILED | develop
+2026-07-30T10:07:44Z | PULL_REBASE_FAILED | develop
+2026-07-30T10:11:59Z | PULL_FAILED | develop
+2026-07-30T10:12:09Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-07-30T09:10Z
+2026-07-30T11:07:43Z | PULL_FAILED | develop
