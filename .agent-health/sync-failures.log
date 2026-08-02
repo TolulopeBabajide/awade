@@ -913,3 +913,9 @@ PUSH_DEFERRED 2026-07-30T04:12:41Z — heartbeat commits 4a55fd2+3a3e869 could n
 2026-07-30T10:11:59Z | PULL_FAILED | develop
 2026-07-30T10:12:09Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-07-30T09:10Z
 2026-07-30T11:07:43Z | PULL_FAILED | develop
+PUSH_DEFERRED: git push origin develop blocked at 2026-07-30T12:08Z
+2026-07-30T13:07:43Z | PULL_FAILED | develop
+2026-08-02T04:07:51Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-08-02T04:11Z — push denied by sandbox, commit b4ea8c5 queued
+2026-08-02T05:09:48Z | PULL_FAILED | develop
+2026-08-02T06:07:55Z | PULL_REBASE_FAILED | develop
