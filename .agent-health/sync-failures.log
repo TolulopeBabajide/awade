@@ -930,3 +930,5 @@ PUSH_DEFERRED: 2026-08-02T09:09:57Z — git push denied
 2026-08-02T14:07:49Z | PULL_FAILED | develop
 2026-08-02T14:11Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-08-02T14:10Z (permission denied in sandbox)
 2026-08-02T15:07:55Z | PULL_FAILED | develop
+2026-08-02T17:10:34Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-08-02T15:09Z
+2026-08-02T18:07:50Z | PULL_FAILED | develop

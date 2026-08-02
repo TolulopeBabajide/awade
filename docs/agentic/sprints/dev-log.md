@@ -1370,3 +1370,4 @@ After removing it, the next hourly run will:
 2026-08-02T15:09Z | — | dev-agent idle run 2026-08-02T15:09Z — no ready items | — | ✅ Idle (0 stage=ready; all open items at discover or define — H-73/M-212/M-305/M-318/L-07 require Tolu decisions; large-effort items excluded by >2d gate; all others at discover or blocked) | CI:n/a
 
 | 2026-08-02T16:08 UTC | — | No-op run | — | ✅ No ready items | All open backlog items at discover/define stage; nothing to build this cycle |
+2026-08-02T18:08:54Z | — | No stage=ready item found — nothing to build this cycle | — | ✅ No-op | CI:—
