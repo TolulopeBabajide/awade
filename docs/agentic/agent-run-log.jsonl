@@ -721,3 +721,4 @@ $(date -u +"%Y-%m-%dT%H:%M:%SZ") | awade-dev-execution | skip | Infrastructure: 
 2026-07-29T08:04:48Z | awade-content-calendar | done | Wrote content-calendar-2026-07-29.md (week of 3-7 Aug), backfilled 2 dropped topics from skipped 15/22 Jul weeks
 2026-07-30T03:08:13Z | awade-growth-daily | done | Thu 2026-07-30 Email draft (Parent, Product Spotlight — multi-child profile management, verified live) written to drafts/2026-07-30-email.md; content-log appended
 2026-08-03T03:07:59Z | awade-growth-daily | done | Mon 3 Aug: 2 Twitter/X posts drafted per content-calendar-2026-07-29.md (forgetting-curve parent post + security-sweep BIP post); facts verified against git log/completed_backlog.md; saved to docs/agentic/content/drafts/2026-08-03-twitter-x.md
+2026-08-03T05:31:58Z | awade-compliance-audit | skip | idempotency check fired — last audit ran 2026-07-06, within 30-day window (43200 min)

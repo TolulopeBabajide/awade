@@ -488,3 +488,4 @@
 2026-07-14T18:38:14Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
 2026-07-27T06:11:31Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-07-27-f9260e9.md | completed structural code review — in-loop, ✅ Clean
 2026-07-27T07:12:37Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — AWD-H-138/M-329/M-330 dep bumps — verdict: Clean
+2026-08-03T05:31:58Z | compliance-agent     | SKIP       | idempotency                              | ran within 30-day window — skipping
