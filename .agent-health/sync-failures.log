@@ -954,3 +954,5 @@ PUSH_DEFERRED: 2026-08-03T05:13Z — git push denied in sandbox
 2026-08-03T19:58:47Z | PULL_REBASE_FAILED | develop
 PUSH_DEFERRED 2026-08-03T06:10Z develop cf4f081 — permission denied in sandbox; commit chore(heartbeat): dev-agent run 2026-08-03T06:10Z pending push
 2026-08-03T20:04:36Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-03T20:06Z develop 28291fa — permission denied in sandbox; commit chore(heartbeat): dev-agent run 2026-08-03T20:06Z pending push
+2026-08-03T21:07:34Z | PULL_FAILED | develop
