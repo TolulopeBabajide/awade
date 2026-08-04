@@ -10631,3 +10631,16 @@ Result: ✅ PASS
 Issues found: None
 Backlog items filed: None
 Verdict: **SHIP** — all checks green. AWD-M-328: added `sanitizeRedirectPath` to sanitizer.ts, applied to LoginPage.tsx `from` path (GHSA-wrjc-x8rr-h8h6 open-redirect mitigation). 7 new tests. Frontend test count: 314 → 321. Backend unchanged. No regressions.
+
+---
+
+## QA — 2026-08-04T21:44 UTC (in-loop · AWD-H-140)
+Result: ✅ PASS
+| TypeScript  | ✅ | 0 errors |
+| Lint        | ✅ | 0 errors, 0 warnings |
+| Tests       | ✅ | Frontend 321/321 (29 files) · Backend 1039 passed, 2 skipped, 0 failures |
+| Spot-check  | ✅ | No secrets · no console.log · no @ts-ignore · no TODO introduced · package.json/package-lock.json only — no logic changes |
+| Contract    | ✅ | openapi.json valid · mcp.json valid |
+Issues found: None
+Backlog items filed: None
+Verdict: **SHIP** — all checks green. AWD-H-140: cleared 3 HIGH npm CVEs (brace-expansion, js-yaml, postcss) via package.json overrides + direct devDep bump. No application logic changed. Test count unchanged. No regressions. 2 remaining MODERATE (react-router) pre-existing and code-mitigated via AWD-M-328.
