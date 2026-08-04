@@ -969,3 +969,5 @@ PUSH_DEFERRED 2026-08-04T05:20Z develop sandbox denied git push — chore(heartb
 2026-08-04T06:45:43Z | PULL_REBASE_FAILED | develop
 PUSH_DEFERRED 2026-08-04T07:31Z develop — permission denied in sandbox
 2026-08-04T07:47:30Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-04T08:47Z develop sandbox denied git push — chore(heartbeat): dev-agent run 2026-08-04T08:32Z
+2026-08-04T09:01:23Z | PULL_FAILED | develop
