@@ -962,3 +962,10 @@ PUSH_DEFERRED 2026-08-03T23:20Z develop 5b91649 — permission denied in sandbox
 2026-08-04T00:02:22Z | PULL_FAILED | develop
 2026-08-04T01:05:39Z | PULL_REBASE_FAILED | develop
 2026-08-04T02:08:43Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-04T02:56Z develop sandbox denied git push — chore(heartbeat): dev-agent run 2026-08-04T02:40Z
+2026-08-04T03:11:54Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-08-04T05:20Z develop sandbox denied git push — chore(heartbeat): dev-agent run 2026-08-04T05:20Z
+2026-08-04T04:09:47Z | PULL_REBASE_FAILED | develop
+2026-08-04T06:45:43Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-08-04T07:31Z develop — permission denied in sandbox
+2026-08-04T07:47:30Z | PULL_FAILED | develop
