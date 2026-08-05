@@ -1,10 +1,14 @@
 """
 AWD-M-182: ChildrenService tests — DB error handling (AWD-M-180, AWD-M-181).
+AWD-M-332: Split into TestChildrenServiceDBErrors (ChildrenService) and
+           TestParentGuideServiceDBErrors (ParentGuideService).
 
 Covers:
-  - TestChildrenServiceDBErrors: each mutation method catches unexpected DB
-    exceptions, rolls back, logs, and raises HTTP 500; HTTPException re-raised
-    unchanged.
+  - TestChildrenServiceDBErrors: ChildrenService mutation methods catch
+    unexpected DB exceptions, roll back, log, and raise HTTP 500; HTTPException
+    re-raised unchanged.
+  - TestParentGuideServiceDBErrors: ParentGuideService mutation methods (toggle_bookmark,
+    generate_guide) follow the same contract.
 """
 
 import json
@@ -24,30 +28,15 @@ from apps.backend.schemas.children import ChildProfileCreate, ChildProfileUpdate
 
 class TestChildrenServiceDBErrors:
     """
-    Each mutation method must catch unexpected DB exceptions, roll back,
-    log the error, and raise HTTP 500. HTTPException should be re-raised
-    unchanged (not wrapped in another 500).
+    ChildrenService mutation methods must catch unexpected DB exceptions,
+    roll back, log the error, and raise HTTP 500. HTTPException must be
+    re-raised unchanged (not wrapped in another 500).
     """
-
-    # -- helpers -------------------------------------------------------------
-
-    def _simple_db(self, child_obj=None, guide_obj=None):
-        """DB mock that returns the given child/guide from query chains."""
-        mock_db = MagicMock()
-        q = MagicMock()
-        if child_obj is not None:
-            q.options.return_value.filter.return_value.first.return_value = child_obj
-        if guide_obj is not None:
-            q.options.return_value.join.return_value.filter.return_value.first.return_value = guide_obj
-            q.join.return_value.filter.return_value.first.return_value = guide_obj
-        mock_db.query.return_value = q
-        return mock_db
 
     # -- create_child --------------------------------------------------------
 
     def test_create_child_db_error_raises_500(self):
         parent = _parent(user_id=1)
-        child_obj = _child(child_id=5, parent_id=1)
 
         mock_db = MagicMock()
         mock_db.commit.side_effect = Exception("DB gone away")
@@ -124,6 +113,56 @@ class TestChildrenServiceDBErrors:
         assert exc_info.value.status_code == 500
         mock_db.rollback.assert_called_once()
 
+    # -- record_consent ------------------------------------------------------
+
+    def test_record_consent_db_error_raises_500(self):
+        """Generic DB error during consent commit must roll back and raise HTTP 500."""
+        parent = _parent(user_id=1)
+
+        mock_db = MagicMock()
+        q = MagicMock()
+        q.filter.return_value.first.return_value = None
+        mock_db.query.return_value = q
+        mock_db.commit.side_effect = Exception("DB unavailable")
+        mock_db.rollback = MagicMock()
+
+        svc = ChildrenService(db=mock_db)
+        svc._verify_parent = MagicMock()
+
+        with pytest.raises(HTTPException) as exc_info:
+            svc.record_consent(parent, ip_address="127.0.0.1")
+
+        assert exc_info.value.status_code == 500
+        mock_db.rollback.assert_called_once()
+
+    def test_record_consent_http_exception_not_wrapped(self):
+        """An HTTPException raised during consent commit must propagate unchanged."""
+        parent = _parent(user_id=1)
+
+        mock_db = MagicMock()
+        q = MagicMock()
+        q.filter.return_value.first.return_value = None
+        mock_db.query.return_value = q
+        mock_db.commit.side_effect = HTTPException(status_code=409, detail="conflict")
+        mock_db.rollback = MagicMock()
+
+        svc = ChildrenService(db=mock_db)
+        svc._verify_parent = MagicMock()
+
+        with pytest.raises(HTTPException) as exc_info:
+            svc.record_consent(parent, ip_address="127.0.0.1")
+
+        assert exc_info.value.status_code == 409
+        mock_db.rollback.assert_not_called()
+
+
+class TestParentGuideServiceDBErrors:
+    """
+    ParentGuideService mutation methods must catch unexpected DB exceptions,
+    roll back, log the error, and raise HTTP 500. HTTPException must be
+    re-raised unchanged (not wrapped in another 500).
+    """
+
     # -- toggle_bookmark -----------------------------------------------------
 
     def test_toggle_bookmark_db_error_raises_500(self):
@@ -131,7 +170,6 @@ class TestChildrenServiceDBErrors:
         guide_obj = _guide(guide_id=10, child_id=5)
 
         mock_db = MagicMock()
-        # query chain for toggle_bookmark: .join().filter().first()
         q = MagicMock()
         q.options.return_value.join.return_value.filter.return_value.first.return_value = guide_obj
         mock_db.query.return_value = q
@@ -198,46 +236,3 @@ class TestChildrenServiceDBErrors:
 
         assert exc_info.value.status_code == 500
         mock_db.rollback.assert_called_once()
-
-    # -- record_consent ----------------------------------------------------------
-
-    def test_record_consent_db_error_raises_500(self):
-        """Generic DB error during consent commit must roll back and raise HTTP 500."""
-        parent = _parent(user_id=1)
-
-        mock_db = MagicMock()
-        # query returns no existing consent record → will insert
-        q = MagicMock()
-        q.filter.return_value.first.return_value = None
-        mock_db.query.return_value = q
-        mock_db.commit.side_effect = Exception("DB unavailable")
-        mock_db.rollback = MagicMock()
-
-        svc = ChildrenService(db=mock_db)
-        svc._verify_parent = MagicMock()
-
-        with pytest.raises(HTTPException) as exc_info:
-            svc.record_consent(parent, ip_address="127.0.0.1")
-
-        assert exc_info.value.status_code == 500
-        mock_db.rollback.assert_called_once()
-
-    def test_record_consent_http_exception_not_wrapped(self):
-        """An HTTPException raised during consent commit must propagate unchanged."""
-        parent = _parent(user_id=1)
-
-        mock_db = MagicMock()
-        q = MagicMock()
-        q.filter.return_value.first.return_value = None
-        mock_db.query.return_value = q
-        mock_db.commit.side_effect = HTTPException(status_code=409, detail="conflict")
-        mock_db.rollback = MagicMock()
-
-        svc = ChildrenService(db=mock_db)
-        svc._verify_parent = MagicMock()
-
-        with pytest.raises(HTTPException) as exc_info:
-            svc.record_consent(parent, ip_address="127.0.0.1")
-
-        assert exc_info.value.status_code == 409
-        mock_db.rollback.assert_not_called()
