@@ -491,3 +491,4 @@
 2026-08-03T05:31:58Z | compliance-agent     | SKIP       | idempotency                              | ran within 30-day window — skipping
 2026-08-04T05:44:32Z | access-review-agent  | SKIP       | idempotency                              | ran within 30-day window — skipping
 2026-08-04T20:43:44Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest — returning verdict inline
+2026-08-05T19:19:56Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-08-05-4707099-inloop.md | completed structural code review — ✅ Clean, 2 medium/low findings, filed M-331 M-332
