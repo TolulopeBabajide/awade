@@ -16,6 +16,7 @@ from children_service_factories import (
 
 from apps.backend.models import UserRole
 from apps.backend.services.children_service import ChildrenService
+from apps.backend.services.parent_guide_service import ParentGuideService
 from apps.backend.schemas.children import ChildProfileCreate, ChildProfileUpdate
 
 
@@ -80,7 +81,7 @@ class TestRoleGating:
 
     def test_generate_guide_raises_403_for_educator(self):
         mock_db = MagicMock()
-        svc = ChildrenService(db=mock_db)
+        svc = ParentGuideService(db=mock_db)
         with pytest.raises(HTTPException) as exc_info:
             svc.generate_guide(_educator(), child_id=1, topic_id=1)
         assert exc_info.value.status_code == 403

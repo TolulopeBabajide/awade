@@ -26,7 +26,7 @@ import datetime as _dt
 if not hasattr(_dt, "UTC"):
     _dt.UTC = _dt.timezone.utc
 
-from apps.backend.services.children_service import ChildrenService
+from apps.backend.services.parent_guide_service import ParentGuideService
 from apps.backend.schemas.children import ParentGuideAIContent
 
 
@@ -244,7 +244,7 @@ class TestParentGuideAIContentSchema:
 # ── Service integration tests ─────────────────────────────────────────────────
 
 class TestGenerateGuideValidation:
-    """Tests for ChildrenService.generate_guide() schema gate."""
+    """Tests for ParentGuideService.generate_guide() schema gate."""
 
     def _call_generate(self, ai_content_json: str, existing_guide=None):
         """
@@ -256,12 +256,12 @@ class TestGenerateGuideValidation:
         mock_child = _make_mock_child()
         mock_db = _make_mock_db(existing_guide=existing_guide, topic=mock_topic, child=mock_child)
 
-        service = ChildrenService(db=mock_db)
+        service = ParentGuideService(db=mock_db)
         # _get_child_or_404 must return our mock child
         service._get_child_or_404 = MagicMock(return_value=mock_child)
 
         with patch(
-            "apps.backend.services.children_service.AwadeGPTService"
+            "apps.backend.services.parent_guide_service.AwadeGPTService"
         ) as MockAI:
             instance = MockAI.return_value
             instance.generate_parent_guide.return_value = (ai_content_json, True)
@@ -294,10 +294,10 @@ class TestGenerateGuideValidation:
         mock_topic = _make_mock_topic()
         mock_child = _make_mock_child()
         mock_db = _make_mock_db(topic=mock_topic, child=mock_child)
-        service = ChildrenService(db=mock_db)
+        service = ParentGuideService(db=mock_db)
         service._get_child_or_404 = MagicMock(return_value=mock_child)
 
-        with patch("apps.backend.services.children_service.AwadeGPTService") as MockAI:
+        with patch("apps.backend.services.parent_guide_service.AwadeGPTService") as MockAI:
             instance = MockAI.return_value
             instance.generate_parent_guide.return_value = (json.dumps(data), False)
             with pytest.raises(HTTPException):
@@ -335,10 +335,10 @@ class TestGenerateGuideValidation:
         mock_user = _make_mock_user()
         mock_child = _make_mock_child()
         mock_db = _make_mock_db(existing_guide=existing)
-        service = ChildrenService(db=mock_db)
+        service = ParentGuideService(db=mock_db)
         service._get_child_or_404 = MagicMock(return_value=mock_child)
 
-        with patch("apps.backend.services.children_service.AwadeGPTService") as MockAI:
+        with patch("apps.backend.services.parent_guide_service.AwadeGPTService") as MockAI:
             result = service.generate_guide(mock_user, child_id=1, topic_id=1)
             MockAI.assert_not_called()
 
@@ -442,10 +442,10 @@ class TestGenerateGuideSafetyGate:
         mock_topic = _make_mock_topic()
         mock_child = _make_mock_child()
         mock_db = _make_mock_db(topic=mock_topic, child=mock_child)
-        service = ChildrenService(db=mock_db)
+        service = ParentGuideService(db=mock_db)
         service._get_child_or_404 = MagicMock(return_value=mock_child)
 
-        with patch("apps.backend.services.children_service.AwadeGPTService") as MockAI:
+        with patch("apps.backend.services.parent_guide_service.AwadeGPTService") as MockAI:
             instance = MockAI.return_value
             instance.generate_parent_guide.return_value = (ai_content_json, is_valid_flag)
             result_or_exc = None
