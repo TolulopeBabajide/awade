@@ -23,6 +23,10 @@ from apps.backend.models import (
 from apps.backend.schemas.children import (
     ParentGuideAIContent, ParentGuideListResponse, ParentGuideResponse
 )
+from apps.backend.services.children_shared import (
+    verify_parent as _verify_parent_shared,
+    get_child_or_404 as _get_child_or_404_shared,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -35,33 +39,11 @@ class ParentGuideService:
 
     def _verify_parent(self, user: User) -> None:
         """Ensure the user has the PARENT role."""
-        if user.role not in (UserRole.PARENT, UserRole.ADMIN, UserRole.SUPER_ADMIN):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only parent accounts can manage child profiles"
-            )
+        _verify_parent_shared(user)
 
     def _get_child_or_404(self, child_id: int, parent_id: int) -> ChildProfile:
         """Fetch a child profile that belongs to the given parent, or raise 404."""
-        child = (
-            self.db.query(ChildProfile)
-            .options(
-                joinedload(ChildProfile.country),
-                joinedload(ChildProfile.curriculum),
-                joinedload(ChildProfile.grade_level),
-            )
-            .filter(
-                ChildProfile.child_id == child_id,
-                ChildProfile.parent_id == parent_id,
-            )
-            .first()
-        )
-        if not child:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Child profile not found"
-            )
-        return child
+        return _get_child_or_404_shared(self.db, child_id, parent_id)
 
     def list_guides(self, user: User, child_id: int, bookmarked_only: bool = False) -> ParentGuideListResponse:
         """List all parent guides for a child."""
