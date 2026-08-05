@@ -983,3 +983,6 @@ PUSH_DEFERRED: 2026-08-04T15:54:56Z — heartbeat commit 4e5057d could not push 
 2026-08-04T15:58:25Z | PULL_FAILED | develop
 2026-08-04T16:39:49Z | PULL_FAILED | develop
 2026-08-04T20:47:46Z | PULL_FAILED | develop
+PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-08-04T22:57Z
+2026-08-04T23:01:58Z | PULL_FAILED | develop
+2026-08-05T01:01:49Z | PULL_FAILED | develop
