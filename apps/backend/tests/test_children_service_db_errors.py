@@ -18,6 +18,7 @@ from children_service_factories import (
 
 from apps.backend.models import ParentGuide, Topic
 from apps.backend.services.children_service import ChildrenService
+from apps.backend.services.parent_guide_service import ParentGuideService
 from apps.backend.schemas.children import ChildProfileCreate, ChildProfileUpdate
 
 
@@ -137,7 +138,7 @@ class TestChildrenServiceDBErrors:
         mock_db.commit.side_effect = Exception("serialization failure")
         mock_db.rollback = MagicMock()
 
-        svc = ChildrenService(db=mock_db)
+        svc = ParentGuideService(db=mock_db)
         svc._verify_parent = MagicMock()
 
         with pytest.raises(HTTPException) as exc_info:
@@ -183,11 +184,11 @@ class TestChildrenServiceDBErrors:
         mock_db.commit.side_effect = Exception("disk full")
         mock_db.rollback = MagicMock()
 
-        svc = ChildrenService(db=mock_db)
+        svc = ParentGuideService(db=mock_db)
         svc._get_child_or_404 = MagicMock(return_value=child_obj)
         svc._verify_parent = MagicMock()
 
-        with patch("apps.backend.services.children_service.AwadeGPTService") as MockAI:
+        with patch("apps.backend.services.parent_guide_service.AwadeGPTService") as MockAI:
             instance = MockAI.return_value
             instance.generate_parent_guide.return_value = (
                 json.dumps(VALID_AI_CONTENT), True

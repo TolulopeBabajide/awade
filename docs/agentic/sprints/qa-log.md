@@ -10644,3 +10644,27 @@ Result: ✅ PASS
 Issues found: None
 Backlog items filed: None
 Verdict: **SHIP** — all checks green. AWD-H-140: cleared 3 HIGH npm CVEs (brace-expansion, js-yaml, postcss) via package.json overrides + direct devDep bump. No application logic changed. Test count unchanged. No regressions. 2 remaining MODERATE (react-router) pre-existing and code-mitigated via AWD-M-328.
+
+## QA — 2026-08-05T19:30 UTC (in-loop · AWD-M-214)
+Result: ✅ PASS
+| TypeScript  | ✅ | 0 errors |
+| Lint        | ✅ | 0 errors, 0 warnings |
+| Tests       | ✅ | Frontend 321/321 · Backend 1039 passed, 2 skipped, 0 failures |
+| Spot-check  | ✅ | No secrets · no console.log · no new @ts-ignore · no new TODO · all 13 `patch()` calls updated to `apps.backend.services.parent_guide_service.AwadeGPTService` · `children_service.py` imports clean (ValidationError, AwadeGPTService, ParentGuideRequest, ParentGuide model all removed, none referenced) · openapi.json ✅ · mcp.json ✅ |
+Issues found: None
+Backlog items filed: None
+Verdict: **SHIP** — all checks green. AWD-M-214: extracted `ParentGuideService` from `ChildrenService` — `children_service.py` 626→382 lines, new `parent_guide_service.py` 307 lines. All patch paths correct. Code-review: ✅ Clean (M-331 duplicate helpers + M-332 test class naming filed as define-stage follow-ups, non-blocking).
+
+## Security (Scoped) — 2026-08-05T19:32 UTC (in-loop · AWD-M-214)
+Result: ✅ PASS
+| A01 Access Control      | ✅ | All 5 guide endpoints carry `Depends(require_parent)`; `get_guide` + `toggle_bookmark` join through `ChildProfile.parent_id == user.user_id`; `list_guides` + `generate_guide` gate via `_get_child_or_404(child_id, user.user_id)` |
+| A03 Injection           | ✅ | All DB queries via SQLAlchemy ORM — no raw SQL, no f-strings in query paths |
+| A07 Auth Failures       | ✅ | `_verify_parent` blocks EDUCATOR role with HTTP 403; `require_parent` dependency at router layer is a second gate |
+| A09 Logging/Monitoring  | ✅ | Log lines use only IDs (guide_id, topic_id) — no PII (child.name, child.age, child.school_name not logged) |
+| LLM01 Prompt Injection  | ✅ | `_build_guide_ai_payload` assembles payload from DB-sourced curriculum data only; child.name/age/school_name NOT included in prompt payload — no user-controlled strings reach the LLM |
+| LLM02 Output Handling   | ✅ | AI content validated via `is_valid` flag + `ParentGuideAIContent.model_validate_json()` before persistence; generic error message returned to client on failure |
+| LLM05 Output Rendering  | ✅ | No `dangerouslySetInnerHTML` or raw HTML media type in router — JSON only |
+| LLM10 Unbounded Consume | ✅ | `generate_guide` endpoint rate-limited to 5/minute per IP; idempotent (existing guide returned without AI call) |
+Findings: None
+Backlog items filed: None
+Verdict: **PASS** — no Critical/High security findings in changed files. Authentication, ownership enforcement, prompt injection surface, PII handling, and output validation all intact after service extraction.

@@ -1,5 +1,5 @@
 """
-AWD-M-182: ChildrenService tests — guide management.
+AWD-M-182: ParentGuideService tests — guide management.
 
 Covers:
   - TestGenerateGuideIdempotency: existing guide returned without AI call
@@ -7,6 +7,9 @@ Covers:
   - TestListGuides: role gate, ownership, filters
   - TestGetGuide: role gate, ownership, 404, 200
   - TestToggleBookmark: role gate, 404, toggle logic
+
+Updated for AWD-M-214: service class renamed from ParentGuideService to
+ParentGuideService (guide methods extracted to parent_guide_service.py).
 """
 
 import json
@@ -20,7 +23,7 @@ from children_service_factories import (
 )
 
 from apps.backend.models import ChildProfile, ParentGuide, Topic
-from apps.backend.services.children_service import ChildrenService
+from apps.backend.services.parent_guide_service import ParentGuideService
 from packages.ai.gpt_service import ParentGuideRequest
 
 
@@ -54,10 +57,10 @@ class TestGenerateGuideIdempotency:
         existing = _guide(guide_id=55, child_id=5, topic_id=3)
 
         mock_db = self._db_with_existing_guide(existing, child_obj)
-        svc = ChildrenService(db=mock_db)
+        svc = ParentGuideService(db=mock_db)
         svc._get_child_or_404 = MagicMock(return_value=child_obj)
 
-        with patch("apps.backend.services.children_service.AwadeGPTService") as MockAI:
+        with patch("apps.backend.services.parent_guide_service.AwadeGPTService") as MockAI:
             result = svc.generate_guide(parent, child_id=5, topic_id=3)
             MockAI.assert_not_called()
 
@@ -72,10 +75,10 @@ class TestGenerateGuideIdempotency:
         existing = _guide(guide_id=55, child_id=5, topic_id=3)
 
         mock_db = self._db_with_existing_guide(existing, child_obj)
-        svc = ChildrenService(db=mock_db)
+        svc = ParentGuideService(db=mock_db)
         svc._get_child_or_404 = MagicMock(return_value=child_obj)
 
-        with patch("apps.backend.services.children_service.AwadeGPTService"):
+        with patch("apps.backend.services.parent_guide_service.AwadeGPTService"):
             first = svc.generate_guide(parent, child_id=5, topic_id=3)
             second = svc.generate_guide(parent, child_id=5, topic_id=3)
 
@@ -132,10 +135,10 @@ class TestGenerateGuideAIValidation:
         child_obj.country = MagicMock()
         child_obj.country.country_name = "Nigeria"
         mock_db = self._db_no_existing_guide(child_obj)
-        svc = ChildrenService(db=mock_db)
+        svc = ParentGuideService(db=mock_db)
         svc._get_child_or_404 = MagicMock(return_value=child_obj)
 
-        with patch("apps.backend.services.children_service.AwadeGPTService") as MockAI:
+        with patch("apps.backend.services.parent_guide_service.AwadeGPTService") as MockAI:
             instance = MockAI.return_value
             instance.generate_parent_guide.return_value = ("not-json{{{", True)
             with pytest.raises(HTTPException) as exc_info:
@@ -151,12 +154,12 @@ class TestGenerateGuideAIValidation:
         child_obj.country = MagicMock()
         child_obj.country.country_name = "Nigeria"
         mock_db = self._db_no_existing_guide(child_obj)
-        svc = ChildrenService(db=mock_db)
+        svc = ParentGuideService(db=mock_db)
         svc._get_child_or_404 = MagicMock(return_value=child_obj)
 
         bad = {k: v for k, v in VALID_AI_CONTENT.items() if k != "home_activity"}
 
-        with patch("apps.backend.services.children_service.AwadeGPTService") as MockAI:
+        with patch("apps.backend.services.parent_guide_service.AwadeGPTService") as MockAI:
             instance = MockAI.return_value
             instance.generate_parent_guide.return_value = (json.dumps(bad), False)
             with pytest.raises(HTTPException) as exc_info:
@@ -189,10 +192,10 @@ class TestGenerateGuideAIValidation:
 
         mock_db.query.side_effect = patched_query_side
 
-        svc = ChildrenService(db=mock_db)
+        svc = ParentGuideService(db=mock_db)
         svc._get_child_or_404 = MagicMock(return_value=child_obj)
 
-        with patch("apps.backend.services.children_service.AwadeGPTService") as MockAI:
+        with patch("apps.backend.services.parent_guide_service.AwadeGPTService") as MockAI:
             instance = MockAI.return_value
             instance.generate_parent_guide.return_value = (
                 json.dumps(VALID_AI_CONTENT), True
@@ -209,10 +212,10 @@ class TestGenerateGuideAIValidation:
 # ---------------------------------------------------------------------------
 
 class TestListGuides:
-    """ChildrenService.list_guides — role gate, ownership, filters."""
+    """ParentGuideService.list_guides — role gate, ownership, filters."""
 
     def test_educator_raises_403(self):
-        svc = ChildrenService(db=MagicMock())
+        svc = ParentGuideService(db=MagicMock())
         with pytest.raises(HTTPException) as exc_info:
             svc.list_guides(_educator(), child_id=1)
         assert exc_info.value.status_code == 403
@@ -220,7 +223,7 @@ class TestListGuides:
     def test_wrong_parent_raises_404(self):
         """Child not owned by this parent → 404 via _get_child_or_404."""
         db = _db_child_not_found()
-        svc = ChildrenService(db=db)
+        svc = ParentGuideService(db=db)
         with pytest.raises(HTTPException) as exc_info:
             svc.list_guides(_parent(user_id=99), child_id=1)
         assert exc_info.value.status_code == 404
@@ -248,7 +251,7 @@ class TestListGuides:
             return q
 
         db.query.side_effect = query_side
-        svc = ChildrenService(db=db)
+        svc = ParentGuideService(db=db)
         result = svc.list_guides(parent, child_id=5)
         assert result.total == 2
         assert len(result.guides) == 2
@@ -273,7 +276,7 @@ class TestListGuides:
             return q
 
         db.query.side_effect = query_side
-        svc = ChildrenService(db=db)
+        svc = ParentGuideService(db=db)
         result = svc.list_guides(parent, child_id=5, bookmarked_only=True)
         assert result.total == 0
 
@@ -295,17 +298,17 @@ class TestListGuides:
             return q
 
         db.query.side_effect = query_side
-        svc = ChildrenService(db=db)
+        svc = ParentGuideService(db=db)
         result = svc.list_guides(parent, child_id=5)
         assert result.total == 0
         assert result.guides == []
 
 
 class TestGetGuide:
-    """ChildrenService.get_guide — role gate, ownership, 404, 200."""
+    """ParentGuideService.get_guide — role gate, ownership, 404, 200."""
 
     def test_educator_raises_403(self):
-        svc = ChildrenService(db=MagicMock())
+        svc = ParentGuideService(db=MagicMock())
         with pytest.raises(HTTPException) as exc_info:
             svc.get_guide(_educator(), guide_id=1)
         assert exc_info.value.status_code == 403
@@ -315,7 +318,7 @@ class TestGetGuide:
         q = MagicMock()
         q.options.return_value.join.return_value.filter.return_value.first.return_value = None
         db.query.return_value = q
-        svc = ChildrenService(db=db)
+        svc = ParentGuideService(db=db)
         with pytest.raises(HTTPException) as exc_info:
             svc.get_guide(_parent(user_id=1), guide_id=999)
         assert exc_info.value.status_code == 404
@@ -327,7 +330,7 @@ class TestGetGuide:
         # Simulate DB join returning nothing for wrong parent
         q.options.return_value.join.return_value.filter.return_value.first.return_value = None
         db.query.return_value = q
-        svc = ChildrenService(db=db)
+        svc = ParentGuideService(db=db)
         with pytest.raises(HTTPException) as exc_info:
             svc.get_guide(_parent(user_id=99), guide_id=10)
         assert exc_info.value.status_code == 404
@@ -342,7 +345,7 @@ class TestGetGuide:
         q = MagicMock()
         q.options.return_value.join.return_value.filter.return_value.first.return_value = guide_obj
         db.query.return_value = q
-        svc = ChildrenService(db=db)
+        svc = ParentGuideService(db=db)
         result = svc.get_guide(parent, guide_id=10)
         assert result.guide_id == 10
         assert result.child_id == 5
@@ -360,14 +363,14 @@ class TestGetGuide:
         q = MagicMock()
         q.options.return_value.join.return_value.filter.return_value.first.return_value = guide_obj
         db.query.return_value = q
-        svc = ChildrenService(db=db)
+        svc = ParentGuideService(db=db)
         result = svc.get_guide(parent, guide_id=10)
         assert result.is_bookmarked is True
         assert isinstance(result.is_bookmarked, bool)
 
 
 class TestToggleBookmark:
-    """ChildrenService.toggle_bookmark — role gate, 404, toggle logic."""
+    """ParentGuideService.toggle_bookmark — role gate, 404, toggle logic."""
 
     def _db_with_guide(self, guide_obj) -> MagicMock:
         db = MagicMock()
@@ -386,13 +389,13 @@ class TestToggleBookmark:
         return db
 
     def test_educator_raises_403(self):
-        svc = ChildrenService(db=MagicMock())
+        svc = ParentGuideService(db=MagicMock())
         with pytest.raises(HTTPException) as exc_info:
             svc.toggle_bookmark(_educator(), guide_id=1)
         assert exc_info.value.status_code == 403
 
     def test_guide_not_found_raises_404(self):
-        svc = ChildrenService(db=self._db_no_guide())
+        svc = ParentGuideService(db=self._db_no_guide())
         with pytest.raises(HTTPException) as exc_info:
             svc.toggle_bookmark(_parent(user_id=1), guide_id=99)
         assert exc_info.value.status_code == 404
@@ -410,7 +413,7 @@ class TestToggleBookmark:
             pass
 
         db.refresh.side_effect = refresh_side_effect
-        svc = ChildrenService(db=db)
+        svc = ParentGuideService(db=db)
         result = svc.toggle_bookmark(parent, guide_id=10)
 
         assert guide_obj.is_bookmarked is True, "Expected is_bookmarked to be set to True"
@@ -425,7 +428,7 @@ class TestToggleBookmark:
 
         db = self._db_with_guide(guide_obj)
         db.refresh.side_effect = lambda obj: None
-        svc = ChildrenService(db=db)
+        svc = ParentGuideService(db=db)
         result = svc.toggle_bookmark(parent, guide_id=11)
 
         assert guide_obj.is_bookmarked is False, "Expected is_bookmarked to be set to False"
@@ -440,7 +443,7 @@ class TestToggleBookmark:
 
         db = self._db_with_guide(guide_obj)
         db.refresh.side_effect = lambda obj: None
-        svc = ChildrenService(db=db)
+        svc = ParentGuideService(db=db)
         svc.toggle_bookmark(parent, guide_id=10)
         db.commit.assert_called_once()
 
@@ -450,7 +453,7 @@ class TestToggleBookmark:
 # ---------------------------------------------------------------------------
 
 class TestBuildGuideAIPayloadM185:
-    """Unit tests for ChildrenService._build_guide_ai_payload (AWD-M-185)."""
+    """Unit tests for ParentGuideService._build_guide_ai_payload (AWD-M-185)."""
 
     def _mock_topic(
         self,
@@ -503,7 +506,7 @@ class TestBuildGuideAIPayloadM185:
         return child
 
     def test_payload_contains_expected_keys(self):
-        svc = ChildrenService(db=MagicMock())
+        svc = ParentGuideService(db=MagicMock())
         payload = svc._build_guide_ai_payload(
             self._mock_child(), self._mock_topic()
         )
@@ -515,7 +518,7 @@ class TestBuildGuideAIPayloadM185:
 
     def test_payload_includes_pedagogy_fields(self):
         """AWD-M-208: NERDC pedagogy collections flow into the AI payload."""
-        svc = ChildrenService(db=MagicMock())
+        svc = ParentGuideService(db=MagicMock())
         topic = self._mock_topic(
             student_activities=["Group counting game", "Sort objects by size"],
             teaching_materials=["Counters", "Chart of shapes"],
@@ -531,14 +534,14 @@ class TestBuildGuideAIPayloadM185:
 
     def test_payload_pedagogy_fields_default_empty(self):
         """Topics imported before AWD-M-208 have no pedagogy rows — payload stays valid."""
-        svc = ChildrenService(db=MagicMock())
+        svc = ParentGuideService(db=MagicMock())
         payload = svc._build_guide_ai_payload(self._mock_child(), self._mock_topic())
         assert payload["student_activities"] == []
         assert payload["teaching_learning_materials"] == []
         assert payload["evaluation_guide"] == []
 
     def test_payload_values_match_topic_and_child(self):
-        svc = ChildrenService(db=MagicMock())
+        svc = ParentGuideService(db=MagicMock())
         topic = self._mock_topic(
             title="Algebra",
             subject="Maths",
@@ -560,7 +563,7 @@ class TestBuildGuideAIPayloadM185:
 
     def test_missing_curriculum_structure_uses_defaults(self):
         """When curriculum_structure is None, defaults are applied."""
-        svc = ChildrenService(db=MagicMock())
+        svc = ParentGuideService(db=MagicMock())
         topic = MagicMock()
         topic.topic_title = "Decimals"
         topic.curriculum_structure = None
@@ -579,7 +582,7 @@ class TestBuildGuideAIPayloadM185:
         assert payload["contents"] == []
 
     def test_multiple_objectives_and_contents(self):
-        svc = ChildrenService(db=MagicMock())
+        svc = ParentGuideService(db=MagicMock())
         cs = MagicMock()
         cs.subject.name = "Science"
         cs.grade_level.name = "SS1"
@@ -638,7 +641,7 @@ class TestParentGuideRequestH98:
 
     def test_build_guide_ai_payload_returns_parent_guide_request_shape(self):
         """_build_guide_ai_payload always returns the full ParentGuideRequest key-set."""
-        svc = ChildrenService(db=MagicMock())
+        svc = ParentGuideService(db=MagicMock())
         cs = MagicMock()
         cs.subject.name = "Science"
         cs.grade_level.name = "SS2"
@@ -659,7 +662,7 @@ class TestParentGuideRequestH98:
 
     def test_build_guide_ai_payload_result_is_valid_parent_guide_request(self):
         """_build_guide_ai_payload returns a dict usable as ParentGuideRequest directly."""
-        svc = ChildrenService(db=MagicMock())
+        svc = ParentGuideService(db=MagicMock())
         cs = MagicMock()
         cs.subject.name = "Mathematics"
         cs.grade_level.name = "JSS1"
@@ -692,7 +695,7 @@ class TestParentGuideRequestH98:
 
 
 class TestPersistGuideM185:
-    """Unit tests for ChildrenService._persist_guide (AWD-M-185)."""
+    """Unit tests for ParentGuideService._persist_guide (AWD-M-185)."""
 
     def _db_persist_ok(self, reload_guide) -> MagicMock:
         """DB mock that succeeds on add/commit/refresh and returns reload_guide."""
@@ -708,7 +711,7 @@ class TestPersistGuideM185:
     def test_adds_and_commits_guide(self):
         reload_guide = _guide(guide_id=42, child_id=5, topic_id=3)
         db = self._db_persist_ok(reload_guide)
-        svc = ChildrenService(db=db)
+        svc = ParentGuideService(db=db)
         result = svc._persist_guide(child_id=5, topic_id=3, ai_content='{"key": "val"}')
         db.add.assert_called_once()
         db.commit.assert_called_once()
@@ -720,7 +723,7 @@ class TestPersistGuideM185:
         db.commit.side_effect = Exception("disk full")
         db.rollback = MagicMock()
 
-        svc = ChildrenService(db=db)
+        svc = ParentGuideService(db=db)
         with pytest.raises(HTTPException) as exc_info:
             svc._persist_guide(child_id=5, topic_id=3, ai_content='{}')
 
@@ -731,7 +734,7 @@ class TestPersistGuideM185:
         """An HTTPException raised in commit must not be wrapped."""
         db = MagicMock()
         db.commit.side_effect = HTTPException(status_code=409, detail="conflict")
-        svc = ChildrenService(db=db)
+        svc = ParentGuideService(db=db)
         with pytest.raises(HTTPException) as exc_info:
             svc._persist_guide(child_id=5, topic_id=3, ai_content='{}')
         assert exc_info.value.status_code == 409
@@ -754,7 +757,7 @@ class TestPersistGuideM185:
         reload_q.options.return_value.filter.return_value.first.return_value = reload_guide
         db.query.return_value = reload_q
 
-        svc = ChildrenService(db=db)
+        svc = ParentGuideService(db=db)
         result = svc._persist_guide(child_id=5, topic_id=3, ai_content='{"key": "val"}')
         assert result.guide_id == 99
 
@@ -769,7 +772,7 @@ class TestPersistGuideM185:
         reload_q.options.return_value.filter.return_value.first.return_value = None
         db.query.return_value = reload_q
 
-        svc = ChildrenService(db=db)
+        svc = ParentGuideService(db=db)
         with pytest.raises(HTTPException) as exc_info:
             svc._persist_guide(child_id=5, topic_id=3, ai_content='{"key": "val"}')
 
