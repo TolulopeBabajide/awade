@@ -990,3 +990,5 @@ PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-08-04T22:57Z
 2026-08-05T03:24:48Z | PULL_FAILED | develop
 2026-08-05T06:20:28Z | PULL_FAILED | develop
 2026-08-05T18:56:42Z | PULL_FAILED | develop
+PUSH_DEFERRED | develop | refactor(children): merge AWD-M-214 ParentGuideService extraction + records
+2026-08-05T19:25:59Z | PULL_REBASE_FAILED | develop
