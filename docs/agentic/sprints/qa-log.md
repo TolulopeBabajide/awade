@@ -10684,3 +10684,19 @@ Verdict: **SHIP** ✅
 Changed files reviewed: apps/backend/tests/test_children_service_db_errors.py
 Issues found: None
 Backlog items filed: None
+
+## QA — 2026-08-06T01:14 UTC — AWD-M-331
+Branch: fix/children/AWD-M-331-children-shared-helpers
+Verdict: **SHIP** ✅
+
+| Check | Result | Detail |
+|-------|--------|--------|
+| TypeScript | ✅ | 0 errors |
+| Lint | ✅ | 0 errors, 0 warnings |
+| Frontend Tests | ✅ | 321 passed (29 files) |
+| Backend Tests | ✅ | 1048 passed, 2 skipped (9 new tests in test_children_shared.py) |
+| Spot-check | ✅ | No secrets, no console.log, no ts-ignore, no TODOs |
+
+Changed files reviewed: apps/backend/services/children_shared.py, apps/backend/services/children_service.py, apps/backend/services/parent_guide_service.py, apps/backend/tests/test_children_shared.py
+Issues found: None (2 🟡 unused UserRole imports noted by code-review-agent — non-blocking)
+Backlog items filed: None

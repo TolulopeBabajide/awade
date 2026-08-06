@@ -494,3 +494,4 @@
 2026-08-05T19:19:56Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-08-05-4707099-inloop.md | completed structural code review — ✅ Clean, 2 medium/low findings, filed M-331 M-332
 2026-08-05T21:16:49Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-08-05-a82eefb.md | AWD-M-332 in-loop review — ✅ Clean
 2026-08-05T23:15:52Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-08-06T00:12:56Z | code-review-agent    | REVIEW     | docs/code-reviews/review-2026-08-06-8fa3940.md | in-loop review AWD-M-331 — ✅ Clean (2 🟡 unused UserRole import; prior review still current)
