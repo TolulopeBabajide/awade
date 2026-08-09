@@ -995,3 +995,4 @@ PUSH_DEFERRED | develop | refactor(children): merge AWD-M-214 ParentGuideService
 2026-08-05T21:07:57Z | PULL_FAILED | develop
 2026-08-05T21:21:40Z | PULL_FAILED | develop
 2026-08-05T22:07:58Z | PULL_FAILED | develop
+2026-08-09T12:07:36Z | PULL_REBASE_FAILED | develop
