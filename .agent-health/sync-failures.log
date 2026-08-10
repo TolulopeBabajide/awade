@@ -1010,3 +1010,6 @@ PUSH_DEFERRED: 2026-08-09T19:10Z — git push denied (permission prompt in sched
 2026-08-09T22:07:37Z | PULL_REBASE_FAILED | develop
 PUSH_DEFERRED: 2026-08-09T22:09:32Z — permission denied pushing develop after idle run
 2026-08-09T23:07:38Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-10T00:09Z — develop push denied (sandbox permission)
+2026-08-10T01:14:05Z | PULL_FAILED | develop
+2026-08-10T02:01:15Z | PULL_FAILED | develop
