@@ -1028,3 +1028,5 @@ PUSH_DEFERRED — 2026-08-10T13:10Z — push denied at run end (no stage=ready i
 2026-08-10T14:07:17Z | PULL_FAILED | develop
 2026-08-10T15:08Z PUSH_DEFERRED develop — sandbox push permission denied (ongoing AWD-M-305)
 2026-08-10T16:07:21Z | PULL_FAILED | develop
+2026-08-10T16:09Z PUSH_DEFERRED develop — sandbox push permission denied (ongoing AWD-M-305)
+2026-08-10T17:07:19Z | PULL_FAILED | develop
