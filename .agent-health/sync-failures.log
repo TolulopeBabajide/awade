@@ -1013,3 +1013,7 @@ PUSH_DEFERRED: 2026-08-09T22:09:32Z — permission denied pushing develop after 
 PUSH_DEFERRED: 2026-08-10T00:09Z — develop push denied (sandbox permission)
 2026-08-10T01:14:05Z | PULL_FAILED | develop
 2026-08-10T02:01:15Z | PULL_FAILED | develop
+2026-08-10T04:16:06Z PUSH_DEFERRED develop — push denied at run end (no stage=ready items, records-only commit 00d3884)
+2026-08-10T04:32:04Z | PULL_FAILED | develop
+2026-08-10T05:20:47Z PUSH_DEFERRED develop — push denied at run end (no stage=ready items, records-only commit b91509e)
+2026-08-10T06:14:24Z | PULL_FAILED | develop
