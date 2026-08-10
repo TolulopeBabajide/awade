@@ -1033,3 +1033,6 @@ PUSH_DEFERRED — 2026-08-10T13:10Z — push denied at run end (no stage=ready i
 2026-08-10T17:11Z PUSH_DEFERRED develop — sandbox push permission denied (ongoing AWD-M-305)
 2026-08-10T18:07:17Z | PULL_FAILED | develop
 2026-08-10T19:07:29Z | PULL_FAILED | develop
+2026-08-10T22:07:18Z | PULL_REBASE_FAILED | develop
+2026-08-10T22:09:27Z | PUSH_DEFERRED | cc613a1 | chore(records): dev-agent idle — no stage=ready items, heartbeat updated | push permission denied in scheduled session
+2026-08-10T23:07:17Z | PULL_FAILED | develop
