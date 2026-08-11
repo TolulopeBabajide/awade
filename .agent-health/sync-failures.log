@@ -1044,3 +1044,6 @@ PUSH_DEFERRED — 2026-08-10T13:10Z — push denied at run end (no stage=ready i
 2026-08-11T08:03:35Z | PULL_FAILED | develop
 2026-08-11T10:06Z | PUSH_DEFERRED | ad7691b | chore(records): AWD-H-141 done — update backlog, completed-backlog, dev-log | push permission denied in scheduled session
 2026-08-11T10:10:36Z | PULL_FAILED | develop
+2026-08-11T11:12:58Z | PULL_REBASE_FAILED | develop
+2026-08-11T11:40:05Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-11T12:12:51Z | PULL_FAILED | develop
