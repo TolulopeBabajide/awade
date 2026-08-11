@@ -1049,3 +1049,5 @@ PUSH_DEFERRED — 2026-08-10T13:10Z — push denied at run end (no stage=ready i
 2026-08-11T12:12:51Z | PULL_FAILED | develop
 2026-08-11T19:09:12Z | PUSH_DEFERRED | develop | permission denied
 2026-08-11T20:07:15Z | PULL_FAILED | develop
+2026-08-11T22:07:11Z | PULL_REBASE_FAILED | develop
+2026-08-11T23:07:21Z | PULL_FAILED | develop
