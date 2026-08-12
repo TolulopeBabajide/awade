@@ -1057,3 +1057,7 @@ PUSH_DEFERRED — 2026-08-10T13:10Z — push denied at run end (no stage=ready i
 2026-08-12T01:07:14Z | PULL_FAILED | develop
 PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
 2026-08-12T03:07:13Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-12T04:09:18Z — git push permission denied in scheduled session
+2026-08-12T05:12:16Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-08-12T05:14Z develop e5b9e5f — chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-12T06:07:15Z | PULL_FAILED | develop
