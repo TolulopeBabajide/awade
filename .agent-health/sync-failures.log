@@ -1067,3 +1067,5 @@ PUSH_DEFERRED 2026-08-16T10:42Z — permission denied in scheduled session
 2026-08-16T16:07:48Z | PULL_REBASE_FAILED | develop
 PUSH_DEFERRED 2026-08-16T16:12Z — permission denied in scheduled session
 2026-08-16T17:07:46Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-16T17:10:09Z develop dev-agent idle run (sandbox push permission denied)
+2026-08-16T18:07:45Z | PULL_FAILED | develop
