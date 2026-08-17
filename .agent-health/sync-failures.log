@@ -1079,3 +1079,8 @@ PUSH_DEFERRED: 2026-08-16T22:08:58Z — git push denied (sandbox permission)
 PUSH_DEFERRED: 2026-08-17T00:09:52Z — git push permission denied in scheduled session
 2026-08-17T01:07:44Z | PULL_FAILED | develop
 2026-08-17T02:07:46Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-17T02:08Z — git push permission denied in scheduled session
+2026-08-17T03:07:47Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED
+2026-08-17T03:10:55Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-17T04:07:43Z | PULL_FAILED | develop
