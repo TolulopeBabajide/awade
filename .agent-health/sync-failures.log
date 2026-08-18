@@ -1123,3 +1123,8 @@ PUSH_DEFERRED: 2026-08-18T05:14Z develop dac9c5fda08de2d2e14829c1c81d751dbaabe4f
 2026-08-18T06:07:48Z | PULL_REBASE_FAILED | develop
 2026-08-18T06:14:05Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
 2026-08-18T07:07:49Z | PULL_FAILED | develop
+2026-08-18T08:11:10Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-18T09:07:45Z | PULL_FAILED | develop
+2026-08-18T10:07:48Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-08-18T10:09Z develop a349c5c — sandbox push permission denied
+2026-08-18T11:07:56Z | PULL_FAILED | develop
