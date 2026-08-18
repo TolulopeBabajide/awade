@@ -1505,3 +1505,5 @@ After removing it, the next hourly run will:
 2026-08-18T06:12Z | — | dev-agent idle — no stage=ready items, heartbeat updated | — | ✅ Idle (no ready items) | CI:N/A
 
 | 2026-08-18T08:09Z | — | idle | — | ✅ No ready item | No stage=ready items in backlog (14 define, 8 discover). Code-review, QA, security not invoked. |
+
+2026-08-18T13:09Z | — | idle | — | No stage=ready items found — heartbeat only
