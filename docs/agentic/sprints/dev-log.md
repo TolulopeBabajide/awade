@@ -1494,3 +1494,4 @@ After removing it, the next hourly run will:
 2026-08-17T18:10Z | — | dev-agent idle — no stage=ready items | — | ✅ Idle (0 stage=ready; all open items at discover/define/design) | CI:n/a
 2026-08-18T02:17Z | H-142 | Fix HIGH nanoid vuln (GHSA-2v37-7h3g-55p8) via ^3.3.18 override | ffdf449 | ✅ Done (reviewers clean) | CI:pending
 2026-08-18T02:09Z | — | dev-agent idle — no stage=ready items | — | ✅ Idle (0 stage=ready; all open items at discover/define) | CI:n/a
+2026-08-18T03:01Z | — | dev-agent idle — no stage=ready items | — | ✅ Idle (0 stage=ready; all open items at discover/define/L-effort) | CI:n/a
