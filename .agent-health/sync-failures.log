@@ -1149,3 +1149,4 @@ PUSH_DEFERRED: 2026-08-18T23:09Z — permission denied in sandbox
 2026-08-19T03:07:51Z | PULL_REBASE_FAILED | develop
 2026-08-19T03:10:39Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
 2026-08-19T04:07:50Z | PULL_FAILED | develop
+2026-08-19T06:07:56Z | PULL_REBASE_FAILED | develop
