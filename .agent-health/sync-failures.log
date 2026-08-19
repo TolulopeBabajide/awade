@@ -1138,3 +1138,8 @@ PUSH_DEFERRED: git push origin develop failed at 2026-08-18T16:10Z — permissio
 2026-08-18T19:07:54Z | PULL_FAILED | develop
 2026-08-18T20:07:51Z | PULL_FAILED | develop
 2026-08-18T20:09Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-18T21:12:45Z PUSH_DEFERRED develop — sandbox permission denied
+2026-08-18T22:07:51Z | PULL_FAILED | develop
+2026-08-18T23:07:50Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-08-18T23:09Z — permission denied in sandbox
+2026-08-19T00:07:55Z | PULL_FAILED | develop
