@@ -112,6 +112,48 @@ describe('API Service', () => {
       expect(window.location.href).toBe('/login')
     })
 
+    it('should retry only once when refreshed cookies are still rejected', async () => {
+      const unauthorizedResponse = () => ({
+        ok: false,
+        status: 401,
+        url: '/api/auth/me',
+        statusText: 'Unauthorized',
+        json: vi.fn().mockResolvedValue({ detail: 'Unauthorized' })
+      })
+      const refreshResponse = { ok: true, status: 200, url: '/api/auth/refresh' }
+      ;(globalThis.fetch as any)
+        .mockResolvedValueOnce(unauthorizedResponse())
+        .mockResolvedValueOnce(refreshResponse)
+        .mockResolvedValueOnce(unauthorizedResponse())
+
+      delete (window as any).location
+      window.location = { href: '', pathname: '/' } as any
+
+      const result = await apiService.getCurrentUser()
+
+      expect(result.error).toBe('Session expired. Please login again.')
+      expect(globalThis.fetch).toHaveBeenCalledTimes(4)
+      expect(window.location.href).toBe('/login')
+    })
+
+    it('should not reload when an expired session is already on login', async () => {
+      const unauthorizedResponse = {
+        ok: false,
+        status: 401,
+        url: '/api/auth/me',
+        statusText: 'Unauthorized',
+        json: vi.fn().mockResolvedValue({ detail: 'Unauthorized' })
+      }
+      ;(globalThis.fetch as any).mockResolvedValue(unauthorizedResponse)
+
+      delete (window as any).location
+      window.location = { href: '/login', pathname: '/login' } as any
+
+      await apiService.getCurrentUser()
+
+      expect(window.location.href).toBe('/login')
+    })
+
     it('should log refresh errors in DEV mode and return session expired when refreshAccessToken throws', async () => {
       const unauthorizedResponse = {
         ok: false,
