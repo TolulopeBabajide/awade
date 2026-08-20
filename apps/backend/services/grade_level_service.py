@@ -14,17 +14,9 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from fastapi import HTTPException
 
-import sys
-import os
-
 logger = logging.getLogger(__name__)
 
-# Add parent directories to Python path for imports
-current_dir = os.path.dirname(__file__)
-parent_dir = os.path.dirname(current_dir)
-root_dir = os.path.dirname(parent_dir)
-sys.path.extend([parent_dir, root_dir])
-from apps.backend.models import GradeLevel
+from apps.backend.models import GradeLevel, CurriculumStructure
 from apps.backend.schemas.grade_level import GradeLevelCreate, GradeLevelResponse, GradeLevelUpdate
 
 class GradeLevelService:
@@ -117,7 +109,7 @@ class GradeLevelService:
                 raise HTTPException(status_code=400, detail="Grade level already exists")
             
             # Create new grade level
-            grade_level = GradeLevel(**grade_level_data.dict())
+            grade_level = GradeLevel(**grade_level_data.model_dump())
             self.db.add(grade_level)
             self.db.commit()
             self.db.refresh(grade_level)
@@ -164,7 +156,7 @@ class GradeLevelService:
                     raise HTTPException(status_code=400, detail="Grade level name already exists")
             
             # Update fields
-            update_data = grade_level_data.dict(exclude_unset=True)
+            update_data = grade_level_data.model_dump(exclude_unset=True)
             for field, value in update_data.items():
                 setattr(grade_level, field, value)
             
@@ -264,8 +256,6 @@ class GradeLevelService:
             HTTPException: If retrieval fails
         """
         try:
-            from apps.backend.models import CurriculumStructure
-            
             grade_levels = self.db.query(GradeLevel).join(CurriculumStructure).filter(
                 CurriculumStructure.curricula_id == curriculum_id
             ).distinct().offset(skip).limit(limit).all()
@@ -295,8 +285,6 @@ class GradeLevelService:
             HTTPException: If retrieval fails
         """
         try:
-            from apps.backend.models import CurriculumStructure
-            
             grade_levels = self.db.query(GradeLevel).join(CurriculumStructure).filter(
                 CurriculumStructure.subject_id == subject_id
             ).distinct().offset(skip).limit(limit).all()

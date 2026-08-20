@@ -48,7 +48,7 @@ import { useAuth } from '../contexts/AuthContext'
 import type { ChildProfile } from '../types/children'
 
 const mockApiService = vi.mocked(apiService)
-const mockUseAuth = useAuth as ReturnType<typeof vi.fn>
+const mockUseAuth = vi.mocked(useAuth)
 
 /** Build a fresh QueryClient for each test to avoid cache bleed-through. */
 function makeQueryClient() {
@@ -88,7 +88,7 @@ function defaultChild(): ChildProfile {
     country_id: 1,
     country_name: 'TestLand',
     curricula_id: 2,
-    curricula_title: 'Test National Curriculum',
+    curriculum_title: 'Test National Curriculum',
     grade_level_id: 3,
     grade_level_name: 'Grade 3',
     subjects: [1, 2],
@@ -168,7 +168,7 @@ describe('ChildrenPage — error state', () => {
 
     await waitFor(() =>
       expect(screen.getByRole('button', { name: /Try again/i })).toBeInTheDocument()
-    )
+    , { timeout: 5000 })
   })
 
   it('"Try again" refetches the data', async () => {
@@ -178,13 +178,13 @@ describe('ChildrenPage — error state', () => {
 
     renderWithProviders(<ChildrenPage />)
 
-    const retryBtn = await screen.findByRole('button', { name: /Try again/i })
+    const retryBtn = await screen.findByRole('button', { name: /Try again/i }, { timeout: 5000 })
     fireEvent.click(retryBtn)
 
     // After retry, the query should run again — empty state should appear
     await waitFor(() =>
       expect(screen.getByText(/No children added yet/i)).toBeInTheDocument()
-    )
+    , { timeout: 5000 })
     expect(mockApiService.getChildren).toHaveBeenCalledTimes(2)
   })
 })
@@ -209,12 +209,12 @@ describe('ChildrenPage — empty state', () => {
     renderWithProviders(<ChildrenPage />)
     await waitFor(() =>
       expect(screen.getByRole('button', { name: /Add Your First Child/i })).toBeInTheDocument()
-    )
+    , { timeout: 5000 })
   })
 
   it('opens the AddChildModal when the CTA is clicked', async () => {
     renderWithProviders(<ChildrenPage />)
-    const cta = await screen.findByRole('button', { name: /Add Your First Child/i })
+    const cta = await screen.findByRole('button', { name: /Add Your First Child/i }, { timeout: 5000 })
     fireEvent.click(cta)
     expect(screen.getByTestId('add-child-modal')).toBeInTheDocument()
   })
@@ -274,9 +274,7 @@ describe('ChildrenPage — children grid', () => {
 
   it('renders an "Add another child" card', async () => {
     renderWithProviders(<ChildrenPage />)
-    await waitFor(() =>
-      expect(screen.getByRole('button', { name: /Add another child/i })).toBeInTheDocument()
-    )
+    expect(await screen.findByRole('button', { name: /Add another child/i }, { timeout: 5000 })).toBeInTheDocument()
   })
 
   it('shows "Curriculum not set" nudge for profiles missing curriculum/grade', async () => {

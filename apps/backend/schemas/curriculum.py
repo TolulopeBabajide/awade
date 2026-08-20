@@ -11,7 +11,7 @@ from enum import Enum
 # New normalized curriculum schemas
 class CurriculumBase(BaseModel):
     """Base schema for curriculum data."""
-    curricula_title: str
+    curriculum_title: str
     country_id: int
 
 class CurriculumCreate(CurriculumBase):
@@ -43,7 +43,7 @@ class LearningObjectiveCreate(BaseModel):
     objective: str = Field(..., description="Learning objective text")
 
 class LearningObjectiveUpdate(BaseModel):
-    objective: str = Field(..., description="Learning objective text")
+    objective: str = Field(..., min_length=1, max_length=2000, description="Learning objective text")
 
 class LearningObjectiveResponse(BaseModel):
     learning_objective_id: int
@@ -60,7 +60,7 @@ class ContentCreate(BaseModel):
 
 class ContentUpdate(BaseModel):
     """Schema for updating content."""
-    content_area: str = Field(..., description="Content area text")
+    content_area: str = Field(..., min_length=1, max_length=2000, description="Content area text")
 
 class ContentResponse(BaseModel):
     """Schema for content response data."""

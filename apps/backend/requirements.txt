@@ -1,33 +1,36 @@
 
 # Core FastAPI dependencies - Updated for security
-fastapi==0.115.12  # Upgraded from 0.109.2 — patches CVE-2024-24762 (DoS via multipart) and 6 minor security releases (AWD-M-64)
+fastapi==0.137.1  # Upgraded from 0.121.3 — drops starlette upper bound to >=0.46.0 enabling starlette>=1.0.1 (AWD-H-126); introduces _IncludedRouter routing; new transitive deps: typing-inspection, annotated-doc
+annotated-doc==0.0.4  # New transitive dep of fastapi>=0.137 (generates OpenAPI parameter docs from Annotated types)
+typing-inspection==0.4.2  # New transitive dep of fastapi>=0.137 (runtime type introspection for dependency injection)
 uvicorn[standard]==0.34.0  # Upgraded from 0.27.1 — 7 minor security hardening releases (AWD-M-64)
 pydantic==2.10.6  # Upgraded from 2.6.4 — 4 minor versions of security hardening; covers CVE-2024-3772 (ReDoS in email validation, patched at 2.6.2) and further hardening in 2.7–2.10 (AWD-M-151)
 sqlalchemy==2.0.41  # Upgraded from 2.0.29 — 12 patch releases of ORM correctness fixes and minor security hardening (AWD-M-152)
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.12  # Patched 3 versions (2.9.9→2.9.12) — no published CVEs, maintenance patch (AWD-M-210)
 python-dotenv==1.2.2  # Fix CVE-2026-28684 (symlink following in set_key) (AWD-M-115)
 openai==1.109.1  # Upgraded from 1.12.0 — latest 1.x, stays below 2.x (breaking API changes); security patches (AWD-M-39)
 
 # Security fixes for vulnerable packages
-python-multipart==0.0.27  # Fix CVE-2024-53981, PVE-2024-99762, CVE-2026-24486, CVE-2026-40347 (AWD-H-76)
+python-multipart==0.0.31  # Fix CVE-2024-53981, PVE-2024-99762, CVE-2026-24486, CVE-2026-40347 (AWD-H-76); Fix CVE-2026-53540 (Content-Length DoS), CVE-2026-53539 (O(B²) parse DoS), CVE-2026-53538 (form-field smuggling) (AWD-M-300)
 jinja2==3.1.6  # Fix CVE-2025-27516, CVE-2024-34064, CVE-2024-56326, CVE-2024-56201, CVE-2024-22195
 bcrypt==4.3.0  # Upgraded from 4.0.0 — fix CVE-2024-52400 (DoS via large password in auth path) (AWD-M-62)
-weasyprint==68.0  # Upgraded from 62.3 — fix CVE-2025-68616 (SSRF via HTTP redirect to internal endpoints, CVSS:3.1/AV:N/AC:L/PR:N/UI:N/C:H); core API (HTML/CSS/write_pdf) unchanged (AWD-C-14)
-PyJWT==2.12.1  # Pin exact version — large CVE surface between 2.3.0 and 2.12.1 (AWD-H-23)
+weasyprint==69.0  # Upgraded from 68.0 — fix CVE-2026-49452 / GHSA-jhhc-3hcp-qhm5 (CSS injection via HTML presentational hints enabling SSRF); core API (HTML/CSS/write_pdf) unchanged (AWD-M-325)
+PyJWT==2.13.0  # Upgraded from 2.12.1 — fixes PYSEC-2026-175/177/178/179 (CVE-2026-48522/48524/48525/48526); algorithm-confusion vector N/A (single explicit HS256); PyJWKClient vectors N/A (not used) (AWD-M-207)
 email-validator==2.1.0
 requests==2.33.0  # Fix CVE-2024-47081, CVE-2026-25645 (insecure temp file reuse) (AWD-M-114)
-urllib3==2.6.3  # Fix CVE-2025-50181, CVE-2025-50182, CVE-2025-66471, CVE-2026-21441, CVE-2026-66418 (AWD-H-75)
-Pillow==12.2.0  # Upgraded from 10.4.0 — fixes CVE-2026-40192 (FITS GZIP decompression bomb, AV:N), CVE-2026-25990, CVE-2026-42311, CVE-2026-42310, CVE-2026-42308; API compat confirmed: Image.open/.convert/.thumbnail/.save + Image.Resampling.LANCZOS all stable 10→12 (AWD-M-112)
+urllib3==2.7.0  # Fix CVE-2025-50181, CVE-2025-50182, CVE-2025-66471, CVE-2026-21441, CVE-2026-66418 (AWD-H-75); Fix PYSEC-2026-142 (Brotli decompression amplification), PYSEC-2026-141 (cross-origin redirect header leak, fixed in 2.7.0) (AWD-M-199)
+Pillow==12.3.0  # Upgraded from 10.4.0 — fixes CVE-2026-40192 (FITS GZIP decompression bomb, AV:N), CVE-2026-25990, CVE-2026-42311, CVE-2026-42310, CVE-2026-42308; API compat confirmed: Image.open/.convert/.thumbnail/.save + Image.Resampling.LANCZOS all stable 10→12 (AWD-M-112); bumped 12.2→12.3 — fixes PYSEC-2026-2253/2254/2255/2256/2257 + PYSEC-2026-3451/3452/3453/3454/3493/3494/3495/3496 (AWD-H-138)
 alembic==1.13.3
 
 # Additional security dependencies
-cryptography==46.0.6  # Fix CVE-2024-12797, CVE-2026-26007, CVE-2026-34073 (AWD-M-113)
-setuptools==78.1.1  # Fix CVE-2025-47273, CVE-2024-6345
+starlette==1.3.1  # Upgraded from 0.49.3: fixes PYSEC-2026-161 (Host header URL injection via unvalidated Host header; fixed at 1.0.1). Also covers CVE-2025-54121 and CVE-2025-62727 from AWD-H-96. (AWD-H-126)
+cryptography==50.0.0  # Fix CVE-2024-12797, CVE-2026-26007, CVE-2026-34073 (AWD-M-113); Fix PYSEC-2026-36 (non-contiguous buffer overflow, affects 45.0.0-46.0.6, fixed at 46.0.7, bumped to 48.0.0) (AWD-H-95); Fix GHSA-537c-gmf6-5ccf (statically-linked OpenSSL advisory 2026-06-09) (AWD-M-301); Fix PYSEC-2026-3552 (Bleichenbacher oracle via PKCS7 decryption, fixed at 50.0.0), PYSEC-2026-3553 (cert chain validation DoS, fixed at 49.0.0), PYSEC-2026-3554 (wildcard DNS SAN escape, fixed at 49.0.0) (AWD-H-141)
+setuptools==83.0.0  # Fix CVE-2025-47273, CVE-2024-6345, PYSEC-2026-3447 (AWD-M-329)
 
 # Testing dependencies
-pytest==8.3.5  # Upgraded from 7.4.0 — latest 8.x; improved assertion rewriting, async test support, fixture scoping (AWD-L-39)
-pytest-asyncio==0.23.8  # Upgraded from 0.21.2 — first series with official pytest 8.x support (AWD-L-40); exact-pinned per project strategy (AWD-L-41)
-pytest-cov==4.1.0
+pytest==9.0.3  # Upgraded from 8.3.5 — fix CVE-2025-71176 (local privilege escalation via predictable /tmp/pytest-of-{user} dir); fixed at 9.0.3 (AWD-L-52)
+pytest-asyncio==1.3.0  # Upgraded from 0.23.8 — 1.3.0 is the first release with pytest<10,>=8.2 (0.x/1.0–1.2 cap at pytest<9); asyncio_mode=auto + @pytest.mark.asyncio unchanged (AWD-L-52)
+pytest-cov==7.1.0  # Upgraded from 4.1.0 — 3 major versions behind, latest; devDependency only, never reaches production; --cov-fail-under=70 API unchanged (AWD-L-86)
 httpx==0.28.1  # Upgraded from 0.24.1 — google-genai requires >=0.28.1
 slowapi==0.1.9
 
@@ -36,9 +39,9 @@ sentry-sdk[fastapi]==2.58.0  # Error monitoring (AWD-H-01)
 
 # Async Worker
 arq==0.25.0
-redis==5.2.1  # Upgraded from 5.0.0 — 2 minor releases with connection pooling security improvements and TLS hardening (AWD-M-153)
-prometheus-fastapi-instrumentator==6.1.0
+redis==8.0.1  # Upgraded from 5.2.1 — closes 3-major-version staleness gap (AWD-M-322); API compat verified: Redis(), ping(), get(), setex() unchanged; arq 0.25.0 requires redis>=4.2.0 (no upper bound)
+prometheus-fastapi-instrumentator==8.0.0  # Upgraded from 6.1.0: requires starlette>=1.0.0 (compatible with AWD-H-126 starlette bump); routing patched in main.py for fastapi>=0.137 _IncludedRouter compat
 
 # AI Providers
 google-genai==1.14.0  # Migrated from deprecated google-generativeai; pinned after local test pass
-httplib2==0.22.0
+httplib2==0.32.0  # Fix PYSEC-2026-3444 (AWD-M-330)

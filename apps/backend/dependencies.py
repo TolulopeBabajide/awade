@@ -155,6 +155,10 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    # Expose user_id on request.state so AuditMiddleware can attribute the
+    # request after call_next() returns (OWASP A09 / AWD-M-197).
+    request.state.user_id = user.user_id
+
     return user
 
 async def get_current_active_user(
@@ -193,7 +197,7 @@ def require_role(required_role: UserRole):
         if current_user.role != required_role:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Access denied. Required role: {required_role.value}"
+                detail="Access denied."
             )
         return current_user
     
@@ -213,7 +217,7 @@ def require_roles(required_roles: list[UserRole]):
         if current_user.role not in required_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Access denied. Required roles: {[role.value for role in required_roles]}"
+                detail="Access denied."
             )
         return current_user
     

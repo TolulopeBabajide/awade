@@ -72,7 +72,7 @@ class ChildProfileResponse(BaseModel):
     country_id: Optional[int] = None
     country_name: Optional[str] = None
     curricula_id: Optional[int] = None
-    curricula_title: Optional[str] = None
+    curriculum_title: Optional[str] = None
     grade_level_id: Optional[int] = None
     grade_level_name: Optional[str] = None
     subjects: Optional[List[int]] = None

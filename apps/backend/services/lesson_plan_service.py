@@ -8,8 +8,6 @@ and AI-powered generation. Resource management has been extracted to
 Author: Tolulope Babajide
 """
 
-import sys
-import os
 import logging
 
 logger = logging.getLogger(__name__)
@@ -20,12 +18,6 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime, timezone
 from fastapi import HTTPException, status
 from arq import ArqRedis
-
-# Add parent directories to Python path for imports
-current_dir = os.path.dirname(__file__)
-parent_dir = os.path.dirname(current_dir)
-root_dir = os.path.dirname(parent_dir)
-sys.path.extend([parent_dir, root_dir])
 
 from apps.backend.models import (
     LessonPlan, User, Topic, CurriculumStructure, Curriculum, Country,
@@ -109,7 +101,7 @@ class LessonPlanService:
                 author_id=author_id,
                 duration_minutes=duration_minutes,
                 created_at=lesson_plan.created_at,
-                updated_at=lesson_plan.created_at,  # Using created_at as updated_at
+                updated_at=lesson_plan.updated_at,
                 status=LessonStatus.DRAFT.value,  # Pass string value to match schema
                 curriculum_learning_objectives=curriculum_learning_objectives,
                 curriculum_contents=curriculum_contents
@@ -136,9 +128,6 @@ class LessonPlanService:
             HTTPException: If topic not found or creation fails
         """
         try:
-            # Use current user's ID as author
-            request.user_id = current_user.user_id
-
             # Find topic based on curriculum structure
             topic = self.db.query(Topic).join(CurriculumStructure).join(Subject).join(GradeLevel).filter(
                 Subject.name == request.subject,
@@ -198,11 +187,15 @@ class LessonPlanService:
             # Start with lesson plans for the current user
             query = self.db.query(LessonPlan).filter(LessonPlan.user_id == current_user.user_id)
 
-            # Apply additional filters
-            if subject:
-                query = query.join(Topic).join(CurriculumStructure).join(Subject).filter(Subject.name == subject)
-            if grade_level:
-                query = query.join(Topic).join(CurriculumStructure).join(GradeLevel).filter(GradeLevel.name == grade_level)
+            # Apply additional filters — join Topic+CurriculumStructure once to avoid
+            # SQLAlchemy InvalidRequestError("already been joined") when both filters
+            # are supplied simultaneously (AWD-H-93).
+            if subject or grade_level:
+                query = query.join(Topic).join(CurriculumStructure)
+                if subject:
+                    query = query.join(Subject).filter(Subject.name == subject)
+                if grade_level:
+                    query = query.join(GradeLevel).filter(GradeLevel.name == grade_level)
 
             # Apply pagination
             lesson_plans = query.offset(skip).limit(limit).all()
@@ -274,14 +267,14 @@ class LessonPlanService:
             if not lesson_plan:
                 raise HTTPException(status_code=404, detail="Lesson plan not found")
 
-            # Update lesson plan fields
-            # Note: This is a placeholder - you'll need to add the fields you want to update
-            # For example: lesson_plan.title = request.title
-
-            self.db.commit()
-            self.db.refresh(lesson_plan)
-
-            return self.create_lesson_plan_response(lesson_plan)
+            # AWD-M-191: LessonPlan stores only topic_id/user_id/created_at; the fields
+            # in LessonPlanUpdate (title, subject, grade_level, duration_minutes, status,
+            # etc.) are not persisted columns and cannot be applied via setattr.  Silently
+            # committing nothing and returning 200 OK is misleading — raise 501 instead.
+            raise HTTPException(
+                status_code=status.HTTP_501_NOT_IMPLEMENTED,
+                detail="Lesson plan field updates are not yet implemented",
+            )
 
         except HTTPException:
             raise

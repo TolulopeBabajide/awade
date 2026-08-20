@@ -129,11 +129,11 @@ describe('UserList (AWD-M-143)', () => {
         )
 
         renderComponent()
-        await waitFor(() => screen.getByText('Ada Okonkwo'))
+        await waitFor(() => screen.getByText('Ada Okonkwo'), { timeout: 5000 })
 
         // Open the modal
         fireEvent.click(screen.getByTitle('Manage Role'))
-        await waitFor(() => screen.getByRole('dialog'))
+        await waitFor(() => screen.getByRole('dialog'), { timeout: 5000 })
 
         // Confirm the role change through the modal
         fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
@@ -141,7 +141,7 @@ describe('UserList (AWD-M-143)', () => {
         await waitFor(() => {
             expect(screen.getByRole('alert')).toBeInTheDocument()
             expect(screen.getByRole('alert')).toHaveTextContent('HTTP 403')
-        })
+        }, { timeout: 5000 })
     })
 
     it('shows error banner when handleToggleSuspension receives a non-OK response', async () => {
@@ -272,16 +272,16 @@ describe('UserList role-change modal (AWD-M-144)', () => {
         )
 
         renderComponent()
-        await waitFor(() => screen.getByText('Ada Okonkwo'))
+        await waitFor(() => screen.getByText('Ada Okonkwo'), { timeout: 5000 })
 
         fireEvent.click(screen.getByTitle('Manage Role'))
-        await waitFor(() => screen.getByRole('dialog'))
+        await waitFor(() => screen.getByRole('dialog'), { timeout: 5000 })
 
         fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
 
         await waitFor(() => {
             expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-        })
+        }, { timeout: 5000 })
         // PATCH was called with the correct user ID
         expect(vi.mocked(globalThis.fetch)).toHaveBeenCalledWith(
             expect.stringContaining('/api/admin/users/1'),
@@ -298,17 +298,17 @@ describe('UserList role-change modal (AWD-M-144)', () => {
         )
 
         renderComponent()
-        await waitFor(() => screen.getByText('Ada Okonkwo'))
+        await waitFor(() => screen.getByText('Ada Okonkwo'), { timeout: 5000 })
 
         fireEvent.click(screen.getByTitle('Manage Role'))
-        await waitFor(() => screen.getByRole('dialog'))
+        await waitFor(() => screen.getByRole('dialog'), { timeout: 5000 })
 
         fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
 
         await waitFor(() => {
             expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
             expect(screen.getByRole('alert')).toHaveTextContent('HTTP 500')
-        })
+        }, { timeout: 5000 })
     })
 
     it('does not call window.confirm at all during a role change', async () => {

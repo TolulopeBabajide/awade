@@ -86,3 +86,413 @@
 2026-05-10T16:24:44Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
 2026-05-10T18:22:34Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — commit 90e3b42 (AWD-M-79), verdict: Clean, filed L-32/L-33
 2026-05-10T20:21:00Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — 0546d6e — ✅ Clean (no reviewable app code)
+2026-05-10T22:22:50Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-11T06:06:23Z | performance-agent | WRITE | docs/performance/ | completed performance benchmark — first baseline; filed AWD-H-83 (N+1 in get_data_export)
+2026-05-11T06:22:04Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-11T08:22:35Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-11T10:21:40Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-11T12:21:16Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-11T14:21:03Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-11T16:22:05Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-11T18:22:35Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-11T20:22:26Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — AWD-M-140 + AWD-M-141 test splits — Verdict: ✅ Clean
+2026-05-12T06:17:46Z | architecture-agent | WRITE | docs/architecture/ | completed architecture review 2026-05-12: 4 ADRs, 4 backlog items filed (H-84 H-85 M-142 L-34), codebase map updated
+2026-05-12T06:21:03Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-12T08:23:02Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-12T10:22:47Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review (AWD-L-35 + AWD-M-143): ✅ clean; 3 new items filed (M-144, M-145, L-36)
+2026-05-12T12:23:13Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-12T16:21:26Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-12T18:22:30Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-12T20:21:59Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-12T22:21:39Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-13T05:52:07Z | dependency-security-agent | WRITE | docs/agentic/audits/ | completed dependency security scan — no Critical/High; 3 M + 2 L items filed; SBOM written to docs/security/sbom-2026-05-13.md
+2026-05-13T08:23:03Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-13T10:22:13Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-13T12:25:00Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-13T14:21:56Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-13T16:30:51Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-13T18:23:00Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — verdict ⚠️ Refactor Recommended, filed AWD-L-41
+2026-05-13T20:20:57Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-13T22:23:15Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-14T08:21:16Z | code-review-agent | skip | no commits in review window
+2026-05-14T10:20:43Z | code-review-agent | WRITE | docs/code-reviews/review-2026-05-14-6dd1aca.md | completed structural code review (no code changes detected)
+2026-05-14T12:21:23Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — verdict: clean, 1 file, 0 findings
+2026-05-15T20:20:31Z | code-review-agent | SKIP | no new commits since 115 min
+2026-05-15T22:23:00Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-16T06:22:22Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-16T08:24:11Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — 2 commits reviewed (AWD-L-46, AWD-M-161); verdict ⚠️ Refactor Recommended; filed AWD-M-163 AWD-M-164
+2026-05-16T10:23:22Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review (AWD-M-163+164 fixes — verdict: ⚠️ Refactor Recommended — filed AWD-M-165, AWD-M-166)
+2026-05-16T12:23:57Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — commits 3d5a05d/8a567ed (AWD-M-166) + 8dc08de/f43644b (AWD-L-47), verdict: Clean, filed M-167 + L-48
+2026-05-16T14:23:19Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — verdict: ✅ Clean (AWD-M-167 + AWD-L-48)
+2026-05-16T16:23:27Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — AWD-M-162 (user_service) + AWD-M-165 (curriculum_service). Verdict: ⚠️ Refactor Recommended. Filed AWD-M-168, M-169, M-170.
+2026-05-16T18:21:45Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review of commits 9f5be8b/1bc1217 (AWD-M-170)
+2026-05-16T20:24:15Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-16T22:23:37Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-17T06:22:11Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review for AWD-M-172 (4e39565) — verdict: Clean
+2026-05-17T08:21:53Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-17T10:23:14Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-17T12:21:59Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — verdict ✅ Clean — AWD-M-176 filed
+2026-05-17T14:25:24Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-17T16:30:57Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — verdict ✅ Clean, filed AWD-M-179
+2026-05-17T18:27:32Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-17T20:31:54Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — AWD-M-179 ✅ Clean; filed AWD-H-92 uncommitted M-178 sub-services
+2026-05-18T06:09:13Z | performance-agent | WRITE | docs/performance/ | completed performance benchmark
+2026-05-18T06:23:42Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review of AWD-M-180 (d3b0f21/31f6788)
+2026-05-18T08:21:08Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-18T10:24:04Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-18T12:22:47Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-18T14:29:41Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review — AWD-M-185 ✅ Clean, filed M-188
+2026-05-18T16:25:27Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-19T11:15:00Z | code-review-agent | WRITE | docs/code-reviews/review-2026-05-19-0db8e92.md | completed structural code review — AWD-H-93 join fix + AWD-H-94 dead query removal — verdict: ✅ Clean
+2026-05-19T12:23:37Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review of commit 93bdab8 — verdict: Clean, filed AWD-M-192
+2026-05-19T14:23:31Z | code-review-agent | WRITE | docs/code-reviews/ | completed structural code review
+2026-05-20T05:37:30Z | dependency-security-agent | WRITE | docs/audits/ | completed dependency security scan
+2026-05-22T06:17:26Z | tech-debt-agent | WRITE | docs/tech-debt/ | completed tech debt audit
+2026-05-25T06:11:19Z | performance-agent | WRITE | docs/performance/ | completed performance benchmark
+2026-05-27T05:40:51Z | dependency-security-agent | WRITE | docs/audits/ | completed dependency security scan 2026-05-27: 7 advisories (3H open, 2M, 2L new), 3 new backlog items filed (L-52, L-53, M-202)
+2026-05-29T06:13:20Z | tech-debt-agent | WRITE | docs/tech-debt/ | completed tech debt audit
+2026-06-01T06:06:38Z | performance-agent | WRITE | docs/performance/ | completed performance benchmark
+2026-06-03T05:40:20Z | dependency-security-agent | WRITE | docs/audits/ | completed dependency security scan
+2026-06-05T07:04:09Z | tech-debt-agent | WRITE | docs/tech-debt/ | completed tech debt audit
+2026-06-05T08:19:40Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-05T09:46:21Z | code-review-agent    | SKIP       | no-new-commits                           | no commits in last 45 minutes — HEAD is 2026-05-19, nothing landed to review
+2026-06-05T10:30:37Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-05T13:24:58Z | code-review-agent    | SKIP       | no-new-commits                           | no commits in 45-minute window — nothing to review
+2026-06-05T16:00:00Z | analytics-agent      | WRITE      | docs/agentic/analytics/                  | daily metrics check — degraded (no analytics tool); weekly report + daily log written; discovery item added
+2026-06-05T20:32:20Z | improvement-agent | SKIP | docs/agentic/improvement-backlog.md | skip - improvement backlog empty
+2026-06-05T20:35:00Z | support-agent | WRITE | docs/agentic/support/ | support digest — first run: support-log.md created (was missing), 0 messages across all sources (Slack/Gmail empty, Intercom unauthenticated → mcp-failures.log); no injection attempts (no external input processed); no shell — logs appended via file tools
+2026-06-05T20:45:00Z | seo-agent | WRITE | docs/agentic/seo/ | weekly SEO report — first run (launch week): weekly-2026-06-05.md written (folder created); degraded (no GSC, Mixpanel scope-blocked → mcp-failures.log); filed M-211 (robots+sitemap, ready), M-212 (domain inconsistency awade.app/.io/.com, define), L-56 (broken favicon, ready); no shell — backlog validated manually, logs via file tools
+2026-06-08T06:44:16Z | performance-agent | WRITE | docs/performance/ | completed performance benchmark
+2026-06-08T18:41:11Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-06-09T06:10:02Z | architecture-agent   | SKIP       | idempotency                              | ran within 14-day window — skipping
+2026-06-09T08:08:02Z | support-agent | WRITE | docs/agentic/support/ | support digest 2026-06-09
+2026-06-09T08:08:02Z | support-agent | WRITE | docs/agentic/discovery/queue.md | added support intake channel gap to discovery queue
+2026-06-09T18:37:31Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-06-09T20:29:13Z | architecture-agent   | SKIP       | idempotency                              | ran within 14-day window — skipping
+2026-06-09T20:40:09Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-06-09T20:41:40Z | support-agent | WRITE | docs/agentic/support/ | support digest evening re-run
+2026-06-10T05:40:43Z | dependency-security-agent | WRITE | docs/audits/ | completed dependency security scan 2026-06-10 — no new CVEs; all findings match existing open items (H-95, H-96, M-199, M-207, M-209, L-52, L-53, L-55)
+2026-06-10T18:37:22Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-06-11T18:40:34Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-06-12T06:36:50Z | tech-debt-agent | WRITE | docs/tech-debt/ | completed tech debt audit; filed 14 backlog rows (M-213/214/215, M-119-125, L-58-61); permission-check exit-2 overridden as known M-213 false negative
+2026-06-12T11:24:45Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — AWD-M-208 NERDC pedagogy integration
+2026-06-12T12:25:29Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-12T15:20:06Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-12T15:23:20Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-12-81022c7.md | completed structural code review
+2026-06-12T16:18:55Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-12T17:20:41Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-12T17:20:41Z | code-review-agent    | SKIP       | review                                   | no reviewable application files in commit 6d5eb45 — only generated index and audit log changed
+2026-06-12T18:21:50Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-12-d2b17ad.md | completed structural code review — AWD-M-211 (robots.txt + sitemap.xml); verdict ✅ Clean; 0 backlog items filed
+2026-06-12T18:38:36Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-06-12T20:33:46Z | code-review-agent    | SKIP       | no-commits                               | no new commits in last 45 minutes — skipping review
+2026-06-12T21:22:40Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-13T01:22:49Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-13T02:19:56Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-13T02:21:47Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-13-c554f59.md | completed structural code review
+2026-06-13T03:19:58Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-13T03:21:45Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-13-f39cc29.md | completed structural code review — verdict: Clean
+2026-06-13T04:23:44Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-13-d88d0f6.md | completed structural code review — AWD-C-15 fix, verdict ✅ Clean, filed M-218 + L-64
+2026-06-13T05:20:07Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-13T05:21:51Z | code-review-agent    | WRITE      | docs/private/code-reviews-archive/       | completed structural code review — archive write denied, review logged to audit trail
+2026-06-13T06:32:24Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-13-c10ed3c.md | completed structural code review — verdict ✅ Clean, M-220 filed
+2026-06-13T07:35:55Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-13-3c240e6.md | completed structural code review — AWD-H-103 fix clean, AWD-M-221 filed
+2026-06-13T08:26:11Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-13T08:34:28Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-13-bec9c8c.md | completed structural code review — AWD-H-103 fix reviewed, M-222 filed
+2026-06-13T10:22:45Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-13T11:23:30Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-13T12:22:18Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-13T13:21:48Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-13T14:20:13Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/review-2026-06-13-cf287b3.md | write denied by permission manifest
+2026-06-13T15:21:55Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-13-f39e90f.md | completed structural code review — verdict: Clean, 1 file, commits f39e90f/5c7432e/f147a93
+2026-06-13T16:21:54Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-13-cb0c3f7.md | completed structural code review
+2026-06-13T17:26:39Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-13-a3d1cc0.md | completed structural code review — no reviewable code in sync commit, prior code commits already covered
+2026-06-13T19:23:55Z | code-review-agent    | SKIP       | docs/code-reviews/                       | review for dd451dd already exists — sync-only commits in 45-min window, no new reviewable code
+2026-06-13T20:31:04Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-13T21:23:33Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-13-e0ed460.md | completed structural code review
+2026-06-13T22:19:36Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-13T22:23:44Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-13-5a029e2.md | completed structural code review — AWD-H-109 fix (57b5cbb/5a029e2) — verdict: ⚠️ Refactor Recommended — filed H-110, L-68, L-69
+2026-06-13T23:22:07Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-e2bf0a3.md | completed structural code review — AWD-L-56 favicon commits; verdict ✅ Clean; filed AWD-M-231
+2026-06-14T00:22:49Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-2bee109.md | completed structural code review — AWD-H-110 fix — 1 new M-232 filed
+2026-06-14T01:23:09Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-036b671.md | completed structural code review
+2026-06-14T02:23:23Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-6c6d9ce.md | completed structural code review — ✅ Clean — filed M-234, M-235
+2026-06-14T03:20:38Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-4a18927.md | no-code-commit review: AWD-M-46 marked done (venv self-healed), no app source files changed
+2026-06-14T04:19:49Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-14T04:22:29Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-686da82.md | completed structural code review — ✅ Clean, 0 findings, 2 files reviewed
+2026-06-14T05:23:55Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-653ba87.md | completed structural code review — ✅ Clean — AWD-M-235 MagicMock kwarg fix
+2026-06-14T06:26:18Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-4d39a31.md | starting structural code review
+2026-06-14T06:27:54Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-14T07:37:25Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review of a6e7ed2 — ✅ Clean — filed AWD-M-236
+2026-06-14T08:34:06Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-febda7d.md | completed structural code review — sync commit febda7d; no application code changed, ✅ Clean
+2026-06-14T10:51:05Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-38844be.md | completed structural code review — 38844be AWD-M-227 test fix, filed AWD-M-237
+2026-06-14T11:19:35Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-14T12:23:01Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — ✅ Clean — AWD-M-228 fix (4fed6a6) — no new findings
+2026-06-14T13:23:15Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-1baf2d8.md | completed structural code review — 5e4559c (AWD-H-104 test fix) — verdict: Clean — filed M-238
+2026-06-14T14:22:13Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-6f03b4c.md | completed structural code review
+2026-06-14T15:20:01Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-14T15:21:53Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-acba1c5.md | completed structural code review — verdict: Clean, 0 findings, 0 backlog items filed
+2026-06-14T18:22:09Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-3598b20.md | completed structural code review — AWD-M-222 fix (3598b20) — ✅ Clean
+2026-06-14T19:19:45Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-14T19:22:28Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-14-425d98a.md | completed structural code review — AWD-H-98 refactor, verdict ✅ Clean
+2026-06-14T20:20:06Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-14T20:21:54Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-14T23:19:52Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-14T23:21:11Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-15T00:21:56Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-15-8abd743.md | completed structural code review
+2026-06-15T01:23:26Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-15-ecdddf4.md | completed structural code review — ecdddf4 (AWD-L-67) — verdict: Clean
+2026-06-15T02:25:10Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-15-48651f4.md | completed structural code review — AWD-L-54 fix; filed H-112, M-240
+2026-06-15T03:23:22Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-15T04:23:47Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-15-afb638c.md | completed structural code review — commit afb638c (AWD-H-113)
+2026-06-15T05:21:22Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-15T06:22:14Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-15-768550d.md | completed structural code review — ✅ Clean, 0 findings (urllib3 pin bump)
+2026-06-15T07:28:15Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-15-2de9a11.md | completed structural code review — f0f114c AWD-M-241 extract _require_explicit_hosts
+2026-06-15T08:25:38Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-15-826d08a.md | completed structural code review — AWD-M-203 (826d08a) ⚠️ Refactor Recommended, filed M-242 M-243
+2026-06-15T09:24:14Z | code-review-agent | WRITE | docs/code-reviews/review-2026-06-15-edc9795.md | completed structural code review — AWD-H-114 working-tree fix, filed AWD-M-244
+2026-06-15T10:32:12Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-15-cd8b4c1.md | completed structural code review of cd8b4c1 AWD-H-114 merge commit
+2026-06-15T11:30:42Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-15T11:35:18Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — aca739b AWD-H-116 fix
+2026-06-15T12:26:11Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-15T12:32:29Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-15-ff1411f.md | completed structural code review — ff1411f sync commit, no application code changed
+2026-06-15T13:48:05Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-15-0a7c7f9.md | completed structural code review — AWD-H-115 waitFor timeout fix, verdict: Clean
+2026-06-15T14:26:07Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-15T15:42:02Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-15T16:04:38Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-15-2f5bbb2.md | completed structural code review of 2f5bbb2 (AWD-H-115 fix)
+2026-06-15T16:39:17Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-15T18:33:26Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-06-15T18:51:19Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-15-899cdfe.md | AWD-H-118 structural review — ✅ Clean — filed AWD-M-249
+2026-06-15T19:20:16Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-15T20:21:40Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-15-350c37d.md | completed structural code review — 1 file reviewed, verdict: Clean
+2026-06-15T21:20:15Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-15T21:22:41Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-15T22:21:42Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-15T23:20:13Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-15T23:23:53Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-16T00:22:19Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-16T01:20:37Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-16T01:22:10Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-16T02:24:17Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-16-ac28e0e.md | completed structural code review — ✅ Clean, filed AWD-M-251/L-71/L-72
+2026-06-16T03:23:16Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review of eba8d9a (sync commit — no app code changed)
+2026-06-16T04:25:07Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-16-ba35f83.md | completed structural code review ba35f83 — verdict: Refactor Recommended — filed AWD-M-252
+2026-06-16T05:23:40Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-16T05:27:22Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-16T06:12:59Z | architecture-agent   | SKIP       | idempotency                              | ran within 14-day window — skipping
+2026-06-16T06:41:57Z | code-review-agent | WRITE | docs/code-reviews/review-2026-06-16-44f3985.md | completed structural code review
+2026-06-16T07:37:04Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-16-badd74f.md | completed structural code review — sync commit, no reviewable app code
+2026-06-16T08:42:59Z | support-agent | WRITE | docs/agentic/support/ | support digest 2026-06-16
+2026-06-16T09:33:56Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-16T10:40:17Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-16T10:50:40Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — no application code in scope (sync-only commit 895bf25)
+2026-06-16T12:12:50Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-16T12:41:15Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-16T15:21:36Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-16-062bc5d.md | completed structural code review — ✅ Clean — AWD-M-253 fix (062bc5d/5699290)
+2026-06-16T16:23:03Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-16-f49159e.md | completed structural code review — ✅ Clean — no application code in scope (sync/records commits f49159e/78b70e9)
+2026-06-16T19:06:27Z | code-review-agent    | SKIP       | idempotency                              | no new commits in last 45 minutes — skipping review
+2026-06-16T16:00:00Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check — degraded (Mixpanel server unreachable, 12th consecutive day); daily-log.md + morning-brief.md updated
+2026-06-16T20:44:12Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-16T21:13:26Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-16T21:18:20Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-16T22:25:57Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-16-3153ee2.md | completed structural code review — AWD-M-251 fix — verdict ✅ Clean — M-254 filed
+2026-06-16T23:23:09Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-17-f207541.md | completed structural code review — ✅ Clean — filed AWD-M-255 AWD-M-256
+2026-06-17T00:22:20Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — 9272519 (AWD-M-255 IntegrityError fix)
+2026-06-17T01:23:18Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — no new code changes in window; sync commit only
+2026-06-17T02:23:08Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-17-ffc89fe.md | completed structural code review — AWD-M-256 refactor ✅ Clean
+2026-06-17T03:21:19Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-17T07:26:50Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-17T08:23:36Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-17-eacf851.md | completed structural code review
+2026-06-17T09:24:41Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-17-3871b83.md | completed structural code review — AWD-M-194 · verdict ✅ Clean · filed M-259 L-73
+2026-06-17T10:21:08Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest — will use backlog-only output path
+2026-06-17T10:22:02Z | code-review-agent    | REVIEW_COMPLETE | apps/backend/requirements.txt            | structural review of 3 commits (01294bb, 42ba00c, f4071af) — verdict: Clean; 0 new findings; PYSEC-2026-161 already tracked as AWD-H-126
+2026-06-17T11:22:01Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-17-4a69962.md | completed structural code review — AWD-M-193 refactor, verdict: ✅ Clean
+2026-06-17T12:26:30Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — 2 findings (H-127, M-260) — verdict: Refactor Recommended
+2026-06-17T13:23:47Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-17T13:25:46Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-17T14:23:23Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-17T15:20:06Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-17T15:26:28Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-17T16:22:31Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-18T21:52:56Z | code-review-agent    | SKIP       | idempotency                              | no new commits since last run at Thu Jun 18 22:32:09 BST 2026 — skipping
+2026-06-18T23:15:19Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — skip: only generated files in latest commit
+2026-06-18T23:34:54Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-19T00:24:48Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-19-adcc0a2.md | completed structural code review — AWD-M-224 refactor — ✅ Clean — filed M-262, L-74
+2026-06-19T01:22:10Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — AWD-M-262 fix verified ✅ Clean
+2026-06-19T02:21:43Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-19-0313622.md | completed structural code review — AWD-M-247 test helper extraction; verdict: Clean
+2026-06-19T03:21:47Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-19-ed05d12.md | completed structural code review — AWD-M-245 commit cycle — verdict: Clean
+2026-06-19T04:22:20Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-19T05:23:59Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-19-3030c8a.md | completed structural code review — AWD-M-198 fix · verdict: ✅ Clean · filed M-263 M-264
+2026-06-19T06:13:07Z | tech-debt-agent | WRITE | docs/tech-debt/ | completed tech debt audit
+2026-06-19T06:26:14Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-19-dee0ac4.md | completed structural code review of AWD-M-198 (dee0ac4)
+2026-06-19T07:24:27Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-19-81bddb1.md | completed structural code review — commit 81bddb1 (AWD-H-128)
+2026-06-19T10:09:45Z | code-review-agent    | SKIP       | idempotency                              | no new application code commits since last review (e7d7562 is sync-only docs commit; 81bddb1 already reviewed)
+2026-06-19T10:41:29Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-19T11:01:38Z | seo-agent | WRITE | docs/agentic/seo/ | weekly SEO report
+2026-06-19T16:00:00Z | analytics-agent | WRITE | docs/agentic/analytics/ | weekly analytics report (week 3 of launch month — degraded, Mixpanel scope error day 14)
+2026-06-19T22:26:14Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review: AWD-M-268 WIP — ✅ Clean, filed M-272 M-273
+2026-06-19T23:25:25Z | validate-output      | WRITE      | /Users/tolulopebabajide/Desktop/Projects/awade/awade/docs/agentic/backlog.md | filed C-2027: secret pattern detected — output rejected from code-review-agent
+2026-06-19T23:25:40Z | validate-output      | WRITE      | /Users/tolulopebabajide/Desktop/Projects/awade/awade/docs/agentic/backlog.md | filed C-2027: secret pattern detected — output rejected from code-review-agent
+2026-06-19T23:25:56Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — commit 10a27d9
+2026-06-20T00:23:31Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — AWD-M-266 fix reviewed: ✅ Clean
+2026-06-20T01:24:54Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-20T02:22:10Z | code-review-agent    | READ       | packages/ai/gpt_service.py,apps/backend/tests/test_ai_providers.py | read changed files for structural review
+2026-06-20T02:22:40Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-20-0c3985b.md | completed structural code review — ✅ Clean — AWD-H-129 fix (0c3985b)
+2026-06-20T03:23:40Z | code-review-agent    | WRITE      | docs/private/code-reviews-archive/       | completed structural code review — ✅ Clean — commit 6a3cb47 (AWD-M-277 fix)
+2026-06-20T04:21:38Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-20T04:23:51Z | code-review-agent | WRITE | docs/code-reviews/review-2026-06-20-d23a6c3.md | completed structural code review
+2026-06-20T10:49:16Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-20T12:43:53Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-20T15:33:59Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-20-944e9b2.md | completed structural code review — AWD-M-278 subprocess isolation test — verdict: Clean
+2026-06-20T15:53:21Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-20T16:41:36Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-20T17:41:52Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-20T23:39:42Z | validate-output      | WRITE      | /Users/tolulopebabajide/Desktop/Projects/awade/awade/docs/agentic/backlog.md | filed C-2027: secret pattern detected — output rejected from code-review-agent
+2026-06-20T23:40:50Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-21-a323313.md | completed structural code review — AWD-M-270 follow-up, ✅ Clean, filed AWD-M-279
+2026-06-20T23:43:38Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-21T00:20:01Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-21T01:22:17Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-21-e966039.md | completed structural code review — AWD-M-279 merge (e966039) — verdict: Clean
+2026-06-21T02:24:41Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — ✅ Clean, f475e05
+2026-06-21T03:28:54Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — no reviewable code changes in f950c09 sync commit
+2026-06-21T10:58:48Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-21-6f68740.md | completed structural code review — AWD-H-126/H-130 commits; verdict ⚠️ Refactor Recommended; filed H-131, M-280, M-281
+2026-06-21T11:19:35Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-21T12:24:05Z | validate-output      | WRITE      | /Users/tolulopebabajide/Desktop/Projects/awade/awade/docs/agentic/backlog.md | filed C-2027: secret pattern detected — output rejected from code-review-agent
+2026-06-21T12:24:38Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-21T13:23:58Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-21-27afc7d.md | completed structural code review (AWD-H-131 fix fb36e11/27afc7d — ✅ Clean, filed M-284)
+2026-06-21T14:22:15Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-21-96eb83f.md | completed structural code review
+2026-06-21T15:22:30Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-21T15:27:47Z | code-review-agent | WRITE | docs/code-reviews/review-2026-06-21-9de9889.md | completed structural code review
+2026-06-21T16:21:22Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-21-7e92a9b.md | completed structural code review — AWD-M-285 — ✅ Clean
+2026-06-21T17:22:48Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-21-ff61ee0.md | completed structural code review — AWD-M-282 merge, verdict Clean, 0 new items filed
+2026-06-21T18:20:47Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-21T19:22:29Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-21-1999ed7.md | completed structural code review — AWD-M-280 merge 1999ed7 — verdict Clean
+2026-06-21T20:24:25Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-21-709c39e.md | completed structural code review — ✅ Clean — filed AWD-M-287
+2026-06-21T21:23:17Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — 981baf3 (AWD-M-281) ✅ Clean
+2026-06-21T22:22:02Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — ✅ Clean — commits e980cb7 d06e097 — AWD-M-287 dedup reviewed
+2026-06-21T23:24:46Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-22-692db8a.md | completed structural code review — AWD-M-195 (692db8a) — ⚠️ Refactor Recommended
+2026-06-22T00:24:44Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — verdict: Clean, commits e75c4c3/30bdbf3, filed M-290 M-291 L-79
+2026-06-22T02:23:25Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review of 11949bc — ✅ Clean, 1 🟡 filed (AWD-M-292)
+2026-06-22T03:21:43Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-22-e3f323e.md | completed structural code review — AWD-M-290 — verdict: Clean
+2026-06-22T04:21:37Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — sync-only commits, no reviewable code
+2026-06-22T05:58:27Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-22T06:03:47Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-22T06:21:46Z | performance-agent | WRITE | docs/performance/ | completed performance benchmark
+2026-06-22T06:30:59Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-22T07:50:34Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — no reviewable code in 45-min window; ab55156 sync commit only
+2026-06-22T08:19:50Z | code-review-agent    | SKIP       | idempotency                              | ran within 45-minute window — skipping
+2026-06-22T09:24:04Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-22T10:23:23Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-22-0186cd9.md | completed structural code review
+2026-06-22T11:26:03Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-22T12:19:57Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-06-22T13:12:29Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-22-953a7bb.md | completed structural code review — AWD-M-220
+2026-06-22T14:15:50Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — AWD-M-223 split, verdict ✅ Clean
+2026-06-22T16:14:38Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-22T16:16:13Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — AWD-M-267 branch
+2026-06-22T18:37:36Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-06-22T19:15:07Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-22-9db6c7b.md | completed structural code review — AWD-L-79 clean
+2026-06-22T21:12:51Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-22-7719584.md | completed structural code review — AWD-L-62 branch clean
+2026-06-22T22:10:28Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-22T22:11:28Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — AWD-L-62 ✅ Clean
+2026-06-22T23:14:24Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-23-094f807.md | completed structural code review
+2026-06-23T02:22:36Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-23-67513e9.md | completed structural code review for AWD-L-69
+2026-06-23T03:13:09Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-23-67513e9.md | completed structural code review — AWD-L-69 ✅ Clean
+2026-06-23T04:14:04Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-23-7f1be8d.md | completed structural code review — ✅ Clean
+2026-06-23T05:21:29Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-23-d852f90.md | completed structural code review — AWD-L-64 branch, verdict: Clean
+2026-06-23T06:11:56Z | architecture-agent   | SKIP       | idempotency                              | ran within 14-day window — skipping
+2026-06-23T06:45:36Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-23-deba11b.md | completed structural code review — AWD-L-68 in-loop clean
+2026-06-23T08:08:01Z | support-agent | WRITE | docs/agentic/support/ | support digest
+2026-06-23T10:13:04Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-23T11:14:01Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-23-faec0bf.md | completed structural code review — AWD-M-293
+2026-06-23T13:14:46Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-23-beca32a.md | completed structural code review — AWD-M-296 in-loop
+2026-06-23T14:12:31Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-23-beca32a.md | completed structural code review — ✅ Clean, 0 findings
+2026-06-23T16:16:11Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-23-e9e2057.md | in-loop review of AWD-M-295 (e9e2057) — ✅ Clean, 0 blocking findings
+2026-06-23T17:15:27Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review AWD-M-298
+2026-06-23T18:12:33Z | code-review-agent    | WRITE      | docs/code-reviews/                       | in-loop re-confirmation: d3e3646 already reviewed ✅ Clean — no new findings on re-diff
+2026-06-23T18:37:41Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-06-23T20:14:30Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-23-c7ab17a.md | completed structural code review — AWD-M-297 ✅ Clean
+2026-06-23T21:12:55Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-23-c7ab17a.md | completed structural code review — in-loop mode AWD-M-297
+2026-06-24T02:13:49Z | code-review-agent    | WRITE      | docs/agentic/backlog.md                  | filed M-299, L-83 from AWD-M-294 review — ✅ Clean verdict
+2026-06-24T04:10:40Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-24T05:18:58Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-24-3a9ab58.md | completed structural code review — AWD-M-197 — verdict: ✅ Clean
+2026-06-24T05:38:39Z | dependency-security-agent | WRITE | docs/audits/ | completed dependency security scan — 4 backend CVE findings (M-300,M-301), frontend clean
+2026-06-24T06:13:30Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-24-5c6c077.md | completed structural code review — AWD-M-197 branch, verdict ✅ Clean
+2026-06-24T07:15:38Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-24-3a9ab58.md | completed structural code review — AWD-M-197 ✅ Clean
+2026-06-24T09:13:00Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest — review logged inline only
+2026-06-24T11:36:08Z | code-review-agent    | WRITE      | docs/private/code-reviews-archive/review-2026-06-24-74ba274.md | completed structural code review for AWD-M-201 — verdict: Clean
+2026-06-24T12:30:58Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-24-74ba274.md | completed structural code review — AWD-M-201 branch 74ba274 — verdict ✅ Clean
+2026-06-24T13:32:43Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-24-fbd21d2.md | completed structural code review — AWD-M-201+M-303 branch fbd21d2 — verdict ✅ Clean
+2026-06-26T09:58:34Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-26T10:02:56Z | tech-debt-agent | WRITE | docs/tech-debt/ | completed tech debt audit
+2026-06-26T10:16:58Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-06-26T10:18:08Z | support-agent | WRITE | docs/agentic/support/ | support digest
+2026-06-26T10:19:48Z | seo-agent | WRITE | docs/agentic/seo/ | weekly SEO report
+2026-06-26T13:17:24Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-26-447b10d.md | completed structural code review — AWD-M-202 sentry v10 upgrade
+2026-06-26T14:19:52Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-26-e5b99b0.md | completed structural code review — AWD-L-55 vitest v4 upgrade — verdict: Clean
+2026-06-26T15:22:11Z | dev-agent | COMPLETE | AWD-L-55 vitest v4 upgrade merged to develop — records updated
+2026-06-26T16:12:07Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-26-e58c9b2.md | completed structural code review — AWD-M-302 in-loop
+2026-06-26T18:37:59Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-06-28T13:09:44Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-06-28T13:11:02Z | code-review-agent    | WRITE      | docs/agentic/backlog.md                  | filed M-306 test-robustness finding for AWD-H-133 review
+2026-06-28T14:12:36Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-28-db661f3.md | completed structural code review — AWD-H-133 ✅ Clean
+2026-06-28T16:12:21Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural review — AWD-M-307 — verdict: Clean
+2026-06-29T06:13:39Z | performance-agent | PERMISSION_DENIED | docs/performance/ | manifest writes list omits docs/performance/** — report not persisted, filed M-308
+2026-06-29T06:33:33Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-29-93138cd.md | completed structural code review — AWD-M-308 ✅ Clean
+2026-06-29T23:03:20Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-06-29T23:11:04Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-06-30-93138cd.md | completed structural code review — AWD-M-308 ✅ Clean
+2026-06-30T22:12:30Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-07-01T00:15:58Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-07-01-7ab96d8.md | completed structural code review — AWD-M-254 curricula_title rename — verdict: Clean
+2026-07-01T02:11:57Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-07-01-5846eb2.md | completed structural code review — AWD-M-310 in-loop
+2026-07-01T05:36:57Z | dependency-security-agent | WRITE | docs/audits/ | completed dependency security scan
+2026-07-01T06:13:46Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — AWD-M-311 ✅ Clean
+2026-07-01T07:11:06Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-07-01-6d286ed.md | completed structural code review — AWD-M-311 rate limits
+2026-07-01T08:11:36Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-07-01T09:10:38Z | code-review-agent | WRITE | docs/code-reviews/review-2026-07-01-593f703.md | completed structural code review — AWD-L-84 ✅ Clean
+2026-07-01T18:41:15Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-07-02T07:22:01Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-07-02-AWD-H-134.md | completed structural code review — AWD-H-134 safety gate fix ✅ Clean
+2026-07-02T08:52:01Z | support-agent | WRITE | docs/agentic/support/ | support digest
+2026-07-02T11:07:44Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-07-02T11:11:55Z | code-review-agent | WRITE | docs/private/code-reviews-archive/ | completed structural code review — AWD-M-312 (archive write denied, verdict logged here)
+2026-07-02T15:56:41Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review AWD-M-313 — ✅ Clean, 1 🟡 filed as M-314
+2026-07-02T19:04:18Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-07-02T21:12:52Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest
+2026-07-03T04:16:38Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-07-03-c548b70.md | completed structural code review — AWD-M-315 ✅ Clean
+2026-07-03T05:13:12Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-07-03-c548b70.md | completed structural code review — AWD-M-315 ✅ Clean
+2026-07-03T06:11:38Z | tech-debt-agent | WRITE | docs/tech-debt/ | completed tech debt audit (8th run — stable, 12 active, 0 resolved/0 net-new)
+2026-07-03T07:11:16Z | code-review-agent | WRITE | docs/code-reviews/review-2026-07-03-8c7c4d6.md | completed structural code review
+2026-07-03T08:12:33Z | seo-agent | WRITE | docs/agentic/seo/ | weekly SEO report
+2026-07-03T11:17:28Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-07-03-AWD-M-317.md | completed structural code review for AWD-M-317
+2026-07-05T05:21:58Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — AWD-L-85 ✅ Clean
+2026-07-06T05:33:11Z | compliance-agent     | WRITE      | docs/legal/                              | completed compliance audit
+2026-07-06T06:07:52Z | performance-agent | WRITE | docs/performance/ | completed performance benchmark
+2026-07-07T05:41:02Z | access-review-agent  | WRITE      | docs/audits/                             | completed access control review — 2026-07-07
+2026-07-07T06:11:04Z | architecture-agent   | SKIP       | idempotency                              | ran within 14-day window (last run 10006m/~6.95d ago) — skipping
+2026-07-07T08:05:41Z | support-agent | WRITE | docs/agentic/support/ | support digest
+2026-07-07T18:13:43Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-07-07-a519d45.md | completed structural code review — AWD-M-319 fix, verdict: Clean
+2026-07-07T18:37:50Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-07-08T05:19:23Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-07-08-880e27c.md | completed structural code review — AWD-M-321 clean
+2026-07-08T05:39:34Z | dependency-security-agent | WRITE | docs/audits/ | completed dependency security scan
+2026-07-08T06:11:54Z | code-review-agent | IN-LOOP-REVIEW | fix/security/AWD-M-321-require-educator-on-lesson-plan-reads | verdict: Clean — zero critical/high findings
+2026-07-08T07:14:52Z | code-review-agent    | READ       | docs/code-reviews/review-2026-07-08-880e27c.md | in-loop review — prior report confirmed clean for AWD-M-321 880e27c
+2026-07-08T08:16:04Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-07-08-880e27c-inloop.md | in-loop structural review of AWD-M-321 branch — verdict: Clean
+2026-07-08T09:20Z | security-agent | SCOPED_REVIEW | AWD-M-321 | apps/backend/routers/lesson_plans.py + test_lesson_plans_router.py | verdict: PASS — no Critical/High findings
+2026-07-08T10:16:14Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-07-08-3c29304.md | completed structural code review — AWD-M-323 in-loop
+2026-07-08T12:12:31Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-07-08-cddff32-inloop.md | completed structural code review — AWD-L-86 in-loop
+2026-07-08T18:38:02Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-07-09T08:05:50Z | support-agent | WRITE | docs/agentic/support/ | support digest
+2026-07-09T18:37:27Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-07-10T06:12:15Z | tech-debt-agent | WRITE | docs/tech-debt/ | completed tech debt audit
+2026-07-10T08:14:14Z | seo-agent | WRITE | docs/agentic/seo/ | weekly SEO report
+2026-07-10T18:38:50Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-07-11T05:21:36Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — AWD-M-326 in-loop, verdict clean
+2026-07-11T07:14:26Z | code-review-agent | WRITE | docs/code-reviews/ | in-loop review AWD-M-325: ✅ Clean — requirements.txt pin bump only
+2026-07-13T06:06:42Z | performance-agent | WRITE | docs/performance/ | completed performance benchmark
+2026-07-13T18:38:19Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-07-13T20:11Z | dev-agent | READ | docs/agentic/backlog.md | idle run — no stage=ready items found (15 define, 9 discover)
+2026-07-14T06:10:22Z | architecture-agent   | SKIP       | idempotency                              | ran within 14-day window — skipping
+2026-07-14T08:05:05Z | support-agent | WRITE | docs/agentic/support/ | support digest
+2026-07-14T18:38:14Z | analytics-agent | WRITE | docs/agentic/analytics/ | daily metrics check
+2026-07-27T06:11:31Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-07-27-f9260e9.md | completed structural code review — in-loop, ✅ Clean
+2026-07-27T07:12:37Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review — AWD-H-138/M-329/M-330 dep bumps — verdict: Clean
+2026-08-03T05:31:58Z | compliance-agent     | SKIP       | idempotency                              | ran within 30-day window — skipping
+2026-08-04T05:44:32Z | access-review-agent  | SKIP       | idempotency                              | ran within 30-day window — skipping
+2026-08-04T20:43:44Z | code-review-agent    | PERMISSION_DENIED | docs/private/code-reviews-archive/       | write denied by permission manifest — returning verdict inline
+2026-08-05T19:19:56Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-08-05-4707099-inloop.md | completed structural code review — ✅ Clean, 2 medium/low findings, filed M-331 M-332
+2026-08-05T21:16:49Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-08-05-a82eefb.md | AWD-M-332 in-loop review — ✅ Clean
+2026-08-05T23:15:52Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
+2026-08-06T00:12:56Z | code-review-agent    | REVIEW     | docs/code-reviews/review-2026-08-06-8fa3940.md | in-loop review AWD-M-331 — ✅ Clean (2 🟡 unused UserRole import; prior review still current)
+2026-08-18T01:13:30Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-08-18-H142.md | completed structural code review — 1 High finding (nanoid override version)

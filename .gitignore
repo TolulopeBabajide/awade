@@ -84,6 +84,7 @@ htmlcov/
 
 # Build outputs
 dist/
+dist_new/
 build/
 *.tgz
 *.tar.gz
@@ -117,6 +118,7 @@ manual_to_do.md
 
 # Test data and population scripts
 *populate_*.py
+!apps/backend/populate_nerdc_curriculum.py
 *create_*.py
 *drop_*.py
 

@@ -20,13 +20,13 @@
   ],
   "curricula": [
     {
-      "curricula_title": "Nigerian Educational Research and Development Council",
+      "curriculum_title": "Nigerian Educational Research and Development Council",
       "country_name": "Nigeria"
     }
   ],
   "curriculum_structures": [
     {
-      "curricula_title": "Nigerian Educational Research and Development Council",
+      "curriculum_title": "Nigerian Educational Research and Development Council",
       "grade_level_name": "JSS 1",
       "subject_name": "Mathematics"
     }
@@ -35,7 +35,7 @@
     {
       "topic_title": "Fractions",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -60,7 +60,7 @@
     {
       "topic_title": "Whole Numbers",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -79,7 +79,7 @@
     {
       "topic_title": "LCM (Lowest Common Multiple)",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -94,7 +94,7 @@
     {
       "topic_title": "HCF (Highest Common Factor)",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -113,7 +113,7 @@
     {
       "topic_title": "Counting in Base 2",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -127,7 +127,7 @@
     {
       "topic_title": "Conversion of Base 10 Numerals to Binary Numbers",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -141,7 +141,7 @@
     {
       "topic_title": "Addition and Subtraction",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -162,7 +162,7 @@
     {
       "topic_title": "Addition and Subtraction of Fractions",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -178,7 +178,7 @@
     {
       "topic_title": "Multiplication and Division of Fractions",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -196,7 +196,7 @@
     {
       "topic_title": "Estimation",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -216,7 +216,7 @@
     {
       "topic_title": "Approximation",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -238,7 +238,7 @@
     {
       "topic_title": "Addition of Numbers in Base 2 Numerals",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -252,7 +252,7 @@
     {
       "topic_title": "Subtraction of Numbers in Base 2 Numerals",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -266,7 +266,7 @@
     {
       "topic_title": "Multiplication of Numbers in Base 2 Numerals",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -280,7 +280,7 @@
     {
       "topic_title": "Use of Symbols",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -303,7 +303,7 @@
     {
       "topic_title": "Simplification of Algebraic Expressions",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -327,7 +327,7 @@
     {
       "topic_title": "Simple Equations",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -344,7 +344,7 @@
     {
       "topic_title": "Plane Shapes",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -363,7 +363,7 @@
     {
       "topic_title": "Three Dimensional Figures",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -383,7 +383,7 @@
     {
       "topic_title": "Construction",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -401,7 +401,7 @@
     {
       "topic_title": "Angles",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -420,7 +420,7 @@
     {
       "topic_title": "Need for Statistics",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -438,7 +438,7 @@
     {
       "topic_title": "Data Collection",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },
@@ -452,7 +452,7 @@
     {
       "topic_title": "Data Presentation",
       "curriculum_info": {
-        "curricula_title": "Nigerian Educational Research and Development Council",
+        "curriculum_title": "Nigerian Educational Research and Development Council",
         "grade_level_name": "JSS 1",
         "subject_name": "Mathematics"
       },

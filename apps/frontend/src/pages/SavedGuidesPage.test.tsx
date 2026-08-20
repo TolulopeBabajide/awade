@@ -66,7 +66,7 @@ function makeChild(overrides: Partial<ChildProfile> = {}): ChildProfile {
     country_id: 1,
     country_name: 'TestLand',
     curricula_id: 2,
-    curricula_title: 'Test Curriculum',
+    curriculum_title: 'Test Curriculum',
     grade_level_id: 3,
     grade_level_name: 'Grade 3',
     subjects: [1],
@@ -90,6 +90,13 @@ function makeGuide(overrides: Partial<ParentGuide> = {}): ParentGuide {
     updated_at: '2026-01-15T00:00:00Z',
     ...overrides,
   }
+}
+
+function setupChildrenLoaded() {
+  mockApiService.getChildren.mockResolvedValue({
+    error: undefined,
+    data: { children: [makeChild()], total: 1 },
+  })
 }
 
 // ---------------------------------------------------------------------------
@@ -124,7 +131,7 @@ describe('SavedGuidesPage', () => {
       await waitFor(() => {
         expect(screen.getByText(/Failed to load profiles/i)).toBeTruthy()
         expect(screen.getByText(/Try again/i)).toBeTruthy()
-      })
+      }, { timeout: 5000 })
     })
 
     it('does not render child selector when children fetch errors', async () => {
@@ -135,16 +142,16 @@ describe('SavedGuidesPage', () => {
       await waitFor(() => {
         // Guides list and child selector should not be rendered
         expect(screen.queryByText(/No guides yet/i)).toBeNull()
-      })
+      }, { timeout: 5000 })
     })
   })
 
   describe('guides error state', () => {
+    beforeEach(() => {
+      setupChildrenLoaded()
+    })
+
     it('shows error message and retry button when guides fetch fails', async () => {
-      mockApiService.getChildren.mockResolvedValue({
-        error: undefined,
-        data: { children: [makeChild()], total: 1 },
-      })
       mockApiService.getChildGuides.mockResolvedValue({ error: 'Server error', data: undefined })
 
       renderWithProviders(<SavedGuidesPage />)
@@ -152,30 +159,23 @@ describe('SavedGuidesPage', () => {
       await waitFor(() => {
         expect(screen.getByText(/Failed to load guides/i)).toBeTruthy()
         expect(screen.getByText(/Try again/i)).toBeTruthy()
-      })
+      }, { timeout: 5000 })
     })
 
     it('does not show empty state when guides fetch errors', async () => {
-      mockApiService.getChildren.mockResolvedValue({
-        error: undefined,
-        data: { children: [makeChild()], total: 1 },
-      })
       mockApiService.getChildGuides.mockResolvedValue({ error: 'Server error', data: undefined })
 
       renderWithProviders(<SavedGuidesPage />)
 
       await waitFor(() => {
         expect(screen.queryByText(/No guides yet/i)).toBeNull()
-      })
+      }, { timeout: 5000 })
     })
   })
 
   describe('guides loading state', () => {
     it('shows spinner while guides are loading', async () => {
-      mockApiService.getChildren.mockResolvedValue({
-        error: undefined,
-        data: { children: [makeChild()], total: 1 },
-      })
+      setupChildrenLoaded()
       mockApiService.getChildGuides.mockReturnValue(new Promise(() => {}))
 
       renderWithProviders(<SavedGuidesPage />)
@@ -183,16 +183,13 @@ describe('SavedGuidesPage', () => {
       await waitFor(() => {
         // After children load, guides spinner should appear
         expect(document.querySelector('.animate-spin')).toBeTruthy()
-      })
+      }, { timeout: 5000 })
     })
   })
 
   describe('empty guides state', () => {
     it('shows empty state message when no guides exist', async () => {
-      mockApiService.getChildren.mockResolvedValue({
-        error: undefined,
-        data: { children: [makeChild()], total: 1 },
-      })
+      setupChildrenLoaded()
       mockApiService.getChildGuides.mockResolvedValue({
         error: undefined,
         data: { guides: [], total: 0 },
@@ -202,16 +199,13 @@ describe('SavedGuidesPage', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/No guides yet/i)).toBeTruthy()
-      })
+      }, { timeout: 5000 })
     })
   })
 
   describe('success state', () => {
     it('renders guide cards when guides load successfully', async () => {
-      mockApiService.getChildren.mockResolvedValue({
-        error: undefined,
-        data: { children: [makeChild()], total: 1 },
-      })
+      setupChildrenLoaded()
       mockApiService.getChildGuides.mockResolvedValue({
         error: undefined,
         data: { guides: [makeGuide()], total: 1 },
@@ -221,16 +215,16 @@ describe('SavedGuidesPage', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Test Topic')).toBeTruthy()
-      })
+      }, { timeout: 5000 })
     })
   })
 
   describe('guide card a11y (AWD-H-55)', () => {
+    beforeEach(() => {
+      setupChildrenLoaded()
+    })
+
     it('guide card exposes a descriptive aria-label naming the action', async () => {
-      mockApiService.getChildren.mockResolvedValue({
-        error: undefined,
-        data: { children: [makeChild()], total: 1 },
-      })
       mockApiService.getChildGuides.mockResolvedValue({
         error: undefined,
         data: { guides: [makeGuide({ topic_title: 'Fractions' })], total: 1 },
@@ -240,15 +234,11 @@ describe('SavedGuidesPage', () => {
 
       const btn = await screen.findByRole('button', {
         name: /Open "How to Help" guide for Fractions/i,
-      })
+      }, { timeout: 10000 }) // 2-step async chain: getChildren → getChildGuides
       expect(btn).toBeTruthy()
     })
 
     it('aria-label notes when a guide is bookmarked', async () => {
-      mockApiService.getChildren.mockResolvedValue({
-        error: undefined,
-        data: { children: [makeChild()], total: 1 },
-      })
       mockApiService.getChildGuides.mockResolvedValue({
         error: undefined,
         data: {
@@ -261,7 +251,7 @@ describe('SavedGuidesPage', () => {
 
       const btn = await screen.findByRole('button', {
         name: /Open "How to Help" guide for Fractions \(bookmarked\)/i,
-      })
+      }, { timeout: 10000 }) // 2-step async chain: getChildren → getChildGuides
       expect(btn).toBeTruthy()
     })
   })

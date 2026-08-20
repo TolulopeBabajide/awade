@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import literal, select, union_all
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from apps.backend.database import get_db
-from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator, get_optional_current_user
+from apps.backend.dependencies import get_current_active_user, require_admin, require_admin_or_educator
+from apps.backend.limiter import limiter
 from apps.backend.models import CurriculumStructure, Curriculum, GradeLevel, Subject, User
-from pydantic import BaseModel, ConfigDict
+from apps.backend.schemas.curriculum_structure import CurriculumStructureCreate, CurriculumStructureResponse
 
 router = APIRouter(prefix="/api/curriculum-structures", tags=["curriculum-structures"])
 
@@ -47,24 +49,12 @@ def _validate_fk_targets(
     if "subject" not in found:
         raise HTTPException(status_code=404, detail="Subject not found")
 
-class CurriculumStructureCreate(BaseModel):
-    """Schema for creating a new curriculum structure."""
-    curricula_id: int
-    grade_level_id: int
-    subject_id: int
-
-class CurriculumStructureResponse(BaseModel):
-    """Schema for curriculum structure response data."""
-    curriculum_structure_id: int
-    curricula_id: int
-    grade_level_id: int
-    subject_id: int
-    model_config = ConfigDict(from_attributes=True)
-
 @router.get("/", response_model=List[CurriculumStructureResponse])
+@limiter.limit("60/minute")
 def list_curriculum_structures(
+    request: Request,
     curricula_id: Optional[int] = None,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -103,16 +93,18 @@ def create_curriculum_structure(
     if existing_structure:
         raise HTTPException(status_code=400, detail="Curriculum structure already exists")
     
-    db_structure = CurriculumStructure(**structure.dict())
+    db_structure = CurriculumStructure(**structure.model_dump())
     db.add(db_structure)
     db.commit()
     db.refresh(db_structure)
     return db_structure
 
 @router.get("/{structure_id}", response_model=CurriculumStructureResponse)
+@limiter.limit("60/minute")
 def get_curriculum_structure(
+    request: Request,
     structure_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -157,10 +149,8 @@ def update_curriculum_structure(
     if existing_structure:
         raise HTTPException(status_code=400, detail="Curriculum structure already exists")
     
-    # Update fields
-    db_structure.curricula_id = structure.curricula_id
-    db_structure.grade_level_id = structure.grade_level_id
-    db_structure.subject_id = structure.subject_id
+    for key, value in structure.model_dump().items():
+        setattr(db_structure, key, value)
     
     db.commit()
     db.refresh(db_structure)
@@ -181,6 +171,13 @@ def delete_curriculum_structure(
         raise HTTPException(status_code=404, detail="Curriculum structure not found")
     
 
-    db.delete(db_structure)
-    db.commit()
-    return {"message": "Curriculum structure deleted successfully"} 
+    try:
+        db.delete(db_structure)
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail="Cannot delete — this curriculum structure has associated records.",
+        )
+    return {"message": "Curriculum structure deleted successfully"}

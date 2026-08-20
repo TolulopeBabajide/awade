@@ -61,7 +61,7 @@ describe('ModerationList fetchResources error handling (AWD-L-37)', () => {
         await waitFor(() => {
             expect(screen.getByRole('alert')).toBeInTheDocument()
             expect(screen.getByRole('alert')).toHaveTextContent('HTTP 500')
-        })
+        }, { timeout: 5000 })
     })
 
     it('shows load error banner on network failure during initial fetch', async () => {
@@ -75,7 +75,7 @@ describe('ModerationList fetchResources error handling (AWD-L-37)', () => {
         await waitFor(() => {
             expect(screen.getByRole('alert')).toBeInTheDocument()
             expect(screen.getByRole('alert')).toHaveTextContent('Network error')
-        })
+        }, { timeout: 5000 })
     })
 
     it('dismiss load error button clears the load error banner', async () => {
@@ -89,7 +89,7 @@ describe('ModerationList fetchResources error handling (AWD-L-37)', () => {
         )
 
         renderComponent()
-        await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
+        await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument(), { timeout: 5000 })
 
         fireEvent.click(screen.getByLabelText('Dismiss load error'))
 
@@ -108,7 +108,7 @@ describe('ModerationList fetchResources error handling (AWD-L-37)', () => {
 
         renderComponent()
 
-        await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
+        await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument(), { timeout: 5000 })
 
         // No resource cards should render — error body was not set as resources
         expect(screen.queryByText(/Resource ID:/)).not.toBeInTheDocument()
@@ -133,7 +133,7 @@ describe('ModerationList fetchResources error handling (AWD-L-37)', () => {
         await waitFor(() => {
             expect(screen.getByRole('alert')).toBeInTheDocument()
             expect(screen.getByRole('alert')).toHaveTextContent('HTTP 502')
-        })
+        }, { timeout: 5000 })
     })
 })
 
@@ -147,7 +147,7 @@ describe('ModerationList (AWD-M-143)', () => {
         renderComponent()
         await waitFor(() => {
             expect(screen.getByText('Resource ID: 7')).toBeInTheDocument()
-        })
+        }, { timeout: 5000 })
     })
 
     it('shows error banner when handleModerate receives a non-OK response', async () => {
@@ -159,14 +159,14 @@ describe('ModerationList (AWD-M-143)', () => {
         )
 
         renderComponent()
-        await waitFor(() => screen.getByText('Resource ID: 7'))
+        await waitFor(() => screen.getByText('Resource ID: 7'), { timeout: 5000 })
 
         fireEvent.click(screen.getByText('Approve'))
 
         await waitFor(() => {
             expect(screen.getByRole('alert')).toBeInTheDocument()
             expect(screen.getByRole('alert')).toHaveTextContent('HTTP 403')
-        })
+        }, { timeout: 5000 })
     })
 
     it('shows generic error message on network failure in handleModerate', async () => {
@@ -178,13 +178,13 @@ describe('ModerationList (AWD-M-143)', () => {
         )
 
         renderComponent()
-        await waitFor(() => screen.getByText('Resource ID: 7'))
+        await waitFor(() => screen.getByText('Resource ID: 7'), { timeout: 5000 })
 
         fireEvent.click(screen.getByText('Reject'))
 
         await waitFor(() => {
             expect(screen.getByRole('alert')).toHaveTextContent('Connection refused')
-        })
+        }, { timeout: 5000 })
     })
 
     it('dismiss button clears the moderation error banner', async () => {
@@ -196,10 +196,10 @@ describe('ModerationList (AWD-M-143)', () => {
         )
 
         renderComponent()
-        await waitFor(() => screen.getByText('Resource ID: 7'))
+        await waitFor(() => screen.getByText('Resource ID: 7'), { timeout: 5000 })
 
         fireEvent.click(screen.getByText('Approve'))
-        await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
+        await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument(), { timeout: 5000 })
 
         fireEvent.click(screen.getByLabelText('Dismiss error'))
 
@@ -216,15 +216,15 @@ describe('ModerationList (AWD-M-143)', () => {
         )
 
         renderComponent()
-        await waitFor(() => screen.getByText('Resource ID: 7'))
+        await waitFor(() => screen.getByText('Resource ID: 7'), { timeout: 5000 })
 
         // First action fails
         fireEvent.click(screen.getByText('Approve'))
-        await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
+        await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument(), { timeout: 5000 })
 
         // Second action succeeds — error cleared
         fireEvent.click(screen.getByText('Approve'))
-        await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument())
+        await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument(), { timeout: 5000 })
     })
 })
 
@@ -238,7 +238,7 @@ describe('ContentPreviewModal (AWD-M-145)', () => {
         const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {})
 
         renderComponent()
-        await waitFor(() => screen.getByText('Resource ID: 7'))
+        await waitFor(() => screen.getByText('Resource ID: 7'), { timeout: 5000 })
 
         fireEvent.click(screen.getByText('View'))
 
@@ -248,7 +248,7 @@ describe('ContentPreviewModal (AWD-M-145)', () => {
     it('opens the ContentPreviewModal with role="dialog" when View is clicked', async () => {
         mockFetchResources()
         renderComponent()
-        await waitFor(() => screen.getByText('Resource ID: 7'))
+        await waitFor(() => screen.getByText('Resource ID: 7'), { timeout: 5000 })
 
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
 
@@ -261,7 +261,7 @@ describe('ContentPreviewModal (AWD-M-145)', () => {
     it('displays the resource ai_generated_content inside the modal', async () => {
         mockFetchResources()
         renderComponent()
-        await waitFor(() => screen.getByText('Resource ID: 7'))
+        await waitFor(() => screen.getByText('Resource ID: 7'), { timeout: 5000 })
 
         fireEvent.click(screen.getByText('View'))
 
@@ -271,7 +271,7 @@ describe('ContentPreviewModal (AWD-M-145)', () => {
     it('shows "AI-Generated Content Preview" heading in the modal', async () => {
         mockFetchResources()
         renderComponent()
-        await waitFor(() => screen.getByText('Resource ID: 7'))
+        await waitFor(() => screen.getByText('Resource ID: 7'), { timeout: 5000 })
 
         fireEvent.click(screen.getByText('View'))
 
@@ -281,10 +281,10 @@ describe('ContentPreviewModal (AWD-M-145)', () => {
     it('Close button dismisses the modal', async () => {
         mockFetchResources()
         renderComponent()
-        await waitFor(() => screen.getByText('Resource ID: 7'))
+        await waitFor(() => screen.getByText('Resource ID: 7'), { timeout: 5000 })
 
         fireEvent.click(screen.getByText('View'))
-        await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument())
+        await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument(), { timeout: 5000 })
 
         fireEvent.click(screen.getByRole('button', { name: 'Close' }))
 

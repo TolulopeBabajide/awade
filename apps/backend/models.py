@@ -60,7 +60,7 @@ class Curriculum(Base):
     __tablename__ = 'curricula'
     
     curricula_id = Column(Integer, primary_key=True, autoincrement=True)
-    curricula_title = Column(String(255), nullable=False)
+    curriculum_title = Column(String(255), nullable=False)
     country_id = Column(Integer, ForeignKey('countries.country_id'), nullable=False)
     created_at = Column(DateTime, default=func.now(), nullable=False)
     
@@ -127,11 +127,35 @@ class CurriculumStructure(Base):
     curriculum = relationship("Curriculum", back_populates="curriculum_structures")
     grade_level = relationship("GradeLevel", back_populates="curriculum_structures")
     subject = relationship("Subject", back_populates="curriculum_structures")
+    themes = relationship("Theme", back_populates="curriculum_structure", cascade="all, delete-orphan")
     topics = relationship("Topic", back_populates="curriculum_structure", cascade="all, delete-orphan")
-    
+
     # Unique constraint to prevent duplicate structures
     __table_args__ = (
         Index('idx_curriculum_structure_unique', 'curricula_id', 'grade_level_id', 'subject_id', unique=True),
+    )
+
+class Theme(Base):
+    """Themes group topics within a curriculum structure (NERDC e-curriculum).
+
+    Each theme belongs to exactly one curriculum structure and carries the
+    source theme number plus its human-readable title. Topics optionally link
+    to a theme via ``Topic.theme_id`` (nullable so legacy topics imported
+    before themes existed remain valid).
+    """
+    __tablename__ = 'themes'
+
+    theme_id = Column(Integer, primary_key=True, autoincrement=True)
+    curriculum_structure_id = Column(Integer, ForeignKey('curriculum_structures.curriculum_structure_id', ondelete='CASCADE'), nullable=False)
+    theme_number = Column(Integer, nullable=True)
+    theme_title = Column(Text, nullable=False)
+
+    # Relationships
+    curriculum_structure = relationship("CurriculumStructure", back_populates="themes")
+    topics = relationship("Topic", back_populates="theme")
+
+    __table_args__ = (
+        Index('idx_theme_structure_number', 'curriculum_structure_id', 'theme_number', unique=True),
     )
 
 class Topic(Base):
@@ -140,12 +164,18 @@ class Topic(Base):
     
     topic_id = Column(Integer, primary_key=True, autoincrement=True)
     curriculum_structure_id = Column(Integer, ForeignKey('curriculum_structures.curriculum_structure_id', ondelete='CASCADE'), nullable=False)
+    theme_id = Column(Integer, ForeignKey('themes.theme_id', ondelete='SET NULL'), nullable=True)
     topic_title = Column(Text, nullable=False)
-    
+
     # Relationships
     curriculum_structure = relationship("CurriculumStructure", back_populates="topics")
+    theme = relationship("Theme", back_populates="topics")
     learning_objectives = relationship("LearningObjective", back_populates="topic", cascade="all, delete-orphan")
     topic_contents = relationship("TopicContent", back_populates="topic", cascade="all, delete-orphan")
+    teacher_activities = relationship("TeacherActivity", back_populates="topic", cascade="all, delete-orphan")
+    student_activities = relationship("StudentActivity", back_populates="topic", cascade="all, delete-orphan")
+    teaching_learning_materials = relationship("TeachingLearningMaterial", back_populates="topic", cascade="all, delete-orphan")
+    evaluation_guides = relationship("EvaluationGuide", back_populates="topic", cascade="all, delete-orphan")
     lesson_plans = relationship("LessonPlan", back_populates="topic", cascade="all, delete-orphan")
 
 class LearningObjective(Base):
@@ -166,9 +196,53 @@ class TopicContent(Base):
     topic_contents_id = Column(Integer, primary_key=True, autoincrement=True)
     topic_id = Column(Integer, ForeignKey('topics.topic_id', ondelete='CASCADE'), nullable=False)
     content_area = Column(Text, nullable=False)
-    
+
     # Relationships
     topic = relationship("Topic", back_populates="topic_contents")
+
+class TeacherActivity(Base):
+    """Teacher activities for each topic (NERDC ``teachers_activities``)."""
+    __tablename__ = 'teacher_activities'
+
+    teacher_activity_id = Column(Integer, primary_key=True, autoincrement=True)
+    topic_id = Column(Integer, ForeignKey('topics.topic_id', ondelete='CASCADE'), nullable=False)
+    activity = Column(Text, nullable=False)
+
+    # Relationships
+    topic = relationship("Topic", back_populates="teacher_activities")
+
+class StudentActivity(Base):
+    """Student activities for each topic (NERDC ``students_activities``)."""
+    __tablename__ = 'student_activities'
+
+    student_activity_id = Column(Integer, primary_key=True, autoincrement=True)
+    topic_id = Column(Integer, ForeignKey('topics.topic_id', ondelete='CASCADE'), nullable=False)
+    activity = Column(Text, nullable=False)
+
+    # Relationships
+    topic = relationship("Topic", back_populates="student_activities")
+
+class TeachingLearningMaterial(Base):
+    """Teaching/learning materials for each topic (NERDC ``teaching_learning_materials``)."""
+    __tablename__ = 'teaching_learning_materials'
+
+    material_id = Column(Integer, primary_key=True, autoincrement=True)
+    topic_id = Column(Integer, ForeignKey('topics.topic_id', ondelete='CASCADE'), nullable=False)
+    material = Column(Text, nullable=False)
+
+    # Relationships
+    topic = relationship("Topic", back_populates="teaching_learning_materials")
+
+class EvaluationGuide(Base):
+    """Evaluation-guide items for each topic (NERDC ``evaluation_guide``)."""
+    __tablename__ = 'evaluation_guides'
+
+    evaluation_guide_id = Column(Integer, primary_key=True, autoincrement=True)
+    topic_id = Column(Integer, ForeignKey('topics.topic_id', ondelete='CASCADE'), nullable=False)
+    guide_item = Column(Text, nullable=False)
+
+    # Relationships
+    topic = relationship("Topic", back_populates="evaluation_guides")
 
 class User(Base):
     """User accounts for the platform."""
@@ -287,7 +361,8 @@ class LessonPlan(Base):
     topic_id = Column(Integer, ForeignKey('topics.topic_id', ondelete='CASCADE'), nullable=False)
     user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
     created_at = Column(DateTime, default=func.now(), nullable=False)
-    
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
+
     # Relationships
     topic = relationship("Topic", back_populates="lesson_plans")
     user = relationship("User", back_populates="lesson_plans")

@@ -17,13 +17,14 @@ Usage:
 
 Author: Tolulope Babajide
 """
-from fastapi import FastAPI, HTTPException, Depends, Body, Query
+from fastapi import FastAPI, HTTPException, Depends, Body, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Optional
 from sqlalchemy.orm import Session
 import os
+import secrets
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -173,12 +174,89 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Prometheus Metrics
+# ---------------------------------------------------------------------------
+# AWD-M-327: Gate /metrics behind an API key (OWASP A05 — Security Misconfiguration).
+# Fail closed: if METRICS_API_KEY is not set, deny all access with 403.
+# Callers must pass: Authorization: Bearer <METRICS_API_KEY>
+# ---------------------------------------------------------------------------
+def _metrics_api_key_auth(request: Request) -> None:
+    api_key = os.getenv("METRICS_API_KEY", "")
+    if not api_key:
+        raise HTTPException(status_code=403, detail="Metrics endpoint not configured")
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=401,
+            detail="Metrics endpoint requires Authorization: Bearer <METRICS_API_KEY>",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    provided_key = auth_header[len("Bearer "):]
+    if not secrets.compare_digest(provided_key.encode(), api_key.encode()):
+        raise HTTPException(status_code=401, detail="Invalid metrics API key")
+
+
+# Prometheus Metrics — ImportError guard covers only the import lines so that
+# RuntimeError/AttributeError from a failed monkey-patch propagates at startup
+# (fail-fast) rather than being silently swallowed (AWD-M-280).
 try:
     from prometheus_fastapi_instrumentator import Instrumentator
-    Instrumentator().instrument(app).expose(app)
+    import prometheus_fastapi_instrumentator.routing as _pfi_routing
+    from starlette.routing import Match, Mount as _Mount
+    from typing import List as _List, Optional as _Optional
+    from starlette.types import Scope as _Scope
+    _pfi_available = True
 except ImportError:
+    _pfi_available = False
     logger.warning("Prometheus Instrumentator not found, skipping metrics exposure")
+
+if _pfi_available:
+    def _pfi_get_route_name_compat(
+        scope: _Scope, routes: _List, route_name: _Optional[str] = None
+    ) -> _Optional[str]:
+        # Patched for fastapi>=0.137 compatibility: _IncludedRouter is a BaseRoute
+        # that has no .path attribute; skip it gracefully (AWD-H-126).
+        for route in routes:
+            match, child_scope = route.matches(scope)
+            if match == Match.FULL:
+                if not hasattr(route, "path"):
+                    candidates = getattr(route, "effective_candidates", None)
+                    if callable(candidates):
+                        result = _pfi_get_route_name_compat(
+                            {**scope, **child_scope}, candidates()
+                        )
+                        if result is not None:
+                            return result
+                    else:
+                        logger.warning(
+                            "_pfi_compat: _IncludedRouter without callable effective_candidates"
+                            " — metrics gap"
+                        )
+                    continue
+                route_name = route.path
+                child_scope = {**scope, **child_scope}
+                if isinstance(route, _Mount) and route.routes:
+                    child = _pfi_get_route_name_compat(child_scope, route.routes, route_name)
+                    route_name = None if child is None else route_name + child
+                return route_name
+            elif match == Match.PARTIAL and route_name is None:
+                if hasattr(route, "path"):
+                    route_name = route.path
+        return None
+
+    def _check_pfi_routing_compat() -> None:
+        # Fail fast if pfi renames this internal — the monkey-patch would silently no-op
+        # and broken PFI routing would return with no error. Remove shim once pfi
+        # officially supports fastapi>=0.137 (AWD-H-131).
+        # RuntimeError (not assert) so the guard survives Python -O optimization (AWD-M-284).
+        # Extracted to a callable so tests exercise this path directly (AWD-M-286).
+        if not hasattr(_pfi_routing, "_get_route_name"):
+            raise RuntimeError(
+                "pfi internals changed: _get_route_name no longer exists — update AWD-H-131 shim"
+            )
+
+    _check_pfi_routing_compat()
+    _pfi_routing._get_route_name = _pfi_get_route_name_compat
+    Instrumentator().instrument(app).expose(app, dependencies=[Depends(_metrics_api_key_auth)])
 
 # Register Rate Limiter
 app.state.limiter = limiter
@@ -192,14 +270,49 @@ from apps.backend.middleware import AuditMiddleware
 app.add_middleware(AuditMiddleware)
 
 # ---------------------------------------------------------------------------
-# AWD-L-04: TrustedHostMiddleware guards against HTTP Host header injection
-# (OWASP A05 — Security Misconfiguration).
+# AWD-L-04 / AWD-L-54: TrustedHostMiddleware guards against HTTP Host header
+# injection (OWASP A05 — Security Misconfiguration).
 # Set ALLOWED_HOSTS to a comma-separated list of valid host(s) in production
 # (e.g. "awade.app,www.awade.app"). Defaults to "*" (allow all) in dev/test.
 # ---------------------------------------------------------------------------
-_raw_allowed_hosts = os.getenv("ALLOWED_HOSTS", "*")
-_allowed_hosts = [h.strip() for h in _raw_allowed_hosts.split(",") if h.strip()] or ["*"]
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=_allowed_hosts)
+_TRUSTED_HOST_SAFE_ENVIRONMENTS: frozenset[str] = frozenset(
+    {"development", "test", "testing"}
+)
+
+
+def _require_explicit_hosts(environment: str) -> None:
+    """Raise RuntimeError when a non-safe environment uses an unset/wildcard ALLOWED_HOSTS."""
+    if environment not in _TRUSTED_HOST_SAFE_ENVIRONMENTS:
+        raise RuntimeError(
+            f"ALLOWED_HOSTS environment variable must be set to a specific "
+            f"host list when ENVIRONMENT='{environment}'. "
+            "Set ALLOWED_HOSTS to a comma-separated list of valid hostnames "
+            "(e.g. 'awade.app,www.awade.app') before starting the server. "
+            "The wildcard '*' is only allowed when ENVIRONMENT is one of: "
+            "development, test, testing."
+        )
+
+
+def _get_allowed_hosts() -> list[str]:
+    """Return the allowed-host list for TrustedHostMiddleware.
+
+    Raises RuntimeError when ENVIRONMENT is not in the safe-fallback set and
+    ALLOWED_HOSTS is unset or a bare wildcard, mirroring the JWT_SECRET_KEY
+    guard in dependencies.py (AWD-L-54).
+    """
+    environment = os.getenv("ENVIRONMENT", "development")
+    raw = os.getenv("ALLOWED_HOSTS", "")
+    if not raw.strip() or raw.strip() == "*":
+        _require_explicit_hosts(environment)
+        return ["*"]
+    hosts = [h.strip() for h in raw.split(",") if h.strip()]
+    if not hosts:
+        _require_explicit_hosts(environment)
+        return ["*"]
+    return hosts
+
+
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=_get_allowed_hosts())
 
 # CORS middleware
 # In production, set ALLOWED_ORIGINS to your frontend domain(s)

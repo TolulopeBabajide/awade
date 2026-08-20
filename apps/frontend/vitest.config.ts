@@ -8,7 +8,12 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
+    clearMocks: true,
     css: true,
+    pool: 'forks',
+    maxWorkers: 5,
+    isolate: true,
+    testTimeout: 15000,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

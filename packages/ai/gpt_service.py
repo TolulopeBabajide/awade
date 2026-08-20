@@ -11,13 +11,47 @@ import os
 import json
 import logging
 import re
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Literal, Optional, TypedDict
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 from .prompts import COMPREHENSIVE_LESSON_RESOURCE_PROMPT, PARENT_HELPER_PROMPT
+
+
+class ParentGuideRequest(TypedDict):
+    """Typed input bag for generate_parent_guide (AWD-H-98).
+
+    Groups all 10 curriculum/pedagogy arguments so callers have a single,
+    type-checked object rather than a 10-positional-parameter call site.
+    """
+
+    subject: str
+    grade: str
+    topic: str
+    country: str
+    curriculum: str
+    objectives: List[str]
+    contents: List[str]
+    student_activities: List[str]
+    teaching_learning_materials: List[str]
+    evaluation_guide: List[str]
+
+
+class _ApiCallConfig(TypedDict):
+    """Generation-context bag for _make_api_call (AWD-M-276).
+
+    Groups the 6 non-prompt parameters that together describe a single
+    generation request: which content to generate, at which model tier,
+    with what cache key, and in what output format.
+    """
+
+    topic: str
+    subject: str
+    grade: str
+    model_tier: str
+    prompt_metadata: Optional[Dict[str, Any]]
+    response_format: Literal["json", "text"]
+
 
 # ---------------------------------------------------------------------------
 # Input-sanitisation constants — applied to user-supplied text BEFORE it is
@@ -27,6 +61,18 @@ from .prompts import COMPREHENSIVE_LESSON_RESOURCE_PROMPT, PARENT_HELPER_PROMPT
 # Maximum characters accepted from a user-supplied context field.
 # Longer inputs are truncated to prevent token-stuffing / prompt DoS.
 _MAX_USER_CONTEXT_CHARS: int = 2000
+
+# Prompt delimiter tags used in COMPREHENSIVE_LESSON_RESOURCE_PROMPT and
+# PARENT_HELPER_PROMPT.  Stripping these from user-supplied text prevents a
+# fake closing tag (e.g. </user_context>) from escaping the data section and
+# injecting instructions outside the delimiter boundary (AWD-M-198 / OWASP
+# LLM01).
+_PROMPT_DELIMITER_TAGS: tuple[str, ...] = (
+    "<user_context>",
+    "</user_context>",
+    "<curriculum_data>",
+    "</curriculum_data>",
+)
 
 # ---------------------------------------------------------------------------
 # Shared injection patterns (AWD-M-158) — jailbreak variants that must be
@@ -167,46 +213,51 @@ class AwadeGPTService:
             logger.error(f"Failed to initialize provider {self.provider_type}: {e}")
             self.provider = None
     
-    def _make_api_call(
-        self, 
-        prompt: str, 
-        temperature: Optional[float] = None, 
-        model_tier: str = "standard",
-        topic: str = "General Topic", 
-        subject: str = "Mathematics", 
-        grade: str = "Grade 4",
-        prompt_metadata: Optional[Dict[str, Any]] = None,
-        response_format: str = "text"
+    @staticmethod
+    def _build_cache_metadata(
+        prompt_metadata: Dict[str, Any],
+        model_tier: str,
+    ) -> Dict[str, Any]:
+        """Return a copy of prompt_metadata with model_tier injected."""
+        cache_metadata = prompt_metadata.copy()
+        cache_metadata["model_tier"] = model_tier
+        return cache_metadata
+
+    def _get_cached_response(
+        self,
+        prompt_metadata: Optional[Dict[str, Any]],
+        model_tier: str,
+    ) -> Optional[str]:
+        """Return cached content for this metadata+tier pair, or None on miss."""
+        if not prompt_metadata:
+            return None
+        return self.cache.get(
+            provider=self.provider_type,
+            model=model_tier,
+            prompt_data=self._build_cache_metadata(prompt_metadata, model_tier),
+        )
+
+    def _call_provider_with_cache(
+        self,
+        prompt: str,
+        config: _ApiCallConfig,
+        temp: float,
     ) -> str:
-        """
-        Make an API call to the configured provider or return mock response.
-        Handles caching automatically.
-        """
-        # 1. Check if we should use Mock
-        if not self.provider:
-            logger.info("Using mock response (Provider not available)")
-            return self._generate_mock_response(prompt, topic, subject, grade)
-        
-        temp = temperature if temperature is not None else self.temperature
-        
-        # 2. Check Cache
-        if prompt_metadata:
-            # Add tier to metadata to ensure distinct cache keys for different tiers
-            cache_metadata = prompt_metadata.copy()
-            cache_metadata["model_tier"] = model_tier
-            
-            cached_content = self.cache.get(
-                provider=self.provider_type,
-                model=model_tier, # We use abstract model name in key
-                prompt_data=cache_metadata
-            )
-            if cached_content:
-                return cached_content
-        
-        # 3. Call Provider
+        """Call the provider, write to cache on success, fall back to mock on error."""
+        topic = config["topic"]
+        subject = config["subject"]
+        grade = config["grade"]
+        model_tier = config["model_tier"]
+        prompt_metadata = config["prompt_metadata"]
+        response_format = config["response_format"]
+
+        system_instruction = (
+            "You are an expert educational content creator specializing in African "
+            "curriculum development. You create comprehensive, locally contextual lesson "
+            "resources that are age-appropriate, culturally relevant, and practical for "
+            "teachers to implement."
+        )
         try:
-            system_instruction = "You are an expert educational content creator specializing in African curriculum development. You create comprehensive, locally contextual lesson resources that are age-appropriate, culturally relevant, and practical for teachers to implement."
-            
             logger.info(f"Generating content using {self.provider_type} (Tier: {model_tier})")
             content = self.provider.generate_content(
                 prompt=prompt,
@@ -214,42 +265,68 @@ class AwadeGPTService:
                 model_tier=model_tier,
                 temperature=temp,
                 max_tokens=self.max_tokens,
-                response_format=response_format
+                response_format=response_format,
             )
-            
-            # Check if response is empty
             if not content or not content.strip():
                 return self._generate_mock_lesson_resource(topic, subject, grade)
-            
-            # 4. Save to Cache
             if prompt_metadata:
                 self.cache.set(
                     provider=self.provider_type,
                     model=model_tier,
-                    prompt_data=cache_metadata,
-                    content=content
+                    prompt_data=self._build_cache_metadata(prompt_metadata, model_tier),
+                    content=content,
                 )
-                
             return content
-            
         except Exception as e:
             logger.error(f"Error in AI generation: {e}")
-            # Fallback to mock on critical failure
             return self._generate_mock_lesson_resource(topic, subject, grade)
+
+    def _make_api_call(
+        self,
+        prompt: str,
+        config: _ApiCallConfig,
+        temperature: Optional[float] = None,
+    ) -> str:
+        """Dispatch to mock, cache, or live provider; delegates caching to helpers."""
+        topic = config["topic"]
+        subject = config["subject"]
+        grade = config["grade"]
+        model_tier = config["model_tier"]
+        prompt_metadata = config["prompt_metadata"]
+
+        if not self.provider:
+            logger.info("Using mock response (Provider not available)")
+            return self._generate_mock_response(prompt, topic, subject, grade)
+
+        temp = temperature if temperature is not None else self.temperature
+
+        cached = self._get_cached_response(prompt_metadata, model_tier)
+        if cached:
+            return cached
+
+        return self._call_provider_with_cache(prompt, config, temp)
             
-    def _sanitize_input(self, text: str) -> str:
+    def _sanitize_input(self, text: Optional[str]) -> Optional[str]:
         """
         Sanitize input to remove potentially sensitive information.
         """
         if not text:
             return text
-            
+
+        # Strip prompt delimiter tags to prevent template-injection via fake
+        # closing tags (e.g. </user_context>) that could escape the data
+        # section of a prompt (AWD-M-198 / OWASP LLM01).
+        # re.IGNORECASE covers mixed-case bypass attempts such as
+        # </USER_CONTEXT> or </Curriculum_Data> (AWD-M-266).
+        for tag in _PROMPT_DELIMITER_TAGS:
+            text = re.sub(re.escape(tag), "", text, flags=re.IGNORECASE)
+
         # Remove potential API keys (simple heuristic)
         text = re.sub(r'(sk-[a-zA-Z0-9]{32,})', '[REDACTED_KEY]', text)
-        
+
         # Remove potential email addresses
         text = re.sub(r'[\w\.-]+@[\w\.-]+\.\w+', '[REDACTED_EMAIL]', text)
-        
+
         # Remove potential phone numbers (simple international format)
         text = re.sub(r'\+?\d{10,15}', '[REDACTED_PHONE]', text)
 
@@ -403,7 +480,6 @@ class AwadeGPTService:
         
         # 2. Extract JSON payload if surrounded by text
         if "{" in clean_content:
-            import re
             match = re.search(r'(\{.*\})', clean_content, re.DOTALL)
             if match:
                 clean_content = match.group(1)
@@ -503,24 +579,37 @@ class AwadeGPTService:
                 elif "kenya" in context_lower: country = "Kenya"
 
             # Prepare prompt parameters
-            contents_val = ", ".join(contents) if contents else "Comprehensive lesson content including introduction, main concepts, examples, and activities"
+            # Sanitise user-supplied contents before appending server-controlled
+            # template_schema — running _sanitize_input on the combined string would
+            # strip delimiter tags from template_schema, corrupting its rules (AWD-M-272).
+            contents_val = self._sanitize_input(
+                ", ".join(contents) if contents else "Comprehensive lesson content including introduction, main concepts, examples, and activities"
+            )
             if template_schema:
                 contents_val = f"{contents_val}\n\nSTRICT TEMPLATE STRUCTURE RULES:\n{template_schema}"
 
+            # Pre-format: sanitise each field individually before template substitution
+            # so PII / key-like strings are redacted before being embedded in the prompt
+            # (AWD-M-268 defence-in-depth, parallel to generate_parent_guide lines ~660-670).
+            # local_context was already through _sanitize_user_context (line ~533);
+            # applying _sanitize_input additionally catches API-key-like patterns.
+            # contents_val is already sanitised above (AWD-M-272).
             prompt_params = {
-                "topic": topic,
-                "subject": subject,
-                "grade_level": grade,
-                "country": country,
-                "local_context": safe_context or "Standard classroom with basic resources",
-                "learning_objectives": objectives_str,
+                "topic": self._sanitize_input(topic),
+                "subject": self._sanitize_input(subject),
+                "grade_level": self._sanitize_input(grade),
+                "country": self._sanitize_input(country),
+                "local_context": self._sanitize_input(safe_context or "Standard classroom with basic resources"),
+                "learning_objectives": self._sanitize_input(objectives_str),
                 "contents": contents_val
             }
-            
-            # Generate prompt
+
+            # Do NOT call _sanitize_input here — the assembled prompt contains
+            # the template's own <user_context> delimiter tags, which must reach
+            # the LLM intact so the sandboxing preamble is honoured (AWD-H-128).
+            # All individual fields were sanitised via _sanitize_input above.
             prompt = COMPREHENSIVE_LESSON_RESOURCE_PROMPT.format(**prompt_params)
-            prompt = self._sanitize_input(prompt)
-            
+
             # Construct metadata for caching
             # We use the prompt_params as the unique identifier for the request logic
             # This satisfies "Include Context Input in cache hash" since context is in prompt_params["local_context"]
@@ -535,13 +624,15 @@ class AwadeGPTService:
             
             # Make API call
             response = self._make_api_call(
-                prompt=prompt, 
-                topic=topic, 
-                subject=subject, 
-                grade=grade,
-                model_tier=model_tier,
-                prompt_metadata=prompt_metadata,
-                response_format="json"  # Enforce JSON mode
+                prompt=prompt,
+                config=_ApiCallConfig(
+                    topic=topic,
+                    subject=subject,
+                    grade=grade,
+                    model_tier=model_tier,
+                    prompt_metadata=prompt_metadata,
+                    response_format="json",
+                ),
             )
             
             # Clean and repair the response before validation
@@ -559,34 +650,57 @@ class AwadeGPTService:
                 
         except Exception as e:
             logger.error(f"Error generating lesson resource: {e}")
-            return self._generate_mock_lesson_resource(topic, subject, grade), True
+            return self._generate_mock_lesson_resource(topic, subject, grade), False
 
     # ─── Parent Guide Generation ──────────────────────────────────────
 
     def generate_parent_guide(
         self,
-        subject: str,
-        grade: str,
-        topic: str,
-        country: str,
-        curriculum: str,
-        objectives: List[str],
-        contents: Optional[List[str]] = None,
+        request: ParentGuideRequest,
         model_tier: str = "standard",
     ) -> tuple[str, bool]:
-        """
-        Generate a 'How to Help' guide for a parent using the PARENT_HELPER_PROMPT.
+        """Generate a 'How to Help' guide for a parent using the PARENT_HELPER_PROMPT.
+
+        Args:
+            request: Typed dict containing all 10 curriculum/pedagogy fields
+                     (AWD-H-98 — replaces 10-positional-parameter signature).
+            model_tier: "standard" or "basic" — selects the LLM tier.
+
+        The ``student_activities``, ``teaching_learning_materials`` and
+        ``evaluation_guide`` lists carry the NERDC pedagogy fields. They are
+        provided to the model as *inspiration* for home activities, materials
+        and understanding-checks — never reproduced verbatim as classroom plans.
 
         Returns:
             tuple[str, bool]: (JSON string of the guide, whether validation passed)
         """
+        subject = request["subject"]
+        grade = request["grade"]
+        topic = request["topic"]
+        country = request["country"]
+        curriculum = request["curriculum"]
+        objectives = request["objectives"]
+        contents = request["contents"]
+        student_activities = request["student_activities"]
+        teaching_learning_materials = request["teaching_learning_materials"]
+        evaluation_guide = request["evaluation_guide"]
+
         try:
             logger.info(f"Generating parent guide for {subject} {grade} - {topic} ({country})")
 
-            objectives_str = ", ".join(objectives) if objectives else "To be determined"
-            contents_str = (
-                ", ".join(contents) if contents
-                else "General topic content"
+            objectives_str = self._format_list_or_default(objectives, "To be determined")
+            contents_str = self._format_list_or_default(contents, "General topic content")
+            student_activities_str = self._format_list_or_default(
+                student_activities,
+                "Not specified — suggest your own age-appropriate activities",
+            )
+            teaching_materials_str = self._format_list_or_default(
+                teaching_learning_materials,
+                "Everyday household items",
+            )
+            evaluation_str = self._format_list_or_default(
+                evaluation_guide,
+                "Ask the child to explain the idea in their own words",
             )
 
             # Pre-format: sanitise each curriculum field individually before
@@ -600,10 +714,17 @@ class AwadeGPTService:
                 "curriculum": self._sanitize_input(curriculum),
                 "learning_objectives": self._sanitize_input(objectives_str),
                 "contents": self._sanitize_input(contents_str),
+                "student_activities": self._sanitize_input(student_activities_str),
+                "teaching_materials": self._sanitize_input(teaching_materials_str),
+                "evaluation_methods": self._sanitize_input(evaluation_str),
             }
 
+            # Do NOT call _sanitize_input here — the assembled prompt contains
+            # the template's own <curriculum_data> delimiter tags, which must
+            # reach the LLM intact so the sandboxing preamble is honoured
+            # (AWD-H-128).  All individual fields were sanitised via
+            # _sanitize_input above (lines ~660–670) before format().
             prompt = PARENT_HELPER_PROMPT.format(**prompt_params)
-            prompt = self._sanitize_input(prompt)  # post-format pass retained
 
             prompt_metadata = {
                 "type": "parent_guide",
@@ -617,12 +738,14 @@ class AwadeGPTService:
 
             response = self._make_api_call(
                 prompt=prompt,
-                topic=topic,
-                subject=subject,
-                grade=grade,
-                model_tier=model_tier,
-                prompt_metadata=prompt_metadata,
-                response_format="json",
+                config=_ApiCallConfig(
+                    topic=topic,
+                    subject=subject,
+                    grade=grade,
+                    model_tier=model_tier,
+                    prompt_metadata=prompt_metadata,
+                    response_format="json",
+                ),
             )
 
             cleaned = self._clean_and_repair(response)
@@ -637,7 +760,11 @@ class AwadeGPTService:
 
         except Exception as e:
             logger.error(f"Error generating parent guide: {e}")
-            return self._generate_mock_parent_guide(topic, subject, grade, country, curriculum), True
+            return self._generate_mock_parent_guide(topic, subject, grade, country, curriculum), False
+
+    @staticmethod
+    def _format_list_or_default(items: Optional[List[str]], default: str) -> str:
+        return ", ".join(items) if items else default
 
     def _validate_parent_guide(self, content: str) -> tuple[bool, Optional[str]]:
         """Validate a parent-guide AI output.

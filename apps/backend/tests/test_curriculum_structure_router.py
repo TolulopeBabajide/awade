@@ -12,8 +12,16 @@ Author: Lead Dev Agent (AWD-M-63)
 
 import pytest
 from fastapi import HTTPException
+from sqlalchemy import event as sa_event
+from sqlalchemy.exc import IntegrityError
+from unittest.mock import MagicMock, patch
 
-from apps.backend.routers.curriculum_structure import _validate_fk_targets
+from apps.backend.routers.curriculum_structure import (
+    _validate_fk_targets,
+    delete_curriculum_structure,
+    update_curriculum_structure,
+)
+from apps.backend.schemas.curriculum_structure import CurriculumStructureCreate
 
 
 class TestValidateFkTargetsBatch:
@@ -110,41 +118,127 @@ class TestValidateFkTargetsBatch:
         sample_grade_level,
         sample_subject,
     ):
-        """The helper issues a single ``execute()`` call (UNION ALL), not three.
+        """The helper issues a single SQL UNION ALL statement, not three.
 
-        We instrument ``Session.execute`` and ``Session.query`` and assert the
-        helper does not fall back to per-table queries.
+        Uses ``before_cursor_execute`` engine events to count actual SQL
+        statements sent to the DB driver — correctly ignoring session-level
+        housekeeping (autobegin, SAVEPOINT, PRAGMA) that inflated the count
+        when patching ``Session.execute`` directly (AWD-M-229).
         """
-        execute_calls = {"count": 0}
-        query_calls = {"count": 0}
-        real_execute = test_db.execute
-        real_query = test_db.query
+        # Cache IDs as plain ints before registering the listener — accessing
+        # expired ORM attributes inside the listener window triggers individual
+        # SELECT refreshes that inflate the data-statement count (AWD-H-107).
+        c_id = sample_curriculum.curricula_id
+        g_id = sample_grade_level.grade_level_id
+        s_id = sample_subject.subject_id
 
-        def counting_execute(*args, **kwargs):
-            execute_calls["count"] += 1
-            return real_execute(*args, **kwargs)
+        engine = test_db.get_bind()
+        statements: list[str] = []
 
-        def counting_query(*args, **kwargs):
-            query_calls["count"] += 1
-            return real_query(*args, **kwargs)
+        def _record(conn, cursor, statement, parameters, context, executemany):
+            statements.append(statement)
 
-        test_db.execute = counting_execute  # type: ignore[method-assign]
-        test_db.query = counting_query  # type: ignore[method-assign]
+        sa_event.listen(engine, "before_cursor_execute", _record)
         try:
             _validate_fk_targets(
                 test_db,
-                curricula_id=sample_curriculum.curricula_id,
-                grade_level_id=sample_grade_level.grade_level_id,
-                subject_id=sample_subject.subject_id,
+                curricula_id=c_id,
+                grade_level_id=g_id,
+                subject_id=s_id,
             )
         finally:
-            test_db.execute = real_execute  # type: ignore[method-assign]
-            test_db.query = real_query  # type: ignore[method-assign]
+            sa_event.remove(engine, "before_cursor_execute", _record)
 
-        assert execute_calls["count"] == 1, (
-            f"AWD-M-63 expects 1 UNION ALL execute(); got {execute_calls['count']}"
+        # Exclude transaction-management statements from the count.
+        _TXN_PREFIXES = ("BEGIN", "SAVEPOINT", "RELEASE", "ROLLBACK", "PRAGMA", "COMMIT")
+        data_stmts = [
+            s for s in statements
+            if not s.strip().upper().startswith(_TXN_PREFIXES)
+        ]
+        assert len(data_stmts) == 1, (
+            f"AWD-M-63 expects 1 UNION ALL execute(); got {len(data_stmts)}: {data_stmts}"
         )
-        assert query_calls["count"] == 0, (
-            "AWD-M-63 helper must not fall back to db.query(); "
-            f"got {query_calls['count']} db.query() calls"
+        assert "UNION ALL" in data_stmts[0].upper(), (
+            f"AWD-M-63 expects a UNION ALL query; got: {data_stmts[0]}"
         )
+
+
+class TestDeleteCurriculumStructureM255:
+    """``delete_curriculum_structure`` — IntegrityError → 409 (AWD-M-255)."""
+
+    def test_delete_returns_success_message(
+        self, test_db, sample_curriculum_structure, sample_user
+    ):
+        """Deleting an unreferenced structure returns the success dict."""
+        result = delete_curriculum_structure(
+            structure_id=sample_curriculum_structure.curriculum_structure_id,
+            current_user=sample_user,
+            db=test_db,
+        )
+        assert result == {"message": "Curriculum structure deleted successfully"}
+
+    def test_delete_nonexistent_structure_raises_404(self, test_db, sample_user):
+        """Deleting a structure that does not exist raises HTTP 404."""
+        with pytest.raises(HTTPException) as excinfo:
+            delete_curriculum_structure(
+                structure_id=999_999,
+                current_user=sample_user,
+                db=test_db,
+            )
+        assert excinfo.value.status_code == 404
+        assert excinfo.value.detail == "Curriculum structure not found"
+
+    def test_delete_with_fk_reference_raises_409(
+        self, test_db, sample_curriculum_structure, sample_user
+    ):
+        """FK constraint violation on commit is caught and raised as HTTP 409."""
+        mock_commit = MagicMock(side_effect=IntegrityError("FK", {}, None))
+        with patch.object(test_db, "commit", mock_commit):
+            with pytest.raises(HTTPException) as excinfo:
+                delete_curriculum_structure(
+                    structure_id=sample_curriculum_structure.curriculum_structure_id,
+                    current_user=sample_user,
+                    db=test_db,
+                )
+        assert excinfo.value.status_code == 409
+        assert "associated records" in excinfo.value.detail
+
+
+class TestUpdateCurriculumStructureM256:
+    """update_curriculum_structure applies all schema fields via model_dump() (AWD-M-256)."""
+
+    def test_update_applies_all_schema_fields_via_setattr(self, sample_user):
+        """Every field in CurriculumStructureCreate.model_dump() is applied via setattr."""
+        mock_db = MagicMock()
+        db_structure = MagicMock()
+        # First query returns the existing record; second (conflict check) returns None.
+        mock_db.query.return_value.filter.return_value.first.side_effect = [db_structure, None]
+
+        new_values = CurriculumStructureCreate(curricula_id=10, grade_level_id=20, subject_id=30)
+
+        with patch("apps.backend.routers.curriculum_structure._validate_fk_targets"):
+            update_curriculum_structure(
+                structure_id=1,
+                structure=new_values,
+                current_user=sample_user,
+                db=mock_db,
+            )
+
+        for key, value in new_values.model_dump().items():
+            assert getattr(db_structure, key) == value, (
+                f"Field '{key}' was not applied: expected {value}, "
+                f"got {getattr(db_structure, key)}"
+            )
+
+    def test_update_nonexistent_structure_raises_404(self, test_db, sample_user):
+        """Updating a non-existent structure raises HTTP 404."""
+        new_values = CurriculumStructureCreate(curricula_id=1, grade_level_id=1, subject_id=1)
+        with pytest.raises(HTTPException) as excinfo:
+            update_curriculum_structure(
+                structure_id=999_999,
+                structure=new_values,
+                current_user=sample_user,
+                db=test_db,
+            )
+        assert excinfo.value.status_code == 404
+        assert excinfo.value.detail == "Curriculum structure not found"

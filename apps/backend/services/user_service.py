@@ -10,19 +10,10 @@ Author: Tolulope Babajide
 
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_, or_
-from typing import List, Optional, Dict, Any
-from datetime import datetime
+from typing import Callable, List, Optional, Dict, Any
+from datetime import datetime, timezone
 from fastapi import HTTPException, status
 import json
-import sys
-import os
-
-# Add parent directories to Python path for imports
-current_dir = os.path.dirname(__file__)
-parent_dir = os.path.dirname(current_dir)
-root_dir = os.path.dirname(parent_dir)
-sys.path.extend([parent_dir, root_dir])
-
 import logging
 
 from apps.backend.models import User, UserRole, ChildProfile, ParentGuide
@@ -111,14 +102,7 @@ class UserService:
             HTTPException: 403 if caller lacks ownership/admin role, 404 if not found
         """
         try:
-            if (
-                current_user.user_id != user_id
-                and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN)
-            ):
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="You can only view your own profile",
-                )
+            self._assert_user_access(current_user, user_id)
 
             user = self.db.query(User).filter(User.user_id == user_id).first()
             if not user:
@@ -135,50 +119,201 @@ class UserService:
                 detail="An error occurred while retrieving the user",
             )
     
+    def _assert_user_access(self, current_user: User, user_id: int) -> None:
+        """
+        Raise HTTP 403 if *current_user* is neither the owner of *user_id*
+        nor an ADMIN/SUPER_ADMIN.
+
+        Centralises the ownership guard that was previously duplicated across
+        :meth:`get_user`, :meth:`update_user`, :meth:`get_user_profile`, and
+        :meth:`update_user_profile` (AWD-M-173).
+
+        Args:
+            current_user: The authenticated caller.
+            user_id: The target user's primary key.
+
+        Raises:
+            HTTPException: 403 if the caller is not the owner and not an admin.
+        """
+        if (
+            current_user.user_id != user_id
+            and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN)
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You can only access your own profile",
+            )
+
+    @staticmethod
+    def _parse_json_list(val: Any) -> Optional[List]:
+        """
+        Deserialize a JSON-encoded list string back to a Python list.
+
+        Returns ``None`` if *val* is falsy or unparseable, preserving the
+        previous ``None``-on-error contract used by
+        :meth:`_create_user_response` and :meth:`_create_user_profile_response`.
+
+        Args:
+            val: The value to parse — expected to be a JSON-encoded string
+                such as ``'["Math","Science"]'``, or ``None``.
+
+        Returns:
+            list | None: The decoded list, or ``None`` on failure / empty input.
+        """
+        if not val:
+            return None
+        try:
+            return json.loads(val)
+        except (json.JSONDecodeError, TypeError):
+            return None
+
+    @staticmethod
+    def _fmt_datetime(dt: Optional[datetime]) -> Optional[str]:
+        """
+        ISO-8601 string with UTC marker, or None (AWD-M-174).
+
+        Extracted from the inline ``_fmt`` closure in :meth:`get_data_export`
+        so it can be tested and reused independently.
+
+        Args:
+            dt: A ``datetime`` instance (tz-aware or naive) or ``None``.
+
+        Returns:
+            str | None: ISO-8601 string, e.g. ``"2026-05-17T10:00:00+00:00"``,
+                or ``None`` when *dt* is ``None``.
+        """
+        if dt is None:
+            return None
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.isoformat()
+
+    @staticmethod
+    def _serialize_guide(
+        guide: ParentGuide,
+        fmt_fn: Callable[[Optional[datetime]], Optional[str]],
+    ) -> Dict[str, Any]:
+        """
+        Serialize a :class:`ParentGuide` to an export-safe dict (AWD-M-174).
+
+        Extracted from the inner loop in :meth:`get_data_export` to reduce
+        function length and allow unit testing.
+
+        Args:
+            guide: The eagerly-loaded ``ParentGuide`` instance.
+            fmt_fn: Callable that converts a ``datetime`` to an ISO-8601 string
+                (typically :meth:`_fmt_datetime`).
+
+        Returns:
+            Dict[str, Any]: JSON-serialisable guide payload.
+        """
+        topic_title: Optional[str] = guide.topic.topic_title if guide.topic else None
+        return {
+            "guide_id": guide.guide_id,
+            "topic_id": guide.topic_id,
+            "topic_title": topic_title,
+            "ai_generated_content": guide.ai_generated_content,
+            "user_edited_content": guide.user_edited_content,
+            "is_bookmarked": bool(guide.is_bookmarked),
+            "created_at": fmt_fn(guide.created_at),
+            "updated_at": fmt_fn(guide.updated_at),
+        }
+
+    @staticmethod
+    def _serialize_child(
+        child: ChildProfile,
+        fmt_fn: Callable[[Optional[datetime]], Optional[str]],
+    ) -> Dict[str, Any]:
+        """
+        Serialize a :class:`ChildProfile` (with its guides) to an export-safe
+        dict (AWD-M-174).
+
+        Extracted from the inner loop in :meth:`get_data_export` to reduce
+        function length and allow unit testing.  Calls :meth:`_serialize_guide`
+        for each eagerly-loaded guide and :meth:`_parse_json_list` for the
+        ``subjects`` JSON field.
+
+        Args:
+            child: The eagerly-loaded ``ChildProfile`` instance.
+            fmt_fn: Callable that converts a ``datetime`` to an ISO-8601 string
+                (typically :meth:`_fmt_datetime`).
+
+        Returns:
+            Dict[str, Any]: JSON-serialisable child payload including guides.
+        """
+        child_subjects: Optional[List] = UserService._parse_json_list(child.subjects)
+        guides_data: List[Dict[str, Any]] = [
+            UserService._serialize_guide(guide, fmt_fn)
+            for guide in sorted(child.parent_guides, key=lambda g: g.guide_id)
+        ]
+        return {
+            "child_id": child.child_id,
+            "name": child.name,
+            "age": child.age,
+            "school_name": child.school_name,
+            "country_id": child.country_id,
+            "curricula_id": child.curricula_id,
+            "grade_level_id": child.grade_level_id,
+            "subjects": child_subjects,
+            "created_at": fmt_fn(child.created_at),
+            "updated_at": fmt_fn(child.updated_at),
+            "guides": guides_data,
+        }
+
+    def _apply_user_fields(self, user: User, update_data: dict) -> None:
+        """
+        Serialize JSON list fields and apply *update_data* to *user* in-place.
+
+        Works on a **shallow copy** of *update_data* so the caller's dict is
+        not mutated (AWD-M-168).  Handles ``subjects`` and ``grade_levels``
+        JSON serialization (list → JSON string), then calls ``setattr`` for
+        every remaining key.  Both :meth:`update_user` and
+        :meth:`update_user_profile` delegate this shared mutation step here to
+        avoid duplicating the logic.
+
+        Args:
+            user (User): The SQLAlchemy ``User`` instance to mutate.
+            update_data (dict): Field-value pairs from
+                ``model_dump(exclude_unset=True)``.
+        """
+        data = dict(update_data)  # AWD-M-168: work on a copy, do not mutate caller's dict
+        if 'subjects' in data and data['subjects'] is not None:
+            data['subjects'] = json.dumps(data['subjects'])
+        if 'grade_levels' in data and data['grade_levels'] is not None:
+            data['grade_levels'] = json.dumps(data['grade_levels'])
+        for field, value in data.items():
+            setattr(user, field, value)
+
     def update_user(self, user_id: int, user_data: UserUpdate, current_user: User) -> UserResponse:
         """
         Update a user profile.
-        
+
         Args:
             user_id (int): User ID to update
             user_data (UserUpdate): Update data
             current_user (User): Current authenticated user
-            
+
         Returns:
             UserResponse: Updated user response
-            
+
         Raises:
             HTTPException: If update fails or access denied
         """
         try:
-            # Check if user can update this profile
-            if current_user.user_id != user_id and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
-                raise HTTPException(
-                    status_code=403,
-                    detail="You can only update your own profile"
-                )
+            self._assert_user_access(current_user, user_id)
 
             user = self.db.query(User).filter(User.user_id == user_id).first()
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
 
-            # Update user fields
-            update_data = user_data.dict(exclude_unset=True)
-            
-            # Handle JSON fields
-            if 'subjects' in update_data and update_data['subjects'] is not None:
-                update_data['subjects'] = json.dumps(update_data['subjects'])
-            if 'grade_levels' in update_data and update_data['grade_levels'] is not None:
-                update_data['grade_levels'] = json.dumps(update_data['grade_levels'])
-            
-            for field, value in update_data.items():
-                setattr(user, field, value)
-            
+            update_data = user_data.model_dump(exclude_unset=True)
+            self._apply_user_fields(user, update_data)
+
             self.db.commit()
             self.db.refresh(user)
-            
+
             return self._create_user_response(user)
-            
+
         except HTTPException:
             raise
         except Exception:
@@ -250,13 +385,8 @@ class UserService:
             HTTPException: If user not found or access denied
         """
         try:
-            # Users can view their own profile, admins and super admins can view any profile
-            if current_user.user_id != user_id and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
-                raise HTTPException(
-                    status_code=403,
-                    detail="You can only view your own profile"
-                )
-            
+            self._assert_user_access(current_user, user_id)
+
             user = self.db.query(User).filter(User.user_id == user_id).first()
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
@@ -275,47 +405,33 @@ class UserService:
     def update_user_profile(self, user_id: int, profile_data: UserUpdate, current_user: User) -> UserProfileResponse:
         """
         Update a user's profile information.
-        
+
         Args:
             user_id (int): User ID to update
             profile_data (UserUpdate): Profile update data
             current_user (User): Current authenticated user
-            
+
         Returns:
             UserProfileResponse: Updated user profile response
-            
+
         Raises:
             HTTPException: If update fails or access denied
         """
         try:
-            # Users can update their own profile, admins and super admins can update any profile
-            if current_user.user_id != user_id and current_user.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
-                raise HTTPException(
-                    status_code=403,
-                    detail="You can only update your own profile"
-                )
-            
+            self._assert_user_access(current_user, user_id)
+
             user = self.db.query(User).filter(User.user_id == user_id).first()
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
-            
-            # Update profile fields
-            update_data = profile_data.dict(exclude_unset=True)
-            
-            # Handle JSON fields
-            if 'subjects' in update_data and update_data['subjects'] is not None:
-                update_data['subjects'] = json.dumps(update_data['subjects'])
-            if 'grade_levels' in update_data and update_data['grade_levels'] is not None:
-                update_data['grade_levels'] = json.dumps(update_data['grade_levels'])
-            
-            for field, value in update_data.items():
-                setattr(user, field, value)
-            
+
+            update_data = profile_data.model_dump(exclude_unset=True)
+            self._apply_user_fields(user, update_data)
+
             self.db.commit()
             self.db.refresh(user)
-            
+
             return self._create_user_profile_response(user)
-            
+
         except HTTPException:
             raise
         except Exception:
@@ -388,31 +504,15 @@ class UserService:
             HTTPException: 500 if export assembly fails.
         """
         try:
-            from datetime import timezone as _tz
-
-            def _fmt(dt: Optional[datetime]) -> Optional[str]:
-                """ISO-8601 string with UTC marker, or None."""
-                if dt is None:
-                    return None
-                if dt.tzinfo is None:
-                    dt = dt.replace(tzinfo=_tz.utc)
-                return dt.isoformat()
+            # AWD-M-174: delegate datetime formatting and child/guide serialisation
+            # to extracted static helpers (_fmt_datetime, _serialize_guide,
+            # _serialize_child) to bring this function below the 60-line threshold.
+            fmt = self._fmt_datetime
 
             # --- user profile (no password_hash, no image blobs) ---
-            subjects_list: Optional[List[str]] = None
-            grade_levels_list: Optional[List[str]] = None
-
-            if current_user.subjects:
-                try:
-                    subjects_list = json.loads(current_user.subjects)
-                except (json.JSONDecodeError, TypeError):
-                    subjects_list = None
-
-            if current_user.grade_levels:
-                try:
-                    grade_levels_list = json.loads(current_user.grade_levels)
-                except (json.JSONDecodeError, TypeError):
-                    grade_levels_list = None
+            # AWD-M-172: delegate JSON parsing to shared _parse_json_list helper
+            subjects_list: Optional[List[str]] = self._parse_json_list(current_user.subjects)
+            grade_levels_list: Optional[List[str]] = self._parse_json_list(current_user.grade_levels)
 
             user_data: Dict[str, Any] = {
                 "user_id": current_user.user_id,
@@ -427,8 +527,8 @@ class UserService:
                 "languages_spoken": current_user.languages_spoken,
                 "phone": current_user.phone,
                 "bio": current_user.bio,
-                "created_at": _fmt(current_user.created_at),
-                "last_login": _fmt(current_user.last_login),
+                "created_at": fmt(current_user.created_at),
+                "last_login": fmt(current_user.last_login),
             }
 
             # --- children + guides (PARENT only) ---
@@ -451,51 +551,12 @@ class UserService:
                     .order_by(ChildProfile.child_id)
                     .all()
                 )
-                for child in children:
-                    child_subjects: Optional[List] = None
-                    if child.subjects:
-                        try:
-                            child_subjects = json.loads(child.subjects)
-                        except (json.JSONDecodeError, TypeError):
-                            child_subjects = None
-
-                    # Use the eagerly-loaded collection — no extra query.
-                    # Preserve the prior ordering (by guide_id ascending) so
-                    # the export payload remains stable.
-                    guides_data: List[Dict[str, Any]] = []
-                    for guide in sorted(
-                        child.parent_guides, key=lambda g: g.guide_id
-                    ):
-                        topic_title: Optional[str] = (
-                            guide.topic.topic_title if guide.topic else None
-                        )
-                        guides_data.append({
-                            "guide_id": guide.guide_id,
-                            "topic_id": guide.topic_id,
-                            "topic_title": topic_title,
-                            "ai_generated_content": guide.ai_generated_content,
-                            "user_edited_content": guide.user_edited_content,
-                            "is_bookmarked": bool(guide.is_bookmarked),
-                            "created_at": _fmt(guide.created_at),
-                            "updated_at": _fmt(guide.updated_at),
-                        })
-
-                    children_data.append({
-                        "child_id": child.child_id,
-                        "name": child.name,
-                        "age": child.age,
-                        "school_name": child.school_name,
-                        "country_id": child.country_id,
-                        "curricula_id": child.curricula_id,
-                        "grade_level_id": child.grade_level_id,
-                        "subjects": child_subjects,
-                        "created_at": _fmt(child.created_at),
-                        "updated_at": _fmt(child.updated_at),
-                        "guides": guides_data,
-                    })
+                children_data = [
+                    self._serialize_child(child, fmt) for child in children
+                ]
 
             return {
-                "export_date": _fmt(datetime.now()),
+                "export_date": fmt(datetime.now(timezone.utc)),
                 "user": user_data,
                 "children": children_data,
             }
@@ -524,22 +585,10 @@ class UserService:
             UserResponse: User response object
         """
         try:
-            # Parse JSON strings back to lists
-            subjects_list = None
-            grade_levels_list = None
-            
-            if user.subjects:
-                try:
-                    subjects_list = json.loads(user.subjects)
-                except (json.JSONDecodeError, TypeError):
-                    subjects_list = None
-            
-            if user.grade_levels:
-                try:
-                    grade_levels_list = json.loads(user.grade_levels)
-                except (json.JSONDecodeError, TypeError):
-                    grade_levels_list = None
-            
+            # AWD-M-169: delegate JSON parsing to shared _parse_json_list helper
+            subjects_list = self._parse_json_list(user.subjects)
+            grade_levels_list = self._parse_json_list(user.grade_levels)
+
             return UserResponse(
                 user_id=user.user_id,
                 email=user.email,
@@ -574,22 +623,10 @@ class UserService:
             UserProfileResponse: User profile response object
         """
         try:
-            # Parse JSON strings back to lists
-            subjects_list = None
-            grade_levels_list = None
-            
-            if user.subjects:
-                try:
-                    subjects_list = json.loads(user.subjects)
-                except (json.JSONDecodeError, TypeError):
-                    subjects_list = None
-            
-            if user.grade_levels:
-                try:
-                    grade_levels_list = json.loads(user.grade_levels)
-                except (json.JSONDecodeError, TypeError):
-                    grade_levels_list = None
-            
+            # AWD-M-169: delegate JSON parsing to shared _parse_json_list helper
+            subjects_list = self._parse_json_list(user.subjects)
+            grade_levels_list = self._parse_json_list(user.grade_levels)
+
             return UserProfileResponse(
                 user_id=user.user_id,
                 full_name=user.full_name,

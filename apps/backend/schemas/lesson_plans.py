@@ -20,6 +20,11 @@ class ResourceType(str, Enum):
     PDF = "pdf"
     DOCX = "docx"
 
+
+class ExportFormatRequest(BaseModel):
+    format: ResourceType = ResourceType.PDF
+
+
 # Request schemas
 class LessonPlanCreate(BaseModel):
     """Schema for creating a new lesson plan."""
@@ -62,7 +67,7 @@ class LessonResourceCreate(BaseModel):
     """Schema for creating lesson resources."""
     lesson_plan_id: int
     context_input: Optional[str] = None
-    export_format: Optional[str] = None
+    export_format: Optional[ResourceType] = None
 
 class LessonResourceUpdate(BaseModel):
     """Schema for updating lesson resources."""

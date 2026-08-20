@@ -111,6 +111,79 @@ describe('API Service', () => {
       expect(result.error).toBe('Session expired. Please login again.')
       expect(window.location.href).toBe('/login')
     })
+
+    it('should retry only once when refreshed cookies are still rejected', async () => {
+      const unauthorizedResponse = () => ({
+        ok: false,
+        status: 401,
+        url: '/api/auth/me',
+        statusText: 'Unauthorized',
+        json: vi.fn().mockResolvedValue({ detail: 'Unauthorized' })
+      })
+      const refreshResponse = { ok: true, status: 200, url: '/api/auth/refresh' }
+      ;(globalThis.fetch as any)
+        .mockResolvedValueOnce(unauthorizedResponse())
+        .mockResolvedValueOnce(refreshResponse)
+        .mockResolvedValueOnce(unauthorizedResponse())
+
+      delete (window as any).location
+      window.location = { href: '', pathname: '/' } as any
+
+      const result = await apiService.getCurrentUser()
+
+      expect(result.error).toBe('Session expired. Please login again.')
+      expect(globalThis.fetch).toHaveBeenCalledTimes(4)
+      expect(window.location.href).toBe('/login')
+    })
+
+    it('should not reload when an expired session is already on login', async () => {
+      const unauthorizedResponse = {
+        ok: false,
+        status: 401,
+        url: '/api/auth/me',
+        statusText: 'Unauthorized',
+        json: vi.fn().mockResolvedValue({ detail: 'Unauthorized' })
+      }
+      ;(globalThis.fetch as any).mockResolvedValue(unauthorizedResponse)
+
+      delete (window as any).location
+      window.location = { href: '/login', pathname: '/login' } as any
+
+      await apiService.getCurrentUser()
+
+      expect(window.location.href).toBe('/login')
+    })
+
+    it('should log refresh errors in DEV mode and return session expired when refreshAccessToken throws', async () => {
+      const unauthorizedResponse = {
+        ok: false,
+        status: 401,
+        url: '/api/auth/me',
+        json: vi.fn().mockResolvedValue({ detail: 'Unauthorized' })
+      }
+      ;(globalThis.fetch as any).mockResolvedValueOnce(unauthorizedResponse)
+
+      // Bypass the internal try-catch in refreshAccessToken so the outer catch in
+      // handleResponse is reached — the path guarded by `if (import.meta.env.DEV)`
+      const refreshSpy = vi.spyOn(apiService as any, 'refreshAccessToken')
+        .mockRejectedValueOnce(new Error('Network error during refresh'))
+
+      delete (window as any).location
+      window.location = { href: '' } as any
+
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      const result = await apiService.getCurrentUser()
+
+      // In DEV mode (test env default), the guarded console.error fires
+      expect(consoleSpy).toHaveBeenCalledWith('Refresh failed', expect.any(Error))
+      // The error is handled gracefully regardless of mode
+      expect(result.error).toBe('Session expired. Please login again.')
+      expect(window.location.href).toBe('/login')
+
+      consoleSpy.mockRestore()
+      refreshSpy.mockRestore()
+    })
   })
 
   describe('updateProfile', () => {

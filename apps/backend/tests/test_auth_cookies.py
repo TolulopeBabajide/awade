@@ -6,6 +6,9 @@ Covers: login, refresh, and logout HttpOnly cookie behaviour.
 
 import bcrypt
 import pytest
+from fastapi import Response
+
+from apps.backend.routers import auth
 
 
 # ---------------------------------------------------------------------------
@@ -55,6 +58,32 @@ def test_login_sets_httponly_cookies(client, sample_user, hashed_user):
     body = response.json()
     assert "access_token" not in body, "access_token must not be returned in the response body"
     assert "user" in body, "user payload missing from login response"
+
+
+def test_production_auth_cookies_support_cross_site_requests(monkeypatch):
+    """Production auth cookies must be accepted on cross-site credentialed fetches."""
+    monkeypatch.setattr(auth, "IS_PRODUCTION", True)
+    response = Response()
+
+    auth._set_auth_cookies(response, "access", "refresh")
+
+    set_cookie_headers = response.headers.getlist("set-cookie")
+    assert len(set_cookie_headers) == 2
+    for header in set_cookie_headers:
+        assert "HttpOnly" in header
+        assert "Secure" in header
+        assert "SameSite=none" in header
+
+
+def test_non_production_auth_cookies_remain_localhost_compatible(monkeypatch):
+    monkeypatch.setattr(auth, "IS_PRODUCTION", False)
+    response = Response()
+
+    auth._set_auth_cookies(response, "access", "refresh")
+
+    for header in response.headers.getlist("set-cookie"):
+        assert "Secure" not in header
+        assert "SameSite=lax" in header
 
 
 def test_refresh_token_flow(client, sample_user, hashed_user):

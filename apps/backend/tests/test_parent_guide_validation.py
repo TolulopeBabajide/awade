@@ -26,7 +26,7 @@ import datetime as _dt
 if not hasattr(_dt, "UTC"):
     _dt.UTC = _dt.timezone.utc
 
-from apps.backend.services.children_service import ChildrenService
+from apps.backend.services.parent_guide_service import ParentGuideService
 from apps.backend.schemas.children import ParentGuideAIContent
 
 
@@ -137,7 +137,7 @@ def _make_mock_topic():
     cs = MagicMock()
     cs.subject.name = "Mathematics"
     cs.grade_level.name = "Grade 5"
-    cs.curriculum.curricula_title = "Nigerian Curriculum"
+    cs.curriculum.curriculum_title = "Nigerian Curriculum"
     topic.curriculum_structure = cs
 
     topic.learning_objectives = []
@@ -244,7 +244,7 @@ class TestParentGuideAIContentSchema:
 # ── Service integration tests ─────────────────────────────────────────────────
 
 class TestGenerateGuideValidation:
-    """Tests for ChildrenService.generate_guide() schema gate."""
+    """Tests for ParentGuideService.generate_guide() schema gate."""
 
     def _call_generate(self, ai_content_json: str, existing_guide=None):
         """
@@ -256,12 +256,12 @@ class TestGenerateGuideValidation:
         mock_child = _make_mock_child()
         mock_db = _make_mock_db(existing_guide=existing_guide, topic=mock_topic, child=mock_child)
 
-        service = ChildrenService(db=mock_db)
+        service = ParentGuideService(db=mock_db)
         # _get_child_or_404 must return our mock child
         service._get_child_or_404 = MagicMock(return_value=mock_child)
 
         with patch(
-            "packages.ai.gpt_service.AwadeGPTService"
+            "apps.backend.services.parent_guide_service.AwadeGPTService"
         ) as MockAI:
             instance = MockAI.return_value
             instance.generate_parent_guide.return_value = (ai_content_json, True)
@@ -294,10 +294,10 @@ class TestGenerateGuideValidation:
         mock_topic = _make_mock_topic()
         mock_child = _make_mock_child()
         mock_db = _make_mock_db(topic=mock_topic, child=mock_child)
-        service = ChildrenService(db=mock_db)
+        service = ParentGuideService(db=mock_db)
         service._get_child_or_404 = MagicMock(return_value=mock_child)
 
-        with patch("packages.ai.gpt_service.AwadeGPTService") as MockAI:
+        with patch("apps.backend.services.parent_guide_service.AwadeGPTService") as MockAI:
             instance = MockAI.return_value
             instance.generate_parent_guide.return_value = (json.dumps(data), False)
             with pytest.raises(HTTPException):
@@ -335,10 +335,10 @@ class TestGenerateGuideValidation:
         mock_user = _make_mock_user()
         mock_child = _make_mock_child()
         mock_db = _make_mock_db(existing_guide=existing)
-        service = ChildrenService(db=mock_db)
+        service = ParentGuideService(db=mock_db)
         service._get_child_or_404 = MagicMock(return_value=mock_child)
 
-        with patch("packages.ai.gpt_service.AwadeGPTService") as MockAI:
+        with patch("apps.backend.services.parent_guide_service.AwadeGPTService") as MockAI:
             result = service.generate_guide(mock_user, child_id=1, topic_id=1)
             MockAI.assert_not_called()
 
@@ -421,3 +421,69 @@ class TestParentGuideContentSafety:
         # Must surface the PII reason, not "Missing required field".
         assert "email" in reason.lower()
         assert "missing" not in reason.lower()
+
+
+# ── AWD-H-134: safety gate in generate_guide ────────────────────────────────
+
+class TestGenerateGuideSafetyGate:
+    """AWD-H-134: generate_guide must raise HTTP 502 immediately when the AI
+    service returns is_valid=False, even when the JSON is structurally complete.
+
+    Prior to the fix, the service only logged a warning and proceeded to
+    Pydantic validation.  Pydantic validates structure only — it does not
+    inspect content for PII, prompt injection, or harmful material.  A
+    structurally valid but unsafe guide would therefore pass Pydantic and be
+    persisted to the DB (and later exported as PDF).
+    """
+
+    def _call_generate(self, is_valid_flag: bool, ai_content_json: str):
+        """Invoke generate_guide with a fully valid JSON but the given is_valid flag."""
+        mock_user = _make_mock_user()
+        mock_topic = _make_mock_topic()
+        mock_child = _make_mock_child()
+        mock_db = _make_mock_db(topic=mock_topic, child=mock_child)
+        service = ParentGuideService(db=mock_db)
+        service._get_child_or_404 = MagicMock(return_value=mock_child)
+
+        with patch("apps.backend.services.parent_guide_service.AwadeGPTService") as MockAI:
+            instance = MockAI.return_value
+            instance.generate_parent_guide.return_value = (ai_content_json, is_valid_flag)
+            result_or_exc = None
+            try:
+                result_or_exc = service.generate_guide(mock_user, child_id=1, topic_id=1)
+            except HTTPException as exc:
+                result_or_exc = exc
+
+        return result_or_exc, mock_db
+
+    def test_safety_fail_with_structurally_valid_json_raises_502(self):
+        """is_valid=False on an otherwise complete JSON must raise 502, not persist."""
+        valid_json = json.dumps(VALID_GUIDE_CONTENT)
+        result, _ = self._call_generate(is_valid_flag=False, ai_content_json=valid_json)
+        assert isinstance(result, HTTPException)
+        assert result.status_code == 502
+
+    def test_safety_fail_nothing_persisted(self):
+        """DB.add and DB.commit must never be called when is_valid=False."""
+        valid_json = json.dumps(VALID_GUIDE_CONTENT)
+        _, db = self._call_generate(is_valid_flag=False, ai_content_json=valid_json)
+        db.add.assert_not_called()
+        db.commit.assert_not_called()
+
+    def test_safety_pass_persists_guide(self):
+        """is_valid=True with valid JSON must proceed to persist normally."""
+        valid_json = json.dumps(VALID_GUIDE_CONTENT)
+        result, db = self._call_generate(is_valid_flag=True, ai_content_json=valid_json)
+        assert not isinstance(result, HTTPException)
+        db.add.assert_called_once()
+        db.commit.assert_called_once()
+
+    def test_502_detail_is_generic(self):
+        """Error detail must not leak internal validation reasons."""
+        valid_json = json.dumps(VALID_GUIDE_CONTENT)
+        result, _ = self._call_generate(is_valid_flag=False, ai_content_json=valid_json)
+        assert isinstance(result, HTTPException)
+        assert "safety" in result.detail.lower() or "content" in result.detail.lower()
+        assert "PII" not in result.detail
+        assert "injection" not in result.detail
+        assert "harmful" not in result.detail

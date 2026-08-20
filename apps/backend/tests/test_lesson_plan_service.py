@@ -6,7 +6,7 @@ Covers plan-only service methods:
 - create_lesson_plan_response (with and without request_data)
 - generate_lesson_plan
 - get_lesson_plan  (404, 200, cross-user)
-- update_lesson_plan (404, 200)
+- update_lesson_plan (404, 501 — AWD-M-191)
 - delete_lesson_plan (404, 200)
 - get_lesson_plans (smoke via TestLessonPlanServiceSmoke)
 
@@ -95,7 +95,7 @@ def _make_topic(topic_id: int = 1, title: str = "Fractions") -> MagicMock:
     return t
 
 
-def _make_lesson_plan(plan_id: int = 1, user_id: int = 1, topic=None) -> MagicMock:
+def _make_lesson_plan(plan_id: int = 1, user_id: int = 1, topic=None, updated_at=None) -> MagicMock:
     """Return a plain MagicMock standing in for a LessonPlan ORM object.
 
     Assigning a non-ORM object to ``LessonPlan.topic`` via the instrumented
@@ -105,6 +105,7 @@ def _make_lesson_plan(plan_id: int = 1, user_id: int = 1, topic=None) -> MagicMo
     lp.lesson_plan_id = plan_id
     lp.user_id = user_id
     lp.created_at = _now()
+    lp.updated_at = updated_at if updated_at is not None else _now()
     lp.topic_id = 1
     lp.topic = topic if topic is not None else _make_topic()
     return lp
@@ -241,7 +242,7 @@ class TestGetLessonPlan:
 # ==========================================================================
 
 class TestUpdateLessonPlan:
-    """update_lesson_plan — 404 when not found, commits when found."""
+    """update_lesson_plan — AWD-M-191: 404 when not found, 501 when found (not yet implemented)."""
 
     def test_not_found_raises_404(self):
         user = _educator(user_id=1)
@@ -251,21 +252,35 @@ class TestUpdateLessonPlan:
             svc.update_lesson_plan(lesson_id=99, request=LessonPlanUpdate(), current_user=user)
         assert exc_info.value.status_code == 404
 
-    def test_commits_on_successful_update(self):
+    def test_found_raises_501(self):
+        """Endpoint is not yet implemented — must return 501, not a silent 200 no-op."""
         user = _educator(user_id=1)
         lp = _make_lesson_plan(plan_id=1, user_id=1)
         db = _db_returning(lp)
         svc = LessonPlanService(db=db)
-        svc.update_lesson_plan(lesson_id=1, request=LessonPlanUpdate(), current_user=user)
-        db.commit.assert_called_once()
+        with pytest.raises(HTTPException) as exc_info:
+            svc.update_lesson_plan(lesson_id=1, request=LessonPlanUpdate(), current_user=user)
+        assert exc_info.value.status_code == 501
 
-    def test_returns_response_on_success(self):
+    def test_found_501_detail_describes_intent(self):
+        """501 detail message must explain what is not implemented."""
         user = _educator(user_id=1)
         lp = _make_lesson_plan(plan_id=1, user_id=1)
         db = _db_returning(lp)
         svc = LessonPlanService(db=db)
-        resp = svc.update_lesson_plan(lesson_id=1, request=LessonPlanUpdate(), current_user=user)
-        assert resp.lesson_id == 1
+        with pytest.raises(HTTPException) as exc_info:
+            svc.update_lesson_plan(lesson_id=1, request=LessonPlanUpdate(), current_user=user)
+        assert "not yet implemented" in exc_info.value.detail
+
+    def test_found_does_not_commit(self):
+        """No DB commit must occur when raising 501."""
+        user = _educator(user_id=1)
+        lp = _make_lesson_plan(plan_id=1, user_id=1)
+        db = _db_returning(lp)
+        svc = LessonPlanService(db=db)
+        with pytest.raises(HTTPException):
+            svc.update_lesson_plan(lesson_id=1, request=LessonPlanUpdate(), current_user=user)
+        db.commit.assert_not_called()
 
 
 # ==========================================================================
@@ -347,3 +362,121 @@ class TestLessonPlanServiceSmoke:
 
         lesson_plans = service.get_lesson_plans(sample_user)
         assert len(lesson_plans) >= 1
+
+
+# ==========================================================================
+# TestGetLessonPlansFilters — AWD-H-93
+# ==========================================================================
+
+class TestGetLessonPlansFilters:
+    """Unit tests for get_lesson_plans filter logic (AWD-H-93).
+
+    Before the fix, passing both subject AND grade_level caused SQLAlchemy to
+    join Topic and CurriculumStructure twice on the same query object, raising
+    InvalidRequestError("… already been joined").  These tests verify all three
+    filter combinations execute without error and that the correct join chain is
+    called each time.
+    """
+
+    def _make_db_for_filters(self, plans):
+        """Return a DB mock whose filter().offset().limit().all() chain returns plans."""
+        db = MagicMock()
+        # Build a chainable mock that returns plans at the .all() terminus no
+        # matter how many .join()/.filter() calls are chained in between.
+        chain = MagicMock()
+        chain.join.return_value = chain
+        chain.filter.return_value = chain
+        chain.offset.return_value = chain
+        chain.limit.return_value = chain
+        chain.all.return_value = plans
+        db.query.return_value.filter.return_value = chain
+        return db
+
+    def test_filter_by_subject_only(self):
+        """subject filter joins Topic→CurriculumStructure→Subject; no duplicate join."""
+        plan = _make_lesson_plan()
+        db = self._make_db_for_filters([plan])
+        svc = LessonPlanService(db=db)
+        user = _educator()
+
+        result = svc.get_lesson_plans(user, subject="Mathematics")
+
+        assert len(result) == 1
+        assert result[0].subject == "Mathematics"
+
+    def test_filter_by_grade_level_only(self):
+        """grade_level filter joins Topic→CurriculumStructure→GradeLevel; no duplicate join."""
+        plan = _make_lesson_plan()
+        db = self._make_db_for_filters([plan])
+        svc = LessonPlanService(db=db)
+        user = _educator()
+
+        result = svc.get_lesson_plans(user, grade_level="Grade 5")
+
+        assert len(result) == 1
+        assert result[0].grade_level == "Grade 5"
+
+    def test_filter_by_subject_and_grade_level_no_crash(self):
+        """Both filters together must NOT raise SQLAlchemy InvalidRequestError (AWD-H-93).
+
+        Before the fix, two consecutive .join(Topic).join(CurriculumStructure) calls
+        on the same query object caused the crash.  After the fix the shared base join
+        is emitted once and Subject/GradeLevel joins are appended independently.
+        """
+        plan = _make_lesson_plan()
+        db = self._make_db_for_filters([plan])
+        svc = LessonPlanService(db=db)
+        user = _educator()
+
+        # Must not raise
+        result = svc.get_lesson_plans(user, subject="Mathematics", grade_level="Grade 5")
+
+        assert len(result) == 1
+        assert result[0].subject == "Mathematics"
+        assert result[0].grade_level == "Grade 5"
+
+    def test_no_filters_skips_join(self):
+        """No filters → Topic/CurriculumStructure joins are not called."""
+        plan = _make_lesson_plan()
+        db = self._make_db_for_filters([plan])
+        svc = LessonPlanService(db=db)
+        user = _educator()
+
+        result = svc.get_lesson_plans(user)
+
+        assert len(result) == 1
+        # join should not have been called when no filter is active
+        db.query.return_value.filter.return_value.join.assert_not_called()
+
+
+# ==========================================================================
+# TestLessonPlanUpdatedAt — AWD-M-192
+# ==========================================================================
+
+class TestLessonPlanUpdatedAt:
+    """updated_at in LessonPlanResponse comes from the model column, not created_at."""
+
+    def test_response_uses_updated_at_not_created_at(self):
+        """When updated_at differs from created_at the response reflects updated_at."""
+        now = datetime.now(timezone.utc)
+        later = datetime(2030, 1, 1, tzinfo=timezone.utc)
+        lp = _make_lesson_plan(updated_at=later)
+        lp.created_at = now
+        svc = LessonPlanService(db=MagicMock())
+        resp = svc.create_lesson_plan_response(lp)
+        assert resp.updated_at == later
+        assert resp.updated_at != resp.created_at
+
+    def test_response_updated_at_is_not_none(self):
+        """updated_at is always present in the response."""
+        lp = _make_lesson_plan()
+        svc = LessonPlanService(db=MagicMock())
+        resp = svc.create_lesson_plan_response(lp)
+        assert resp.updated_at is not None
+
+    def test_response_created_at_unchanged(self):
+        """Adding updated_at does not affect created_at in the response."""
+        lp = _make_lesson_plan()
+        svc = LessonPlanService(db=MagicMock())
+        resp = svc.create_lesson_plan_response(lp)
+        assert resp.created_at == lp.created_at

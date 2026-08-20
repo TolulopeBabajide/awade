@@ -531,9 +531,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "additionalProperties": true,
-                "title": "Format Data"
+                "$ref": "#/components/schemas/ExportFormatRequest"
               }
             }
           }
@@ -687,14 +685,14 @@
         }
       }
     },
-    "/api/curriculum/{curricula_id}": {
+    "/api/curriculum/{curriculum_id}": {
       "put": {
         "tags": [
           "curriculum"
         ],
         "summary": "Update Curriculum",
         "description": "Update a curriculum by ID.\nRequires admin authentication.",
-        "operationId": "update_curriculum_api_curriculum__curricula_id__put",
+        "operationId": "update_curriculum_api_curriculum__curriculum_id__put",
         "security": [
           {
             "HTTPBearer": []
@@ -702,12 +700,12 @@
         ],
         "parameters": [
           {
-            "name": "curricula_id",
+            "name": "curriculum_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "integer",
-              "title": "Curricula Id"
+              "title": "Curriculum Id"
             }
           }
         ],
@@ -750,7 +748,7 @@
         ],
         "summary": "Delete Curriculum",
         "description": "Delete a curriculum by ID.\nRequires admin authentication.",
-        "operationId": "delete_curriculum_api_curriculum__curricula_id__delete",
+        "operationId": "delete_curriculum_api_curriculum__curriculum_id__delete",
         "security": [
           {
             "HTTPBearer": []
@@ -758,12 +756,12 @@
         ],
         "parameters": [
           {
-            "name": "curricula_id",
+            "name": "curriculum_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "integer",
-              "title": "Curricula Id"
+              "title": "Curriculum Id"
             }
           }
         ],
@@ -773,6 +771,52 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "curriculum"
+        ],
+        "summary": "Get Curriculum",
+        "description": "Retrieve a specific curriculum by ID.\nRequires authentication.",
+        "operationId": "get_curriculum_api_curriculum__curriculum_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "curriculum_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Curriculum Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurriculumResponse"
+                }
               }
             }
           },
@@ -1450,54 +1494,6 @@
             "content": {
               "application/json": {
                 "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/curriculum/{curriculum_id}": {
-      "get": {
-        "tags": [
-          "curriculum"
-        ],
-        "summary": "Get Curriculum",
-        "description": "Retrieve a specific curriculum by ID.\nRequires authentication.",
-        "operationId": "get_curriculum_api_curriculum__curriculum_id__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "curriculum_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Curriculum Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CurriculumResponse"
-                }
               }
             }
           },
@@ -2738,154 +2734,6 @@
         }
       }
     },
-    "/api/grade-levels/{grade_level_id}": {
-      "get": {
-        "tags": [
-          "grade-levels"
-        ],
-        "summary": "Get Grade Level",
-        "description": "Get a specific grade level by ID.\nRequires authentication.",
-        "operationId": "get_grade_level_api_grade_levels__grade_level_id__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "grade_level_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Grade Level Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GradeLevelResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "grade-levels"
-        ],
-        "summary": "Update Grade Level",
-        "description": "Update a grade level record.\nRequires admin authentication.",
-        "operationId": "update_grade_level_api_grade_levels__grade_level_id__put",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "grade_level_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Grade Level Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/GradeLevelUpdate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GradeLevelResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "grade-levels"
-        ],
-        "summary": "Delete Grade Level",
-        "description": "Delete a grade level record.\nRequires admin authentication.",
-        "operationId": "delete_grade_level_api_grade_levels__grade_level_id__delete",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "grade_level_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Grade Level Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/grade-levels/search": {
       "get": {
         "tags": [
@@ -3113,6 +2961,154 @@
         }
       }
     },
+    "/api/grade-levels/{grade_level_id}": {
+      "get": {
+        "tags": [
+          "grade-levels"
+        ],
+        "summary": "Get Grade Level",
+        "description": "Get a specific grade level by ID.\nRequires authentication.",
+        "operationId": "get_grade_level_api_grade_levels__grade_level_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "grade_level_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Grade Level Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GradeLevelResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "grade-levels"
+        ],
+        "summary": "Update Grade Level",
+        "description": "Update a grade level record.\nRequires admin authentication.",
+        "operationId": "update_grade_level_api_grade_levels__grade_level_id__put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "grade_level_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Grade Level Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GradeLevelUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GradeLevelResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "grade-levels"
+        ],
+        "summary": "Delete Grade Level",
+        "description": "Delete a grade level record.\nRequires admin authentication.",
+        "operationId": "delete_grade_level_api_grade_levels__grade_level_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "grade_level_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Grade Level Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/subjects/": {
       "get": {
         "tags": [
@@ -3208,154 +3204,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/SubjectResponse"
                 }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/subjects/{subject_id}": {
-      "get": {
-        "tags": [
-          "subjects"
-        ],
-        "summary": "Get Subject",
-        "description": "Get a specific subject by ID.\nRequires authentication.",
-        "operationId": "get_subject_api_subjects__subject_id__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "subject_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Subject Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SubjectResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "subjects"
-        ],
-        "summary": "Update Subject",
-        "description": "Update a subject record.\nRequires admin authentication.",
-        "operationId": "update_subject_api_subjects__subject_id__put",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "subject_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Subject Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SubjectUpdate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SubjectResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "subjects"
-        ],
-        "summary": "Delete Subject",
-        "description": "Delete a subject record.\nRequires admin authentication.",
-        "operationId": "delete_subject_api_subjects__subject_id__delete",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "subject_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Subject Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
               }
             }
           },
@@ -3508,6 +3356,154 @@
                   },
                   "title": "Response Get Subjects By Curriculum Api Subjects Curriculum  Curriculum Id  Get"
                 }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/subjects/{subject_id}": {
+      "get": {
+        "tags": [
+          "subjects"
+        ],
+        "summary": "Get Subject",
+        "description": "Get a specific subject by ID.\nRequires authentication.",
+        "operationId": "get_subject_api_subjects__subject_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "subject_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Subject Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubjectResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "subjects"
+        ],
+        "summary": "Update Subject",
+        "description": "Update a subject record.\nRequires admin authentication.",
+        "operationId": "update_subject_api_subjects__subject_id__put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "subject_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Subject Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubjectUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubjectResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "subjects"
+        ],
+        "summary": "Delete Subject",
+        "description": "Delete a subject record.\nRequires admin authentication.",
+        "operationId": "delete_subject_api_subjects__subject_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "subject_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Subject Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           },
@@ -4932,7 +4928,7 @@
           "children"
         ],
         "summary": "Create Child",
-        "description": "Create a new child profile for the current parent.",
+        "description": "Create a new child profile for the current parent.\n\nRate-limited to 20 requests/minute per IP to prevent profile-spam abuse.",
         "operationId": "create_child_api_children_post",
         "requestBody": {
           "content": {
@@ -5358,7 +5354,7 @@
           "children"
         ],
         "summary": "Toggle Bookmark",
-        "description": "Toggle the bookmark status of a guide.",
+        "description": "Toggle the bookmark status of a guide.\n\nRate-limited to 30 requests/minute per IP to prevent rapid-fire toggle abuse.",
         "operationId": "toggle_bookmark_api_guides__guide_id__bookmark_post",
         "security": [
           {
@@ -5406,7 +5402,7 @@
           "children"
         ],
         "summary": "Export Guide Pdf",
-        "description": "Export a parent guide as a downloadable PDF for offline printing.\n\nReturns a PDF binary with Content-Disposition: attachment.\nRequires the guide to belong to the current parent (404 otherwise).",
+        "description": "Export a parent guide as a downloadable PDF for offline printing.\n\nReturns a PDF binary with Content-Disposition: attachment.\nRequires the guide to belong to the current parent (404 otherwise).\nRate-limited to 5 requests/minute per IP \u2014 WeasyPrint is CPU-intensive\nand unbounded export requests can degrade the worker process.",
         "operationId": "export_guide_pdf_api_guides__guide_id__export_get",
         "security": [
           {
@@ -5944,7 +5940,7 @@
             ],
             "title": "Curricula Id"
           },
-          "curricula_title": {
+          "curriculum_title": {
             "anyOf": [
               {
                 "type": "string"
@@ -5953,7 +5949,7 @@
                 "type": "null"
               }
             ],
-            "title": "Curricula Title"
+            "title": "Curriculum Title"
           },
           "grade_level_id": {
             "anyOf": [
@@ -6185,6 +6181,8 @@
         "properties": {
           "content_area": {
             "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
             "title": "Content Area",
             "description": "Content area text"
           }
@@ -6523,9 +6521,9 @@
       },
       "CurriculumCreate": {
         "properties": {
-          "curricula_title": {
+          "curriculum_title": {
             "type": "string",
-            "title": "Curricula Title"
+            "title": "Curriculum Title"
           },
           "country_id": {
             "type": "integer",
@@ -6534,7 +6532,7 @@
         },
         "type": "object",
         "required": [
-          "curricula_title",
+          "curriculum_title",
           "country_id"
         ],
         "title": "CurriculumCreate",
@@ -6542,9 +6540,9 @@
       },
       "CurriculumResponse": {
         "properties": {
-          "curricula_title": {
+          "curriculum_title": {
             "type": "string",
-            "title": "Curricula Title"
+            "title": "Curriculum Title"
           },
           "country_id": {
             "type": "integer",
@@ -6557,7 +6555,7 @@
         },
         "type": "object",
         "required": [
-          "curricula_title",
+          "curriculum_title",
           "country_id",
           "curricula_id"
         ],
@@ -6654,6 +6652,16 @@
           "system_health"
         ],
         "title": "DashboardMetrics"
+      },
+      "ExportFormatRequest": {
+        "properties": {
+          "format": {
+            "$ref": "#/components/schemas/ResourceType",
+            "default": "pdf"
+          }
+        },
+        "type": "object",
+        "title": "ExportFormatRequest"
       },
       "GoogleAuthRequest": {
         "properties": {
@@ -6799,6 +6807,8 @@
         "properties": {
           "objective": {
             "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
             "title": "Objective",
             "description": "Learning objective text"
           }
@@ -7056,13 +7066,12 @@
           "export_format": {
             "anyOf": [
               {
-                "type": "string"
+                "$ref": "#/components/schemas/ResourceType"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Export Format"
+            ]
           }
         },
         "type": "object",
@@ -7193,8 +7202,7 @@
         "type": "object",
         "required": [
           "name",
-          "version",
-          "schema_json"
+          "version"
         ],
         "title": "LessonTemplateCreate"
       },
@@ -7243,7 +7251,6 @@
         "required": [
           "name",
           "version",
-          "schema_json",
           "template_id",
           "created_at",
           "updated_at"
@@ -7442,6 +7449,15 @@
           "status"
         ],
         "title": "ResourceModerationUpdate"
+      },
+      "ResourceType": {
+        "type": "string",
+        "enum": [
+          "pdf",
+          "docx"
+        ],
+        "title": "ResourceType",
+        "description": "Enumeration of resource file types."
       },
       "SubjectCreate": {
         "properties": {
@@ -8044,6 +8060,13 @@
           "type": {
             "type": "string",
             "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
           }
         },
         "type": "object",

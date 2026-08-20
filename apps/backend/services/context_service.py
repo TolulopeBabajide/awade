@@ -25,14 +25,6 @@ parent_dir = os.path.dirname(current_dir)
 root_dir = os.path.dirname(parent_dir)
 sys.path.extend([parent_dir, root_dir])
 from apps.backend.models import Context, LessonPlan
-import sys
-import os
-
-# Add parent directories to Python path for imports
-current_dir = os.path.dirname(__file__)
-parent_dir = os.path.dirname(current_dir)
-root_dir = os.path.dirname(parent_dir)
-sys.path.extend([parent_dir, root_dir])
 from apps.backend.schemas.contexts import (
     ContextCreate, 
     ContextUpdate, 
@@ -198,7 +190,7 @@ class ContextService:
                 )
             
             # Update context fields
-            update_data = context_data.dict(exclude_unset=True)
+            update_data = context_data.model_dump(exclude_unset=True)
             for field, value in update_data.items():
                 setattr(context, field, value)
             
@@ -307,6 +299,7 @@ class ContextService:
             return [self._create_context_response(context) for context in contexts]
 
         except Exception as e:
+            logger.error("Unexpected error retrieving contexts for user %s: %s", user_id, e, exc_info=True)
             raise HTTPException(
                 status_code=500,
                 detail="An error occurred while retrieving contexts"

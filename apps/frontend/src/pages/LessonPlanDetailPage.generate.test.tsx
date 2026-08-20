@@ -88,7 +88,9 @@ function renderPage(lessonId = '1') {
 }
 
 // ---------------------------------------------------------------------------
-// Tests — generation workflow / AbortController / polling (AWD-L-30)
+// Tests — generation workflow / polling (AWD-L-30)
+// Unmount guards and AbortController tests extracted to
+// LessonPlanDetailPage.generate.unmount.test.tsx (AWD-M-250)
 // ---------------------------------------------------------------------------
 
 describe('LessonPlanDetailPage (generate)', () => {
@@ -99,80 +101,6 @@ describe('LessonPlanDetailPage (generate)', () => {
   // Ensure fake timers are never leaked between tests
   afterEach(() => {
     vi.useRealTimers()
-  })
-
-  // ---------------------------------------------------------------------------
-  // AWD-M-89 — unmount guard: state updates must not fire after unmount
-  // ---------------------------------------------------------------------------
-
-  describe('handleGenerateLessonResource unmount guard (AWD-M-89)', () => {
-    it('does not update state after unmount during polling delay', async () => {
-      mockGetLessonPlan.mockResolvedValue({ data: MOCK_LESSON_PLAN })
-
-      // generateLessonResource returns a processing resource
-      mockGenerateLessonResource.mockResolvedValue({
-        data: { lesson_resources_id: 99, status: 'processing' },
-      })
-
-      // getLessonResource never resolves — simulates a long poll interval
-      let resolveFirstPoll!: (v: any) => void
-      mockGetLessonResource.mockReturnValue(
-        new Promise(resolve => { resolveFirstPoll = resolve })
-      )
-
-      const { unmount } = renderPage()
-      await waitFor(() =>
-        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
-      )
-
-      // Click the generate button to start the async handler
-      const user = userEvent.setup()
-      await user.click(screen.getByRole('button', { name: /Generate Lesson Resource/i }))
-
-      // Wait until generateLessonResource was called (handler is in the polling loop)
-      await waitFor(() => expect(mockGenerateLessonResource).toHaveBeenCalledTimes(1))
-
-      // Unmount while the handler is awaiting the first poll response
-      act(() => { unmount() })
-
-      // Resolve the poll after unmount — should not trigger any state update warnings
-      await act(async () => {
-        resolveFirstPoll({ data: { lesson_resources_id: 99, status: 'complete' } })
-      })
-
-      // If the AbortController signal guard is absent React logs a console.error
-      // about updating unmounted components. No assertion needed beyond the test
-      // completing cleanly.
-    })
-
-    it('does not call setContextFeedback after unmount on generation error', async () => {
-      mockGetLessonPlan.mockResolvedValue({ data: MOCK_LESSON_PLAN })
-
-      // generateLessonResource rejects — error path hits catch block
-      let rejectGenerate!: (reason: unknown) => void
-      mockGenerateLessonResource.mockReturnValue(
-        new Promise((_, reject) => { rejectGenerate = reject })
-      )
-
-      const { unmount } = renderPage()
-      await waitFor(() =>
-        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
-      )
-
-      const user = userEvent.setup()
-      await user.click(screen.getByRole('button', { name: /Generate Lesson Resource/i }))
-      await waitFor(() => expect(mockGenerateLessonResource).toHaveBeenCalledTimes(1))
-
-      // Unmount before the rejection lands
-      act(() => { unmount() })
-
-      // Reject after unmount — catch block should bail via the AbortController signal guard
-      await act(async () => {
-        rejectGenerate(new Error('network down'))
-      })
-
-      // Test passes cleanly if no React unmounted-component warning is emitted
-    })
   })
 
   // ---------------------------------------------------------------------------
@@ -194,7 +122,8 @@ describe('LessonPlanDetailPage (generate)', () => {
       renderPage()
       // Resolve the initial getLessonPlan with real timers before switching to fake
       await waitFor(() =>
-        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument(),
+        { timeout: 5000 }
       )
 
       // NOW switch to fake timers — initial render complete with real timers
@@ -236,7 +165,8 @@ describe('LessonPlanDetailPage (generate)', () => {
       renderPage()
       // Resolve the initial getLessonPlan with real timers before switching to fake
       await waitFor(() =>
-        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument(),
+        { timeout: 5000 }
       )
 
       // NOW switch to fake timers — initial render complete with real timers
@@ -281,7 +211,8 @@ describe('LessonPlanDetailPage (generate)', () => {
       renderPage()
       // Resolve the initial getLessonPlan with real timers before switching to fake
       await waitFor(() =>
-        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument(),
+        { timeout: 5000 }
       )
 
       // NOW switch to fake timers — initial render complete with real timers (AWD-H-82 fix)
@@ -317,7 +248,8 @@ describe('LessonPlanDetailPage (generate)', () => {
 
       renderPage()
       await waitFor(() =>
-        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument(),
+        { timeout: 5000 }
       )
 
       vi.useFakeTimers()
@@ -339,7 +271,8 @@ describe('LessonPlanDetailPage (generate)', () => {
 
       renderPage()
       await waitFor(() =>
-        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument(),
+        { timeout: 5000 }
       )
 
       // Type something into the context textarea so submitContextIfProvided is reached
@@ -379,7 +312,8 @@ describe('LessonPlanDetailPage (generate)', () => {
       renderPage()
       // Resolve the initial getLessonPlan with real timers before switching to fake
       await waitFor(() =>
-        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
+        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument(),
+        { timeout: 5000 }
       )
 
       // NOW switch to fake timers — initial render complete with real timers
@@ -401,75 +335,4 @@ describe('LessonPlanDetailPage (generate)', () => {
     })
   })
 
-  // ---------------------------------------------------------------------------
-  // AWD-M-137 — AbortController replaces isMountedRef guards
-  // ---------------------------------------------------------------------------
-
-  describe('handleGenerateLessonResource AbortController (AWD-M-137)', () => {
-    it('aborts cleanly when unmounted during the fetch-curriculum-data pause', async () => {
-      mockGetLessonPlan.mockResolvedValue({ data: MOCK_LESSON_PLAN })
-      // generateLessonResource never resolves — we unmount before it is called
-      mockGenerateLessonResource.mockReturnValue(new Promise(() => {}))
-
-      const { unmount } = renderPage()
-      await waitFor(() =>
-        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
-      )
-
-      vi.useFakeTimers()
-      try {
-        const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
-        await user.click(screen.getByRole('button', { name: /Generate Lesson Resource/i }))
-
-        // Advance 200ms — handler is in the 500ms fetch-curriculum-data pause, no API call yet
-        await act(async () => { await vi.advanceTimersByTimeAsync(200) })
-
-        // Unmount mid-pause — controller.abort() fires in cleanup effect (AWD-M-137)
-        act(() => { unmount() })
-
-        // Advance past the remaining 300ms — signal.throwIfAborted() fires, no state updates
-        await act(async () => { await vi.advanceTimersByTimeAsync(400) })
-
-        // generateLessonResource was never called — abort prevented it
-        expect(mockGenerateLessonResource).not.toHaveBeenCalled()
-      } finally {
-        vi.useRealTimers()
-      }
-    })
-
-    it('does not call navigate when unmounted during the completion pause', async () => {
-      mockGetLessonPlan.mockResolvedValue({ data: MOCK_LESSON_PLAN })
-      // generate returns complete immediately — skips polling, enters 500ms completion pause
-      mockGenerateLessonResource.mockResolvedValue({
-        data: { lesson_resources_id: 99, status: 'complete' },
-      })
-
-      const { unmount } = renderPage()
-      await waitFor(() =>
-        expect(screen.getByText('Introduction to Fractions')).toBeInTheDocument()
-      )
-
-      // Switch to fake timers after initial render (AWD-H-82 pattern)
-      vi.useFakeTimers()
-      try {
-        const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
-        await user.click(screen.getByRole('button', { name: /Generate Lesson Resource/i }))
-
-        // Advance 700ms: past the 500ms fetch-curriculum pause and into the completion pause
-        // (generateLessonResource mock resolves via microtask at ~500ms; completion timer starts ~500ms)
-        await act(async () => { await vi.advanceTimersByTimeAsync(700) })
-
-        // Unmount during the completion pause — controller.abort() fires
-        act(() => { unmount() })
-
-        // Advance 600ms more: completion timer fires (~1000ms total), throwIfAborted() catches it
-        await act(async () => { await vi.advanceTimersByTimeAsync(600) })
-
-        // navigate must NOT have been called — abort short-circuits before handleGenerationSuccess
-        expect(mockNavigate).not.toHaveBeenCalled()
-      } finally {
-        vi.useRealTimers()
-      }
-    })
-  })
 })

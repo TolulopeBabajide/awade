@@ -25,14 +25,6 @@ parent_dir = os.path.dirname(current_dir)
 root_dir = os.path.dirname(parent_dir)
 sys.path.extend([parent_dir, root_dir])
 from apps.backend.models import Subject
-import sys
-import os
-
-# Add parent directories to Python path for imports
-current_dir = os.path.dirname(__file__)
-parent_dir = os.path.dirname(current_dir)
-root_dir = os.path.dirname(parent_dir)
-sys.path.extend([parent_dir, root_dir])
 from apps.backend.schemas.subject import SubjectCreate, SubjectResponse, SubjectUpdate
 
 class SubjectService:
@@ -123,7 +115,7 @@ class SubjectService:
                 raise HTTPException(status_code=400, detail="Subject already exists")
             
             # Create new subject
-            subject = Subject(**subject_data.dict())
+            subject = Subject(**subject_data.model_dump())
             self.db.add(subject)
             self.db.commit()
             self.db.refresh(subject)
@@ -168,7 +160,7 @@ class SubjectService:
                     raise HTTPException(status_code=400, detail="Subject name already exists")
             
             # Update fields
-            update_data = subject_data.dict(exclude_unset=True)
+            update_data = subject_data.model_dump(exclude_unset=True)
             for field, value in update_data.items():
                 setattr(subject, field, value)
             

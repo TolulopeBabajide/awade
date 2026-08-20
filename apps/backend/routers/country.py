@@ -13,12 +13,13 @@ Endpoints:
 Author: Tolulope Babajide
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from apps.backend.database import get_db
-from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator
+from apps.backend.dependencies import get_current_active_user, require_admin, require_admin_or_educator
+from apps.backend.limiter import limiter
 from apps.backend.services.country_service import CountryService
 from apps.backend.schemas.country import CountryCreate, CountryResponse, CountryUpdate
 from apps.backend.models import User
@@ -26,10 +27,12 @@ from apps.backend.models import User
 router = APIRouter(prefix="/api/countries", tags=["countries"])
 
 @router.get("/", response_model=List[CountryResponse])
+@limiter.limit("60/minute")
 def list_countries(
+    request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -40,8 +43,10 @@ def list_countries(
     return service.get_countries(skip, limit)
 
 @router.post("/", response_model=CountryResponse)
+@limiter.limit("30/minute")
 def create_country(
-    country: CountryCreate, 
+    request: Request,
+    country: CountryCreate,
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
@@ -52,10 +57,46 @@ def create_country(
     service = CountryService(db)
     return service.create_country(country)
 
+@router.get("/search", response_model=List[CountryResponse])
+@limiter.limit("60/minute")
+def search_countries(
+    request: Request,
+    q: str = Query(..., description="Search term", max_length=200),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Search countries by name, ISO code, or region.
+    Requires authentication.
+    """
+    service = CountryService(db)
+    return service.search_countries(q, skip, limit)
+
+@router.get("/region/{region}", response_model=List[CountryResponse])
+@limiter.limit("60/minute")
+def get_countries_by_region(
+    request: Request,
+    region: str,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get countries by region.
+    Requires authentication.
+    """
+    service = CountryService(db)
+    return service.get_countries_by_region(region, skip, limit)
+
 @router.get("/{country_id}", response_model=CountryResponse)
+@limiter.limit("60/minute")
 def get_country(
+    request: Request,
     country_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -66,7 +107,9 @@ def get_country(
     return service.get_country(country_id)
 
 @router.put("/{country_id}", response_model=CountryResponse)
+@limiter.limit("30/minute")
 def update_country(
+    request: Request,
     country_id: int,
     country: CountryUpdate,
     current_user: User = Depends(require_admin),
@@ -80,7 +123,9 @@ def update_country(
     return service.update_country(country_id, country)
 
 @router.delete("/{country_id}")
+@limiter.limit("30/minute")
 def delete_country(
+    request: Request,
     country_id: int,
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
@@ -91,33 +136,3 @@ def delete_country(
     """
     service = CountryService(db)
     return service.delete_country(country_id)
-
-@router.get("/search", response_model=List[CountryResponse])
-def search_countries(
-    q: str = Query(..., description="Search term"),
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    Search countries by name, ISO code, or region.
-    Requires authentication.
-    """
-    service = CountryService(db)
-    return service.search_countries(q, skip, limit)
-
-@router.get("/region/{region}", response_model=List[CountryResponse])
-def get_countries_by_region(
-    region: str,
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    Get countries by region.
-    Requires authentication.
-    """
-    service = CountryService(db)
-    return service.get_countries_by_region(region, skip, limit) 

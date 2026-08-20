@@ -25,14 +25,6 @@ parent_dir = os.path.dirname(current_dir)
 root_dir = os.path.dirname(parent_dir)
 sys.path.extend([parent_dir, root_dir])
 from apps.backend.models import Country
-import sys
-import os
-
-# Add parent directories to Python path for imports
-current_dir = os.path.dirname(__file__)
-parent_dir = os.path.dirname(current_dir)
-root_dir = os.path.dirname(parent_dir)
-sys.path.extend([parent_dir, root_dir])
 from apps.backend.schemas.country import CountryCreate, CountryResponse, CountryUpdate
 
 class CountryService:
@@ -123,7 +115,7 @@ class CountryService:
                 raise HTTPException(status_code=400, detail="Country already exists")
             
             # Create new country
-            country = Country(**country_data.dict())
+            country = Country(**country_data.model_dump())
             self.db.add(country)
             self.db.commit()
             self.db.refresh(country)
@@ -168,7 +160,7 @@ class CountryService:
                     raise HTTPException(status_code=400, detail="Country name already exists")
             
             # Update fields
-            update_data = country_data.dict(exclude_unset=True)
+            update_data = country_data.model_dump(exclude_unset=True)
             for field, value in update_data.items():
                 setattr(country, field, value)
             

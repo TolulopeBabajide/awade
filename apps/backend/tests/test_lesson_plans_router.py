@@ -5,12 +5,14 @@ internal error details in HTTPException.detail.
 Covers:
 - 404 when resource not found
 - 404 when educator tries to export another user's resource (AWD-M-67: no 403 leakage)
-- 400 for unsupported export format
+- 422 for unsupported export format (AWD-M-195: Pydantic validation)
+- 422 for missing format field defaults to "pdf" via Pydantic default
 - 500 for unexpected export failure uses static detail (no str(e))
 - 200 PDF happy path
 - 200 DOCX happy path
 """
 
+import asyncio
 import pytest
 from unittest.mock import MagicMock, patch
 from fastapi.testclient import TestClient
@@ -28,6 +30,8 @@ from apps.backend.main import app
 from apps.backend.database import get_db
 from apps.backend.models import User, UserRole, LessonResource
 from apps.backend.dependencies import get_current_user
+from apps.backend.routers.lesson_plans import export_lesson_resource
+from apps.backend.limiter import limiter
 
 
 def _make_user(user_id: int, role: UserRole = UserRole.EDUCATOR) -> User:
@@ -151,16 +155,30 @@ class TestExportLessonResource:
             )
         assert resp.status_code == 200
 
-    # ── 400 ──────────────────────────────────────────────────────────────────
+    # ── 422 (AWD-M-195: Pydantic rejects invalid format before handler runs) ──
 
-    def test_unsupported_format_returns_400(self, educator, resource):
+    def test_unsupported_format_returns_422(self, educator, resource):
         db = self._db_with_resource(resource)
         client = _client_for_user(educator, db)
         resp = client.post(
             f"/api/lesson-plans/resources/{resource.lesson_resources_id}/export",
             json={"format": "xlsx"},
         )
-        assert resp.status_code == 400
+        assert resp.status_code == 422
+
+    def test_missing_format_defaults_to_pdf(self, educator, resource):
+        db = self._db_with_resource(resource)
+        client = _client_for_user(educator, db)
+        with patch(
+            "apps.backend.services.pdf_service.PDFService.generate_lesson_resource_pdf",
+            return_value=b"%PDF-1.4 fake",
+        ):
+            resp = client.post(
+                f"/api/lesson-plans/resources/{resource.lesson_resources_id}/export",
+                json={},
+            )
+        assert resp.status_code == 200
+        assert resp.headers["content-type"] == "application/pdf"
 
     # ── 500 — AWD-H-40 core assertion ────────────────────────────────────────
 
@@ -214,3 +232,86 @@ class TestExportLessonResource:
             )
         assert resp.status_code == 200
         assert "wordprocessingml" in resp.headers["content-type"]
+
+    def test_unhandled_format_raises_500_guard(self, educator, resource):
+        """AWD-M-289 — defense-in-depth: any format not matched by elif raises 500."""
+        from fastapi import HTTPException as FastAPIHTTPException
+
+        db = self._db_with_resource(resource)
+
+        format_data = MagicMock()
+        format_data.format = "html"  # not a valid ResourceType — bypasses Pydantic at HTTP layer
+
+        # Disable the rate-limiter so the decorated handler accepts a fake request
+        # without the isinstance(request, Request) check that SlowAPI enforces.
+        # This avoids coupling to __wrapped__ (a functools/SlowAPI internal that
+        # breaks when a second decorator is stacked above @limiter.limit).
+        with patch.object(limiter, "enabled", False), patch(
+            "apps.backend.services.lesson_resource_service.LessonResourceService.get_lesson_resource_orm",
+            return_value=resource,
+        ), patch("apps.backend.services.pdf_service.PDFService"):
+            with pytest.raises(FastAPIHTTPException) as exc_info:
+                asyncio.run(export_lesson_resource(
+                    request=MagicMock(),
+                    resource_id=resource.lesson_resources_id,
+                    format_data=format_data,
+                    current_user=educator,
+                    db=db,
+                ))
+
+        assert exc_info.value.status_code == 500
+        assert exc_info.value.detail == "Unhandled export format."
+
+
+@pytest.fixture()
+def parent_user():
+    return _make_user(user_id=4, role=UserRole.PARENT)
+
+
+class TestLessonPlanRoleEnforcementM321:
+    """AWD-M-321 — PARENT users must receive 403 on all lesson-plan endpoints."""
+
+    def teardown_method(self):
+        app.dependency_overrides.clear()
+
+    @pytest.mark.parametrize("path,method", [
+        ("/api/lesson-plans/resources", "get"),
+        ("/api/lesson-plans/resources/1", "get"),
+        ("/api/lesson-plans/", "get"),
+        ("/api/lesson-plans/1", "get"),
+        ("/api/lesson-plans/1/resources", "get"),
+    ])
+    def test_parent_is_forbidden_on_read_endpoint(self, parent_user, path, method):
+        db = MagicMock()
+        client = _client_for_user(parent_user, db)
+        resp = getattr(client, method)(path)
+        assert resp.status_code == 403, (
+            f"M-321: PARENT should get 403 on {method.upper()} {path}, got {resp.status_code}"
+        )
+
+    def test_parent_is_forbidden_on_export_endpoint(self, parent_user):
+        db = MagicMock()
+        client = _client_for_user(parent_user, db)
+        resp = client.post("/api/lesson-plans/resources/1/export", json={"format": "pdf"})
+        assert resp.status_code == 403, (
+            f"M-321: PARENT should get 403 on POST /export, got {resp.status_code}"
+        )
+
+
+class TestExportLessonResourceRateLimit:
+    """AWD-H-132 — export endpoint must carry the @limiter.limit decorator."""
+
+    def test_export_handler_is_registered_in_limiter(self):
+        route_limits = getattr(limiter, "_route_limits", None)
+        assert route_limits is not None, (
+            "M-291: limiter._route_limits attribute missing — SlowAPI internals may have changed. "
+            "Verify the limiter registration API and update this test accordingly."
+        )
+        registered_names = list(route_limits.keys())
+        # SlowAPI keys the registry by "<module>.<qualname>" of the original function
+        handler_name = getattr(export_lesson_resource, "__name__", "")
+        matched = any(handler_name in key for key in registered_names)
+        assert matched, (
+            f"H-132: export_lesson_resource not in limiter._route_limits. "
+            f"Registered: {registered_names}"
+        )

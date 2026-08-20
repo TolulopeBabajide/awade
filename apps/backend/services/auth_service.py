@@ -227,12 +227,19 @@ class AuthService:
                     detail=f"Password must be at least {PASSWORD_MIN_LENGTH} characters long"
                 )
 
-            # Check if user already exists
-            if self.db.query(User).filter(User.email == user_data.email).first():
-                raise HTTPException(status_code=400, detail="Email already registered")
-
-            # Hash password — delegate to _hash_password() to avoid divergent bcrypt paths
+            # Hash password before the email-existence check so bcrypt always runs.
+            # Without this, a taken email returns fast (no bcrypt) while a free email
+            # pays ~100-300 ms, leaking registration status via timing (AWD-M-307).
             password_hash = self._hash_password(user_data.password)
+
+            # Check if user already exists — return generic message to prevent
+            # account enumeration via distinct error responses (AWD-H-133).
+            # The hash above has already run, so response time is uniform.
+            if self.db.query(User).filter(User.email == user_data.email).first():
+                raise HTTPException(
+                    status_code=400,
+                    detail="Registration failed — please check your details and try again"
+                )
             
             # Whitelist only PARENT and EDUCATOR — coerce anything else (including
             # ADMIN / SUPER_ADMIN) to PARENT so clients cannot self-elevate at registration.
@@ -395,7 +402,7 @@ class AuthService:
             )
     
     @staticmethod
-    def _hash_reset_token(raw_token: str) -> str:
+    def hash_reset_token(raw_token: str) -> str:
         """Return the SHA-256 hex digest of a raw reset token for safe DB storage."""
         return hashlib.sha256(raw_token.encode('utf-8')).hexdigest()
 
@@ -426,7 +433,7 @@ class AuthService:
             raw_token = secrets.token_urlsafe(32)
 
             # Store the SHA-256 hash — the raw token is never persisted.
-            user.password_reset_token = self._hash_reset_token(raw_token)
+            user.password_reset_token = self.hash_reset_token(raw_token)
             user.password_reset_expires = datetime.now(timezone.utc) + timedelta(hours=1)
             self.db.commit()
 
@@ -470,7 +477,7 @@ class AuthService:
             HTTPException 500: Unexpected DB / hashing failure.
         """
         try:
-            token_hash = self._hash_reset_token(token)
+            token_hash = self.hash_reset_token(token)
             now = datetime.now(timezone.utc)
 
             user = (

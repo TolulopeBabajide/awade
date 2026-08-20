@@ -1,33 +1,143 @@
-from fastapi.testclient import TestClient
+import logging
 import pytest
-from unittest.mock import MagicMock
-import sys
-
-# Mock prometheus_fastapi_instrumentator if not installed
-try:
-    from prometheus_fastapi_instrumentator import Instrumentator
-except ImportError:
-    # Create a dummy mock to allow import of main.py
-    sys.modules["prometheus_fastapi_instrumentator"] = MagicMock()
-    Instrumentator = MagicMock()
-    Instrumentator.return_value.instrument.return_value.expose.return_value = None
+from fastapi.testclient import TestClient
 
 from apps.backend.main import app
 
 client = TestClient(app)
 
-def test_metrics_endpoint_exists():
-    """Test that /metrics endpoint is exposed (if instrumentator is active)."""
-    # If using the mock, this test might not find the route if the mock didn't add it.
-    # But if real module is installed, it should work.
-    
-    # Check if we are running with real instrumentator
-    is_real = "prometheus_fastapi_instrumentator" in sys.modules and not isinstance(sys.modules["prometheus_fastapi_instrumentator"], MagicMock)
-    
-    if is_real:
+
+class TestMetricsAuthM327:
+    """AWD-M-327: /metrics must be gated behind METRICS_API_KEY (OWASP A05)."""
+
+    def test_metrics_returns_403_when_key_not_configured(self, monkeypatch):
+        monkeypatch.delenv("METRICS_API_KEY", raising=False)
         response = client.get("/metrics")
-        # Just check it exists and returns text (Prometheus format)
+        assert response.status_code == 403
+
+    def test_metrics_returns_401_when_no_auth_header(self, monkeypatch):
+        monkeypatch.setenv("METRICS_API_KEY", "test-secret-key")
+        response = client.get("/metrics")
+        assert response.status_code == 401
+        assert response.headers.get("WWW-Authenticate") == "Bearer"
+
+    def test_metrics_returns_401_when_wrong_key(self, monkeypatch):
+        monkeypatch.setenv("METRICS_API_KEY", "test-secret-key")
+        response = client.get("/metrics", headers={"Authorization": "Bearer wrong-key"})
+        assert response.status_code == 401
+
+    def test_metrics_returns_401_when_non_bearer_scheme(self, monkeypatch):
+        monkeypatch.setenv("METRICS_API_KEY", "test-secret-key")
+        response = client.get("/metrics", headers={"Authorization": "Basic dXNlcjpwYXNz"})
+        assert response.status_code == 401
+
+    def test_metrics_returns_200_with_valid_key(self, monkeypatch):
+        monkeypatch.setenv("METRICS_API_KEY", "test-secret-key")
+        response = client.get("/metrics", headers={"Authorization": "Bearer test-secret-key"})
         assert response.status_code == 200
-        assert "http_requests_total" in response.text or "# HELP" in response.text
-    else:
-        pytest.skip("Prometheus Instrumentator not installed, skipping metrics test")
+        assert "# HELP" in response.text and "http_requests_total" in response.text
+
+
+class TestPfiMonkeyPatchGuardH131:
+    def test_pfi_routing_has_get_route_name_attribute(self):
+        """CI sentinel: fails if pfi renames _get_route_name, surfacing AWD-H-131 shim breakage."""
+        pfi_routing = pytest.importorskip(
+            "prometheus_fastapi_instrumentator.routing",
+            reason="prometheus-fastapi-instrumentator not installed",
+        )
+        assert hasattr(pfi_routing, "_get_route_name"), (
+            "pfi internals changed: _get_route_name no longer exists — update AWD-H-131 shim in main.py"
+        )
+
+
+class TestPfiMonkeyPatchGuardOptimizeM284:
+    def test_guard_raises_runtime_error_when_attribute_missing(self, monkeypatch):
+        """Guard raises RuntimeError (not assert) so it survives -O and propagates at startup.
+
+        Covers AWD-M-284 (RuntimeError not assert) and AWD-M-280 (error propagates
+        through the ImportError guard — _check_pfi_routing_compat is called outside
+        the except ImportError block).
+        """
+        import prometheus_fastapi_instrumentator.routing as pfi_routing
+        from apps.backend import main as main_module
+        monkeypatch.delattr(pfi_routing, "_get_route_name")
+        with pytest.raises(RuntimeError, match="pfi internals changed"):
+            main_module._check_pfi_routing_compat()
+
+
+class TestPrometheusImportErrorGuardM280:
+    def test_pfi_available_flag_set_when_installed(self):
+        """_pfi_available is True when prometheus-fastapi-instrumentator is importable (AWD-M-280)."""
+        pytest.importorskip(
+            "prometheus_fastapi_instrumentator",
+            reason="prometheus-fastapi-instrumentator not installed",
+        )
+        from apps.backend import main as main_module
+        assert getattr(main_module, "_pfi_available", None) is True
+
+
+class TestPfiRouteNameCompatMetricsGapM281:
+    """logger.warning emitted when _IncludedRouter lacks callable effective_candidates (AWD-M-281)."""
+
+    def _make_no_path_route(self, candidates_value):
+        """Return a mock route that matches FULL but has no .path attribute."""
+        from starlette.routing import Match
+
+        class FakeIncludedRouter:
+            def matches(self, scope):
+                return Match.FULL, {}
+
+        route = FakeIncludedRouter()
+        if candidates_value is not None:
+            # Set on the instance to avoid Python binding a callable class attribute
+            # as a bound method (which would add an unexpected `self` argument).
+            route.effective_candidates = candidates_value
+        return route
+
+    def test_warns_when_effective_candidates_absent(self, caplog):
+        pytest.importorskip(
+            "prometheus_fastapi_instrumentator",
+            reason="prometheus-fastapi-instrumentator not installed",
+        )
+        from apps.backend import main as main_module
+
+        route = self._make_no_path_route(None)
+        with caplog.at_level(logging.WARNING, logger="apps.backend.main"):
+            result = main_module._pfi_get_route_name_compat({}, [route])
+        assert result is None
+        assert any(
+            "_pfi_compat" in r.message and "metrics gap" in r.message
+            for r in caplog.records
+        )
+
+    def test_warns_when_effective_candidates_not_callable(self, caplog):
+        pytest.importorskip(
+            "prometheus_fastapi_instrumentator",
+            reason="prometheus-fastapi-instrumentator not installed",
+        )
+        from apps.backend import main as main_module
+
+        route = self._make_no_path_route("not_callable")
+        with caplog.at_level(logging.WARNING, logger="apps.backend.main"):
+            result = main_module._pfi_get_route_name_compat({}, [route])
+        assert result is None
+        assert any(
+            "_pfi_compat" in r.message and "metrics gap" in r.message
+            for r in caplog.records
+        )
+
+    def test_no_warning_when_effective_candidates_callable(self, caplog):
+        pytest.importorskip(
+            "prometheus_fastapi_instrumentator",
+            reason="prometheus-fastapi-instrumentator not installed",
+        )
+        from apps.backend import main as main_module
+
+        route = self._make_no_path_route(lambda: [])
+        with caplog.at_level(logging.WARNING, logger="apps.backend.main"):
+            result = main_module._pfi_get_route_name_compat({}, [route])
+        assert result is None
+        assert not any(
+            "_pfi_compat" in r.message and "metrics gap" in r.message
+            for r in caplog.records
+        )

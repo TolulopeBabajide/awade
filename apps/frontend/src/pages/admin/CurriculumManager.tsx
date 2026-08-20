@@ -157,7 +157,7 @@ const CurriculumManager: React.FC = () => {
             onConfirm: async (title) => {
                 if (!title) return;
                 const response = await apiService.createCurriculum({
-                    curricula_title: title,
+                    curriculum_title: title,
                     country_id: selectedCountry.country_id
                 });
                 if (!response.error) {
@@ -175,14 +175,14 @@ const CurriculumManager: React.FC = () => {
             isOpen: true,
             title: 'Edit Curriculum',
             label: 'Curriculum Name',
-            initialValue: curriculum.curricula_title,
+            initialValue: curriculum.curriculum_title,
             onConfirm: async (title) => {
-                if (!title || title === curriculum.curricula_title) {
+                if (!title || title === curriculum.curriculum_title) {
                     setInputModal(prev => ({ ...prev, isOpen: false }));
                     return;
                 }
                 const response = await apiService.updateCurriculum(curriculum.curricula_id, {
-                    curricula_title: title
+                    curriculum_title: title
                 });
                 if (!response.error) {
                     fetchCurricula(selectedCountry.country_id);
@@ -431,7 +431,7 @@ const CurriculumManager: React.FC = () => {
                         <div className="flex items-center text-sm text-gray-500 mt-1">
                             <span>ID: {selectedTopic.topic_id}</span>
                             <span className="mx-2">•</span>
-                            <span>{selectedCurriculum?.curricula_title}</span>
+                            <span>{selectedCurriculum?.curriculum_title}</span>
                         </div>
                     </div>
                 </div>
@@ -622,7 +622,7 @@ const CurriculumManager: React.FC = () => {
                         <FiArrowLeft size={20} />
                     </button>
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-900">{selectedCurriculum.curricula_title}</h2>
+                        <h2 className="text-2xl font-bold text-gray-900">{selectedCurriculum.curriculum_title}</h2>
                         <p className="text-gray-500 font-medium">Curriculum Structure Configuration</p>
                     </div>
                 </div>
@@ -825,7 +825,7 @@ const CurriculumManager: React.FC = () => {
                         {curricula.map((cur) => (
                             <div key={cur.curricula_id} className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:border-indigo-400 transition-all hover:shadow-md group">
                                 <div className="flex justify-between items-start mb-6">
-                                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">{cur.curricula_title}</h3>
+                                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">{cur.curriculum_title}</h3>
                                     <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button onClick={() => handleEditCurriculum(cur)} className="p-1 text-gray-400 hover:text-indigo-600"><FiEdit2 size={18} /></button>
                                         <button onClick={() => handleDeleteCurriculum(cur.curricula_id)} className="p-1 text-gray-400 hover:text-red-600"><FiTrash2 size={18} /></button>

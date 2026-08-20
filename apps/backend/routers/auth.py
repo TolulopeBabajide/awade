@@ -47,25 +47,33 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 ACCESS_TOKEN_MAX_AGE = 30 * 60  # 30 minutes
 REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60  # 7 days
 
+def _cookie_options() -> dict[str, object]:
+    """Return environment-appropriate cookie flags.
+
+    The production frontend and API are hosted on different sites, so browsers
+    require SameSite=None together with Secure for credentialed API requests.
+    """
+    return {
+        "httponly": True,
+        "secure": IS_PRODUCTION,
+        "samesite": "none" if IS_PRODUCTION else "lax",
+        "path": "/",
+    }
+
 def _set_auth_cookies(response: Response, access_token: str, refresh_token: str) -> None:
     """Set both auth cookies (access + refresh) as HttpOnly on a response."""
+    cookie_options = _cookie_options()
     response.set_cookie(
         key="access_token",
         value=access_token,
-        httponly=True,
-        secure=IS_PRODUCTION,
-        samesite="lax",
         max_age=ACCESS_TOKEN_MAX_AGE,
-        path="/",
+        **cookie_options,
     )
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
-        httponly=True,
-        secure=IS_PRODUCTION,
-        samesite="lax",
         max_age=REFRESH_TOKEN_MAX_AGE,
-        path="/",
+        **cookie_options,
     )
 
 
@@ -201,8 +209,9 @@ async def logout(request: Request, response: Response, db: Session = Depends(get
         if redis_pool:
             await service.blacklist_refresh_token(refresh_token, redis_pool)
             
-    response.delete_cookie("access_token", path="/")
-    response.delete_cookie("refresh_token", path="/")
+    cookie_options = _cookie_options()
+    response.delete_cookie("access_token", **cookie_options)
+    response.delete_cookie("refresh_token", **cookie_options)
     return {"message": "Logged out successfully"}
 
 @router.post("/forgot-password")
@@ -231,4 +240,4 @@ def reset_password(
     Rate limit: 5 requests per minute (prevents token brute-force).
     """
     service = AuthService(db)
-    return service.reset_password(payload.token, payload.new_password) 
+    return service.reset_password(payload.token, payload.new_password)

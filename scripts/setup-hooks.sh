@@ -14,8 +14,12 @@ mkdir -p .husky
 echo "Writing .husky/pre-commit..."
 cat > .husky/pre-commit << 'HOOK'
 #!/usr/bin/env sh
-# Pre-commit: lint staged TypeScript files + full type check
+# Pre-commit: lint staged TypeScript files + full type check,
+# then validate agent scripts + backlog format (template parity).
 cd apps/frontend && npx lint-staged && npx tsc --noEmit
+cd ../..
+for f in scripts/*.sh; do bash -n "$f" || exit 1; done
+python3 scripts/check-backlog-format.py || exit 1
 HOOK
 
 chmod +x .husky/pre-commit

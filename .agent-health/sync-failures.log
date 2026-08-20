@@ -1,0 +1,1154 @@
+2026-06-05T20:35:34Z | PULL_REBASE_FAILED | develop
+2026-06-05T20:41:55Z | PULL_REBASE_FAILED | develop
+2026-06-09T20:54:02Z | PUSH_DEFERRED | develop | docs(dev-log): AWD-M-208 blocker persists — dev-agent skip 2026-06-09 (commit f492197; git push denied in autonomous run)
+2026-06-11T19:33:10Z | PULL_REBASE_FAILED | develop
+2026-06-11T19:34:50Z | PUSH_DEFERRED | develop | docs(dev-log): AWD-M-208 blocker day 8 — dev-agent skip 2026-06-11
+2026-06-12T11:16:27Z | PUSH_DEFERRED | develop | push denied by permissions
+2026-06-12T12:11:01Z | PULL_REBASE_FAILED | develop
+2026-06-12T12:13:49Z | PULL_REBASE_FAILED | develop
+2026-06-12T12:15:14Z | PULL_FAILED | develop
+2026-06-12T15:10:01Z | PULL_REBASE_FAILED | develop
+2026-06-12T15:13:18Z | PULL_FAILED | develop
+2026-06-12T16:12:51Z | PULL_REBASE_FAILED | develop
+2026-06-12T16:14:52Z | PULL_FAILED | develop
+2026-06-12T17:03:53Z | PULL_REBASE_FAILED | develop
+2026-06-12T18:03:58Z | PULL_REBASE_FAILED | develop
+2026-06-12T19:01:54Z | PULL_REBASE_FAILED | develop
+2026-06-12T19:03:31Z | PULL_FAILED | develop
+2026-06-12T19:03:42Z | PUSH_DEFERRED | develop | AWD-M-210 psycopg2 patch
+2026-06-12T20:35:00Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-06-12T20:35:07Z develop AWD-L-57 sandbox denied git push
+2026-06-12T20:35:43Z | PULL_REBASE_FAILED | develop
+2026-06-12T21:02:35Z | PULL_FAILED | develop
+2026-06-12T22:01:35Z | PULL_REBASE_FAILED | develop
+2026-06-12T22:05:44Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-06-12T22:05:57Z develop AWD-L-52 sandbox denied git push
+2026-06-13T02:01:37Z | PULL_REBASE_FAILED | develop
+2026-06-13T02:05:09Z | PULL_FAILED | develop
+2026-06-13T03:02:34Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-13T03:05:38Z develop de55eb7 chore(test): AWD-L-59 remove orphan skip-stub test files
+2026-06-13T04:01:36Z | PULL_REBASE_FAILED | develop
+2026-06-13T04:03:05Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-06-13T04:03:13Z — develop d88d0f6 AWD-C-15 — git push origin develop
+2026-06-13T05:05:36Z | PULL_REBASE_FAILED | develop
+2026-06-13T05:11:17Z | PULL_FAILED | develop
+2026-06-13T05:13:15Z | PULL_REBASE_FAILED | develop
+2026-06-13T06:03:01Z | PULL_REBASE_FAILED | develop
+2026-06-13T06:06:33Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-06-13T06:06:43Z develop — git push denied (permission prompt declined)
+2026-06-13T07:07:39Z | PULL_REBASE_FAILED | develop
+2026-06-13T07:42:41Z | PULL_FAILED | develop
+2026-06-13T08:12:12Z | PULL_REBASE_FAILED | develop
+2026-06-13T10:02:34Z | PULL_REBASE_FAILED | develop
+2026-06-13T10:04:46Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-06-13T10:04Z develop — git push denied by user permission prompt
+2026-06-13T11:01:33Z | PULL_REBASE_FAILED | develop
+2026-06-13T11:06:13Z | PUSH_DEFERRED | develop — records commit 67c11ae (chore: AWD-H-106 mark done) not yet pushed; git push origin develop blocked by permission prompt
+2026-06-13T12:01:32Z | PULL_REBASE_FAILED | develop
+2026-06-13T13:01:32Z | PULL_REBASE_FAILED | develop
+2026-06-13T13:03:50Z | PULL_FAILED | develop
+2026-06-13T14:02:33Z | PULL_REBASE_FAILED | develop
+2026-06-13T14:11:32Z | PULL_FAILED | develop
+2026-06-13T15:01:35Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-06-13T15:03Z AWD-H-107 develop push denied — Tolu: run git push origin develop
+2026-06-13T16:01:39Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-13T16:13Z — develop — AWD-M-226 StaticPool fix, commit 49090a7. Tolu: run git push origin develop.
+2026-06-13T17:02:35Z | PULL_REBASE_FAILED | develop
+2026-06-13T18:01:42Z | PULL_REBASE_FAILED | develop
+2026-06-13T18:17:21Z | PULL_REBASE_FAILED | develop
+2026-06-13T19:02:38Z | PULL_REBASE_FAILED | develop
+2026-06-13T19:04:13Z | PUSH_DEFERRED | develop | dev-agent heartbeat
+2026-06-13T20:07:34Z | PULL_REBASE_FAILED | develop
+2026-06-13T20:26:19Z | PULL_FAILED | develop
+2026-06-13T21:01:09Z | PULL_REBASE_FAILED | develop
+2026-06-13T22:01:21Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-13T22:04:36Z develop — git push denied, Tolu: run git push origin develop
+2026-06-13T23:01:13Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-06-13T23:03:54Z develop bb748c89fa22ada230bf31e598ccb8c5ea662602 — permission denied
+2026-06-14T00:01:13Z | PULL_REBASE_FAILED | develop
+2026-06-14T00:05:50Z | PULL_REBASE_FAILED | develop
+2026-06-14T01:01:13Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-14T01:08Z — develop not pushed (git push denied by Claude Code permissions). Pending commit: 015c82e fix(ci): AWD-M-218 add AI_PROVIDER: mock to backend-test env
+2026-06-14T02:01:12Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-14T02:05:58Z — fix/pdf/AWD-M-232 6c6d9ce permission denied on git push
+2026-06-14T03:02:12Z | PULL_REBASE_FAILED | develop
+2026-06-14T04:01:22Z | PULL_REBASE_FAILED | develop
+2026-06-14T04:05:26Z | PULL_FAILED | develop
+2026-06-14T05:05:20Z | PULL_REBASE_FAILED | develop
+2026-06-14T05:08:41Z | PULL_FAILED | develop
+2026-06-14T05:09:34Z | PULL_REBASE_FAILED | develop
+2026-06-14T06:05:45Z | PULL_REBASE_FAILED | develop
+2026-06-14T06:43:07Z | PULL_REBASE_FAILED | develop
+2026-06-14T07:07:12Z | PULL_FAILED | develop
+2026-06-14T08:19:49Z | PULL_REBASE_FAILED | develop
+2026-06-14T09:09:36Z | PULL_REBASE_FAILED | develop
+2026-06-14T10:27:03Z | PULL_FAILED | develop
+2026-06-14T11:18:29Z | PULL_REBASE_FAILED | develop
+2026-06-14T11:22:38Z | PULL_REBASE_FAILED | develop
+2026-06-14T12:01:27Z | PULL_FAILED | develop
+2026-06-14T13:02:27Z | PULL_REBASE_FAILED | develop
+2026-06-14T13:11:53Z | PULL_FAILED | develop
+2026-06-14T14:02:41Z | PULL_REBASE_FAILED | develop
+2026-06-14T14:11:02Z | PUSH_DEFERRED | develop | fix(deps): AWD-H-95 upgrade cryptography to 48.0.0 fixing PYSEC-2026-36
+2026-06-14T15:01:33Z | PULL_REBASE_FAILED | develop
+2026-06-14T15:05:02Z | PULL_FAILED | develop
+2026-06-14T16:01:37Z | PULL_REBASE_FAILED | develop
+2026-06-14T16:05:00Z | PULL_FAILED | develop
+2026-06-14T18:01:30Z | PULL_REBASE_FAILED | develop
+2026-06-14T18:09:21Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-06-14T18:09:31Z develop merge 43071ef (AWD-M-222 — permission denied)
+2026-06-14T19:02:26Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-14T19:10:37Z AWD-H-98 425d98a push blocked by sandbox permissions
+2026-06-14T20:02:28Z | PULL_REBASE_FAILED | develop
+2026-06-14T20:13:22Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-06-14T20:13:30Z AWD-M-239 a35533a push blocked by sandbox permissions
+2026-06-14T21:02:40Z | PULL_REBASE_FAILED | develop
+2026-06-14T23:01:20Z | PULL_FAILED | develop
+2026-06-14T23:06:27Z | PULL_FAILED | develop
+2026-06-15T00:02:00Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-06-15T00:06:21Z develop — push permission denied in sandbox
+2026-06-15T01:02:04Z | PULL_REBASE_FAILED | develop
+2026-06-15T02:01:59Z | PULL_REBASE_FAILED | develop
+2026-06-15T02:07:35Z | PULL_FAILED | develop
+2026-06-15T03:01:59Z | PULL_REBASE_FAILED | develop
+2026-06-15T03:04:25Z | PULL_FAILED | develop
+2026-06-15T04:03:02Z | PULL_REBASE_FAILED | develop
+2026-06-15T04:05:37Z | PULL_FAILED | develop
+2026-06-15T05:06:06Z | PULL_REBASE_FAILED | develop
+2026-06-15T06:11:00Z | PUSH_DEFERRED | develop
+2026-06-15T06:02:10Z | PULL_REBASE_FAILED | develop
+2026-06-15T06:06:29Z | PULL_FAILED | develop
+2026-06-15T06:09:43Z | PULL_REBASE_FAILED | develop
+2026-06-15T07:04:07Z | PULL_REBASE_FAILED | develop
+2026-06-15T08:02:05Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 1781511099 — permission denied for git push origin develop
+2026-06-15T09:03:03Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED
+b6f9ecd docs(records): AWD-H-114 mark done
+2026-06-15T10:05:31Z | PULL_REBASE_FAILED | develop
+2026-06-15T11:04:58Z | PULL_REBASE_FAILED | develop
+2026-06-15T11:22:15Z | PULL_FAILED | develop
+2026-06-15T12:15:26Z | PULL_REBASE_FAILED | develop
+2026-06-15T13:49:32Z | PULL_REBASE_FAILED | develop
+2026-06-15T13:53:58Z | PULL_FAILED | develop
+2026-06-15T14:09:42Z | PULL_FAILED | develop
+2026-06-15T16:00:39Z | PULL_FAILED | develop
+PUSH_DEFERRED
+2026-06-15T16:02:59Z PUSH_DEFERRED develop
+2026-06-15T16:31:42Z | PULL_REBASE_FAILED | develop
+2026-06-15T17:31:19Z | PULL_REBASE_FAILED | develop
+2026-06-15T18:47:00Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-15T18:48:38Z — develop push denied by sandbox; commit 899cdfe merged to develop
+2026-06-15T19:02:52Z | PULL_REBASE_FAILED | develop
+2026-06-15T20:02:56Z | PULL_REBASE_FAILED | develop
+2026-06-15T21:02:59Z | PULL_REBASE_FAILED | develop
+2026-06-15T22:01:53Z | PULL_REBASE_FAILED | develop
+2026-06-15T22:06:41Z | PULL_FAILED | develop
+2026-06-15T22:07:55Z | PULL_REBASE_FAILED | develop
+2026-06-15T23:02:01Z | PULL_REBASE_FAILED | develop
+2026-06-15T23:09:21Z | PULL_FAILED | develop
+2026-06-15T23:10:29Z | PULL_REBASE_FAILED | develop
+2026-06-16T00:02:53Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-16T00:06:23Z fix/testing/AWD-M-248-btn-null-check — git push origin develop blocked by sandbox
+2026-06-16T01:02:54Z | PULL_REBASE_FAILED | develop
+2026-06-16T01:06:26Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-06-16T01:06:38Z develop @ fec3436 — AWD-M-249 fix
+2026-06-16T02:01:53Z | PULL_REBASE_FAILED | develop
+2026-06-16T03:02:10Z | PULL_REBASE_FAILED | develop
+2026-06-16T03:23:20Z | PULL_REBASE_FAILED | develop
+2026-06-16T04:03:16Z | PULL_FAILED | develop
+2026-06-16T05:09:45Z | PULL_REBASE_FAILED | develop
+2026-06-16T06:21:15Z | PULL_FAILED | develop
+2026-06-16T07:30:03Z | PULL_REBASE_FAILED | develop
+2026-06-16T09:26:13Z | PULL_REBASE_FAILED | develop
+2026-06-16T09:32:09Z | PULL_FAILED | develop
+2026-06-16T10:32:55Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-06-16T11:40:38Z develop HEAD=caea78fa875168c2426e6e23bd23ddae0886f9e8 — sandbox blocked git push
+2026-06-16T12:01:06Z | PULL_REBASE_FAILED | develop
+2026-06-16T12:36:05Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-06-16T13:50Z develop HEAD=5699290 AWD-M-253 get_curriculum/get_topic 404 guards — Tolu: run git push origin develop
+PUSH_DEFERRED 2026-06-16T14:01Z develop HEAD=78b70e9 chore(records): AWD-M-253 update backlog/completed log/dev-log — Tolu: run git push origin develop
+2026-06-16T16:07:50Z | PULL_REBASE_FAILED | develop
+2026-06-16T21:12:11Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-06-16T21:16:34Z — git push origin develop blocked by sandbox
+2026-06-16T22:01:12Z | PULL_REBASE_FAILED | develop
+2026-06-16T23:01:18Z | PULL_REBASE_FAILED | develop
+2026-06-16T23:06:53Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-06-16T23:07:06Z — git push origin develop blocked by sandbox
+2026-06-17T00:01:14Z | PULL_REBASE_FAILED | develop
+2026-06-17T00:05:04Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-06-17T00:05:11Z develop — AWD-M-255 fix(curriculum): handle IntegrityError in delete_curriculum_structure
+2026-06-17T01:04:13Z | PULL_REBASE_FAILED | develop
+2026-06-17T02:03:16Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-17T02:08:08Z develop 2e851db AWD-M-256 push denied (sandbox permission)
+2026-06-17T03:02:08Z | PULL_REBASE_FAILED | develop
+2026-06-17T03:05:17Z | PULL_FAILED | develop
+2026-06-17T03:06:05Z | PULL_REBASE_FAILED | develop
+2026-06-17T07:13:24Z | PULL_REBASE_FAILED | develop
+2026-06-17T07:50:13Z | PULL_FAILED | develop
+2026-06-17T09:02:50Z | PULL_REBASE_FAILED | develop
+2026-06-17T09:07:56Z | PULL_REBASE_FAILED | develop
+2026-06-17T10:01:46Z | PULL_REBASE_FAILED | develop
+2026-06-17T10:08:08Z | PULL_FAILED | develop
+2026-06-17T11:01:44Z | PULL_REBASE_FAILED | develop
+2026-06-17T11:10:16Z | PULL_FAILED | develop
+2026-06-17T12:01:45Z | PULL_REBASE_FAILED | develop
+2026-06-17T12:09:59Z | PULL_FAILED | develop
+2026-06-17T13:01:45Z | PULL_REBASE_FAILED | develop
+2026-06-17T13:04:08Z | PULL_FAILED | develop
+2026-06-17T13:04:29Z | PUSH_DEFERRED | develop
+2026-06-17T14:01:46Z | PULL_REBASE_FAILED | develop
+2026-06-17T14:12:41Z | PUSH_DEFERRED | develop | chore(records): AWD-M-258 update backlog, completed log, dev-log
+2026-06-17T15:01:48Z | PULL_REBASE_FAILED | develop
+2026-06-17T15:10:00Z | PULL_FAILED | develop
+2026-06-17T16:03:49Z | PULL_REBASE_FAILED | develop
+2026-06-17T16:08:41Z | PULL_FAILED | develop
+2026-06-17T17:01:52Z | PULL_REBASE_FAILED | develop
+2026-06-18T22:45:05Z | PULL_REBASE_FAILED | develop
+2026-06-18T22:46:00Z | PUSH_DEFERRED | develop | chore(sync): commit pending agent outputs
+2026-06-18T23:33:54Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-18T23:38:58Z — git push denied by sandbox permissions. Commit 51251d1 (AWD-M-224) merged to develop but not pushed. Tolu: run git push origin develop.
+2026-06-19T00:07:50Z | PULL_REBASE_FAILED | develop
+2026-06-19T01:07:50Z | PULL_REBASE_FAILED | develop
+2026-06-19T02:07:47Z | PULL_REBASE_FAILED | develop
+2026-06-19T03:07:51Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-19T03:11:55Z — git push denied in scheduled task context; Tolu: run git push origin develop
+2026-06-19T04:07:52Z | PULL_REBASE_FAILED | develop
+2026-06-19T04:12:22Z | PULL_REBASE_FAILED | develop
+2026-06-19T05:11:46Z | PULL_REBASE_FAILED | develop
+2026-06-19T05:19:11Z | PULL_REBASE_FAILED | develop
+2026-06-19T06:07:50Z | PULL_REBASE_FAILED | develop
+2026-06-19T07:07:48Z | PULL_REBASE_FAILED | develop
+2026-06-19T07:17:23Z | PULL_FAILED | develop
+2026-06-19T08:30:17Z | PULL_REBASE_FAILED | develop
+2026-06-19T10:41:58Z | PULL_REBASE_FAILED | develop
+2026-06-19T20:32:59Z | PUSH_DEFERRED | develop | chore(sync): commit pending agent outputs
+2026-06-19T22:22:09Z | PULL_FAILED | develop
+2026-06-20T00:08:07Z | PULL_REBASE_FAILED | develop
+2026-06-20T00:14:29Z | PULL_REBASE_FAILED | develop
+2026-06-20T01:08:10Z | PULL_REBASE_FAILED | develop
+2026-06-20T01:14:20Z | PULL_FAILED | develop
+2026-06-20T01:15:21Z | PULL_REBASE_FAILED | develop
+2026-06-20T02:08:06Z | PULL_REBASE_FAILED | develop
+2026-06-20T02:12:45Z | PULL_FAILED | develop
+2026-06-20T03:08:05Z | PULL_REBASE_FAILED | develop
+2026-06-20T03:12:04Z | PULL_FAILED | develop
+2026-06-20T04:08:20Z | PULL_REBASE_FAILED | develop
+2026-06-20T04:11:48Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-06-20T04:11:57Z d23a6c33a37c34645474cffe12c4145b3c92e58b develop AWD-M-274
+2026-06-20T08:02:08Z | PULL_REBASE_FAILED | develop
+2026-06-20T09:48:05Z | PULL_REBASE_FAILED | develop
+2026-06-20T12:22:08Z | PULL_FAILED | develop
+2026-06-20T12:42:49Z | PULL_REBASE_FAILED | develop
+2026-06-20T13:52:30Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: develop @ 94e1b39 - 2026-06-20T14:52:14Z
+2026-06-20T15:38:38Z | PULL_REBASE_FAILED | develop
+2026-06-20T16:24:55Z | PULL_REBASE_FAILED | develop
+2026-06-20T20:02:12Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-20T23:36:40Z develop — permission denied
+2026-06-20T23:40:49Z | PULL_REBASE_FAILED | develop
+2026-06-21T01:07:56Z | PULL_REBASE_FAILED | develop
+2026-06-21T02:07:59Z | PULL_REBASE_FAILED | develop
+2026-06-21T03:09:08Z | PULL_REBASE_FAILED | develop
+2026-06-21T04:19:23Z | PULL_FAILED | develop
+2026-06-21T06:11:19Z | PULL_REBASE_FAILED | develop
+2026-06-21T07:04:16Z | PUSH_DEFERRED | develop | chore(sync): commit pending agent outputs
+2026-06-21T07:27:09Z | PULL_FAILED | develop
+2026-06-21T10:52:22Z | PULL_FAILED | develop
+2026-06-21T10:57:36Z | PULL_FAILED | develop
+2026-06-21T11:07:18Z | PULL_REBASE_FAILED | develop
+2026-06-21T12:07:22Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-21T12:14:45Z develop 53425e0 — sandbox git push blocked
+2026-06-21T13:07:24Z | PULL_REBASE_FAILED | develop
+2026-06-21T13:12:54Z | PULL_REBASE_FAILED | develop
+2026-06-21T14:07:19Z | PULL_REBASE_FAILED | develop
+2026-06-21T14:10:44Z | PULL_FAILED | develop
+2026-06-21T14:11:53Z | PULL_REBASE_FAILED | develop
+2026-06-21T15:07:19Z | PULL_REBASE_FAILED | develop
+2026-06-21T16:07:22Z | PULL_REBASE_FAILED | develop
+2026-06-21T16:10:18Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-06-21T16:10:25Z — AWD-M-285 merged to develop, push pending
+2026-06-21T17:07:24Z | PULL_REBASE_FAILED | develop
+2026-06-21T17:11:10Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-06-21T17:11:18Z develop ff61ee0 AWD-M-282
+2026-06-21T18:07:17Z | PULL_REBASE_FAILED | develop
+2026-06-21T19:07:19Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-21T19:12:25Z develop — fix/metrics/AWD-M-280-separate-importerror-guard merged, push blocked by permissions
+2026-06-21T20:07:24Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-21T20:12:02Z — develop push denied (permission), commit eb498a1 (AWD-M-286)
+2026-06-21T21:07:27Z | PULL_REBASE_FAILED | develop
+2026-06-21T21:13:25Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-06-21T21:13:36Z — develop push denied (permission), commit 8664add (AWD-M-281)
+2026-06-21T22:12:01Z | PULL_FAILED | develop
+2026-06-21T23:07:18Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-21T23:13:29Z develop not pushed — sandbox git push permission denied
+2026-06-22T00:07:29Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-06-22T00:11:04Z develop fix(security): AWD-H-132
+2026-06-22T01:07:26Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-22T01:16:41Z — develop push denied (permission), commit 2e7686a (AWD-M-288)
+2026-06-22T02:07:30Z | PULL_REBASE_FAILED | develop
+2026-06-22T03:08:01Z | PULL_REBASE_FAILED | develop
+2026-06-22T03:15:52Z | PULL_REBASE_FAILED | develop
+2026-06-22T04:08:46Z | PULL_REBASE_FAILED | develop
+2026-06-22T05:18:27Z | PULL_REBASE_FAILED | develop
+2026-06-22T06:12:36Z | PULL_FAILED | develop
+2026-06-22T07:32:17Z | PULL_REBASE_FAILED | develop
+2026-06-22T08:01:36Z | PULL_REBASE_FAILED | develop
+2026-06-22T08:05:15Z | PULL_REBASE_FAILED | develop
+2026-06-22T09:08:34Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-22T09:12:48Z — develop — refactor(ai): AWD-M-276 group _make_api_call params into _ApiCallConfig TypedDict
+2026-06-22T10:08:45Z | PULL_REBASE_FAILED | develop
+2026-06-22T10:11:42Z | PULL_FAILED | develop
+2026-06-22T11:08:31Z | PULL_REBASE_FAILED | develop
+2026-06-22T11:14:56Z | PULL_FAILED | develop
+2026-06-22T12:10:36Z | PULL_REBASE_FAILED | develop
+2026-06-22T12:17:09Z | PULL_REBASE_FAILED | develop
+2026-06-22T13:15:00Z | PULL_REBASE_FAILED | develop
+2026-06-22T14:07:42Z | PULL_REBASE_FAILED | develop
+2026-06-22T15:07:36Z | PULL_FAILED | develop
+2026-06-22T17:07:35Z | PULL_FAILED | develop
+2026-06-22T18:07:38Z | PULL_FAILED | develop
+2026-06-22T19:07:42Z | PULL_REBASE_FAILED | develop
+2026-06-22T19:11:59Z | PULL_FAILED | develop
+2026-06-22T19:17:27Z | PULL_REBASE_FAILED | develop
+2026-06-22T20:07:41Z | PULL_FAILED | develop
+2026-06-22T20:09:25Z | PUSH_DEFERRED | develop
+2026-06-22T20:21:34Z | PUSH_DEFERRED | develop
+2026-06-22T22:07:44Z | PULL_REBASE_FAILED | develop
+2026-06-22T22:15:20Z | PULL_FAILED | develop
+2026-06-22T22:15:34Z | PUSH_DEFERRED | develop — AWD-L-62 merged (d8fe9c3), 5 commits ahead of origin
+2026-06-22T23:07:38Z | PULL_FAILED | develop
+2026-06-23T00:07:39Z | PULL_FAILED | develop
+2026-06-23T01:07:44Z | PULL_FAILED | develop
+2026-06-23T01:14:14Z | PUSH_DEFERRED | develop — AWD-L-81 merged (8fa137d), 4 commits ahead of origin
+2026-06-23T03:07:58Z | PULL_REBASE_FAILED | develop
+2026-06-23T04:07:45Z | PULL_REBASE_FAILED | develop
+2026-06-23T04:16:46Z | PUSH_DEFERRED | develop | chore(sync): push AWD-L-69+L-82 merge
+2026-06-23T06:10:10Z | PULL_FAILED | develop
+2026-06-23T07:09:49Z | PULL_REBASE_FAILED | develop
+2026-06-23T07:57:39Z | PUSH_DEFERRED | develop | refactor(pdf): AWD-L-68 merge rename _h to _escape_html
+2026-06-23T09:07:44Z | PULL_REBASE_FAILED | develop
+2026-06-23T09:15:22Z | PUSH_DEFERRED | develop | refactor(tests): AWD-L-65 merge — replace inline __import__ with top-level User import
+2026-06-23T11:07:36Z | PULL_FAILED | develop
+2026-06-23T12:07:37Z | PULL_REBASE_FAILED | develop
+2026-06-23T12:12:20Z | PUSH_DEFERRED | develop | AWD-M-293 merge — sandbox permission
+2026-06-23T13:07:46Z | PULL_REBASE_FAILED | develop
+2026-06-23T14:07:53Z | PULL_REBASE_FAILED | develop
+2026-06-23T14:16:19Z PUSH_DEFERRED develop dc60088 — sandbox permission denied
+2026-06-23T15:07:54Z | PULL_FAILED | develop
+2026-06-23T16:07:52Z | PULL_FAILED | develop
+2026-06-23T18:07:56Z | PULL_REBASE_FAILED | develop
+2026-06-23T19:07:53Z | PULL_REBASE_FAILED | develop
+2026-06-23T19:16:22Z | PUSH_DEFERRED | develop | chore(sync): AWD-M-298 done — push blocked by user
+2026-06-23T20:08:00Z | PULL_FAILED | develop
+2026-06-23T20:08:47Z | PUSH_DEFERRED | develop | chore(sync): periodic sync push blocked by user
+2026-06-23T21:07:53Z | PULL_REBASE_FAILED | develop
+2026-06-23T22:07:57Z | PULL_REBASE_FAILED | develop
+2026-06-23T23:07:53Z | PULL_FAILED | develop
+2026-06-24T00:08:01Z | PULL_FAILED | develop
+2026-06-24T02:09:39Z | PULL_FAILED | develop
+2026-06-24T02:18:35Z | PUSH_DEFERRED | develop | heartbeat commit 04e4e04 not pushed — sandbox permission
+2026-06-24T03:07:51Z | PULL_FAILED | develop
+2026-06-24T04:08:02Z | PULL_FAILED | develop
+2026-06-24T04:12:22Z | PUSH_DEFERRED | develop | sandbox permission
+2026-06-24T06:08:04Z | PULL_REBASE_FAILED | develop
+2026-06-24T07:08:24Z | PULL_REBASE_FAILED | develop
+2026-06-24T08:08:10Z | PULL_REBASE_FAILED | develop
+2026-06-24T09:08:27Z | PULL_REBASE_FAILED | develop
+2026-06-24T10:08:26Z | PULL_REBASE_FAILED | develop
+2026-06-24T10:20:09Z | PUSH_DEFERRED | develop | 1 commit ahead of origin (a8219bb) — permission denied, nightly-monitor will surface
+2026-06-24T11:09:17Z | PULL_FAILED | develop
+2026-06-24T12:10:27Z | PULL_REBASE_FAILED | develop
+2026-06-24T13:03:38Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-06-24T14:30:24Z — develop push denied (permission). AWD-M-201 AWD-M-303 merged, records updated. Tolu: run git push origin develop to trigger CI.
+2026-06-24T15:09:49Z | PULL_FAILED | develop
+2026-06-26T09:53:00Z | PULL_FAILED | develop
+2026-06-26T10:06:03Z | PULL_FAILED | develop
+2026-06-26T11:08:01Z | PULL_REBASE_FAILED | develop
+2026-06-26T11:24:09Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 1782473095 — 744739a (chore(sync): commit pending agent outputs) could not be pushed — permission denied
+2026-06-26T12:08:01Z | PULL_FAILED | develop
+2026-06-26T13:08:05Z | PULL_REBASE_FAILED | develop
+2026-06-26T17:08:02Z | PULL_REBASE_FAILED | develop
+2026-06-26T17:14:39Z PUSH_DEFERRED — git push origin develop denied by sandbox (AWD-M-302 merge 4ce0cff)
+2026-06-27T16:27:36Z | PULL_REBASE_FAILED | develop
+2026-06-27T16:42:16Z | PULL_REBASE_FAILED | develop
+2026-06-28T02:25:45Z | PULL_FAILED | develop
+2026-06-28T02:30:48Z PUSH_DEFERRED f136286 chore(heartbeat): dev-agent run complete — permission denied
+2026-06-28T03:08:08Z PUSH_DEFERRED 3c8c3da chore(sync): commit pending agent outputs — permission denied
+2026-06-28T03:13:03Z PUSH_DEFERRED 11ecece chore(heartbeat): dev-agent run complete — permission denied
+PUSH_DEFERRED: 2026-06-28T10:21:17Z chore(heartbeat): dev-agent run complete
+2026-06-28T11:07:31Z | PULL_REBASE_FAILED | develop
+2026-06-28T12:07:28Z | PULL_FAILED | develop
+2026-06-28T13:07:27Z | PULL_FAILED | develop
+2026-06-28T14:16:03Z | PUSH_DEFERRED | develop | AWD-H-133 merge
+2026-06-28T15:07:40Z | PULL_FAILED | develop
+2026-06-28T15:12:19Z | PUSH_DEFERRED | develop
+2026-06-28T16:07:32Z | PULL_FAILED | develop
+2026-06-28T17:07:35Z | PULL_FAILED | develop
+2026-06-28T17:10:06Z | PUSH_DEFERRED | develop | no-ready-items heartbeat
+2026-06-28T18:07:36Z | PULL_FAILED | develop
+2026-06-28T22:11:17Z | PUSH_DEFERRED | develop
+2026-06-28T23:07:29Z | PULL_FAILED | develop
+PUSH_DEFERRED: could not push develop — permission denied
+2026-06-29T02:07:35Z | PULL_FAILED | develop
+2026-06-29T04:09:32Z | PULL_REBASE_FAILED | develop
+2026-06-29T05:14:47Z | PULL_FAILED | develop
+2026-06-29T06:09:25Z | PULL_FAILED | develop
+2026-06-29T07:14:37Z | PULL_REBASE_FAILED | develop
+2026-06-29T22:46:14Z | PULL_FAILED | develop
+2026-06-29T23:08:10Z | PULL_REBASE_FAILED | develop
+2026-06-29T23:14:29Z | PUSH_DEFERRED | develop — permission denied by user
+2026-06-30T00:08:13Z | PULL_REBASE_FAILED | develop
+2026-06-30T02:08:10Z | PULL_REBASE_FAILED | develop
+2026-06-30T02:11:56Z | PULL_REBASE_FAILED | develop
+2026-06-30T03:08:14Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-06-30T03:15:30Z — permission denied
+2026-06-30T04:08:10Z | PULL_FAILED | develop
+2026-06-30T05:10:10Z | PULL_REBASE_FAILED | develop
+2026-06-30T07:40:12Z | PULL_REBASE_FAILED | develop
+2026-06-30T12:23:44Z | PULL_FAILED | develop
+2026-06-30T13:16:43Z | PULL_FAILED | develop
+2026-06-30T14:01:55Z | PULL_FAILED | develop
+2026-06-30T22:07:46Z | PULL_REBASE_FAILED | develop
+2026-06-30T23:07:37Z | PULL_REBASE_FAILED | develop
+2026-06-30T23:09:51Z | PULL_REBASE_FAILED | develop
+2026-07-01T00:07:45Z | PULL_FAILED | develop
+2026-07-01T01:07:39Z | PULL_FAILED | develop
+2026-07-01T02:07:35Z | PULL_REBASE_FAILED | develop
+2026-07-01T03:07:36Z | PULL_FAILED | develop
+2026-07-01T04:07:38Z | PULL_REBASE_FAILED | develop
+2026-07-01T06:07:39Z | PULL_REBASE_FAILED | develop
+2026-07-01T07:07:38Z | PULL_REBASE_FAILED | develop
+2026-07-01T07:17:28Z | PULL_REBASE_FAILED | develop
+2026-07-01T08:07:39Z | PULL_REBASE_FAILED | develop
+2026-07-01T09:07:43Z | PULL_REBASE_FAILED | develop
+2026-07-01T10:07:39Z | PULL_REBASE_FAILED | develop
+2026-07-01T10:16:01Z | PUSH_DEFERRED | develop | AWD-L-84 merge + records (5 commits ahead of origin/develop — git push permission denied from sandbox, M-305)
+2026-07-01T11:07:43Z | PULL_FAILED | develop
+2026-07-01T13:07:40Z | PULL_FAILED | develop
+2026-07-01T14:08:40Z | PULL_REBASE_FAILED | develop
+2026-07-01T15:09:09Z | PULL_FAILED | develop
+2026-07-01T16:08:01Z | PULL_REBASE_FAILED | develop
+2026-07-01T18:08:28Z | PULL_REBASE_FAILED | develop
+2026-07-01T18:12:23Z | PUSH_DEFERRED | develop | commit bc04bd5 — docs(dev-log): 2026-07-01 idle run
+2026-07-01T19:07:44Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-07-01T19:10:00Z — sandbox push blocked; develop is ahead of origin
+2026-07-01T20:09:34Z | PULL_FAILED | develop
+2026-07-01T21:09:42Z | PULL_FAILED | develop
+2026-07-01T23:19:03Z | PUSH_DEFERRED | develop | docs(dev-log): 2026-07-02 idle run
+2026-07-02T00:10:28Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-07-02T02:26:04Z — git push origin develop blocked by sandbox permissions
+2026-07-02T03:11:35Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-07-02T03:29:53Z — git push origin develop blocked by sandbox permissions
+2026-07-02T04:10:44Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-02T04:21:31Z develop c79b33a docs(dev-log): 2026-07-02 idle run
+2026-07-02T05:51:38Z | PULL_REBASE_FAILED | develop
+2026-07-02T08:19:04Z | PULL_FAILED | develop
+2026-07-02T12:29:46Z PUSH_DEFERRED develop a5d0d38 — sandbox permission denied
+2026-07-02T16:04:19Z | PULL_REBASE_FAILED | develop
+2026-07-02T19:02:03Z | PULL_REBASE_FAILED | develop
+2026-07-02T19:04:21Z | PUSH_DEFERRED | develop | fix(countries): AWD-M-313 merge — user denied push
+2026-07-02T20:08:03Z | PULL_REBASE_FAILED | develop
+2026-07-02T21:20:47Z | PUSH_DEFERRED | develop | AWD-M-314 chain (3 commits: 612920b, ca35646, 3d9c928) — git push denied by sandbox permissions. Tolu: git push origin develop to trigger CI.
+2026-07-02T22:08:05Z | PULL_REBASE_FAILED | develop
+2026-07-02T23:09:09Z | PULL_REBASE_FAILED | develop
+2026-07-03T00:08:00Z | PULL_FAILED | develop
+2026-07-03T01:08:03Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-07-03T01:09:17Z — git push blocked by sandbox
+2026-07-03T02:08:01Z | PULL_FAILED | develop
+2026-07-03T04:08:01Z | PULL_REBASE_FAILED | develop
+2026-07-03T05:10:02Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED | 2026-07-03T05:17:02Z | AWD-M-315 | 5f40bb9 | git push origin develop denied in scheduled session
+2026-07-03T06:08:14Z | PULL_FAILED | develop
+2026-07-03T07:08:06Z | PULL_REBASE_FAILED | develop
+2026-07-03T07:13:54Z PUSH_DEFERRED develop — user denied git push during AWD-H-135 dev loop run
+PUSH_DEFERRED 2026-07-03T08:11:40Z — permission denied during heartbeat commit
+2026-07-03T09:08:01Z | PULL_REBASE_FAILED | develop
+2026-07-03T11:08:02Z | PULL_FAILED | develop
+2026-07-03T11:22:05Z | PULL_REBASE_FAILED | develop
+2026-07-03T12:08:06Z | PULL_FAILED | develop
+2026-07-03T14:08:00Z | PULL_REBASE_FAILED | develop
+2026-07-03T14:12:13Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run — no stage=ready items
+2026-07-03T15:08:04Z | PULL_FAILED | develop
+2026-07-03T15:09:53Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run — no stage=ready items
+2026-07-03T16:08:03Z | PULL_FAILED | develop
+2026-07-03T16:09:51Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run — no stage=ready items
+2026-07-03T17:08:07Z | PULL_FAILED | develop
+PUSH_DEFERRED | 2026-07-03T17:11:22Z | develop | chore(sync): dev-agent idle run — no stage=ready items
+2026-07-03T18:08:10Z | PULL_FAILED | develop
+PUSH_DEFERRED | 2026-07-03T18:11:06Z | develop | chore(sync): dev-agent idle run — no stage=ready items
+2026-07-03T19:08:04Z | PULL_REBASE_FAILED | develop
+2026-07-03T20:00:00Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run — no stage=ready items (git push denied in autonomous run)
+2026-07-03T20:08:03Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-03T20:10:35Z — dev-agent idle run chore(sync)
+2026-07-03T21:08:07Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-03T21:09:58Z — dev-agent idle run chore(sync)
+2026-07-03T22:07:27Z | PULL_REBASE_FAILED | develop
+2026-07-03T22:12:17Z | PULL_REBASE_FAILED | develop
+2026-07-03T23:07:31Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-03T23:08:24Z — develop chore(sync): commit pending agent outputs (git push denied in autonomous run)
+2026-07-04T00:07:26Z | PULL_FAILED | develop
+2026-07-04T01:07:31Z | PULL_REBASE_FAILED | develop
+2026-07-04T01:12:48Z | PULL_REBASE_FAILED | develop
+2026-07-04T02:07:29Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-04T03:09:58Z — develop chore(sync): dev-agent idle run (git push denied in autonomous run)
+2026-07-04T04:07:29Z | PULL_FAILED | develop
+2026-07-04T05:12:57Z | PUSH_DEFERRED | develop — push denied by sandbox permissions
+2026-07-04T06:07:28Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-04T06:08:58Z — develop chore(sync): dev-agent idle run (git push denied in autonomous run)
+2026-07-04T07:07:31Z | PULL_FAILED | develop
+2026-07-04T08:07:39Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-04T08:11:55Z — develop chore(sync): dev-agent idle run — no stage=ready items (git push denied in autonomous run)
+2026-07-04T09:07:32Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-07-04T09:09:22Z — git push origin develop denied (sandbox permission)
+2026-07-04T10:07:27Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-07-04T10:10:21Z — git push origin develop denied (sandbox permission)
+2026-07-04T11:07:31Z | PULL_FAILED | develop
+2026-07-04T16:07:29Z | PULL_REBASE_FAILED | develop
+2026-07-04T17:07:30Z | PULL_REBASE_FAILED | develop
+2026-07-04T17:09:45Z | PULL_FAILED | develop
+2026-07-04T18:07:30Z | PULL_FAILED | develop
+2026-07-04T20:07:33Z | PULL_REBASE_FAILED | develop
+2026-07-04T21:07:28Z | PULL_FAILED | develop
+2026-07-05T00:07:30Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-05T00:09:19Z dev-agent idle run commit c411897 — sandbox push blocked
+2026-07-05T01:07:33Z | PULL_FAILED | develop
+2026-07-05T03:07:35Z | PULL_REBASE_FAILED | develop
+2026-07-05T03:13:19Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run — no stage=ready items
+2026-07-05T04:07:29Z | PULL_REBASE_FAILED | develop
+2026-07-05T05:11:35Z | PULL_FAILED | develop
+2026-07-05T05:24:41Z | PUSH_DEFERRED | develop | fix(auth): AWD-L-85 merge — sandbox push denied
+2026-07-05T07:07:34Z | PULL_FAILED | develop
+2026-07-05T08:07:46Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-07-05T08:12:26Z — permission denied on git push origin develop
+2026-07-05T09:07:33Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-07-05T13:13:51Z — AWD-L-38 shipped, permission denied on git push origin develop
+2026-07-05T14:07:29Z | PULL_FAILED | develop
+2026-07-05T15:08:24Z | PUSH_DEFERRED | develop | post-rebase push denied
+2026-07-05T15:10:50Z | PUSH_DEFERRED | develop | dev-agent heartbeat commit push denied
+2026-07-05T16:07:34Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-07-05T16:09:34Z — dev-agent heartbeat commit push denied
+2026-07-05T17:07:31Z | PULL_FAILED | develop
+2026-07-05T19:07:35Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-05T19:09:10Z — dev-agent heartbeat commit 66cce07 pending push
+2026-07-05T20:07:32Z | PULL_FAILED | develop
+2026-07-05T21:10:19Z | PULL_REBASE_FAILED | develop
+2026-07-05T22:07:37Z | PULL_REBASE_FAILED | develop
+2026-07-05T22:09:35Z | PUSH_DEFERRED | develop | commit 6f3d4eb — dev-agent heartbeat no ready items
+2026-07-05T23:07:32Z | PULL_FAILED | develop
+2026-07-06T00:09:32Z PUSH_DEFERRED develop — sandbox permission denied
+2026-07-06T01:07:38Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-06T03:11:52Z — heartbeat commit 48c938a — user denied git push
+2026-07-06T04:07:31Z | PULL_FAILED | develop
+2026-07-06T05:09:30Z | PULL_REBASE_FAILED | develop
+2026-07-06T06:07:47Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-06T06:10:07Z: push denied by sandbox — d93e1f0 (dev-agent heartbeat — no ready items)
+2026-07-06T07:07:38Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED — git push denied by sandbox at 2026-07-06T07:09:10Z. Commits staged locally on develop.
+2026-07-06T08:07:32Z | PULL_FAILED | develop
+2026-07-06T09:07:35Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-06T09:10:35Z dev-agent heartbeat commit — git push origin develop denied (sandbox permissions)
+2026-07-06T10:12:52Z | PUSH_DEFERRED | develop | chore(sync): log push-deferred for dev-agent heartbeat run
+2026-07-06T11:07:34Z | PULL_FAILED | develop
+2026-07-06T12:07:37Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-06T12:11:00Z — sandbox push permission denied
+PUSH_DEFERRED 2026-07-06T13:10:27Z — sandbox push permission denied (heartbeat + dev-log committed locally)
+2026-07-06T14:07:38Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-06T14:12:49Z develop d102909 — permission denied in sandbox
+2026-07-06T15:07:36Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-06T15:09:46Z develop 208b330acf2a8f22c936311cee7908a77ce5c298 — permission denied in sandbox
+2026-07-06T18:07:37Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-06T18:10:35Z develop 9772e94 — permission denied in sandbox
+2026-07-06T19:07:34Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-06T20:10:35Z develop 9704c06175984b15bf82c11c1b7a2fa89385e174 — permission denied in sandbox
+2026-07-06T20:07:37Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-06T20:26:28Z develop fff3431 — permission denied in sandbox
+2026-07-06T21:08:00Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-06T21:10:12Z develop 084901156cc057a6cc4e5da665b9649ae328d643 — permission denied in sandbox
+2026-07-06T22:08:05Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-06T22:10:50Z git push origin develop — permission denied in sandbox
+2026-07-06T23:08:04Z | PULL_FAILED | develop
+2026-07-06T23:11:09Z | PUSH_DEFERRED | develop — permission denied in sandbox
+2026-07-07T00:08:12Z | PULL_FAILED | develop
+2026-07-07T01:08:28Z | PULL_FAILED | develop
+2026-07-07T02:08:01Z | PULL_REBASE_FAILED | develop
+2026-07-07T03:08:01Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-07T03:10:44Z — sandbox git push permission denied; commit 90d051d on develop
+2026-07-07T04:08:05Z | PULL_FAILED | develop
+2026-07-07T04:10:02Z | PUSH_DEFERRED | develop — permission denied in sandbox
+2026-07-07T05:08:59Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-07T05:11:33Z — sandbox git push permission denied; commit 986aa2d on develop
+2026-07-07T06:08:07Z | PULL_REBASE_FAILED | develop
+2026-07-07T06:13:56Z | PUSH_DEFERRED | develop | chore(sync): log push-deferred for dev-agent heartbeat run
+2026-07-07T07:08:05Z | PULL_REBASE_FAILED | develop
+2026-07-07T07:15:25Z | PULL_FAILED | develop
+2026-07-07T07:15:41Z PUSH_DEFERRED develop a32507a AWD-M-206 agent-permissions.json write paths fix
+2026-07-07T08:08:01Z | PULL_REBASE_FAILED | develop
+2026-07-07T10:08:06Z | PULL_REBASE_FAILED | develop
+2026-07-07T12:08:06Z | PULL_REBASE_FAILED | develop
+2026-07-07T13:08:02Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-07T13:12:40Z — sandbox git push permission denied
+2026-07-07T14:08:06Z | PULL_FAILED | develop
+2026-07-07T14:09:00Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-07T14:09:34Z — sandbox git push permission denied
+2026-07-07T15:47:53Z | PUSH_DEFERRED | develop | git push denied — awaiting user authorization
+2026-07-07T16:08:05Z | PULL_FAILED | develop
+2026-07-07T18:08:05Z | PULL_REBASE_FAILED | develop
+2026-07-07T19:08:10Z | PULL_REBASE_FAILED | develop
+2026-07-07T19:17:48Z PUSH_DEFERRED develop 19a235e — permission denied in sandbox (M-305 unresolved)
+2026-07-07T20:08:06Z | PULL_FAILED | develop
+2026-07-07T21:08:03Z | PULL_REBASE_FAILED | develop
+2026-07-07T21:11:16Z | PUSH_DEFERRED | develop — 3d414b1 docs(dev-log): idle run
+2026-07-07T22:08:03Z | PULL_FAILED | develop
+2026-07-07T23:08:02Z | PULL_REBASE_FAILED | develop
+2026-07-08T00:08:04Z | PULL_FAILED | develop
+2026-07-08T01:08:07Z | PULL_REBASE_FAILED | develop
+2026-07-08T03:11:54Z | PUSH_DEFERRED | develop | docs(dev-log): idle run 2026-07-08T03:09Z — no stage=ready items
+2026-07-08T04:08:04Z | PULL_FAILED | develop
+2026-07-08T06:08:10Z | PULL_REBASE_FAILED | develop
+2026-07-08T07:08:15Z | PULL_REBASE_FAILED | develop
+2026-07-08T08:08:24Z | PULL_REBASE_FAILED | develop
+2026-07-08T08:22:38Z | PULL_REBASE_FAILED | develop
+2026-07-08T08:23:34Z | PULL_REBASE_FAILED | develop
+2026-07-08T09:08:06Z | PULL_FAILED | develop
+2026-07-08T10:09:13Z | PUSH_DEFERRED | develop | chore(sync): commit pending agent outputs
+2026-07-08T10:20:25Z | PUSH_DEFERRED | develop | fix(security): AWD-M-323 + agent outputs
+2026-07-08T10:21:36Z | PUSH_DEFERRED | develop | docs(backlog): AWD-M-323 mark done
+2026-07-08T11:08:05Z | PULL_FAILED | develop
+2026-07-08T11:08:53Z | PUSH_DEFERRED | develop | 5 commits pending — push denied in session
+2026-07-08T12:15:59Z | PULL_REBASE_FAILED | develop
+2026-07-08T13:08:06Z | PULL_FAILED | develop
+2026-07-08T13:09:41Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-08T14:07Z
+2026-07-08T14:08:08Z | PULL_FAILED | develop
+2026-07-08T15:09:41Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-08T15:08Z — push denied in session
+2026-07-08T15:08:08Z | PULL_FAILED | develop
+2026-07-08T15:13:33Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-08T16:08Z — push denied in session
+2026-07-08T16:08:05Z | PULL_FAILED | develop
+2026-07-08T17:08:08Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-08T17:09Z
+2026-07-08T18:08:12Z | PULL_FAILED | develop
+2026-07-08T19:08:06Z | PULL_REBASE_FAILED | develop
+2026-07-08T19:10:31Z | PUSH_DEFERRED | develop | push blocked by sandbox permission
+2026-07-08T20:08:10Z | PULL_FAILED | develop
+2026-07-08T20:13:08Z | PUSH_DEFERRED | develop | push blocked by sandbox permission
+2026-07-08T21:08:06Z | PULL_FAILED | develop
+2026-07-08T22:08:06Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-08T22:10Z — git push blocked by session permissions (sandbox)
+2026-07-08T23:08:06Z | PULL_FAILED | develop
+2026-07-08T23:11:41Z | PUSH_DEFERRED | develop | push blocked by sandbox permission
+2026-07-09T07:07:23Z | PULL_REBASE_FAILED | develop
+2026-07-09T07:10:49Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-09T07:10Z — no stage=ready items
+2026-07-09T08:07:27Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-07-09T08:11Z develop — permission denied
+2026-07-09T09:07:32Z | PULL_REBASE_FAILED | develop
+2026-07-09T09:12:07Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-09T09:10Z — no stage=ready items
+2026-07-09T10:07:26Z | PULL_FAILED | develop
+2026-07-09T10:10:39Z | PULL_REBASE_FAILED | develop
+2026-07-09T11:07:27Z | PULL_FAILED | develop
+PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-09T11:10Z — no stage=ready items
+2026-07-09T12:07:23Z | PULL_FAILED | develop
+PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-09T12:10Z — no stage=ready items
+2026-07-09T13:09Z PUSH_DEFERRED develop dbc36f3 — permission denied in sandbox
+2026-07-09T14:07:26Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-07-09T17:10Z — permission denied in sandbox
+2026-07-09T18:07:28Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-07-09T18:10Z — permission denied in sandbox
+2026-07-09T20:07:21Z | PULL_FAILED | develop
+2026-07-09T21:07:28Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-09T19:10Z — no stage=ready items
+2026-07-09T22:07:21Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-07-09T22:08Z — permission denied in sandbox
+2026-07-09T23:07:21Z | PULL_REBASE_FAILED | develop
+2026-07-09T23:10Z PUSH_DEFERRED dev-agent idle run commit 12656d5 — git push origin develop permission denied in sandbox (M-305)
+2026-07-10T00:07:22Z | PULL_REBASE_FAILED | develop
+2026-07-10T00:11:06Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-10T02:10Z — no stage=ready items
+2026-07-10T01:07:30Z | PULL_FAILED | develop
+2026-07-10T02:07:24Z | PULL_FAILED | develop
+2026-07-10T02:08Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-10T06:10Z — no stage=ready items
+2026-07-10T03:07:22Z | PULL_FAILED | develop
+2026-07-10T03:11:26Z | PUSH_DEFERRED | develop | chore(sync): commit pending agent outputs
+2026-07-10T03:11:40Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-10T10:10Z — no stage=ready items
+2026-07-10T04:10Z PUSH_DEFERRED dev-agent idle 2026-07-10T12:10Z — sandbox git push permission denied (M-305)
+PUSH_DEFERRED: 2026-07-10T05:12Z — git push permission denied in session
+2026-07-10T06:07:23Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-07-10T16:10Z — git push permission denied in session
+2026-07-10T07:07:27Z | PULL_REBASE_FAILED | develop
+2026-07-10T08:07:23Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-07-10T08:12Z — git push permission denied in session
+2026-07-10T09:07:23Z | PULL_REBASE_FAILED | develop
+2026-07-10T10:07:31Z | PULL_FAILED | develop
+PUSH_DEFERRED - 2026-07-10T12:08:58+01:00: git push blocked in sandbox — will retry on next dev-agent run
+2026-07-10T12:07:25Z | PULL_FAILED | develop
+PUSH_DEFERRED - 2026-07-10T12:09:25Z: git push blocked in sandbox — will retry on next dev-agent run
+2026-07-10T13:07:24Z | PULL_FAILED | develop
+PUSH_DEFERRED - 2026-07-10T13:11:52Z
+2026-07-10T14:07:24Z | PULL_FAILED | develop
+PUSH_DEFERRED - 2026-07-10T15:11Z: git push blocked in sandbox — will retry on next dev-agent run
+2026-07-10T15:07:27Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-07-10T15:09Z — git push blocked in sandbox — will retry on next dev-agent run
+2026-07-10T16:07:29Z | PULL_FAILED | develop
+2026-07-10T18:07:24Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-07-10T18:09Z — git push denied; heartbeat committed locally
+2026-07-10T19:07:23Z | PULL_REBASE_FAILED | develop
+2026-07-10T19:09:36Z | PUSH_DEFERRED | develop | chore(sync): dev-agent heartbeat 2026-07-10 no ready items
+2026-07-10T20:07:23Z | PULL_REBASE_FAILED | develop
+2026-07-10T20:12:20Z | PUSH_DEFERRED | develop | ca513c2 | chore(sync): dev-agent heartbeat 2026-07-10 no ready items | git push requires permission approval in this session
+2026-07-10T21:07:28Z | PULL_FAILED | develop
+2026-07-10T23:07:27Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-07-11T00:11Z — git push permission denied by sandbox
+2026-07-11T01:07:25Z | PULL_FAILED | develop
+2026-07-11T03:11Z PUSH_DEFERRED — sandbox permission denied on git push origin develop (M-305 ongoing)
+2026-07-11T04:07:30Z | PULL_FAILED | develop
+2026-07-11T04:09Z PUSH_DEFERRED — sandbox permission denied on git push origin develop (heartbeat-only cycle)
+2026-07-11T05:09:29Z | PULL_FAILED | develop
+2026-07-11T06:07:26Z | PULL_REBASE_FAILED | develop
+2026-07-11T07:09:50Z | PUSH_DEFERRED | develop | AWD-M-326 merge — sandbox permission denied on git push
+2026-07-11T07:17:20Z | PUSH_DEFERRED | develop | AWD-M-325 merge — sandbox permission denied on git push
+2026-07-11T08:07:29Z | PULL_FAILED | develop
+2026-07-11T08:12:51Z | PUSH_DEFERRED | develop | idle run commit — sandbox permission denied on git push
+2026-07-11T10:07:34Z | PULL_FAILED | develop
+2026-07-11T10:10Z | PUSH_DEFERRED | develop | idle run commit — sandbox permission denied on git push
+2026-07-11T11:07:37Z | PULL_FAILED | develop
+2026-07-11T11:10Z | PUSH_DEFERRED | develop | idle run commit — sandbox permission denied on git push
+2026-07-11T12:07:31Z | PULL_FAILED | develop
+2026-07-11T15:12:18Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-11T14:10Z — no ready items
+2026-07-11T16:07:37Z | PULL_REBASE_FAILED | develop
+2026-07-11T15:16Z | PUSH_DEFERRED | develop | idle run commit 5346a28 — sandbox permission denied on git push
+2026-07-11T17:07:23Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-11T17:08Z chore(sync): dev-agent idle run 2026-07-11T15:10Z — no ready items
+2026-07-11T18:07:36Z | PULL_FAILED | develop
+2026-07-11T19:07:26Z | PULL_REBASE_FAILED | develop
+2026-07-11T19:11Z PUSH_DEFERRED chore(sync): dev-agent idle run 2026-07-11T19:11Z — push permission denied (M-305 sandbox git restriction)
+2026-07-11T20:07:27Z | PULL_FAILED | develop
+2026-07-11T20:09:21Z | PUSH_DEFERRED chore(sync): dev-agent idle run 2026-07-11T20:08Z — push permission denied (M-305 sandbox git restriction)
+2026-07-11T21:07:33Z | PULL_FAILED | develop
+2026-07-11T21:08Z PUSH_DEFERRED chore(sync): dev-agent idle run 2026-07-11T21:08Z — push permission denied (M-305 sandbox git restriction)
+2026-07-11T23:07:30Z | PULL_FAILED | develop
+2026-07-12T01:07:31Z | PULL_REBASE_FAILED | develop
+2026-07-12T01:11:22Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-13T00:00Z
+PUSH_DEFERRED 2026-07-12T02:08Z chore(sync): dev-agent idle run — no ready items
+2026-07-12T03:07:28Z | PULL_FAILED | develop
+2026-07-12T04:14:15Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-13T04:11Z — no ready items
+2026-07-12T05:09:32Z | PULL_FAILED | develop
+2026-07-12T05:10Z PUSH_DEFERRED chore(sync): dev-agent idle run — no ready items
+2026-07-12T06:07:28Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-12T06:09Z chore(sync): dev-agent idle run 2026-07-13T06:09Z — no ready items — git push denied by sandbox permissions (M-305)
+2026-07-12T07:09:38Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-13T06:11Z — no ready items
+2026-07-12T08:07:29Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-12T08:10Z chore(sync): dev-agent idle run 2026-07-13T08:07Z — no ready items (L-87 false positive closed)
+2026-07-12T09:07:34Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-12T09:09:18Z develop 90d0f2f chore(sync): dev-agent idle run 2026-07-12T09:08Z
+2026-07-12T10:07:40Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-12T10:10Z develop fec6282 chore(sync): dev-agent idle run 2026-07-12T10:08Z — no ready items
+2026-07-12T11:07:30Z | PULL_FAILED | develop
+PUSH_DEFERRED: git push origin develop failed at 2026-07-12T12:09Z — permission denied in sandbox
+2026-07-12T13:07:34Z | PULL_FAILED | develop
+2026-07-12T14:10:31Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-12T13:09Z — no ready items
+2026-07-12T15:07:40Z | PULL_FAILED | develop
+2026-07-12T15:09Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-12T14:10Z — no ready items
+2026-07-12T16:07:30Z | PULL_FAILED | develop
+2026-07-12T18:21:32Z | PUSH_DEFERRED | develop | docs(sync): AWD-M-322 mark done in backlog, dev-log entry
+2026-07-12T19:07:42Z | PULL_FAILED | develop
+2026-07-12T22:08:03Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-12T22:11Z develop 4431e79
+2026-07-12T23:08:02Z | PULL_FAILED | develop
+2026-07-12T23:08Z | PUSH_DEFERRED | develop | pending commit + agent-health files
+2026-07-13T00:08:03Z | PULL_FAILED | develop
+2026-07-13T02:09Z PUSH_DEFERRED branch=develop commit=319603c802636538faf454cbc3264698a4c2c7d7 reason=permission-denied
+2026-07-13T03:08:06Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-13T03:09Z branch=develop commit=276368b802657f705ea8bcd348d112faf7e52cd2 reason=permission-denied
+2026-07-13T04:08:06Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-13T04:09Z — git push denied in scheduled run
+2026-07-13T05:15:14Z | PULL_REBASE_FAILED | develop
+2026-07-13T06:08:07Z | PULL_REBASE_FAILED | develop
+2026-07-13T06:13:04Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-13T13:10Z — no ready items
+2026-07-13T07:08:10Z | PULL_FAILED | develop
+2026-07-13T08:08:05Z | PULL_REBASE_FAILED | develop
+2026-07-13T08:10:31Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-13T14:10Z — no ready items
+2026-07-13T09:08:07Z | PULL_REBASE_FAILED | develop
+2026-07-13T09:14:24Z | PUSH_DEFERRED | develop | chore(sync): dev-agent idle run 2026-07-13T14:30Z — no ready items
+2026-07-13T10:08:15Z | PULL_FAILED | develop
+PUSH_DEFERRED: git push origin develop failed at 2026-07-13T11:09Z
+2026-07-13T12:08:05Z | PULL_FAILED | develop
+PUSH_DEFERRED: git push origin develop failed at 2026-07-13T12:09Z
+2026-07-13T13:08:12Z | PULL_FAILED | develop
+PUSH_DEFERRED: git push origin develop failed at 2026-07-13T19:10Z
+2026-07-13T14:08:07Z | PULL_FAILED | develop
+2026-07-13T17:14:20Z | PUSH_DEFERRED | develop | AWD-M-327 shipped — 6 commits ahead of origin/develop
+2026-07-13T18:08:11Z | PULL_FAILED | develop
+PUSH_DEFERRED: git push origin develop failed at 2026-07-13T18:08Z
+2026-07-13T19:08:11Z | PULL_REBASE_FAILED | develop
+2026-07-13T19:13:43Z | PULL_REBASE_FAILED | develop
+2026-07-13T20:08:06Z | PULL_FAILED | develop
+2026-07-13T21:08:10Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: git push origin develop — permission denied at 2026-07-13T21:09:32Z
+2026-07-13T22:08:08Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-07-13T23:09:23Z — push blocked by sandbox permission
+2026-07-14T00:08:12Z | PULL_FAILED | develop
+2026-07-14T01:08:10Z | PULL_FAILED | develop
+2026-07-14T02:14:49Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-07-14T01:15Z
+2026-07-14T03:08:10Z | PULL_REBASE_FAILED | develop
+2026-07-14T03:15Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-07-14T01:15Z
+2026-07-14T04:08:15Z | PULL_FAILED | develop
+2026-07-14T05:09:13Z | PULL_FAILED | develop
+2026-07-14T06:08:08Z | PULL_REBASE_FAILED | develop
+2026-07-14T06:09Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-07-14T06:09Z (commit 1ec506e; git push denied in autonomous run)
+2026-07-14T07:08:11Z | PULL_REBASE_FAILED | develop
+2026-07-14T08:08:13Z | PULL_REBASE_FAILED | develop
+2026-07-14T08:12:53Z | PULL_FAILED | develop
+2026-07-14T08:14:20Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-07-14T08:11Z (commits 917ab08+7f789c4; sync.sh only pushes when staging new content — piggyback on next run)
+2026-07-14T10:08:13Z | PULL_REBASE_FAILED | develop
+2026-07-14T10:10Z PUSH_DEFERRED develop 0bb203b — sandbox permission denied (M-305)
+2026-07-14T11:08:13Z | PULL_FAILED | develop
+2026-07-14T11:09Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-07-14T11:09Z (commit cd591bd; sandbox permission denied M-305)
+2026-07-14T12:08:11Z | PULL_FAILED | develop
+2026-07-14T13:08:10Z | PULL_REBASE_FAILED | develop
+2026-07-14T13:15:23Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-07-14T13:09Z
+2026-07-14T14:08:11Z | PULL_FAILED | develop
+2026-07-14T15:10:15Z | PUSH_DEFERRED | develop | commit d22cf0e (chore(heartbeat): dev-agent run 2026-07-14T15:09Z) kept locally — user permission denied git push
+2026-07-14T16:08:16Z | PULL_FAILED | develop
+2026-07-14T16:11:39Z | PULL_FAILED | develop
+2026-07-14T17:08:17Z | PULL_FAILED | develop
+2026-07-14T17:10Z | PUSH_DEFERRED | develop | commit 058b7c5 (chore(heartbeat): dev-agent run 2026-07-14T17:09Z) kept locally — user permission denied git push
+2026-07-14T18:08:08Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-14T18:14:02Z develop 0f884bf chore(dev-log): idle run 2026-07-14T18:09Z — no ready items
+2026-07-14T19:08:13Z | PULL_REBASE_FAILED | develop
+2026-07-14T19:09:59Z | PUSH_DEFERRED | develop | chore(dev-log): idle run 2026-07-14T19:09Z
+2026-07-14T20:08:08Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-14T20:09Z develop 67241d5 chore(dev-log): idle run 2026-07-14T20:09Z — no ready items
+2026-07-14T21:08:07Z | PULL_REBASE_FAILED | develop
+2026-07-14T22:08:13Z | PULL_REBASE_FAILED | develop
+2026-07-14T23:08:12Z | PULL_REBASE_FAILED | develop
+2026-07-26T19:07:58Z | PULL_REBASE_FAILED | develop
+2026-07-26T19:13:15Z | PUSH_DEFERRED | develop | chore(dev-log): idle run 2026-07-26T00:00Z — no ready items
+2026-07-26T20:07:53Z | PULL_REBASE_FAILED | develop
+2026-07-26T20:10:12Z | PUSH_DEFERRED | develop | chore(dev-log): idle run 2026-07-26T20:08Z — no ready items
+2026-07-26T21:07:51Z | PULL_FAILED | develop
+2026-07-27T00:09Z | PUSH_DEFERRED | develop | chore(dev-log): idle run 2026-07-27T00:09Z — no ready items
+2026-07-26T22:07:56Z | PULL_FAILED | develop
+2026-07-26T22:12:48Z | PUSH_DEFERRED | develop | chore(dev-log): idle run 2026-07-27T22:10Z — no ready items
+2026-07-26T23:07:53Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-26T23:10Z develop 4a4e77598b0d0d5f9025e3a20b993eba6298198a chore(dev-log): idle run 2026-07-26T23:09Z — no ready items
+2026-07-27T00:07:52Z | PULL_FAILED | develop
+PUSH_DEFERRED — push denied by sandbox permissions
+2026-07-27T02:07:52Z | PULL_FAILED | develop
+2026-07-27T03:07:52Z | PULL_REBASE_FAILED | develop
+2026-07-27T04:09:49Z PUSH_DEFERRED develop — sandbox denied git push
+2026-07-27T05:10:52Z | PULL_FAILED | develop
+2026-07-27T06:07:53Z | PULL_REBASE_FAILED | develop
+2026-07-27T07:08:08Z | PULL_REBASE_FAILED | develop
+2026-07-27T08:07:50Z | PULL_REBASE_FAILED | develop
+2026-07-27T08:08:04Z | PULL_FAILED | develop
+2026-07-27T08:15:48Z PUSH_DEFERRED develop — sandbox denied git push
+2026-07-27T10:07:57Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-07-27T12:11:13Z — permission denied for git push
+2026-07-27T13:07:55Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-27T14:11:51Z develop e408774 — git push denied by permissions
+2026-07-27T15:07:56Z | PULL_FAILED | develop
+2026-07-27T17:10Z PUSH_DEFERRED develop c0dc494 — sandbox git push restriction (M-305)
+2026-07-27T18:07:56Z | PULL_FAILED | develop
+2026-07-27T19:11:42Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-07-27T19:10Z | git push denied by user
+2026-07-27T20:07:54Z | PULL_FAILED | develop
+2026-07-27T20:11Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-07-27T20:10Z | git push denied by user
+2026-07-27T21:07:52Z | PULL_FAILED | develop
+2026-07-27T21:10Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-07-27T21:10Z | git push denied by user
+2026-07-27T22:07:52Z | PULL_FAILED | develop
+2026-07-27T22:10:12Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-07-27T22:10Z | git push denied by user
+2026-07-27T23:07:58Z | PULL_FAILED | develop
+PUSH_DEFERRED — push not permitted in this session
+2026-07-28T04:07:57Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-28T04:09:41Z — sandbox restriction
+2026-07-28T05:09:52Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-28T05:13:31Z — sandbox restriction
+2026-07-28T06:07:56Z | PULL_FAILED | develop
+PUSH_DEFERRED: push blocked by sandbox — 2026-07-28T12:10Z
+2026-07-28T20:07:37Z | PULL_FAILED | develop
+PUSH_DEFERRED: push blocked by sandbox — 2026-07-28T20:10Z
+2026-07-28T21:07:37Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-07-28T23:08:49Z — could not push develop (permission denied)
+2026-07-29T00:07:41Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-07-29T01:09Z — git push origin develop failed (permission denied)
+2026-07-29T02:07:41Z | PULL_FAILED | develop
+2026-07-29T04:09:31Z PUSH_DEFERRED develop 937ad4c chore(heartbeat): dev-agent run 2026-07-29T04:09Z
+2026-07-29T05:09:35Z | PULL_FAILED | develop
+2026-07-29T06:07:39Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-29T06:12Z develop — permission denied at push step
+2026-07-29T07:07:37Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-29T07:09Z — dev-agent heartbeat run: push denied by permission policy
+2026-07-29T08:07:39Z | PULL_REBASE_FAILED | develop
+2026-07-29T08:13:11Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-07-29T08:11Z
+2026-07-29T09:07:40Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-07-29T09:09Z — develop commit d126c36 (chore(heartbeat): dev-agent run 2026-07-29T08:14Z) — push permission denied
+2026-07-29T10:07:40Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-07-29T10:10Z — develop commit c479891 (chore(heartbeat): dev-agent run 2026-07-29T10:10Z) — push permission denied
+PUSH_DEFERRED: 2026-07-29T12:09Z — heartbeat commit ae0a32b could not push (permission denied)
+2026-07-29T13:07:42Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-07-29T13:10Z — heartbeat commit 09642bd could not push (permission denied)
+PUSH_DEFERRED 2026-07-29T14:09Z chore(heartbeat): dev-agent run 2026-07-29T13:10Z
+2026-07-29T15:07:39Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-29T15:10Z — heartbeat commit a48cdab could not push (permission denied)
+2026-07-29T16:07:43Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-29T17:10Z — sandbox permission restriction (M-305)
+2026-07-29T18:07:43Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-29T18:11Z — heartbeat commit dccdf55 could not push (permission denied)
+PUSH_DEFERRED 2026-07-29T19:09Z — permission denied (no PAT available)
+2026-07-29T20:07:39Z | PULL_FAILED | develop
+2026-07-29T21:11:29Z | PULL_REBASE_FAILED | develop
+2026-07-29T22:07:45Z | PULL_FAILED | develop
+2026-07-29T23:09:50Z PUSH_DEFERRED: git push origin develop blocked (permission denied in sandbox)
+2026-07-30T00:07:40Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-30T00:11:20Z — heartbeat commit 4ee4d69 could not push (permission denied in sandbox)
+2026-07-30T01:07:51Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-07-30T01:08:10Z — pending commits could not push (permission denied in sandbox)
+PUSH_DEFERRED 2026-07-30T01:10:41Z — heartbeat commit 75e58ed could not push (permission denied in sandbox)
+2026-07-30T02:07:48Z | PULL_FAILED | develop
+2026-07-30T04:07:43Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-07-30T04:12:41Z — heartbeat commits 4a55fd2+3a3e869 could not push (permission denied in sandbox)
+2026-07-30T05:09:41Z | PULL_FAILED | develop
+2026-07-30T07:12:09Z | PULL_REBASE_FAILED | develop
+2026-07-30T08:07:52Z | PULL_FAILED | develop
+2026-07-30T09:07:43Z | PULL_FAILED | develop
+2026-07-30T10:07:44Z | PULL_REBASE_FAILED | develop
+2026-07-30T10:11:59Z | PULL_FAILED | develop
+2026-07-30T10:12:09Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-07-30T09:10Z
+2026-07-30T11:07:43Z | PULL_FAILED | develop
+PUSH_DEFERRED: git push origin develop blocked at 2026-07-30T12:08Z
+2026-07-30T13:07:43Z | PULL_FAILED | develop
+2026-08-02T04:07:51Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-08-02T04:11Z — push denied by sandbox, commit b4ea8c5 queued
+2026-08-02T05:09:48Z | PULL_FAILED | develop
+2026-08-02T06:07:55Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-08-02T07:09Z — git push failed (permission denied by user)
+2026-08-02T08:07:56Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-02T09:09:57Z — git push denied
+2026-08-02T10:07:48Z | PULL_FAILED | develop
+2026-08-02T11:12Z PUSH_DEFERRED chore(heartbeat): dev-agent run 2026-08-02T21:10Z (permission denied in sandbox)
+2026-08-02T12:07:49Z | PULL_FAILED | develop
+2026-08-02T13:07:57Z | PULL_REBASE_FAILED | develop
+2026-08-02T13:09:48Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-08-02T22:10Z
+2026-08-02T14:07:49Z | PULL_FAILED | develop
+2026-08-02T14:11Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-08-02T14:10Z (permission denied in sandbox)
+2026-08-02T15:07:55Z | PULL_FAILED | develop
+2026-08-02T17:10:34Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-08-02T15:09Z
+2026-08-02T18:07:50Z | PULL_FAILED | develop
+2026-08-02T18:09Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-08-02T18:09Z (permission denied in sandbox)
+2026-08-02T19:07:51Z | PULL_FAILED | develop
+2026-08-02T20:07:55Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-08-02T20:10Z — permission denied on git push origin develop
+2026-08-02T21:07:59Z | PULL_FAILED | develop
+2026-08-03T00:09Z | PUSH_DEFERRED | develop
+2026-08-02T22:07:53Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-03T00:09Z — git push denied in sandbox (heartbeat run f1cbe52)
+2026-08-02T23:07:56Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-02T23:09Z develop — sandbox denied git push
+2026-08-03T00:07:51Z | PULL_FAILED | develop
+2026-08-03T00:09:29Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-03T01:11:06Z — permission denied
+2026-08-03T02:07:53Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-03T03:10Z — permission denied
+2026-08-03T04:07:58Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-08-03T04:10Z push of develop blocked — sandbox git push denied
+2026-08-03T05:10:51Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-03T05:13Z — git push denied in sandbox
+2026-08-03T19:58:47Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-08-03T06:10Z develop cf4f081 — permission denied in sandbox; commit chore(heartbeat): dev-agent run 2026-08-03T06:10Z pending push
+2026-08-03T20:04:36Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-03T20:06Z develop 28291fa — permission denied in sandbox; commit chore(heartbeat): dev-agent run 2026-08-03T20:06Z pending push
+2026-08-03T21:07:34Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-03T21:09Z — git push denied in sandbox; commit chore(heartbeat): dev-agent run 2026-08-03T21:08Z pending push
+2026-08-03T23:04:03Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-03T23:20Z develop 5b91649 — permission denied in sandbox; commit chore(heartbeat): dev-agent run 2026-08-03T23:20Z pending push
+2026-08-04T00:02:22Z | PULL_FAILED | develop
+2026-08-04T01:05:39Z | PULL_REBASE_FAILED | develop
+2026-08-04T02:08:43Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-04T02:56Z develop sandbox denied git push — chore(heartbeat): dev-agent run 2026-08-04T02:40Z
+2026-08-04T03:11:54Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-08-04T05:20Z develop sandbox denied git push — chore(heartbeat): dev-agent run 2026-08-04T05:20Z
+2026-08-04T04:09:47Z | PULL_REBASE_FAILED | develop
+2026-08-04T06:45:43Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-08-04T07:31Z develop — permission denied in sandbox
+2026-08-04T07:47:30Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-04T08:47Z develop sandbox denied git push — chore(heartbeat): dev-agent run 2026-08-04T08:32Z
+2026-08-04T09:01:23Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-04T09:39Z develop sandbox denied git push — chore(heartbeat): dev-agent run 2026-08-04T09:39Z
+2026-08-04T10:02:15Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-04T10:37Z develop sandbox denied git push — chore(heartbeat): dev-agent run 2026-08-04T10:18Z
+2026-08-04T11:03:29Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-04T11:55Z develop sandbox denied git push — chore(heartbeat): dev-agent run 2026-08-04T11:05Z
+2026-08-04T12:04:20Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-04T12:54Z develop sandbox denied git push — chore(heartbeat): dev-agent run 2026-08-04T12:54Z
+2026-08-04T13:05:24Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-04T15:54:56Z — heartbeat commit 4e5057d could not push (permission denied)
+2026-08-04T15:58:25Z | PULL_FAILED | develop
+2026-08-04T16:39:49Z | PULL_FAILED | develop
+2026-08-04T20:47:46Z | PULL_FAILED | develop
+PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-08-04T22:57Z
+2026-08-04T23:01:58Z | PULL_FAILED | develop
+2026-08-05T01:01:49Z | PULL_FAILED | develop
+2026-08-05T01:40:06Z | PUSH_DEFERRED | develop | chore(heartbeat): dev-agent run 2026-08-05T01:01Z
+2026-08-05T03:24:48Z | PULL_FAILED | develop
+2026-08-05T06:20:28Z | PULL_FAILED | develop
+2026-08-05T18:56:42Z | PULL_FAILED | develop
+PUSH_DEFERRED | develop | refactor(children): merge AWD-M-214 ParentGuideService extraction + records
+2026-08-05T19:25:59Z | PULL_REBASE_FAILED | develop
+2026-08-05T21:07:57Z | PULL_FAILED | develop
+2026-08-05T21:21:40Z | PULL_FAILED | develop
+2026-08-05T22:07:58Z | PULL_FAILED | develop
+2026-08-09T12:07:36Z | PULL_REBASE_FAILED | develop
+2026-08-09T07:24Z | PUSH_DEFERRED | develop
+2026-08-09T15:07:38Z | PULL_FAILED | develop
+2026-08-09T15:07Z | PUSH_DEFERRED | develop
+2026-08-09T16:07:39Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-09T16:09:00Z — could not push develop (permission denied)
+2026-08-09T17:07:36Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-09T19:10Z — git push denied (permission prompt in scheduled run)
+2026-08-09T20:07:39Z | PULL_FAILED | develop
+2026-08-09T21:07:39Z | PULL_REBASE_FAILED | develop
+2026-08-09T21:10:28Z | PULL_FAILED | develop
+2026-08-09T21:10Z PUSH_DEFERRED develop e6c6970 chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-09T22:07:37Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-08-09T22:09:32Z — permission denied pushing develop after idle run
+2026-08-09T23:07:38Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-10T00:09Z — develop push denied (sandbox permission)
+2026-08-10T01:14:05Z | PULL_FAILED | develop
+2026-08-10T02:01:15Z | PULL_FAILED | develop
+2026-08-10T04:16:06Z PUSH_DEFERRED develop — push denied at run end (no stage=ready items, records-only commit 00d3884)
+2026-08-10T04:32:04Z | PULL_FAILED | develop
+2026-08-10T05:20:47Z PUSH_DEFERRED develop — push denied at run end (no stage=ready items, records-only commit b91509e)
+2026-08-10T06:14:24Z | PULL_FAILED | develop
+2026-08-10T06:46:46Z | PULL_FAILED | develop
+2026-08-10T07:06:58Z | PULL_FAILED | develop
+2026-08-10T14:08Z PUSH_DEFERRED develop — push denied at run end (no stage=ready items, records-only commit 1919f07)
+2026-08-10T08:56:25Z | PULL_FAILED | develop
+PUSH_DEFERRED — permission denied
+2026-08-10T12:07:31Z | PULL_FAILED | develop
+2026-08-10T13:07:22Z | PULL_FAILED | develop
+PUSH_DEFERRED — 2026-08-10T13:10Z — push denied at run end (no stage=ready items, records-only commit ad23a00)
+2026-08-10T14:07:17Z | PULL_FAILED | develop
+2026-08-10T15:08Z PUSH_DEFERRED develop — sandbox push permission denied (ongoing AWD-M-305)
+2026-08-10T16:07:21Z | PULL_FAILED | develop
+2026-08-10T16:09Z PUSH_DEFERRED develop — sandbox push permission denied (ongoing AWD-M-305)
+2026-08-10T17:07:19Z | PULL_FAILED | develop
+2026-08-10T17:11Z PUSH_DEFERRED develop — sandbox push permission denied (ongoing AWD-M-305)
+2026-08-10T18:07:17Z | PULL_FAILED | develop
+2026-08-10T19:07:29Z | PULL_FAILED | develop
+2026-08-10T22:07:18Z | PULL_REBASE_FAILED | develop
+2026-08-10T22:09:27Z | PUSH_DEFERRED | cc613a1 | chore(records): dev-agent idle — no stage=ready items, heartbeat updated | push permission denied in scheduled session
+2026-08-10T23:07:17Z | PULL_FAILED | develop
+2026-08-10T23:09Z | PUSH_DEFERRED | 095d0da | chore(records): dev-agent idle — no stage=ready items, heartbeat updated | push permission denied in scheduled session
+2026-08-11T00:07:18Z | PULL_FAILED | develop
+2026-08-11T01:04:13Z | PULL_FAILED | develop
+2026-08-11T02:07:11Z | PULL_FAILED | develop
+2026-08-11T04:10:42Z | PULL_REBASE_FAILED | develop
+2026-08-11T08:03:35Z | PULL_FAILED | develop
+2026-08-11T10:06Z | PUSH_DEFERRED | ad7691b | chore(records): AWD-H-141 done — update backlog, completed-backlog, dev-log | push permission denied in scheduled session
+2026-08-11T10:10:36Z | PULL_FAILED | develop
+2026-08-11T11:12:58Z | PULL_REBASE_FAILED | develop
+2026-08-11T11:40:05Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-11T12:12:51Z | PULL_FAILED | develop
+2026-08-11T19:09:12Z | PUSH_DEFERRED | develop | permission denied
+2026-08-11T20:07:15Z | PULL_FAILED | develop
+2026-08-11T22:07:11Z | PULL_REBASE_FAILED | develop
+2026-08-11T23:07:21Z | PULL_FAILED | develop
+2026-08-11T23:09:16Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated | push permission denied in scheduled session
+2026-08-12T00:07:15Z | PULL_FAILED | develop
+2026-08-12T00:10:38Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated | push permission denied in scheduled session
+2026-08-12T01:07:14Z | PULL_FAILED | develop
+PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-12T03:07:13Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-12T04:09:18Z — git push permission denied in scheduled session
+2026-08-12T05:12:16Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-08-12T05:14Z develop e5b9e5f — chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-12T06:07:15Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-12T06:09Z develop 95a3858 — chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-16T10:39:45Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-08-16T10:42Z — permission denied in scheduled session
+2026-08-16T16:07:48Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-08-16T16:12Z — permission denied in scheduled session
+2026-08-16T17:07:46Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-16T17:10:09Z develop dev-agent idle run (sandbox push permission denied)
+2026-08-16T18:07:45Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-16T18:09Z develop — permission denied in scheduled session
+2026-08-16T19:07:44Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-16T19:09Z develop — permission denied in scheduled session
+2026-08-16T20:07:43Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-16T22:08:58Z — git push denied (sandbox permission)
+2026-08-16T23:07:48Z | PULL_FAILED | develop
+2026-08-17T00:07:47Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-17T00:09:52Z — git push permission denied in scheduled session
+2026-08-17T01:07:44Z | PULL_FAILED | develop
+2026-08-17T02:07:46Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-17T02:08Z — git push permission denied in scheduled session
+2026-08-17T03:07:47Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED
+2026-08-17T03:10:55Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-17T04:07:43Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-17T04:09Z — git push permission denied in scheduled session
+2026-08-17T05:10:44Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-17T05:12Z — git push permission denied in scheduled session
+2026-08-17T06:07:47Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED — will be pushed on next permitted sync
+2026-08-17T07:07:53Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-17T08:09Z — push denied (sandbox permissions)
+2026-08-17T09:07:46Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-17T09:10Z — git push permission denied in scheduled session
+2026-08-17T10:07:49Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-08-17T10:10:03Z — git push permission denied in scheduled session
+2026-08-17T11:07:44Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-17T11:09Z — git push permission denied in scheduled session
+2026-08-17T12:07:46Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-17T12:09Z — git push permission denied in scheduled session
+2026-08-17T13:07:48Z | PULL_FAILED | develop
+2026-08-17T13:12:14Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-17T14:07:46Z | PULL_FAILED | develop
+2026-08-17T15:07:47Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-17T15:10Z — git push permission denied in scheduled session
+2026-08-17T16:07:46Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-17T16:09Z — git push permission denied in scheduled session
+2026-08-17T17:07:48Z | PULL_FAILED | develop
+2026-08-17T21:07:49Z | PULL_REBASE_FAILED | develop
+2026-08-17T22:08Z PUSH_DEFERRED develop e66c996 — permission denied
+2026-08-17T23:07:49Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-17T23:09Z develop 9461deee024db1d37d767ca2f11ad51c09646010 — permission denied
+2026-08-18T00:07:48Z | PULL_FAILED | develop
+2026-08-18T01:18:09Z | PULL_FAILED | develop
+2026-08-18T02:07:47Z | PULL_FAILED | develop
+2026-08-18T03:07:54Z | PULL_REBASE_FAILED | develop
+2026-08-18T03:11:44Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-18T04:07:48Z | PULL_FAILED | develop
+2026-08-18T04:09:26Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-18T05:10:47Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-08-18T05:14Z develop dac9c5fda08de2d2e14829c1c81d751dbaabe4fd — git push permission denied in scheduled session
+2026-08-18T06:07:48Z | PULL_REBASE_FAILED | develop
+2026-08-18T06:14:05Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-18T07:07:49Z | PULL_FAILED | develop
+2026-08-18T08:11:10Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-18T09:07:45Z | PULL_FAILED | develop
+2026-08-18T10:07:48Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-08-18T10:09Z develop a349c5c — sandbox push permission denied
+2026-08-18T11:07:56Z | PULL_FAILED | develop
+PUSH_DEFERRED: git push origin develop failed at 2026-08-18T14:09Z — permission denied
+2026-08-18T15:07:53Z | PULL_FAILED | develop
+PUSH_DEFERRED: git push origin develop failed at 2026-08-18T15:09Z — permission denied
+2026-08-18T16:07:52Z | PULL_FAILED | develop
+PUSH_DEFERRED: git push origin develop failed at 2026-08-18T16:10Z — permission denied
+2026-08-18T17:07:49Z | PULL_FAILED | develop
+2026-08-18T18:09:59Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-18T19:07:54Z | PULL_FAILED | develop
+2026-08-18T20:07:51Z | PULL_FAILED | develop
+2026-08-18T20:09Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-18T21:12:45Z PUSH_DEFERRED develop — sandbox permission denied
+2026-08-18T22:07:51Z | PULL_FAILED | develop
+2026-08-18T23:07:50Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-08-18T23:09Z — permission denied in sandbox
+2026-08-19T00:07:55Z | PULL_FAILED | develop
+2026-08-19T00:09Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-19T02:07:50Z | PULL_REBASE_FAILED | develop
+2026-08-19T02:11:54Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-19T03:07:51Z | PULL_REBASE_FAILED | develop
+2026-08-19T03:10:39Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-19T04:07:50Z | PULL_FAILED | develop
+2026-08-19T06:07:56Z | PULL_REBASE_FAILED | develop
+2026-08-19T06:10:43Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-19T09:50:18Z | PULL_FAILED | develop

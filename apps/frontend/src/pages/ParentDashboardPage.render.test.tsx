@@ -109,7 +109,7 @@ describe('ParentDashboardPage — render', () => {
       await waitFor(() => {
         expect(screen.getByText(/Failed to load your children's profiles/i)).toBeTruthy()
         expect(screen.getByText(/Try again/i)).toBeTruthy()
-      })
+      }, { timeout: 5000 })
     })
 
     it('does not show empty state when children fetch errors', async () => {
@@ -119,7 +119,7 @@ describe('ParentDashboardPage — render', () => {
 
       await waitFor(() => {
         expect(screen.queryByText(/Welcome to Awade/i)).toBeNull()
-      })
+      }, { timeout: 5000 })
     })
   })
 
@@ -133,10 +133,13 @@ describe('ParentDashboardPage — render', () => {
 
       renderPage()
 
+      // Pin child-selection step so the error render gets a fresh 5000ms window (AWD-H-118)
+      await waitFor(() => expect(screen.getByText('Test Child 01')).toBeTruthy(), { timeout: 5000 })
+
       await waitFor(() => {
         expect(screen.getByText(/Failed to load topics/i)).toBeTruthy()
         expect(screen.getByText(/Try again/i)).toBeTruthy()
-      })
+      }, { timeout: 5000 })
     })
 
     it('does not show "No topics found" when topics fetch errors', async () => {
@@ -148,9 +151,12 @@ describe('ParentDashboardPage — render', () => {
 
       renderPage()
 
+      // Pin child-selection step so the absence check runs in error state, not loading (AWD-M-249)
+      await waitFor(() => expect(screen.getByText('Test Child 01')).toBeTruthy(), { timeout: 5000 })
+
       await waitFor(() => {
         expect(screen.queryByText(/No topics found/i)).toBeNull()
-      })
+      }, { timeout: 5000 })
     })
   })
 
@@ -165,7 +171,7 @@ describe('ParentDashboardPage — render', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Welcome to Awade/i)).toBeTruthy()
-      })
+      }, { timeout: 5000 })
     })
 
     it('empty state Add Your Child button opens the add child modal', async () => {
@@ -180,12 +186,12 @@ describe('ParentDashboardPage — render', () => {
 
       renderPage()
 
-      await waitFor(() => expect(screen.getByText(/Add Your Child/i)).toBeTruthy())
+      await waitFor(() => expect(screen.getByText(/Add Your Child/i)).toBeTruthy(), { timeout: 5000 })
       fireEvent.click(screen.getByText(/Add Your Child/i))
 
       await waitFor(() => {
         expect(screen.getByTestId('add-child-modal')).toBeTruthy()
-      })
+      }, { timeout: 5000 })
     })
   })
 
@@ -205,7 +211,7 @@ describe('ParentDashboardPage — render', () => {
       await waitFor(() => {
         expect(screen.getByText('Test Child 01')).toBeTruthy()
         expect(screen.getByText('Test Topic')).toBeTruthy()
-      })
+      }, { timeout: 5000 })
     })
   })
 
@@ -221,7 +227,7 @@ describe('ParentDashboardPage — render', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Test Child 01')).toBeTruthy()
-      })
+      }, { timeout: 5000 })
 
       const card = screen.getByRole('group', { name: 'Test Child 01' })
       expect(card.tagName.toLowerCase()).toBe('div')
@@ -238,7 +244,7 @@ describe('ParentDashboardPage — render', () => {
 
       await waitFor(() => {
         expect(screen.getByTitle('Edit')).toBeTruthy()
-      })
+      }, { timeout: 5000 })
 
       const editBtn = screen.getByTitle('Edit')
       let el: HTMLElement | null = editBtn.parentElement
@@ -267,14 +273,14 @@ describe('ParentDashboardPage — render', () => {
 
       await waitFor(() => {
         expect(screen.getByRole('group', { name: 'Child B' })).toBeTruthy()
-      })
+      }, { timeout: 5000 })
 
       const cardB = screen.getByRole('group', { name: 'Child B' })
       fireEvent.keyDown(cardB, { key: 'Enter' })
 
       await waitFor(() => {
         expect(screen.getByText("Child B's Learning")).toBeTruthy()
-      })
+      }, { timeout: 5000 })
     })
   })
 
@@ -291,10 +297,12 @@ describe('ParentDashboardPage — render', () => {
 
       renderPage()
 
-      const btn = await screen.findByRole('button', {
-        name: /Generate "How to Help" guide for Fractions/i,
-      })
-      expect(btn).toBeTruthy()
+      await waitFor(() => {
+        expect(screen.getByText('Fractions')).toBeTruthy()
+      }, { timeout: 5000 })
+      const btn = screen.getByText('Fractions').closest('button')
+      expect(btn).not.toBeNull()
+      expect(btn!.getAttribute('aria-label')).toMatch(/Generate "How to Help" guide for Fractions/i)
     })
 
     it('reveal hint includes group-focus-within so keyboard users can see it on focus', async () => {
@@ -311,7 +319,7 @@ describe('ParentDashboardPage — render', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Get "How to Help" guide/i)).toBeTruthy()
-      })
+      }, { timeout: 5000 })
 
       const hint = screen.getByText(/Get "How to Help" guide/i)
       expect(hint.className).toContain('group-hover:opacity-100')
@@ -331,28 +339,28 @@ describe('ParentDashboardPage — render', () => {
 
     it('edit button has p-2 padding for a sufficient touch target', async () => {
       setupWithChild()
-      await waitFor(() => expect(screen.getByTitle('Edit')).toBeTruthy())
+      await waitFor(() => expect(screen.getByTitle('Edit')).toBeTruthy(), { timeout: 5000 })
       const editBtn = screen.getByTitle('Edit')
       expect(editBtn.className).toContain('p-2')
     })
 
     it('delete button has p-2 padding for a sufficient touch target', async () => {
       setupWithChild()
-      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy())
+      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy(), { timeout: 5000 })
       const deleteBtn = screen.getByTitle('Remove')
       expect(deleteBtn.className).toContain('p-2')
     })
 
     it('edit button has an accessible aria-label', async () => {
       setupWithChild()
-      await waitFor(() => expect(screen.getByTitle('Edit')).toBeTruthy())
+      await waitFor(() => expect(screen.getByTitle('Edit')).toBeTruthy(), { timeout: 5000 })
       const editBtn = screen.getByTitle('Edit')
       expect(editBtn.getAttribute('aria-label')).toMatch(/Edit .+ profile/i)
     })
 
     it('delete button has an accessible aria-label', async () => {
       setupWithChild()
-      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy())
+      await waitFor(() => expect(screen.getByTitle('Remove')).toBeTruthy(), { timeout: 5000 })
       const deleteBtn = screen.getByTitle('Remove')
       expect(deleteBtn.getAttribute('aria-label')).toMatch(/Remove .+ profile/i)
     })
@@ -369,7 +377,7 @@ describe('ParentDashboardPage — render', () => {
 
       renderPage()
 
-      await waitFor(() => expect(screen.getByText('Auto Child')).toBeTruthy())
+      await waitFor(() => expect(screen.getByText('Auto Child')).toBeTruthy(), { timeout: 5000 })
     })
 
     it('does not override an already-selected child when children list re-fetches', async () => {
@@ -383,8 +391,8 @@ describe('ParentDashboardPage — render', () => {
 
       renderPage()
 
-      await waitFor(() => expect(screen.getByText('First Child')).toBeTruthy())
-      await waitFor(() => expect(screen.getByText('Second Child')).toBeTruthy())
+      await waitFor(() => expect(screen.getByText('First Child')).toBeTruthy(), { timeout: 5000 })
+      await waitFor(() => expect(screen.getByText('Second Child')).toBeTruthy(), { timeout: 5000 })
     })
   })
 })

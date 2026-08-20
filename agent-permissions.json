@@ -8,7 +8,7 @@
   "agents": {
     "dev-agent": {
       "schedule": "hourly",
-      "description": "Lead developer agent — picks stage=ready backlog items and implements them.",
+      "description": "Lead developer agent and orchestrator of the consolidated hourly dev-loop — picks one stage=ready backlog item, implements it on a branch, then runs the code-review, QA, and scoped-security agents in-process and commits (merge+push) only when all pass. Sole git gateway.",
       "reads": [
         "project-config.md",
         "CLAUDE.md",
@@ -54,8 +54,8 @@
       ]
     },
     "qa-agent": {
-      "schedule": "hourly",
-      "description": "QA agent — validates dev-agent output; runs CI mirror checks and files blocking issues.",
+      "schedule": "in-loop (invoked by dev-loop)",
+      "description": "QA agent — validates the dev agent's feature-branch diff before merge, in-process inside the hourly dev-loop; runs CI mirror checks and files blocking issues. No longer on an independent schedule.",
       "reads": [
         "project-config.md",
         "CLAUDE.md",
@@ -85,8 +85,8 @@
       ]
     },
     "security-agent": {
-      "schedule": "daily",
-      "description": "Daily OWASP Web + LLM Top 10 security scan. Files Critical/High backlog items for new findings.",
+      "schedule": "daily full-repo sweep + scoped in-loop (invoked by dev-loop)",
+      "description": "OWASP Web + LLM Top 10 security scan. Daily 6am run sweeps the whole repo; a scoped run inside the hourly dev-loop checks only the dev agent's changed files before merge. Files Critical/High backlog items for new findings.",
       "reads": [
         "project-config.md",
         "CLAUDE.md",
@@ -166,8 +166,8 @@
       ]
     },
     "code-review-agent": {
-      "schedule": "on-demand / post-merge",
-      "description": "Code review agent — reviews PRs and committed code for quality, security, and correctness issues.",
+      "schedule": "in-loop (invoked by dev-loop) / on-demand",
+      "description": "Code review agent — reviews the dev agent's feature-branch diff before merge, in-process inside the hourly dev-loop, for structural quality and correctness issues; also on demand for PRs. No longer on an independent :15 schedule.",
       "reads": [
         "project-config.md",
         "CLAUDE.md",
@@ -258,10 +258,15 @@
         "apps/frontend/src/**",
         "apps/backend/services/**",
         "apps/backend/routers/**",
-        "docs/agentic/backlog.md"
+        "docs/agentic/backlog.md",
+        "docs/performance/**"
       ],
       "writes": [
         "docs/agentic/backlog.md",
+        "docs/performance/**",
+        "docs/agentic/feedback-log.md",
+        "docs/agent-audit.log",
+        "docs/agentic/agent-run-log.jsonl",
         ".agent-health/performance-agent.last-run"
       ],
       "forbidden": [
@@ -311,10 +316,13 @@
         "env.test.template",
         ".agent-health/*.last-run",
         "docs/agentic/backlog.md",
+        "docs/audits/**",
         ".cursor/mcp.json"
       ],
       "writes": [
         "docs/agentic/backlog.md",
+        "docs/audits/**",
+        "docs/agentic/agent-run-log.jsonl",
         ".agent-health/access-review-agent.last-run"
       ],
       "forbidden": [
@@ -337,10 +345,12 @@
         "apps/backend/**",
         "apps/frontend/**",
         "packages/**",
-        "docs/agentic/backlog.md"
+        "docs/agentic/backlog.md",
+        "docs/tech-debt/**"
       ],
       "writes": [
         "docs/agentic/backlog.md",
+        "docs/tech-debt/**",
         ".agent-health/tech-debt-agent.last-run"
       ],
       "forbidden": [

@@ -5,6 +5,7 @@ from typing import List, Optional
 from datetime import datetime, timedelta
 
 from apps.backend.database import get_db
+from apps.backend.limiter import limiter
 from apps.backend.models import (
     User, UserRole, LessonPlan, LessonResource, AdminAuditLog,
     ResourceModeration, LessonTemplate, ChildProfile
@@ -20,7 +21,8 @@ from apps.backend.utils.admin_logs import log_admin_action
 router = APIRouter(prefix="/api/admin", tags=["admin"], dependencies=[Depends(require_admin)])
 
 @router.get("/metrics", response_model=DashboardMetrics)
-async def get_admin_metrics(db: Session = Depends(get_db)):
+@limiter.limit("60/minute")
+async def get_admin_metrics(request: Request, db: Session = Depends(get_db)):
     """Get dashboard metrics for administrative overview."""
     now = datetime.now()
     seven_days_ago = now - timedelta(days=7)
@@ -43,8 +45,10 @@ async def get_admin_metrics(db: Session = Depends(get_db)):
     )
 
 @router.get("/users", response_model=List[AdminUserResponse])
+@limiter.limit("60/minute")
 async def list_users(
-    skip: int = 0, 
+    request: Request,
+    skip: int = 0,
     limit: int = 100,
     role: Optional[UserRole] = None,
     query: Optional[str] = None,
@@ -62,6 +66,7 @@ async def list_users(
     return users
 
 @router.patch("/users/{user_id}", response_model=AdminUserResponse)
+@limiter.limit("30/minute")
 async def update_user_status(
     user_id: int,
     user_update: AdminUserUpdate,
@@ -105,7 +110,9 @@ async def update_user_status(
     return db_user
 
 @router.get("/audit-logs", response_model=List[AdminAuditLogResponse])
+@limiter.limit("60/minute")
 async def get_audit_logs(
+    request: Request,
     skip: int = 0,
     limit: int = 50,
     actor_id: Optional[int] = None,
@@ -133,7 +140,9 @@ async def get_audit_logs(
     return results
 
 @router.get("/resources")
+@limiter.limit("60/minute")
 async def list_resources(
+    request: Request,
     skip: int = 0,
     limit: int = 50,
     flagged_only: bool = False,
@@ -147,7 +156,9 @@ async def list_resources(
         
     resources = stmt.order_by(desc(LessonResource.created_at)).offset(skip).limit(limit).all()
     return resources
+
 @router.patch("/resources/{resource_id}")
+@limiter.limit("30/minute")
 async def moderate_resource(
     resource_id: int,
     moderation_data: ResourceModerationUpdate,
@@ -190,6 +201,7 @@ async def moderate_resource(
 
 # Lesson Template Management
 @router.post("/templates", response_model=LessonTemplateResponse)
+@limiter.limit("30/minute")
 async def create_template(
     template_data: LessonTemplateCreate,
     request: Request,
@@ -201,7 +213,7 @@ async def create_template(
     if template_data.is_active:
         db.query(LessonTemplate).update({LessonTemplate.is_active: 0})
         
-    db_template = LessonTemplate(**template_data.dict())
+    db_template = LessonTemplate(**template_data.model_dump())
     db.add(db_template)
     db.commit()
     db.refresh(db_template)
@@ -215,13 +227,16 @@ async def create_template(
     return db_template
 
 @router.get("/templates", response_model=List[LessonTemplateResponse])
+@limiter.limit("60/minute")
 async def list_templates(
+    request: Request,
     db: Session = Depends(get_db)
 ):
     """List all AI lesson templates."""
     return db.query(LessonTemplate).order_by(desc(LessonTemplate.created_at)).all()
 
 @router.patch("/templates/{template_id}", response_model=LessonTemplateResponse)
+@limiter.limit("30/minute")
 async def update_template(
     template_id: int,
     template_data: LessonTemplateCreate,
@@ -238,7 +253,7 @@ async def update_template(
     if template_data.is_active and not db_template.is_active:
         db.query(LessonTemplate).filter(LessonTemplate.template_id != template_id).update({LessonTemplate.is_active: 0})
         
-    for key, value in template_data.dict(exclude_unset=True).items():
+    for key, value in template_data.model_dump(exclude_unset=True).items():
         setattr(db_template, key, value)
         
     db.commit()
@@ -253,6 +268,7 @@ async def update_template(
     return db_template
 
 @router.delete("/templates/{template_id}")
+@limiter.limit("30/minute")
 async def delete_template(
     template_id: int,
     request: Request,
@@ -283,11 +299,12 @@ async def delete_template(
 # ---------------------------------------------------------------------------
 
 @router.get("/children", response_model=List[AdminChildProfileResponse])
+@limiter.limit("60/minute")
 async def admin_list_children(
+    request: Request,
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=50, ge=1, le=200),
     parent_id: Optional[int] = None,
-    request: Request = None,
     current_admin: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
@@ -315,6 +332,7 @@ async def admin_list_children(
 
 
 @router.get("/children/{child_id}", response_model=AdminChildProfileResponse)
+@limiter.limit("60/minute")
 async def admin_get_child(
     child_id: int,
     request: Request,

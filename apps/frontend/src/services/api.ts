@@ -72,7 +72,7 @@ class ApiService {
             return await retryCallback();
           }
         } catch (e) {
-          console.error("Refresh failed", e);
+          if (import.meta.env.DEV) console.error("Refresh failed", e);
         }
 
         // If refresh failed, logout
@@ -88,7 +88,9 @@ class ApiService {
     // Tokens live in HttpOnly cookies — cleared server-side via /auth/logout.
     // Best-effort call; even if it fails the user is redirected to login.
     this.apiFetch(`${API_BASE_URL}/auth/logout`, { method: 'POST' }).catch(() => undefined);
-    window.location.href = '/login';
+    if (window.location.pathname !== '/login') {
+      window.location.href = '/login';
+    }
   }
 
   private async refreshAccessToken(): Promise<boolean> {
@@ -135,7 +137,14 @@ class ApiService {
 
     // We pass a closure that re-executes the fetch to handleResponse for retries
     const response = await fetchFn();
-    return this.handleResponse(response, () => this.getCurrentUser());
+    // Retry the session bootstrap at most once. Calling getCurrentUser() here
+    // would install another refresh callback and recurse forever when a browser
+    // rejects the refreshed cookie (for example, with cross-site cookie flags
+    // configured incorrectly in production).
+    return this.handleResponse(response, async () => {
+      const retryResponse = await fetchFn();
+      return this.handleResponse(retryResponse);
+    });
   }
 
   // Admin / Templates

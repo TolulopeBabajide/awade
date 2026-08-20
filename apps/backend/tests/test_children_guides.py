@@ -128,11 +128,11 @@ class TestGenerateGuideIdempotency:
         app.dependency_overrides[get_db] = lambda: mock_db
 
         c = _client_as(parent)
-        with patch("packages.ai.gpt_service.AwadeGPTService") as MockAI:
+        with patch("apps.backend.services.parent_guide_service.AwadeGPTService") as MockAI:
             resp = c.post("/api/children/5/guides/generate?topic_id=7")
             MockAI.assert_not_called()
 
-        assert resp.status_code == 200
+        assert resp.status_code == 201
         assert resp.json()["guide_id"] == 20
 
 
@@ -154,7 +154,7 @@ class TestGenerateGuideMalformedAI:
         cs = MagicMock()
         cs.subject.name = "Mathematics"
         cs.grade_level.name = "Grade 5"
-        cs.curriculum.curricula_title = "Nigerian Curriculum"
+        cs.curriculum.curriculum_title = "Nigerian Curriculum"
         mock_topic.curriculum_structure = cs
         mock_topic.learning_objectives = []
         mock_topic.topic_contents = []
@@ -190,7 +190,7 @@ class TestGenerateGuideMalformedAI:
         app.dependency_overrides[get_db] = lambda: mock_db
 
         c = _client_as(parent)
-        with patch("packages.ai.gpt_service.AwadeGPTService") as MockAI:
+        with patch("apps.backend.services.parent_guide_service.AwadeGPTService") as MockAI:
             instance = MockAI.return_value
             instance.generate_parent_guide.return_value = ("not valid json {{{", True)
             resp = c.post("/api/children/5/guides/generate?topic_id=1")
@@ -226,7 +226,7 @@ class TestGenerateGuideMalformedAI:
         })
 
         c = _client_as(parent)
-        with patch("packages.ai.gpt_service.AwadeGPTService") as MockAI:
+        with patch("apps.backend.services.parent_guide_service.AwadeGPTService") as MockAI:
             instance = MockAI.return_value
             instance.generate_parent_guide.return_value = (bad_content, False)
             resp = c.post("/api/children/5/guides/generate?topic_id=1")

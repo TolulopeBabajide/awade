@@ -12,24 +12,22 @@ Endpoints:
 Author: Tolulope Babajide
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from datetime import datetime
 
 from apps.backend.database import get_db
-from apps.backend.dependencies import get_current_user, require_admin, require_admin_or_educator, get_optional_current_user
+from apps.backend.dependencies import get_current_active_user, require_admin, require_admin_or_educator
+from apps.backend.limiter import limiter
 from apps.backend.services.curriculum_service import CurriculumService
+from apps.backend.services.learning_objective_service import LearningObjectiveService
+from apps.backend.services.topic_content_service import TopicContentService
 from apps.backend.schemas.curriculum import (
     CurriculumCreate, CurriculumResponse, TopicCreate, TopicResponse,
     LearningObjectiveCreate, LearningObjectiveUpdate, LearningObjectiveResponse,
     ContentCreate, ContentUpdate, ContentResponse,
-    # TeacherActivityCreate, TeacherActivityUpdate, TeacherActivityResponse,
-    # StudentActivityCreate, StudentActivityUpdate, StudentActivityResponse,
-    # TeachingMaterialCreate, TeachingMaterialUpdate, TeachingMaterialResponse,
-    # EvaluationGuideCreate, EvaluationGuideUpdate, EvaluationGuideResponse
 )
-from apps.backend.models import Topic, User
+from apps.backend.models import User
 
 router = APIRouter(prefix="/api/curriculum", tags=["curriculum"])
 
@@ -48,11 +46,13 @@ def create_curriculum(
     return service.create_curriculum(curriculum_data)
 
 @router.get("/", response_model=List[CurriculumResponse])
+@limiter.limit("60/minute")
 def get_curriculums(
+    request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     country_id: Optional[int] = None,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -62,9 +62,9 @@ def get_curriculums(
     service = CurriculumService(db)
     return service.get_curriculums(skip=skip, limit=limit, country_id=country_id)
 
-@router.put("/{curricula_id}", response_model=CurriculumResponse)
+@router.put("/{curriculum_id}", response_model=CurriculumResponse)
 def update_curriculum(
-    curricula_id: int,
+    curriculum_id: int,
     curriculum_data: CurriculumCreate,
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
@@ -74,14 +74,14 @@ def update_curriculum(
     Requires admin authentication.
     """
     service = CurriculumService(db)
-    updated_curriculum = service.update_curriculum(curricula_id, curriculum_data)
+    updated_curriculum = service.update_curriculum(curriculum_id, curriculum_data)
     if not updated_curriculum:
         raise HTTPException(status_code=404, detail="Curriculum not found")
     return updated_curriculum
 
-@router.delete("/{curricula_id}")
+@router.delete("/{curriculum_id}")
 def delete_curriculum(
-    curricula_id: int,
+    curriculum_id: int,
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
@@ -90,7 +90,7 @@ def delete_curriculum(
     Requires admin authentication.
     """
     service = CurriculumService(db)
-    success = service.delete_curriculum(curricula_id)
+    success = service.delete_curriculum(curriculum_id)
     if not success:
         raise HTTPException(status_code=404, detail="Curriculum not found")
     return {"message": "Curriculum deleted successfully"}
@@ -110,11 +110,13 @@ def create_topic(
     return service.create_topic(topic_data)
 
 @router.get("/topics", response_model=List[TopicResponse])
+@limiter.limit("60/minute")
 def get_topics(
+    request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     curriculum_structure_id: Optional[int] = None,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -125,9 +127,11 @@ def get_topics(
     return service.get_topics(skip=skip, limit=limit, curriculum_structure_id=curriculum_structure_id)
 
 @router.get("/topics/{topic_id}", response_model=TopicResponse)
+@limiter.limit("60/minute")
 def get_topic(
-    topic_id: int, 
-    current_user: User = Depends(get_current_user),
+    request: Request,
+    topic_id: int,
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -135,7 +139,10 @@ def get_topic(
     Requires authentication.
     """
     service = CurriculumService(db)
-    return service.get_topic(topic_id)
+    topic = service.get_topic(topic_id)
+    if not topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+    return topic
 
 @router.put("/topics/{topic_id}", response_model=TopicResponse)
 def update_topic(
@@ -181,20 +188,22 @@ def create_learning_objective(
     Create a new learning objective for a topic.
     Requires admin authentication.
     """
-    service = CurriculumService(db)
+    service = LearningObjectiveService(db)
     return service.create_learning_objective(objective_data)
 
 @router.get("/topics/{topic_id}/learning-objectives", response_model=List[LearningObjectiveResponse])
+@limiter.limit("60/minute")
 def get_learning_objectives(
-    topic_id: int, 
-    current_user: User = Depends(get_current_user),
+    request: Request,
+    topic_id: int,
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
     Retrieve learning objectives for a specific topic.
     Requires authentication.
     """
-    service = CurriculumService(db)
+    service = LearningObjectiveService(db)
     return service.get_learning_objectives(topic_id)
 
 @router.put("/learning-objectives/{objective_id}", response_model=LearningObjectiveResponse)
@@ -208,12 +217,15 @@ def update_learning_objective(
     Update a learning objective.
     Requires admin authentication.
     """
-    service = CurriculumService(db)
-    return service.update_learning_objective(objective_id, objective_data)
+    service = LearningObjectiveService(db)
+    result = service.update_learning_objective(objective_id, objective_data)
+    if not result:
+        raise HTTPException(status_code=404, detail="Learning objective not found")
+    return result
 
 @router.delete("/learning-objectives/{objective_id}")
 def delete_learning_objective(
-    objective_id: int, 
+    objective_id: int,
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
@@ -221,13 +233,16 @@ def delete_learning_objective(
     Delete a learning objective.
     Requires admin authentication.
     """
-    service = CurriculumService(db)
-    return service.delete_learning_objective(objective_id)
+    service = LearningObjectiveService(db)
+    success = service.delete_learning_objective(objective_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Learning objective not found")
+    return {"message": "Learning objective deleted successfully"}
 
 # Content endpoints
 @router.post("/contents", response_model=ContentResponse)
 def create_content(
-    content_data: ContentCreate, 
+    content_data: ContentCreate,
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
@@ -235,20 +250,22 @@ def create_content(
     Create a new content area for a topic.
     Requires admin authentication.
     """
-    service = CurriculumService(db)
+    service = TopicContentService(db)
     return service.create_content(content_data)
 
 @router.get("/topics/{topic_id}/contents", response_model=List[ContentResponse])
+@limiter.limit("60/minute")
 def get_contents(
-    topic_id: int, 
-    current_user: User = Depends(get_current_user),
+    request: Request,
+    topic_id: int,
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
     Retrieve content areas for a specific topic.
     Requires authentication.
     """
-    service = CurriculumService(db)
+    service = TopicContentService(db)
     return service.get_contents(topic_id)
 
 @router.put("/contents/{content_id}", response_model=ContentResponse)
@@ -262,12 +279,15 @@ def update_content(
     Update a content area.
     Requires admin authentication.
     """
-    service = CurriculumService(db)
-    return service.update_content(content_id, content_data)
+    service = TopicContentService(db)
+    result = service.update_content(content_id, content_data)
+    if not result:
+        raise HTTPException(status_code=404, detail="Content not found")
+    return result
 
 @router.delete("/contents/{content_id}")
 def delete_content(
-    content_id: int, 
+    content_id: int,
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
@@ -275,13 +295,18 @@ def delete_content(
     Delete a content area.
     Requires admin authentication.
     """
-    service = CurriculumService(db)
-    return service.delete_content(content_id)
+    service = TopicContentService(db)
+    success = service.delete_content(content_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Content not found")
+    return {"message": "Content deleted successfully"}
 
 @router.get("/{curriculum_id}", response_model=CurriculumResponse)
+@limiter.limit("60/minute")
 def get_curriculum(
-    curriculum_id: int, 
-    current_user: User = Depends(get_current_user),
+    request: Request,
+    curriculum_id: int,
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -289,4 +314,7 @@ def get_curriculum(
     Requires authentication.
     """
     service = CurriculumService(db)
-    return service.get_curriculum(curriculum_id) 
+    curriculum = service.get_curriculum(curriculum_id)
+    if not curriculum:
+        raise HTTPException(status_code=404, detail="Curriculum not found")
+    return curriculum

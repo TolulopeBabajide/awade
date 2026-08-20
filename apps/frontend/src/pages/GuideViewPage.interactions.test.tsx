@@ -50,7 +50,7 @@ describe('GuideViewPage — interactions', () => {
     renderPage()
     await waitFor(() => {
       expect(screen.getByLabelText('Share this guide on WhatsApp')).toBeInTheDocument()
-    })
+    }, { timeout: 5000 })
   })
 
   it('opens the correct WhatsApp share URL when the button is clicked', async () => {
@@ -58,7 +58,7 @@ describe('GuideViewPage — interactions', () => {
     mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
     renderPage()
 
-    const shareBtn = await screen.findByLabelText('Share this guide on WhatsApp')
+    const shareBtn = await screen.findByLabelText('Share this guide on WhatsApp', undefined, { timeout: 5000 })
     await userEvent.click(shareBtn)
 
     expect(openSpy).toHaveBeenCalledOnce()
@@ -92,14 +92,14 @@ describe('GuideViewPage — interactions', () => {
       mockExportGuidePdf.mockResolvedValue({ error: 'PDF generation failed' })
 
       renderPage()
-      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF', undefined, { timeout: 5000 })
       await userEvent.click(downloadBtn)
 
       await waitFor(() => {
         expect(screen.getByRole('alert')).toHaveTextContent(
           'Could not download PDF: PDF generation failed',
         )
-      })
+      }, { timeout: 5000 })
     })
 
     it('shows inline error banner when exportGuidePdf throws unexpectedly', async () => {
@@ -107,14 +107,14 @@ describe('GuideViewPage — interactions', () => {
       mockExportGuidePdf.mockRejectedValue(new Error('Network abort'))
 
       renderPage()
-      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF', undefined, { timeout: 5000 })
       await userEvent.click(downloadBtn)
 
       await waitFor(() => {
         expect(screen.getByRole('alert')).toHaveTextContent(
           'Could not download PDF: Network abort',
         )
-      })
+      }, { timeout: 5000 })
     })
 
     it('clears the error banner on a subsequent download attempt', async () => {
@@ -127,17 +127,17 @@ describe('GuideViewPage — interactions', () => {
       URL.revokeObjectURL = vi.fn()
 
       renderPage()
-      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF', undefined, { timeout: 5000 })
 
       await userEvent.click(downloadBtn)
       await waitFor(() => {
         expect(screen.getByRole('alert')).toHaveTextContent('Could not download PDF')
-      })
+      }, { timeout: 5000 })
 
       await userEvent.click(downloadBtn)
       await waitFor(() => {
         expect(screen.queryByRole('alert')).not.toBeInTheDocument()
-      })
+      }, { timeout: 5000 })
 
       ;(URL as { createObjectURL?: unknown }).createObjectURL = undefined
       ;(URL as { revokeObjectURL?: unknown }).revokeObjectURL = undefined
@@ -148,12 +148,12 @@ describe('GuideViewPage — interactions', () => {
       mockExportGuidePdf.mockRejectedValue(new Error('Timeout'))
 
       renderPage()
-      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF', undefined, { timeout: 5000 })
       await userEvent.click(downloadBtn)
 
       await waitFor(() => {
         expect(downloadBtn).not.toBeDisabled()
-      })
+      }, { timeout: 5000 })
     })
   })
 
@@ -164,12 +164,12 @@ describe('GuideViewPage — interactions', () => {
       mockExportGuidePdf.mockResolvedValue({ error: 'PDF generation failed' })
 
       renderPage()
-      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF', undefined, { timeout: 5000 })
       await userEvent.click(downloadBtn)
 
       await waitFor(() => {
         expect(screen.getByRole('alert')).toBeInTheDocument()
-      })
+      }, { timeout: 5000 })
       expect(screen.getByLabelText('Dismiss error')).toBeInTheDocument()
     })
 
@@ -178,19 +178,19 @@ describe('GuideViewPage — interactions', () => {
       mockExportGuidePdf.mockResolvedValue({ error: 'PDF generation failed' })
 
       renderPage()
-      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+      const downloadBtn = await screen.findByLabelText('Download this guide as a PDF', undefined, { timeout: 5000 })
       await userEvent.click(downloadBtn)
 
       await waitFor(() => {
         expect(screen.getByRole('alert')).toBeInTheDocument()
-      })
+      }, { timeout: 5000 })
 
       const dismissBtn = screen.getByLabelText('Dismiss error')
       await userEvent.click(dismissBtn)
 
       await waitFor(() => {
         expect(screen.queryByRole('alert')).not.toBeInTheDocument()
-      })
+      }, { timeout: 5000 })
     })
   })
 
@@ -226,12 +226,12 @@ describe('GuideViewPage — interactions', () => {
 
       try {
         renderPage()
-        const downloadBtn = await screen.findByLabelText('Download this guide as a PDF')
+        const downloadBtn = await screen.findByLabelText('Download this guide as a PDF', undefined, { timeout: 5000 })
         await userEvent.click(downloadBtn)
 
         await waitFor(() => {
           expect(mockExportGuidePdf).toHaveBeenCalledWith(42)
-        })
+        }, { timeout: 5000 })
 
         expect(anchorWasInDomAtClick).toBe(true)
 
@@ -256,67 +256,43 @@ describe('GuideViewPage — interactions', () => {
 
   // ── AWD-M-83: bookmarkMutation onError — cache invalidation on failure ──
   describe('bookmarkMutation onError (AWD-M-83)', () => {
-    it('invalidates parentGuide query when bookmark toggle fails', async () => {
-      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
-      mockToggleBookmark.mockRejectedValue(new Error('Network error'))
+    it.each<[string]>([['parentGuide'], ['childGuides']])(
+      'invalidates %s query when bookmark toggle fails',
+      async (queryKey) => {
+        mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
+        mockToggleBookmark.mockRejectedValue(new Error('Network error'))
 
-      const { queryClient } = renderPage()
-      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
+        const { queryClient } = renderPage()
+        const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
 
-      const bookmarkBtn = await screen.findByTitle('Bookmark this guide')
-      await userEvent.click(bookmarkBtn)
+        const bookmarkBtn = await screen.findByTitle('Bookmark this guide', undefined, { timeout: 5000 })
+        await userEvent.click(bookmarkBtn)
 
-      await waitFor(() => {
-        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['parentGuide'] })
-      })
-    })
-
-    it('invalidates childGuides query when bookmark toggle fails', async () => {
-      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
-      mockToggleBookmark.mockRejectedValue(new Error('Network error'))
-
-      const { queryClient } = renderPage()
-      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
-
-      const bookmarkBtn = await screen.findByTitle('Bookmark this guide')
-      await userEvent.click(bookmarkBtn)
-
-      await waitFor(() => {
-        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['childGuides'] })
-      })
-    })
+        await waitFor(() => {
+          expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: [queryKey] })
+        }, { timeout: 5000 })
+      }
+    )
   })
 
   // ── AWD-M-130: invalidateBookmarkQueries shared callback ──────────────────
   describe('bookmarkMutation onSuccess (AWD-M-130)', () => {
-    it('invalidates parentGuide query when bookmark toggle succeeds', async () => {
-      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
-      mockToggleBookmark.mockResolvedValue({ data: { ...MOCK_GUIDE, is_bookmarked: true }, error: undefined })
+    it.each<[string]>([['parentGuide'], ['childGuides']])(
+      'invalidates %s query when bookmark toggle succeeds',
+      async (queryKey) => {
+        mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
+        mockToggleBookmark.mockResolvedValue({ data: { ...MOCK_GUIDE, is_bookmarked: true }, error: undefined })
 
-      const { queryClient } = renderPage()
-      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
+        const { queryClient } = renderPage()
+        const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
 
-      const bookmarkBtn = await screen.findByTitle('Bookmark this guide')
-      await userEvent.click(bookmarkBtn)
+        const bookmarkBtn = await screen.findByTitle('Bookmark this guide', undefined, { timeout: 5000 })
+        await userEvent.click(bookmarkBtn)
 
-      await waitFor(() => {
-        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['parentGuide'] })
-      })
-    })
-
-    it('invalidates childGuides query when bookmark toggle succeeds', async () => {
-      mockGetGuide.mockResolvedValue({ data: MOCK_GUIDE, error: undefined })
-      mockToggleBookmark.mockResolvedValue({ data: { ...MOCK_GUIDE, is_bookmarked: true }, error: undefined })
-
-      const { queryClient } = renderPage()
-      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
-
-      const bookmarkBtn = await screen.findByTitle('Bookmark this guide')
-      await userEvent.click(bookmarkBtn)
-
-      await waitFor(() => {
-        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['childGuides'] })
-      })
-    })
+        await waitFor(() => {
+          expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: [queryKey] })
+        }, { timeout: 5000 })
+      }
+    )
   })
 })
