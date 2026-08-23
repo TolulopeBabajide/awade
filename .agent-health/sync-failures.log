@@ -1168,3 +1168,5 @@ PUSH_DEFERRED: 2026-08-23T12:09Z develop — git push denied (non-interactive se
 2026-08-23T14:07:48Z | PULL_REBASE_FAILED | develop
 2026-08-23T14:10:05Z PUSH_DEFERRED develop 7dd0dd3 chore(records): dev-agent idle — no stage=ready items, heartbeat updated
 2026-08-23T15:07:44Z | PULL_REBASE_FAILED | develop
+2026-08-23T15:10:38Z | PULL_REBASE_FAILED | develop
+2026-08-23T16:07:45Z | PULL_FAILED | develop
