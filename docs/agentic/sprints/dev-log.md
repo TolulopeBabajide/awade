@@ -1547,3 +1547,4 @@ After removing it, the next hourly run will:
 2026-08-23T19:10Z | — | dev-agent idle — no stage=ready items, heartbeat updated | — | — | —
 
 2026-08-23T20:09Z | — | dev-agent idle — no stage=ready items, heartbeat updated | — | ⏸ No ready items
+| 2026-08-23T22:00Z | idle | no stage=ready items | — | ✅ No ready item — nothing to build | Full backlog scan: all active items at discover/define or pending Tolu decision |
