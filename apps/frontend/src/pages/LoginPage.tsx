@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { GoogleLogin } from '@react-oauth/google';
+import type { CredentialResponse } from '@react-oauth/google';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
 import { sanitizeRedirectPath } from '../utils/sanitizer';
 import { FaEye, FaEyeSlash, FaArrowLeft, FaEnvelope, FaLock } from 'react-icons/fa';
+import ResponsiveGoogleLogin, { isGoogleAuthConfigured } from '../components/ResponsiveGoogleLogin';
 
 
 
@@ -29,10 +30,14 @@ const LoginPage: React.FC = () => {
   const [forgotMsg, setForgotMsg] = useState<string | null>(null);
 
   // Google OAuth handler
-  const handleGoogleSuccess = async (credentialResponse: any) => {
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
     setError(null);
     setLoading(true);
     try {
+      if (!credentialResponse.credential) {
+        setError('Google login failed. Please try email and password instead.');
+        return;
+      }
       const success = await googleAuth(credentialResponse.credential);
       if (success) {
         // Navigate to the originally requested page or dashboard
@@ -40,8 +45,8 @@ const LoginPage: React.FC = () => {
       } else {
         setError('Google login failed. Please try email/password login instead.');
       }
-    } catch (err: any) {
-      setError(err.message || 'Google login failed. Please try email/password login instead.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Google login failed. Please try email and password instead.');
     } finally {
       setLoading(false);
     }
@@ -73,7 +78,7 @@ const LoginPage: React.FC = () => {
       } else {
         setForgotMsg(response.data?.message || 'If the email exists, a reset link has been sent.');
       }
-    } catch (err: any) {
+    } catch (_err: unknown) {
       setError('Failed to request password reset.');
     } finally {
       setLoading(false);
@@ -113,8 +118,8 @@ const LoginPage: React.FC = () => {
       } else {
         setError('Invalid email or password');
       }
-    } catch (err: any) {
-      setError(err.message || 'Login failed');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setLoading(false);
     }
@@ -126,7 +131,7 @@ const LoginPage: React.FC = () => {
       <div className="absolute left-4 sm:left-8 top-6 sm:top-8">
         <button 
           onClick={() => navigate(-1)}
-          className="flex items-center space-x-2 text-primary-600 hover:text-primary-700 transition-colors duration-200 p-2 rounded-lg hover:bg-primary-50"
+          className="flex min-h-11 min-w-11 items-center justify-center space-x-2 rounded-lg p-2 text-primary-600 transition-colors duration-200 hover:bg-primary-50 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
           aria-label="Go back"
         >
           <FaArrowLeft className="w-4 h-4" />
@@ -143,7 +148,7 @@ const LoginPage: React.FC = () => {
             </Link>
           </h1>
           <p className="text-primary-600 text-sm sm:text-base mt-2">
-            AI-Powered Lesson Planning
+            Learning support for home and school
           </p>
         </div>
 
@@ -152,7 +157,7 @@ const LoginPage: React.FC = () => {
           <div className="text-center mb-6">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
             <p className="text-gray-600 text-sm sm:text-base">
-              Sign in to access your personalized teaching dashboard
+              Continue helping learners at home or in the classroom
             </p>
           </div>
 
@@ -166,36 +171,39 @@ const LoginPage: React.FC = () => {
           )}
 
           {/* Google Login */}
-          <div className="mb-6">
-            <GoogleLogin
+          {isGoogleAuthConfigured && (
+            <div className="mb-6">
+              <ResponsiveGoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={handleGoogleError}
-              width="100%"
-              useOneTap
-            />
-          </div>
+              />
+            </div>
+          )}
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <div role="alert" aria-live="polite" className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-red-600 text-sm text-center">{error}</p>
             </div>
           )}
 
-          <div className="flex items-center my-6">
-            <div className="flex-grow border-t border-gray-200" />
-            <span className="mx-4 text-gray-400 text-sm font-medium">or continue with email</span>
-            <div className="flex-grow border-t border-gray-200" />
-          </div>
+          {isGoogleAuthConfigured && (
+            <div className="flex items-center my-6">
+              <div className="flex-grow border-t border-gray-200" />
+              <span className="mx-4 text-gray-500 text-sm font-medium">or continue with email</span>
+              <div className="flex-grow border-t border-gray-200" />
+            </div>
+          )}
 
           {showForgot ? (
-            <form className="space-y-4 sm:space-y-5" onSubmit={handleForgotSubmit} autoComplete="off">
+            <form className="space-y-4 sm:space-y-5" onSubmit={handleForgotSubmit} autoComplete="off" noValidate>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                <label htmlFor="forgot-email" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
                   <FaEnvelope className="w-4 h-4 mr-2 text-primary-600" />
                   Email Address
                 </label>
                 <input
                   type="email"
+                  id="forgot-email"
                   value={forgotEmail}
                   onChange={e => setForgotEmail(e.target.value)}
                   placeholder="Enter your email"
@@ -218,14 +226,14 @@ const LoginPage: React.FC = () => {
                 )}
               </button>
               {forgotMsg && (
-                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <div role="status" className="p-3 bg-green-50 border border-green-200 rounded-lg">
                   <p className="text-green-600 text-sm text-center">{forgotMsg}</p>
                 </div>
               )}
               <div className="text-center">
                 <button 
                   type="button" 
-                  className="text-primary-600 hover:text-primary-700 font-medium text-sm underline"
+                  className="inline-flex min-h-11 items-center rounded-md px-2 text-sm font-medium text-primary-700 underline hover:text-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
                   onClick={() => setShowForgot(false)}
                 >
                   ← Back to Login
@@ -233,15 +241,16 @@ const LoginPage: React.FC = () => {
               </div>
             </form>
           ) : (
-            <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit} autoComplete="off">
+            <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit} autoComplete="off" noValidate>
               {/* Email */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                <label htmlFor="login-email" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
                   <FaEnvelope className="w-4 h-4 mr-2 text-primary-600" />
                   Email Address
                 </label>
                 <input
                   type="email"
+                  id="login-email"
                   name="email"
                   value={form.email}
                   onChange={handleChange}
@@ -253,12 +262,13 @@ const LoginPage: React.FC = () => {
 
               {/* Password */}
               <div className="relative">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                <label htmlFor="login-password" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
                   <FaLock className="w-4 h-4 mr-2 text-primary-600" />
                   Password
                 </label>
                 <input
                   type={showPassword ? "text" : "password"}
+                  id="login-password"
                   name="password"
                   value={form.password}
                   onChange={handleChange}
@@ -268,7 +278,7 @@ const LoginPage: React.FC = () => {
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-10 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                  className="absolute right-1 top-8 flex min-h-11 min-w-11 items-center justify-center rounded-md text-gray-400 transition-colors duration-200 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label="Toggle password visibility"
                 >
@@ -280,7 +290,7 @@ const LoginPage: React.FC = () => {
               <div className="text-right">
                 <button 
                   type="button" 
-                  className="text-primary-600 hover:text-primary-700 font-medium text-sm underline"
+                  className="inline-flex min-h-11 items-center rounded-md px-2 text-sm font-medium text-primary-700 underline hover:text-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
                   onClick={() => setShowForgot(true)}
                 >
                   Forgot Password?
@@ -309,7 +319,7 @@ const LoginPage: React.FC = () => {
           <div className="text-center mt-6 pt-6 border-t border-gray-100">
             <p className="text-gray-600 text-sm">
               Don't have an account?{' '}
-              <Link to="/signup" className="text-primary-600 hover:text-primary-700 font-semibold underline">
+              <Link to="/signup" className="inline-flex min-h-11 items-center rounded-md px-1 font-semibold text-primary-700 underline hover:text-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500">
                 Create one here
               </Link>
             </p>

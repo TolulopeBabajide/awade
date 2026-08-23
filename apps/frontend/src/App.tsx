@@ -28,6 +28,7 @@ import TemplateManager from './pages/admin/TemplateManager'
 import AdminSettings from './pages/admin/Settings'
 import ChildProfileList from './pages/admin/ChildProfileList'
 import DisclaimerPage from './pages/DisclaimerPage'
+import LegalPage from './pages/LegalPage'
 
 function App() {
   return (
@@ -40,6 +41,8 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/disclaimer" element={<DisclaimerPage />} />
+          <Route path="/terms" element={<LegalPage kind="terms" />} />
+          <Route path="/privacy-policy" element={<LegalPage kind="privacy" />} />
 
           {/* Protected routes — role-aware dashboard */}
           <Route path="/dashboard" element={

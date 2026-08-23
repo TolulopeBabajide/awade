@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleLogin } from '@react-oauth/google';
+import type { CredentialResponse } from '@react-oauth/google';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { FaEye, FaEyeSlash, FaArrowLeft, FaUser, FaEnvelope, FaLock, FaCheckCircle, FaGraduationCap, FaChild } from 'react-icons/fa';
 import { getErrorMessage } from '../utils/errors';
+import ResponsiveGoogleLogin, { isGoogleAuthConfigured } from '../components/ResponsiveGoogleLogin';
 
 type AccountRole = 'PARENT' | 'EDUCATOR';
 
@@ -38,7 +39,7 @@ const SignupPage: React.FC = () => {
   }, [showSuccessModal, navigate, selectedRole]);
 
   // Google OAuth handler
-  const handleGoogleSuccess = async (credentialResponse: any) => {
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
     if (!selectedRole) {
       setError('Please select whether you are a parent or educator first.');
       return;
@@ -46,6 +47,10 @@ const SignupPage: React.FC = () => {
     setError(null);
     setLoading(true);
     try {
+      if (!credentialResponse.credential) {
+        setError('Google signup failed. Please try email and password instead.');
+        return;
+      }
       const success = await googleAuth(credentialResponse.credential, selectedRole);
       if (success) {
         // PARENT users go through onboarding to add their first child
@@ -141,7 +146,7 @@ const SignupPage: React.FC = () => {
       <div className="absolute left-4 sm:left-8 top-6 sm:top-8">
         <button 
           onClick={() => navigate(-1)}
-          className="flex items-center space-x-2 text-primary-600 hover:text-primary-700 transition-colors duration-200 p-2 rounded-lg hover:bg-primary-50"
+          className="flex min-h-11 min-w-11 items-center justify-center space-x-2 rounded-lg p-2 text-primary-600 transition-colors duration-200 hover:bg-primary-50 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
           aria-label="Go back"
         >
           <FaArrowLeft className="w-4 h-4" />
@@ -158,7 +163,7 @@ const SignupPage: React.FC = () => {
             </Link>
           </h1>
           <p className="text-primary-600 text-sm sm:text-base mt-2">
-            Support your child's learning
+            Learning support for home and school
           </p>
         </div>
 
@@ -167,16 +172,18 @@ const SignupPage: React.FC = () => {
           <div className="text-center mb-6">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Create Account</h2>
             <p className="text-gray-600 text-sm sm:text-base">
-              Join thousands of families and educators across Africa
+              Practical learning help for families and educators across Africa
             </p>
           </div>
 
           {/* Role Selector */}
-          <div className="mb-6">
-            <p className="text-sm font-semibold text-gray-700 mb-3 text-center">I am a...</p>
-            <div className="grid grid-cols-2 gap-3">
+          <fieldset className="mb-6">
+            <legend className="mb-3 w-full text-center text-sm font-semibold text-gray-700">I am a...</legend>
+            <div className="grid grid-cols-2 gap-3" role="radiogroup">
               <button
                 type="button"
+                role="radio"
+                aria-checked={selectedRole === 'PARENT'}
                 onClick={() => setSelectedRole('PARENT')}
                 className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 ${
                   selectedRole === 'PARENT'
@@ -194,6 +201,8 @@ const SignupPage: React.FC = () => {
               </button>
               <button
                 type="button"
+                role="radio"
+                aria-checked={selectedRole === 'EDUCATOR'}
                 onClick={() => setSelectedRole('EDUCATOR')}
                 className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 ${
                   selectedRole === 'EDUCATOR'
@@ -210,39 +219,42 @@ const SignupPage: React.FC = () => {
                 </span>
               </button>
             </div>
-          </div>
+          </fieldset>
 
           {/* Google Sign Up */}
-          <div className="mb-6">
-            <GoogleLogin
+          {isGoogleAuthConfigured && (
+            <div className="mb-6">
+              <ResponsiveGoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={handleGoogleError}
-              width="100%"
-              useOneTap
-            />
-          </div>
+              />
+            </div>
+          )}
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <div role="alert" aria-live="polite" className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-red-600 text-sm text-center">{error}</p>
             </div>
           )}
 
-          <div className="flex items-center my-6">
-            <div className="flex-grow border-t border-gray-200" />
-            <span className="mx-4 text-gray-400 text-sm font-medium">or continue with email</span>
-            <div className="flex-grow border-t border-gray-200" />
-          </div>
+          {isGoogleAuthConfigured && (
+            <div className="flex items-center my-6">
+              <div className="flex-grow border-t border-gray-200" />
+              <span className="mx-4 text-gray-500 text-sm font-medium">or continue with email</span>
+              <div className="flex-grow border-t border-gray-200" />
+            </div>
+          )}
 
-          <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit} autoComplete="off">
+          <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit} autoComplete="off" noValidate>
             {/* Full Name */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+              <label htmlFor="signup-name" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
                 <FaUser className="w-4 h-4 mr-2 text-primary-600" />
                 Full Name
               </label>
               <input
                 type="text"
+                id="signup-name"
                 name="fullName"
                 value={form.fullName}
                 onChange={handleChange}
@@ -254,12 +266,13 @@ const SignupPage: React.FC = () => {
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+              <label htmlFor="signup-email" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
                 <FaEnvelope className="w-4 h-4 mr-2 text-primary-600" />
                 Email Address
               </label>
               <input
                 type="email"
+                id="signup-email"
                 name="email"
                 value={form.email}
                 onChange={handleChange}
@@ -273,12 +286,13 @@ const SignupPage: React.FC = () => {
 
             {/* Password */}
             <div className="relative">
-              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+              <label htmlFor="signup-password" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
                 <FaLock className="w-4 h-4 mr-2 text-primary-600" />
                 Password
               </label>
               <input
                 type={showPassword ? 'text' : 'password'}
+                id="signup-password"
                 name="password"
                 value={form.password}
                 onChange={handleChange}
@@ -290,7 +304,7 @@ const SignupPage: React.FC = () => {
               />
               <button
                 type="button"
-                className="absolute right-3 top-10 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                className="absolute right-1 top-8 flex min-h-11 min-w-11 items-center justify-center rounded-md text-gray-400 transition-colors duration-200 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 onClick={() => setShowPassword((v) => !v)}
                 aria-label="Toggle password visibility"
               >
@@ -300,12 +314,13 @@ const SignupPage: React.FC = () => {
 
             {/* Repeat Password */}
             <div className="relative">
-              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+              <label htmlFor="signup-confirm-password" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
                 <FaLock className="w-4 h-4 mr-2 text-primary-600" />
                 Confirm Password
               </label>
               <input
                 type={showRepeatPassword ? 'text' : 'password'}
+                id="signup-confirm-password"
                 name="repeatPassword"
                 value={form.repeatPassword}
                 onChange={handleChange}
@@ -317,7 +332,7 @@ const SignupPage: React.FC = () => {
               />
               <button
                 type="button"
-                className="absolute right-3 top-10 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                className="absolute right-1 top-8 flex min-h-11 min-w-11 items-center justify-center rounded-md text-gray-400 transition-colors duration-200 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 onClick={() => setShowRepeatPassword((v) => !v)}
                 aria-label="Toggle repeat password visibility"
               >
@@ -326,24 +341,27 @@ const SignupPage: React.FC = () => {
             </div>
 
             {/* Terms Checkbox */}
-            <div className="flex items-start space-x-3">
-              <input
-                id="terms"
-                type="checkbox"
-                checked={agreed}
-                onChange={() => setAgreed((v) => !v)}
-                className="mt-1 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-              />
-              <label htmlFor="terms" className="text-sm text-gray-600 leading-relaxed">
+            <div className="flex items-start gap-2">
+              <span className="flex min-h-11 min-w-11 items-start justify-center pt-2">
+                <input
+                  id="terms"
+                  type="checkbox"
+                  aria-labelledby="terms-copy"
+                  checked={agreed}
+                  onChange={() => setAgreed((v) => !v)}
+                  className="h-5 w-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                />
+              </span>
+              <div id="terms-copy" className="text-sm text-gray-600 leading-relaxed">
                 I agree to the{' '}
-                <a href="#" className="text-primary-600 hover:text-primary-700 underline font-medium">
+                <Link to="/terms" className="inline-flex min-h-11 items-center font-medium text-primary-700 underline hover:text-primary-800">
                   Terms & Conditions
-                </a>{' '}
+                </Link>{' '}
                 and{' '}
-                <a href="#" className="text-primary-600 hover:text-primary-700 underline font-medium">
+                <Link to="/privacy-policy" className="inline-flex min-h-11 items-center font-medium text-primary-700 underline hover:text-primary-800">
                   Privacy Policy
-                </a>
-              </label>
+                </Link>
+              </div>
             </div>
 
             {/* Submit Button */}
@@ -367,7 +385,7 @@ const SignupPage: React.FC = () => {
           <div className="text-center mt-6 pt-6 border-t border-gray-100">
             <p className="text-gray-600 text-sm">
               Already have an account?{' '}
-              <Link to="/login" className="text-primary-600 hover:text-primary-700 font-semibold underline">
+              <Link to="/login" className="inline-flex min-h-11 items-center rounded-md px-1 font-semibold text-primary-700 underline hover:text-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500">
                 Sign in here
               </Link>
             </p>

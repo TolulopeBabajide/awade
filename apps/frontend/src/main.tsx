@@ -6,6 +6,7 @@ import { Analytics } from '@vercel/analytics/react'
 import App from './App.tsx'
 import './index.css'
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { googleAuthClientId, isGoogleAuthConfigured } from './components/ResponsiveGoogleLogin';
 
 // ---------------------------------------------------------------------------
 // Sentry error monitoring (AWD-H-01)
@@ -43,15 +44,19 @@ const queryClient = new QueryClient({
   },
 })
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+const app = (
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <App />
-          <Analytics />
-        </BrowserRouter>
-      </GoogleOAuthProvider>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <App />
+        <Analytics />
+      </BrowserRouter>
     </QueryClientProvider>
-  </React.StrictMode>,
-) 
+  </React.StrictMode>
+);
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  isGoogleAuthConfigured
+    ? <GoogleOAuthProvider clientId={googleAuthClientId}>{app}</GoogleOAuthProvider>
+    : app,
+)
