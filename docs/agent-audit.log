@@ -496,3 +496,6 @@
 2026-08-05T23:15:52Z | code-review-agent    | WRITE      | docs/code-reviews/                       | completed structural code review
 2026-08-06T00:12:56Z | code-review-agent    | REVIEW     | docs/code-reviews/review-2026-08-06-8fa3940.md | in-loop review AWD-M-331 — ✅ Clean (2 🟡 unused UserRole import; prior review still current)
 2026-08-18T01:13:30Z | code-review-agent    | WRITE      | docs/code-reviews/review-2026-08-18-H142.md | completed structural code review — 1 High finding (nanoid override version)
+2026-08-23T08:47:07Z | pm-agent             | SANITIZE   | user-request                             | sanitised user input before processing
+2026-08-23T08:50:29Z | security-agent       | WRITE      | docs/public/security-case-study          | published evidence-backed Awade security case study and portfolio copy
+2026-08-23T08:50:29Z | pm-agent             | WRITE      | docs/agentic/backlog.md                  | recorded portfolio security review with no duplicate issues filed
