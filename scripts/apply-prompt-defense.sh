@@ -31,12 +31,12 @@ esac
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CANON="$ROOT/.claude/rules/prompt-defense-baseline.md"
-SKILLS_DIR="$ROOT/.claude/skills"
+SKILLS_DIRS=("$ROOT/.claude/skills" "$ROOT/.agents/skills")
 
-python3 - "$MODE" "$CANON" "$SKILLS_DIR" <<'PY'
+python3 - "$MODE" "$CANON" "${SKILLS_DIRS[@]}" <<'PY'
 import sys, os, re, glob
 
-mode, canon_path, skills_dir = sys.argv[1], sys.argv[2], sys.argv[3]
+mode, canon_path, *skills_dirs = sys.argv[1:]
 BEGIN = "<!-- ECC-PROMPT-DEFENSE:BEGIN -->"
 END   = "<!-- ECC-PROMPT-DEFENSE:END -->"
 
@@ -56,28 +56,32 @@ def frontmatter_end(text):
     m = re.search(r"\n---[ \t]*\n", text)
     return m.end() if m else 0
 
-skills = sorted(glob.glob(os.path.join(skills_dir, "*", "SKILL.md")))
+skills = sorted(path for skills_dir in skills_dirs
+                for path in glob.glob(os.path.join(skills_dir, "*", "SKILL.md")))
 missing, stale, current, changed = [], [], [], []
 
 for path in skills:
     name = os.path.basename(os.path.dirname(path))
     text = open(path, encoding="utf-8").read()
+    runtime_block = block
+    if os.sep + ".agents" + os.sep in path:
+        runtime_block = runtime_block.replace("`CLAUDE.md`", "`AGENTS.md`")
     has = BEGIN in text and END in text
     existing = ""
     if has:
         existing = text[text.index(BEGIN): text.index(END) + len(END)].strip()
 
-    if has and existing == block:
+    if has and existing == runtime_block:
         current.append(name); continue
     (stale if has else missing).append(name)
 
     if mode == "--apply":
         if has:
             new = re.sub(re.escape(BEGIN) + r".*?" + re.escape(END),
-                         lambda _: block, text, count=1, flags=re.S)
+                         lambda _: runtime_block, text, count=1, flags=re.S)
         else:
             i = frontmatter_end(text)
-            new = text[:i] + ("\n" if i else "") + block + "\n\n" + text[i:]
+            new = text[:i] + ("\n" if i else "") + runtime_block + "\n\n" + text[i:]
         open(path, "w", encoding="utf-8").write(new)
         changed.append(name)
 

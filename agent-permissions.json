@@ -3,12 +3,14 @@
     "description": "Read/write path manifest for all active Awade scheduled and on-demand agents. Used by the access-review-agent for scope-creep auditing. Update whenever a new agent is added or an agent's output paths change.",
     "generated": "2026-05-05",
     "generated_by": "dev-agent (AWD-M-101, AWD-M-100)",
-    "agents_count": 14
+    "agents_count": 33,
+    "updated": "2026-08-23",
+    "note": "Expanded to all installed Claude and Codex skills; project-native paths remain authoritative."
   },
   "agents": {
     "dev-agent": {
       "schedule": "hourly",
-      "description": "Lead developer agent and orchestrator of the consolidated hourly dev-loop — picks one stage=ready backlog item, implements it on a branch, then runs the code-review, QA, and scoped-security agents in-process and commits (merge+push) only when all pass. Sole git gateway.",
+      "description": "Lead developer agent and orchestrator of the consolidated hourly dev-loop \u2014 picks one stage=ready backlog item, implements it on a branch, then runs the code-review, QA, and scoped-security agents in-process and commits (merge+push) only when all pass. Sole git gateway.",
       "reads": [
         "project-config.md",
         "CLAUDE.md",
@@ -55,7 +57,7 @@
     },
     "qa-agent": {
       "schedule": "in-loop (invoked by dev-loop)",
-      "description": "QA agent — validates the dev agent's feature-branch diff before merge, in-process inside the hourly dev-loop; runs CI mirror checks and files blocking issues. No longer on an independent schedule.",
+      "description": "QA agent \u2014 validates the dev agent's feature-branch diff before merge, in-process inside the hourly dev-loop; runs CI mirror checks and files blocking issues. No longer on an independent schedule.",
       "reads": [
         "project-config.md",
         "CLAUDE.md",
@@ -115,7 +117,7 @@
     },
     "nightly-monitor": {
       "schedule": "daily",
-      "description": "Nightly monitor — aggregates agent health, MCP failures, and key metrics into the morning brief.",
+      "description": "Nightly monitor \u2014 aggregates agent health, MCP failures, and key metrics into the morning brief.",
       "reads": [
         "project-config.md",
         ".agent-health/*.last-run",
@@ -141,7 +143,7 @@
     },
     "weekly-review": {
       "schedule": "weekly",
-      "description": "Weekly review agent — produces sprint retrospective, health metrics, and priority recommendations.",
+      "description": "Weekly review agent \u2014 produces sprint retrospective, health metrics, and priority recommendations.",
       "reads": [
         "project-config.md",
         "docs/agentic/sprints/dev-log.md",
@@ -167,7 +169,7 @@
     },
     "code-review-agent": {
       "schedule": "in-loop (invoked by dev-loop) / on-demand",
-      "description": "Code review agent — reviews the dev agent's feature-branch diff before merge, in-process inside the hourly dev-loop, for structural quality and correctness issues; also on demand for PRs. No longer on an independent :15 schedule.",
+      "description": "Code review agent \u2014 reviews the dev agent's feature-branch diff before merge, in-process inside the hourly dev-loop, for structural quality and correctness issues; also on demand for PRs. No longer on an independent :15 schedule.",
       "reads": [
         "project-config.md",
         "CLAUDE.md",
@@ -195,7 +197,7 @@
     },
     "compliance-agent": {
       "schedule": "on-demand",
-      "description": "Compliance agent — audits for GDPR, COPPA, NDPR, POPIA, and EU AI Act requirements.",
+      "description": "Compliance agent \u2014 audits for GDPR, COPPA, NDPR, POPIA, and EU AI Act requirements.",
       "reads": [
         "project-config.md",
         "CLAUDE.md",
@@ -223,7 +225,7 @@
     },
     "architecture-agent": {
       "schedule": "on-demand",
-      "description": "Architecture agent — evaluates technical design, identifies structural issues, and produces ADRs.",
+      "description": "Architecture agent \u2014 evaluates technical design, identifies structural issues, and produces ADRs.",
       "reads": [
         "project-config.md",
         "CLAUDE.md",
@@ -251,7 +253,7 @@
     },
     "performance-agent": {
       "schedule": "on-demand",
-      "description": "Performance agent — profiles frontend bundle, backend DB queries, and Lighthouse scores.",
+      "description": "Performance agent \u2014 profiles frontend bundle, backend DB queries, and Lighthouse scores.",
       "reads": [
         "project-config.md",
         "apps/frontend/vite.config.ts",
@@ -281,7 +283,7 @@
     },
     "dependency-security-agent": {
       "schedule": "weekly",
-      "description": "Dependency security agent — audits npm and pip dependencies for CVEs and outdated pins.",
+      "description": "Dependency security agent \u2014 audits npm and pip dependencies for CVEs and outdated pins.",
       "reads": [
         "project-config.md",
         "apps/backend/requirements.txt",
@@ -307,7 +309,7 @@
     },
     "access-review-agent": {
       "schedule": "on-demand / periodic",
-      "description": "Access review agent — audits agent permissions, API key rotation, and secret hygiene.",
+      "description": "Access review agent \u2014 audits agent permissions, API key rotation, and secret hygiene.",
       "reads": [
         "project-config.md",
         "agent-permissions.json",
@@ -337,7 +339,7 @@
     },
     "tech-debt-agent": {
       "schedule": "on-demand",
-      "description": "Tech debt agent — catalogs structural debt (god objects, migration gaps, dual caches) and files backlog items.",
+      "description": "Tech debt agent \u2014 catalogs structural debt (god objects, migration gaps, dual caches) and files backlog items.",
       "reads": [
         "project-config.md",
         "CLAUDE.md",
@@ -365,7 +367,7 @@
     },
     "marketing-agent": {
       "schedule": "on-demand",
-      "description": "Marketing agent — produces content for landing pages, blog posts, and outreach campaigns.",
+      "description": "Marketing agent \u2014 produces content for landing pages, blog posts, and outreach campaigns.",
       "reads": [
         "project-config.md",
         "docs/agentic/gtm/strategy-*.md",
@@ -391,7 +393,7 @@
     },
     "finance-agent": {
       "schedule": "on-demand",
-      "description": "Finance agent — reviews revenue metrics, subscription cohorts, and cost exposure (AI API spend).",
+      "description": "Finance agent \u2014 reviews revenue metrics, subscription cohorts, and cost exposure (AI API spend).",
       "reads": [
         "project-config.md",
         "docs/agentic/backlog.md"
@@ -410,6 +412,496 @@
         "docs/private/**",
         "apps/backend/**",
         "apps/frontend/**"
+      ]
+    },
+    "analytics-agent": {
+      "schedule": "configured by runtime",
+      "description": "analytics-agent",
+      "reads": [
+        "project-config.md",
+        "docs/analytics/",
+        "docs/agentic/discovery/queue.md"
+      ],
+      "writes": [
+        "docs/analytics/",
+        "docs/agentic/discovery/queue.md",
+        "docs/agentic/daily-briefs/morning-brief.md",
+        "docs/agentic/backlog.md",
+        "docs/agentic/agent-audit.log",
+        ".agent-health/analytics-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "support-agent": {
+      "schedule": "configured by runtime",
+      "description": "support-agent",
+      "reads": [
+        "docs/support/",
+        "project-config.md"
+      ],
+      "writes": [
+        "docs/support/",
+        "docs/agentic/discovery/queue.md",
+        "docs/agentic/backlog.md",
+        "docs/agentic/agent-audit.log",
+        ".agent-health/support-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "growth-agent": {
+      "schedule": "configured by runtime",
+      "description": "growth-agent",
+      "reads": [
+        "project-config.md",
+        "docs/content/",
+        "docs/content/content-log.md"
+      ],
+      "writes": [
+        "docs/content/drafts/",
+        "docs/agentic/discovery/queue.md",
+        "docs/content/content-log.md",
+        "docs/growth/",
+        "docs/agentic/backlog.md",
+        "docs/agentic/agent-audit.log",
+        ".agent-health/growth-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "sprint-planning": {
+      "schedule": "configured by runtime",
+      "description": "sprint-planning",
+      "reads": [
+        "docs/agentic/backlog.md",
+        "docs/agentic/sprints/",
+        "project-config.md"
+      ],
+      "writes": [
+        "docs/agentic/sprint-plans/",
+        "docs/agentic/backlog.md",
+        "docs/agentic/agent-audit.log",
+        ".agent-health/sprint-planning.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "content-agent": {
+      "schedule": "configured by runtime",
+      "description": "content-agent",
+      "reads": [
+        "project-config.md",
+        "docs/content/",
+        "docs/content/content-log.md"
+      ],
+      "writes": [
+        "docs/content/drafts/",
+        "docs/content/content-log.md",
+        "docs/agentic/backlog.md",
+        "docs/agentic/agent-audit.log",
+        ".agent-health/content-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "improvement-agent": {
+      "schedule": "configured by runtime",
+      "description": "improvement-agent",
+      "reads": [
+        "docs/improvement-backlog.md",
+        "docs/agentic/backlog.md",
+        "project-config.md",
+        ".claude/skills/",
+        "scripts/",
+        "agent-permissions.json"
+      ],
+      "writes": [
+        "docs/improvement-backlog.md",
+        "docs/agentic/backlog.md",
+        "docs/agentic/daily-briefs/improvement-report.md",
+        "docs/agentic/agent-audit.log",
+        "scripts/",
+        ".claude/skills/",
+        "agent-permissions.json",
+        ".agent-health/improvement-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "discovery-agent": {
+      "schedule": "configured by runtime",
+      "description": "discovery-agent",
+      "reads": [
+        "project-config.md",
+        "docs/agentic/discovery/",
+        "docs/agentic/specs/"
+      ],
+      "writes": [
+        "docs/agentic/discovery/",
+        "docs/agentic/backlog.md",
+        "docs/agentic/agent-audit.log",
+        ".agent-health/discovery-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "onboarding-agent": {
+      "schedule": "configured by runtime",
+      "description": "onboarding-agent",
+      "reads": [
+        "project-config.md",
+        "docs/agentic/backlog.md",
+        ".claude/rules/",
+        ".claude/skills/"
+      ],
+      "writes": [
+        "docs/ONBOARDING-SUMMARY.md",
+        "docs/agentic/backlog.md",
+        "project-config.md",
+        ".claude/rules/codebase-map.md",
+        "docs/agentic/daily-briefs/morning-brief.md",
+        "docs/agentic/agent-audit.log",
+        ".agent-health/onboarding-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "pm-agent": {
+      "schedule": "configured by runtime",
+      "description": "pm-agent",
+      "reads": [
+        "docs/agentic/discovery/",
+        "project-config.md",
+        "docs/agentic/backlog.md",
+        "docs/agentic/sprints/"
+      ],
+      "writes": [
+        "docs/agentic/specs/",
+        "docs/agentic/backlog.md",
+        "docs/agentic/sprint-plans/",
+        "docs/agentic/agent-audit.log",
+        ".agent-health/pm-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "gtm-agent": {
+      "schedule": "configured by runtime",
+      "description": "gtm-agent",
+      "reads": [
+        "project-config.md",
+        "docs/agentic/specs/",
+        "docs/agentic/discovery/"
+      ],
+      "writes": [
+        "docs/agentic/gtm/",
+        "project-config.md",
+        "docs/agentic/backlog.md",
+        "docs/agentic/agent-audit.log",
+        ".agent-health/gtm-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "design-agent": {
+      "schedule": "configured by runtime",
+      "description": "design-agent",
+      "reads": [
+        "docs/agentic/specs/",
+        "docs/agentic/gtm/",
+        "project-config.md",
+        "docs/agentic/backlog.md",
+        ".claude/rules/codebase-map.md"
+      ],
+      "writes": [
+        "docs/agentic/design/",
+        "docs/agentic/backlog.md",
+        "docs/agentic/agent-audit.log",
+        ".agent-health/design-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "devops-agent": {
+      "schedule": "configured by runtime",
+      "description": "devops-agent",
+      "reads": [
+        "project-config.md",
+        "docs/agentic/sprints/",
+        ".claude/rules/"
+      ],
+      "writes": [
+        "docs/agentic/sprints/",
+        "docs/ops/",
+        "docs/agentic/daily-briefs/morning-brief.md",
+        "docs/agentic/backlog.md",
+        "docs/agentic/agent-audit.log",
+        ".agent-health/devops-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "seo-agent": {
+      "schedule": "configured by runtime",
+      "description": "seo-agent",
+      "reads": [
+        "project-config.md",
+        "docs/seo/",
+        "docs/content/content-log.md",
+        "docs/agentic/gtm/"
+      ],
+      "writes": [
+        "docs/seo/",
+        "docs/agentic/backlog.md",
+        "docs/agentic/agent-audit.log",
+        ".agent-health/seo-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "legal-agent": {
+      "schedule": "configured by runtime",
+      "description": "legal-agent",
+      "reads": [
+        "project-config.md",
+        "docs/legal/",
+        "docs/agentic/gtm/"
+      ],
+      "writes": [
+        "docs/legal/",
+        "docs/agentic/backlog.md",
+        "docs/agentic/agent-audit.log",
+        ".agent-health/legal-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "ops-agent": {
+      "schedule": "configured by runtime",
+      "description": "ops-agent",
+      "reads": [
+        "project-config.md",
+        "docs/agentic/backlog.md",
+        "docs/ops/",
+        "docs/finance/"
+      ],
+      "writes": [
+        "docs/ops/",
+        "docs/agentic/backlog.md",
+        "docs/agentic/daily-briefs/",
+        "docs/AGENTIC-TEAM.md",
+        "docs/agentic/agent-audit.log",
+        ".agent-health/ops-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "incident-response-agent": {
+      "schedule": "configured by runtime",
+      "description": "incident-response-agent",
+      "reads": [
+        "project-config.md",
+        "docs/agentic/backlog.md",
+        "docs/ops/",
+        "docs/agentic/sprints/"
+      ],
+      "writes": [
+        "docs/incidents/",
+        "docs/agentic/backlog.md",
+        "docs/agentic/daily-briefs/morning-brief.md",
+        "docs/agentic/agent-audit.log",
+        ".agent-health/incident-response-agent.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "daily-health-check": {
+      "schedule": "configured by runtime",
+      "description": "daily-health-check",
+      "reads": [
+        "project-config.md",
+        "docs/agentic/backlog.md",
+        ".agent-health/"
+      ],
+      "writes": [
+        "docs/agentic/daily-briefs/morning-brief.md",
+        "docs/agentic/backlog.md",
+        "docs/agentic/agent-audit.log",
+        ".agent-health/daily-health-check.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "weekend-ops": {
+      "schedule": "configured by runtime",
+      "description": "weekend-ops",
+      "reads": [
+        "project-config.md",
+        "docs/agentic/backlog.md",
+        "docs/agentic/sprints/",
+        "docs/content/content-log.md",
+        ".agent-health/"
+      ],
+      "writes": [
+        "docs/agentic/weekly-reviews/",
+        "docs/agentic/daily-briefs/",
+        "docs/agentic/backlog.md",
+        "docs/agentic/agent-audit.log",
+        ".agent-health/weekend-ops.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
+      ]
+    },
+    "dashboard-refresh": {
+      "schedule": "configured by runtime",
+      "description": "dashboard-refresh",
+      "reads": [
+        "project-config.md",
+        "docs/",
+        ".agent-health/",
+        ".claude/skills/"
+      ],
+      "writes": [
+        "docs/dashboard/",
+        "docs/agentic/backlog.md",
+        "docs/agentic/agent-audit.log",
+        ".agent-health/dashboard-refresh.last-run"
+      ],
+      "forbidden": [
+        ".env",
+        ".env.local",
+        ".env.*",
+        "*.key",
+        "*.pem",
+        "*.p12",
+        "docs/private/**"
       ]
     }
   }
