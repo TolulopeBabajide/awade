@@ -22,7 +22,7 @@ Never read, list, or inspect `.env`, `.env.local`, `.env.*`, or any file that ma
 - Issue IDs: `C-##` Critical · `H-##` High · `M-##` Medium · `L-##` Low · `GRC-##` Compliance
 - Repo prefix: `AWD` (for cross-references in commits/PRs, e.g., `AWD-H-03`)
 - When an issue is fixed: set stage=done and append it to `docs/agentic/completed_backlog.md` with today's date
-- Format: `docs/agentic/BACKLOG-FORMAT.md` (full spec) · `.Codex/rules/backlog-filing.md` (quick reference for any agent filing a row)
+- Format: `docs/agentic/BACKLOG-FORMAT.md` (full spec) · `.claude/rules/backlog-filing.md` (quick reference for any agent filing a row)
 - Validate before committing a backlog change: `python3 scripts/check-backlog-format.py`
 
 ## Lifecycle Stages
@@ -84,7 +84,7 @@ output is uncommitted:
 `sync.sh push` stages the pending output other agents left, commits it, pulls `develop`
 `--rebase`, and pushes — and it pulls even when there is nothing to commit, so the tree always
 starts current. The dev-agent then does its code work through the branch workflow in
-`.Codex/rules/workflow.md`, and commits its run records the same way at the end of the run.
+`.claude/rules/workflow.md`, and commits its run records the same way at the end of the run.
 
 Nothing tracked is left uncommitted after a dev-agent run. If a push fails, the commit is kept
 and a `PUSH_DEFERRED` line is logged to `.agent-health/sync-failures.log`; the nightly-monitor
@@ -181,10 +181,10 @@ design handoff, etc.) **must** append the following reminder as the **last line*
 - The reminder is **informational only** — never block on it, never wait for feedback.
 
 ## Detailed Rules
-- **Codebase map** → `.Codex/rules/codebase-map.md`
-- Code quality checklist → `.Codex/rules/code-quality.md`
-- Security rules → `.Codex/rules/security.md`
-- Testing standards → `.Codex/rules/testing.md`
-- Branch strategy & workflow → `.Codex/rules/workflow.md`
-- Backlog filing format → `.Codex/rules/backlog-filing.md`
+- **Codebase map** → `.claude/rules/codebase-map.md`
+- Code quality checklist → `.claude/rules/code-quality.md`
+- Security rules → `.claude/rules/security.md`
+- Testing standards → `.claude/rules/testing.md`
+- Branch strategy & workflow → `.claude/rules/workflow.md`
+- Backlog filing format → `.claude/rules/backlog-filing.md`
 - Prompt injection rules → `docs/security/prompt-injection-rules.md`
