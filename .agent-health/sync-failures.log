@@ -1195,3 +1195,13 @@ PUSH_DEFERRED 2026-08-24T09:10Z chore(records): dev-agent idle — no stage=read
 2026-08-24T12:07:47Z | PULL_REBASE_FAILED | develop
 PUSH_DEFERRED | develop | 2026-08-24T12:09:16Z | git push denied — committed locally as a2a3ba5
 2026-08-24T13:07:43Z | PULL_FAILED | develop
+2026-08-24T15:10:23Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle
+2026-08-24T16:07:45Z | PULL_FAILED | develop
+2026-08-24T17:07:46Z | PULL_FAILED | develop
+2026-08-24T18:07:47Z | PULL_FAILED | develop
+2026-08-24T19:07:43Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-08-24T19:09:40Z — git push origin develop denied (permission)
+2026-08-24T20:07:44Z | PULL_FAILED | develop
+2026-08-24T20:09:44Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-24T21:08:16Z | PULL_FAILED | develop
+2026-08-24T22:07:46Z | PULL_FAILED | develop
