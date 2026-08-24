@@ -1183,3 +1183,5 @@ PUSH_DEFERRED: 2026-08-23T21:11Z develop 26a43c3
 PUSH_DEFERRED 2026-08-24T01:13Z — git push origin develop denied (sandbox permission)
 2026-08-24T02:07:42Z | PULL_FAILED | develop
 2026-08-24T03:07:42Z | PULL_REBASE_FAILED | develop
+2026-08-24T03:10:58Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-24T04:07:53Z | PULL_FAILED | develop

@@ -1555,3 +1555,4 @@ After removing it, the next hourly run will:
 2026-08-24T00:08Z | idle | No stage=ready items — nothing to build | — | N/A
 
 2026-08-24T03:09Z | — | dev-agent idle — no stage=ready items, heartbeat updated | — | —
+2026-08-24T04:08Z | — | dev-agent idle — no stage=ready items, heartbeat updated | — | ⏸ Idle | CI:N/A
