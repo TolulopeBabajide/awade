@@ -1185,3 +1185,9 @@ PUSH_DEFERRED 2026-08-24T01:13Z — git push origin develop denied (sandbox perm
 2026-08-24T03:07:42Z | PULL_REBASE_FAILED | develop
 2026-08-24T03:10:58Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
 2026-08-24T04:07:53Z | PULL_FAILED | develop
+2026-08-24T05:08:41Z | PULL_FAILED | develop
+2026-08-24T06:07:47Z | PULL_FAILED | develop
+2026-08-24T06:08:18Z | PUSH_DEFERRED | develop | chore(sync): commit pending agent outputs
+2026-08-24T09:07:45Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-08-24T09:10Z chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-24T10:07:56Z | PULL_FAILED | develop
