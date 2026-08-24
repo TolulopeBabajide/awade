@@ -1557,3 +1557,4 @@ After removing it, the next hourly run will:
 
 2026-08-24T03:09Z | — | dev-agent idle — no stage=ready items, heartbeat updated | — | —
 2026-08-24T04:08Z | — | dev-agent idle — no stage=ready items, heartbeat updated | — | ⏸ Idle | CI:N/A
+2026-08-24T06:09:32Z | — | dev-agent idle — no stage=ready items, heartbeat updated | — | ✅ Idle | CI:N/A
