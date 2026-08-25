@@ -1211,3 +1211,7 @@ PUSH_DEFERRED 2026-08-24T19:09:40Z — git push origin develop denied (permissio
 2026-08-25T00:07:42Z | PULL_FAILED | develop
 2026-08-25T00:08Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
 2026-08-25T01:07:45Z | PULL_FAILED | develop
+2026-08-25T03:07:44Z | PULL_REBASE_FAILED | develop
+2026-08-25T04:07:44Z | PULL_FAILED | develop
+2026-08-25T04:10Z | PUSH_DEFERRED | develop | chore(records): dev-agent idle — no stage=ready items, heartbeat updated
+2026-08-25T05:08:51Z | PULL_FAILED | develop
