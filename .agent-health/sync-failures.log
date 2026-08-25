@@ -1234,3 +1234,5 @@ PUSH_DEFERRED 2026-08-25T16:09Z chore(records): dev-agent idle heartbeat db33d1e
 2026-08-25T18:07:49Z | PULL_FAILED | develop
 2026-08-25T19:08:39Z | PULL_FAILED | develop
 2026-08-25T20:07:51Z | PULL_FAILED | develop
+2026-08-25T20:11Z PUSH_DEFERRED — sandbox push permission denied (AWD-M-305)
+2026-08-25T21:07:54Z | PULL_FAILED | develop
