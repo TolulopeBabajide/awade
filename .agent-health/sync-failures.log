@@ -1229,3 +1229,8 @@ PUSH_DEFERRED 2026-08-25T11:09Z chore(records): dev-agent idle
 PUSH_DEFERRED: 2026-08-25T13:10Z — git push denied by sandbox permissions (AWD-M-305)
 2026-08-25T14:07:55Z | PULL_FAILED | develop
 2026-08-25T15:07:47Z | PULL_FAILED | develop
+PUSH_DEFERRED 2026-08-25T16:09Z chore(records): dev-agent idle heartbeat db33d1e
+2026-08-25T17:07:52Z | PULL_FAILED | develop
+2026-08-25T18:07:49Z | PULL_FAILED | develop
+2026-08-25T19:08:39Z | PULL_FAILED | develop
+2026-08-25T20:07:51Z | PULL_FAILED | develop
