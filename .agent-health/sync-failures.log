@@ -1225,3 +1225,7 @@ PUSH_DEFERRED 2026-08-24T19:09:40Z — git push origin develop denied (permissio
 2026-08-25T11:07:44Z | PULL_FAILED | develop
 PUSH_DEFERRED 2026-08-25T11:09Z chore(records): dev-agent idle
 2026-08-25T12:07:45Z | PULL_FAILED | develop
+2026-08-25T13:07:47Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED: 2026-08-25T13:10Z — git push denied by sandbox permissions (AWD-M-305)
+2026-08-25T14:07:55Z | PULL_FAILED | develop
+2026-08-25T15:07:47Z | PULL_FAILED | develop
