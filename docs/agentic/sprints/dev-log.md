@@ -1603,3 +1603,4 @@ After removing it, the next hourly run will:
 2026-08-25T19:09Z | — | dev-agent idle — no stage=ready items, heartbeat updated
 2026-08-26T00:00Z | — | idle — no stage=ready items | — | ✅ No action (no ready items)
 2026-08-26T00:08Z | idle | No stage=ready items — 20 active items at discover/define | — | ✅ No-op
+2026-08-26T00:00Z | — | dev-agent idle — no stage=ready items, heartbeat updated | — | ✅ No ready item
