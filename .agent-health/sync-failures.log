@@ -1262,3 +1262,9 @@ PUSH_DEFERRED: 2026-08-26T14:09Z develop — user denied push
 2026-08-26T18:07:50Z | PULL_FAILED | develop
 2026-08-26T18:09Z | PUSH_DEFERRED | develop | idle-run heartbeat — user denied push
 2026-08-26T19:07:51Z | PULL_FAILED | develop
+2026-08-26T21:07:50Z | PULL_FAILED | develop
+2026-08-26T21:08:39Z | PULL_FAILED | develop
+2026-08-26T22:08:01Z | PULL_REBASE_FAILED | develop
+2026-08-26T22:11:12Z | PULL_FAILED | develop
+2026-08-26T22:11:12Z | PULL_FAILED | develop
+2026-08-26T22:11:21Z | PUSH_DEFERRED | develop | chore(records): dev-agent heartbeat + idle-run dev-log entry | git push not permitted in sandbox session
