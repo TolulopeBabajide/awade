@@ -1620,3 +1620,4 @@ After removing it, the next hourly run will:
 2026-08-26T14:09Z | idle | No stage=ready items — all open items at discover/define; skipping reviewers | — | ✅ Idle
 2026-08-26T16:09Z | idle | No stage=ready items — all open items at discover/define; skipping reviewers | — | ✅ Idle
 | 2026-08-26T18:08Z | — | No ready items — idle run | — | ⏸ No work | All 22 open backlog items at discover/define; 0 at stage=ready. Sync recovered: rebased 5 commits after committing pending .agent-health files. |
+2026-08-26T19:09Z | idle | No stage=ready items — all 22 active items at discover/define; skipping reviewers | — | ✅ Idle
