@@ -1241,3 +1241,9 @@ PUSH_DEFERRED 2026-08-25T16:09Z chore(records): dev-agent idle heartbeat db33d1e
 PUSH_DEFERRED 2026-08-25T22:11Z develop 0948b6a — permission denied in sandbox
 2026-08-25T23:07:48Z | PULL_FAILED | develop
 2026-08-26T00:07:45Z | PULL_FAILED | develop
+2026-08-26T06:07:48Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-08-26T06:09Z — permission denied
+2026-08-26T07:07:48Z | PULL_FAILED | develop
+2026-08-26T08:07:52Z | PULL_REBASE_FAILED | develop
+2026-08-26T08:10Z PUSH_DEFERRED — git push blocked by sandbox permission; commit 1595648 pending
+2026-08-26T09:07:47Z | PULL_FAILED | develop
