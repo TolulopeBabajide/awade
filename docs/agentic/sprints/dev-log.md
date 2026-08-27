@@ -1630,3 +1630,4 @@ After removing it, the next hourly run will:
 
 2026-08-26T22:16Z | — | Idle run — no stage=ready items | — | ✅ Gate: no work (all open items at discover/define) | CI:n/a
 2026-08-27T00:09Z | — | Idle run — no stage=ready items | — | ✅ Gate: no work (all open items at discover/define) | CI:n/a
+2026-08-27T00:00Z | — | idle-run | — | ✅ No stage=ready item — all open items at discover/define or pending Tolu decision. | CI:N/A
