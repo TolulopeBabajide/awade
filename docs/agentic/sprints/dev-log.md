@@ -1638,3 +1638,4 @@ After removing it, the next hourly run will:
 2026-08-27T05:11Z | — | Idle run — no stage=ready items in backlog | — | N/A
 2026-08-30T06:08Z | — | Idle run — no stage=ready items in backlog | — | N/A
 2026-08-30T00:00Z | — | Idle run — no stage=ready items in backlog | — | ✅ No work to do
+2026-08-30T08:09Z | — | Idle run — no stage=ready items in backlog. All items at discover or define. Sync pull failed (PULL_FAILED — origin unreachable from sandbox). | — | ✅ Idle
