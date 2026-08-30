@@ -1646,3 +1646,5 @@ After removing it, the next hourly run will:
 
 2026-08-30T10:08Z | — | Idle run — no stage=ready items | — | ✅ Nothing to build (all 22 open items at discover/define)
 2026-08-30T13:08Z | — | idle-run | — | ✅ No stage=ready items — nothing to build (open items: H-73, H-79, M-269, M-318, M-216, M-124 all at define/discover) | CI:n/a
+
+2026-08-30T14:09Z | — | Idle run — no stage=ready items in backlog | — | ✅ No work | CI:n/a
