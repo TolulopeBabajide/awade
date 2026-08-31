@@ -1674,3 +1674,4 @@ After removing it, the next hourly run will:
 
 | 2026-08-31T13:09Z | — | Idle run — no stage=ready items in backlog (8 discover, 14 define) | — | ✅ No ready item — nothing to build | CI:n/a |
 | 2026-08-31T14:11Z | — | Idle run — no stage=ready items (8 discover, 14 define). All define items blocked: require Tolu decision or L-effort refactors. | — | ✅ No ready item — nothing to build | CI:n/a |
+| 2026-08-31T15:10Z | — | Idle run — no stage=ready items in backlog (8 discover, 14 define). All define items blocked: require Tolu decision or are L-effort refactors. Sync pull deferred (sandbox limitation). | — | ✅ No ready item — nothing to build | CI:n/a |
