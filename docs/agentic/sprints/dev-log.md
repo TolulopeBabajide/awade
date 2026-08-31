@@ -1669,3 +1669,5 @@ After removing it, the next hourly run will:
 | 2026-08-31T07:09Z | — | Idle run — no stage=ready items in backlog (8 discover, 15 define) | — | ✅ No ready item — nothing to build | CI:n/a |
 2026-08-31T12:08Z | M-335 | DepSec: upgrade react-router-dom to 6.30.6 (GHSA-jjmj-jmhj-qwj2) | 0fa8bc3 | ✅ Done (reviewers clean) | CI:pending
 2026-08-31T12:10Z | — | Idle run — no stage=ready items in backlog. AWD-M-335 completed and merged earlier this run. All remaining active items at discover/define. | — | — | CI:n/a
+
+2026-08-31T12:09Z | idle | No stage=ready items in backlog (8 discover, 14 define) — nothing to build this cycle. Git pull deferred: fetch failing (bad remote ref). | — | — | CI:n/a
