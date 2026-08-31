@@ -1667,3 +1667,4 @@ After removing it, the next hourly run will:
 | 2026-08-31T04:08Z | — | Idle run — no stage=ready items in backlog (8 discover, 15 define) | — | ✅ No ready item — nothing to build | CI:n/a |
 | 2026-08-31T06:09Z | — | Idle run — no stage=ready items in backlog (8 discover, 15 define) | — | ✅ No ready item — nothing to build | CI:n/a |
 | 2026-08-31T07:09Z | — | Idle run — no stage=ready items in backlog (8 discover, 15 define) | — | ✅ No ready item — nothing to build | CI:n/a |
+2026-08-31T12:08Z | M-335 | DepSec: upgrade react-router-dom to 6.30.6 (GHSA-jjmj-jmhj-qwj2) | 0fa8bc3 | ✅ Done (reviewers clean) | CI:pending
