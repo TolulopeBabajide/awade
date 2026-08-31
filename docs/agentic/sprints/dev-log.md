@@ -1658,3 +1658,4 @@ After removing it, the next hourly run will:
 2026-08-30T20:09Z | — | Idle — no stage=ready items in backlog | — | ✅ No ready item — nothing to build | CI:n/a
 2026-08-30T21:08Z | — | Idle run — no stage=ready items in backlog (6 discover, 6 define) | — | ✅ No work | CI:n/a
 2026-08-31T23:10Z | — | Idle — no stage=ready items in backlog | — | ✅ No ready item — nothing to build | CI:n/a
+2026-08-31T01:07Z | — | Idle — no stage=ready items in backlog (8 discover, 15 define — all require Tolu decision or large L-effort refactors) | — | ✅ No ready item — nothing to build | CI:n/a
