@@ -1308,3 +1308,8 @@ PUSH_DEFERRED 2026-08-30T23:11Z chore(records): dev-agent heartbeat + idle-run d
 2026-08-31T01:07:30Z | PULL_FAILED | develop
 2026-08-31T02:07:31Z | PULL_FAILED | develop
 2026-08-31T03:07:31Z | PULL_FAILED | develop
+2026-08-31T04:07:36Z | PULL_FAILED | develop
+2026-08-31T05:08:34Z | PULL_FAILED | develop
+2026-08-31T06:07:35Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-08-31T06:10Z — git push denied by permission policy
+2026-08-31T07:07:47Z | PULL_FAILED | develop
