@@ -1349,3 +1349,7 @@ PUSH_DEFERRED: 2026-09-01T06:10:32Z — push denied by permission gate (automate
 2026-09-01T08:07:40Z | PULL_REBASE_FAILED | develop
 2026-09-01T08:13:40Z | PUSH_DEFERRED | develop | chore(records): dev-agent heartbeat + idle-run dev-log entry
 2026-09-01T09:07:42Z | PULL_FAILED | develop
+PUSH_DEFERRED: 2026-09-01T09:12Z — git push origin develop blocked by sandbox permission
+2026-09-01T10:07:46Z | PULL_REBASE_FAILED | develop
+PUSH_DEFERRED 2026-09-01T10:09Z push permission denied in non-interactive session
+2026-09-01T11:07:48Z | PULL_FAILED | develop
