@@ -1711,3 +1711,4 @@ After removing it, the next hourly run will:
 | 2026-09-02T01:10Z | — | Idle run — no stage=ready items in backlog (8 discover, 14 define). Sync pull deferred (GitHub network error, sync-failures.log). No dev work executed. | — | ✅ No ready item — nothing to build | CI:n/a |
 
 2026-09-02T02:08Z | — | Idle run — no stage=ready items | — | ✅ No work. Sync pull still failing (git object error from remote since 2026-09-01; logged to sync-failures.log). All open backlog items at stage=discover or stage=define. Code-review, QA, and security agents NOT invoked (no ready item picked up).
+2026-09-02T03:08Z | — | Idle run — no stage=ready items | — | ✅ No ready item — all open items at discover/define or require Tolu decision
