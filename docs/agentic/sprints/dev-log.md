@@ -1709,3 +1709,5 @@ After removing it, the next hourly run will:
 | 2026-09-01T20:10Z | — | Idle run — no stage=ready items in backlog (H-79 discover, H-73 define; all M/L at discover or define). Sync pull deferred (sandbox push restriction, AWD-M-305). No dev work executed. | — | ✅ No ready item — nothing to build | CI:n/a |
 2026-09-01T21:09:37Z | idle | No stage=ready items — 23 active items all at discover/define; sync pull failed (GitHub network error) | — | ✅ Idle
 | 2026-09-02T01:10Z | — | Idle run — no stage=ready items in backlog (8 discover, 14 define). Sync pull deferred (GitHub network error, sync-failures.log). No dev work executed. | — | ✅ No ready item — nothing to build | CI:n/a |
+
+2026-09-02T02:08Z | — | Idle run — no stage=ready items | — | ✅ No work. Sync pull still failing (git object error from remote since 2026-09-01; logged to sync-failures.log). All open backlog items at stage=discover or stage=define. Code-review, QA, and security agents NOT invoked (no ready item picked up).
