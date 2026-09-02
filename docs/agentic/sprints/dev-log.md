@@ -1717,3 +1717,4 @@ After removing it, the next hourly run will:
 2026-09-02T06:09Z | — | Idle run — no stage=ready items | — | ✅ No ready item — all 22 active backlog items at discover/define. Code-review, QA, security agents NOT invoked. | CI:n/a
 2026-09-02T07:11Z | — | Idle run — no stage=ready items | — | ✅ No ready item — all active backlog items at discover/define. Code-review, QA, security agents NOT invoked. | CI:n/a
 | 2026-09-02T08:09:36Z | — | idle run — no stage=ready items | — | ✅ No ready item — nothing to build | 0 ready, 14 define, 8 discover; git pull failing (network issue, multiple runs); heartbeat written |
+2026-09-02T15:10Z | H-143 | AWD-H-143 add browserslist ^4.28.8 override | c8f4061 | ✅ Done (CI:pending — TS 0 · lint 0 · 327 FE tests · 1050 BE tests · openapi ✅ · mcp ✅)
