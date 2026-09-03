@@ -1730,3 +1730,5 @@ After removing it, the next hourly run will:
 | 2026-09-02T23:08Z | — | No dev work this cycle | — | ✅ No stage=ready item (all open items at discover/define). | CI:n/a
 | 2026-09-03T00:08Z | — | No dev work this cycle | — | ✅ No stage=ready item (all open items at discover/define). | CI:n/a
 2026-09-03T00:00Z | — | Idle cycle | — | No stage=ready items in backlog (9 discover, 14 define) | CI:n/a
+
+2026-09-03T04:08Z | — | idle cycle — no stage=ready item found | — | ✅ No ready item | CI:n/a
