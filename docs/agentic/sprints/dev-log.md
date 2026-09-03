@@ -1740,3 +1740,5 @@ After removing it, the next hourly run will:
 
 
 2026-09-03T09:13Z | — | idle cycle — no ready items | — | ✅ No ready item | CI:n/a
+
+2026-09-03T18:19Z | — | idle cycle — no ready items | — | ✅ No stage=ready item — all active backlog items at discover/define. Code-review, QA, and security agents NOT invoked. | CI:n/a
