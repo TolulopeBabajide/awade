@@ -1417,3 +1417,12 @@ PUSH_DEFERRED: 2026-09-02T22:09:43Z — git push origin develop denied (permissi
 2026-09-03T21:18:13Z | PULL_FAILED | develop
 2026-09-04T00:09:14Z | PULL_FAILED | develop
 2026-09-04T01:11:37Z | PULL_FAILED | develop
+2026-09-04T11:35Z PUSH_DEFERRED develop — permission gate (idle cycle heartbeat commit 4fe8502)
+2026-09-04T12:09:54Z | PULL_FAILED | develop
+2026-09-04T13:13:12Z | PULL_FAILED | develop
+2026-09-04T14:16:12Z | PULL_FAILED | develop
+2026-09-04T17:08:50Z | PULL_FAILED | develop
+2026-09-04T18:12:22Z | PULL_FAILED | develop
+2026-09-04T19:15:13Z | PULL_FAILED | develop
+2026-09-05T23:07:40Z | PULL_FAILED | develop
+2026-09-05T23:07Z PUSH_DEFERRED develop — permission gate
