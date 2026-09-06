@@ -1441,3 +1441,6 @@ PUSH_DEFERRED 2026-09-06T03:08Z chore(records): idle cycle — no ready items
 2026-09-06T12:07:53Z | PULL_FAILED | develop
 2026-09-06T13:07:49Z | PULL_FAILED | develop
 2026-09-06T15:07:47Z | PULL_FAILED | develop
+2026-09-06T18:08:53Z | PULL_REBASE_FAILED | develop
+2026-09-06T18:14Z PUSH_DEFERRED develop 69fabac idle-cycle chore(records)
+2026-09-06T19:09:01Z | PULL_FAILED | develop
