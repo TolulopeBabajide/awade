@@ -16,7 +16,7 @@ pyasn1==0.6.4  # Fix PYSEC-2026-3455/3456/3457 (ASN.1 decode issues, fixed at 0.
 python-multipart==0.0.31  # Fix CVE-2024-53981, PVE-2024-99762, CVE-2026-24486, CVE-2026-40347 (AWD-H-76); Fix CVE-2026-53540 (Content-Length DoS), CVE-2026-53539 (O(B²) parse DoS), CVE-2026-53538 (form-field smuggling) (AWD-M-300)
 jinja2==3.1.6  # Fix CVE-2025-27516, CVE-2024-34064, CVE-2024-56326, CVE-2024-56201, CVE-2024-22195
 bcrypt==4.3.0  # Upgraded from 4.0.0 — fix CVE-2024-52400 (DoS via large password in auth path) (AWD-M-62)
-weasyprint==69.0  # Upgraded from 68.0 — fix CVE-2026-49452 / GHSA-jhhc-3hcp-qhm5 (CSS injection via HTML presentational hints enabling SSRF); core API (HTML/CSS/write_pdf) unchanged (AWD-M-325)
+weasyprint==70.0  # Upgraded from 69.0 — fix CVE-2026-55073; core API (HTML/CSS/write_pdf) unchanged (AWD-H-144)
 PyJWT==2.13.0  # Upgraded from 2.12.1 — fixes PYSEC-2026-175/177/178/179 (CVE-2026-48522/48524/48525/48526); algorithm-confusion vector N/A (single explicit HS256); PyJWKClient vectors N/A (not used) (AWD-M-207)
 email-validator==2.1.0
 requests==2.33.0  # Fix CVE-2024-47081, CVE-2026-25645 (insecure temp file reuse) (AWD-M-114)
