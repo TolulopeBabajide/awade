@@ -1783,3 +1783,4 @@ No stage=ready items found. All open backlog items at stage=discover or stage=de
 2026-09-10T02:08:52Z | — | Idle cycle — no stage=ready items in backlog | — | ✅ Idle | CI:n/a
 2026-09-10T00:00Z | — | Idle cycle — no stage=ready items in backlog (14 at define, 10 at discover) | — | ✅ No work needed
 2026-09-10T10:09Z | H-144 | bump weasyprint 69.0→70.0 fix CVE-2026-55073 | 2633bb9 | ✅ Done (reviewers clean) | CI:pending
+2026-09-10T11:10:40Z | H-144 | merge weasyprint 69.0→70.0 CVE-2026-55073 to develop | 6e35deb | ✅ Shipped (merge complete, push deferred) | CI:pending
