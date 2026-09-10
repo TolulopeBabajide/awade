@@ -10746,3 +10746,14 @@ Changed files reviewed: apps/backend/requirements.txt (weasyprint 69.0→70.0)
 Issues found: None
 Backlog items filed: None
 Verdict: Ship
+
+## QA — 2026-09-11T$(date -u +"%H:%M:%SZ")
+Result: ✅ PASS
+| TypeScript | ✅ | 0 errors |
+| Lint       | ✅ | 0 errors |
+| Tests      | ✅ | 327 passing, 0 failing |
+| Spot-check | ✅ | package.json/lock only — no secrets, no suppressions, no TODOs |
+Branch: fix/security/AWD-H-145-npm-dep-vulns vs develop
+Issues found: None
+Backlog items filed: None
+npm audit residual: 2 MODERATE react-router (GHSA-wrjc mitigated M-328; GHSA-337j N/A CSR-only) — pre-existing, not introduced by this branch
