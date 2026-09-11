@@ -1,7 +1,8 @@
 # Awade — Backlog
 
 > Last groomed: 2026-05-16 (weekend-ops — M-163/M-164 promoted to ready; M-162 promoted discover→define; H-57 duplicate closed (canonical: H-73); M-78 flagged launch-blocking; M-20 flagged pre-launch must-do)
-> Last updated: 2026-09-11 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
+> Last updated: 2026-09-12 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
+> Prev updated: 2026-09-11 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
 > Prev updated: 2026-09-11 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
 > Prev updated: 2026-09-11 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
 > Prev updated: 2026-09-11 (dev-agent — AWD-H-145 + AWD-M-338 resolved: js-yaml 4.3.1→4.3.2 (GHSA-2883-xcg3-v3hh HIGH), vitest 4.1.9→4.1.11 (GHSA-82fw-gwwq-j7x9 MODERATE), @testing-library/dom ^10.0.0 explicit dep restored. 327/327 frontend tests pass. Code-review ✅ Clean · QA ✅ Ship · Security ✅ Clear. Merged develop.)
