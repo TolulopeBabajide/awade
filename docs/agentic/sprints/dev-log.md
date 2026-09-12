@@ -1847,3 +1847,4 @@ No stage=ready items found. All open backlog items at stage=discover or stage=de
 2026-09-12T19:08:10Z | — | Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision. | — | ✅ Idle | CI:n/a
 2026-09-12T$(date -u +"%H:%M:%SZ") | — | Idle cycle: no stage=ready items. 10 at discover, 14 at define. | — | ✅ Nothing to build
 2026-09-12T20:08:09.157824+00:00 | — | Idle cycle: no stage=ready items. 10 at discover, 14 at define. | — | ✅ Nothing to build
+2026-09-13T$(date -u +"%H:%M:%SZ") | — | Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision. | — | ⏭ Skipped
