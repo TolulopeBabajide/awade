@@ -1,6 +1,6 @@
 
 # Core FastAPI dependencies - Updated for security
-fastapi==0.137.1  # Upgraded from 0.121.3 — drops starlette upper bound to >=0.46.0 enabling starlette>=1.0.1 (AWD-H-126); introduces _IncludedRouter routing; new transitive deps: typing-inspection, annotated-doc
+fastapi==0.141.1  # Upgraded from 0.137.1 — 4 minor versions of security hardening and bug fixes; starlette>=0.46.0 lower bound unchanged, starlette==1.3.1 remains compatible (AWD-M-339)
 annotated-doc==0.0.4  # New transitive dep of fastapi>=0.137 (generates OpenAPI parameter docs from Annotated types)
 typing-inspection==0.4.2  # New transitive dep of fastapi>=0.137 (runtime type introspection for dependency injection)
 uvicorn[standard]==0.34.0  # Upgraded from 0.27.1 — 7 minor security hardening releases (AWD-M-64)
@@ -11,6 +11,7 @@ python-dotenv==1.2.2  # Fix CVE-2026-28684 (symlink following in set_key) (AWD-M
 openai==1.109.1  # Upgraded from 1.12.0 — latest 1.x, stays below 2.x (breaking API changes); security patches (AWD-M-39)
 
 # Security fixes for vulnerable packages
+certifi==2026.7.22  # Pinned explicitly: CA bundle was 3 months stale at 2026.4.22; transitive dep of httpcore, httpx, requests, sentry-sdk (AWD-M-339)
 idna==3.15  # Fix PYSEC-2026-215 (ReDoS in IDNA decode, fixed at 3.15); transitive dep of anyio, email-validator, httpx, requests (AWD-M-333)
 pyasn1==0.6.4  # Fix PYSEC-2026-3455/3456/3457 (ASN.1 decode issues, fixed at 0.6.4); transitive dep via google-auth→pyasn1-modules (AWD-M-333)
 python-multipart==0.0.31  # Fix CVE-2024-53981, PVE-2024-99762, CVE-2026-24486, CVE-2026-40347 (AWD-H-76); Fix CVE-2026-53540 (Content-Length DoS), CVE-2026-53539 (O(B²) parse DoS), CVE-2026-53538 (form-field smuggling) (AWD-M-300)
