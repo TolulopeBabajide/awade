@@ -10757,3 +10757,16 @@ Branch: fix/security/AWD-H-145-npm-dep-vulns vs develop
 Issues found: None
 Backlog items filed: None
 npm audit residual: 2 MODERATE react-router (GHSA-wrjc mitigated M-328; GHSA-337j N/A CSR-only) — pre-existing, not introduced by this branch
+
+## QA — 2026-09-13T08:12:00Z
+Result: ✅ PASS
+| TypeScript | ✅ | 0 errors |
+| Lint       | ✅ | 0 errors |
+| Tests      | ✅ | backend 1050 passed 2 skipped · frontend 327 passed |
+| Spot-check | ✅ | 1 file (requirements.txt) — 2 added lines; no secrets, suppressions, or TODOs |
+
+Branch: fix/security/AWD-M-339-fastapi-certifi-bump vs develop
+Changed files reviewed: apps/backend/requirements.txt (fastapi 0.137.1→0.141.1; certifi==2026.7.22 explicit pin)
+Issues found: None
+Backlog items filed: None
+Verdict: Ship
