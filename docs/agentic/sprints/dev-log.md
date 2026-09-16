@@ -1921,3 +1921,4 @@ No stage=ready items found. All open backlog items at stage=discover or stage=de
 2026-09-16T00:00:00Z | — | Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision. | — | ✅ Idle | CI:n/a
 2026-09-16T02:08:39Z | — | Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision. | — | ✅ Idle | CI:n/a
 2026-09-16T04:08:17Z | — | Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision. | — | ⏭ Skipped
+2026-09-16T04:08:28Z | idle | No stage=ready items — all open items at discover/define or require Tolu decision | — | — | Skipped
