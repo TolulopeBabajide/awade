@@ -61,17 +61,17 @@
 > Prev updated: 2026-09-12 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
 > Prev updated: 2026-09-12 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
 > Prev updated: 2026-09-12 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
-> Last updated: 2026-09-15 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
-> Last updated: 2026-09-15 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
-> Last updated: 2026-09-15 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
-> Last updated: 2026-09-15 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
+> Last updated: 2026-09-16 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
+> Last updated: 2026-09-16 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
+> Last updated: 2026-09-16 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
+> Last updated: 2026-09-16 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
 
 AWD-M-96 remain open. Verdict: ✅ Clean.)
 > Prev2 updated: 2026-05-05 (Lead Dev Agent — AWD-M-62 resolved: Vite vendor chunk split expanded using function-form manualChunks; vendor-react 142 kB + vendor-icons 34 kB + vendor-auth/query/router properly separated; main index ~270 kB (down from ~282 kB). AWD-C-13 twenty-fifth occurrence cleared: auth_service.py + test_services.py staged to revert AWD-M-98. Commit 1f533b3, merge 7166f0b. H-65 and M-77 still blocked by Tolu's venv fix. Tolu: run `git push origin develop` to trigger CI.)
-> Last updated: 2026-09-15 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
+> Last updated: 2026-09-16 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
 ---
-> Last updated: 2026-09-15 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
-> Last updated: 2026-09-15 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
+> Last updated: 2026-09-16 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
+> Last updated: 2026-09-16 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
 > Prev update: 2026-04-30 (Lead Dev Agent — AWD-H-58 resolved: staging area cleared; TestPage.tsx no longer staged; residual untracked file on disk — Tolu to `rm apps/frontend/src/pages/TestPage.tsx` locally)
 > Last groomed: 2026-04-25 (weekend-ops / Ops Agent) — see notes below. Removed stale items, updated priorities for post-security-sprint phase. Parent pivot code is feature-complete; focus shifts to launch prep + compliance.
 > Source of truth for active work. Completed items move to [`completed_backlog.md`](completed_backlog.md).
@@ -644,4 +644,4 @@ When adding a new issue, use this format:
 | ~~M-202~~ | DepSec / Staleness | ✅ resolved 2026-06-26 (commit 447b10d, merge bf6b128). Bumped `@sentry/react` `^8.0.0` → `^10.62.0` in `apps/frontend/package.json`. All three APIs used by `main.tsx` (`init`, `browserTracingIntegration`, `replayIntegration`) verified present in v10. 0 npm audit vulnerabilities post-upgrade. PII guards (`sendDefaultPii: false`, `maskAllText: true`, `blockAllMedia: true`) preserved. 292 frontend tests pass · 884 backend tests pass · TS 0 errors · lint 0 errors. Code-review ✅ Clean · QA ✅ Ship · Security ✅ Clear. | `apps/frontend/package.json` | S | done |
 | ~~M-203~~ | Code Hygiene / Security | ✅ resolved 2026-06-15 (commit 826d08a). Removed unused `get_optional_current_user` from the `dependencies` import in `curriculum.py`, `curriculum_structure.py`, and `lesson_plans.py` — all 3 routers imported the dep but never called it, risking reviewer confusion about optional-auth routes. 710 backend tests pass · TS 0 errors · lint 0 errors · openapi.json ✅ · mcp.json ✅. Tolu: run `git push origin develop` to trigger CI. | `apps/backend/routers/curriculum.py`, `apps/backend/routers/curriculum_structure.py`, `apps/backend/routers/lesson_plans.py` | XS | done |
 
-> Last updated: 2026-09-15 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
+> Last updated: 2026-09-16 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
