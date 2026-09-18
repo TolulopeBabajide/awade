@@ -4,6 +4,21 @@
 
 ---
 
+## QA — 2026-09-18T07:14:00Z
+Result: ✅ PASS
+| TypeScript | ✅ | 0 errors |
+| Lint       | ✅ | 0 errors |
+| Tests      | ✅ | frontend 327 passed · backend 1050 passed 2 skipped |
+| Spot-check | ✅ | 11 files reviewed — package.json/lock + main.tsx + 7 test files + 2 fixtures; no secrets, no console.log, no suppressions, no TODOs added |
+Branch: fix/security/AWD-H-146-react-router-v7 vs develop
+Changed files reviewed: apps/frontend/package.json (react-router-dom ^6.8.1→^7.18.4), apps/frontend/package-lock.json (react-router 6.30.6→7.18.4; @remix-run/router removed; cookie+set-cookie-parser added), apps/frontend/src/main.tsx (future prop removed), 7 test/fixture files (future props removed — v7 default behaviour)
+Issues found: None
+Backlog items filed: None
+`npm audit`: 0 vulnerabilities (was 1 MODERATE GHSA-wrjc open-redirect — now cleared)
+Verdict: Ship
+
+---
+
 ## QA — 2026-06-24T08:17:00Z
 Result: ✅ PASS
 Branch: fix/security/AWD-M-197-audit-user-id · Commit: 3a9ab58
