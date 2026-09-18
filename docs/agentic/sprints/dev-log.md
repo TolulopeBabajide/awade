@@ -1,3 +1,4 @@
+2026-09-18T07:15:00Z | H-146 | AWD-H-146 react-router-dom v6→v7.18.4 open-redirect patch | 7c896ac | ✅ Done (reviewers clean) | CI:pending
 2026-09-18T11:00:00Z | — | Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.
 2026-09-18T10:00:00Z | — | Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.
 2026-09-18T09:00:00Z | — | Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.
