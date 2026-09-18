@@ -74,7 +74,6 @@ export function renderPage(url = '/guides?guide=42') {
     <QueryClientProvider client={queryClient}>
       <MemoryRouter
         initialEntries={[url]}
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
       >
         <GuideViewPage />
       </MemoryRouter>

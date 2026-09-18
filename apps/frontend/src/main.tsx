@@ -47,7 +47,7 @@ const queryClient = new QueryClient({
 const app = (
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <BrowserRouter>
         <App />
         <Analytics />
       </BrowserRouter>

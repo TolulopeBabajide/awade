@@ -58,7 +58,6 @@ export function renderPage() {
   return render(
     <MemoryRouter
       initialEntries={['/dashboard']}
-      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
     >
       <QueryClientProvider client={queryClient}>
         <ParentDashboardPage />

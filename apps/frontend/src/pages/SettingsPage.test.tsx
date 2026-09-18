@@ -59,7 +59,7 @@ const profileResponse = {
 
 function renderPage() {
   return render(
-    <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <MemoryRouter>
       <SettingsPage />
     </MemoryRouter>
   )

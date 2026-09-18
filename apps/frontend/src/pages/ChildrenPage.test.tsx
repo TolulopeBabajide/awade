@@ -65,7 +65,7 @@ function makeQueryClient() {
 /** Wrapper that supplies Router + QueryClient context. */
 function renderWithProviders(ui: React.ReactElement, { queryClient = makeQueryClient() } = {}) {
   return render(
-    <MemoryRouter initialEntries={['/children']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <MemoryRouter initialEntries={['/children']}>
       <QueryClientProvider client={queryClient}>
         {ui}
       </QueryClientProvider>
@@ -401,7 +401,7 @@ describe('ParentRoute — role gate', () => {
 
     return render(
       <QueryClientProvider client={makeQueryClient()}>
-        <MemoryRouter initialEntries={['/children']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <MemoryRouter initialEntries={['/children']}>
           <Routes>
             <Route
               path="/children"

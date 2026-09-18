@@ -29,7 +29,6 @@ function renderDisclaimerPage() {
   return render(
     <MemoryRouter
       initialEntries={['/disclaimer']}
-      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
     >
       <Routes>
         <Route path="/disclaimer" element={<DisclaimerPage />} />
@@ -155,7 +154,6 @@ describe('DisclaimerPage — public accessibility', () => {
     render(
       <MemoryRouter
         initialEntries={['/disclaimer']}
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
       >
         <Routes>
           <Route path="/disclaimer" element={<DisclaimerPage />} />
@@ -172,7 +170,6 @@ describe('DisclaimerPage — public accessibility', () => {
     render(
       <MemoryRouter
         initialEntries={['/disclaimer']}
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
       >
         <Routes>
           <Route path="/disclaimer" element={<DisclaimerPage />} />
