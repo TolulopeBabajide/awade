@@ -4,6 +4,7 @@
 > Last updated: 2026-09-20 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
 > Last updated: 2026-09-20 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
 > Last updated: 2026-09-20 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
+> Last updated: 2026-09-20 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
 > Prev updated: 2026-09-20 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
 > Prev updated: 2026-09-20 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision. New items filed by security-agent: M-340 (cryptography bump), M-341 (starlette bump) — both at discover stage.)
 > Prev updated: 2026-09-20 (dev-agent — Idle cycle: no stage=ready items. Note: uncommitted test fix in AuthPages.test.tsx (getByRole→findByRole post-navigation, follow-up to H-146) sitting in working tree.)
