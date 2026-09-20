@@ -2,6 +2,7 @@
 
 > Last groomed: 2026-05-16 (weekend-ops — M-163/M-164 promoted to ready; M-162 promoted discover→define; H-57 duplicate closed (canonical: H-73); M-78 flagged launch-blocking; M-20 flagged pre-launch must-do)
 > Last updated: 2026-09-20 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
+> Prev updated: 2026-09-20 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
 > Prev updated: 2026-09-20 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision. New items filed by security-agent: M-340 (cryptography bump), M-341 (starlette bump) — both at discover stage.)
 > Prev updated: 2026-09-20 (dev-agent — Idle cycle: no stage=ready items. Note: uncommitted test fix in AuthPages.test.tsx (getByRole→findByRole post-navigation, follow-up to H-146) sitting in working tree.)
 > Prev updated: 2026-09-20 (dev-agent — Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision.)
