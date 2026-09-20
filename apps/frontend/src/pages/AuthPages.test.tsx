@@ -66,7 +66,7 @@ describe('authentication pages', () => {
     expect(privacyLink).toHaveAttribute('href', '/privacy-policy');
 
     await user.click(termsLink);
-    expect(screen.getByRole('heading', { name: 'Terms & Conditions' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Terms & Conditions' })).toBeInTheDocument();
   });
 
   it('uses the in-card error treatment instead of native validation popovers', async () => {
