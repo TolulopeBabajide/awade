@@ -1,3 +1,4 @@
+2026-09-21T20:00:00Z | — | Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision. ⚠️ DepSec items M-340/M-341/M-342 remain at discover — need standalone security-agent run or Tolu action to promote. | — | ✅ Idle | CI:n/a
 2026-09-21T19:00:00Z | — | Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision. ⚠️ Structural gap: DepSec discover items (M-340, M-341, M-342) cannot be promoted to ready in consolidated loop without standalone security-agent run or Tolu action. | — | ✅ Idle | CI:n/a
 2026-09-21T18:00:00Z | — | Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision. | — | ✅ Idle | CI:n/a
 2026-09-21T17:00:00Z | — | Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision. | — | ✅ Idle | CI:n/a
