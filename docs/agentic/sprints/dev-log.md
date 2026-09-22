@@ -2061,3 +2061,4 @@ No stage=ready items found. All open backlog items at stage=discover or stage=de
 2026-09-22T18:14:32Z | idle | No stage=ready items — DepSec M-340/M-341/M-342 at discover (eighteen consecutive idle cycles) | — | ✅ Idle
 2026-09-22T19:14:40Z | — | Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 still at discover. Nineteen consecutive days of idle cycles. | — | N/A
 2026-09-22T21:14:14Z | — | Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 still at discover. Twenty consecutive idle cycles. | — | ✅ No action
+2026-09-22T22:14:15Z | — | Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 at discover. Twenty-one consecutive idle cycles. | — | ⏸ Idle
