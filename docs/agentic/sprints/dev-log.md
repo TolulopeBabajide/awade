@@ -2041,3 +2041,4 @@ No stage=ready items found. All open backlog items at stage=discover or stage=de
 2026-09-21T18:14:12Z | idle | No stage=ready items — all open items at discover/define or require Tolu decision | — | ✅ Idle (nothing to build)
 2026-09-21T20:14:22Z | — | Idle cycle | — | No stage=ready items. All open items at discover/define or require Tolu decision.
 2026-09-22T01:14:33Z | — | Idle cycle: no stage=ready items | — | N/A — nothing shipped
+2026-09-22T02:14:11Z | — | Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 still at discover — four consecutive days. | — | ✅ Idle | CI:n/a
