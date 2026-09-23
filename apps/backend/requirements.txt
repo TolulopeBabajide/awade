@@ -13,6 +13,7 @@ openai==1.109.1  # Upgraded from 1.12.0 — latest 1.x, stays below 2.x (breakin
 # Security fixes for vulnerable packages
 certifi==2026.7.22  # Pinned explicitly: CA bundle was 3 months stale at 2026.4.22; transitive dep of httpcore, httpx, requests, sentry-sdk (AWD-M-339)
 idna==3.15  # Fix PYSEC-2026-215 (ReDoS in IDNA decode, fixed at 3.15); transitive dep of anyio, email-validator, httpx, requests (AWD-M-333)
+anyio>=4.14.2  # Fix CVE-2026-63374 (HIGH, TLS cert validation bypass for IDN via IDNA 2003/2008 mismatch) + CVE-2026-64847 (MEDIUM, process-pool stderr pipe deadlock); transitive dep of fastapi/starlette/httpx/openai (AWD-H-147)
 pyasn1==0.6.4  # Fix PYSEC-2026-3455/3456/3457 (ASN.1 decode issues, fixed at 0.6.4); transitive dep via google-auth→pyasn1-modules (AWD-M-333)
 python-multipart==0.0.31  # Fix CVE-2024-53981, PVE-2024-99762, CVE-2026-24486, CVE-2026-40347 (AWD-H-76); Fix CVE-2026-53540 (Content-Length DoS), CVE-2026-53539 (O(B²) parse DoS), CVE-2026-53538 (form-field smuggling) (AWD-M-300)
 jinja2==3.1.6  # Fix CVE-2025-27516, CVE-2024-34064, CVE-2024-56326, CVE-2024-56201, CVE-2024-22195
