@@ -1,3 +1,4 @@
+2026-09-23T15:14:18Z | — | Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision. ⚠️ DepSec items M-340/M-341/M-342 remain at discover — thirty-two consecutive idle cycles. | — | ✅ Idle | CI:n/a
 2026-09-23T14:14:18Z | — | Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision. ⚠️ DepSec items M-340/M-341/M-342 remain at discover — thirty-one consecutive days of idle cycles. | — | ✅ Idle | CI:n/a
 2026-09-22T16:00:00Z | — | Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision. ⚠️ DepSec items M-340/M-341/M-342 remain at discover — fourteen consecutive days of idle cycles. | — | ✅ Idle | CI:n/a
 2026-09-22T15:00:00Z | — | Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision. ⚠️ DepSec items M-340/M-341/M-342 remain at discover — thirteen consecutive days of idle cycles. | — | ✅ Idle | CI:n/a
