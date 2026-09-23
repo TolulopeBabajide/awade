@@ -1,8 +1,8 @@
 # Awade — Backlog
 
 > Last groomed: 2026-05-16 (weekend-ops — M-163/M-164 promoted to ready; M-162 promoted discover→define; H-57 duplicate closed (canonical: H-73); M-78 flagged launch-blocking; M-20 flagged pre-launch must-do)
-> Last updated: 2026-09-23 (dev-agent — Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 still at discover — need standalone security-agent run or Tolu action to promote. Twenty-four consecutive days of idle cycles.)
-> Prev updated: 2026-09-23 (dev-agent — Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 still at discover — need standalone security-agent run or Tolu action to promote. Twenty-three consecutive days of idle cycles.)
+> Last updated: 2026-09-23 (dev-agent — Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 still at discover — need standalone security-agent run or Tolu action to promote. Twenty-five consecutive days of idle cycles.)
+> Prev updated: 2026-09-23 (dev-agent — Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 still at discover — need standalone security-agent run or Tolu action to promote. Twenty-four consecutive days of idle cycles.)
 > Prev updated: 2026-09-22 (dev-agent — Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 still at discover — need standalone security-agent run or Tolu action to promote. Twenty-one consecutive days of idle cycles.)
 > Prev updated: 2026-09-22 (dev-agent — Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 still at discover — need standalone security-agent run or Tolu action to promote. Twenty consecutive days of idle cycles.)
 > Prev updated: 2026-09-22 (dev-agent — Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 still at discover — need standalone security-agent run or Tolu action to promote. Eight consecutive days of idle cycles.)
