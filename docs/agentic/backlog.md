@@ -1,7 +1,8 @@
 # Awade — Backlog
 
 > Last groomed: 2026-05-16 (weekend-ops — M-163/M-164 promoted to ready; M-162 promoted discover→define; H-57 duplicate closed (canonical: H-73); M-78 flagged launch-blocking; M-20 flagged pre-launch must-do)
-> Last updated: 2026-09-23 (dev-agent — Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 still at discover — need standalone security-agent run or Tolu action to promote. Thirty-eight consecutive idle cycles.)
+> Last updated: 2026-09-24 (dev-agent — Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 still at discover — need standalone security-agent run or Tolu action to promote. Thirty-nine consecutive idle cycles.)
+> Prev updated: 2026-09-23 (dev-agent — Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 still at discover — need standalone security-agent run or Tolu action to promote. Thirty-eight consecutive idle cycles.)
 > Prev updated: 2026-09-23 (dev-agent — Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 still at discover — need standalone security-agent run or Tolu action to promote. Thirty-six consecutive idle cycles.)
 > Prev updated: 2026-09-23 (dev-agent — Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 still at discover — need standalone security-agent run or Tolu action to promote. Thirty-five consecutive idle cycles.)
 > Prev2 updated: 2026-09-23 (dev-agent — AWD-H-147 resolved: pinned anyio>=4.14.2 to fix CVE-2026-63374 + CVE-2026-64847. Commit 1a8be73, merge b45546d to develop.)
