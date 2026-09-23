@@ -2071,3 +2071,4 @@ No stage=ready items found. All open backlog items at stage=discover or stage=de
 2026-09-23T05:04:46Z | IDLE | No stage=ready items — all open items at discover/define or require Tolu decision. DepSec M-340/M-341/M-342 still at discover. | — | — | ⏸ Idle (no code work)
 2026-09-23T06:14:18Z | idle | No stage=ready items — DepSec M-340/M-341/M-342 at discover; twenty-nine consecutive idle cycles | — | ✅ Idle (no work)
 2026-09-23T07:14:11Z | — | Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 still at discover — need standalone security-agent run or Tolu action to promote. Thirty consecutive idle cycles. | — | ✅ No-op
+2026-09-23T08:14:00Z | H-147 | pin anyio>=4.14.2 to fix CVE-2026-63374 + CVE-2026-64847 | b45546d | ✅ Done (reviewers clean) | CI:pending
