@@ -1,3 +1,4 @@
+2026-09-24T18:14:00Z | — | Idle cycle: no stage=ready items. M-342 at define (google-genai major migration — needs spec to proceed). All other items at discover/define or require Tolu decision. | — | ✅ Idle | CI:n/a
 2026-09-24T17:14:00Z | — | Idle cycle: no stage=ready items. M-340/M-341 shipped earlier today. M-342 at define (google-genai major migration). All other items at discover/define or require Tolu decision. | — | ✅ Idle | CI:n/a
 2026-09-24T16:14:00Z | — | Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision. ⚠️ DepSec items M-340/M-341/M-342 remain at discover — forty-seven consecutive idle cycles. | — | ✅ Idle | CI:n/a
 2026-09-24T15:14:27Z | — | Idle cycle: no stage=ready items. All open items at discover/define or require Tolu decision. ⚠️ DepSec items M-340/M-341/M-342 remain at discover — forty-six consecutive idle cycles. sync.sh pull continues to fail (network). | — | ✅ Idle | CI:n/a
