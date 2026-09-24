@@ -2095,3 +2095,4 @@ No stage=ready items found. All open backlog items at stage=discover or stage=de
 2026-09-24T13:20:00Z | M-340 | bump cryptography 50.0.0 → 50.0.1 | dea9af8 | ✅ Done (reviewers clean) | CI:pending
 2026-09-24T14:00:00Z | — | Idle cycle: no stage=ready items. M-342 at define (google-genai major API migration — needs spec). All other open items at discover/define or require Tolu decision. | — | ✅ Idle (no work)
 2026-09-24T19:14:00Z | — | Idle cycle: no stage=ready items. M-342 at define (google-genai major API migration — needs spec). All other open items at discover/define or require Tolu decision. | — | ✅ Idle (no work)
+2026-09-24T15:00:00Z | — | Idle cycle: no stage=ready items. M-342 at define (google-genai major API migration — needs spec to advance to ready). All other open items at discover/define or require Tolu decision. | — | ⏸ Idle
