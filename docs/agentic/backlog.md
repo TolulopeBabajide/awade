@@ -1,7 +1,8 @@
 # Awade — Backlog
 
 > Last groomed: 2026-05-16 (weekend-ops — M-163/M-164 promoted to ready; M-162 promoted discover→define; H-57 duplicate closed (canonical: H-73); M-78 flagged launch-blocking; M-20 flagged pre-launch must-do)
-> Last updated: 2026-09-24 (dev-agent — AWD-M-340 shipped: cryptography 50.0.0 → 50.0.1 patch bump; reviewers clean; merged to develop.)
+> Last updated: 2026-09-24 (dev-agent — Idle cycle: no stage=ready items. M-342 at define (google-genai major API migration — needs spec). All other open items at discover/define or require Tolu decision.)
+> Prev updated: 2026-09-24 (dev-agent — AWD-M-340 shipped: cryptography 50.0.0 → 50.0.1 patch bump; reviewers clean; merged to develop.)
 > Prev updated: 2026-09-24 (dev-agent — AWD-M-341 shipped: starlette 1.3.1 → 1.7.0; reviewers clean; merged to develop and pushed.)
 > Prev updated: 2026-09-24 (security-agent — Promoted M-340/M-341 to ready (trivial version bumps); M-342 to define (major API migration). Dev venv stale at anyio 4.13.0 — dev-agent should run `pip install -r requirements.txt`.)
 > Prev updated: 2026-09-23 (dev-agent — Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 still at discover — need standalone security-agent run or Tolu action to promote. Thirty-eight consecutive idle cycles.)
