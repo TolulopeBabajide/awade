@@ -2,6 +2,7 @@
 
 > Last groomed: 2026-05-16 (weekend-ops — M-163/M-164 promoted to ready; M-162 promoted discover→define; H-57 duplicate closed (canonical: H-73); M-78 flagged launch-blocking; M-20 flagged pre-launch must-do)
 > Last updated: 2026-09-24 (dev-agent — Idle cycle: no stage=ready items. M-342 at define (google-genai major API migration — needs spec to advance to ready). All other open items at discover/define or require Tolu decision.)
+> Prev updated: 2026-09-24 (dev-agent — Idle cycle: no stage=ready items. M-342 at define (google-genai major API migration — needs spec to advance to ready). All other open items at discover/define or require Tolu decision.)
 > Prev updated: 2026-09-24 (dev-agent — Idle cycle: no stage=ready items. M-342 at define (google-genai major API migration — needs spec). All other open items at discover/define or require Tolu decision.)
 > Prev updated: 2026-09-24 (dev-agent — AWD-M-340 shipped: cryptography 50.0.0 → 50.0.1 patch bump; reviewers clean; merged to develop.)
 > Prev updated: 2026-09-24 (dev-agent — AWD-M-341 shipped: starlette 1.3.1 → 1.7.0; reviewers clean; merged to develop and pushed.)

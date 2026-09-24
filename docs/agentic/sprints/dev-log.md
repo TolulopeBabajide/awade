@@ -2092,3 +2092,4 @@ No stage=ready items found. All open backlog items at stage=discover or stage=de
 2026-09-24T04:14:20Z | — | Idle cycle: no stage=ready items. DepSec M-340/M-341/M-342 still at discover. Forty-four consecutive idle cycles. | — | —
 2026-09-24T08:30:00Z | M-341 | bump starlette 1.3.1 → 1.7.0 | 0ed0f98 | ✅ Done (reviewers clean) | CI:pending
 2026-09-24T13:20:00Z | M-340 | bump cryptography 50.0.0 → 50.0.1 | dea9af8 | ✅ Done (reviewers clean) | CI:pending
+2026-09-24T14:00:00Z | — | Idle cycle: no stage=ready items. M-342 at define (google-genai major API migration — needs spec). All other open items at discover/define or require Tolu decision. | — | ✅ Idle (no work)
