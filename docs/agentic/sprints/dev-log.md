@@ -2081,3 +2081,4 @@ No stage=ready items found. All open backlog items at stage=discover or stage=de
 2026-09-23T19:14:20Z | — | Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 still at discover — need standalone security-agent run or Tolu action to promote. | — | ✅ No-op
 2026-09-23T20:14:20Z | idle | No stage=ready items — 37th consecutive idle cycle. DepSec M-340/M-341/M-342 at discover; need standalone security-agent run or Tolu promotion. | — | ⏭ Skipped
 2026-09-24T00:00:00Z | — | Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 still at discover. Thirty-nine consecutive idle cycles. | — | ✅ No action needed
+2026-09-24T01:14:21Z | — | Idle cycle: no stage=ready items. DepSec items M-340/M-341/M-342 still at discover — need standalone security-agent run or Tolu action to promote. (Forty-one consecutive idle cycles.)
