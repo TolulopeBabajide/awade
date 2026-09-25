@@ -1,7 +1,7 @@
 # Awade — Backlog
 
 > Last groomed: 2026-05-16 (weekend-ops — M-163/M-164 promoted to ready; M-162 promoted discover→define; H-57 duplicate closed (canonical: H-73); M-78 flagged launch-blocking; M-20 flagged pre-launch must-do)
-> Last updated: 2026-09-25 (dev-agent — Idle cycle: no stage=ready items. M-342 at define (google-genai major API migration — needs spec to advance to ready). All other open items at discover/define or require Tolu decision.)
+> Last updated: 2026-09-25 (dev-agent — Idle cycle: no stage=ready items. M-342 at define (google-genai major API migration — needs spec to advance to ready). All other open items at discover/define or require Tolu decision. Forty-plus consecutive idle cycles.)
 > Prev updated: 2026-09-25 (dev-agent — Idle cycle: no stage=ready items. M-342 at define (google-genai major API migration — needs spec to advance to ready). All other open items at discover/define or require Tolu decision.)
 > Prev updated: 2026-09-25 (dev-agent — Idle cycle: no stage=ready items. M-342 at define (google-genai major API migration — needs spec to advance to ready). All other open items at discover/define or require Tolu decision.)
 > Prev updated: 2026-09-25 (dev-agent — Idle cycle: no stage=ready items. M-342 at define (google-genai major API migration — needs spec to advance to ready). All other open items at discover/define or require Tolu decision.)
