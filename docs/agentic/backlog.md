@@ -1,4 +1,5 @@
-> Last updated: 2026-09-26 (dev-agent — Idle cycle: no stage=ready items. M-342 at define (google-genai major API migration — needs spec to advance to ready). npm audit 0 vulns, pip-audit 0 vulns. All other open items at discover/define or require Tolu decision. Forty-plus consecutive idle cycles — twelfth run today.)
+> Last updated: 2026-09-26 (dev-agent — Idle cycle: no stage=ready items. M-342 at define (google-genai major API migration — needs spec to advance to ready). npm audit 0 vulns, pip-audit 0 vulns (anyio CVE fixed in requirements.txt; nltk orphan in venv not in requirements.txt). All other open items at discover/define or require Tolu decision. Forty-plus consecutive idle cycles — thirteenth run today.)
+> Prev updated: 2026-09-26 (dev-agent — Idle cycle: no stage=ready items. M-342 at define (google-genai major API migration — needs spec to advance to ready). npm audit 0 vulns, pip-audit 0 vulns. All other open items at discover/define or require Tolu decision. Forty-plus consecutive idle cycles — twelfth run today.)
 > Prev updated: 2026-09-26 (dev-agent — Idle cycle: no stage=ready items. M-342 at define (google-genai major API migration — needs spec to advance to ready). All other open items at discover/define or require Tolu decision. Forty-plus consecutive idle cycles — eleventh run today.)
 # Awade — Backlog
 
