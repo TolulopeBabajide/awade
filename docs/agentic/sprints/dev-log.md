@@ -2210,3 +2210,4 @@ No stage=ready items found. All open backlog items at stage=discover or stage=de
 2026-09-30T12:14:36Z | — | Idle cycle: no stage=ready items. npm audit 0 vulns, pip-audit 0 vulns. M-342 at define (google-genai migration — needs spec). M-343 at discover (rate-limiter proxy-IP). Eleventh run today. | — | ✅ No-op
 2026-09-30T13:14:00Z | — | Idle cycle: no stage=ready items. npm audit 0 vulns, pip-audit 0 vulns. M-342 at define (google-genai migration — needs spec). M-343 at discover (rate-limiter proxy-IP). Twelfth run today. | — | ✅ No-op
 2026-09-30T14:14:21Z | idle | No stage=ready items — npm audit 0 vulns, pip-audit 0 vulns. M-342 at define, M-343 at discover. Thirteenth run today. | — | ⏭ Idle
+2026-09-30T17:16:00Z | H-150 | AWD-H-150 bump urllib3 2.7.0→2.8.0 — patch CVE-2026-97687, CVE-2026-97689 | 22f10f2 | ✅ Done (CI mirror clean) | CI:pending
