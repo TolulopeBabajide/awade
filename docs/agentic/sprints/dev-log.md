@@ -2214,3 +2214,4 @@ No stage=ready items found. All open backlog items at stage=discover or stage=de
 2026-09-30T18:16:19Z | H-151 | AWD-H-151 bump PyJWT 2.14.0→2.15.0 — patch CVE-2026-101918 | 97675c2 | ✅ Done (reviewers clean) | CI:pending
 2026-09-30T18:17:22Z | idle | No stage=ready items — npm audit 0 vulns, pip-audit 0 vulns. H-151 shipped this run (PyJWT 2.15.0). M-342 at define (google-genai migration), M-343 at discover (rate-limiter proxy-IP). | — | ✅ Idle
 2026-09-30T19:14:31Z | — | Idle cycle: no stage=ready items | — | npm audit 0 vulns, pip-audit 0 vulns | M-342 at define (google-genai migration — needs spec). M-343 at discover (rate-limiter proxy-IP). Fourteenth run today.
+2026-09-30T21:15:10Z | — | Idle cycle: no stage=ready items | — | npm audit 0 vulns, pip-audit 1 non-actionable (nltk PYSEC-2026-3740 M-337/L-89). M-342 at define (google-genai migration — needs spec). M-343 at discover. Sixteenth run today.
