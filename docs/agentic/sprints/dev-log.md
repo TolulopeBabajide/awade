@@ -2226,3 +2226,4 @@ No stage=ready items found. All open backlog items at stage=discover or stage=de
 2026-10-01T05:07:25Z | idle | No stage=ready items — sixth run today. npm audit 0 vulns, pip-audit 0 vulns. M-342 at define (google-genai migration needs spec), M-343 at discover. | — | ✅ Idle
 2026-10-01T06:14:00Z | IDLE | No stage=ready items — seventh run today. npm audit 0 vulns, pip-audit 1 non-actionable (nltk PYSEC-2026-3740 M-337/L-89). M-342 at define, M-343 at discover.
 2026-10-01T08:14:40Z | — | Idle cycle: no stage=ready items | — | npm audit 0 vulns, pip-audit 0 vulns. Ninth run today. M-342 at define, M-343 at discover.
+2026-10-01T09:14:23Z | idle | No stage=ready items — idle cycle. npm audit 0 vulns, pip-audit 1 non-actionable (nltk PYSEC-2026-3740). | — | ✅ Idle (no build)
