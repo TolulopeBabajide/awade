@@ -2256,3 +2256,4 @@ No stage=ready items found. All open backlog items at stage=discover or stage=de
 2026-10-03T09:25:17Z | — | Idle: no stage=ready items | — | npm audit 12 HIGH dev-only (H-152/H-153/H-154); pip-audit 0 actionable; M-342 at define; M-343/M-344 at discover
 2026-10-03T10:14:58Z | IDLE | No stage=ready items — fourth idle run 2026-10-03. npm audit 12 HIGH (dev-only, GHSA-vfj7-8cjw-p6xm braces chain; H-152/H-153/H-154 filed). pip-audit 1 non-actionable (PYSEC-2026-3740 nltk, M-337/L-89). | — | ⏸ Idle
 2026-10-03T12:15:57Z | — | Idle cycle: no stage=ready items. npm audit 12 HIGH (dev-only, GHSA-vfj7-8cjw-p6xm braces — H-152/H-153/H-154 filed). pip-audit 1 non-actionable (nltk PYSEC-2026-3740). Sixth run 2026-10-03. | — | ✅ No-op
+2026-10-04T05:22:00Z | H-152 | bump lint-staged ^15.4.3→^16.4.0 (GHSA-vfj7-8cjw-p6xm) | f033f64 / merge b262559 | ✅ Done (reviewers clean) | CI:pending
