@@ -2334,3 +2334,4 @@ No stage=ready items found. All open backlog items at stage=discover or stage=de
 2026-10-11T19:42:01Z | idle | No stage=ready items — idle cycle (sixth run 2026-10-11) | — | ✅ Idle (npm audit 13 known H-153/H-154/H-145 dev-only; pip-audit 0 actionable)
 2026-10-12T08:15:38Z | idle | No stage=ready items — idle cycle (second run 2026-10-12) | — | ✅ Idle (npm audit 13 known H-153/H-154 dev-only + 2 MODERATE covered by H-154; pip-audit 0 actionable)
 2026-10-12T10:14:53Z | idle | No stage=ready items — idle cycle (third run 2026-10-12) | — | ✅ Idle (npm audit 26 total, 11 HIGH dev-only H-153/H-154, 2 MODERATE postcss covered by H-154; pip-audit 1 non-actionable nltk PYSEC-2026-3740 M-337/L-89; H-156 at discover)
+2026-10-12T11:14:46Z | — | Idle cycle: no stage=ready items | — | ✅ No-op (no ready item)
