@@ -11,7 +11,7 @@ python-dotenv==1.2.2  # Fix CVE-2026-28684 (symlink following in set_key) (AWD-M
 openai==1.109.1  # Upgraded from 1.12.0 — latest 1.x, stays below 2.x (breaking API changes); security patches (AWD-M-39)
 
 # Security fixes for vulnerable packages
-certifi==2026.7.22  # Pinned explicitly: CA bundle was 3 months stale at 2026.4.22; transitive dep of httpcore, httpx, requests, sentry-sdk (AWD-M-339)
+certifi==2026.10.19  # Pinned explicitly: CA bundle was 3 months stale at 2026.4.22; transitive dep of httpcore, httpx, requests, sentry-sdk (AWD-M-339); bumped 2026.7.22→2026.10.19 — fixes GHSA-6q48-6c7w-9gw2 (AWD-H-157)
 idna==3.15  # Fix PYSEC-2026-215 (ReDoS in IDNA decode, fixed at 3.15); transitive dep of anyio, email-validator, httpx, requests (AWD-M-333)
 anyio>=4.14.2  # Fix CVE-2026-63374 (HIGH, TLS cert validation bypass for IDN via IDNA 2003/2008 mismatch) + CVE-2026-64847 (MEDIUM, process-pool stderr pipe deadlock); transitive dep of fastapi/starlette/httpx/openai (AWD-H-147)
 pyasn1==0.6.4  # Fix PYSEC-2026-3455/3456/3457 (ASN.1 decode issues, fixed at 0.6.4); transitive dep via google-auth→pyasn1-modules (AWD-M-333)
