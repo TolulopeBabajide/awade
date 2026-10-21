@@ -2494,3 +2494,4 @@ No stage=ready items found. All open backlog items at stage=discover or stage=de
 2026-10-21T01:16:00Z | H-157 | AWD-H-157 bump certifi 2026.7.22→2026.10.19 (GHSA-6q48-6c7w-9gw2) | 746cb49 | ✅ Done (recovery — previous run incomplete) | CI:pending
 2026-10-21T01:16:25Z | — | Idle cycle: no stage=ready items. npm audit 28 total (12 HIGH dev-only H-153/H-154; 2 MODERATE postcss). pip-audit 8 actionable: Pillow 12.3.0 8x CVEs fixed in 13.0.0 — filed H-158 at define. | — | ✅ Idle (H-158 filed)
 2026-10-21T06:13:00Z | H-159 | vite ^7.1.7→^7.3.7 security upgrade | 637d842 | ✅ Done (reviewers clean) | CI:pending (push deferred)
+2026-10-21T10:20:00Z | H-158 | bump Pillow 12.3.0→13.0.0 — 8 CVEs resolved | ea14115 | ✅ Done (reviewers clean) | CI:pending
