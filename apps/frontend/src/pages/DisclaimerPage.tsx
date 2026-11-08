@@ -18,7 +18,7 @@ const DisclaimerPage: React.FC = () => {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-background-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="screen-document min-h-screen bg-background-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
         {/* Back navigation */}
         <button

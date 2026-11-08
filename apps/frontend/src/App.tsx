@@ -1,4 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
+import ExplorePage from './pages/ExplorePage'
+import NotFoundPage from './pages/NotFoundPage'
+import { LearningSession } from './contexts/LearningProgressContext'
 import { AuthProvider } from './contexts/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import LandingPage from './pages/LandingPage'
@@ -33,7 +36,8 @@ import LegalPage from './pages/LegalPage'
 function App() {
   return (
     <AuthProvider>
-      <div className="App">
+      <LearningSession>
+      <div className="App awade-app">
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<LandingPage />} />
@@ -50,6 +54,8 @@ function App() {
               <RoleDashboard />
             </ProtectedRoute>
           } />
+
+          <Route path="/explore" element={<ProtectedRoute><ExplorePage /></ProtectedRoute>} />
 
           {/* Parent routes — PARENT role only */}
           <Route path="/onboarding" element={
@@ -120,8 +126,10 @@ function App() {
             <Route path="children" element={<ChildProfileList />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
+      </LearningSession>
     </AuthProvider>
   )
 }

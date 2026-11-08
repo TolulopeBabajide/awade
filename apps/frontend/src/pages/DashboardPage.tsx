@@ -1,3 +1,5 @@
+import SessionDiscoveries from '../components/design/SessionDiscoveries'
+import ExploreInvitation from '../components/learning/ExploreInvitation'
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -217,19 +219,19 @@ const DashboardPage: React.FC = () => {
   const isGenerating = generateMutation.isPending;
 
   return (
-    <div className="bg-gray-50 flex min-h-screen w-full overflow-x-hidden">
+    <div className="new-screen screen-teacher-home bg-gray-50 flex min-h-screen w-full overflow-x-hidden">
       {/* Sidebar */}
       <Sidebar currentPage="dashboard" />
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-64 p-4 md:p-6 lg:p-8 pb-20 lg:pb-8 w-full max-w-full overflow-x-hidden">
+      <main id="main-content" tabIndex={-1} className="flex-1 lg:ml-64 p-4 md:p-6 lg:p-8 pb-20 lg:pb-8 w-full max-w-full overflow-x-hidden">
         {/* Header */}
-        <div className="flex justify-between items-start pt-0 pb-2 md:pb-4 lg:pb-5 px-2 md:px-4 lg:px-5 gap-2 md:gap-4 flex-shrink-0 w-full max-w-full">
+        <div className="screen-header">
           {/* Left Side - Welcome Message */}
           <div className="flex-1 min-w-0">
             <div className="text-left">
-              <h2 className="text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold mb-1 md:mb-2 text-gray-900 mt-0 pt-0 truncate">Welcome, {user?.full_name || 'User'}</h2>
-              <p className="text-sm md:text-base lg:text-lg text-gray-600 break-words">Create teaching resources relevant to your classroom.</p>
+              <h1>A little less prep. More teaching.</h1>
+              <p className="text-sm md:text-base lg:text-lg text-gray-600 break-words">Welcome, {user?.full_name?.split(' ')[0] || 'teacher'}. Start with your curriculum and shape a lesson for your class.</p>
             </div>
           </div>
 
@@ -237,6 +239,8 @@ const DashboardPage: React.FC = () => {
           <div className="flex items-center space-x-2 md:space-x-3 flex-shrink-0">
             <div className="relative user-menu-container">
               <button
+                aria-label="Your account"
+                aria-expanded={showUserMenu}
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="w-8 h-8 md:w-10 md:h-10 bg-primary-600 rounded-full flex items-center justify-center hover:bg-primary-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
               >
@@ -278,19 +282,20 @@ const DashboardPage: React.FC = () => {
         <div className="flex flex-col flex-1 overflow-y-auto w-full max-w-full overflow-x-hidden">
           {/* Create Lesson Plan Section */}
           <div className="p-2 md:p-4 lg:p-6">
-            <div className="p-3 md:p-4 lg:p-5">
+            <div className="screen-generator">
               <div className="flex items-center mb-3 md:mb-4">
                 <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900">
                   Create Lesson Plan
                 </h3>
               </div>
 
-              <form className="space-y-3 md:space-y-4 mb-6 md:mb-0 w-full max-w-full">
+              <ol className="screen-flow" aria-label="Lesson preparation"><li><b>1</b> Set your curriculum</li><li><b>2</b> Choose a topic</li><li><b>3</b> Review and adapt</li></ol>
+              <form onSubmit={event => { event.preventDefault(); void handleGenerate() }} className="space-y-3 md:space-y-4 mb-6 md:mb-0 w-full max-w-full">
                 {/* First Row - Country and Curriculum */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 min-w-0">
                   <div className="space-y-1 md:space-y-2 min-w-0">
-                    <label className="block text-xs md:text-sm font-semibold text-gray-700">Country</label>
-                    <select
+                    <label htmlFor="teacher-country" className="block text-xs md:text-sm font-semibold text-gray-700">Country</label>
+                    <select id="teacher-country"
                       value={selectedCountry}
                       onChange={(e) => setSelectedCountry(e.target.value)}
                       className="w-full max-w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm bg-white hover:border-gray-400 truncate pr-8"
@@ -303,8 +308,8 @@ const DashboardPage: React.FC = () => {
                   </div>
 
                   <div className="space-y-1 md:space-y-2 min-w-0">
-                    <label className="block text-xs md:text-sm font-semibold text-gray-700">Curriculum</label>
-                    <select
+                    <label htmlFor="teacher-curriculum" className="block text-xs md:text-sm font-semibold text-gray-700">Curriculum</label>
+                    <select id="teacher-curriculum"
                       value={selectedCurriculum}
                       onChange={(e) => setSelectedCurriculum(e.target.value)}
                       className="w-full max-w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm bg-white hover:border-gray-400 truncate pr-8"
@@ -322,8 +327,8 @@ const DashboardPage: React.FC = () => {
                 {/* Second Row - Subject and Grade Level */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 min-w-0">
                   <div className="space-y-1 md:space-y-2 min-w-0">
-                    <label className="block text-xs md:text-sm font-semibold text-gray-700">Subject</label>
-                    <select
+                    <label htmlFor="teacher-subject" className="block text-xs md:text-sm font-semibold text-gray-700">Subject</label>
+                    <select id="teacher-subject"
                       value={selectedSubject}
                       onChange={(e) => setSelectedSubject(e.target.value)}
                       className="w-full max-w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm bg-white hover:border-gray-400 disabled:bg-gray-50 disabled:cursor-not-allowed truncate pr-8"
@@ -337,8 +342,8 @@ const DashboardPage: React.FC = () => {
                   </div>
 
                   <div className="space-y-1 md:space-y-2 min-w-0">
-                    <label className="block text-xs md:text-sm font-semibold text-gray-700">Grade Level</label>
-                    <select
+                    <label htmlFor="teacher-grade" className="block text-xs md:text-sm font-semibold text-gray-700">Grade Level</label>
+                    <select id="teacher-grade"
                       value={selectedGradeLevel}
                       onChange={(e) => setSelectedGradeLevel(e.target.value)}
                       className="w-full max-w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm bg-white hover:border-gray-400 disabled:bg-gray-50 disabled:cursor-not-allowed truncate pr-8"
@@ -392,10 +397,11 @@ const DashboardPage: React.FC = () => {
                 <div className="flex flex-col lg:flex-row gap-3 md:gap-4 w-full max-w-full">
                   <div className="flex-1 min-w-0">
                     <div className="space-y-2 md:space-y-3">
-                      <label className="block text-xs md:text-sm font-semibold text-gray-700">Topic</label>
+                      <label htmlFor="teacher-topic" className="block text-xs md:text-sm font-semibold text-gray-700">Topic</label>
                       <div className="relative w-full">
                         <input
                           type="text"
+                          id="teacher-topic"
                           name="topic"
                           value={form.topic}
                           onChange={handleTopicInputChange}
@@ -586,6 +592,8 @@ const DashboardPage: React.FC = () => {
             </div>
           </div>
         </div>
+        <ExploreInvitation educator />
+        <SessionDiscoveries />
       </main>
 
       {/* Mobile Bottom Navigation */}

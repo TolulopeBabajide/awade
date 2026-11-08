@@ -8,6 +8,7 @@ const Header: React.FC = () => {
   const navigation = [
     { name: 'Home', href: '#home' },
     { name: 'Features', href: '#features' },
+    { name: 'Explore concepts', href: '#explore-concepts' },
   ]
 
   const toggleMenu = () => {
@@ -26,7 +27,7 @@ const Header: React.FC = () => {
           <div className="flex-shrink-0">
             <h1 className="text-xl sm:text-2xl font-bold text-primary-900">
               <a href="#home" aria-label="Awade - Go to homepage">
-                AWADE
+                awade.
               </a>
             </h1>
           </div>
@@ -38,7 +39,7 @@ const Header: React.FC = () => {
                 key={item.name}
                 href={item.href}
                 className={`${item.name === 'Home'
-                  ? 'text-white font-bold'
+                  ? 'text-primary-900 font-bold'
                   : 'text-primary-900 hover:text-primary-700'
                   } px-3 py-2 text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-md`}
               >

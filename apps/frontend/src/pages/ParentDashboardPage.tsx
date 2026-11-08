@@ -1,3 +1,6 @@
+import SessionDiscoveries from '../components/design/SessionDiscoveries'
+import { Link } from 'react-router-dom'
+import ExploreInvitation from '../components/learning/ExploreInvitation'
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -51,6 +54,7 @@ const ParentDashboardPage: React.FC = () => {
   const { user } = useAuth()
   const queryClient = useQueryClient()
 
+  const [topicSearch, setTopicSearch] = useState('')
   const [showAddChild, setShowAddChild] = useState(false)
   const [editingChild, setEditingChild] = useState<ChildProfile | null>(null)
   const [selectedChild, setSelectedChild] = useState<ChildProfile | null>(null)
@@ -123,7 +127,8 @@ const ParentDashboardPage: React.FC = () => {
   })
 
   // Group topics by subject
-  const topicsBySubject = (topics ?? []).reduce<Record<string, ChildTopic[]>>((acc, topic) => {
+  const filteredTopics = (topics ?? []).filter(topic => `${topic.topic_title} ${topic.subject_name ?? ''}`.toLowerCase().includes(topicSearch.toLowerCase()))
+  const topicsBySubject = filteredTopics.reduce<Record<string, ChildTopic[]>>((acc, topic) => {
     const key = topic.subject_name || 'Other'
     if (!acc[key]) acc[key] = []
     acc[key].push(topic)
@@ -185,12 +190,12 @@ const ParentDashboardPage: React.FC = () => {
   }
 
   return (
-    <div className="flex min-h-screen bg-background-50">
+    <div className="new-screen screen-parent-home flex min-h-screen bg-background-50">
       <Sidebar currentPage="dashboard" />
 
       <main id="main-content" tabIndex={-1} className="flex-1 lg:ml-64 pb-20 lg:pb-0 outline-none">
         {/* Top bar */}
-        <div className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
+        <div className="screen-page-header">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl lg:text-2xl font-bold text-primary-800">
@@ -211,6 +216,8 @@ const ParentDashboardPage: React.FC = () => {
             </button>
           </div>
         </div>
+
+        <div className="px-4 sm:px-6 lg:px-8"><ExploreInvitation /></div>
 
         {loadingChildren ? (
           <div className="flex-1 flex items-center justify-center py-20">
@@ -244,6 +251,7 @@ const ParentDashboardPage: React.FC = () => {
                 />
               </div>
             )}
+            <section className="screen-welcome"><div><h2>Make time for a little discovery.</h2><p>Choose a topic below for a practical guide, or explore an idea together with an interactive activity.</p></div><Link to="/saved-guides" className="learning-button-secondary">Return to saved guides</Link></section>
             {/* Child selector cards */}
             <div className="flex gap-3 overflow-x-auto pb-4 mb-6 scrollbar-hide">
               {children.map(child => (
@@ -254,6 +262,7 @@ const ParentDashboardPage: React.FC = () => {
                   tabIndex={0}
                   onClick={() => {
                     setSelectedChild(child)
+                    setTopicSearch('')
                     setSelectedSubjectId(null)
                     // AWD-L-26: clear any stale delete-error banner so it
                     // doesn't persist while the parent is viewing a different
@@ -264,6 +273,7 @@ const ParentDashboardPage: React.FC = () => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
                       setSelectedChild(child)
+                      setTopicSearch('')
                       setSelectedSubjectId(null)
                       // AWD-L-26: keyboard-activated card switch must also
                       // clear the delete-error banner.
@@ -308,6 +318,9 @@ const ParentDashboardPage: React.FC = () => {
               ))}
             </div>
 
+            <SessionDiscoveries />
+
+            <label className="screen-search mb-6">Find a curriculum topic<input type="search" placeholder="Search topic or subject" value={topicSearch} onChange={event => setTopicSearch(event.target.value)} /></label>
             {/* Topics grid */}
             {selectedChild && (
               <>
@@ -344,7 +357,7 @@ const ParentDashboardPage: React.FC = () => {
                     <FaBookOpen className="w-10 h-10 text-gray-300 mx-auto mb-3" />
                     <h3 className="font-semibold text-gray-700 mb-2">No topics found</h3>
                     <p className="text-gray-500 text-sm">
-                      No curriculum topics are available for this grade and curriculum yet. Check back later or contact support.
+                      {topicSearch ? 'Try a different topic or subject, or clear your search.' : 'No curriculum topics are available for this grade and curriculum yet. Check back later or contact support.'}
                     </p>
                   </div>
                 ) : (
@@ -377,7 +390,7 @@ const ParentDashboardPage: React.FC = () => {
                               <p className="font-medium text-gray-800 group-hover:text-primary-700 text-sm leading-snug">
                                 {topic.topic_title}
                               </p>
-                              <p className="text-xs text-accent-600 mt-2 font-medium opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
+                              <p className="text-xs text-accent-600 mt-2 font-medium transition-colors">
                                 Get "How to Help" guide →
                               </p>
                             </button>

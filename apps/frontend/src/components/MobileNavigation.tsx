@@ -7,6 +7,7 @@ import {
   FaCog,
   FaBookmark,
   FaUsers,
+  FaCompass,
 } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -33,6 +34,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentPage }) => {
     { id: 'dashboard', label: 'Home', icon: FaHome, path: '/dashboard' },
     { id: 'children', label: 'Children', icon: FaUsers, path: '/children' },
     { id: 'saved-guides', label: 'Guides', icon: FaBookmark, path: '/saved-guides' },
+    { id: 'explore', label: 'Explore', icon: FaCompass, path: '/explore' },
     { id: 'settings', label: 'Settings', icon: FaCog, path: '/settings' },
   ];
 
@@ -40,6 +42,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentPage }) => {
     { id: 'dashboard', label: 'Dashboard', icon: FaHome, path: '/dashboard' },
     { id: 'lesson-plans', label: 'Plans', icon: FaBookOpen, path: '/lesson-plans' },
     { id: 'lesson-resources', label: 'Resources', icon: FaFolder, path: '/lesson-resources' },
+    { id: 'explore', label: 'Explore', icon: FaCompass, path: '/explore' },
     { id: 'settings', label: 'Settings', icon: FaCog, path: '/settings' },
   ];
 
@@ -52,7 +55,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentPage }) => {
   };
 
   return (
-    <nav aria-label="Mobile primary navigation" className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 z-50 shadow-lg">
+    <nav aria-label="Mobile primary navigation" className="awade-mobile lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 z-50 shadow-lg">
       <div className="flex justify-around items-center">
         {navItems.map((item) => {
           const Icon = item.icon;

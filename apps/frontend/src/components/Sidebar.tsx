@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaHome, FaBookOpen, FaFolder, FaCog, FaSignOutAlt, FaBookmark, FaUsers } from 'react-icons/fa';
+import { FaHome, FaBookOpen, FaFolder, FaCog, FaSignOutAlt, FaBookmark, FaUsers, FaCompass } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
 
 interface SidebarProps {
-  currentPage: 'dashboard' | 'lesson-plans' | 'lesson-resources' | 'settings' | 'children' | 'saved-guides';
+  currentPage: 'dashboard' | 'lesson-plans' | 'lesson-resources' | 'settings' | 'children' | 'saved-guides' | 'explore';
   showLogo?: boolean;
   showLogout?: boolean;
   className?: string;
@@ -33,6 +33,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     { id: 'dashboard', label: 'Home', icon: FaHome, path: '/dashboard' },
     { id: 'children', label: 'My Children', icon: FaUsers, path: '/children' },
     { id: 'saved-guides', label: 'Saved Guides', icon: FaBookmark, path: '/saved-guides' },
+    { id: 'explore', label: 'Explore', icon: FaCompass, path: '/explore' },
     { id: 'settings', label: 'Settings', icon: FaCog, path: '/settings' },
   ];
 
@@ -40,6 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     { id: 'dashboard', label: 'Dashboard', icon: FaHome, path: '/dashboard' },
     { id: 'lesson-plans', label: 'Lesson Plans', icon: FaBookOpen, path: '/lesson-plans' },
     { id: 'lesson-resources', label: 'Resources', icon: FaFolder, path: '/lesson-resources' },
+    { id: 'explore', label: 'Explore', icon: FaCompass, path: '/explore' },
     { id: 'settings', label: 'Settings', icon: FaCog, path: '/settings' },
   ];
 
@@ -47,12 +49,12 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const getActiveClass = (page: string) => {
     return currentPage === page
-      ? 'bg-accent-600 text-white'
+      ? 'bg-primary-100 text-primary-900'
       : 'hover:bg-gray-100 text-gray-700';
   };
 
   const getIconColor = (page: string) => {
-    return currentPage === page ? 'text-white' : 'text-gray-700';
+    return currentPage === page ? 'text-primary-800' : 'text-gray-700';
   };
 
   return (
@@ -64,19 +66,19 @@ const Sidebar: React.FC<SidebarProps> = ({
       >
         Skip to main content
       </a>
-    <aside className={`hidden w-full lg:w-64 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 lg:flex flex-row lg:flex-col pb-3 md:pb-4 lg:pb-8 px-2 md:px-4 lg:px-4 lg:min-h-screen lg:fixed lg:left-0 lg:top-0 lg:z-[60] items-center lg:items-stretch flex-shrink-0 shadow-lg ${className}`}>
+    <aside className={`awade-sidebar hidden w-full lg:w-64 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 lg:flex flex-row lg:flex-col pb-3 md:pb-4 lg:pb-8 px-2 md:px-4 lg:px-4 lg:min-h-screen lg:fixed lg:left-0 lg:top-0 lg:z-[60] items-center lg:items-stretch flex-shrink-0 shadow-lg ${className}`}>
       {/* Logo */}
       {showLogo && (
-        <div className="items-center mb-8 mt-12 w-full justify-center">
-          <span className="font-bold text-3xl text-center tracking-wide text-primary-800">AWADE</span>
+        <div className="items-center mb-4 mt-10 w-full justify-center">
+          <span className="font-bold text-3xl text-center workspace-brand">awade</span>
           {isParent && (
-            <span className="block text-xs text-gray-400 tracking-wider mt-1">FOR PARENTS</span>
+            <span className="block workspace-brand-note">Learning together at home</span>
           )}
         </div>
       )}
 
       {/* Navigation */}
-      <nav aria-label="Primary navigation" className="flex-1 space-y-2 mt-12 w-full hidden lg:block">
+      <nav aria-label="Primary navigation" className="flex-1 space-y-2 mt-6 w-full hidden lg:block">
         {navItems.map(item => {
           const Icon = item.icon;
           const isActive = currentPage === item.id;
@@ -93,6 +95,8 @@ const Sidebar: React.FC<SidebarProps> = ({
           );
         })}
       </nav>
+
+      <p className="workspace-note hidden lg:block">Little moments.<br />Lasting learning.</p>
 
       {/* Logout */}
       {showLogout && (

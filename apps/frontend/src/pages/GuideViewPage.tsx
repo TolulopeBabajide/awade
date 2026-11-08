@@ -20,6 +20,7 @@ import type { ParentGuide, ParentGuideContent } from '../types/children'
 import { GuidePageShell, Section, InfoCard } from './GuideViewPage.components'
 import { getErrorMessage } from '../utils/errors'
 import ErrorBanner from '../components/ErrorBanner'
+import { TopicConcept } from '../components/learning/ConceptExplorer'
 
 const GuideViewPage: React.FC = () => {
   const [searchParams] = useSearchParams()
@@ -239,7 +240,7 @@ const GuideViewPage: React.FC = () => {
         )}
 
         {/* Guide content */}
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+        <div className="reader-content max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
           {/* Header */}
           <div>
             <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
@@ -272,18 +273,23 @@ const GuideViewPage: React.FC = () => {
             </div>
           </div>
 
+          <nav className="reader-navigation" aria-label="Guide sections"><a href="#guide-explanation">Understand the idea</a><a href="#guide-activity">Try an activity</a><a href="#guide-conversation">Talk about it</a><a href="#guide-curriculum">Curriculum context</a></nav>
           {/* Simple Explanation */}
           <Section
             icon={<FaLightbulb className="w-5 h-5 text-amber-500" />}
+            id="guide-explanation"
             title="What is this topic about?"
           >
             <p className="text-gray-700 leading-relaxed">{content.simple_explanation.what_it_is}</p>
             <p className="text-gray-600 text-sm mt-3 italic">{content.simple_explanation.why_it_matters}</p>
           </Section>
 
+          <TopicConcept topic={guide?.topic_title ?? content.topic_header.topic} subject={guide?.subject_name ?? content.topic_header.subject} />
+
           {/* Home Activity */}
           <Section
             icon={<FaHome className="w-5 h-5 text-primary-600" />}
+            id="guide-activity"
             title={content.home_activity.title}
             subtitle="Home activity (15-30 min)"
           >
@@ -321,6 +327,7 @@ const GuideViewPage: React.FC = () => {
           {/* Conversation Starters */}
           <Section
             icon={<FaComments className="w-5 h-5 text-blue-500" />}
+            id="guide-conversation"
             title="Conversation starters"
             subtitle="Questions to ask naturally"
           >
@@ -356,6 +363,7 @@ const GuideViewPage: React.FC = () => {
           {/* Curriculum Context */}
           <Section
             icon={<FaChalkboardTeacher className="w-5 h-5 text-purple-500" />}
+            id="guide-curriculum"
             title="Where this fits in the curriculum"
           >
             <div className="grid sm:grid-cols-3 gap-4">

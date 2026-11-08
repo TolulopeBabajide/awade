@@ -1,8 +1,10 @@
+import { Link } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import Sidebar from '../components/Sidebar';
 import MobileNavigation from '../components/MobileNavigation';
+import { TopicConcept } from '../components/learning/ConceptExplorer';
 import AIGenerationLoading from '../components/AIGenerationLoading';
 
 import apiService from '../services/api';
@@ -94,12 +96,12 @@ const LessonPlanDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="bg-gray-50 flex min-h-screen">
+    <div className="new-screen screen-lesson-detail bg-gray-50 flex min-h-screen">
       {/* Sidebar */}
       <Sidebar currentPage="lesson-plans" />
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-64 p-4 md:p-6 lg:p-8 pb-20 lg:pb-8">
+      <main id="main-content" tabIndex={-1} className="flex-1 min-w-0 lg:ml-64 p-4 md:p-6 lg:p-8 pb-20 lg:pb-8">
         {/* Back Navigation */}
         <div className="mb-4 md:mb-6">
           <button
@@ -119,16 +121,20 @@ const LessonPlanDetailPage: React.FC = () => {
           <span className="font-bold text-primary-600">{lessonPlan.subject}</span>
         </div>
 
+        <div className="mb-6"><TopicConcept topic={lessonPlan.topic} subject={lessonPlan.subject} audience="educator" /></div>
+
         <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
           {/* Main lesson plan panel */}
-          <div className="flex-1 bg-white rounded-xl shadow-lg p-4 md:p-6 lg:p-8">
+          <div className="screen-plan-panel flex-1 min-w-0 bg-white p-4 md:p-6 lg:p-8">
             <div className="flex items-center gap-4 mb-2">
               <span className="bg-primary-100 text-primary-700 rounded-lg px-3 py-1 text-xs font-semibold">{lessonPlan.grade_level}</span>
             </div>
-            <div className="text-lg md:text-xl font-bold mb-2 text-gray-900">{lessonPlan.title}</div>
+            <h1 className="text-2xl font-semibold mb-3 text-primary-900">{lessonPlan.title}</h1>
             <div className="text-sm text-gray-500 mb-4 md:mb-6">
               Created: {new Date(lessonPlan.created_at).toLocaleDateString()}
             </div>
+
+            <div className="flex flex-wrap gap-3 mb-6"><Link className="learning-button-secondary" to={`/lesson-plans/${id}/edit`}>View lesson details</Link><Link className="learning-button-secondary" to={`/lesson-plans/${id}/resources/edit`}>Open teaching resource</Link></div>
 
             {/* Curriculum Learning Objectives */}
             <div className="mb-4 md:mb-6">

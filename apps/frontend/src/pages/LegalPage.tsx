@@ -11,7 +11,7 @@ const LegalPage = ({ kind }: LegalPageProps) => {
   const isPrivacy = kind === 'privacy';
 
   return (
-    <main className="min-h-screen bg-primary-50 px-4 py-8 sm:px-6 sm:py-12">
+    <main className="screen-document min-h-screen bg-primary-50 px-4 py-8 sm:px-6 sm:py-12">
       <article className="mx-auto max-w-3xl rounded-2xl border border-primary-100 bg-white p-6 shadow-sm sm:p-10">
         <Link
           to="/signup"
