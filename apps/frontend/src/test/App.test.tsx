@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import App from '../App'
 
 // Mock the AuthContext
@@ -38,6 +38,15 @@ const AppWithRouter = () => (
 )
 
 describe('App', () => {
+  beforeEach(() => window.history.replaceState({}, '', '/'))
+
+  it('requires sign-in for the shared Explore route', async () => {
+    window.history.replaceState({}, '', '/explore?concept=circuits')
+    render(<AppWithRouter />)
+    expect(await screen.findByRole('heading', { name: 'Welcome Back' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Make an idea click.' })).not.toBeInTheDocument()
+  })
+
   it('renders without crashing', () => {
     render(<AppWithRouter />)
     const elements = screen.getAllByText(/Awade/i)

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import apiService from '../services/api';
 import Sidebar from '../components/Sidebar';
 import MobileNavigation from '../components/MobileNavigation';
+import { TopicConcept } from '../components/learning/ConceptExplorer';
 import {
   FaEdit,
   FaTimes,
@@ -581,13 +582,13 @@ const EditLessonResourcePage: React.FC = () => {
   }
 
   return (
-    <div className="bg-gray-50 flex min-h-screen">
+    <div className="new-screen screen-resource-editor bg-gray-50 flex min-h-screen">
       {/* Sidebar */}
       <Sidebar currentPage="lesson-resources" />
 
-      <div className="flex-1 flex flex-col lg:ml-64">
+      <div className="screen-resource-main flex-1 flex flex-col lg:ml-64">
         {/* Sticky AI Disclaimer - Top of Screen */}
-        <div className="fixed top-0 left-0 right-0 z-50 bg-accent-50 border-b border-accent-200 px-3 py-2 shadow-sm">
+        <div className="resource-disclosure fixed top-0 left-0 right-0 z-50 bg-accent-50 border-b border-accent-200 px-3 py-2 shadow-sm">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-start justify-center gap-2">
               <div className="flex items-start gap-2 flex-1 justify-center">
@@ -615,7 +616,7 @@ const EditLessonResourcePage: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex-1 p-4 md:p-6 lg:p-8 pt-20 md:pt-24 lg:pt-28 pb-20 lg:pb-8">
+        <main id="main-content" tabIndex={-1} className="flex-1 p-4 md:p-6 lg:p-8 pt-20 md:pt-24 lg:pt-28 pb-20 lg:pb-8">
 
           {/* Back Navigation - Always Visible */}
           <div className="mb-4 md:mb-6 rounded-lg p-3 md:p-4 ">
@@ -708,6 +709,10 @@ const EditLessonResourcePage: React.FC = () => {
               )}
 
               {/* Editable Sections */}
+              {structuredContent.title_header?.topic && structuredContent.title_header?.subject && !editingSection && (
+                <TopicConcept topic={structuredContent.title_header.topic} subject={structuredContent.title_header.subject} audience="educator" />
+              )}
+
               {structuredContent.lesson_content && (
                 <EditableSection
                   title="Lesson Content"
@@ -842,7 +847,7 @@ const EditLessonResourcePage: React.FC = () => {
               </button>
             </div>
           </div>
-        </div>
+        </main>
       </div>
 
       {/* Mobile Bottom Navigation */}

@@ -479,7 +479,7 @@ export const SecurityTab: React.FC = () => {
 export const LanguageTab: React.FC = () => (
   <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 md:p-6">
     <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Language Settings</h3>
-    <p className="text-gray-600">Language settings will be implemented here.</p>
+    <p className="text-gray-600">Awade currently supports English. More languages will appear here when available.</p>
   </div>
 );
 
@@ -520,13 +520,6 @@ export const SettingsMenu: React.FC<SettingsMenuProps> = ({ activeTab, onTabChan
       <FaCog className="w-4 h-4 mr-2" />
       Language
     </button>
-    <div className="border-t border-gray-100 my-1"></div>
-    <button
-      onClick={onClose}
-      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
-    >
-      <FaTimes className="w-4 h-4 mr-2" />
-      Delete Account
-    </button>
+
   </div>
 );

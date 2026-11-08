@@ -1,3 +1,5 @@
+import AuthLayout from '../components/design/AuthLayout'
+import { Link } from 'react-router-dom'
 import React, { useState } from 'react';
 
 function isAlphanumeric(str: string) {
@@ -69,23 +71,20 @@ const ResetPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-      <div className="flex flex-col items-center w-full">
-        <div className="mt-12 mb-4">
-          <span className="font-bold text-2xl tracking-widest">AWADE</span>
-        </div>
-        <div className="bg-white rounded-md shadow-md p-8 w-full max-w-md border border-gray-300 relative">
+    <AuthLayout mode="reset">
+      <div className="account-form">
           <h2 className="text-2xl font-semibold text-center mb-2">Reset Password</h2>
           <p className="text-center text-gray-500 text-sm mb-6">
             Enter your new password below.
           </p>
-          {error && <div className="text-red-500 text-sm text-center mb-2">{error}</div>}
-          {success && <div className="text-green-600 text-sm text-center mb-2">{success}</div>}
+          {error && <div role="alert" className="text-red-500 text-sm text-center mb-2">{error}</div>}
+          {success && <div role="status" className="text-green-600 text-sm text-center mb-2">{success}</div>}
           <form className="space-y-4" onSubmit={handleSubmit} autoComplete="off">
             <div>
-              <label className="block text-sm font-semibold mb-1">New Password</label>
+              <label htmlFor="reset-password" className="block text-sm font-semibold mb-1">New Password</label>
               <input
                 type="password"
+                id="reset-password"
                 name="password"
                 value={form.password}
                 onChange={handleChange}
@@ -97,9 +96,10 @@ const ResetPasswordPage: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold mb-1">Repeat New Password</label>
+              <label htmlFor="reset-confirm" className="block text-sm font-semibold mb-1">Repeat New Password</label>
               <input
                 type="password"
+                id="reset-confirm"
                 name="repeatPassword"
                 value={form.repeatPassword}
                 onChange={handleChange}
@@ -112,15 +112,15 @@ const ResetPasswordPage: React.FC = () => {
             </div>
             <button
               type="submit"
-              className="w-full bg-purple-200 text-gray-700 font-semibold py-2 rounded mt-2 hover:bg-purple-300 disabled:opacity-50"
+              className="learning-button w-full mt-2 disabled:opacity-50"
               disabled={loading}
             >
               {loading ? 'Resetting...' : 'Reset Password'}
             </button>
           </form>
-        </div>
+        <Link to="/login" className="account-return">Back to sign in</Link>
       </div>
-    </div>
+    </AuthLayout>
   );
 };
 

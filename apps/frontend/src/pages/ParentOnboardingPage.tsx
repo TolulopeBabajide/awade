@@ -139,9 +139,9 @@ const ParentOnboardingPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex flex-col items-center justify-start py-10 px-4">
+    <div className="screen-onboarding min-h-screen">
       {/* Header */}
-      <div className="text-center mb-8 max-w-md">
+      <div className="screen-onboarding-intro">
         <div className="w-16 h-16 bg-accent-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <FaChild className="w-8 h-8 text-accent-600" />
         </div>
@@ -154,12 +154,13 @@ const ParentOnboardingPage: React.FC = () => {
       </div>
 
       {/* Card */}
-      <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+      <div className="screen-onboarding-form w-full bg-white rounded-2xl p-6 sm:p-8">
         <h2 className="text-xl font-semibold text-primary-800 mb-6 flex items-center gap-2">
           <span className="w-7 h-7 rounded-full bg-primary-600 text-white text-sm flex items-center justify-center font-bold">1</span>
           Add your child's profile
         </h2>
 
+        <p className="text-sm text-gray-500 mb-6">Start with a name. Add curriculum details now or complete them later from My Children.</p>
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
           {error && (
             <div id="onboarding-error-msg" role="alert" className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>

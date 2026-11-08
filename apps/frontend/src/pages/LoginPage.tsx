@@ -1,10 +1,11 @@
+import AuthLayout from '../components/design/AuthLayout'
 import React, { useState } from 'react';
 import type { CredentialResponse } from '@react-oauth/google';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
 import { sanitizeRedirectPath } from '../utils/sanitizer';
-import { FaEye, FaEyeSlash, FaArrowLeft, FaEnvelope, FaLock } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaEnvelope, FaLock } from 'react-icons/fa';
 import ResponsiveGoogleLogin, { isGoogleAuthConfigured } from '../components/ResponsiveGoogleLogin';
 
 
@@ -126,35 +127,10 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 px-4 sm:px-6 lg:px-8">
-      {/* Back Button */}
-      <div className="absolute left-4 sm:left-8 top-6 sm:top-8">
-        <button 
-          onClick={() => navigate(-1)}
-          className="flex min-h-11 min-w-11 items-center justify-center space-x-2 rounded-lg p-2 text-primary-600 transition-colors duration-200 hover:bg-primary-50 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
-          aria-label="Go back"
-        >
-          <FaArrowLeft className="w-4 h-4" />
-          <span className="hidden sm:inline text-sm font-medium">Back</span>
-        </button>
-      </div>
-
-      <div className="flex flex-col items-center w-full max-w-md">
-        {/* Logo */}
-        <div className="mt-8 sm:mt-12 mb-6 text-center">
-          <h1 className="font-bold text-3xl sm:text-4xl text-primary-800 tracking-wide">
-            <Link to="/" aria-label="Awade - Go to homepage">
-              AWADE
-            </Link>
-          </h1>
-          <p className="text-primary-600 text-sm sm:text-base mt-2">
-            Learning support for home and school
-          </p>
-        </div>
-
+    <AuthLayout mode="login">
         {/* Login Form Card */}
-        <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 w-full border border-gray-100">
-          <div className="text-center mb-6">
+        <div className="account-form">
+          <div className="account-form-heading">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
             <p className="text-gray-600 text-sm sm:text-base">
               Continue helping learners at home or in the classroom
@@ -213,7 +189,7 @@ const LoginPage: React.FC = () => {
               </div>
               <button
                 type="submit"
-                className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                 disabled={loading}
               >
                 {loading ? (
@@ -300,7 +276,7 @@ const LoginPage: React.FC = () => {
               {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                 disabled={loading}
               >
                 {loading ? (
@@ -325,9 +301,8 @@ const LoginPage: React.FC = () => {
             </p>
           </div>
         </div>
-      </div>
-    </div>
+    </AuthLayout>
   );
 };
 
-export default LoginPage; 
+export default LoginPage;

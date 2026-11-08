@@ -83,6 +83,8 @@ describe('GuideViewPage — render', () => {
       expect(screen.getByRole('heading', { name: /Fractions/i })).toBeInTheDocument()
     }, { timeout: 5000 })
     expect(screen.getByText('A fraction represents a part of a whole.')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Parts of a whole' })).toBeInTheDocument()
+    expect(screen.getByRole('slider')).toBeInTheDocument()
   })
 
   it('renders guide via generateGuide when child+topic params are supplied (no guide ID)', async () => {

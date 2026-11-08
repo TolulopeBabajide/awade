@@ -239,13 +239,13 @@ import { LessonPlanForm } from './LessonPlanForm';
 
 test('submits lesson plan form', async () => {
   render(<LessonPlanForm />);
-  
+
   fireEvent.change(screen.getByLabelText('Subject'), {
     target: { value: 'Mathematics' }
   });
-  
+
   fireEvent.click(screen.getByText('Generate Plan'));
-  
+
   await screen.findByText('Lesson plan generated!');
 });
 ```
@@ -329,4 +329,13 @@ npm run lint
 
 ---
 
-*This guide will be expanded as frontend features are developed.* 
+*This guide will be expanded as frontend features are developed.*
+
+## Interactive concept learning
+
+See [concept-learning.md](concept-learning.md) for the Explore route, supported models, inline guide/lesson/resource integration, session discoveries and verification.
+
+
+## Full screen system
+
+See [screen-system.md](screen-system.md) for the implemented route inventory, shared account/workspace components, reader/library layouts, functional limits and release checks.

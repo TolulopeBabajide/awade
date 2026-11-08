@@ -305,7 +305,7 @@ describe('ParentDashboardPage — render', () => {
       expect(btn!.getAttribute('aria-label')).toMatch(/Generate "How to Help" guide for Fractions/i)
     })
 
-    it('reveal hint includes group-focus-within so keyboard users can see it on focus', async () => {
+    it('keeps the topic action visible without requiring hover or focus', async () => {
       mockApiService.getChildren.mockResolvedValue({
         error: undefined,
         data: { children: [makeChild()], total: 1 },
@@ -322,8 +322,8 @@ describe('ParentDashboardPage — render', () => {
       }, { timeout: 5000 })
 
       const hint = screen.getByText(/Get "How to Help" guide/i)
-      expect(hint.className).toContain('group-hover:opacity-100')
-      expect(hint.className).toContain('group-focus-within:opacity-100')
+      expect(hint).toBeVisible()
+      expect(hint.className).not.toContain('opacity-0')
     })
   })
 

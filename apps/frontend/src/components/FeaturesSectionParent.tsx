@@ -28,9 +28,9 @@ const features: Feature[] = [
   },
   {
     icon: '📈',
-    title: 'Track What You\'ve Covered',
+    title: 'See Concepts in Action',
     description:
-      'Bookmark guides, see which topics you\'ve explored together, and know what\'s coming next in the curriculum — so you stay one step ahead.',
+      'Shade fractions, regroup numbers, resize rectangles and test a simple circuit. Predict what happens, then explore together.',
   },
 ]
 

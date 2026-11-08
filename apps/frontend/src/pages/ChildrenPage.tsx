@@ -76,12 +76,12 @@ const ChildrenPage: React.FC = () => {
   }
 
   return (
-    <div className="flex min-h-screen bg-background-50">
+    <div className="new-screen screen-children flex min-h-screen bg-background-50">
       <Sidebar currentPage="children" />
 
       <main id="main-content" tabIndex={-1} className="flex-1 lg:ml-64 pb-20 lg:pb-0 outline-none">
         {/* Top bar */}
-        <div className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
+        <div className="screen-page-header">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl lg:text-2xl font-bold text-primary-800">My Children</h1>
@@ -94,7 +94,7 @@ const ChildrenPage: React.FC = () => {
               className="bg-accent-700 hover:bg-accent-800 text-white font-medium py-2 px-4 rounded-xl transition-colors inline-flex items-center gap-2 text-sm"
             >
               <FaPlus className="w-3 h-3" />
-              <span className="hidden sm:inline">Add Child</span>
+              <span>Add Child</span>
             </button>
           </div>
         </div>
@@ -151,7 +151,7 @@ const ChildrenPage: React.FC = () => {
               {children.map(child => (
                 <div
                   key={child.child_id}
-                  className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow"
+                  className="screen-child-profile bg-white border border-gray-200 rounded-2xl p-5"
                 >
                   {/* Header row */}
                   <div className="flex items-start justify-between mb-4">

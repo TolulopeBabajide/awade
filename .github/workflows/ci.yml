@@ -84,7 +84,7 @@ jobs:
       - name: Install WeasyPrint system libraries
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y libpango-1.0-0 libpangocairo-1.0-0 libpangoft2-1.0-0 libharfbuzz0b libcairo2 libgdk-pixbuf2.0-0
+          sudo apt-get install -y libpango-1.0-0 libpangocairo-1.0-0 libpangoft2-1.0-0 libharfbuzz0b libcairo2 libgdk-pixbuf-2.0-0
 
       - name: Install backend dependencies
         run: |
@@ -134,10 +134,16 @@ jobs:
           cd apps/frontend
           npm ci
 
+      - name: Check frontend code quality
+        run: |
+          cd apps/frontend
+          npm run lint
+          npx tsc --noEmit
+
       - name: Run frontend tests
         run: |
           cd apps/frontend
-          npm test
+          npm run test:run
 
       - name: Build frontend
         run: |
@@ -271,7 +277,7 @@ jobs:
       - name: Install WeasyPrint system libraries
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y libpango-1.0-0 libpangocairo-1.0-0 libpangoft2-1.0-0 libharfbuzz0b libcairo2 libgdk-pixbuf2.0-0
+          sudo apt-get install -y libpango-1.0-0 libpangocairo-1.0-0 libpangoft2-1.0-0 libharfbuzz0b libcairo2 libgdk-pixbuf-2.0-0
       - name: Install backend dependencies
         run: |
           cd apps/backend
@@ -483,6 +489,8 @@ jobs:
 
           if [ "${{ needs.deploy.result }}" == "success" ]; then
             echo "- ✅ Deployment ready" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.deploy.result }}" == "skipped" ]; then
+            echo "- ⏭️ Deployment skipped for this branch or event" >> $GITHUB_STEP_SUMMARY
           else
             echo "- ❌ Deployment failed" >> $GITHUB_STEP_SUMMARY
           fi

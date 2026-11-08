@@ -34,7 +34,7 @@ export const GuidePageShell: React.FC<GuidePageShellProps> = ({
   mainId,
   mainTabIndex,
 }) => (
-  <div className="flex min-h-screen bg-background-50">
+  <div className="new-screen screen-reader flex min-h-screen">
     <Sidebar currentPage="dashboard" />
     <main
       id={mainId}
@@ -50,14 +50,15 @@ export const GuidePageShell: React.FC<GuidePageShellProps> = ({
 // ── Section ────────────────────────────────────────────────────────────────
 
 export interface SectionProps {
+  id?: string
   icon: React.ReactNode
   title: string
   subtitle?: string
   children: React.ReactNode
 }
 
-export const Section: React.FC<SectionProps> = ({ icon, title, subtitle, children }) => (
-  <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+export const Section: React.FC<SectionProps> = ({ id, icon, title, subtitle, children }) => (
+  <section id={id} className="reader-section">
     <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-3">
       {icon}
       <div>
@@ -66,7 +67,7 @@ export const Section: React.FC<SectionProps> = ({ icon, title, subtitle, childre
       </div>
     </div>
     <div className="px-5 py-4">{children}</div>
-  </div>
+  </section>
 )
 
 // ── InfoCard ───────────────────────────────────────────────────────────────

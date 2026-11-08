@@ -10,6 +10,7 @@ import type { ChildProfile, ParentGuide } from '../types/children'
 const SavedGuidesPage: React.FC = () => {
   const navigate = useNavigate()
   const [selectedChildId, setSelectedChildId] = useState<number | null>(null)
+  const [search, setSearch] = useState('')
   const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(false)
 
   // Fetch children
@@ -55,20 +56,23 @@ const SavedGuidesPage: React.FC = () => {
 
   const guides: ParentGuide[] = guidesData?.guides ?? []
 
+  const visibleGuides = guides.filter(guide => `${guide.topic_title ?? ''} ${guide.subject_name ?? ''}`.toLowerCase().includes(search.toLowerCase()))
+
   const handleGuideClick = (guide: ParentGuide) => {
     navigate(`/guides/generate?child=${guide.child_id}&topic=${guide.topic_id}&guide=${guide.guide_id}`)
   }
 
   return (
-    <div className="flex min-h-screen bg-background-50">
-      <Sidebar currentPage="lesson-resources" />
+    <div className="new-screen screen-guides flex min-h-screen bg-background-50">
+      <Sidebar currentPage="saved-guides" />
 
       <main id="main-content" tabIndex={-1} className="flex-1 lg:ml-64 pb-20 lg:pb-0 outline-none">
         {/* Top bar */}
-        <div className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
+        <div className="screen-page-header">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl lg:text-2xl font-bold text-primary-800">Saved Guides</h1>
+            <div><h1>Saved Guides</h1><p className="screen-description">A little library of ideas to return to, whenever you need them.</p></div>
             <button
+              aria-pressed={showBookmarkedOnly}
               onClick={() => setShowBookmarkedOnly(!showBookmarkedOnly)}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
                 showBookmarkedOnly
@@ -83,6 +87,7 @@ const SavedGuidesPage: React.FC = () => {
         </div>
 
         <div className="px-4 sm:px-6 lg:px-8 py-6">
+          <div className="screen-library-tools"><label className="screen-search">Find a guide<input type="search" placeholder="Search topic or subject" value={search} onChange={event => setSearch(event.target.value)} /></label></div>
           {/* Child selector */}
           {loadingChildren ? (
             <div className="flex items-center justify-center py-12">
@@ -133,11 +138,11 @@ const SavedGuidesPage: React.FC = () => {
                 Try again
               </button>
             </div>
-          ) : guides.length === 0 ? (
+          ) : visibleGuides.length === 0 ? (
             <div className="text-center py-16">
               <FaBookOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-600 mb-2">
-                {showBookmarkedOnly ? 'No bookmarked guides yet' : 'No guides yet'}
+                {search ? 'No matching guides' : showBookmarkedOnly ? 'No bookmarked guides yet' : 'No guides yet'}
               </h3>
               <p className="text-gray-400 text-sm mb-4">
                 {showBookmarkedOnly
@@ -154,13 +159,13 @@ const SavedGuidesPage: React.FC = () => {
               )}
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {guides.map(guide => (
+            <div className="screen-library-grid">
+              {visibleGuides.map(guide => (
                 <button
                   key={guide.guide_id}
                   onClick={() => handleGuideClick(guide)}
                   aria-label={`Open "How to Help" guide for ${guide.topic_title || 'Untitled Topic'}${guide.is_bookmarked ? ' (bookmarked)' : ''}`}
-                  className="bg-white border border-gray-200 rounded-xl p-5 text-left hover:border-primary-400 hover:shadow-md transition-all group"
+                  className="screen-book group"
                 >
                   <div className="flex items-start justify-between mb-2">
                     <p className="font-medium text-gray-800 group-hover:text-primary-700 text-sm leading-snug flex-1">
@@ -182,7 +187,7 @@ const SavedGuidesPage: React.FC = () => {
         </div>
       </main>
 
-      <MobileNavigation currentPage="lesson-resources" />
+      <MobileNavigation currentPage="saved-guides" />
     </div>
   )
 }

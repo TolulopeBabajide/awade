@@ -52,7 +52,7 @@ const Modal: React.FC<ModalProps> = ({
             <div className="flex min-h-full items-center justify-center p-4">
                 <div
                     ref={modalRef}
-                    className={`relative w-full ${maxWidth} transform rounded-2xl bg-white p-6 text-left shadow-2xl transition-all border border-white/20`}
+                    className={`screen-modal-panel relative w-full ${maxWidth} transform rounded-2xl bg-white p-6 text-left shadow-2xl transition-all border border-white/20`}
                     role="dialog"
                     aria-modal="true"
                     aria-labelledby="modal-title"
@@ -67,6 +67,7 @@ const Modal: React.FC<ModalProps> = ({
                             )}
                             {showCloseButton && (
                                 <button
+                                    aria-label="Close dialog"
                                     onClick={onClose}
                                     className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-500 transition-colors"
                                 >

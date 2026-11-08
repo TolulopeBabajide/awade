@@ -107,6 +107,8 @@ describe('LessonPlanDetailPage (load)', () => {
     )
     expect(screen.getByText('Understand halves and quarters')).toBeInTheDocument()
     expect(screen.getByText('Fractions as parts of a whole')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Parts of a whole' })).toBeInTheDocument()
+    expect(screen.getByText(/^Ask your class:/)).toBeInTheDocument()
   })
 
   it('shows 403 error message when permission is denied', async () => {

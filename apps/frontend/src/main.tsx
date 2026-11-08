@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Analytics } from '@vercel/analytics/react'
 import App from './App.tsx'
 import './index.css'
+import './styles/learning.css'
+import './styles/screens.css'
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { googleAuthClientId, isGoogleAuthConfigured } from './components/ResponsiveGoogleLogin';
 

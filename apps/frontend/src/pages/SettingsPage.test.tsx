@@ -336,7 +336,7 @@ describe('SettingsPage', () => {
       fireEvent.click(screen.getByText('Language'))
       await waitFor(() => {
         expect(screen.getByText('Language Settings')).toBeTruthy()
-        expect(screen.getByText('Language settings will be implemented here.')).toBeTruthy()
+        expect(screen.getByText('Awade currently supports English. More languages will appear here when available.')).toBeTruthy()
       })
     })
   })
